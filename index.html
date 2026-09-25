@@ -251,6 +251,41 @@
       border: 0;
     }
 
+    .video-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      background: #000;
+    }
+
+    .video-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-preview::after {
+      content: "▶";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 66px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.5rem;
+      background: rgba(255,0,0,.92);
+      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    }
+
     .video-meta {
       margin-top: 18px;
       text-align: left;
@@ -390,7 +425,9 @@
           <h3>Recensioni</h3>
           <p>Qui trovi recensioni su tecnologia, videogiochi, gadget e accessori. Pareri diretti e focus sull’esperienza d’uso reale.</p>
           <div class="video-wrap" style="margin-top:18px;">
-            <iframe src="https://www.youtube-nocookie.com/embed/hp6JW2xqa9Y?playsinline=1&rel=0" title="Videorecensione Tech ZazoomTek" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <button class="video-preview" type="button" data-video="hp6JW2xqa9Y" aria-label="Riproduci videorecensione ZazoomTek" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg" alt="videorecensione ZazoomTek" loading="lazy">
+            </button>
           </div>
           <div class="video-meta">
             <h3 style="font-size:1.05rem;">Ultima videorecensione tech</h3>
@@ -402,7 +439,9 @@
           <h3>Test</h3>
           <p>Qui testiamo gli ultimi gadget, novità hi-tech più interessanti e oggetti di ogni tipo, analizzando la loro funzione nell'uso quotidiano.</p>
           <div class="video-wrap" style="margin-top:18px;">
-            <iframe src="https://www.youtube-nocookie.com/embed/sIVIpovtr6E?playsinline=1&rel=0" title="Short Test ZazoomTek" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <button class="video-preview" type="button" data-video="sIVIpovtr6E" aria-label="Riproduci test ZazoomTek" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="test ZazoomTek" loading="lazy">
+            </button>
           </div>
           <div class="video-meta">
             <h3 style="font-size:1.05rem;">Ultimo Test</h3>
@@ -414,7 +453,9 @@
           <h3>Unboxing</h3>
           <p>Apertura delle confezioni, contenuto, prime impressioni e panoramica iniziale dei prodotti appena arrivati.</p>
           <div class="video-wrap" style="margin-top:18px;">
-            <iframe src="https://www.youtube-nocookie.com/embed/PV6JenVnwTo?playsinline=1&rel=0" title="Short Unboxing ZazoomTek" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <button class="video-preview" type="button" data-video="PV6JenVnwTo" aria-label="Riproduci unboxing ZazoomTek" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="unboxing ZazoomTek" loading="lazy">
+            </button>
           </div>
           <div class="video-meta">
             <h3 style="font-size:1.05rem;">Ultimo Unboxing</h3>
@@ -426,7 +467,9 @@
           <h3>Gaming</h3>
           <p>Trailer, video e gameplay, ma non solo: anche gadget, accessori, ecc. Tutto quello che un vero gamer deve sapere!</p>
           <div class="video-wrap" style="margin-top:18px;">
-            <iframe src="https://www.youtube-nocookie.com/embed/bC-VdBWXGw4?playsinline=1&rel=0" title="Video Gaming ZazoomTek" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <button class="video-preview" type="button" data-video="bC-VdBWXGw4" aria-label="Riproduci video gaming ZazoomTek" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg" alt="video gaming ZazoomTek" loading="lazy">
+            </button>
           </div>
           <div class="video-meta">
             <h3 style="font-size:1.05rem;">Ultimo video Gaming</h3>
@@ -459,5 +502,17 @@
   <footer>
     © 2026 ZazoomTek · Tecnologia e gaming solo per veri appassionati.
   </footer>
+
+  <script>
+    function playVideo(button) {
+      const videoId = button.dataset.video;
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&playsinline=1&rel=0';
+      iframe.title = button.getAttribute('aria-label') || 'Video ZazoomTek';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      button.replaceWith(iframe);
+    }
+  </script>
 </body>
 </html>
