@@ -168,7 +168,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 18px;
     }
 
@@ -267,6 +267,10 @@
       font-size: .92rem;
     }
 
+    @media (max-width: 950px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 700px) {
       .nav-links { display: none; }
       .hero { padding: 74px 0 54px; }
@@ -317,6 +321,11 @@
             <h3 style="font-size:1.05rem;">Ultima videorecensione tech</h3>
             <p><a href="https://youtu.be/hp6JW2xqa9Y" target="_blank" rel="noopener">Guarda su YouTube ↗</a></p>
           </div>
+        </article>
+        <article class="card">
+          <div class="icon">🧪</div>
+          <h3>Test</h3>
+          <p>Prove pratiche, prestazioni, autonomia, rete, audio e utilizzo reale dei prodotti.</p>
         </article>
         <article class="card">
           <div class="icon">🎮</div>
