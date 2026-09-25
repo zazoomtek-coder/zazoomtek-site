@@ -295,6 +295,33 @@
     .video-meta h3 { margin: 0 0 8px; font-size: 1.35rem; }
     .video-meta p { margin: 0; color: var(--muted); }
 
+    .social-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #f7f7fb;
+      font-weight: 700;
+      transition: transform .2s, border-color .2s, background .2s;
+    }
+
+    .social-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,118,0,.55);
+      background: rgba(255,255,255,.09);
+    }
+
     footer {
       padding: 30px 0;
       text-align: center;
@@ -421,7 +448,14 @@
   </main>
 
   <footer>
-    © 2026 ZazoomTek · Tecnologia e gaming solo per veri appassionati.
+    <div class="container">
+      <div class="social-links">
+        <a class="social-link" href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">▶ YouTube</a>
+        <a class="social-link" href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">🎵 TikTok</a>
+        <a class="social-link" href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">❤️ Patreon</a>
+      </div>
+      <div>© 2026 ZazoomTek · Tecnologia e gaming solo per veri appassionati.</div>
+    </div>
   </footer>
 
   <script>
