@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZazoomTek | Tecnologia e gaming</title>
+  <meta name="description" content="ZazoomTek: tecnologia e gaming solo per veri appassionati. Recensioni, unboxing, gameplay e news.">
+  <style>
+    :root {
+      --bg: #090a10;
+      --card: #141622;
+      --text: #f7f7fb;
+      --muted: #aeb2c4;
+      --orange: #ff7600;
+      --red: #ee255d;
+      --blue: #388cff;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 5%, rgba(56,140,255,.20), transparent 26rem),
+        radial-gradient(circle at 10% 20%, rgba(238,37,93,.16), transparent 26rem),
+        var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(1120px, calc(100% - 40px));
+      margin: auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(9,10,16,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    nav {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      font-weight: 900;
+      background: linear-gradient(135deg, #1677ff, #10162a 48%, #f2264c);
+      border: 2px solid rgba(255,255,255,.25);
+      box-shadow: 0 0 22px rgba(56,140,255,.45);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .nav-links a:hover { color: white; }
+
+    .hero {
+      padding: 100px 0 78px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: #ffd4b5;
+      border: 1px solid rgba(255,118,0,.45);
+      background: rgba(255,118,0,.12);
+      border-radius: 99px;
+      padding: 8px 14px;
+      font-size: .86rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 20px auto 16px;
+      font-size: clamp(2.6rem, 8vw, 5.9rem);
+      line-height: .98;
+      letter-spacing: -3px;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, #ffad00, #ff5900, #ee255d, #548dff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 660px;
+      margin: auto;
+      color: var(--muted);
+      font-size: 1.18rem;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-weight: 800;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .primary {
+      color: white;
+      background: linear-gradient(120deg, var(--orange), var(--red));
+    }
+
+    .secondary {
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.06);
+    }
+
+    section { padding: 74px 0; }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+    }
+
+    .section-text {
+      margin: 0 0 30px;
+      color: var(--muted);
+      max-width: 700px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      padding: 26px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(31,34,52,.96), rgba(15,16,25,.96));
+      border: 1px solid rgba(255,255,255,.09);
+      transition: transform .2s, border-color .2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,118,0,.6);
+    }
+
+    .icon { font-size: 2rem; }
+    .card h3 { margin: 14px 0 8px; font-size: 1.3rem; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .about {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .about-box {
+      padding: 38px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(56,140,255,.18), rgba(238,37,93,.16));
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .about-box p { color: #d7d9e3; font-size: 1.07rem; }
+
+    .quote {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 38px;
+      text-align: center;
+      border-radius: 24px;
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      font-weight: 800;
+      background: linear-gradient(145deg, #ff7600, #e82b56);
+    }
+
+    .latest {
+      padding: 34px;
+      text-align: center;
+      border-radius: 24px;
+      background: #11131e;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .latest p { color: var(--muted); }
+
+    footer {
+      padding: 30px 0;
+      text-align: center;
+      color: #9297aa;
+      border-top: 1px solid rgba(255,255,255,.08);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .hero { padding: 74px 0 54px; }
+      h1 { letter-spacing: -2px; }
+      .grid, .about { grid-template-columns: 1fr; }
+      .about-box, .quote { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <a class="brand" href="#home" aria-label="ZazoomTek Home">
+        <span class="logo">ZT</span>
+        <span>ZazoomTek</span>
+      </a>
+      <div class="nav-links">
+        <a href="#contenuti">Contenuti</a>
+        <a href="#chi-sono">Chi sono</a>
+        <a href="https://www.youtube.com/@ZazoomTek" target="_blank">YouTube</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container" id="home">
+      <span class="eyebrow">TECH • GAMING • COMMUNITY</span>
+      <h1>Benvenuto su <span>ZazoomTek</span></h1>
+      <p>Tecnologia e gaming solo per veri appassionati: recensioni, unboxing, gameplay, novità e opinioni senza giri di parole.</p>
+      <div class="buttons">
+        <a class="button primary" href="https://www.youtube.com/@ZazoomTek" target="_blank">▶ Guarda il canale YouTube</a>
+        <a class="button secondary" href="#contenuti">Scopri i contenuti</a>
+      </div>
+    </section>
+
+    <section class="container" id="contenuti">
+      <h2 class="section-title">Cosa trovi su ZazoomTek</h2>
+      <p class="section-text">Passione, esperienza e curiosità per raccontare il mondo tech e gaming in modo diretto.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="icon">📱</div>
+          <h3>Recensioni Tech</h3>
+          <p>Smartphone, accessori, rete, audio, PC e dispositivi da provare davvero nell’uso quotidiano.</p>
+        </article>
+        <article class="card">
+          <div class="icon">🎮</div>
+          <h3>Gaming</h3>
+          <p>Gameplay, recensioni e news su PS5, Xbox, PC e sulle uscite più interessanti del momento.</p>
+        </article>
+        <article class="card">
+          <div class="icon">📦</div>
+          <h3>Unboxing & News</h3>
+          <p>Prime impressioni, prodotti appena arrivati e aggiornamenti per rimanere sempre informati.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="container" id="chi-sono">
+      <div class="about">
+        <div class="about-box">
+          <h2 class="section-title">Il progetto</h2>
+          <p>ZazoomTek è il canale dedicato agli appassionati di tecnologia e videogiochi. Qui ogni prodotto e ogni gioco diventano un’occasione per capire cosa funziona davvero e per chi è pensato.</p>
+          <a class="button secondary" href="https://www.youtube.com/@ZazoomTek" target="_blank">Visita ZazoomTek su YouTube</a>
+        </div>
+        <div class="quote">“Tecnologia e gaming solo per veri appassionati.”</div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="latest">
+        <h2 class="section-title">Non perdere i prossimi video</h2>
+        <p>Iscriviti al canale YouTube ZazoomTek e attiva la campanella per recensioni, unboxing, gameplay e news.</p>
+        <a class="button primary" href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank">▶ Iscriviti a ZazoomTek</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 ZazoomTek · Tecnologia e gaming solo per veri appassionati.
+  </footer>
+</body>
+</html>
