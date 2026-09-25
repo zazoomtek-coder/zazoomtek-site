@@ -259,6 +259,60 @@
     .video-meta h3 { margin: 0 0 8px; font-size: 1.35rem; }
     .video-meta p { margin: 0; color: var(--muted); }
 
+    .news-cover {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      margin-top: 18px;
+      overflow: hidden;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(56,140,255,.55), transparent 30%),
+        radial-gradient(circle at 80% 25%, rgba(238,37,93,.55), transparent 32%),
+        linear-gradient(135deg, #10162a, #1b1120 52%, #151827);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+
+    .news-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.08) 50%, transparent 80%);
+    }
+
+    .news-cover-inner {
+      position: relative;
+      z-index: 1;
+      padding: 20px;
+    }
+
+    .news-cover-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    .news-cover-title {
+      margin-top: 10px;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .news-cover-subtitle {
+      margin-top: 8px;
+      color: #d9dbea;
+      font-size: .95rem;
+    }
+
     footer {
       padding: 30px 0;
       text-align: center;
@@ -316,7 +370,16 @@
           <div class="icon">📰</div>
           <h3>News</h3>
           <p>Novità, annunci e aggiornamenti dal mondo della tecnologia e del gaming.</p>
-          <div class="video-meta" style="margin-top:18px;">
+          <a href="https://www.youtube.com/post/Ugkxyhx4I51LC60h48FfqKTXu_DPKxaVf5Rs" target="_blank" rel="noopener" aria-label="Apri l'ultima news di ZazoomTek">
+            <div class="news-cover">
+              <div class="news-cover-inner">
+                <span class="news-cover-badge">ZAZOOMTEK COMMUNITY</span>
+                <div class="news-cover-title">ULTIMA NEWS</div>
+                <div class="news-cover-subtitle">Tecnologia • Gaming • Aggiornamenti</div>
+              </div>
+            </div>
+          </a>
+          <div class="video-meta">
             <h3 style="font-size:1.05rem;">Ultima News</h3>
             <p>Nuovo post pubblicato nella Community di ZazoomTek.</p>
             <a class="button secondary" style="margin-top:14px;" href="https://www.youtube.com/post/Ugkxyhx4I51LC60h48FfqKTXu_DPKxaVf5Rs" target="_blank" rel="noopener">Apri la News</a>
