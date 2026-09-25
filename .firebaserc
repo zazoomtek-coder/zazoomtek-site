@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "zazomtek"
+  },
+  "targets": {
+    "zazomtek": {
+      "hosting": {
+        "zazoomtek": [
+          "zazoomtek"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
