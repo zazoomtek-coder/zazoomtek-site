@@ -199,25 +199,37 @@ header{
 .recent-copy h3{margin:0;font-size:.9rem;line-height:1.3}
 .recent-copy p{margin:4px 0 0;color:#8592a7;font-size:.72rem}
 .analogic-box{
-  margin-top:28px;padding:28px;border-radius:20px;
+  margin-top:28px;padding:24px;border-radius:20px;
   background:
     radial-gradient(circle at 85% 20%,rgba(255,186,73,.14),transparent 22rem),
     linear-gradient(135deg,rgba(30,34,40,.98),rgba(13,18,25,.98));
   border:1px solid rgba(255,205,126,.22);
   box-shadow:0 18px 42px rgba(0,0,0,.2)
 }
+.analogic-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:14px}
 .analogic-box .label{
   display:inline-block;padding:5px 9px;border-radius:999px;
   background:rgba(255,190,92,.1);border:1px solid rgba(255,190,92,.3);
   color:#ffd18a;font-size:.68rem;font-weight:900;text-transform:uppercase
 }
-.analogic-box h2{margin:10px 0 8px;font-size:clamp(1.7rem,3vw,2.5rem)}
-.analogic-box p{margin:0;max-width:900px;color:#c6cbd3;font-size:.95rem;line-height:1.5}
-.analogic-box a{
-  display:inline-block;margin-top:16px;padding:10px 15px;border-radius:10px;
+.analogic-box h2{margin:9px 0 6px;font-size:clamp(1.7rem,3vw,2.5rem)}
+.analogic-box p{margin:0;max-width:900px;color:#c6cbd3;font-size:.9rem;line-height:1.45}
+.analogic-link{
+  display:inline-block;white-space:nowrap;padding:9px 13px;border-radius:10px;
   background:linear-gradient(135deg,#ffd18a,#ff9f43);
-  color:#18120a;font-weight:900;font-size:.82rem
+  color:#18120a;font-weight:900;font-size:.78rem
 }
+.analogic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.analogic-card{
+  overflow:hidden;border-radius:14px;background:#0b1119;
+  border:1px solid rgba(255,205,126,.16)
+}
+.analogic-card a{display:block}
+.analogic-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.analogic-card h3{margin:0;padding:9px 10px 10px;font-size:.78rem;line-height:1.25;color:#f5f7fb}
+@media(max-width:1100px){.analogic-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.analogic-head{align-items:flex-start;flex-direction:column}.analogic-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.analogic-grid{grid-template-columns:1fr}}
 footer{
   margin-top:42px;border-top:1px solid rgba(255,255,255,.07);
   padding:26px 0 34px;color:#7f8ba0;text-align:center;font-size:.82rem
@@ -539,10 +551,47 @@ footer{
 
 
   <section class="analogic-box" id="analogictek">
-    <span class="label">Sezione speciale</span>
-    <h2>AnalogicTek</h2>
-    <p>Qui la tecnologia incontra l'analogico. Solo gadget, strumenti e oggetti che non hanno bisogno di elettricità per emozionare e stupire ogni giorno!</p>
-    <a href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">Scopri AnalogicTek su YouTube →</a>
+    <div class="analogic-head">
+      <div>
+        <span class="label">Sezione speciale</span>
+        <h2>AnalogicTek</h2>
+        <p>Qui la tecnologia incontra l'analogico. Solo gadget, strumenti e oggetti che non hanno bisogno di elettricità per emozionare e stupire ogni giorno!</p>
+      </div>
+      <a class="analogic-link" href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">Vedi tutta la playlist →</a>
+    </div>
+
+    <div class="analogic-grid">
+      <article class="analogic-card">
+        <a href="https://www.youtube.com/watch?v=An2RZr9_Cxs&list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">
+          <img src="https://i.ytimg.com/vi/An2RZr9_Cxs/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/An2RZr9_Cxs/hqdefault.jpg'" alt="Nintendo 64: il catalogo GIG del 1997" loading="lazy">
+          <h3>Nintendo 64: il catalogo GIG del 1997</h3>
+        </a>
+      </article>
+      <article class="analogic-card">
+        <a href="https://www.youtube.com/watch?v=edSn0pFu5O0&list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">
+          <img src="https://i.ytimg.com/vi/edSn0pFu5O0/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/edSn0pFu5O0/hqdefault.jpg'" alt="Catalogo ufficiale PlayStation Hardware e Software 2010" loading="lazy">
+          <h3>Catalogo PlayStation Hardware e Software 2010</h3>
+        </a>
+      </article>
+      <article class="analogic-card">
+        <a href="https://www.youtube.com/watch?v=TdpSn2Le_ew&list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">
+          <img src="https://i.ytimg.com/vi/TdpSn2Le_ew/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/TdpSn2Le_ew/hqdefault.jpg'" alt="Calendario Planet Hollywood 1999 da collezione" loading="lazy">
+          <h3>Calendario Planet Hollywood 1999 da collezione</h3>
+        </a>
+      </article>
+      <article class="analogic-card">
+        <a href="https://www.youtube.com/watch?v=7W7nRlbBPWM&list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">
+          <img src="https://i.ytimg.com/vi/7W7nRlbBPWM/sddefault.jpg" onerror="this.src='https://i.ytimg.com/vi/7W7nRlbBPWM/hqdefault.jpg'" alt="Funko Pop Grogu con Armatura Mudhorn" loading="lazy">
+          <h3>Funko Pop! Grogu con Armatura Mudhorn</h3>
+        </a>
+      </article>
+      <article class="analogic-card">
+        <a href="https://www.youtube.com/watch?v=nF6BE8iUk2g&list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">
+          <img src="https://i.ytimg.com/vi/nF6BE8iUk2g/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/nF6BE8iUk2g/hqdefault.jpg'" alt="Yu-Gi-Oh! Collezione Rarità 5 Unboxing" loading="lazy">
+          <h3>Yu-Gi-Oh! Collezione Rarità 5 – Unboxing</h3>
+        </a>
+      </article>
+    </div>
   </section>
 
 </main>
