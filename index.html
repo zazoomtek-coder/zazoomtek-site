@@ -1,284 +1,216 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZazoomTek | Tecnologia, Gaming, Recensioni e Unboxing</title>
-  <meta name="description" content="ZazoomTek: tecnologia, gaming, recensioni, test e unboxing. Tutti i video in Home e le ultime news dalla community.">
-  <style>
-    :root{
-      --bg:#06101d;
-      --panel:#0b1626;
-      --panel2:#101d30;
-      --line:rgba(111,148,204,.24);
-      --text:#f7f9ff;
-      --muted:#9ca9bd;
-      --pink:#ff2f89;
-      --purple:#a443ff;
-      --cyan:#20d9ff;
-      --blue:#2588ff;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      color:var(--text);
-      font-family:Arial,Helvetica,sans-serif;
-      background:
-        radial-gradient(circle at 8% 0%,rgba(174,38,255,.13),transparent 26rem),
-        radial-gradient(circle at 92% 12%,rgba(24,144,255,.12),transparent 30rem),
-        linear-gradient(180deg,#07111f 0%,#06101d 52%,#050b14 100%);
-      min-height:100vh;
-    }
-    a{color:inherit;text-decoration:none}
-    button{font:inherit}
-    .shell{width:min(1540px,calc(100% - 36px));margin:auto}
-    header{
-      position:sticky;top:0;z-index:50;
-      background:rgba(5,13,24,.92);
-      backdrop-filter:blur(15px);
-      border-bottom:1px solid rgba(255,255,255,.07)
-    }
-    .topbar{
-      min-height:82px;
-      display:grid;
-      grid-template-columns:auto 1fr auto;
-      align-items:center;
-      gap:28px
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:52px;height:52px;border-radius:17px;
-      display:grid;place-items:center;
-      font-size:1rem;font-weight:900;
-      background:linear-gradient(145deg,#10b7ff,#182d54 52%,#ff2f89);
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow:0 0 28px rgba(39,151,255,.22)
-    }
-    .brand-copy strong{
-      display:block;
-      font-size:clamp(1.65rem,2.8vw,2.55rem);
-      line-height:.95;
-      letter-spacing:-1.8px
-    }
-    .brand-copy strong span{
-      background:linear-gradient(90deg,#fff 0 58%,#26c9ff 84%,#2a8cff);
-      -webkit-background-clip:text;background-clip:text;color:transparent
-    }
-    .brand-copy small{
-      display:block;margin-top:6px;color:#aab5c8;
-      font-size:.62rem;font-weight:800;letter-spacing:.08em
-    }
-    .nav{
-      display:flex;justify-content:center;gap:8px;flex-wrap:wrap
-    }
-    .nav a{
-      padding:11px 16px;
-      border-radius:12px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.055);
-      color:#eaf0fb;
-      font-weight:800;font-size:.9rem;
-      transition:.2s
-    }
-    .nav a:hover,.nav a.active{
-      background:linear-gradient(135deg,#1c9eff,#2373ff);
-      border-color:rgba(75,170,255,.65);
-      box-shadow:0 8px 28px rgba(27,126,255,.18);
-      transform:translateY(-1px)
-    }
-    .social-top{display:flex;gap:9px;align-items:center}
-    .social-top a{
-      width:38px;height:38px;border-radius:50%;
-      display:grid;place-items:center;
-      background:#111c2c;border:1px solid rgba(255,255,255,.08);
-      font-size:.92rem;font-weight:900
-    }
-    .hero{
-      padding:26px 0 16px;
-      display:flex;align-items:end;justify-content:space-between;gap:20px
-    }
-    .hero h1{margin:0;font-size:clamp(1.65rem,3vw,2.5rem);letter-spacing:-.8px}
-    .hero p{margin:6px 0 0;color:var(--muted);font-size:.98rem}
-    .layout{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 430px;
-      gap:22px;
-      align-items:start;
-      padding-bottom:44px
-    }
-    .content{display:grid;gap:14px;min-width:0}
-    .panel{
-      border-radius:18px;
-      background:linear-gradient(180deg,rgba(10,22,38,.98),rgba(6,15,27,.99));
-      border:1px solid var(--line);
-      box-shadow:0 16px 40px rgba(0,0,0,.18);
-      overflow:hidden
-    }
-    .panel-head{
-      padding:15px 18px 10px;
-      display:flex;align-items:center;justify-content:space-between;gap:16px
-    }
-    .panel-title{display:flex;align-items:center;gap:11px;min-width:0}
-    .panel-icon{
-      width:38px;height:38px;border-radius:11px;
-      display:grid;place-items:center;
-      font-size:1.25rem;
-      background:linear-gradient(135deg,rgba(255,47,137,.20),rgba(31,163,255,.16));
-      border:1px solid rgba(255,255,255,.08)
-    }
-    .panel-title h2{margin:0;font-size:1.34rem;letter-spacing:-.35px}
-    .panel-title p{margin:2px 0 0;color:var(--muted);font-size:.76rem}
-    .see-all{
-      flex:0 0 auto;
-      padding:8px 13px;border-radius:999px;
-      border:1px solid rgba(32,217,255,.48);
-      color:#71e7ff;background:rgba(15,192,255,.06);
-      font-size:.78rem;font-weight:900
-    }
-    .video-row{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;padding:0 18px 18px
-    }
-    .video-card{min-width:0}
-    .thumb{
-      position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;
-      border:1px solid rgba(255,255,255,.06)
-    }
-    .video-preview{
-      position:absolute;inset:0;width:100%;height:100%;
-      padding:0;border:0;background:#000;cursor:pointer
-    }
-    .video-preview img{width:100%;height:100%;object-fit:cover;display:block;transition:.25s}
-    .video-card:hover .video-preview img{transform:scale(1.035)}
-    .video-preview:after{
-      content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-      width:48px;height:36px;border-radius:10px;display:grid;place-items:center;
-      color:#fff;background:rgba(255,0,0,.92);font-size:1rem;
-      box-shadow:0 8px 22px rgba(0,0,0,.42)
-    }
-    .thumb iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-    .video-title{margin:8px 1px 0;font-size:.89rem;font-weight:900;line-height:1.25}
-    .video-date{margin:3px 1px 0;color:#7f8da3;font-size:.72rem}
-    .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .bottom-grid .video-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .news{
-      position:sticky;top:102px;
-      border-radius:19px;overflow:hidden;
-      background:
-        linear-gradient(180deg,rgba(15,21,39,.98),rgba(8,15,29,.99)) padding-box,
-        linear-gradient(135deg,#ff2f89,#8b4cff 46%,#16b8ff) border-box;
-      border:1px solid transparent;
-      box-shadow:0 18px 54px rgba(0,0,0,.28)
-    }
-    .news:before{
-      content:"";display:block;height:3px;
-      background:linear-gradient(90deg,#ff2f89,#8b4cff,#16b8ff)
-    }
-    .news-head{
-      padding:18px 18px 14px;
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      border-bottom:1px solid rgba(255,255,255,.07)
-    }
-    .news-title{display:flex;align-items:center;gap:11px}
-    .news-title-icon{
-      width:40px;height:40px;border-radius:12px;
-      display:grid;place-items:center;
-      background:rgba(255,47,137,.16);border:1px solid rgba(255,47,137,.24);
-      color:#ff6bb1;font-size:1.2rem
-    }
-    .news-title h2{margin:0;font-size:1.5rem}
-    .news-head a{
-      padding:8px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.18);
-      color:#eef4ff;font-size:.75rem;font-weight:900
-    }
-    .news-list{padding:10px 12px 14px;display:grid;gap:10px}
-    .news-item{
-      display:grid;
-      grid-template-columns:118px minmax(0,1fr);
-      gap:12px;
-      padding:10px;
-      border-radius:15px;
-      background:rgba(255,255,255,.025);
-      border:1px solid rgba(255,255,255,.055);
-      transition:.2s
-    }
-    .news-item:hover{
-      background:rgba(255,255,255,.05);
-      border-color:rgba(88,167,255,.22);
-      transform:translateY(-1px)
-    }
-    .news-art{
-      width:118px;aspect-ratio:16/10;border-radius:11px;
-      display:flex;align-items:flex-end;padding:10px;
-      overflow:hidden;position:relative;
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:inset 0 -30px 50px rgba(0,0,0,.28)
-    }
-    .news-art:after{
-      content:"";position:absolute;inset:0;
-      background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.58));
-      pointer-events:none
-    }
-    .news-art span{position:relative;z-index:1;font-size:.68rem;font-weight:900;letter-spacing:.04em;color:#fff}
-    .art-gta{background:linear-gradient(145deg,#e30020,#ff4a27 38%,#4d9bc6 39%,#6db3d1 100%)}
-    .art-waltz{background:linear-gradient(145deg,#19bea9,#ffe83b 52%,#ff79c3 100%)}
-    .art-pubg{background:linear-gradient(145deg,#d31035,#ef315d 55%,#2d405f)}
-    .news-copy{min-width:0}
-    .news-meta{display:flex;align-items:center;gap:8px;margin-bottom:5px;color:#7f8ba1;font-size:.68rem;font-weight:800;text-transform:uppercase}
-    .news-badge{padding:3px 7px;border-radius:999px;background:rgba(36,137,255,.14);border:1px solid rgba(55,151,255,.24);color:#8fc9ff}
-    .news-copy h3{margin:0;font-size:.92rem;line-height:1.25;letter-spacing:-.12px}
-    .news-copy p{margin:6px 0 0;color:#96a3b8;font-size:.78rem;line-height:1.35}
-    .news-placeholder{
-      min-height:350px;
-      display:grid;place-items:center;text-align:center;
-      padding:28px;color:#8f9bb0;
-      border-radius:15px;
-      background:
-        radial-gradient(circle at 50% 0%,rgba(255,47,137,.09),transparent 46%),
-        rgba(255,255,255,.02);
-      border:1px dashed rgba(255,255,255,.09)
-    }
-    .news-placeholder strong{display:block;color:#edf2fb;font-size:1.02rem;margin-bottom:6px}
-    footer{
-      border-top:1px solid rgba(255,255,255,.07);
-      padding:26px 0 34px;color:#7f8ba0;text-align:center;font-size:.82rem
-    }
-    .footer-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-    .footer-links a{padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:#d4dbea}
-    @media(max-width:1180px){
-      .topbar{grid-template-columns:auto 1fr}.social-top{display:none}
-      .layout{grid-template-columns:1fr 340px}
-      .video-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .bottom-grid{grid-template-columns:1fr}
-    }
-    @media(max-width:900px){
-      .topbar{grid-template-columns:1fr}.brand{justify-content:center}.nav{padding-bottom:12px}
-      .layout{grid-template-columns:1fr}.news{position:static;order:2}.content{order:1}
-      .news-placeholder{min-height:180px}
-      .news-item{grid-template-columns:104px minmax(0,1fr)}
-      .news-art{width:104px}
-    }
-    @media(max-width:620px){
-      .shell{width:min(100% - 22px,1540px)}
-      .hero{padding-top:18px}
-      .nav a{padding:9px 10px;font-size:.77rem}
-      .video-row,.bottom-grid .video-row{grid-template-columns:1fr}
-      .panel-head{align-items:flex-start}
-      .brand-copy small{display:none}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZazoomTek | Tecnologia, Gaming, Recensioni e Unboxing</title>
+<meta name="description" content="ZazoomTek: tecnologia, gaming, recensioni, test, unboxing e news in un'unica Home.">
+<style>
+:root{
+  --bg:#06101d;
+  --panel:#0b1626;
+  --panel2:#101d30;
+  --line:rgba(111,148,204,.24);
+  --text:#f7f9ff;
+  --muted:#9ca9bd;
+  --pink:#ff2f89;
+  --purple:#a443ff;
+  --cyan:#20d9ff;
+  --blue:#2588ff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--text);font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(174,38,255,.13),transparent 26rem),
+    radial-gradient(circle at 92% 12%,rgba(24,144,255,.12),transparent 30rem),
+    linear-gradient(180deg,#07111f 0%,#06101d 52%,#050b14 100%);
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+.shell{width:min(1420px,calc(100% - 36px));margin:auto}
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(5,13,24,.92);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.07)
+}
+.topbar{
+  min-height:78px;
+  display:grid;grid-template-columns:auto 1fr auto;
+  align-items:center;gap:24px
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:50px;height:50px;border-radius:16px;display:grid;place-items:center;
+  font-weight:900;
+  background:linear-gradient(145deg,#10b7ff,#182d54 52%,#ff2f89);
+  border:1px solid rgba(255,255,255,.18)
+}
+.brand-copy strong{
+  display:block;font-size:clamp(1.55rem,2.7vw,2.35rem);
+  line-height:.95;letter-spacing:-1.5px
+}
+.brand-copy strong span{
+  background:linear-gradient(90deg,#fff 0 58%,#26c9ff 84%,#2a8cff);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.brand-copy small{
+  display:block;margin-top:5px;color:#aab5c8;
+  font-size:.6rem;font-weight:800;letter-spacing:.08em
+}
+.nav{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
+.nav a{
+  padding:10px 14px;border-radius:11px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.055);
+  font-size:.88rem;font-weight:800
+}
+.nav a:hover,.nav a.active{
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  color:#04101c
+}
+.social-top{display:flex;gap:8px}
+.social-top a{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:#111c2c;border:1px solid rgba(255,255,255,.08);
+  font-size:.82rem;font-weight:900
+}
+.intro{padding:26px 0 14px}
+.intro h1{margin:0;font-size:clamp(1.7rem,3vw,2.55rem);letter-spacing:-.8px}
+.intro p{margin:6px 0 0;color:var(--muted)}
+.section-title{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  margin:28px 0 12px
+}
+.section-title h2{margin:0;font-size:1.42rem}
+.section-title p{margin:3px 0 0;color:var(--muted);font-size:.88rem}
+.section-title a{color:#75e8ff;font-size:.8rem;font-weight:900}
+.featured{
+  display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,.8fr);gap:16px
+}
+.feature-main,.feature-side{
+  border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(11,22,38,.98),rgba(6,15,27,.99));
+  box-shadow:0 18px 48px rgba(0,0,0,.22)
+}
+.feature-main{position:relative}
+.feature-main .media{aspect-ratio:16/8.8}
+.feature-side{display:grid;grid-template-rows:1fr 1fr;gap:0}
+.feature-side article{padding:12px}
+.feature-side article+article{border-top:1px solid rgba(255,255,255,.07)}
+.feature-side .media{aspect-ratio:16/8.8}
+.media{position:relative;background:#000;overflow:hidden}
+.media button{
+  position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#000;cursor:pointer
+}
+.media img{width:100%;height:100%;object-fit:cover;display:block;transition:.25s}
+.media:hover img{transform:scale(1.025)}
+.media button:after{
+  content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:58px;height:42px;border-radius:11px;display:grid;place-items:center;
+  color:white;background:rgba(255,0,0,.92);box-shadow:0 8px 22px rgba(0,0,0,.42)
+}
+.media iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.feature-copy{padding:16px 18px}
+.feature-copy .tag,.category-tag{
+  display:inline-block;padding:5px 9px;border-radius:999px;
+  background:rgba(32,217,255,.10);border:1px solid rgba(32,217,255,.28);
+  color:#8aeaff;font-size:.68rem;font-weight:900;text-transform:uppercase
+}
+.feature-copy h3{margin:9px 0 4px;font-size:1.2rem}
+.feature-copy p{margin:0;color:var(--muted);font-size:.86rem}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.news-card{
+  min-height:150px;border-radius:18px;padding:18px;
+  background:
+    linear-gradient(145deg,rgba(17,29,48,.98),rgba(8,17,30,.98)) padding-box,
+    linear-gradient(135deg,var(--pink),var(--purple),var(--cyan)) border-box;
+  border:1px solid transparent;
+  box-shadow:0 15px 36px rgba(0,0,0,.18)
+}
+.news-meta{display:flex;gap:8px;align-items:center;color:#8d99ad;font-size:.69rem;font-weight:800;text-transform:uppercase}
+.news-meta span:first-child{color:#8fd7ff}
+.news-card h3{margin:10px 0 7px;font-size:1rem;line-height:1.3}
+.news-card p{margin:0;color:#9ca9bd;font-size:.82rem;line-height:1.42}
+.news-card .read{display:inline-block;margin-top:12px;color:#71e7ff;font-weight:900;font-size:.78rem}
+.category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.category-box{
+  position:relative;min-height:260px;border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);background:#0c1828
+}
+.category-box img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:brightness(.54) saturate(1.08)
+}
+.category-box:after{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(4,10,18,.88) 0%,rgba(4,10,18,.52) 46%,rgba(4,10,18,.18) 100%),
+    linear-gradient(180deg,transparent 45%,rgba(4,10,18,.45))
+}
+.category-content{
+  position:relative;z-index:2;max-width:56%;padding:26px
+}
+.category-content h3{margin:10px 0 8px;font-size:1.55rem}
+.category-content p{margin:0;color:#c2cad8;font-size:.9rem;line-height:1.45}
+.category-content a{
+  display:inline-block;margin-top:16px;padding:10px 15px;border-radius:10px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  color:#04101c;font-weight:900;font-size:.82rem
+}
+.recent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.recent-card{
+  border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#0f1b2d,#091322);
+  border:1px solid rgba(255,255,255,.07)
+}
+.recent-card .media{aspect-ratio:16/9}
+.recent-copy{padding:12px}
+.recent-copy h3{margin:0;font-size:.9rem;line-height:1.3}
+.recent-copy p{margin:4px 0 0;color:#8592a7;font-size:.72rem}
+footer{
+  margin-top:42px;border-top:1px solid rgba(255,255,255,.07);
+  padding:26px 0 34px;color:#7f8ba0;text-align:center;font-size:.82rem
+}
+.footer-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.footer-links a{
+  padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);color:#d4dbea
+}
+@media(max-width:1100px){
+  .topbar{grid-template-columns:auto 1fr}.social-top{display:none}
+  .featured{grid-template-columns:1fr}
+  .feature-side{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  .feature-side article+article{border-top:0;border-left:1px solid rgba(255,255,255,.07)}
+  .recent-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:780px){
+  .topbar{grid-template-columns:1fr}.brand{justify-content:center}.nav{padding-bottom:12px}
+  .news-grid,.category-grid{grid-template-columns:1fr}
+  .feature-side{grid-template-columns:1fr}
+  .feature-side article+article{border-left:0;border-top:1px solid rgba(255,255,255,.07)}
+  .recent-grid{grid-template-columns:repeat(2,1fr)}
+  .category-content{max-width:75%}
+}
+@media(max-width:520px){
+  .shell{width:min(100% - 22px,1420px)}
+  .brand-copy small{display:none}
+  .nav a{padding:8px 9px;font-size:.75rem}
+  .recent-grid{grid-template-columns:1fr}
+  .category-content{max-width:100%;padding:22px}
+}
+</style>
 </head>
 <body>
 <header>
   <div class="shell topbar">
-    <a class="brand" href="#home" aria-label="ZazoomTek Home">
+    <a class="brand" href="#home">
       <span class="logo">ZT</span>
       <span class="brand-copy"><strong><span>ZazoomTek</span></strong><small>TECNOLOGIA · GAMING · RECENSIONI · UNBOXING · TEST</small></span>
     </a>
-    <nav class="nav" aria-label="Menu principale">
+    <nav class="nav">
       <a class="active" href="#home">⌂ Home</a>
       <a href="recensioni.html">★ Recensioni</a>
       <a href="test.html">⚗ Test</a>
@@ -286,156 +218,159 @@
       <a href="gaming.html">🎮 Gaming</a>
     </nav>
     <div class="social-top">
-      <a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener" aria-label="YouTube">▶</a>
-      <a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener" aria-label="TikTok">♪</a>
-      <a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a>
-      <a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener" aria-label="Patreon">P</a>
+      <a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">▶</a>
+      <a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">♪</a>
+      <a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">WA</a>
+      <a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">P</a>
     </div>
   </div>
 </header>
 
 <main class="shell" id="home">
-  <section class="hero">
-    <div>
-      <h1>Tutti i contenuti ZazoomTek, direttamente in Home</h1>
-      <p>Recensioni, test, unboxing, gaming e ultime news in un'unica pagina.</p>
+  <section class="intro">
+    <h1>ZazoomTek: video, news e contenuti in primo piano</h1>
+    <p>La Home raccoglie gli ultimi video delle categorie, le news più recenti e le sezioni principali del canale.</p>
+  </section>
+
+  <div class="section-title">
+    <div><h2>In primo piano</h2><p>Gli ultimi video pubblicati nelle diverse categorie.</p></div>
+  </div>
+
+  <section class="featured">
+    <article class="feature-main">
+      <div class="media">
+        <button type="button" data-video="hp6JW2xqa9Y" onclick="playVideo(this)">
+          <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg" alt="Ultima videorecensione ZazoomTek">
+        </button>
+      </div>
+      <div class="feature-copy">
+        <span class="tag">Recensioni</span>
+        <h3>Ultima videorecensione ZazoomTek</h3>
+        <p>Guarda direttamente dalla Home l'ultimo video della categoria Recensioni.</p>
+      </div>
+    </article>
+
+    <div class="feature-side">
+      <article>
+        <div class="media">
+          <button type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)">
+            <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Ultimo Test ZazoomTek">
+          </button>
+        </div>
+        <div class="feature-copy">
+          <span class="tag">Test</span>
+          <h3>Ultimo video Test</h3>
+        </div>
+      </article>
+      <article>
+        <div class="media">
+          <button type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)">
+            <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Ultimo Unboxing ZazoomTek">
+          </button>
+        </div>
+        <div class="feature-copy">
+          <span class="tag">Unboxing</span>
+          <h3>Ultimo video Unboxing</h3>
+        </div>
+      </article>
     </div>
   </section>
 
-  <div class="layout">
-    <div class="content">
-      <section class="panel" id="recensioni">
-        <div class="panel-head">
-          <div class="panel-title">
-            <div class="panel-icon">★</div>
-            <div><h2>Recensioni</h2><p>Tutte le recensioni in ordine di pubblicazione.</p></div>
-          </div>
-          <a class="see-all" href="recensioni.html">Tutti i video →</a>
-        </div>
-        <div class="video-row">
-          <article class="video-card">
-            <div class="thumb">
-              <button class="video-preview" type="button" data-video="hp6JW2xqa9Y" onclick="playVideo(this)" aria-label="Riproduci videorecensione ZazoomTek">
-                <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg" alt="Videorecensione ZazoomTek" loading="lazy">
-              </button>
-            </div>
-            <div class="video-title">Videorecensione ZazoomTek</div>
-            <div class="video-date">Ultimo video pubblicato</div>
-          </article>
-          <article class="video-card">
-            <div class="thumb">
-              <button class="video-preview" type="button" data-video="6hLJq9njq5o" onclick="playVideo(this)" aria-label="Riproduci videorecensione ZazoomTek">
-                <img src="https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg" alt="Videorecensione ZazoomTek" loading="lazy">
-              </button>
-            </div>
-            <div class="video-title">Videorecensione ZazoomTek</div>
-            <div class="video-date">Recensione</div>
-          </article>
-        </div>
-      </section>
-
-      <section class="panel" id="test">
-        <div class="panel-head">
-          <div class="panel-title">
-            <div class="panel-icon">⚗</div>
-            <div><h2>Test</h2><p>Tutti i test in ordine di pubblicazione.</p></div>
-          </div>
-          <a class="see-all" href="test.html">Tutti i video →</a>
-        </div>
-        <div class="video-row">
-          <article class="video-card">
-            <div class="thumb">
-              <button class="video-preview" type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)" aria-label="Riproduci Test ZazoomTek">
-                <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Test ZazoomTek" loading="lazy">
-              </button>
-            </div>
-            <div class="video-title">Ultimo video Test</div>
-            <div class="video-date">Test ZazoomTek</div>
-          </article>
-        </div>
-      </section>
-
-      <div class="bottom-grid">
-        <section class="panel" id="unboxing">
-          <div class="panel-head">
-            <div class="panel-title">
-              <div class="panel-icon">▣</div>
-              <div><h2>Unboxing</h2><p>Tutti gli unboxing in ordine di pubblicazione.</p></div>
-            </div>
-            <a class="see-all" href="unboxing.html">Tutti i video →</a>
-          </div>
-          <div class="video-row">
-            <article class="video-card">
-              <div class="thumb">
-                <button class="video-preview" type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)" aria-label="Riproduci Unboxing ZazoomTek">
-                  <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Unboxing ZazoomTek" loading="lazy">
-                </button>
-              </div>
-              <div class="video-title">Ultimo video Unboxing</div>
-              <div class="video-date">Unboxing ZazoomTek</div>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel" id="gaming">
-          <div class="panel-head">
-            <div class="panel-title">
-              <div class="panel-icon">🎮</div>
-              <div><h2>Gaming</h2><p>Tutti i contenuti gaming in ordine di pubblicazione.</p></div>
-            </div>
-            <a class="see-all" href="gaming.html">Tutti i video →</a>
-          </div>
-          <div class="video-row">
-            <article class="video-card">
-              <div class="thumb">
-                <button class="video-preview" type="button" data-video="bC-VdBWXGw4" onclick="playVideo(this)" aria-label="Riproduci Gaming ZazoomTek">
-                  <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg" alt="Gaming ZazoomTek" loading="lazy">
-                </button>
-              </div>
-              <div class="video-title">Ultimo video Gaming</div>
-              <div class="video-date">Gaming ZazoomTek</div>
-            </article>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <aside class="news" id="news">
-      <div class="news-head">
-        <div class="news-title">
-          <div class="news-title-icon">▤</div>
-          <h2>Ultime News</h2>
-        </div>
-        <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>
-      </div>
-      <div class="news-list">
-        <a class="news-item" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">
-          <div class="news-art art-gta"><span>GTA 6 · SWITCH 2</span></div>
-          <div class="news-copy">
-            <div class="news-meta"><span class="news-badge">Gaming</span><span>27 Set 2026</span></div>
-            <h3>GTA 6 su Nintendo Switch 2? Un ex Rockstar spiega perché il porting potrebbe avere poco senso</h3>
-            <p>L’ipotesi resta interessante, ma secondo un ex sviluppatore Rockstar il porting potrebbe non essere una priorità.</p>
-          </div>
-        </a>
-        <a class="news-item" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">
-          <div class="news-art art-waltz"><span>WALTZ &amp; JAM</span></div>
-          <div class="news-copy">
-            <div class="news-meta"><span class="news-badge">Gaming</span><span>27 Set 2026</span></div>
-            <h3>Waltz and Jam mostra un nuovo gameplay: avventura 3D disegnata a mano tra fantasmi, enigmi e boss</h3>
-            <p>Nuovo trailer di gameplay mostrato durante il Game Devs of Color Expo con uno sguardo più ampio al gioco.</p>
-          </div>
-        </a>
-        <a class="news-item" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">
-          <div class="news-art art-pubg"><span>PUBG MOBILE</span></div>
-          <div class="news-copy">
-            <div class="news-meta"><span class="news-badge">Esports</span><span>27 Set 2026</span></div>
-            <h3>PUBG MOBILE Global Open 2026, Hustler Crew trionfa nelle finali dell’Europa occidentale</h3>
-            <p>Hustler Crew conquista le finali dell’Europa occidentale dopo 18 partite, chiudendo al primo posto.</p>
-          </div>
-        </a>
-      </div>
-    </aside>
+  <div class="section-title" id="news">
+    <div><h2>Ultime News</h2><p>Gli aggiornamenti più recenti dalla Community ZazoomTek.</p></div>
+    <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>
   </div>
+
+  <section class="news-grid">
+    <article class="news-card">
+      <div class="news-meta"><span>Gaming</span><span>27 Set 2026</span></div>
+      <h3>GTA 6 su Nintendo Switch 2? Un ex Rockstar spiega perché il porting potrebbe avere poco senso</h3>
+      <p>L'ipotesi resta interessante, ma secondo un ex sviluppatore Rockstar il porting potrebbe non essere una priorità.</p>
+      <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+    </article>
+    <article class="news-card">
+      <div class="news-meta"><span>Gaming</span><span>27 Set 2026</span></div>
+      <h3>Waltz and Jam mostra un nuovo gameplay: avventura 3D disegnata a mano tra fantasmi, enigmi e boss</h3>
+      <p>Nuovo trailer di gameplay mostrato durante il Game Devs of Color Expo con uno sguardo più ampio al gioco.</p>
+      <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+    </article>
+    <article class="news-card">
+      <div class="news-meta"><span>Esports</span><span>27 Set 2026</span></div>
+      <h3>PUBG MOBILE Global Open 2026, Hustler Crew trionfa nelle finali dell'Europa occidentale</h3>
+      <p>Hustler Crew conquista le finali dell'Europa occidentale dopo 18 partite, chiudendo al primo posto.</p>
+      <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+    </article>
+  </section>
+
+  <div class="section-title">
+    <div><h2>Le categorie ZazoomTek</h2><p>Accesso diretto alle aree principali del sito.</p></div>
+  </div>
+
+  <section class="category-grid">
+    <article class="category-box">
+      <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg'" alt="Recensioni ZazoomTek">
+      <div class="category-content">
+        <span class="category-tag">Recensioni</span>
+        <h3>Recensioni</h3>
+        <p>Videorecensioni di tecnologia, videogiochi, gadget e accessori.</p>
+        <a href="recensioni.html">Scopri le recensioni</a>
+      </div>
+    </article>
+    <article class="category-box">
+      <img src="https://i.ytimg.com/vi/sIVIpovtr6E/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg'" alt="Test ZazoomTek">
+      <div class="category-content">
+        <span class="category-tag">Test</span>
+        <h3>Test</h3>
+        <p>Prove pratiche di dispositivi, gadget e novità hi-tech.</p>
+        <a href="test.html">Scopri i test</a>
+      </div>
+    </article>
+    <article class="category-box">
+      <img src="https://i.ytimg.com/vi/PV6JenVnwTo/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg'" alt="Unboxing ZazoomTek">
+      <div class="category-content">
+        <span class="category-tag">Unboxing</span>
+        <h3>Unboxing</h3>
+        <p>Aperture delle confezioni, prime impressioni e panoramiche dei prodotti.</p>
+        <a href="unboxing.html">Scopri gli unboxing</a>
+      </div>
+    </article>
+    <article class="category-box">
+      <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg'" alt="Gaming ZazoomTek">
+      <div class="category-content">
+        <span class="category-tag">Gaming</span>
+        <h3>Gaming</h3>
+        <p>Gameplay, trailer, videogiochi, accessori e contenuti dedicati ai gamer.</p>
+        <a href="gaming.html">Scopri il gaming</a>
+      </div>
+    </article>
+  </section>
+
+  <div class="section-title">
+    <div><h2>Video recenti</h2><p>Una selezione dei contenuti già disponibili sul sito.</p></div>
+  </div>
+
+  <section class="recent-grid">
+    <article class="recent-card">
+      <div class="media"><button type="button" data-video="hp6JW2xqa9Y" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg" alt="Videorecensione"></button></div>
+      <div class="recent-copy"><h3>Videorecensione ZazoomTek</h3><p>Recensioni</p></div>
+    </article>
+    <article class="recent-card">
+      <div class="media"><button type="button" data-video="6hLJq9njq5o" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg" alt="Videorecensione"></button></div>
+      <div class="recent-copy"><h3>Videorecensione ZazoomTek</h3><p>Recensioni</p></div>
+    </article>
+    <article class="recent-card">
+      <div class="media"><button type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Test ZazoomTek"></button></div>
+      <div class="recent-copy"><h3>Ultimo video Test</h3><p>Test</p></div>
+    </article>
+    <article class="recent-card">
+      <div class="media"><button type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Unboxing ZazoomTek"></button></div>
+      <div class="recent-copy"><h3>Ultimo video Unboxing</h3><p>Unboxing</p></div>
+    </article>
+    <article class="recent-card">
+      <div class="media"><button type="button" data-video="bC-VdBWXGw4" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg" alt="Gaming ZazoomTek"></button></div>
+      <div class="recent-copy"><h3>Ultimo video Gaming</h3><p>Gaming</p></div>
+    </article>
+  </section>
 </main>
 
 <footer>
@@ -455,7 +390,7 @@ function playVideo(button){
   const id=button.dataset.video;
   const iframe=document.createElement('iframe');
   iframe.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';
-  iframe.title=button.getAttribute('aria-label')||'Video ZazoomTek';
+  iframe.title='Video ZazoomTek';
   iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
   iframe.allowFullscreen=true;
   button.replaceWith(iframe);
