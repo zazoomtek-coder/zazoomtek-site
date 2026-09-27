@@ -184,6 +184,99 @@
     section { padding: 74px 0; }
     #contenuti { padding-top: 24px; }
 
+    .home-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .content-main { min-width: 0; }
+
+    .news-sidebar {
+      position: sticky;
+      top: 96px;
+      padding: 22px;
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(21,24,40,.98), rgba(10,12,21,.98)) padding-box,
+        linear-gradient(135deg, rgba(238,37,93,.85), rgba(56,140,255,.85)) border-box;
+      border: 1px solid transparent;
+      box-shadow: 0 18px 45px rgba(0,0,0,.28);
+    }
+
+    .news-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .news-header h2 {
+      margin: 0;
+      font-size: 1.45rem;
+    }
+
+    .news-header a {
+      color: #bfc8ff;
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .news-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .news-item {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .news-item:hover {
+      border-color: rgba(56,140,255,.48);
+      background: rgba(255,255,255,.07);
+    }
+
+    .news-badge {
+      width: max-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 800;
+      color: #dfe9ff;
+      background: rgba(56,140,255,.18);
+      border: 1px solid rgba(56,140,255,.32);
+    }
+
+    .news-item h3 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .news-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.4;
+    }
+
+    .news-placeholder {
+      padding: 18px;
+      border-radius: 16px;
+      color: var(--muted);
+      background: rgba(255,255,255,.035);
+      border: 1px dashed rgba(255,255,255,.16);
+      font-size: .93rem;
+      line-height: 1.5;
+    }
+
     .section-title {
       margin: 0 0 10px;
       font-size: clamp(1.9rem, 4vw, 3rem);
@@ -197,7 +290,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 18px;
     }
 
@@ -359,6 +452,8 @@
     }
 
     @media (max-width: 950px) {
+      .home-layout { grid-template-columns: 1fr; }
+      .news-sidebar { position: static; }
       .grid { grid-template-columns: repeat(2, 1fr); }
     }
 
@@ -367,6 +462,7 @@
       .hero { padding: 22px 0 24px; }
       h1 { letter-spacing: -2px; }
       .grid, .about { grid-template-columns: 1fr; }
+      .news-sidebar { padding: 18px; }
       .about-box, .quote { padding: 28px; }
     }
   </style>
@@ -398,8 +494,10 @@
     </section>
 
     <section class="container" id="contenuti">
-      <p class="section-text">Passione, esperienza e curiosità per raccontare il mondo tech e gaming in modo diretto.</p>
-      <div class="grid">
+      <div class="home-layout">
+        <div class="content-main">
+          <p class="section-text">Passione, esperienza e curiosità per raccontare il mondo tech e gaming in modo diretto.</p>
+          <div class="grid">
         <article class="card" id="recensioni">
           <div class="icon">📱</div>
           <h3><a href="recensioni.html">Recensioni</a></h3>
@@ -456,6 +554,20 @@
             <a class="button secondary" style="margin-top:12px;" href="gaming.html">Tutti i video →</a>
           </div>
         </article>
+          </div>
+        </div>
+
+        <aside class="news-sidebar" id="news" aria-label="Ultime news ZazoomTek">
+          <div class="news-header">
+            <h2>📰 Ultime News</h2>
+            <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community →</a>
+          </div>
+          <div class="news-list" id="news-list">
+            <div class="news-placeholder">
+              Le news che mi invierai verranno pubblicate qui, nella colonna destra del sito, dalla più recente alla più vecchia.
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 
