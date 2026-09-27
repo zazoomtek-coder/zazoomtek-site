@@ -204,6 +204,12 @@ footer{
   padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.07);color:#d4dbea
 }
+.legal-links{
+  display:flex;justify-content:center;gap:16px;flex-wrap:wrap;
+  margin:4px 0 14px;font-size:.76rem
+}
+.legal-links a{color:#9eabc0;text-decoration:underline;text-underline-offset:3px}
+.legal-links a:hover{color:#dce6f7}
 @media(max-width:1100px){
   .topbar{grid-template-columns:auto 1fr}.social-top{display:none}
   .featured{grid-template-columns:1.45fr 1fr}
@@ -464,8 +470,13 @@ footer{
       <a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">🎵 TikTok</a>
       <a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">💬 WhatsApp</a>
       <a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">❤️ Patreon</a>
-      <a href="mailto:zazoomtek@gmail.com">✉ Contatti</a>
-      <a href="#chi-sono">👤 Chi Sono</a>
+      <a href="contatti.html">✉ Contatti</a>
+      <a href="chi-sono.html">👤 Chi Sono</a>
+    </div>
+    <div class="legal-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="cookie.html">Cookie Policy</a>
+      <a href="disclaimer.html">Disclaimer</a>
     </div>
     © 2026 ZazoomTek · Tecnologia e gaming solo per veri appassionati.
   </div>
@@ -475,7 +486,7 @@ footer{
 function playVideo(button){
   const id=button.dataset.video;
   const iframe=document.createElement('iframe');
-  iframe.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';
+  iframe.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';
   iframe.title='Video ZazoomTek';
   iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
   iframe.allowFullscreen=true;
