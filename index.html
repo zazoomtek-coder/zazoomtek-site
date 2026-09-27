@@ -79,6 +79,19 @@ header{
 .intro{padding:26px 0 14px}
 .intro h1{margin:0;font-size:clamp(.95rem,1.3vw,1.25rem);letter-spacing:-.2px;line-height:1.2}
 .intro p{margin:6px 0 0;color:var(--muted)}
+.intro-actions{margin-top:12px}
+.intro-button{
+  display:inline-block;padding:9px 14px;border-radius:10px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  color:#04101c;font-size:.82rem;font-weight:900
+}
+.about-section{
+  margin-top:34px;padding:24px;border-radius:18px;
+  background:linear-gradient(145deg,rgba(17,29,48,.98),rgba(8,17,30,.98));
+  border:1px solid var(--line)
+}
+.about-section h2{margin:0 0 10px;font-size:1.35rem}
+.about-section p{margin:0;color:#b8c2d2;line-height:1.55;font-size:.92rem}
 .section-title{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
   margin:28px 0 12px
@@ -241,6 +254,14 @@ footer{
   <section class="intro">
     <h1>Benvenuto. ZazoomTek è una community dedicata agli appassionati di tecnologia e gaming. Qui trovi unboxing, recensioni, test, news e videogiochi</h1>
     <p>Segui e partecipa alla community.</p>
+    <div class="intro-actions">
+      <a class="intro-button" href="#chi-sono">Chi Sono</a>
+    </div>
+  </section>
+
+  <section class="about-section" id="chi-sono">
+    <h2>Chi Sono</h2>
+    <p>ZazoomTek nasce dalla mia passione per tecnologia e videogiochi e da oltre vent’anni di esperienza nella creazione di contenuti online. Provo prodotti, accessori e videogiochi con un approccio pratico e diretto, per raccontare cosa funziona davvero nell’uso quotidiano. Sul canale trovi recensioni, unboxing, test, gameplay e news pensati per una community di appassionati.</p>
   </section>
 
   <div class="section-title">
