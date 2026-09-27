@@ -419,7 +419,7 @@ footer{
   </div>
 
   <section class="category-grid">
-    <article class="category-box">
+    <article class="category-box category-latest" data-page="recensioni.html">
       <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg'" alt="Recensioni ZazoomTek">
       <div class="category-content">
         <h3>Recensioni</h3>
@@ -427,7 +427,7 @@ footer{
         <a href="recensioni.html">Scopri le recensioni</a>
       </div>
     </article>
-    <article class="category-box">
+    <article class="category-box category-latest" data-page="test.html">
       <img src="https://i.ytimg.com/vi/sIVIpovtr6E/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg'" alt="Test ZazoomTek">
       <div class="category-content">
         <h3>Test</h3>
@@ -435,7 +435,7 @@ footer{
         <a href="test.html">Scopri i test</a>
       </div>
     </article>
-    <article class="category-box">
+    <article class="category-box category-latest" data-page="unboxing.html">
       <img src="https://i.ytimg.com/vi/PV6JenVnwTo/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg'" alt="Unboxing ZazoomTek">
       <div class="category-content">
         <h3>Unboxing</h3>
@@ -443,7 +443,7 @@ footer{
         <a href="unboxing.html">Scopri gli unboxing</a>
       </div>
     </article>
-    <article class="category-box">
+    <article class="category-box category-latest" data-page="gaming.html">
       <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg'" alt="Gaming ZazoomTek">
       <div class="category-content">
         <h3>Gaming</h3>
@@ -546,6 +546,27 @@ function playVideo(button){
   iframe.allowFullscreen=true;
   button.replaceWith(iframe);
 }
+
+async function aggiornaAnteprimeCategorie(){
+  const boxes=document.querySelectorAll('.category-latest[data-page]');
+  for(const box of boxes){
+    try{
+      const response=await fetch(box.dataset.page,{cache:'no-store'});
+      if(!response.ok) continue;
+      const source=await response.text();
+      const doc=new DOMParser().parseFromString(source,'text/html');
+      const latest=doc.querySelector('[data-video]');
+      if(!latest) continue;
+      const id=latest.dataset.video;
+      const img=box.querySelector('img');
+      if(img && id){
+        img.src='https://i.ytimg.com/vi/'+id+'/maxresdefault.jpg';
+        img.onerror=()=>{ img.onerror=null; img.src='https://i.ytimg.com/vi/'+id+'/hqdefault.jpg'; };
+      }
+    }catch(e){}
+  }
+}
+aggiornaAnteprimeCategorie();
 </script>
 </body>
 </html>
