@@ -224,12 +224,15 @@
 
     .home-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 390px;
+      grid-template-columns: 390px minmax(0, 1fr);
       gap: 28px;
       align-items: start;
     }
 
-    .content-main { min-width: 0; }
+    .content-main {
+      min-width: 0;
+      grid-column: 2;
+    }
 
     .content-heading {
       display: flex;
@@ -252,6 +255,8 @@
     }
 
     .news-sidebar {
+      grid-column: 1;
+      grid-row: 1;
       position: sticky;
       top: 94px;
       overflow: hidden;
@@ -264,8 +269,9 @@
     .news-sidebar::before {
       content: "";
       display: block;
-      height: 3px;
+      height: 4px;
       background: linear-gradient(90deg, #ff2f78, #8a5cff, #2ca8ff);
+      box-shadow: 0 0 24px rgba(100,100,255,.22);
     }
 
     .news-header {
@@ -606,7 +612,8 @@
 
     @media (max-width: 950px) {
       .home-layout { grid-template-columns: 1fr; }
-      .news-sidebar { position: static; }
+      .news-sidebar, .content-main { grid-column: 1; }
+      .news-sidebar { grid-row: auto; position: static; }
       .grid { grid-template-columns: repeat(2, 1fr); }
     }
 
@@ -654,6 +661,25 @@
 
     <section class="container" id="contenuti">
       <div class="home-layout">
+        <aside class="news-sidebar" id="news" aria-label="Ultime news ZazoomTek">
+          <div class="news-header">
+            <div class="news-title-wrap">
+              <div class="news-icon">📰</div>
+              <div>
+                <h2>Ultime News</h2>
+                <small>Aggiornamenti dalla community</small>
+              </div>
+            </div>
+            <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>
+          </div>
+          <div class="news-list" id="news-list">
+            <div class="news-placeholder">
+              <strong>Spazio News pronto</strong>
+              Le notizie che mi invierai compariranno qui con immagine, categoria, titolo e anteprima, dalla più recente alla più vecchia.
+            </div>
+          </div>
+        </aside>
+
         <div class="content-main">
           <div class="content-heading">
             <div>
@@ -717,24 +743,7 @@
           </div>
         </div>
 
-        <aside class="news-sidebar" id="news" aria-label="Ultime news ZazoomTek">
-          <div class="news-header">
-            <div class="news-title-wrap">
-              <div class="news-icon">📰</div>
-              <div>
-                <h2>Ultime News</h2>
-                <small>Aggiornamenti dalla community</small>
-              </div>
-            </div>
-            <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>
-          </div>
-          <div class="news-list" id="news-list">
-            <div class="news-placeholder">
-              <strong>Spazio News pronto</strong>
-              Le notizie che mi invierai compariranno qui con immagine, categoria, titolo e anteprima, dalla più recente alla più vecchia.
-            </div>
-          </div>
-        </aside>
+
       </div>
     </section>
 
