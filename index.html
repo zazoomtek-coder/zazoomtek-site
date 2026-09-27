@@ -88,8 +88,9 @@ header{
 .section-title a{color:#75e8ff;font-size:.8rem;font-weight:900}
 .featured{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px
+  grid-template-columns:minmax(0,1.9fr) minmax(520px,1fr);
+  gap:16px;
+  align-items:stretch
 }
 .feature-main,.feature-card{
   position:relative;
@@ -99,9 +100,20 @@ header{
   background:linear-gradient(180deg,rgba(11,22,38,.98),rgba(6,15,27,.99));
   box-shadow:0 14px 34px rgba(0,0,0,.2)
 }
-.feature-main .media,.feature-card .media{aspect-ratio:16/9}
-.featured .feature-copy{padding:12px 14px}
-.featured .feature-copy h3{font-size:1rem;margin:8px 0 2px}
+.feature-main{display:flex;flex-direction:column}
+.feature-main .media{aspect-ratio:16/9}
+.feature-main .feature-copy{padding:14px 16px 16px}
+.feature-main .feature-copy h3{font-size:1.08rem;margin:8px 0 2px}
+.featured-side{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:repeat(2,minmax(0,1fr));
+  gap:14px
+}
+.feature-card{display:flex;flex-direction:column}
+.feature-card .media{aspect-ratio:16/9}
+.feature-card .feature-copy{padding:10px 12px 12px}
+.feature-card .feature-copy h3{font-size:.92rem;margin:7px 0 2px}
 .media{position:relative;background:#000;overflow:hidden}
 .media button{
   position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#000;cursor:pointer
@@ -181,11 +193,13 @@ footer{
 }
 @media(max-width:1100px){
   .topbar{grid-template-columns:auto 1fr}.social-top{display:none}
+  .featured{grid-template-columns:1.45fr 1fr}
   .recent-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:780px){
   .topbar{grid-template-columns:1fr}.brand{justify-content:center}.nav{padding-bottom:12px}
   .news-grid,.category-grid,.featured{grid-template-columns:1fr}
+  .featured-side{grid-template-columns:repeat(2,minmax(0,1fr))}
   .recent-grid{grid-template-columns:repeat(2,1fr)}
   .category-content{max-width:75%}
 }
@@ -195,6 +209,7 @@ footer{
   .nav a{padding:8px 9px;font-size:.75rem}
   .recent-grid{grid-template-columns:1fr}
   .featured{grid-template-columns:1fr}
+  .featured-side{grid-template-columns:1fr}
   .category-content{max-width:100%;padding:22px}
 }
 </style>
@@ -236,50 +251,64 @@ footer{
     <article class="feature-main">
       <div class="media">
         <button type="button" data-video="hp6JW2xqa9Y" onclick="playVideo(this)">
-          <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg" alt="Ultima videorecensione ZazoomTek">
+          <img src="https://i.ytimg.com/vi/hp6JW2xqa9Y/hqdefault.jpg" alt="Ultimo video ZazoomTek">
         </button>
       </div>
       <div class="feature-copy">
-        <span class="tag">Recensioni</span>
-        <h3>Ultima videorecensione ZazoomTek</h3>
+        <span class="tag">Ultimo video</span>
+        <h3>Ultimo video pubblicato su ZazoomTek</h3>
       </div>
     </article>
 
-    <article class="feature-card">
-      <div class="media">
-        <button type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)">
-          <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Ultimo Test ZazoomTek">
-        </button>
-      </div>
-      <div class="feature-copy">
-        <span class="tag">Test</span>
-        <h3>Ultimo video Test</h3>
-      </div>
-    </article>
+    <div class="featured-side">
+      <article class="feature-card">
+        <div class="media">
+          <button type="button" data-video="6hLJq9njq5o" onclick="playVideo(this)">
+            <img src="https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg" alt="Ultima recensione ZazoomTek">
+          </button>
+        </div>
+        <div class="feature-copy">
+          <span class="tag">Recensioni</span>
+          <h3>Ultimo video Recensioni</h3>
+        </div>
+      </article>
 
-    <article class="feature-card">
-      <div class="media">
-        <button type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)">
-          <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Ultimo Unboxing ZazoomTek">
-        </button>
-      </div>
-      <div class="feature-copy">
-        <span class="tag">Unboxing</span>
-        <h3>Ultimo video Unboxing</h3>
-      </div>
-    </article>
+      <article class="feature-card">
+        <div class="media">
+          <button type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)">
+            <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Ultimo Test ZazoomTek">
+          </button>
+        </div>
+        <div class="feature-copy">
+          <span class="tag">Test</span>
+          <h3>Ultimo video Test</h3>
+        </div>
+      </article>
 
-    <article class="feature-card">
-      <div class="media">
-        <button type="button" data-video="bC-VdBWXGw4" onclick="playVideo(this)">
-          <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg" alt="Ultimo Gaming ZazoomTek">
-        </button>
-      </div>
-      <div class="feature-copy">
-        <span class="tag">Gaming</span>
-        <h3>Ultimo video Gaming</h3>
-      </div>
-    </article>
+      <article class="feature-card">
+        <div class="media">
+          <button type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)">
+            <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Ultimo Unboxing ZazoomTek">
+          </button>
+        </div>
+        <div class="feature-copy">
+          <span class="tag">Unboxing</span>
+          <h3>Ultimo video Unboxing</h3>
+        </div>
+      </article>
+
+      <article class="feature-card">
+        <div class="media">
+          <button type="button" data-video="bC-VdBWXGw4" onclick="playVideo(this)">
+            <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg" alt="Ultimo Gaming ZazoomTek">
+          </button>
+        </div>
+        <div class="feature-copy">
+          <span class="tag">Gaming</span>
+          <h3>Ultimo video Gaming</h3>
+        </div>
+      </article>
+    </div>
   </section>
 
   <div class="section-title" id="news">
