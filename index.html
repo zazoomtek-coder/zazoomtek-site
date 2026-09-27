@@ -180,16 +180,11 @@ footer{
 }
 @media(max-width:1100px){
   .topbar{grid-template-columns:auto 1fr}.social-top{display:none}
-  .featured{grid-template-columns:1fr}
-  .feature-side{grid-template-columns:1fr 1fr;grid-template-rows:auto}
-  .feature-side article+article{border-top:0;border-left:1px solid rgba(255,255,255,.07)}
   .recent-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:780px){
   .topbar{grid-template-columns:1fr}.brand{justify-content:center}.nav{padding-bottom:12px}
-  .news-grid,.category-grid{grid-template-columns:1fr}
-  .feature-side{grid-template-columns:1fr}
-  .feature-side article+article{border-left:0;border-top:1px solid rgba(255,255,255,.07)}
+  .news-grid,.category-grid,.featured{grid-template-columns:1fr}
   .recent-grid{grid-template-columns:repeat(2,1fr)}
   .category-content{max-width:75%}
 }
@@ -245,34 +240,44 @@ footer{
       <div class="feature-copy">
         <span class="tag">Recensioni</span>
         <h3>Ultima videorecensione ZazoomTek</h3>
-        <p>Guarda direttamente dalla Home l'ultimo video della categoria Recensioni.</p>
       </div>
     </article>
 
-    <div class="feature-side">
-      <article>
-        <div class="media">
-          <button type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)">
-            <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Ultimo Test ZazoomTek">
-          </button>
-        </div>
-        <div class="feature-copy">
-          <span class="tag">Test</span>
-          <h3>Ultimo video Test</h3>
-        </div>
-      </article>
-      <article>
-        <div class="media">
-          <button type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)">
-            <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Ultimo Unboxing ZazoomTek">
-          </button>
-        </div>
-        <div class="feature-copy">
-          <span class="tag">Unboxing</span>
-          <h3>Ultimo video Unboxing</h3>
-        </div>
-      </article>
-    </div>
+    <article class="feature-card">
+      <div class="media">
+        <button type="button" data-video="sIVIpovtr6E" onclick="playVideo(this)">
+          <img src="https://i.ytimg.com/vi/sIVIpovtr6E/hqdefault.jpg" alt="Ultimo Test ZazoomTek">
+        </button>
+      </div>
+      <div class="feature-copy">
+        <span class="tag">Test</span>
+        <h3>Ultimo video Test</h3>
+      </div>
+    </article>
+
+    <article class="feature-card">
+      <div class="media">
+        <button type="button" data-video="PV6JenVnwTo" onclick="playVideo(this)">
+          <img src="https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg" alt="Ultimo Unboxing ZazoomTek">
+        </button>
+      </div>
+      <div class="feature-copy">
+        <span class="tag">Unboxing</span>
+        <h3>Ultimo video Unboxing</h3>
+      </div>
+    </article>
+
+    <article class="feature-card">
+      <div class="media">
+        <button type="button" data-video="bC-VdBWXGw4" onclick="playVideo(this)">
+          <img src="https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg" alt="Ultimo Gaming ZazoomTek">
+        </button>
+      </div>
+      <div class="feature-copy">
+        <span class="tag">Gaming</span>
+        <h3>Ultimo video Gaming</h3>
+      </div>
+    </article>
   </section>
 
   <div class="section-title" id="news">
