@@ -88,7 +88,7 @@ footer{margin-top:48px;padding:34px 0;border-top:1px solid rgba(255,255,255,.07)
     <div class="footer-grid">
       <div><h3>ZazoomTek</h3><p>Tecnologia, gaming, recensioni, test e unboxing per veri appassionati.</p></div>
       <div><h3>Sezioni</h3><p><a href="recensioni.html">Recensioni</a><br><a href="test.html">Test</a><br><a href="unboxing.html">Unboxing</a><br><a href="gaming.html">Gaming</a></p></div>
-      <div><h3>Contatti</h3><p><a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a><br><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">YouTube @ZazoomTek</a></p></div>
+      <div><h3>Info</h3><p><a href="contatti.html">Contatti</a><br><a href="chi-sono.html">Chi Sono</a><br><a href="privacy.html">Privacy Policy</a><br><a href="cookie.html">Cookie Policy</a><br><a href="disclaimer.html">Disclaimer</a><br><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">YouTube @ZazoomTek</a></p></div>
     </div>
     <div class="copyright">© 2026 ZazoomTek</div>
   </div>
@@ -97,7 +97,7 @@ footer{margin-top:48px;padding:34px 0;border-top:1px solid rgba(255,255,255,.07)
 function playVideo(button){
   const id=button.dataset.video;
   const iframe=document.createElement('iframe');
-  iframe.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';
+  iframe.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';
   iframe.title='Video ZazoomTek';
   iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
   iframe.allowFullscreen=true;
