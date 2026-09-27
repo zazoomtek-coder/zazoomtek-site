@@ -40,12 +40,14 @@ h1{font-size:clamp(2.2rem,5vw,4rem);line-height:1;margin:15px 0 10px;letter-spac
 footer{margin-top:48px;padding:34px 0;border-top:1px solid rgba(255,255,255,.07);color:#8491a5}.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px}.footer-grid h3{margin:0 0 10px;color:#f2f6fd;font-size:1rem}.footer-grid p,.footer-grid a{color:#9da9bc;font-size:.86rem}.footer-grid a:hover{color:#7cecff}.copyright{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:.78rem;text-align:center}
 @media(max-width:900px){.topbar{grid-template-columns:1fr}.brand{justify-content:center}.nav{justify-content:center;padding-bottom:12px}.video-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.container{width:min(100% - 22px,1260px)}.video-grid{grid-template-columns:1fr}.hero{padding-top:38px}.nav a{padding:8px 9px;font-size:.75rem}}
+.brand-logo-img{width:58px;height:58px;object-fit:cover;border-radius:16px;display:block;box-shadow:0 0 18px rgba(37,136,255,.28)}
+@media(max-width:600px){.brand-logo-img{width:50px;height:50px;border-radius:14px}}
 </style>
 </head>
 <body>
 <header>
   <div class="container topbar">
-    <a class="brand" href="index.html"><span class="logo">ZT</span><strong class="brand-word"><span class="brand-zazoom">ZAZOOM</span><span class="brand-tek">TEK</span></strong></a>
+    <a class="brand" href="index.html"><img class="brand-logo-img" src="ChatGPT.png" alt="ZazoomTek"><strong class="brand-word"><span class="brand-zazoom">ZAZOOM</span><span class="brand-tek">TEK</span></strong></a>
     <nav class="nav" aria-label="Menu principale">
       <a href="index.html">Home</a>
       <a class="active" href="recensioni.html">Recensioni</a>
