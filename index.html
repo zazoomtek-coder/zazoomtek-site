@@ -150,6 +150,7 @@ header{
 .news-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .news-card{
   min-height:0;border-radius:14px;padding:0;overflow:hidden;
+  display:flex;flex-direction:column;
   background:
     linear-gradient(145deg,rgba(17,29,48,.98),rgba(8,17,30,.98)) padding-box,
     linear-gradient(135deg,var(--pink),var(--purple),var(--cyan)) border-box;
@@ -157,12 +158,12 @@ header{
   box-shadow:0 15px 36px rgba(0,0,0,.18)
 }
 .news-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#0b1626}
-.news-body{padding:11px 12px 13px}
+.news-body{padding:11px 12px 13px;display:flex;flex-direction:column;flex:1}
 .news-meta{display:flex;gap:7px;align-items:center;color:#8d99ad;font-size:.62rem;font-weight:800;text-transform:uppercase}
 .news-meta span:first-child{color:#8fd7ff}
 .news-card h3{margin:7px 0 5px;font-size:.88rem;line-height:1.25}
 .news-card p{margin:0;color:#9ca9bd;font-size:.74rem;line-height:1.35}
-.news-card .read{display:inline-block;margin-top:8px;color:#71e7ff;font-weight:900;font-size:.72rem}
+.news-card .read{display:inline-block;margin-top:auto;padding-top:8px;color:#71e7ff;font-weight:900;font-size:.72rem}
 .category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .category-box{
   position:relative;min-height:260px;border-radius:20px;overflow:hidden;
@@ -363,6 +364,51 @@ footer{
         <div class="news-meta"><span>Esports</span><span>27 Set 2026</span></div>
         <h3>PUBG MOBILE Global Open 2026, Hustler Crew trionfa nelle finali dell'Europa occidentale</h3>
         <p>Hustler Crew conquista le finali dell'Europa occidentale dopo 18 partite, chiudendo al primo posto.</p>
+        <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+      </div>
+    </article>
+    <article class="news-card">
+      <img class="news-thumb" src="https://i.ytimg.com/vi/yJmgaWLDljk/hqdefault.jpg" alt="Wonderful Neoran Valley" loading="lazy">
+      <div class="news-body">
+        <div class="news-meta"><span>Gaming</span><span>26 Set 2026</span></div>
+        <h3>Wonderful Neoran Valley: nuovo trailer il 27 ottobre e presenza a Lucca Comics & Games 2026</h3>
+        <p>Il monster collector di Nara Studio tornerà a mostrarsi con un nuovo trailer e una nuova key art firmata LRNZ.</p>
+        <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+      </div>
+    </article>
+    <article class="news-card">
+      <img class="news-thumb" src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4574760/header.jpg" alt="Overdrive Reloaded" loading="lazy">
+      <div class="news-body">
+        <div class="news-meta"><span>Gaming</span><span>Set 2026</span></div>
+        <h3>Overdrive Reloaded: PvE, modalità Arena e sopravvivenza nel nuovo FPS di Dynamite Games</h3>
+        <p>La nuova versione di Overdrive punta su combattimenti PvE, progressione roguelike e un'esperienza Survival open world.</p>
+        <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+      </div>
+    </article>
+    <article class="news-card">
+      <img class="news-thumb" src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1442520/header.jpg" alt="Akatori" loading="lazy">
+      <div class="news-body">
+        <div class="news-meta"><span>Gaming</span><span>Set 2026</span></div>
+        <h3>Akatori: azione, piattaforme e atmosfere metroidvania nell'avventura di Mako</h3>
+        <p>Il titolo di Contrast Games combina esplorazione, combattimenti e piattaforme in un mondo minacciato dalle tempeste d'ambra.</p>
+        <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+      </div>
+    </article>
+    <article class="news-card">
+      <img class="news-thumb" src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4161140/header.jpg" alt="Finding Polka" loading="lazy">
+      <div class="news-body">
+        <div class="news-meta"><span>Gaming</span><span>Set 2026</span></div>
+        <h3>Finding Polka: l'avventura disegnata a mano continua il suo viaggio tra eventi e nuovi riconoscimenti</h3>
+        <p>Un'esperienza rilassante dedicata all'esplorazione, agli incontri e alla ricerca del piccolo Polka in un mondo illustrato.</p>
+        <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
+      </div>
+    </article>
+    <article class="news-card">
+      <img class="news-thumb" src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3319680/header.jpg" alt="Delve Survivors" loading="lazy">
+      <div class="news-body">
+        <div class="news-meta"><span>Gaming</span><span>2026</span></div>
+        <h3>Delve Survivors unisce dungeon crawler a turni e formula survivor in una nuova avventura roguelike</h3>
+        <p>Il progetto di iDiOSLAB mescola strategia a turni, orde di nemici, loot e personalizzazione della propria build.</p>
         <a class="read" href="https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/posts" target="_blank" rel="noopener">Leggi tutto →</a>
       </div>
     </article>
