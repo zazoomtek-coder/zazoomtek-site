@@ -1,5 +1,12 @@
 [
   {
+    "id": "EaLvvrd6ysI",
+    "title": "Tomb Raider: Legacy of Atlantis – Everything changes in Egypt: mummies and supernatural creatures",
+    "publishedAt": "2026-09-29T11:05:07Z",
+    "category": "gaming",
+    "short": true
+  },
+  {
     "id": "GscZEOmzX80",
     "title": "Tomb Raider: Legacy of Atlantis – In Egitto cambia tutto: mummie e creature soprannaturali",
     "publishedAt": "2026-09-29T09:38:49Z",
@@ -201,12 +208,5 @@
     "publishedAt": "2026-08-24T15:00:31Z",
     "category": "recensioni",
     "short": false
-  },
-  {
-    "id": "qcE0DLfZ8aE",
-    "title": "Lou's Lagoon PC Review",
-    "publishedAt": "2026-08-24T15:00:26Z",
-    "category": "recensioni",
-    "short": true
   }
 ]
