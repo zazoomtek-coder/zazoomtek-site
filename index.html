@@ -171,13 +171,19 @@ header{
 }
 .category-box img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:brightness(.54) saturate(1.08)
+  filter:brightness(.92) contrast(1.06) saturate(1.16);
+  transform:scale(1.01);
+  transition:filter .25s ease,transform .25s ease
+}
+.category-box:hover img{
+  filter:brightness(1.02) contrast(1.08) saturate(1.20);
+  transform:scale(1.025)
 }
 .category-box:after{
   content:"";position:absolute;inset:0;
   background:
-    linear-gradient(90deg,rgba(4,10,18,.88) 0%,rgba(4,10,18,.52) 46%,rgba(4,10,18,.18) 100%),
-    linear-gradient(180deg,transparent 45%,rgba(4,10,18,.45))
+    linear-gradient(90deg,rgba(4,10,18,.60) 0%,rgba(4,10,18,.28) 46%,rgba(4,10,18,.08) 100%),
+    linear-gradient(180deg,rgba(4,10,18,.02) 45%,rgba(4,10,18,.20))
 }
 .category-content{
   position:relative;z-index:2;max-width:56%;padding:26px
