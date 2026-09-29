@@ -55,7 +55,7 @@ def card(v):
     date=datetime.fromisoformat(s["publishedAt"].replace("Z","+00:00")).strftime("%d %b %Y")
     return f'''    <article class="video-card">
       <button type="button" data-video="{vid}" aria-label="Riproduci {title}">
-        <img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}">
+        <img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy" decoding="async">
       </button>
       <div class="video-card-body"><span class="video-date">{date}</span><h3>{title}</h3><a href="https://youtu.be/{vid}" target="_blank" rel="noopener">Guarda su YouTube</a></div>
     </article>'''
@@ -68,7 +68,7 @@ def update_category(name, vids):
     if a<0:return
     b=h.find("</section>",a)
     if b<0:return
-    chosen=[v for v in vids if classify(v)==name][:10]
+    chosen=[v for v in vids if classify(v)==name][:20]
     block='<section class="video-grid">\n'+"\n".join(card(v) for v in chosen)+'\n  </section>'
     p.write_text(h[:a]+block+h[b+10:],encoding="utf-8")
 
