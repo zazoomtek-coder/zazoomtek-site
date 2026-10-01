@@ -1,5 +1,12 @@
 [
   {
+    "id": "1rs63drm2kw",
+    "title": "Princess of the Water Lilies - PS5",
+    "publishedAt": "2026-10-01T19:06:26Z",
+    "category": "gaming",
+    "short": true
+  },
+  {
     "id": "by7Qm_XFO8c",
     "title": "70mai Dash Cam 4K A900: Recensione e Test",
     "publishedAt": "2026-09-30T13:41:46Z",
@@ -201,12 +208,5 @@
     "publishedAt": "2026-09-01T15:46:05Z",
     "category": "recensioni",
     "short": false
-  },
-  {
-    "id": "bKd3-7F9DVU",
-    "title": "GTA 6 Gameplay PS5!",
-    "publishedAt": "2026-08-28T12:35:10Z",
-    "category": "gaming",
-    "short": true
   }
 ]
