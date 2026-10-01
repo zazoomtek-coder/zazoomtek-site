@@ -20,10 +20,23 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: python3 scripts/update-youtube.py
       - name: Commit verified changes
+        id: commit
         run: |
-          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then exit 0; fi
+          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
           git add index.html recensioni.html test.html unboxing.html gaming.html .youtube-latest.json
           git commit -m "Auto-sync latest YouTube uploads"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy synced site to Firebase Hosting
+        if: steps.commit.outputs.changed == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
