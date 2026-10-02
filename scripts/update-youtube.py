@@ -7,6 +7,8 @@ CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
 HANDLE="@ZazoomTek"
 API="https://www.googleapis.com/youtube/v3/"
 KEY=os.environ["YOUTUBE_API_KEY"]
+TEST_PLAYLIST_ID="PL7dvpppAJr03SBwNej9rwT4nIvgYzJwzT"
+TEST_VIDEO_IDS=set()
 
 def get(endpoint, **params):
     params["key"]=KEY
@@ -50,12 +52,24 @@ def youtube_short_ids():
     except Exception:
         return set()
 
+def playlist_video_ids(playlist_id):
+    ids=set()
+    token=None
+    while True:
+        params={"part":"contentDetails","playlistId":playlist_id,"maxResults":50}
+        if token: params["pageToken"]=token
+        p=get("playlistItems",**params)
+        ids.update(x["contentDetails"]["videoId"] for x in p.get("items",[]) if x.get("contentDetails",{}).get("videoId"))
+        token=p.get("nextPageToken")
+        if not token: break
+    return ids
+
 def classify(v):
+    if v["id"] in TEST_VIDEO_IDS: return "test"
     t=v["snippet"]["title"].lower()
     if any(x in t for x in ["unboxing","cosa c'è","cosa c’è","what's in the box","what’s in the box"]): return "unboxing"
     if any(x in t for x in ["recensione","review"]): return "recensioni"
     if any(x in t for x in ["gameplay","ps5","xbox","nintendo","switch","gaming","warzone","battlefield","wolverine","taxi","tomb raider","legacy of atlantis"]): return "gaming"
-    if any(x in t for x in ["test","prova","testing"]): return "test"
     return None
 
 def esc(s): return html.escape(s,quote=True)
@@ -219,7 +233,9 @@ def update_home(vids, short_ids):
     p.write_text(h,encoding="utf-8")
 
 def main():
+    global TEST_VIDEO_IDS
     vids=uploads()
+    TEST_VIDEO_IDS=playlist_video_ids(TEST_PLAYLIST_ID)
     short_ids=youtube_short_ids()
     update_home(vids,short_ids)
     for n in ["recensioni","test","unboxing","gaming"]:
