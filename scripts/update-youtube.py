@@ -69,7 +69,24 @@ def update_category(name, vids):
     if a<0:return
     b=h.find("</section>",a)
     if b<0:return
-    chosen=[v for v in vids if classify(v)==name][:20]
+    candidates=[v for v in vids if classify(v)==name]
+    # Avoid duplicate coverage in category pages: when a long-form and a Short
+    # cover the same item/review, keep the long-form version.
+    def topic_key(v):
+        t=v["snippet"]["title"].lower()
+        t=re.sub(r'\b(shorts?|short|video|full|hd|4k|recensione|review|test|prova|unboxing|gameplay|ps5|ps4|xbox|nintendo|switch)\b',' ',t)
+        t=re.sub(r'[^a-z0-9à-ÿ]+',' ',t)
+        return set(x for x in t.split() if len(x)>2)
+    longs=[v for v in candidates if v["id"] not in youtube_short_ids()]
+    chosen=[]
+    for v in candidates:
+        is_short=v["id"] in youtube_short_ids()
+        if is_short:
+            vk=topic_key(v)
+            duplicate=any(len(vk & topic_key(l)) >= 2 and len(vk & topic_key(l))/max(1,min(len(vk),len(topic_key(l)))) >= .5 for l in longs)
+            if duplicate: continue
+        chosen.append(v)
+        if len(chosen)>=20: break
     block='<section class="video-grid">\n'+"\n".join(card(v) for v in chosen)+'\n  </section>'
     p.write_text(h[:a]+block+h[b+10:],encoding="utf-8")
 
