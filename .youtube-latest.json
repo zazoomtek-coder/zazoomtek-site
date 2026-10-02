@@ -108,14 +108,14 @@
     "id": "XrXF0t5OPtU",
     "title": "IIFACTOR M08E AI Smart Glasses: Sembrano Occhiali Normali… Ma Fanno Quasi Tutto! 🤯",
     "publishedAt": "2026-09-14T14:34:41Z",
-    "category": "test",
+    "category": null,
     "short": false
   },
   {
     "id": "4fN4h9nM0dk",
     "title": "IIFACTOR M08E AI Smart Glasses: Let's find out what's in the box",
     "publishedAt": "2026-09-12T13:04:51Z",
-    "category": "test",
+    "category": "unboxing",
     "short": true
   },
   {
@@ -136,14 +136,14 @@
     "id": "lZ9aQBisFNw",
     "title": "OpenAI Introduces ChatGPT Images 2.5: More Control and More Accurate Images",
     "publishedAt": "2026-09-09T10:07:19Z",
-    "category": "test",
+    "category": null,
     "short": true
   },
   {
     "id": "rCPyfZULzFg",
     "title": "OpenAI presenta ChatGPT Images 2.5: più controllo e immagini più precise",
     "publishedAt": "2026-09-09T10:03:08Z",
-    "category": "test",
+    "category": null,
     "short": false
   },
   {
@@ -208,5 +208,145 @@
     "publishedAt": "2026-09-01T15:58:14Z",
     "category": "recensioni",
     "short": true
+  },
+  {
+    "id": "xyEMlTZZhjo",
+    "title": "Serious Sam: Shatterverse PS5 Review",
+    "publishedAt": "2026-09-01T15:46:05Z",
+    "category": "recensioni",
+    "short": false
+  },
+  {
+    "id": "bKd3-7F9DVU",
+    "title": "GTA 6 Gameplay PS5!",
+    "publishedAt": "2026-08-28T12:35:10Z",
+    "category": "gaming",
+    "short": true
+  },
+  {
+    "id": "1PlHs05dqQQ",
+    "title": "Lou's Lagoon Recensione PC",
+    "publishedAt": "2026-08-24T15:00:31Z",
+    "category": "recensioni",
+    "short": false
+  },
+  {
+    "id": "qcE0DLfZ8aE",
+    "title": "Lou's Lagoon PC Review",
+    "publishedAt": "2026-08-24T15:00:26Z",
+    "category": "recensioni",
+    "short": true
+  },
+  {
+    "id": "o2RijYsHp4w",
+    "title": "Catalogo ufficiale PlayStation Hardware e Software 2010, “Il gioco è solo l’inizio”.",
+    "publishedAt": "2026-08-24T14:33:32Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "edSn0pFu5O0",
+    "title": "Catalogo ufficiale PlayStation Hardware e Software 2010, “Il gioco è solo l’inizio”",
+    "publishedAt": "2026-08-24T14:25:48Z",
+    "category": null,
+    "short": false
+  },
+  {
+    "id": "WPp59Y5jJlw",
+    "title": "Duck King arriva in Fatal Fury: City of the Wolves il 27 agosto! 🔥",
+    "publishedAt": "2026-08-24T08:53:59Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "snivm357_Tc",
+    "title": "Black Myth: Zhong Kui si mostra finalmente con un incredibile trailer di gameplay!",
+    "publishedAt": "2026-08-21T09:57:54Z",
+    "category": "gaming",
+    "short": true
+  },
+  {
+    "id": "sj9ra7fnSLs",
+    "title": "Lara Croft and the Temple of Osiris arriva su iOS e Android l’8 settembre",
+    "publishedAt": "2026-08-13T10:24:29Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "_oexjSLw7sY",
+    "title": "Update Highlights | Crimson Desert",
+    "publishedAt": "2026-08-13T07:22:42Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "gDi3rgqJq8M",
+    "title": "Crimson Desert | Update Highlights",
+    "publishedAt": "2026-08-13T07:11:01Z",
+    "category": null,
+    "short": false
+  },
+  {
+    "id": "pn3TGZ5k4Ds",
+    "title": "Call of Duty: Modern Warfare 4 Campaign First Look",
+    "publishedAt": "2026-08-12T09:46:35Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "11ldZsap0a0",
+    "title": "Call of Duty: Modern Warfare 4 Campaign First Look – Traffic",
+    "publishedAt": "2026-08-12T09:43:24Z",
+    "category": null,
+    "short": false
+  },
+  {
+    "id": "0xhZKpUUv8M",
+    "title": "Reigns compie 10 anni: arriva un grande aggiornamento gratuito!",
+    "publishedAt": "2026-08-12T07:55:46Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "8ojRVXF531M",
+    "title": "Let’s Sing 2027 | Announcement Trailer",
+    "publishedAt": "2026-08-10T17:12:44Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "E-Uz72kSuqw",
+    "title": "Akatori PS5 Review",
+    "publishedAt": "2026-08-07T07:54:31Z",
+    "category": "recensioni",
+    "short": true
+  },
+  {
+    "id": "BruwmRwYDaA",
+    "title": "Akatori Recensione PS5 | Un metroidvania affascinante tra esplorazione, platform e combattimenti",
+    "publishedAt": "2026-08-07T07:18:11Z",
+    "category": "recensioni",
+    "short": false
+  },
+  {
+    "id": "sIVIpovtr6E",
+    "title": "Game Stick X2 Pro Light: il mio consiglio contro il surriscaldamento | Advice against overheating!",
+    "publishedAt": "2026-08-06T10:06:10Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "unRACV2Hcsg",
+    "title": "Collectible Planet Hollywood 1999 Calendar",
+    "publishedAt": "2026-08-04T07:34:47Z",
+    "category": null,
+    "short": true
+  },
+  {
+    "id": "TdpSn2Le_ew",
+    "title": "Calendario Planet Hollywood 1999 da collezione",
+    "publishedAt": "2026-08-04T07:26:05Z",
+    "category": null,
+    "short": false
   }
 ]
