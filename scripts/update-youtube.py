@@ -131,11 +131,18 @@ def update_home(vids, short_ids):
     p=Path("index.html")
     h=p.read_text(encoding="utf-8")
 
-    # Main featured: newest upload overall.
-    a=h.find('<article class="feature-main">')
-    if a>=0:
-        b=h.find("</article>",a)
-        if b>=0: h=h[:a]+feature_main(vids[0])+h[b+10:]
+    # Main featured: newest long-form video only. Shorts never enter the large box.
+    # Prefer the channel Shorts shelf; use duration as a fallback when that shelf
+    # cannot be read. This change is intentionally isolated to the main feature.
+    if short_ids:
+        main_video=next((v for v in vids if v["id"] not in short_ids), None)
+    else:
+        main_video=next((v for v in vids if sec(v["contentDetails"]["duration"])>180), None)
+    if main_video:
+        a=h.find('<article class="feature-main">')
+        if a>=0:
+            b=h.find("</article>",a)
+            if b>=0: h=h[:a]+feature_main(main_video)+h[b+10:]
 
     # Side cards: newest item in each category, matched by category link anchor.
     for name in ["recensioni","test","unboxing","gaming"]:
