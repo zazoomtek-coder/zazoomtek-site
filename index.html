@@ -295,6 +295,17 @@ footer{
 }
 .brand-logo-img{width:58px;height:58px;object-fit:cover;border-radius:16px;display:block;box-shadow:0 0 18px rgba(37,136,255,.28)}
 @media(max-width:600px){.brand-logo-img{width:50px;height:50px;border-radius:14px}}
+
+/* YOUTUBE COMMUNITY POSTS */
+.community-posts-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:14px 0 34px}
+.community-post-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.community-post-card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#0b1626}
+.community-post-copy{padding:14px}
+.community-post-copy p{margin:0;color:var(--text);font-size:.86rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.community-post-copy small{display:block;margin-top:10px;color:var(--muted);font-size:.72rem}
+.community-post-copy a{display:inline-block;margin-top:10px;color:#77e8ff;font-size:.78rem;font-weight:900}
+@media(max-width:1000px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.community-posts-grid{grid-template-columns:1fr}}
 </style>
 <meta name="zazoomtek-build" content="Mf8B30PKjqY-2026-10-02T12:29:00Z">
 </head>
@@ -433,6 +444,17 @@ footer{
       </div>
     </article>
   </section>
+
+  <div class="section-title" id="community-posts">
+    <div><h2>Ultimi Post</h2><p>Gli ultimi post pubblicati nella Community YouTube di ZazoomTek.</p></div>
+    <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutti →</a>
+  </div>
+
+  <!-- COMMUNITY_POSTS_START -->
+  <section class="community-posts-grid" id="community-posts-grid">
+    <article class="community-post-card"><div class="community-post-copy"><p>I post della Community ZazoomTek vengono sincronizzati automaticamente.</p><a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Apri i Post su YouTube</a></div></article>
+  </section>
+  <!-- COMMUNITY_POSTS_END -->
 
   <div class="section-title" id="shorts">
     <div><h2>Ultimi Shorts</h2><p>Gli ultimi Shorts pubblicati sul canale ZazoomTek.</p></div>
