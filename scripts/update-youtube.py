@@ -16,9 +16,18 @@ def get(endpoint, **params):
 def uploads():
     c=get("channels",part="contentDetails",id=CHANNEL_ID)
     pl=c["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-    p=get("playlistItems",part="snippet,contentDetails",playlistId=pl,maxResults=50)
-    ids=[x["contentDetails"]["videoId"] for x in p["items"]]
-    v=get("videos",part="snippet,contentDetails",id=",".join(ids))["items"]
+    ids=[]
+    token=None
+    while True:
+        params={"part":"snippet,contentDetails","playlistId":pl,"maxResults":50}
+        if token: params["pageToken"]=token
+        p=get("playlistItems",**params)
+        ids.extend(x["contentDetails"]["videoId"] for x in p.get("items",[]))
+        token=p.get("nextPageToken")
+        if not token: break
+    v=[]
+    for i in range(0,len(ids),50):
+        v.extend(get("videos",part="snippet,contentDetails",id=",".join(ids[i:i+50]))["items"])
     return sorted(v,key=lambda x:x["snippet"]["publishedAt"],reverse=True)
 
 def sec(d):
@@ -61,7 +70,7 @@ def card(v):
       <div class="video-card-body"><span class="video-date">{date}</span><h3>{title}</h3><a href="https://youtu.be/{vid}" target="_blank" rel="noopener">Guarda su YouTube</a></div>
     </article>'''
 
-def update_category(name, vids):
+def update_category(name, vids, short_ids):
     p=Path(name+".html")
     if not p.exists(): return
     h=p.read_text(encoding="utf-8")
@@ -77,10 +86,10 @@ def update_category(name, vids):
         t=re.sub(r'\b(shorts?|short|video|full|hd|4k|recensione|review|test|prova|unboxing|gameplay|ps5|ps4|xbox|nintendo|switch)\b',' ',t)
         t=re.sub(r'[^a-z0-9à-ÿ]+',' ',t)
         return set(x for x in t.split() if len(x)>2)
-    longs=[v for v in candidates if v["id"] not in youtube_short_ids()]
+    longs=[v for v in candidates if v["id"] not in short_ids]
     chosen=[]
     for v in candidates:
-        is_short=v["id"] in youtube_short_ids()
+        is_short=v["id"] in short_ids
         if is_short:
             vk=topic_key(v)
             duplicate=any(len(vk & topic_key(l)) >= 2 and len(vk & topic_key(l))/max(1,min(len(vk),len(topic_key(l)))) >= .5 for l in longs)
@@ -171,7 +180,7 @@ def update_home(vids, short_ids):
 
     # Side cards: newest item in each category, matched by category link anchor.
     for name in ["recensioni","test","unboxing","gaming"]:
-        latest=next((v for v in vids if classify(v)==name),None)
+        latest=next((v for v in vids if classify(v)==name and (not main_video or v["id"] != main_video["id"])),None)
         if latest:
             h=replace_article_containing(h,f'href="{name}.html" aria-label="Apri tutti',feature_side(latest,name))
 
@@ -214,7 +223,7 @@ def main():
     short_ids=youtube_short_ids()
     update_home(vids,short_ids)
     for n in ["recensioni","test","unboxing","gaming"]:
-        update_category(n,vids)
+        update_category(n,vids,short_ids)
     Path(".youtube-latest.json").write_text(
         json.dumps([{
             "id":v["id"],
