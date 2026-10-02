@@ -194,16 +194,32 @@ def update_home(vids, short_ids):
     # cannot be read. This change is intentionally isolated to the main feature.
     # Main feature: newest true 16:9 long-form upload, regardless of category.
     # Shorts/vertical videos never enter the large box.
-    def is_true_longform(v):
+    def is_true_landscape(v):
+        # The large Home box is based on the actual video format, not duration.
+        # First reject videos YouTube exposes as Shorts.
         if v["id"] in short_ids:
             return False
-        # Never use videos up to 3 minutes in the large Home feature.
-        # This prevents vertical Shorts that the Shorts shelf may fail to expose
-        # from being mistaken for long-form videos.
-        if sec(v["contentDetails"]["duration"])<=180:
-            return False
-        return True
-    main_video=next((v for v in vids if is_true_longform(v)), None)
+        # Then inspect the encoded player formats and require landscape 16:9.
+        try:
+            req=urllib.request.Request(
+                f"https://www.youtube.com/watch?v={v['id']}",
+                headers={"User-Agent":"Mozilla/5.0"}
+            )
+            with urllib.request.urlopen(req,timeout=20) as r:
+                page=r.read().decode("utf-8","ignore")
+            m=re.search(r'"adaptiveFormats":\[(.*?)\],"videoDetails"',page,re.S)
+            block=m.group(1) if m else page
+            dims=[(int(w),int(h)) for w,h in re.findall(r'"width":(\d+),"height":(\d+)',block)]
+            dims=[(w,h) for w,h in dims if w>0 and h>0]
+            if dims:
+                w,h=max(dims,key=lambda x:x[0]*x[1])
+                ratio=w/h
+                return 1.70 <= ratio <= 1.82
+        except Exception:
+            pass
+        # Fallback only when YouTube does not expose dimensions.
+        return v["id"] not in short_ids
+    main_video=next((v for v in vids if is_true_landscape(v)), None)
     if main_video:
         a=h.find('<article class="feature-main">')
         if a>=0:
