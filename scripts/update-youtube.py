@@ -79,7 +79,6 @@ def classify(v):
     if v["id"] in REVIEWS_VIDEO_IDS: return "recensioni"
     if v["id"] in ANALOGIKTEK_VIDEO_IDS: return "analogiktek"
     return None
-     return None
 
 def esc(s): return html.escape(s,quote=True)
 
@@ -177,6 +176,15 @@ def recent_short(v):
       </div>
     </article>'''
 
+def analogic_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    return f'''      <article class="analogic-card">
+        <a href="https://www.youtube.com/watch?v={vid}&list={ANALOGIKTEK_PLAYLIST_ID}" target="_blank" rel="noopener">
+          <img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy">
+          <h3>{title}</h3>
+        </a>
+      </article>'''
+
 def update_home(vids, short_ids):
     p=Path("index.html")
     h=p.read_text(encoding="utf-8")
@@ -235,6 +243,15 @@ def update_home(vids, short_ids):
         if b>=0:
             block='<section class="recent-grid" id="shorts-grid">\n'+"\n".join(recent_short(v) for v in shorts)+'\n  </section>'
             h=h[:a]+block+h[b+10:]
+
+    # AnalogikTek: five newest videos from the official playlist.
+    analog=[v for v in vids if v["id"] in ANALOGIKTEK_VIDEO_IDS][:5]
+    a=h.find('<div class="analogic-grid">')
+    if a>=0:
+        b=h.find("</div>",a)
+        if b>=0:
+            block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
+            h=h[:a]+block+h[b+6:]
 
     # Cache-busting build marker.
     h=re.sub(r'<meta name="zazoomtek-build" content="[^"]*">',
