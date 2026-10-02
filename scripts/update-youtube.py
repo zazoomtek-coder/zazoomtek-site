@@ -197,9 +197,10 @@ def update_home(vids, short_ids):
     def is_true_longform(v):
         if v["id"] in short_ids:
             return False
-        # YouTube Shorts can be up to 3 minutes. When the Shorts shelf cannot
-        # identify an upload, avoid treating <=180s uploads as long-form.
-        if not short_ids and sec(v["contentDetails"]["duration"])<=180:
+        # Never use videos up to 3 minutes in the large Home feature.
+        # This prevents vertical Shorts that the Shorts shelf may fail to expose
+        # from being mistaken for long-form videos.
+        if sec(v["contentDetails"]["duration"])<=180:
             return False
         return True
     main_video=next((v for v in vids if is_true_longform(v)), None)
