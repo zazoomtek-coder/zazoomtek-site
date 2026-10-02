@@ -43,10 +43,11 @@ def youtube_short_ids():
 
 def classify(v):
     t=v["snippet"]["title"].lower()
-    if any(x in t for x in ["unboxing","cosa c'è","cosa c’è"]): return "unboxing"
+    if any(x in t for x in ["unboxing","cosa c'è","cosa c’è","what's in the box","what’s in the box"]): return "unboxing"
     if any(x in t for x in ["recensione","review"]): return "recensioni"
     if any(x in t for x in ["gameplay","ps5","xbox","nintendo","switch","gaming","warzone","battlefield","wolverine","taxi","tomb raider","legacy of atlantis"]): return "gaming"
-    return "test"
+    if any(x in t for x in ["test","prova","testing"]): return "test"
+    return None
 
 def esc(s): return html.escape(s,quote=True)
 
