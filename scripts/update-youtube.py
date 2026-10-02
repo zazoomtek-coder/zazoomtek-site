@@ -134,10 +134,14 @@ def update_home(vids, short_ids):
     # Main featured: newest long-form video only. Shorts never enter the large box.
     # Prefer the channel Shorts shelf; use duration as a fallback when that shelf
     # cannot be read. This change is intentionally isolated to the main feature.
-    if short_ids:
-        main_video=next((v for v in vids if v["id"] not in short_ids), None)
-    else:
-        main_video=next((v for v in vids if sec(v["contentDetails"]["duration"])>180), None)
+    # Main feature uses editorial/review long-form content only.
+    # Plain gameplay uploads and Shorts stay in their own/category sections.
+    def eligible_main(v):
+        title=v["snippet"]["title"].lower()
+        is_short=(v["id"] in short_ids) if short_ids else sec(v["contentDetails"]["duration"])<=180
+        is_plain_gameplay=("gameplay" in title and not any(x in title for x in ["recensione","review","test","unboxing"]))
+        return not is_short and not is_plain_gameplay
+    main_video=next((v for v in vids if eligible_main(v)), None)
     if main_video:
         a=h.find('<article class="feature-main">')
         if a>=0:
