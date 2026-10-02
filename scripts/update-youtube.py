@@ -11,10 +11,12 @@ TEST_PLAYLIST_ID="PL7dvpppAJr03SBwNej9rwT4nIvgYzJwzT"
 GAMING_PLAYLIST_ID="PL7dvpppAJr01wOyi0xZob2R5g5NfoZGZZ"
 UNBOXING_PLAYLIST_ID="PL7dvpppAJr03Tdqg6YeNWepK4sMOgIXvB"
 REVIEWS_PLAYLIST_ID="PL7dvpppAJr00pUmHZxvOyTspS8Htczfr-"
+ANALOGIKTEK_PLAYLIST_ID="PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI"
 TEST_VIDEO_IDS=set()
 GAMING_VIDEO_IDS=set()
 UNBOXING_VIDEO_IDS=set()
 REVIEWS_VIDEO_IDS=set()
+ANALOGIKTEK_VIDEO_IDS=set()
 
 def get(endpoint, **params):
     params["key"]=KEY
@@ -75,6 +77,7 @@ def classify(v):
     if v["id"] in GAMING_VIDEO_IDS: return "gaming"
     if v["id"] in UNBOXING_VIDEO_IDS: return "unboxing"
     if v["id"] in REVIEWS_VIDEO_IDS: return "recensioni"
+    if v["id"] in ANALOGIKTEK_VIDEO_IDS: return "analogiktek"
     return None
      return None
 
@@ -239,15 +242,16 @@ def update_home(vids, short_ids):
     p.write_text(h,encoding="utf-8")
 
 def main():
-    global TEST_VIDEO_IDS, GAMING_VIDEO_IDS, UNBOXING_VIDEO_IDS, REVIEWS_VIDEO_IDS
+    global TEST_VIDEO_IDS, GAMING_VIDEO_IDS, UNBOXING_VIDEO_IDS, REVIEWS_VIDEO_IDS, ANALOGIKTEK_VIDEO_IDS
     vids=uploads()
     TEST_VIDEO_IDS=playlist_video_ids(TEST_PLAYLIST_ID)
     GAMING_VIDEO_IDS=playlist_video_ids(GAMING_PLAYLIST_ID)
     UNBOXING_VIDEO_IDS=playlist_video_ids(UNBOXING_PLAYLIST_ID)
     REVIEWS_VIDEO_IDS=playlist_video_ids(REVIEWS_PLAYLIST_ID)
+    ANALOGIKTEK_VIDEO_IDS=playlist_video_ids(ANALOGIKTEK_PLAYLIST_ID)
     short_ids=youtube_short_ids()
     update_home(vids,short_ids)
-    for n in ["recensioni","test","unboxing","gaming"]:
+    for n in ["recensioni","test","unboxing","gaming","analogiktek"]:
         update_category(n,vids,short_ids)
     Path(".youtube-latest.json").write_text(
         json.dumps([{
