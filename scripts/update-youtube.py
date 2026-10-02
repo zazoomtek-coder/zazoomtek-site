@@ -204,7 +204,7 @@ def main():
             "publishedAt":v["snippet"]["publishedAt"],
             "category":classify(v),
             "short": (v["id"] in short_ids) if short_ids else sec(v["contentDetails"]["duration"])<=180
-        } for v in vids[:30]],ensure_ascii=False,indent=2),
+        } for v in vids],ensure_ascii=False,indent=2),
         encoding="utf-8"
     )
 
