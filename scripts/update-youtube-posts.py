@@ -244,7 +244,7 @@ def render_news_cards(posts):
     for p in posts:
         title=news_title(p); slug=news_slug(p)
         im=f'<a href="{slug}"><img src="{html.escape(p["image"])}" alt="{html.escape(title)}" loading="lazy"></a>' if p.get("image") else ""
-        cards.append(f'''    <article class="community-post-card">{im}<div class="community-post-copy"><p>{html.escape(title)}</p><small>{html.escape(p.get("published") or "")}</small><a href="{slug}">Leggi la News →</a></div></article>''')
+        cards.append(f'''    <article class="community-post-card">{im}<div class="community-post-copy"><p><a href="{slug}">{html.escape(title)}</a></p><small>{html.escape(p.get("published") or "")}</small><a href="{slug}">Leggi la News →</a></div></article>''')
     return "\n".join(cards)
 
 def write_news_archive(news):
