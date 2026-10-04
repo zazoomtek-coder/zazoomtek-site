@@ -215,13 +215,45 @@ def write_review_archive(reviews):
     page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Recensioni | ZazoomTek</title><meta name="description" content="Archivio delle recensioni scritte di ZazoomTek."><link rel="canonical" href="https://zazoomtek.web.app/recensioni-scritte.html"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif}}.wrap{{width:min(1420px,calc(100% - 36px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}h1{{margin:28px 0 6px}}.sub{{color:var(--muted)}}.community-posts-grid{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:18px 0 40px}}.community-post-card{{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}}.community-post-card img{{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}}.community-post-copy{{padding:14px}}.community-post-copy p{{margin:0;font-size:.86rem;line-height:1.45}}.community-post-copy small{{display:block;margin-top:10px;color:var(--muted);font-size:.72rem}}.community-post-copy a{{display:inline-block;margin-top:10px;color:#77e8ff;font-size:.78rem;font-weight:900}}@media(max-width:1000px){{.community-posts-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.community-posts-grid{{grid-template-columns:1fr}}}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
     Path("recensioni-scritte.html").write_text(page,encoding="utf-8")
 
-def render(posts):
+def news_title(p):
+    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    return lines[0] if lines else "News ZazoomTek"
+
+def news_slug(p):
+    return "news-"+p["id"]+".html"
+
+def news_body_html(p):
+    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',p.get("text") or "") if x.strip()]
+    title=news_title(p)
+    cleaned=[]
+    for b in blocks:
+        if b==title:
+            continue
+        cleaned.append(b)
+    return "\n".join(f"<p>{html.escape(b)}</p>" for b in cleaned)
+
+def write_news_page(p):
+    title=news_title(p)
+    slug=news_slug(p)
+    img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
+    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.web.app/{slug}"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd;--cyan:#20d9ff;--blue:#2588ff}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}}.wrap{{width:min(980px,calc(100% - 32px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}.back{{display:block;margin-top:8px;color:#7de9ff;font-weight:800}}.hero{{margin:26px 0 18px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}}.hero img{{width:100%;max-height:560px;object-fit:cover;display:block}}.hero-copy{{padding:22px}}.hero h1{{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}}.meta{{color:var(--muted);font-size:.9rem}}.article{{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;margin-bottom:36px}}.article p{{margin:0 0 18px;white-space:pre-line}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="news.html">← Tutte le News</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{news_body_html(p)}</article></main></body></html>'''
+    Path(slug).write_text(page,encoding="utf-8")
+
+def render_news_cards(posts):
     cards=[]
     for p in posts:
-        im=f'<a href="{html.escape(p["url"])}" target="_blank" rel="noopener"><img src="{html.escape(p["image"])}" alt="Post Community ZazoomTek" loading="lazy"></a>' if p["image"] else ""
-        body=html.escape(p["text"] or "Post Community ZazoomTek")
-        cards.append(f'''    <article class="community-post-card">{im}<div class="community-post-copy"><p>{body}</p><small>{html.escape(p["published"])}</small><a href="{html.escape(p["url"])}" target="_blank" rel="noopener">Apri su YouTube →</a></div></article>''')
-    return '\n'.join(cards)
+        title=news_title(p); slug=news_slug(p)
+        im=f'<a href="{slug}"><img src="{html.escape(p["image"])}" alt="{html.escape(title)}" loading="lazy"></a>' if p.get("image") else ""
+        cards.append(f'''    <article class="community-post-card">{im}<div class="community-post-copy"><p>{html.escape(title)}</p><small>{html.escape(p.get("published") or "")}</small><a href="{slug}">Leggi la News →</a></div></article>''')
+    return "\n".join(cards)
+
+def write_news_archive(news):
+    cards=render_news_cards(news)
+    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>News | ZazoomTek</title><meta name="description" content="Le ultime News pubblicate da ZazoomTek."><link rel="canonical" href="https://zazoomtek.web.app/news.html"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif}}.wrap{{width:min(1420px,calc(100% - 36px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}h1{{margin:28px 0 6px}}.sub{{color:var(--muted)}}.community-posts-grid{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:18px 0 40px}}.community-post-card{{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}}.community-post-card img{{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}}.community-post-copy{{padding:14px}}.community-post-copy p{{margin:0;font-size:.86rem;line-height:1.45}}.community-post-copy small{{display:block;margin-top:10px;color:var(--muted);font-size:.72rem}}.community-post-copy a{{display:inline-block;margin-top:10px;color:#77e8ff;font-size:.78rem;font-weight:900}}@media(max-width:1000px){{.community-posts-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.community-posts-grid{{grid-template-columns:1fr}}}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
+    Path("news.html").write_text(page,encoding="utf-8")
+
+def render(posts):
+    return render_news_cards(posts)
 
 def main():
     posts=parse(fetch())
@@ -233,6 +265,8 @@ def main():
     news=[p for p in posts if not is_review(p)][:5]
     for p in reviews: write_review_page(p)
     write_review_archive(reviews)
+    for p in news: write_news_page(p)
+    write_news_archive(news)
 
     s=INDEX.read_text(encoding="utf-8")
     repl="<!-- COMMUNITY_POSTS_START -->\n  <section class=\"community-posts-grid\" id=\"community-posts-grid\">\n"+render(news)+"\n  </section>\n  <!-- COMMUNITY_POSTS_END -->"
@@ -242,6 +276,7 @@ def main():
     rrepl="<!-- PATREON_REVIEWS_START -->\n  <section class=\"community-posts-grid\" id=\"patreon-reviews-grid\">\n"+render_review_cards(home_reviews,True)+"\n  </section>\n  <!-- PATREON_REVIEWS_END -->"
     s2=re.sub(r'<!-- PATREON_REVIEWS_START -->.*?<!-- PATREON_REVIEWS_END -->',rrepl,s2,flags=re.S)
     s2=s2.replace('href="https://www.patreon.com/c/ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>','href="recensioni-scritte.html">Vedi tutte →</a>')
+    s2=s2.replace('href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutti →</a>','href="news.html">Vedi tutti →</a>')
     if s2!=s:INDEX.write_text(s2,encoding="utf-8")
     print("Synced",len(news),"YouTube Community news posts and",len(reviews),"review posts")
 
