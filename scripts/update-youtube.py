@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import html, json, os, re, subprocess, urllib.parse, urllib.request
+import html, json, os, re, urllib.parse, urllib.request
 from pathlib import Path
 from datetime import datetime
 
@@ -195,29 +195,48 @@ def update_home(vids, short_ids):
     # Main feature: newest true 16:9 long-form upload, regardless of category.
     # Shorts/vertical videos never enter the large box.
     def is_true_landscape(v):
-        # Home large box: ONLY videos whose real source dimensions are 16:9.
-        # Duration and title do not matter.
+        # Home large box: verify the REAL source dimensions from YouTube player data.
+        # Duration/title/category do not matter.
         if v["id"] in short_ids:
             return False
         try:
-            raw=subprocess.check_output([
-                "yt-dlp","--dump-single-json","--skip-download","--no-playlist",
-                f"https://www.youtube.com/watch?v={v['id']}"
-            ],stderr=subprocess.DEVNULL,timeout=45,text=True)
-            data=json.loads(raw)
-            w=data.get("width"); h=data.get("height")
-            if not (w and h):
-                fmts=[x for x in data.get("formats",[]) if x.get("width") and x.get("height")]
-                if fmts:
-                    best=max(fmts,key=lambda x:(x.get("width") or 0)*(x.get("height") or 0))
-                    w,h=best.get("width"),best.get("height")
-            if w and h:
-                ratio=float(w)/float(h)
-                return 1.70 <= ratio <= 1.82
+            req=urllib.request.Request(
+                f"https://www.youtube.com/watch?v={v['id']}",
+                headers={"User-Agent":"Mozilla/5.0","Accept-Language":"it-IT,it;q=0.9,en;q=0.8"}
+            )
+            with urllib.request.urlopen(req,timeout=12) as r:
+                page=r.read().decode("utf-8","ignore")
+            marker="ytInitialPlayerResponse"
+            pos=page.find(marker)
+            if pos>=0:
+                brace=page.find("{",pos)
+                if brace>=0:
+                    depth=0; in_str=False; escp=False; endpos=None
+                    for i,ch in enumerate(page[brace:],start=brace):
+                        if in_str:
+                            if escp: escp=False
+                            elif ch=="\\": escp=True
+                            elif ch=='"': in_str=False
+                        else:
+                            if ch=='"': in_str=True
+                            elif ch=="{": depth+=1
+                            elif ch=="}":
+                                depth-=1
+                                if depth==0:
+                                    endpos=i+1; break
+                    if endpos:
+                        data=json.loads(page[brace:endpos])
+                        fmts=(data.get("streamingData",{}).get("adaptiveFormats",[]) or
+                              data.get("streamingData",{}).get("formats",[]))
+                        dims=[(x.get("width"),x.get("height")) for x in fmts if x.get("width") and x.get("height")]
+                        if dims:
+                            w,h=max(dims,key=lambda x:x[0]*x[1])
+                            ratio=float(w)/float(h)
+                            return 1.70 <= ratio <= 1.82
         except Exception:
             pass
-        # If dimensions cannot be verified, do NOT put the video in the large box.
         return False
+
     # Choose the newest uploaded/published 16:9 video by YouTube publishedAt.
     landscape_candidates=[v for v in vids if is_true_landscape(v)]
     landscape_candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
