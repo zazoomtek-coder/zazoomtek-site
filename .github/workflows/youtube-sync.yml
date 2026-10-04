@@ -20,6 +20,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install video metadata checker
+        run: python3 -m pip install --quiet yt-dlp
+
       - name: Sync public YouTube uploads
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
