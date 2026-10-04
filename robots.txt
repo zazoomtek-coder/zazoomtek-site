@@ -3,3 +3,5 @@ Allow: /
 
 Sitemap: https://zazoomtek.web.app/sitemap.xml
 Sitemap: https://zazoomtek.web.app/sitemap.txt
+Sitemap: https://zazoomtek.web.app/google-sitemap.xml
+
