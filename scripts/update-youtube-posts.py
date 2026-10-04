@@ -46,8 +46,46 @@ def image_url(p):
     w(p)
     return max(found,default=(0,""))[1].replace("\\u0026","&")
 
-def parse(s):
-    nodes=[];walk(initial_data(s),nodes);posts=[];seen=set()
+def continuation_tokens(x):
+    out=[]
+    def w(v):
+        if isinstance(v,dict):
+            cc=v.get("continuationCommand")
+            if isinstance(cc,dict) and cc.get("token"): out.append(cc["token"])
+            for z in v.values(): w(z)
+        elif isinstance(v,list):
+            for z in v: w(z)
+    w(x)
+    return out
+
+def innertube_config(page):
+    key=""
+    ver=""
+    m=re.search(r'"INNERTUBE_API_KEY":"([^"]+)"',page)
+    if m:key=m.group(1)
+    m=re.search(r'"INNERTUBE_CLIENT_VERSION":"([^"]+)"',page)
+    if m:ver=m.group(1)
+    return key,ver
+
+def fetch_continuation(token,key,ver):
+    if not key or not ver:return {}
+    payload=json.dumps({
+        "context":{"client":{"clientName":"WEB","clientVersion":ver,"hl":"it","gl":"IT"}},
+        "continuation":token
+    }).encode("utf-8")
+    req=urllib.request.Request(
+        "https://www.youtube.com/youtubei/v1/browse?key="+key,
+        data=payload,
+        headers={
+            "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+            "Content-Type":"application/json",
+            "Accept-Language":"it-IT,it;q=0.9,en;q=0.8"
+        }
+    )
+    with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+
+def parse_nodes(data,posts,seen):
+    nodes=[];walk(data,nodes)
     for p in nodes:
         pid=p.get("postId") or p.get("backstagePostId")
         if not pid or pid in seen:continue
@@ -55,6 +93,27 @@ def parse(s):
         body=txt(p.get("contentText",{})) or txt(p.get("backstagePostText",{}))
         when=txt(p.get("publishedTimeText",{}))
         posts.append({"id":pid,"text":body.strip(),"published":when,"image":image_url(p),"url":"https://www.youtube.com/post/"+pid})
+
+def parse(s):
+    data=initial_data(s)
+    posts=[];seen=set()
+    parse_nodes(data,posts,seen)
+    key,ver=innertube_config(s)
+    tokens=continuation_tokens(data)
+    used=set()
+    pages=0
+    # Continue loading older Community posts until at least 5 reviews are found
+    # or a safe pagination limit is reached.
+    while len([p for p in posts if is_review(p)])<5 and tokens and pages<12:
+        token=next((t for t in tokens if t not in used),None)
+        if not token:break
+        used.add(token);pages+=1
+        try:
+            more=fetch_continuation(token,key,ver)
+        except Exception:
+            break
+        parse_nodes(more,posts,seen)
+        tokens.extend(t for t in continuation_tokens(more) if t not in used)
     return posts
 
 def is_review(p):
