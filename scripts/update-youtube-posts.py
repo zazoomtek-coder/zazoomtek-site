@@ -100,6 +100,7 @@ def parse(s):
     parse_nodes(data,posts,seen)
     key,ver=innertube_config(s)
     tokens=continuation_tokens(data)
+    print("DEBUG community pagination:", "posts",len(posts),"tokens",len(tokens),"key",bool(key),"ver",ver or "NONE")
     used=set()
     pages=0
     # Continue loading older Community posts until at least 5 reviews are found
