@@ -255,6 +255,19 @@ def write_news_archive(news):
 def render(posts):
     return render_news_cards(posts)
 
+
+def update_sitemap():
+    base=["","recensioni.html","test.html","unboxing.html","gaming.html","news.html","recensioni-scritte.html","chi-sono.html","contatti.html"]
+    dynamic=sorted([p.name for p in Path(".").glob("news-*.html")]+[p.name for p in Path(".").glob("recensione-*.html")])
+    urls=[]
+    seen=set()
+    for n in base+dynamic:
+        if n in seen: continue
+        seen.add(n)
+        urls.append(f"  <url><loc>https://zazoomtek.web.app/{html.escape(n)}</loc></url>")
+    xml='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+"\n".join(urls)+'\n</urlset>\n'
+    Path("sitemap.xml").write_text(xml,encoding="utf-8")
+
 def main():
     posts=parse(fetch())
     if not posts:
@@ -267,6 +280,7 @@ def main():
     write_review_archive(reviews)
     for p in news: write_news_page(p)
     write_news_archive(news)
+    update_sitemap()
 
     s=INDEX.read_text(encoding="utf-8")
     repl="<!-- COMMUNITY_POSTS_START -->\n  <section class=\"community-posts-grid\" id=\"community-posts-grid\">\n"+render(news)+"\n  </section>\n  <!-- COMMUNITY_POSTS_END -->"
