@@ -120,7 +120,7 @@ def main():
         return
     STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     news=posts[:5]
-    reviews=[p for p in posts if is_review(p)][:6]
+    reviews=[p for p in posts if is_review(p)][:5]
     for p in reviews: write_review_page(p)
     write_review_archive(reviews)
 
@@ -128,7 +128,7 @@ def main():
     repl="<!-- COMMUNITY_POSTS_START -->\n  <section class=\"community-posts-grid\" id=\"community-posts-grid\">\n"+render(news)+"\n  </section>\n  <!-- COMMUNITY_POSTS_END -->"
     s2=re.sub(r'<!-- COMMUNITY_POSTS_START -->.*?<!-- COMMUNITY_POSTS_END -->',repl,s,flags=re.S)
 
-    home_reviews=reviews[:6]
+    home_reviews=reviews[:5]
     rrepl="<!-- PATREON_REVIEWS_START -->\n  <section class=\"community-posts-grid\" id=\"patreon-reviews-grid\">\n"+render_review_cards(home_reviews,True)+"\n  </section>\n  <!-- PATREON_REVIEWS_END -->"
     s2=re.sub(r'<!-- PATREON_REVIEWS_START -->.*?<!-- PATREON_REVIEWS_END -->',rrepl,s2,flags=re.S)
     s2=s2.replace('href="https://www.patreon.com/c/ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>','href="recensioni-scritte.html">Vedi tutte →</a>')
