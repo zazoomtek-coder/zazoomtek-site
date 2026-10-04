@@ -228,23 +228,24 @@ def update_home(vids, short_ids):
             b=h.find("</article>",a)
             if b>=0: h=h[:a]+feature_main(main_video)+h[b+10:]
 
-    # Side cards next to the main feature: newest REAL 16:9 video in each category,
-    # selected strictly by YouTube upload/publish date (day/month/year + time).
+    # Side cards next to the main feature: newest upload in each category.
+    # Both 16:9 and 9:16 are allowed. Selection is strictly by YouTube publish date.
     for name in ["recensioni","test","unboxing","gaming"]:
         candidates=[
             v for v in vids
             if classify(v)==name
             and (not main_video or v["id"] != main_video["id"])
-            and is_true_landscape(v)
         ]
         candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
         latest=candidates[0] if candidates else None
         if latest:
             h=replace_article_containing(h,f'href="{name}.html" aria-label="Apri tutti',feature_side(latest,name))
 
-    # Lower category thumbnails: exact box by data-page.
+    # Lower category thumbnails: same rule, newest upload by YouTube publish date.
     for name in ["recensioni","test","unboxing","gaming"]:
-        latest=next((v for v in vids if classify(v)==name),None)
+        candidates=[v for v in vids if classify(v)==name]
+        candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
+        latest=candidates[0] if candidates else None
         if not latest: continue
         marker=f'<article class="category-box category-latest" data-page="{name}.html">'
         pos=h.find(marker)
