@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import html, json, os, re, urllib.parse, urllib.request
+import html, json, os, re, subprocess, urllib.parse, urllib.request
 from pathlib import Path
 from datetime import datetime
 
@@ -195,30 +195,29 @@ def update_home(vids, short_ids):
     # Main feature: newest true 16:9 long-form upload, regardless of category.
     # Shorts/vertical videos never enter the large box.
     def is_true_landscape(v):
-        # The large Home box is based on the actual video format, not duration.
-        # First reject videos YouTube exposes as Shorts.
+        # Home large box: ONLY videos whose real source dimensions are 16:9.
+        # Duration and title do not matter.
         if v["id"] in short_ids:
             return False
-        # Then inspect the encoded player formats and require landscape 16:9.
         try:
-            req=urllib.request.Request(
-                f"https://www.youtube.com/watch?v={v['id']}",
-                headers={"User-Agent":"Mozilla/5.0"}
-            )
-            with urllib.request.urlopen(req,timeout=20) as r:
-                page=r.read().decode("utf-8","ignore")
-            m=re.search(r'"adaptiveFormats":\[(.*?)\],"videoDetails"',page,re.S)
-            block=m.group(1) if m else page
-            dims=[(int(w),int(h)) for w,h in re.findall(r'"width":(\d+),"height":(\d+)',block)]
-            dims=[(w,h) for w,h in dims if w>0 and h>0]
-            if dims:
-                w,h=max(dims,key=lambda x:x[0]*x[1])
-                ratio=w/h
+            raw=subprocess.check_output([
+                "yt-dlp","--dump-single-json","--skip-download","--no-playlist",
+                f"https://www.youtube.com/watch?v={v['id']}"
+            ],stderr=subprocess.DEVNULL,timeout=45,text=True)
+            data=json.loads(raw)
+            w=data.get("width"); h=data.get("height")
+            if not (w and h):
+                fmts=[x for x in data.get("formats",[]) if x.get("width") and x.get("height")]
+                if fmts:
+                    best=max(fmts,key=lambda x:(x.get("width") or 0)*(x.get("height") or 0))
+                    w,h=best.get("width"),best.get("height")
+            if w and h:
+                ratio=float(w)/float(h)
                 return 1.70 <= ratio <= 1.82
         except Exception:
             pass
-        # Fallback only when YouTube does not expose dimensions.
-        return v["id"] not in short_ids
+        # If dimensions cannot be verified, do NOT put the video in the large box.
+        return False
     main_video=next((v for v in vids if is_true_landscape(v)), None)
     if main_video:
         a=h.find('<article class="feature-main">')
