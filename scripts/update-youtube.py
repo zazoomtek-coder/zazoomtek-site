@@ -237,15 +237,11 @@ def update_home(vids, short_ids):
             pass
         return False
 
-    # Choose the newest uploaded/published 16:9 video by YouTube publishedAt.
-    # Check uploads one by one, newest first, and STOP as soon as the first
-    # verified 16:9 video is found. This avoids scanning the whole channel.
+    # Choose the newest upload by YouTube publish date, but never a known Short.
+    # For ZazoomTek the upload order is authoritative; vertical Shorts are removed
+    # by the Shorts shelf before selecting the main Home feature.
     ordered=sorted(vids,key=lambda v:v["snippet"]["publishedAt"],reverse=True)
-    main_video=None
-    for v in ordered:
-        if is_true_landscape(v):
-            main_video=v
-            break
+    main_video=next((v for v in ordered if v["id"] not in short_ids),None)
     if main_video:
         a=h.find('<article class="feature-main">')
         if a>=0:
