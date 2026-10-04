@@ -1,5 +1,5 @@
 name: Sync YouTube to site
-# manual sync trigger 2026-10-04 17:20
+# manual sync trigger 2026-10-04 18:00 sitemap
 on:
   schedule:
     - cron: '7 * * * *'
