@@ -38,7 +38,7 @@ jobs:
           fi
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add index.html recensioni.html test.html unboxing.html gaming.html .youtube-latest.json .youtube-posts.json
+          git add index.html recensioni.html test.html unboxing.html gaming.html recensioni-scritte.html recensione-*.html .youtube-latest.json .youtube-posts.json
           git commit -m "Auto-sync latest YouTube uploads"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
