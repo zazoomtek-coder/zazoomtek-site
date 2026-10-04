@@ -264,8 +264,8 @@ def update_sitemap():
     for n in base+dynamic:
         if n in seen: continue
         seen.add(n)
-        urls.append(f"  <url><loc>https://zazoomtek.web.app/{html.escape(n)}</loc></url>")
-    xml='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+"\n".join(urls)+'\n</urlset>\n'
+        urls.append(f"  <url>\\n    <loc>https://zazoomtek.web.app/{html.escape(n)}</loc>\\n  </url>")
+    xml='<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n'+"\\n".join(urls)+'\\n</urlset>\\n'
     Path("sitemap.xml").write_text(xml,encoding="utf-8")
 
 def main():
