@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json,re,html,urllib.request
+from datetime import datetime,timezone
 from pathlib import Path
 
 URL="https://www.youtube.com/@ZazoomTek/posts"
@@ -259,13 +260,28 @@ def render(posts):
 def update_sitemap():
     base=["","recensioni.html","test.html","unboxing.html","gaming.html","news.html","recensioni-scritte.html","chi-sono.html","contatti.html"]
     dynamic=sorted([p.name for p in Path(".").glob("news-*.html")]+[p.name for p in Path(".").glob("recensione-*.html")])
-    urls=[]
-    seen=set()
+    names=[]; seen=set()
     for n in base+dynamic:
         if n in seen: continue
-        seen.add(n)
-        urls.append(f"  <url>\\n    <loc>https://zazoomtek.web.app/{html.escape(n)}</loc>\\n  </url>")
-    xml='<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n'+"\\n".join(urls)+'\\n</urlset>\\n'
+        seen.add(n); names.append(n)
+    lastmod=datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    rows=[]
+    for n in names:
+        priority="1.0000" if n=="" else "0.8000"
+        rows.append(
+            "  <url>\n"
+            f"       <loc>https://zazoomtek.web.app/{html.escape(n)}</loc>\n"
+            f"       <lastmod>{lastmod}</lastmod>\n"
+            f"       <priority>{priority}</priority>\n"
+            "  </url>"
+        )
+    xml=(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<?xml-stylesheet type="text/css" href="https://www.xml-sitemaps.com/css/sitemap.css"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n'
+        +"\n".join(rows)
+        +'\n</urlset>\n'
+    )
     Path("sitemap.xml").write_text(xml,encoding="utf-8")
 
 def main():
