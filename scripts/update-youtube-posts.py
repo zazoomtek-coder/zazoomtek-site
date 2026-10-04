@@ -119,8 +119,8 @@ def main():
         print("No public posts parsed; keeping current site unchanged.")
         return
     STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    news=posts[:5]
     reviews=[p for p in posts if is_review(p)][:5]
+    news=[p for p in posts if not is_review(p)][:5]
     for p in reviews: write_review_page(p)
     write_review_archive(reviews)
 
