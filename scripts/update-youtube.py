@@ -228,9 +228,17 @@ def update_home(vids, short_ids):
             b=h.find("</article>",a)
             if b>=0: h=h[:a]+feature_main(main_video)+h[b+10:]
 
-    # Side cards: newest item in each category, matched by category link anchor.
+    # Side cards next to the main feature: newest REAL 16:9 video in each category,
+    # selected strictly by YouTube upload/publish date (day/month/year + time).
     for name in ["recensioni","test","unboxing","gaming"]:
-        latest=next((v for v in vids if classify(v)==name and (not main_video or v["id"] != main_video["id"])),None)
+        candidates=[
+            v for v in vids
+            if classify(v)==name
+            and (not main_video or v["id"] != main_video["id"])
+            and is_true_landscape(v)
+        ]
+        candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
+        latest=candidates[0] if candidates else None
         if latest:
             h=replace_article_containing(h,f'href="{name}.html" aria-label="Apri tutti',feature_side(latest,name))
 
