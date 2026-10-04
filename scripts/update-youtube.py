@@ -218,7 +218,10 @@ def update_home(vids, short_ids):
             pass
         # If dimensions cannot be verified, do NOT put the video in the large box.
         return False
-    main_video=next((v for v in vids if is_true_landscape(v)), None)
+    # Choose the newest uploaded/published 16:9 video by YouTube publishedAt.
+    landscape_candidates=[v for v in vids if is_true_landscape(v)]
+    landscape_candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
+    main_video=landscape_candidates[0] if landscape_candidates else None
     if main_video:
         a=h.find('<article class="feature-main">')
         if a>=0:
