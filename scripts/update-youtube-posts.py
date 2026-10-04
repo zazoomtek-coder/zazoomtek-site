@@ -33,6 +33,33 @@ def walk(x,out):
         for v in x:walk(v,out)
 
 def image_url(p):
+    # Prefer the FIRST photo attached to the Community post.
+    # Do not pick the largest image from the whole renderer (which can select
+    # a different attachment or unrelated thumbnail).
+    def first_thumb_group(x):
+        if isinstance(x,dict):
+            thumbs=x.get("thumbnails")
+            if isinstance(thumbs,list):
+                valid=[t for t in thumbs if isinstance(t,dict) and str(t.get("url","")).startswith("http")]
+                if valid:
+                    best=max(valid,key=lambda t:(t.get("width",0) or 0)*(t.get("height",0) or 0))
+                    return best.get("url","").replace("\\u0026","&")
+            for v in x.values():
+                u=first_thumb_group(v)
+                if u:return u
+        elif isinstance(x,list):
+            for v in x:
+                u=first_thumb_group(v)
+                if u:return u
+        return ""
+
+    # YouTube normally stores Community post media here.
+    for key in ("backstageAttachment","attachment","postMultiImageRenderer"):
+        if isinstance(p,dict) and p.get(key):
+            u=first_thumb_group(p[key])
+            if u:return u
+
+    # Fallback for renderer variants: keep previous behavior.
     found=[]
     def w(x):
         if isinstance(x,dict):
@@ -124,14 +151,38 @@ def is_review(p):
 
 def review_title(p):
     lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
-    return lines[0] if lines else "Recensione ZazoomTek"
+    # Ignore generic labels such as "Review:" and use the first real line
+    # that identifies the reviewed product/game.
+    for line in lines[:8]:
+        low=line.lower().strip()
+        plain=re.sub(r'[^a-zà-ÿ]+','',low)
+        if plain in ("review","recensione"):
+            continue
+        if "recensione" in low or "review" in low:
+            return line
+    for line in lines:
+        low=line.lower().strip()
+        plain=re.sub(r'[^a-zà-ÿ]+','',low)
+        if plain not in ("review","recensione"):
+            return line
+    return "Recensione ZazoomTek"
 
 def review_slug(p):
     return "recensione-"+p["id"]+".html"
 
 def review_body_html(p):
     blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',p.get("text") or "") if x.strip()]
-    if blocks and blocks[0]==review_title(p): blocks=blocks[1:]
+    title=review_title(p)
+    cleaned=[]
+    for b in blocks:
+        low=b.lower().strip()
+        plain=re.sub(r'[^a-zà-ÿ]+','',low)
+        if plain in ("review","recensione"):
+            continue
+        if b==title:
+            continue
+        cleaned.append(b)
+    blocks=cleaned
     out=[]
     headings={"gameplay","la città","my player","my career","my nba, the w e my wnba","my team","aspetto tecnico su ps5","esperienza complessiva","conclusioni","materiali e design","hardware e prestazioni","uso quotidiano"}
     for b in blocks:
