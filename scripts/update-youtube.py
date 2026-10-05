@@ -265,7 +265,8 @@ def update_home(vids, short_ids):
             candidates=[v for v in candidates if v["snippet"]["publishedAt"] < main_time]
         latest=candidates[0] if candidates else None
         if latest:
-            h=replace_article_containing(h,f'href="{name}.html" aria-label="Apri tutti',feature_side(latest,name))
+            # Match the category link regardless of Italian gender in aria-label
+            h=replace_article_containing(h,f'href="{name}.html"',feature_side(latest,name))
 
     # Lower category thumbnails: same rule, newest upload by YouTube publish date.
     for name in ["recensioni","test","unboxing","gaming"]:
