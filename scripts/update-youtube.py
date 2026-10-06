@@ -345,6 +345,13 @@ def update_home(vids, short_ids):
         h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
         "\n".join(home_video_card(v) for v in editorial_latest)
     )
+    # Resolve the newest Short before choosing the right-sidebar category cards.
+    # This lets us explicitly exclude it from every category box.
+    sidebar_short=next((v for v in ordered if v["id"] in short_ids and not is_live_upload(v)),None)
+    if not sidebar_short:
+        sidebar_short=next((v for v in ordered if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)),None)
+    sidebar_short_id=sidebar_short["id"] if sidebar_short else None
+
     editorial_markers={
         "recensioni":("<!-- VIDEO_REVIEWS_START -->","<!-- VIDEO_REVIEWS_END -->","Recensioni"),
         "test":("<!-- VIDEO_TEST_START -->","<!-- VIDEO_TEST_END -->","Test"),
@@ -352,15 +359,19 @@ def update_home(vids, short_ids):
         "gaming":("<!-- VIDEO_GAMING_START -->","<!-- VIDEO_GAMING_END -->","Gaming"),
     }
     for category,(start_marker,end_marker,label) in editorial_markers.items():
-        # Right sidebar rule: ONLY true 16:9 videos.
-        # Skip vertical/9:16 uploads and live streams, then continue in strict
-        # chronological order until the newest valid 16:9 item for that category
-        # is found. Also avoid duplicates with "Ultimi Video".
+        # Right sidebar rule:
+        # - never use Shorts / 9:16 uploads
+        # - never use live streams
+        # - never duplicate the newest Short
+        # - never duplicate "Ultimi Video"
+        # - keep chronological order and take the next valid 16:9 item
         candidate=next(
             (
                 v for v in ordered
                 if classify(v)==category
                 and v["id"] not in editorial_latest_ids
+                and v["id"] not in short_ids
+                and v["id"] != sidebar_short_id
                 and not is_live_upload(v)
                 and is_true_landscape(v)
             ),
@@ -373,9 +384,6 @@ def update_home(vids, short_ids):
 
 
     # Sidebar: newest real Short.
-    sidebar_short=next((v for v in ordered if v["id"] in short_ids and not is_live_upload(v)),None)
-    if not sidebar_short:
-        sidebar_short=next((v for v in ordered if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)),None)
     h=replace_marker_block(
         h,"<!-- SIDEBAR_SHORT_START -->","<!-- SIDEBAR_SHORT_END -->",
         sidebar_short_card(sidebar_short) if sidebar_short else ""
