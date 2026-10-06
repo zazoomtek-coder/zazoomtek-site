@@ -196,11 +196,67 @@ def review_body_html(p):
             out.append(f"<p>{html.escape(b)}</p>")
     return "\n".join(out)
 
+DETAIL_STYLE = """<style>
+:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}
+*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}
+.wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange)}
+.headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
+.nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 14px;font-size:.76rem;font-weight:900;text-transform:uppercase;border-left:1px solid #2d2d2d}
+.nav a:hover{background:var(--orange)}a{color:inherit;text-decoration:none}
+.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;max-height:560px;object-fit:cover;display:block}
+.hero-copy{padding:22px;border-top:5px solid var(--orange)}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}
+.meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}
+.article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}
+.review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}
+@media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article{padding:20px}}
+</style>"""
+
+ARCHIVE_STYLE = """<style>
+:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}
+*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange)}
+.headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
+.nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 14px;font-size:.76rem;font-weight:900;text-transform:uppercase;border-left:1px solid #2d2d2d}
+.nav a:hover,.nav a.active{background:var(--orange)}a{color:inherit;text-decoration:none}
+main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(--muted);margin-bottom:18px}
+.community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid var(--orange);min-width:0}
+.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}
+.community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--orange);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}
+@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.community-posts-grid{grid-template-columns:1fr}}
+</style>"""
+
+def editorial_nav(active=""):
+    def a(label, href, key):
+        cls=' class="active"' if active==key else ""
+        ext=' target="_blank" rel="noopener"' if href.startswith("http") else ""
+        return f'<a{cls} href="{href}"{ext}>{label}</a>'
+    return (
+        '<nav class="nav">'
+        +a("Home","/","home")
+        +a("News","/news.html","news")
+        +a("Recensioni","/recensioni-scritte.html","recensioni")
+        +a("Community","https://www.youtube.com/@ZazoomTek/posts","community")
+        +a("Video","https://www.youtube.com/@ZazoomTek/videos","video")
+        +'</nav>'
+    )
+
+def editorial_header(active=""):
+    return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
+
 def write_review_page(p):
     title=review_title(p)
     slug=review_slug(p)
     img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.it/{slug}"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header .wrap{display:flex;align-items:center;gap:22px}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}.back{color:#fff;font-weight:800}.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;max-height:560px;object-fit:cover;display:block}.hero-copy{padding:22px;border-top:5px solid var(--orange)}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}.meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}.article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}.review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}@media(max-width:650px){header .wrap{display:block}.back{display:block;margin-top:8px}.article{padding:20px}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="recensioni-scritte.html">← Tutte le recensioni</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{review_body_html(p)}</article></main></body></html>'''
+    page=(
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+        f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+DETAIL_STYLE+'</head><body>'
+        +editorial_header("recensioni")
+        +f'<main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1>'
+        +f'<div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section>'
+        +f'<article class="article">{review_body_html(p)}</article></main></body></html>'
+    )
     Path(slug).write_text(page,encoding="utf-8")
 
 def render_review_cards(posts, home=False):
@@ -213,7 +269,14 @@ def render_review_cards(posts, home=False):
 
 def write_review_archive(reviews):
     cards=render_review_cards(reviews)
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>Recensioni | ZazoomTek</title><meta name="description" content="Archivio delle recensioni scritte di ZazoomTek."><link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(--muted);margin-bottom:18px}.community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid var(--orange);min-width:0}.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}.community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--orange);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.community-posts-grid{grid-template-columns:1fr}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
+    page=(
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>Recensioni | ZazoomTek</title>'
+        '<meta name="description" content="Archivio delle recensioni scritte di ZazoomTek.">'
+        '<link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html">'+ARCHIVE_STYLE+'</head><body>'
+        +editorial_header("recensioni")
+        +f'<main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main></body></html>'
+    )
     Path("recensioni-scritte.html").write_text(page,encoding="utf-8")
 
 def news_title(p):
@@ -237,7 +300,16 @@ def write_news_page(p):
     title=news_title(p)
     slug=news_slug(p)
     img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.it/{slug}"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header .wrap{display:flex;align-items:center;gap:22px}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}.back{color:#fff;font-weight:800}.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;max-height:560px;object-fit:cover;display:block}.hero-copy{padding:22px;border-top:5px solid var(--orange)}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}.meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}.article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}.review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}@media(max-width:650px){header .wrap{display:block}.back{display:block;margin-top:8px}.article{padding:20px}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="news.html">← Tutte le News</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{news_body_html(p)}</article></main></body></html>'''
+    page=(
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+        f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+DETAIL_STYLE+'</head><body>'
+        +editorial_header("news")
+        +f'<main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1>'
+        +f'<div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section>'
+        +f'<article class="article">{news_body_html(p)}</article></main></body></html>'
+    )
     Path(slug).write_text(page,encoding="utf-8")
 
 def render_news_cards(posts):
@@ -250,9 +322,15 @@ def render_news_cards(posts):
 
 def write_news_archive(news):
     cards=render_news_cards(news)
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title><meta name="description" content="Le ultime News pubblicate da ZazoomTek."><link rel="canonical" href="https://zazoomtek.it/news.html"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(--muted);margin-bottom:18px}.community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid var(--orange);min-width:0}.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}.community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--orange);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.community-posts-grid{grid-template-columns:1fr}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
+    page=(
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title>'
+        '<meta name="description" content="Le ultime News pubblicate da ZazoomTek.">'
+        '<link rel="canonical" href="https://zazoomtek.it/news.html">'+ARCHIVE_STYLE+'</head><body>'
+        +editorial_header("news")
+        +f'<main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'
+    )
     Path("news.html").write_text(page,encoding="utf-8")
-
 
 def post_kind(p):
     return "Recensione" if is_review(p) else "News"
