@@ -396,7 +396,7 @@ def render_article_feed(posts):
         rows.append(
             f'          <article class="article-row" data-search="{search.lower()}">'
             f'<a href="{slug}"><img class="article-image" src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
-            f'<div class="article-copy"><span class="article-kicker">{kind}</span>'
+            f'<div class="article-copy">'
             f'<h3><a href="{slug}">{html.escape(title)}</a></h3>'
             f'<div class="article-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
             f'<p>{excerpt}</p><a class="read-more" href="{slug}">Leggi tutto ›</a></div></article>'
