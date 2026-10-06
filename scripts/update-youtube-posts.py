@@ -343,14 +343,16 @@ def sidebar_video_box(title, category, link):
 def amazon_sidebar_box():
     return '''<section class="side-box"><div class="module-title">Su Amazon</div><div class="amazon-mini"><h3>I prodotti recensiti da ZazoomTek</h3><p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p><a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section>'''
 
-def news_video_sidebar():
+def news_video_sidebar(reviews=None):
+    reviews=reviews or []
     return (
-        sidebar_video_box("Video · Recensioni","recensioni","/recensioni.html")
+        amazon_sidebar_box()
+        +latest_reviews_sidebar_box(reviews,"",5)
+        +sidebar_video_box("Video · Recensioni","recensioni","/recensioni.html")
         +sidebar_video_box("Video · Test","test","/test.html")
         +sidebar_video_box("Video · Unboxing","unboxing","/unboxing.html")
         +sidebar_video_box("Video · Gaming","gaming","/gaming.html")
         +sidebar_video_box("Video · AnalogikTek","analogiktek","https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI")
-        +amazon_sidebar_box()
     )
 
 def compact_news_list(news, current_id="", limit=5):
@@ -449,6 +451,12 @@ def compact_review_list(reviews, current_id="", limit=5):
             break
     return "".join(rows)
 
+def latest_reviews_sidebar_box(reviews, current_id="", limit=5):
+    items=compact_review_list(reviews,current_id,limit)
+    if not items:
+        return ""
+    return '<section class="compact-box"><div class="module-title">Ultime recensioni</div><div class="compact-list">'+items+'</div></section>'
+
 def write_review_page(p, all_reviews=None):
     all_reviews=all_reviews or []
     title=review_title(p)
@@ -507,7 +515,7 @@ def write_review_archive(reviews):
         +'<main class="news-page"><div class="zt-wrap news-layout"><section class="news-main">'
         +'<div class="news-main-head"><h1>Recensioni</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Accessori</span></div></div>'
         +'<div class="news-list" id="reviewList">'+rows+'</div></section>'
-        +'<aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
+        +'<aside class="news-sidebar">'+news_video_sidebar(reviews)+'</aside></div></main>'
         +legal_footer()+SMART_STICKY_SCRIPT
         +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
         +'</body></html>'
@@ -598,7 +606,7 @@ def render_news_pagination(current,total):
         items.append(f'<a class="next" href="{news_page_href(current+1)}">NEXT</a>')
     return '<nav class="archive-pagination" aria-label="Pagine News">'+"".join(items)+'</nav>'
 
-def build_news_archive_page(news_chunk,page_num,total_pages):
+def build_news_archive_page(news_chunk,page_num,total_pages,reviews):
     rows=render_news_rows(news_chunk)
     title="News | ZazoomTek" if page_num==1 else f"News - Pagina {page_num} | ZazoomTek"
     canonical="https://zazoomtek.it/news.html" if page_num==1 else f"https://zazoomtek.it/news-{page_num}.html"
@@ -612,18 +620,18 @@ def build_news_archive_page(news_chunk,page_num,total_pages):
         +'<div class="news-main-head"><h1>Notizie</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Software</span></div></div>'
         +'<div class="news-list" id="newsList">'+rows+'</div>'
         +render_news_pagination(page_num,total_pages)
-        +'</section><aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
+        +'</section><aside class="news-sidebar">'+news_video_sidebar(reviews)+'</aside></div></main>'
         +legal_footer()+SMART_STICKY_SCRIPT
         +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
         +'</body></html>'
     )
 
-def write_news_archive(news):
+def write_news_archive(news,reviews):
     news=news[:NEWS_PAGE_SIZE*NEWS_MAX_PAGES]
     total_pages=max(1,min(NEWS_MAX_PAGES,(len(news)+NEWS_PAGE_SIZE-1)//NEWS_PAGE_SIZE))
     for page_num in range(1,total_pages+1):
         chunk=news[(page_num-1)*NEWS_PAGE_SIZE:page_num*NEWS_PAGE_SIZE]
-        page=build_news_archive_page(chunk,page_num,total_pages)
+        page=build_news_archive_page(chunk,page_num,total_pages,reviews)
         filename="news.html" if page_num==1 else f"news-{page_num}.html"
         Path(filename).write_text(page,encoding="utf-8")
 
@@ -810,7 +818,7 @@ def main():
     for p in reviews: write_review_page(p,reviews)
     write_review_archive(reviews)
     for p in news: write_news_page(p,news)
-    write_news_archive(news)
+    write_news_archive(news,reviews)
     total_article_pages=write_article_pages(posts)
     # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
     s=INDEX.read_text(encoding="utf-8")
