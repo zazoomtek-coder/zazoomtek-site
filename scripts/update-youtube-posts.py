@@ -132,7 +132,7 @@ def parse(s):
     pages=0
     # Continue loading older Community posts until at least 5 reviews are found
     # or a safe pagination limit is reached.
-    while len(posts)<40 and tokens and pages<40:
+    while len(posts)<100 and tokens and pages<80:
         token=next((t for t in tokens if t not in used),None)
         if not token:break
         used.add(token);pages+=1
@@ -434,6 +434,58 @@ def update_sitemap():
     )
     Path("sitemap.xml").write_text(xml,encoding="utf-8")
 
+
+PAGE_SIZE=20
+
+PAGINATED_ARTICLE_STYLE = """<style>
+:root{--blue:#006CFF;--mid:#263778;--red:#D51232;--grad:linear-gradient(90deg,var(--blue) 0%,var(--mid) 48%,var(--red) 100%);--line:#e5e5e5;--text:#303030;--muted:#777}
+*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1180px,calc(100% - 32px));margin:auto}
+header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--grad) 1}.headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}.nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 14px;font-size:.76rem;font-weight:900;text-transform:uppercase;border-left:1px solid #2d2d2d}.nav a:hover,.nav a.active{background:var(--grad)}a{color:inherit;text-decoration:none}
+main{background:#fff;padding:26px 0 40px}.archive-head{padding:0 22px 18px}.archive-head h1{margin:0 0 6px}.archive-head p{margin:0;color:var(--muted)}
+.article-list{border-top:1px solid var(--line)}.article-row{display:grid;grid-template-columns:330px 1fr;gap:20px;padding:18px 22px;border-bottom:1px solid var(--line);align-items:start}.article-image{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.article-copy h3{font-size:1.18rem;line-height:1.18;margin:0 0 6px}.article-meta{font-size:.78rem;color:var(--muted);margin-bottom:8px}.article-copy p{margin:0 0 12px;line-height:1.45}.read-more{display:inline-block;background:var(--grad);color:#fff;padding:9px 13px;font-size:.76rem;font-weight:900;text-transform:uppercase}
+.pagination{margin:28px 22px 0;background:#202020;padding:20px;display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap}.pagination a,.pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.pagination .active{background:var(--grad);border-color:transparent}.pagination .next{min-width:92px}
+@media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article-row{grid-template-columns:1fr;padding:16px}.pagination{margin:22px 16px 0;padding:14px}.pagination a,.pagination span{min-width:42px;height:44px;padding:0 10px}}
+</style>"""
+
+def page_href(n):
+    return "/" if n==1 else f"/pagina-{n}.html"
+
+def render_pagination(current,total):
+    if total<=1:
+        return ""
+    # Show up to five numbered pages, as in the requested template.
+    visible=list(range(1,min(total,5)+1))
+    items=[]
+    for n in visible:
+        if n==current:
+            items.append(f'<span class="active">{n}</span>')
+        else:
+            items.append(f'<a href="{page_href(n)}">{n}</a>')
+    if current < total:
+        items.append(f'<a class="next" href="{page_href(current+1)}">NEXT</a>')
+    return '<nav class="pagination" aria-label="Pagine articoli">'+"".join(items)+'</nav>'
+
+def write_article_pages(posts):
+    total=max(1,(len(posts)+PAGE_SIZE-1)//PAGE_SIZE)
+    total=min(total,5)
+    for page_num in range(2,total+1):
+        chunk=posts[(page_num-1)*PAGE_SIZE:page_num*PAGE_SIZE]
+        page=(
+            '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+            '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+            f'<title>Articoli - Pagina {page_num} | ZazoomTek</title>'
+            f'<meta name="description" content="Archivio ZazoomTek, pagina {page_num}: news e recensioni meno recenti.">'
+            f'<link rel="canonical" href="https://zazoomtek.it/pagina-{page_num}.html">'
+            +PAGINATED_ARTICLE_STYLE+'</head><body>'
+            +editorial_header("")
+            +f'<main class="wrap"><div class="archive-head"><h1>Articoli - Pagina {page_num}</h1><p>News e recensioni in ordine cronologico, dalle più recenti alle meno recenti.</p></div>'
+            +'<div class="article-list">'+render_article_feed(chunk)+'</div>'
+            +render_pagination(page_num,total)
+            +'</main>'+legal_footer()+'</body></html>'
+        )
+        Path(f"pagina-{page_num}.html").write_text(page,encoding="utf-8")
+    return total
+
 def main():
     posts=parse(fetch())
     if not posts:
@@ -446,6 +498,7 @@ def main():
     write_review_archive(reviews)
     for p in news: write_news_page(p)
     write_news_archive(news)
+    total_article_pages=write_article_pages(posts)
     # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
     s=INDEX.read_text(encoding="utf-8")
     s2=s
@@ -455,8 +508,15 @@ def main():
     featured="<!-- FEATURED_NEWS_START -->\n        "+render_featured_news(news)+"\n        <!-- FEATURED_NEWS_END -->"
     s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
 
-    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:20])+"\n          <!-- ARTICLE_FEED_END -->"
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
+
+    pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(1,total_article_pages)+"\n        <!-- ARTICLE_PAGINATION_END -->"
+    if "<!-- ARTICLE_PAGINATION_START -->" in s2:
+        s2=re.sub(r'<!-- ARTICLE_PAGINATION_START -->.*?<!-- ARTICLE_PAGINATION_END -->',pagination,s2,flags=re.S)
+    else:
+        s2=s2.replace('</div>\n      </section>\n    </div>\n\n    <aside class="sidebar">',
+                      '</div>\n        '+pagination+'\n      </section>\n    </div>\n\n    <aside class="sidebar">',1)
 
     if s2!=s:INDEX.write_text(s2,encoding="utf-8")
     print("Synced",len(news),"YouTube Community news posts and",len(reviews),"review posts")
