@@ -347,7 +347,6 @@ def news_video_sidebar(reviews=None):
     reviews=reviews or []
     return (
         amazon_sidebar_box()
-        +latest_reviews_sidebar_box(reviews,"",5)
         +sidebar_video_box("Video · Recensioni","recensioni","/recensioni.html")
         +sidebar_video_box("Video · Test","test","/test.html")
         +sidebar_video_box("Video · Unboxing","unboxing","/unboxing.html")
@@ -484,7 +483,6 @@ def write_review_page(p, all_reviews=None):
         +img+f'<div class="article-body">{review_body_html(p)}</div>'+comments_box(slug,"review")+'</article>'
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
-        +'<section class="compact-box"><div class="module-title">Ultime recensioni</div><div class="compact-list">'+recent+'</div></section>'
         +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'<script src="/comments.js" defer></script></body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
@@ -653,6 +651,22 @@ def post_excerpt(p, limit=220):
         text=text[len(title):].strip(" :-–—")
     text=re.sub(r"\s+"," ",text).strip()
     return text if len(text)<=limit else text[:limit].rsplit(" ",1)[0]+"…"
+
+def render_home_latest_reviews(reviews, limit=5):
+    rows=[]
+    for p in reviews[:limit]:
+        title=html.escape(review_title(p))
+        slug=review_slug(p)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        when=html.escape(p.get("published") or "")
+        rows.append(
+            f'<a class="zt-home-review-item" href="/{slug}"><img src="{img}" alt="{title}" loading="lazy">'
+            f'<span><strong>{title}</strong><small>{when}</small></span></a>'
+        )
+    return ('<!-- HOME_LATEST_REVIEWS_START -->\n'
+            '<section class="zt-home-reviews"><a class="zt-home-reviews-head" href="/recensioni-scritte.html">ULTIME RECENSIONI</a>'
+            '<div class="zt-home-reviews-list">'+"".join(rows)+'</div></section>\n'
+            '<!-- HOME_LATEST_REVIEWS_END -->')
 
 def render_ticker(news):
     rows=[]
@@ -823,6 +837,10 @@ def main():
     # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
     s=INDEX.read_text(encoding="utf-8")
     s2=s
+    home_reviews=render_home_latest_reviews(reviews)
+    if "<!-- HOME_LATEST_REVIEWS_START -->" in s2:
+        s2=re.sub(r'<!-- HOME_LATEST_REVIEWS_START -->.*?<!-- HOME_LATEST_REVIEWS_END -->',home_reviews,s2,flags=re.S)
+
     ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
