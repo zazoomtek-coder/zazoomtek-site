@@ -9,6 +9,7 @@ on:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
       - 'scripts/update-youtube.py'
+      - 'index.html'
   workflow_dispatch:
 permissions:
   contents: write
