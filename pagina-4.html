@@ -500,9 +500,68 @@ function playVideo(button){
 (function(){
   const track=document.getElementById('latestVideos');
   if(!track)return;
-  const step=()=>Math.max(260,track.clientWidth*.72);
-  document.getElementById('latestPrev')?.addEventListener('click',()=>track.scrollBy({left:-step(),behavior:'smooth'}));
-  document.getElementById('latestNext')?.addEventListener('click',()=>track.scrollBy({left:step(),behavior:'smooth'}));
+
+  const prev=document.getElementById('latestPrev');
+  const next=document.getElementById('latestNext');
+  let autoplayTimer=null;
+
+  function step(){
+    const card=track.querySelector('.video-card');
+    if(!card)return Math.max(260,track.clientWidth*.72);
+    const gap=parseFloat(getComputedStyle(track).gap)||16;
+    return card.getBoundingClientRect().width+gap;
+  }
+
+  function maxScroll(){
+    return Math.max(0,track.scrollWidth-track.clientWidth);
+  }
+
+  function goNext(){
+    const max=maxScroll();
+    if(max<=0)return;
+    if(track.scrollLeft>=max-8){
+      track.scrollTo({left:0,behavior:'smooth'});
+    }else{
+      track.scrollBy({left:step(),behavior:'smooth'});
+    }
+  }
+
+  function goPrev(){
+    const max=maxScroll();
+    if(max<=0)return;
+    if(track.scrollLeft<=8){
+      track.scrollTo({left:max,behavior:'smooth'});
+    }else{
+      track.scrollBy({left:-step(),behavior:'smooth'});
+    }
+  }
+
+  function stopAutoplay(){
+    if(autoplayTimer){
+      clearInterval(autoplayTimer);
+      autoplayTimer=null;
+    }
+  }
+
+  function startAutoplay(){
+    stopAutoplay();
+    autoplayTimer=setInterval(goNext,5000);
+  }
+
+  prev?.addEventListener('click',()=>{goPrev();startAutoplay();});
+  next?.addEventListener('click',()=>{goNext();startAutoplay();});
+
+  track.addEventListener('mouseenter',stopAutoplay);
+  track.addEventListener('mouseleave',startAutoplay);
+  track.addEventListener('touchstart',stopAutoplay,{passive:true});
+  track.addEventListener('touchend',startAutoplay,{passive:true});
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)stopAutoplay();
+    else startAutoplay();
+  });
+
+  startAutoplay();
 })();
 document.getElementById('siteSearch')?.addEventListener('submit',e=>{
   e.preventDefault();const q=(document.getElementById('siteSearchInput').value||'').trim().toLowerCase();
