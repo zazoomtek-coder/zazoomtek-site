@@ -358,13 +358,35 @@ def update_home(vids, short_ids):
         "unboxing":("<!-- VIDEO_UNBOXING_START -->","<!-- VIDEO_UNBOXING_END -->","Unboxing"),
         "gaming":("<!-- VIDEO_GAMING_START -->","<!-- VIDEO_GAMING_END -->","Gaming"),
     }
+
     for category,(start_marker,end_marker,label) in editorial_markers.items():
-        # Right sidebar rule:
-        # - never use Shorts / 9:16 uploads
-        # - never use live streams
-        # - never duplicate the newest Short
-        # - never duplicate "Ultimi Video"
-        # - keep chronological order and take the next valid 16:9 item
+        if category in ("test","unboxing"):
+            # Test/Unboxing: show the newest category upload first (even if vertical/Short),
+            # then the next chronological true 16:9 video in the same category.
+            lead=next(
+                (v for v in ordered if classify(v)==category and not is_live_upload(v)),
+                None
+            )
+            second=next(
+                (
+                    v for v in ordered
+                    if classify(v)==category
+                    and not is_live_upload(v)
+                    and (not lead or v["id"] != lead["id"])
+                    and v["id"] not in short_ids
+                    and is_true_landscape(v)
+                ),
+                None
+            )
+            cards=[v for v in (lead,second) if v]
+            h=replace_marker_block(
+                h,start_marker,end_marker,
+                "\n".join(side_video_card(v,label) for v in cards)
+            )
+            continue
+
+        # Recensioni/Gaming: one true 16:9 card, no live, no Shorts,
+        # no duplicate with Ultimi Video or the newest Short.
         candidate=next(
             (
                 v for v in ordered
@@ -381,7 +403,6 @@ def update_home(vids, short_ids):
             h,start_marker,end_marker,
             side_video_card(candidate,label) if candidate else ""
         )
-
 
     # Sidebar: newest real Short.
     h=replace_marker_block(
