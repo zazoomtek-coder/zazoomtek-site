@@ -96,6 +96,31 @@ def update_category(name, vids, short_ids):
     p=Path(name+".html")
     if not p.exists(): return
     h=p.read_text(encoding="utf-8")
+
+    # Editorial Home: automatically refresh the five latest long-form videos.
+    ordered=sorted(vids,key=lambda v:v["snippet"]["publishedAt"],reverse=True)
+    long_videos=[v for v in ordered if v["id"] not in short_ids]
+    if not long_videos:
+        long_videos=[v for v in ordered if sec(v["contentDetails"]["duration"])>180]
+    latest=long_videos[:5]
+    h=replace_marker_block(
+        h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
+        "\n".join(home_video_card(v) for v in latest)
+    )
+
+    # Right column: independent automatic video boxes for each playlist/category.
+    marker_map={
+        "recensioni":("<!-- VIDEO_REVIEWS_START -->","<!-- VIDEO_REVIEWS_END -->","Recensioni"),
+        "test":("<!-- VIDEO_TEST_START -->","<!-- VIDEO_TEST_END -->","Test"),
+        "unboxing":("<!-- VIDEO_UNBOXING_START -->","<!-- VIDEO_UNBOXING_END -->","Unboxing"),
+        "gaming":("<!-- VIDEO_GAMING_START -->","<!-- VIDEO_GAMING_END -->","Gaming"),
+    }
+    for name,(start_marker,end_marker,label) in marker_map.items():
+        candidates=[v for v in ordered if classify(v)==name][:4]
+        h=replace_marker_block(
+            h,start_marker,end_marker,
+            "\n".join(side_video_card(v,label) for v in candidates)
+        )
     a=h.find('<section class="video-grid">')
     if a<0:return
     b=h.find("</section>",a)
@@ -184,6 +209,20 @@ def analogic_card(v):
           <h3>{title}</h3>
         </a>
       </article>'''
+
+
+def home_video_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    return f'''          <article class="video-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="{title}" loading="lazy"></button><h3>{title}</h3></article>'''
+
+def side_video_card(v, label):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
+
+def replace_marker_block(text, start_marker, end_marker, inner):
+    pat=re.escape(start_marker)+r'.*?'+re.escape(end_marker)
+    repl=start_marker+"\n"+inner+"\n        "+end_marker
+    return re.sub(pat,repl,text,flags=re.S)
 
 def update_home(vids, short_ids):
     p=Path("index.html")

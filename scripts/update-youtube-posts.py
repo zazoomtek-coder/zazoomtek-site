@@ -253,6 +253,74 @@ def write_news_archive(news):
     page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title><meta name="description" content="Le ultime News pubblicate da ZazoomTek."><link rel="canonical" href="https://zazoomtek.web.app/news.html"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif}}.wrap{{width:min(1420px,calc(100% - 36px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}h1{{margin:28px 0 6px}}.sub{{color:var(--muted)}}.community-posts-grid{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:18px 0 40px}}.community-post-card{{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}}.community-post-card img{{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}}.community-post-copy{{padding:14px}}.community-post-copy p{{margin:0;font-size:.86rem;line-height:1.45}}.community-post-copy small{{display:block;margin-top:10px;color:var(--muted);font-size:.72rem}}.community-post-copy a{{display:inline-block;margin-top:10px;color:#77e8ff;font-size:.78rem;font-weight:900}}@media(max-width:1000px){{.community-posts-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.community-posts-grid{{grid-template-columns:1fr}}}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
     Path("news.html").write_text(page,encoding="utf-8")
 
+
+def post_kind(p):
+    return "Recensione" if is_review(p) else "News"
+
+def post_title(p):
+    return review_title(p) if is_review(p) else news_title(p)
+
+def post_slug(p):
+    return review_slug(p) if is_review(p) else news_slug(p)
+
+def post_excerpt(p, limit=220):
+    text=(p.get("text") or "").replace("⠀"," ").replace("\n"," ")
+    title=post_title(p)
+    if text.startswith(title):
+        text=text[len(title):].strip(" :-–—")
+    text=re.sub(r"\s+"," ",text).strip()
+    return text if len(text)<=limit else text[:limit].rsplit(" ",1)[0]+"…"
+
+def render_ticker(news):
+    rows=[]
+    for i,p in enumerate(news[:5]):
+        cls=' class="active"' if i==0 else ""
+        rows.append(f'    <a{cls} href="{news_slug(p)}">{html.escape(news_title(p))}</a>')
+    return "\n".join(rows)
+
+def render_featured_news(news):
+    news=news[:5]
+    slides=[]
+    tabs=[]
+    for i,p in enumerate(news):
+        title=html.escape(news_title(p))
+        slug=news_slug(p)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        active=" active" if i==0 else ""
+        slides.append(
+            f'            <article class="news-slide{active}" data-slide="{i}">'
+            f'<a href="{slug}"><img src="{img}" alt="{title}"></a>'
+            f'<div class="news-slide-copy"><span class="tag">News</span>'
+            f'<h1><a href="{slug}">{title}</a></h1>'
+            f'<p>{html.escape(post_excerpt(p,180))}</p></div></article>'
+        )
+        tabs.append(f'            <button class="news-tab{active}" data-go="{i}">{title}</button>')
+    return (
+        '<div class="news-slider" id="newsSlider">\n'
+        '          <div class="news-slides">\n'+"\n".join(slides)+'\n          </div>\n'
+        '          <div class="news-tabs">\n'+"\n".join(tabs)+'\n          </div>\n'
+        '        </div>'
+    )
+
+def render_article_feed(posts):
+    rows=[]
+    for p in posts:
+        kind=post_kind(p)
+        title=post_title(p)
+        slug=post_slug(p)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        excerpt=html.escape(post_excerpt(p,230))
+        search=html.escape((title+" "+kind+" "+(p.get("text") or ""))[:1200],quote=True)
+        rows.append(
+            f'          <article class="article-row" data-search="{search.lower()}">'
+            f'<a href="{slug}"><img class="article-image" src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
+            f'<div class="article-copy"><span class="article-kicker">{kind}</span>'
+            f'<h3><a href="{slug}">{html.escape(title)}</a></h3>'
+            f'<div class="article-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
+            f'<p>{excerpt}</p><a class="read-more" href="{slug}">Leggi tutto ›</a></div></article>'
+        )
+    return "\n".join(rows)
+
 def render(posts):
     return render_news_cards(posts)
 
@@ -298,14 +366,16 @@ def main():
     write_news_archive(news)
     # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
     s=INDEX.read_text(encoding="utf-8")
-    repl="<!-- COMMUNITY_POSTS_START -->\n  <section class=\"community-posts-grid\" id=\"community-posts-grid\">\n"+render(news)+"\n  </section>\n  <!-- COMMUNITY_POSTS_END -->"
-    s2=re.sub(r'<!-- COMMUNITY_POSTS_START -->.*?<!-- COMMUNITY_POSTS_END -->',repl,s,flags=re.S)
+    s2=s
+    ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
+    s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
-    home_reviews=reviews[:5]
-    rrepl="<!-- PATREON_REVIEWS_START -->\n  <section class=\"community-posts-grid\" id=\"patreon-reviews-grid\">\n"+render_review_cards(home_reviews,True)+"\n  </section>\n  <!-- PATREON_REVIEWS_END -->"
-    s2=re.sub(r'<!-- PATREON_REVIEWS_START -->.*?<!-- PATREON_REVIEWS_END -->',rrepl,s2,flags=re.S)
-    s2=s2.replace('href="https://www.patreon.com/c/ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>','href="recensioni-scritte.html">Vedi tutte →</a>')
-    s2=s2.replace('href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutti →</a>','href="news.html">Vedi tutti →</a>')
+    featured="<!-- FEATURED_NEWS_START -->\n        "+render_featured_news(news)+"\n        <!-- FEATURED_NEWS_END -->"
+    s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
+
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts)+"\n          <!-- ARTICLE_FEED_END -->"
+    s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
+
     if s2!=s:INDEX.write_text(s2,encoding="utf-8")
     print("Synced",len(news),"YouTube Community news posts and",len(reviews),"review posts")
 
