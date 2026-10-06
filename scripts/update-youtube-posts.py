@@ -122,6 +122,12 @@ def parse_nodes(data,posts,seen):
         when=txt(p.get("publishedTimeText",{}))
         posts.append({"id":pid,"text":body.strip(),"published":when,"image":image_url(p),"url":"https://www.youtube.com/post/"+pid})
 
+def looks_like_review_post(p):
+    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    first=lines[0].lower() if lines else ""
+    body=(p.get("text") or "").lower()
+    return (not first.startswith("news:")) and ("recensione" in first or "review" in first or "voto finale" in body)
+
 def parse(s):
     data=initial_data(s)
     posts=[];seen=set()
@@ -130,9 +136,10 @@ def parse(s):
     tokens=continuation_tokens(data)
     used=set()
     pages=0
-    # Continue loading older Community posts until at least 5 reviews are found
-    # or a safe pagination limit is reached.
-    while len(posts)<100 and tokens and pages<80:
+    # Continue loading older Community posts until at least 20 written reviews
+    # are found, so the Recensioni archive is actually populated.
+    # A generous safety ceiling prevents runaway pagination.
+    while sum(1 for p in posts if looks_like_review_post(p)) < 20 and tokens and pages < 220:
         token=next((t for t in tokens if t not in used),None)
         if not token:break
         used.add(token);pages+=1
