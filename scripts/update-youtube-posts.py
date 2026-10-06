@@ -197,7 +197,7 @@ def review_body_html(p):
     return "\n".join(out)
 
 DETAIL_STYLE = """<style>
-:root{--orange:#00035f;--accent-blue:#00035f;--accent-mid:#230015;--accent-red:#800001;--accent-gradient:linear-gradient(90deg,var(--accent-blue) 0%,var(--accent-mid) 48%,var(--accent-red) 100%);--line:#ddd;--text:#303030;--muted:#777}
+:root{--orange:#006CFF;--accent-blue:#006CFF;--accent-mid:#263778;--accent-red:#D51232;--accent-gradient:linear-gradient(90deg,var(--accent-blue) 0%,var(--accent-mid) 48%,var(--accent-red) 100%);--line:#ddd;--text:#303030;--muted:#777}
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}
 .wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--accent-gradient) 1}
 .headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
@@ -212,7 +212,7 @@ DETAIL_STYLE = """<style>
 .legal-footer{margin-top:32px;background:#161616;color:#aaa;padding:24px 16px;font-size:.78rem;text-align:center}.legal-footer .wrap{max-width:1100px}.legal-footer a{color:#ddd;text-decoration:none}.legal-footer span{display:inline-block;margin-top:8px}</style>"""
 
 ARCHIVE_STYLE = """<style>
-:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}
+:root{--orange:#006CFF;--line:#ddd;--text:#303030;--muted:#777}
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}
 .wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--accent-gradient) 1}
 .headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
