@@ -369,41 +369,105 @@ def legal_footer():
 def editorial_header(active=""):
     return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
 
-def write_review_page(p):
+def rich_review_header():
+    return (
+        '<header class="zt-header"><div class="zt-wrap zt-headrow">'
+        '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
+        '<nav class="zt-nav">'
+        '<a href="/">Home</a><a href="/news.html">News</a><a class="active" href="/recensioni-scritte.html">Recensioni</a>'
+        '<a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a>'
+        '<a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a>'
+        '</nav>'
+        '<div class="zt-tools"><form class="zt-search" action="/recensioni-scritte.html" method="get">'
+        '<input name="q" type="search" placeholder="Cerca recensioni..." aria-label="Cerca recensioni"><button type="submit">⌕</button></form>'
+        '<div class="zt-socials">'
+        '<a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube"></a>'
+        '<a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a>'
+        '<a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp"></a>'
+        '</div></div></div></header>'
+        '<div class="zt-strip"><div class="zt-wrap"><strong>Recensioni</strong><span>Recensioni scritte di tecnologia e gaming pubblicate da ZazoomTek</span></div></div>'
+    )
+
+def compact_review_list(reviews, current_id="", limit=5):
+    rows=[]
+    for p in reviews:
+        if p.get("id")==current_id:
+            continue
+        title=review_title(p); slug=review_slug(p); img=html.escape(p.get("image") or "/ChatGPT.png")
+        rows.append(
+            f'<a class="compact-item" href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy">'
+            f'<div><h3>{html.escape(title)}</h3><small>{html.escape(p.get("published") or "")}</small></div></a>'
+        )
+        if len(rows)>=limit:
+            break
+    return "".join(rows)
+
+def write_review_page(p, all_reviews=None):
+    all_reviews=all_reviews or []
     title=review_title(p)
     slug=review_slug(p)
-    img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
+    img=(f'<img class="article-hero" src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
+    recent=compact_review_list(all_reviews,p.get("id") or "",5)
+    featured=next((x for x in all_reviews if x.get("id")!=p.get("id")),None)
+    feature_html=""
+    if featured:
+        ft=review_title(featured); fs=review_slug(featured); fi=html.escape(featured.get("image") or "/ChatGPT.png")
+        feature_html=(
+            f'<section class="compact-box"><div class="module-title">In evidenza</div><div class="feature-card">'
+            f'<a href="/{fs}"><img src="{fi}" alt="{html.escape(ft)}"></a><h3><a href="/{fs}">{html.escape(ft)}</a></h3>'
+            f'<a class="cta" href="/{fs}">LEGGI LA RECENSIONE ›</a></div></section>'
+        )
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+DETAIL_STYLE+'</head><body>'
-        +editorial_header("recensioni")
-        +f'<main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1>'
-        +f'<div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section>'
-        +f'<article class="article">{review_body_html(p)}</article></main>'+legal_footer()+'</body></html>'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
+        +rich_review_header()
+        +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
+        +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
+        +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
+        +img+f'<div class="article-body">{review_body_html(p)}</div></article>'
+        +'<aside class="article-side middle"><section class="compact-box"><div class="module-title">Recensioni recenti</div><div class="compact-list">'+recent+'</div></section></aside>'
+        +'<aside class="article-side">'+feature_html
+        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
+        +'<section class="compact-box"><div class="module-title">Ultime recensioni</div><div class="compact-list">'+recent+'</div></section>'
+        +'</aside></div></main>'+legal_footer()+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
-def render_review_cards(posts, home=False):
-    cards=[]
+def render_review_rows(posts):
+    rows=[]
     for p in posts:
         title=review_title(p); slug=review_slug(p)
-        im=f'<a href="{slug}"><img src="{html.escape(p["image"])}" alt="{html.escape(title)}" loading="lazy"></a>' if p.get("image") else ""
-        cards.append(f'''    <article class="community-post-card">{im}<div class="community-post-copy"><p>{html.escape(title)}</p><small>{html.escape(p.get("published") or "")}</small><a href="{slug}">Leggi la recensione →</a></div></article>''')
-    return "\n".join(cards)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        excerpt=html.escape(post_excerpt(p,250))
+        rows.append(
+            f'<article class="news-row" data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
+            f'<a href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
+            f'<div class="news-copy"><h2><a href="/{slug}">{html.escape(title)}</a></h2>'
+            f'<div class="news-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
+            f'<p>{excerpt}</p><a class="news-read" href="/{slug}">Leggi la recensione ›</a></div></article>'
+        )
+    return "".join(rows)
 
 def write_review_archive(reviews):
-    cards=render_review_cards(reviews)
+    rows=render_review_rows(reviews)
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>Recensioni | ZazoomTek</title>'
         '<meta name="description" content="Archivio delle recensioni scritte di ZazoomTek.">'
-        '<link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html">'+ARCHIVE_STYLE+'</head><body>'
-        +editorial_header("recensioni")
-        +f'<main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main>'+legal_footer()+'</body></html>'
+        '<link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html">'+NEWS_ARCHIVE_STYLE+'</head><body>'
+        +rich_review_header()
+        +'<main class="news-page"><div class="zt-wrap news-layout"><section class="news-main">'
+        +'<div class="news-main-head"><h1>Recensioni</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Accessori</span></div></div>'
+        +'<div class="news-list" id="reviewList">'+rows+'</div></section>'
+        +'<aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
+        +legal_footer()
+        +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
+        +'</body></html>'
     )
     Path("recensioni-scritte.html").write_text(page,encoding="utf-8")
+
 
 def news_title(p):
     lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
@@ -667,7 +731,7 @@ def main():
     STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     reviews=[p for p in posts if is_review(p)]
     news=[p for p in posts if not is_review(p)]
-    for p in reviews: write_review_page(p)
+    for p in reviews: write_review_page(p,reviews)
     write_review_archive(reviews)
     for p in news: write_news_page(p,news)
     write_news_archive(news)
