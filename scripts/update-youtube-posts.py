@@ -232,6 +232,117 @@ main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(-
 .legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.community-posts-grid{grid-template-columns:1fr}}
 </style>"""
 
+
+NEWS_COMMON = """
+:root{--zt-blue:#006CFF;--zt-mid:#263778;--zt-red:#D51232;--zt-grad:linear-gradient(90deg,var(--zt-blue) 0%,var(--zt-mid) 48%,var(--zt-red) 100%);--zt-dark:#171717;--zt-line:#e3e3e3;--zt-text:#303030;--zt-muted:#777}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#ececec;color:var(--zt-text);font-family:Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}
+.zt-wrap{width:min(1460px,calc(100% - 28px));margin:auto}
+.zt-header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--zt-grad) 1}
+.zt-headrow{min-height:78px;display:grid;grid-template-columns:auto 1fr minmax(260px,370px);align-items:stretch}
+.zt-brand{display:flex;align-items:center;gap:10px;padding:10px 24px 10px 0;border-right:1px solid #333}
+.zt-brand img{width:52px;height:52px;object-fit:cover;border-radius:8px}.zt-brand strong{font-size:1.7rem}
+.zt-nav{display:flex;align-items:stretch;flex-wrap:wrap}.zt-nav a{display:flex;align-items:center;padding:0 20px;font-weight:800;font-size:.82rem;border-right:1px solid #2d2d2d;text-transform:uppercase}
+.zt-nav a:hover,.zt-nav a.active{background:var(--zt-grad);color:#fff}
+.zt-tools{display:flex;flex-direction:column;justify-content:center;padding-left:16px}.zt-search{display:flex;width:100%;background:#303030;border:1px solid #444}.zt-search input{width:100%;border:0;background:transparent;color:#fff;padding:12px 14px;outline:none}.zt-search button{width:48px;border:0;background:var(--zt-grad);color:#fff;font-weight:900;cursor:pointer}
+.zt-socials{display:flex;justify-content:flex-end;gap:9px;margin-top:7px}.zt-socials a{display:grid;place-items:center;width:35px;height:35px;border-radius:50%;background:#202020;border:1px solid #373737}.zt-socials img{width:24px;height:24px;object-fit:contain}
+.zt-strip{background:#222;border-top:1px solid #2c2c2c;color:#ddd}.zt-strip .zt-wrap{display:flex;align-items:center;min-height:46px}.zt-strip strong{align-self:stretch;display:flex;align-items:center;padding:0 20px;background:var(--zt-grad);color:#fff;text-transform:uppercase}.zt-strip span{padding:0 16px;font-size:.86rem}
+.module-title{height:48px;background:#202020;color:#fff;display:flex;align-items:center;border-left:7px solid var(--zt-blue);box-shadow:inset 2px 0 0 var(--zt-red);padding:0 16px;font-weight:900;text-transform:uppercase;letter-spacing:.01em}
+.legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}
+@media(max-width:1080px){.zt-headrow{grid-template-columns:auto 1fr}.zt-tools{grid-column:1/-1;padding:10px 0 12px}.zt-socials{justify-content:flex-end}}
+@media(max-width:720px){.zt-wrap{width:min(100% - 18px,1460px)}.zt-headrow{display:block}.zt-brand{justify-content:center;padding:10px 0;border-right:0}.zt-nav{justify-content:center}.zt-nav a{padding:12px 10px}.zt-tools{padding:10px 0 12px}.zt-socials{justify-content:center}}
+"""
+
+NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
+.news-page{background:#fff;padding:24px 0 40px}.news-layout{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:22px;align-items:start}
+.news-main{min-width:0}.news-main-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:3px solid transparent;border-image:var(--zt-grad) 1}.news-main-head h1{font-size:1.65rem;margin:0;padding:0 0 10px;text-transform:uppercase}.news-filter{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:10px}.news-filter span{font-size:.72rem;font-weight:900;text-transform:uppercase;color:#666}
+.news-list{border:1px solid var(--zt-line);border-bottom:0}.news-row{display:grid;grid-template-columns:360px minmax(0,1fr);gap:20px;padding:18px;border-bottom:1px solid var(--zt-line);background:#fff;align-items:start}.news-row img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.news-copy h2{margin:0 0 8px;font-size:1.3rem;line-height:1.12}.news-meta{font-size:.76rem;color:#888;margin-bottom:9px}.news-copy p{margin:0 0 13px;color:#555;line-height:1.48;font-size:.93rem}.news-read{display:inline-block;background:var(--zt-grad);color:#fff;padding:10px 14px;font-size:.75rem;font-weight:900;text-transform:uppercase}
+.news-sidebar{min-width:0}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}
+@media(max-width:980px){.news-layout{grid-template-columns:1fr}.news-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.side-box{margin:0}}
+@media(max-width:720px){.news-row{grid-template-columns:1fr;padding:14px}.news-sidebar{grid-template-columns:1fr}}
+</style>"""
+
+NEWS_DETAIL_STYLE = """<style>"""+NEWS_COMMON+"""
+.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1.75fr) 310px 330px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;max-height:610px;object-fit:cover;display:block;margin-bottom:20px}.article-body{font-size:1.05rem;line-height:1.65}.article-body p{margin:0 0 18px;white-space:pre-line}.article-side{min-width:0}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:64px;object-fit:cover}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
+@media(max-width:1180px){.detail-grid{grid-template-columns:minmax(0,1fr) 330px}.article-side.middle{display:none}}
+@media(max-width:820px){.detail-grid{grid-template-columns:1fr}.article-side.middle{display:block}.article-main h1{font-size:2rem}}
+</style>"""
+
+def rich_editorial_header(active="news"):
+    def nav(label, href, key):
+        cls=' active' if active==key else ''
+        ext=' target="_blank" rel="noopener"' if href.startswith("http") else ""
+        return f'<a class="{cls.strip()}" href="{href}"{ext}>{label}</a>' if cls else f'<a href="{href}"{ext}>{label}</a>'
+    return (
+        '<header class="zt-header"><div class="zt-wrap zt-headrow">'
+        '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
+        '<nav class="zt-nav">'
+        +nav("Home","/","home")+nav("News","/news.html","news")+nav("Recensioni","/recensioni-scritte.html","recensioni")
+        +nav("Community","https://www.youtube.com/@ZazoomTek/posts","community")+nav("Video","https://www.youtube.com/@ZazoomTek/videos","video")
+        +'</nav>'
+        '<div class="zt-tools"><form class="zt-search" action="/news.html" method="get"><input name="q" type="search" placeholder="Cerca articoli..." aria-label="Cerca articoli"><button type="submit">⌕</button></form>'
+        '<div class="zt-socials">'
+        '<a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube"></a>'
+        '<a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a>'
+        '<a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp"></a>'
+        '</div></div></div></header>'
+        '<div class="zt-strip"><div class="zt-wrap"><strong>News</strong><span>Notizie tech, gaming e novità dalla Community ZazoomTek</span></div></div>'
+    )
+
+def load_video_cache():
+    p=Path(".youtube-latest.json")
+    if not p.exists():
+        return []
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+def latest_video_for(category):
+    for v in load_video_cache():
+        if v.get("category")==category and not v.get("short") and not v.get("live"):
+            return v
+    return None
+
+def sidebar_video_box(title, category, link):
+    v=latest_video_for(category)
+    if not v:
+        return ""
+    vid=html.escape(v.get("id") or "")
+    vt=html.escape(v.get("title") or "")
+    return (
+        f'<section class="side-box"><a class="module-title" href="{link}">{html.escape(title)}</a>'
+        f'<div class="side-video"><a class="thumb" href="https://www.youtube.com/watch?v={vid}" target="_blank" rel="noopener">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" alt="{vt}" loading="lazy"></a>'
+        f'<h3>{vt}</h3><small>{html.escape(category.title())}</small></div></section>'
+    )
+
+def amazon_sidebar_box():
+    return '''<section class="side-box"><div class="module-title">Su Amazon</div><div class="amazon-mini"><h3>I prodotti recensiti da ZazoomTek</h3><p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p><a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section>'''
+
+def news_video_sidebar():
+    return (
+        sidebar_video_box("Video · Recensioni","recensioni","/recensioni.html")
+        +sidebar_video_box("Video · Test","test","/test.html")
+        +sidebar_video_box("Video · Unboxing","unboxing","/unboxing.html")
+        +sidebar_video_box("Video · Gaming","gaming","/gaming.html")
+        +sidebar_video_box("Video · AnalogikTek","analogiktek","https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI")
+        +amazon_sidebar_box()
+    )
+
+def compact_news_list(news, current_id="", limit=5):
+    rows=[]
+    for p in news:
+        if p.get("id")==current_id:
+            continue
+        title=news_title(p); slug=news_slug(p); img=html.escape(p.get("image") or "/ChatGPT.png")
+        rows.append(
+            f'<a class="compact-item" href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy">'
+            f'<div><h3>{html.escape(title)}</h3><small>{html.escape(p.get("published") or "")}</small></div></a>'
+        )
+        if len(rows)>=limit:
+            break
+    return "".join(rows)
+
 def editorial_nav(active=""):
     def a(label, href, key):
         cls=' class="active"' if active==key else ""
@@ -311,41 +422,72 @@ def news_body_html(p):
         cleaned.append(b)
     return "\n".join(f"<p>{html.escape(b)}</p>" for b in cleaned)
 
-def write_news_page(p):
+def write_news_page(p, all_news=None):
+    all_news=all_news or []
     title=news_title(p)
     slug=news_slug(p)
-    img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
+    img=(f'<img class="article-hero" src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
+    recent=compact_news_list(all_news,p.get("id") or "",5)
+    featured=next((x for x in all_news if x.get("id")!=p.get("id")),None)
+    feature_html=""
+    if featured:
+        ft=news_title(featured); fs=news_slug(featured); fi=html.escape(featured.get("image") or "/ChatGPT.png")
+        feature_html=(
+            f'<section class="compact-box"><div class="module-title">In evidenza</div><div class="feature-card">'
+            f'<a href="/{fs}"><img src="{fi}" alt="{html.escape(ft)}"></a><h3><a href="/{fs}">{html.escape(ft)}</a></h3>'
+            f'<a class="cta" href="/{fs}">SCOPRI DI PIÙ ›</a></div></section>'
+        )
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+DETAIL_STYLE+'</head><body>'
-        +editorial_header("news")
-        +f'<main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1>'
-        +f'<div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section>'
-        +f'<article class="article">{news_body_html(p)}</article></main>'+legal_footer()+'</body></html>'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
+        +rich_editorial_header("news")
+        +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
+        +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
+        +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 News</span></div>'
+        +img+f'<div class="article-body">{news_body_html(p)}</div></article>'
+        +'<aside class="article-side middle"><section class="compact-box"><div class="module-title">Articoli recenti</div><div class="compact-list">'+recent+'</div></section></aside>'
+        +'<aside class="article-side">'+feature_html
+        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
+        +'<section class="compact-box"><div class="module-title">Ultimi articoli</div><div class="compact-list">'+recent+'</div></section>'
+        +'</aside></div></main>'+legal_footer()+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
-def render_news_cards(posts):
-    cards=[]
+def render_news_rows(posts):
+    rows=[]
     for p in posts:
         title=news_title(p); slug=news_slug(p)
-        im=f'<a href="{slug}"><img src="{html.escape(p["image"])}" alt="{html.escape(title)}" loading="lazy"></a>' if p.get("image") else ""
-        cards.append(f'''    <article class="community-post-card">{im}<div class="community-post-copy"><p><a href="{slug}">{html.escape(title)}</a></p><small>{html.escape(p.get("published") or "")}</small><a href="{slug}">Leggi la News →</a></div></article>''')
-    return "\n".join(cards)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        excerpt=html.escape(post_excerpt(p,250))
+        rows.append(
+            f'<article class="news-row" data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
+            f'<a href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
+            f'<div class="news-copy"><h2><a href="/{slug}">{html.escape(title)}</a></h2>'
+            f'<div class="news-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
+            f'<p>{excerpt}</p><a class="news-read" href="/{slug}">Leggi tutto ›</a></div></article>'
+        )
+    return "".join(rows)
 
 def write_news_archive(news):
-    cards=render_news_cards(news)
+    rows=render_news_rows(news)
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title>'
         '<meta name="description" content="Le ultime News pubblicate da ZazoomTek.">'
-        '<link rel="canonical" href="https://zazoomtek.it/news.html">'+ARCHIVE_STYLE+'</head><body>'
-        +editorial_header("news")
-        +f'<main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main>'+legal_footer()+'</body></html>'
+        '<link rel="canonical" href="https://zazoomtek.it/news.html">'+NEWS_ARCHIVE_STYLE+'</head><body>'
+        +rich_editorial_header("news")
+        +'<main class="news-page"><div class="zt-wrap news-layout"><section class="news-main">'
+        +'<div class="news-main-head"><h1>Notizie</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Software</span></div></div>'
+        +'<div class="news-list" id="newsList">'+rows+'</div></section>'
+        +'<aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
+        +legal_footer()
+        +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
+        +'</body></html>'
     )
     Path("news.html").write_text(page,encoding="utf-8")
+
 
 def post_kind(p):
     return "Recensione" if is_review(p) else "News"
@@ -527,7 +669,7 @@ def main():
     news=[p for p in posts if not is_review(p)]
     for p in reviews: write_review_page(p)
     write_review_archive(reviews)
-    for p in news: write_news_page(p)
+    for p in news: write_news_page(p,news)
     write_news_archive(news)
     total_article_pages=write_article_pages(posts)
     # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
