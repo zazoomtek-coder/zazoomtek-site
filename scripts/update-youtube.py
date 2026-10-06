@@ -194,6 +194,14 @@ def side_video_card(v, label):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
 
+def sidebar_short_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    return f'''          <article class="side-video zt-short-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>Shorts</small></div></article>'''
+
+def sidebar_analog_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    return f'''          <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>AnalogikTek</small></div></article>'''
+
 def replace_marker_block(text, start_marker, end_marker, inner):
     pat=re.escape(start_marker)+r'.*?'+re.escape(end_marker)
     repl=start_marker+"\n"+inner+"\n        "+end_marker
@@ -362,6 +370,23 @@ def update_home(vids, short_ids):
             h,start_marker,end_marker,
             side_video_card(candidate,label) if candidate else ""
         )
+
+
+    # Sidebar: newest real Short.
+    sidebar_short=next((v for v in ordered if v["id"] in short_ids and not is_live_upload(v)),None)
+    if not sidebar_short:
+        sidebar_short=next((v for v in ordered if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)),None)
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_SHORT_START -->","<!-- SIDEBAR_SHORT_END -->",
+        sidebar_short_card(sidebar_short) if sidebar_short else ""
+    )
+
+    # Sidebar: newest video from the official AnalogikTek playlist.
+    sidebar_analog=next((v for v in ordered if v["id"] in ANALOGIKTEK_VIDEO_IDS and not is_live_upload(v)),None)
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_ANALOG_START -->","<!-- SIDEBAR_ANALOG_END -->",
+        sidebar_analog_card(sidebar_analog) if sidebar_analog else ""
+    )
 
     # Cache-busting build marker.
     h=re.sub(r'<meta name="zazoomtek-build" content="[^"]*">',
