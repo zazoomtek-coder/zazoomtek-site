@@ -360,42 +360,18 @@ def update_home(vids, short_ids):
     }
 
     for category,(start_marker,end_marker,label) in editorial_markers.items():
-        if category in ("test","unboxing"):
-            # Test/Unboxing: show the newest category upload first (even if vertical/Short),
-            # then the next chronological true 16:9 video in the same category.
-            lead=next(
-                (v for v in ordered if classify(v)==category and not is_live_upload(v)),
-                None
-            )
-            second=next(
-                (
-                    v for v in ordered
-                    if classify(v)==category
-                    and not is_live_upload(v)
-                    and (not lead or v["id"] != lead["id"])
-                    and v["id"] not in short_ids
-                    and is_true_landscape(v)
-                ),
-                None
-            )
-            cards=[v for v in (lead,second) if v]
-            h=replace_marker_block(
-                h,start_marker,end_marker,
-                "\n".join(side_video_card(v,label) for v in cards)
-            )
-            continue
-
-        # Recensioni/Gaming: one true 16:9 card, no live, no Shorts,
-        # no duplicate with Ultimi Video or the newest Short.
+        # ALL right-sidebar category boxes: ONLY true 16:9 videos.
+        # Never show Shorts / 9:16, never show live streams.
+        # Keep chronological order and take the newest valid landscape video.
         candidate=next(
             (
                 v for v in ordered
                 if classify(v)==category
-                and v["id"] not in editorial_latest_ids
                 and v["id"] not in short_ids
-                and v["id"] != sidebar_short_id
                 and not is_live_upload(v)
                 and is_true_landscape(v)
+                and (category in ("test","unboxing") or v["id"] not in editorial_latest_ids)
+                and (category in ("test","unboxing") or v["id"] != sidebar_short_id)
             ),
             None
         )
