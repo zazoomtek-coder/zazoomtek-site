@@ -551,7 +551,7 @@ def write_news_page(p, all_news=None):
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}"><link rel="stylesheet" href="/comments.css">'+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_editorial_header("news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
@@ -560,7 +560,7 @@ def write_news_page(p, all_news=None):
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
         +'<section class="compact-box"><div class="module-title">Ultimi articoli</div><div class="compact-list">'+recent+'</div></section>'
-        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'<script src="/comments.js" defer></script></body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
