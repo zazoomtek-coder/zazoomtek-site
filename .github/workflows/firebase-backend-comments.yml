@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: firebase-comments-backend
@@ -37,27 +37,6 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
 
       - name: Deploy comments API and Firestore rules
-        id: deploy
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
-        shell: bash
-        run: |
-          set +e
-          npx firebase-tools@latest deploy --only functions:commentsApi,firestore:rules --project zazomtek --non-interactive 2>&1 | tee firebase-comments-deploy.log
-          code=${PIPESTATUS[0]}
-          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
-          exit 0
-
-      - name: Save deploy diagnostics on failure
-        if: steps.deploy.outputs.exit_code != '0'
-        run: |
-          git config user.name "zazoomtek-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add firebase-comments-deploy.log
-          git commit -m "Save Firebase comments deploy diagnostics" || true
-          git pull --rebase origin main
-          git push
-
-      - name: Fail workflow if deploy failed
-        if: steps.deploy.outputs.exit_code != '0'
-        run: exit 1
+        run: npx firebase-tools@latest deploy --only functions:commentsApi,firestore:rules --project zazomtek --non-interactive
