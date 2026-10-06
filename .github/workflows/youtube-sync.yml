@@ -35,7 +35,10 @@ jobs:
           else
             git config user.name "zazoomtek-bot"
             git config user.email "actions@users.noreply.github.com"
-            git add index.html news.html news-*.html recensioni-scritte.html recensioni-scritte-*.html recensione-*.html pagina-*.html sitemap.xml google-sitemap.xml sitemap.txt robots.txt .youtube-posts.json
+            git add -A index.html news.html recensioni-scritte.html .youtube-posts.json
+            git add news-*.html recensione-*.html pagina-*.html 2>/dev/null || true
+            git add recensioni-scritte-*.html 2>/dev/null || true
+            git add sitemap.xml google-sitemap.xml sitemap.txt robots.txt 2>/dev/null || true
             git commit -m "Auto-sync YouTube Community reviews"
             git pull --rebase origin main
             git push
