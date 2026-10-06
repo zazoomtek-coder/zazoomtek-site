@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // The public site never talks to Firestore directly.
+    // All comment reads/writes go through the server-side commentsApi function,
+    // which uses the Firebase Admin SDK. This minimizes exposed surface area.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
