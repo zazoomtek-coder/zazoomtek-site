@@ -55,6 +55,9 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
       <a class="active" href="/">Home</a>
       <a href="news.html">News</a>
       <a href="recensioni-scritte.html">Recensioni</a>
+      <a href="test.html">Test</a>
+      <a href="unboxing.html">Unboxing</a>
+      <a href="gaming.html">Gaming</a>
       <a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a>
     </nav>
     <div class="search-wrap">
@@ -123,7 +126,7 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
     </div>
 
     <aside class="sidebar">
-      <div class="side-module"><div class="side-head">Sponsor</div><div class="ad-slot"><div><strong>SPAZIO BANNER</strong><span>Amazon · Google · altri partner</span></div></div></div>
+      <div class="side-module ad-module"><div class="side-head">Sponsor</div><div class="ad-slot"><div class="ad-placeholder"><strong>SPAZIO BANNER</strong><span>Amazon · Google · altri partner</span></div></div></div>
       <div class="side-module"><div class="side-head">Video · Recensioni</div><div class="side-video-list">
         <!-- VIDEO_REVIEWS_START -->
         <article class="side-video"><button class="video-thumb" data-video="fKiuvUW5eKI" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/fKiuvUW5eKI/hqdefault.jpg" alt="WALTO"></button><div><h3>WALTO | Recensione PC</h3><small>Recensioni</small></div></article>
@@ -145,7 +148,7 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
         <article class="side-video"><button class="video-thumb" data-video="O6VxSf8cYt0" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/O6VxSf8cYt0/hqdefault.jpg" alt="Dead Spin"></button><div><h3>Dead Spin PC | Primo sguardo</h3><small>Gaming</small></div></article>
         <!-- VIDEO_GAMING_END -->
       </div></div>
-      <div class="side-module"><div class="side-head">Pubblicità</div><div class="ad-slot"><div><strong>SPAZIO BANNER</strong><span>Da configurare in seguito</span></div></div></div>
+      <div class="side-module ad-module"><div class="side-head">Pubblicità</div><div class="ad-slot"><div class="ad-placeholder"><strong>SPAZIO BANNER</strong><span>Da configurare in seguito</span></div></div></div>
     </aside>
   </div>
 </main>
@@ -187,6 +190,36 @@ document.getElementById('siteSearch')?.addEventListener('submit',e=>{
   const rows=[...document.querySelectorAll('.article-row')];rows.forEach(r=>r.classList.toggle('hidden-by-search',q && !(r.dataset.search||r.textContent.toLowerCase()).includes(q)));
   document.getElementById('articoli')?.scrollIntoView({behavior:'smooth',block:'start'});
 });
+</script>
+
+<script>
+(function(){
+  function syncAdModule(module){
+    const slot=module.querySelector('.ad-slot');
+    if(!slot) return;
+    const placeholder=slot.querySelector('.ad-placeholder');
+    const realChild=[...slot.children].some(el=>!el.classList.contains('ad-placeholder'));
+    const injected=!!slot.querySelector('iframe,ins,a img,img,[data-ad-active="true"]');
+    const active=realChild||injected;
+    const head=module.querySelector('.side-head');
+    if(active){
+      if(head) head.style.display='none';
+      if(placeholder) placeholder.style.display='none';
+      slot.style.minHeight='0';
+      slot.style.border='0';
+      slot.style.background='transparent';
+      slot.style.marginBottom='18px';
+    }else{
+      if(head) head.style.display='';
+      if(placeholder) placeholder.style.display='';
+    }
+  }
+  document.querySelectorAll('.ad-module').forEach(module=>{
+    syncAdModule(module);
+    const slot=module.querySelector('.ad-slot');
+    if(slot) new MutationObserver(()=>syncAdModule(module)).observe(slot,{childList:true,subtree:true,attributes:true});
+  });
+})();
 </script>
 </body>
 </html>
