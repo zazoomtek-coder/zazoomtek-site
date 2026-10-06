@@ -257,16 +257,39 @@ NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
 .news-page{background:#fff;padding:24px 0 40px}.news-layout{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:22px;align-items:start}
 .news-main{min-width:0}.news-main-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:3px solid transparent;border-image:var(--zt-grad) 1}.news-main-head h1{font-size:1.65rem;margin:0;padding:0 0 10px;text-transform:uppercase}.news-filter{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:10px}.news-filter span{font-size:.72rem;font-weight:900;text-transform:uppercase;color:#666}
 .news-list{border:1px solid var(--zt-line);border-bottom:0}.news-row{display:grid;grid-template-columns:360px minmax(0,1fr);gap:20px;padding:18px;border-bottom:1px solid var(--zt-line);background:#fff;align-items:start}.news-row img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.news-copy h2{margin:0 0 8px;font-size:1.3rem;line-height:1.12}.news-meta{font-size:.76rem;color:#888;margin-bottom:9px}.news-copy p{margin:0 0 13px;color:#555;line-height:1.48;font-size:.93rem}.news-read{display:inline-block;background:var(--zt-grad);color:#fff;padding:10px 14px;font-size:.75rem;font-weight:900;text-transform:uppercase}
-.news-sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:16px}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}.archive-pagination{margin:28px 0 0;background:#202020;padding:20px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}.archive-pagination a,.archive-pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.archive-pagination .active{background:var(--zt-grad);border-color:transparent}.archive-pagination .next{min-width:92px}
+.news-sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}.archive-pagination{margin:28px 0 0;background:#202020;padding:20px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}.archive-pagination a,.archive-pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.archive-pagination .active{background:var(--zt-grad);border-color:transparent}.archive-pagination .next{min-width:92px}
 @media(max-width:980px){.news-layout{grid-template-columns:1fr}.news-sidebar{position:static;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.side-box{margin:0}}
 @media(max-width:720px){.news-row{grid-template-columns:1fr;padding:14px}.news-sidebar{grid-template-columns:1fr}}
 </style>"""
 
 NEWS_DETAIL_STYLE = """<style>"""+NEWS_COMMON+"""
-.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;max-height:610px;object-fit:cover;display:block;margin-bottom:20px}.article-body{font-size:1.05rem;line-height:1.65}.article-body p{margin:0 0 18px;white-space:pre-line}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:16px}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:64px;object-fit:cover}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
+.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;max-height:610px;object-fit:cover;display:block;margin-bottom:20px}.article-body{font-size:1.05rem;line-height:1.65}.article-body p{margin:0 0 18px;white-space:pre-line}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:64px;object-fit:cover}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
 @media(max-width:1180px){.detail-grid{grid-template-columns:minmax(0,1fr) 330px}.article-side.middle{display:none}}
 @media(max-width:820px){.detail-grid{grid-template-columns:1fr}.article-side.middle{display:block}.article-main h1{font-size:2rem}}
 </style>"""
+
+SMART_STICKY_SCRIPT = """<script>
+function ztInitSmartSticky(selector,mobileWidth){
+  const el=document.querySelector(selector);
+  if(!el)return;
+  function update(){
+    if(window.innerWidth<=mobileWidth){
+      el.style.removeProperty('--zt-smart-sticky-top');
+      return;
+    }
+    const gap=16;
+    const top=Math.min(gap,window.innerHeight-el.offsetHeight-gap);
+    el.style.setProperty('--zt-smart-sticky-top',top+'px');
+  }
+  update();
+  window.addEventListener('resize',update,{passive:true});
+  if('ResizeObserver' in window){new ResizeObserver(update).observe(el);}
+}
+document.addEventListener('DOMContentLoaded',function(){
+  ztInitSmartSticky('.news-sidebar',980);
+  ztInitSmartSticky('.article-side',820);
+});
+</script>"""
 
 def rich_editorial_header(active="news"):
     def nav(label, href, key):
@@ -431,7 +454,7 @@ def write_review_page(p, all_reviews=None):
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
         +'<section class="compact-box"><div class="module-title">Ultime recensioni</div><div class="compact-list">'+recent+'</div></section>'
-        +'</aside></div></main>'+legal_footer()+'</body></html>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
@@ -462,7 +485,7 @@ def write_review_archive(reviews):
         +'<div class="news-main-head"><h1>Recensioni</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Accessori</span></div></div>'
         +'<div class="news-list" id="reviewList">'+rows+'</div></section>'
         +'<aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
-        +legal_footer()
+        +legal_footer()+SMART_STICKY_SCRIPT
         +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
         +'</body></html>'
     )
@@ -514,7 +537,7 @@ def write_news_page(p, all_news=None):
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
         +'<section class="compact-box"><div class="module-title">Ultimi articoli</div><div class="compact-list">'+recent+'</div></section>'
-        +'</aside></div></main>'+legal_footer()+'</body></html>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
@@ -567,7 +590,7 @@ def build_news_archive_page(news_chunk,page_num,total_pages):
         +'<div class="news-list" id="newsList">'+rows+'</div>'
         +render_news_pagination(page_num,total_pages)
         +'</section><aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
-        +legal_footer()
+        +legal_footer()+SMART_STICKY_SCRIPT
         +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
         +'</body></html>'
     )
