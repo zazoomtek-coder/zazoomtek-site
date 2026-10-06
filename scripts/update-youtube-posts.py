@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Global scrollbar refresh marker
 import json,re,html,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
