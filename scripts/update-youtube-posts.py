@@ -209,7 +209,7 @@ DETAIL_STYLE = """<style>
 .article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}
 .review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}
 @media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article{padding:20px}}
-</style>"""
+.legal-footer{margin-top:32px;background:#161616;color:#aaa;padding:24px 16px;font-size:.74rem;line-height:1.55}.legal-footer .wrap{max-width:1100px}.legal-footer p{margin:7px 0}.legal-footer strong{color:#ddd}.legal-footer a{color:#ddd;text-decoration:underline}</style>"""
 
 ARCHIVE_STYLE = """<style>
 :root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}
@@ -240,6 +240,15 @@ def editorial_nav(active=""):
         +'</nav>'
     )
 
+
+def legal_footer():
+    return '''<footer class="legal-footer"><div class="wrap">
+<p><strong>Copyright e licenze.</strong> Salvo diversa indicazione, i contenuti originali pubblicati su ZazoomTek sono distribuiti con licenza <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.it" target="_blank" rel="license noopener">Creative Commons CC BY-NC-ND 4.0</a>. Marchi, loghi, screenshot, immagini promozionali e altri materiali di terzi restano di proprietà dei rispettivi titolari.</p>
+<p><strong>Segnalazioni sui diritti.</strong> Per segnalare possibili violazioni di copyright, marchi o altri diritti scrivi a <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a> indicando l'URL e il materiale contestato. Le segnalazioni fondate saranno gestite tempestivamente.</p>
+<p><strong>Affiliazioni.</strong> Alcune pagine possono contenere link di affiliazione. <strong>In qualità di Affiliato Amazon io ricevo un guadagno dagli acquisti idonei.</strong> Eventuali sample, collaborazioni o sponsorizzazioni non determinano automaticamente un giudizio positivo.</p>
+<p><strong>Informazioni e link esterni.</strong> I contenuti hanno finalità informative, editoriali e di intrattenimento e non costituiscono consulenza professionale. Prezzi, disponibilità e specifiche possono cambiare; verifica sempre le informazioni presso produttore o venditore. ZazoomTek non è responsabile dei contenuti o delle condizioni applicate da siti e servizi esterni.</p>
+</div></footer>'''
+
 def editorial_header(active=""):
     return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
 
@@ -255,7 +264,7 @@ def write_review_page(p):
         +editorial_header("recensioni")
         +f'<main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1>'
         +f'<div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section>'
-        +f'<article class="article">{review_body_html(p)}</article></main></body></html>'
+        +f'<article class="article">{review_body_html(p)}</article></main>'+legal_footer()+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
@@ -275,7 +284,7 @@ def write_review_archive(reviews):
         '<meta name="description" content="Archivio delle recensioni scritte di ZazoomTek.">'
         '<link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html">'+ARCHIVE_STYLE+'</head><body>'
         +editorial_header("recensioni")
-        +f'<main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main></body></html>'
+        +f'<main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main>'+legal_footer()+'</body></html>'
     )
     Path("recensioni-scritte.html").write_text(page,encoding="utf-8")
 
@@ -308,7 +317,7 @@ def write_news_page(p):
         +editorial_header("news")
         +f'<main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1>'
         +f'<div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section>'
-        +f'<article class="article">{news_body_html(p)}</article></main></body></html>'
+        +f'<article class="article">{news_body_html(p)}</article></main>'+legal_footer()+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
@@ -328,7 +337,7 @@ def write_news_archive(news):
         '<meta name="description" content="Le ultime News pubblicate da ZazoomTek.">'
         '<link rel="canonical" href="https://zazoomtek.it/news.html">'+ARCHIVE_STYLE+'</head><body>'
         +editorial_header("news")
-        +f'<main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'
+        +f'<main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main>'+legal_footer()+'</body></html>'
     )
     Path("news.html").write_text(page,encoding="utf-8")
 
