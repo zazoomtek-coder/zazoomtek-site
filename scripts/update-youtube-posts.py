@@ -216,7 +216,7 @@ DETAIL_STYLE = """<style>
 .article h2{margin:30px 0 10px;border-left:6px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}
 .review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red);color:#fff;font-size:1.35rem;font-weight:900}
 @media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article{padding:20px}}
-.legal-footer{margin-top:32px;background:#161616;color:#aaa;padding:24px 16px;font-size:.78rem;text-align:center}.legal-footer .wrap{max-width:1100px}.legal-footer a{color:#ddd;text-decoration:none}.legal-footer span{display:inline-block;margin-top:8px}</style>"""
+.legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}</style>"""
 
 ARCHIVE_STYLE = """<style>
 :root{--orange:#006CFF;--line:#ddd;--text:#303030;--muted:#777}
@@ -229,7 +229,7 @@ main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(-
 .community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid transparent;border-image:var(--accent-gradient) 1;min-width:0}
 .community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}
 .community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--accent-gradient);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}
-@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.community-posts-grid{grid-template-columns:1fr}}
+.legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.community-posts-grid{grid-template-columns:1fr}}
 </style>"""
 
 def editorial_nav(active=""):
@@ -249,7 +249,11 @@ def editorial_nav(active=""):
 
 
 def legal_footer():
-    return '''<footer class="legal-footer"><div class="wrap"><a href="/privacy.html">Privacy Policy</a> · <a href="/cookie.html">Cookie Policy</a> · <a href="/disclaimer.html">Disclaimer</a> · <a href="/note-legali.html">Note legali</a><br><span>© 2026 ZazoomTek</span></div></footer>'''
+    return '''<footer class="legal-footer"><div class="wrap">
+      <div class="footer-links"><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">▶ YouTube</a><a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">❤️ Patreon</a><a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">🎵 TikTok</a><a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">💬 WhatsApp</a><a href="/contatti.html">Contatti</a><a href="/chi-sono.html">Chi sono</a></div>
+      <div class="legal-links"><a href="/privacy.html">Privacy Policy</a><a href="/cookie.html">Cookie Policy</a><a href="/disclaimer.html">Disclaimer</a><a href="/note-legali.html">Note legali</a></div>
+      <div class="footer-copy">© 2026 ZazoomTek · Tecnologia e gaming.</div>
+    </div></footer>'''
 
 def editorial_header(active=""):
     return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
@@ -452,7 +456,7 @@ main{background:#fff;padding:26px 0 40px}.archive-head{padding:0 22px 18px}.arch
 .article-list{border-top:1px solid var(--line)}.article-row{display:grid;grid-template-columns:330px 1fr;gap:20px;padding:18px 22px;border-bottom:1px solid var(--line);align-items:start}.article-image{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.article-copy h3{font-size:1.18rem;line-height:1.18;margin:0 0 6px}.article-meta{font-size:.78rem;color:var(--muted);margin-bottom:8px}.article-copy p{margin:0 0 12px;line-height:1.45}.read-more{display:inline-block;background:var(--grad);color:#fff;padding:9px 13px;font-size:.76rem;font-weight:900;text-transform:uppercase}
 .pagination{margin:28px 22px 0;background:#202020;padding:20px;display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap}.pagination a,.pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.pagination .active{background:var(--grad);border-color:transparent}.pagination .next{min-width:92px}
 @media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article-row{grid-template-columns:1fr;padding:16px}.pagination{margin:22px 16px 0;padding:14px}.pagination a,.pagination span{min-width:42px;height:44px;padding:0 10px}}
-</style>"""
+</style>.legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}"""
 
 def page_href(n):
     return "/" if n==1 else f"/pagina-{n}.html"
