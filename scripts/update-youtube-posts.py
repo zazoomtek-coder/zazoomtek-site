@@ -419,7 +419,7 @@ def write_review_page(p, all_reviews=None):
         )
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><link rel="stylesheet" href="/zt-scroll.css">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
         f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_review_header()
@@ -502,7 +502,7 @@ def write_news_page(p, all_news=None):
         )
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><link rel="stylesheet" href="/zt-scroll.css">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
         f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_editorial_header("news")
