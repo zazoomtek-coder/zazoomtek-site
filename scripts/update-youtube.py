@@ -37,12 +37,18 @@ def uploads():
         if not token: break
     v=[]
     for i in range(0,len(ids),50):
-        v.extend(get("videos",part="snippet,contentDetails",id=",".join(ids[i:i+50]))["items"])
+        v.extend(get("videos",part="snippet,contentDetails,liveStreamingDetails",id=",".join(ids[i:i+50]))["items"])
     return sorted(v,key=lambda x:x["snippet"]["publishedAt"],reverse=True)
 
 def sec(d):
     m=re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?",d or "")
     return (int(m.group(1) or 0)*3600+int(m.group(2) or 0)*60+int(m.group(3) or 0)) if m else 0
+
+def is_live_upload(v):
+    # Exclude live streams (past, current or scheduled) from the Home "Ultimi Video".
+    # YouTube keeps liveStreamingDetails on completed live broadcasts too.
+    live_state=(v.get("snippet",{}).get("liveBroadcastContent") or "none").lower()
+    return live_state in ("live","upcoming") or bool(v.get("liveStreamingDetails"))
 
 def youtube_short_ids():
     # YouTube Data API doesn't expose a direct isShort flag.
@@ -352,10 +358,11 @@ def update_home(vids, short_ids):
             h=h[:a]+block+h[b+6:]
 
     # Editorial homepage video rules:
-    # - "Ultimi Video" = the 5 newest YouTube uploads, exactly in upload order.
+    # - "Ultimi Video" = the 5 newest NON-LIVE YouTube uploads, in upload order.
+    # - Live streams (past/current/upcoming) never enter this strip.
     # - Right sidebar = newest video in each category that is NOT already in
     #   the five latest, preventing duplicates on the Home page.
-    editorial_latest=ordered[:5]
+    editorial_latest=[v for v in ordered if not is_live_upload(v)][:5]
     editorial_latest_ids={v["id"] for v in editorial_latest}
     h=replace_marker_block(
         h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
@@ -400,7 +407,8 @@ def main():
             "title":v["snippet"]["title"],
             "publishedAt":v["snippet"]["publishedAt"],
             "category":classify(v),
-            "short": (v["id"] in short_ids) if short_ids else sec(v["contentDetails"]["duration"])<=180
+            "short": (v["id"] in short_ids) if short_ids else sec(v["contentDetails"]["duration"])<=180,
+            "live": is_live_upload(v)
         } for v in vids],ensure_ascii=False,indent=2),
         encoding="utf-8"
     )
