@@ -296,8 +296,7 @@ def main():
     write_review_archive(reviews)
     for p in news: write_news_page(p)
     write_news_archive(news)
-    update_sitemap()
-
+    # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
     s=INDEX.read_text(encoding="utf-8")
     repl="<!-- COMMUNITY_POSTS_START -->\n  <section class=\"community-posts-grid\" id=\"community-posts-grid\">\n"+render(news)+"\n  </section>\n  <!-- COMMUNITY_POSTS_END -->"
     s2=re.sub(r'<!-- COMMUNITY_POSTS_START -->.*?<!-- COMMUNITY_POSTS_END -->',repl,s,flags=re.S)
