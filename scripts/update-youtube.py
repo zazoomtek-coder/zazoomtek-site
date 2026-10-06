@@ -323,11 +323,15 @@ def update_home(vids, short_ids):
             h=h[:a]+block+h[b+6:]
 
     # Editorial homepage video rules:
-    # - "Ultimi Video" = the 5 newest NON-LIVE YouTube uploads, in upload order.
-    # - Live streams (past/current/upcoming) never enter this strip.
+    # - "Ultimi Video" = only true 16:9 videos.
+    # - Keep strict chronological order: skip live streams and vertical/9:16 uploads,
+    #   then continue with the next newer valid 16:9 upload until there are 5.
     # - Right sidebar = newest video in each category that is NOT already in
     #   the five latest, preventing duplicates on the Home page.
-    editorial_latest=[v for v in ordered if not is_live_upload(v)][:5]
+    editorial_latest=[
+        v for v in ordered
+        if not is_live_upload(v) and is_true_landscape(v)
+    ][:5]
     editorial_latest_ids={v["id"] for v in editorial_latest}
     h=replace_marker_block(
         h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
