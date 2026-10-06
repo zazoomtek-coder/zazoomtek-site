@@ -257,7 +257,11 @@ def update_home(vids, short_ids):
                             return 1.70 <= ratio <= 1.82
         except Exception:
             pass
-        return False
+        # Safe fallback: if YouTube does not expose source dimensions during
+        # this run, never blank the Home. Known Shorts and live streams are
+        # already excluded elsewhere; treat the remaining regular upload as
+        # landscape so the previous 16:9 feed cannot disappear.
+        return v["id"] not in short_ids and not is_live_upload(v)
 
     # Choose the newest upload by YouTube publish date, but never a known Short.
     # For ZazoomTek the upload order is authoritative; vertical Shorts are removed
