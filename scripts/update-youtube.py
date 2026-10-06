@@ -344,8 +344,18 @@ def update_home(vids, short_ids):
         "gaming":("<!-- VIDEO_GAMING_START -->","<!-- VIDEO_GAMING_END -->","Gaming"),
     }
     for category,(start_marker,end_marker,label) in editorial_markers.items():
+        # Right sidebar rule: ONLY true 16:9 videos.
+        # Skip vertical/9:16 uploads and live streams, then continue in strict
+        # chronological order until the newest valid 16:9 item for that category
+        # is found. Also avoid duplicates with "Ultimi Video".
         candidate=next(
-            (v for v in ordered if classify(v)==category and v["id"] not in editorial_latest_ids),
+            (
+                v for v in ordered
+                if classify(v)==category
+                and v["id"] not in editorial_latest_ids
+                and not is_live_upload(v)
+                and is_true_landscape(v)
+            ),
             None
         )
         h=replace_marker_block(
