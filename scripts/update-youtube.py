@@ -217,11 +217,11 @@ def analogic_card(v):
 
 def home_video_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    return f'''          <article class="video-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="{title}" loading="lazy"></button><h3>{title}</h3></article>'''
+    return f'''          <article class="video-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><h3>{title}</h3></article>'''
 
 def side_video_card(v, label):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
+    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
 
 def replace_marker_block(text, start_marker, end_marker, inner):
     pat=re.escape(start_marker)+r'.*?'+re.escape(end_marker)
@@ -350,6 +350,32 @@ def update_home(vids, short_ids):
         if b>=0:
             block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
             h=h[:a]+block+h[b+6:]
+
+    # Editorial homepage video rules:
+    # - "Ultimi Video" = the 5 newest YouTube uploads, exactly in upload order.
+    # - Right sidebar = newest video in each category that is NOT already in
+    #   the five latest, preventing duplicates on the Home page.
+    editorial_latest=ordered[:5]
+    editorial_latest_ids={v["id"] for v in editorial_latest}
+    h=replace_marker_block(
+        h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
+        "\n".join(home_video_card(v) for v in editorial_latest)
+    )
+    editorial_markers={
+        "recensioni":("<!-- VIDEO_REVIEWS_START -->","<!-- VIDEO_REVIEWS_END -->","Recensioni"),
+        "test":("<!-- VIDEO_TEST_START -->","<!-- VIDEO_TEST_END -->","Test"),
+        "unboxing":("<!-- VIDEO_UNBOXING_START -->","<!-- VIDEO_UNBOXING_END -->","Unboxing"),
+        "gaming":("<!-- VIDEO_GAMING_START -->","<!-- VIDEO_GAMING_END -->","Gaming"),
+    }
+    for category,(start_marker,end_marker,label) in editorial_markers.items():
+        candidate=next(
+            (v for v in ordered if classify(v)==category and v["id"] not in editorial_latest_ids),
+            None
+        )
+        h=replace_marker_block(
+            h,start_marker,end_marker,
+            side_video_card(candidate,label) if candidate else ""
+        )
 
     # Cache-busting build marker.
     h=re.sub(r'<meta name="zazoomtek-build" content="[^"]*">',
