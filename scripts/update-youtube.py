@@ -274,25 +274,11 @@ def update_home(vids, short_ids):
             b=h.find("</article>",a)
             if b>=0: h=h[:a]+feature_main(main_video)+h[b+10:]
 
-    # Side cards next to the main feature: newest upload in each category.
-    # Both 16:9 and 9:16 are allowed. Selection is strictly by YouTube publish date.
-    # If the main large video belongs to that category, do not show another video
-    # about the same/newer coverage there: keep the previous different item instead.
-    for name in ["recensioni","test","unboxing","gaming"]:
-        candidates=[
-            v for v in vids
-            if classify(v)==name
-            and (not main_video or v["id"] != main_video["id"])
-        ]
-        candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
-        if main_video and classify(main_video)==name:
-            # Keep the prior category item to avoid homepage duplication.
-            main_time=main_video["snippet"]["publishedAt"]
-            candidates=[v for v in candidates if v["snippet"]["publishedAt"] < main_time]
-        latest=candidates[0] if candidates else None
-        if latest:
-            # Match the category link regardless of Italian gender in aria-label
-            h=replace_article_containing(h,f'href="{name}.html"',feature_side(latest,name))
+    # IMPORTANT: obsolete feature-side updater disabled.
+    # The current Home uses the real right sidebar links (recensioni.html,
+    # test.html, unboxing.html, gaming.html). A global href search here can
+    # mistake those links for old feature cards and delete the Home structure.
+    # Sidebar videos are updated safely later through explicit marker blocks.
 
     # Lower category thumbnails: same rule, newest upload by YouTube publish date.
     for name in ["recensioni","test","unboxing","gaming"]:
