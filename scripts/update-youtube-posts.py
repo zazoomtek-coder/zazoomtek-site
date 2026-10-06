@@ -383,6 +383,29 @@ def editorial_nav(active=""):
     )
 
 
+def comments_box(content_id, content_type):
+    cid=html.escape(content_id,quote=True)
+    ctype=html.escape(content_type,quote=True)
+    return f'''<section class="zt-comments" data-zt-comments data-content-id="{cid}" data-content-type="{ctype}">
+      <div class="zt-comments-head"><h2>Commenti</h2><span class="zt-comments-count">0 commenti</span></div>
+      <div class="zt-comments-note">Commenti moderati automaticamente prima della pubblicazione. Usa un nickname e non inserire dati personali, contatti, link, accuse personali o contenuti illeciti. <a href="/commenti-policy.html" target="_blank" rel="noopener">Regole e informativa privacy</a>.</div>
+      <div class="zt-replying"><span></span><button class="zt-reply-cancel" type="button">Annulla risposta</button></div>
+      <form class="zt-comment-form" novalidate>
+        <div class="zt-comment-grid">
+          <div class="zt-comment-field"><label>Nome o nickname</label><input name="displayName" maxlength="40" autocomplete="nickname" required></div>
+          <div class="zt-comment-field"><label>Commento</label><textarea name="comment" maxlength="1200" required></textarea></div>
+        </div>
+        <div class="zt-comment-hp" aria-hidden="true"><label>Lascia vuoto<input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="zt-comment-checks">
+          <label><input type="checkbox" name="age14" required> Confermo di avere almeno 14 anni.</label>
+          <label><input type="checkbox" name="consent" required> Ho letto le <a href="/commenti-policy.html" target="_blank" rel="noopener">regole e l'informativa</a> e acconsento alla pubblicazione del nickname e del commento.</label>
+        </div>
+        <div class="zt-comment-actions"><button class="zt-comment-submit" type="submit">PUBBLICA COMMENTO</button><span class="zt-comment-status" aria-live="polite"></span></div>
+      </form>
+      <div class="zt-comments-list"><div class="zt-comment-loading">Caricamento commenti…</div></div>
+      <div class="zt-comments-foot">Puoi eliminare il tuo commento dallo stesso browser. Per contenuti illeciti o richieste di rimozione usa <strong>Segnala</strong> oppure scrivi a <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a>.</div>
+    </section>'''
+
 def legal_footer():
     return '''<footer class="legal-footer"><div class="wrap">
       <div class="footer-links"><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">▶ YouTube</a><a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">❤️ Patreon</a><a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">🎵 TikTok</a><a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">💬 WhatsApp</a><a href="/contatti.html">Contatti</a><a href="/chi-sono.html">Chi sono</a></div>
@@ -445,16 +468,16 @@ def write_review_page(p, all_reviews=None):
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}"><link rel="stylesheet" href="/comments.css">'+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
         +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
-        +img+f'<div class="article-body">{review_body_html(p)}</div></article>'
+        +img+f'<div class="article-body">{review_body_html(p)}</div>'+comments_box(slug,"review")+'</article>'
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
         +'<section class="compact-box"><div class="module-title">Ultime recensioni</div><div class="compact-list">'+recent+'</div></section>'
-        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'<script src="/comments.js" defer></script></body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
@@ -533,7 +556,7 @@ def write_news_page(p, all_news=None):
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
         +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 News</span></div>'
-        +img+f'<div class="article-body">{news_body_html(p)}</div></article>'
+        +img+f'<div class="article-body">{news_body_html(p)}</div>'+comments_box(slug,"news")+'</article>'
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
         +'<section class="compact-box"><div class="module-title">Ultimi articoli</div><div class="compact-list">'+recent+'</div></section>'
