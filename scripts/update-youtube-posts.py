@@ -209,7 +209,7 @@ DETAIL_STYLE = """<style>
 .article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}
 .review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}
 @media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article{padding:20px}}
-.legal-footer{margin-top:32px;background:#161616;color:#aaa;padding:24px 16px;font-size:.74rem;line-height:1.55}.legal-footer .wrap{max-width:1100px}.legal-footer p{margin:7px 0}.legal-footer strong{color:#ddd}.legal-footer a{color:#ddd;text-decoration:underline}</style>"""
+.legal-footer{margin-top:32px;background:#161616;color:#aaa;padding:24px 16px;font-size:.78rem;text-align:center}.legal-footer .wrap{max-width:1100px}.legal-footer a{color:#ddd;text-decoration:none}.legal-footer span{display:inline-block;margin-top:8px}</style>"""
 
 ARCHIVE_STYLE = """<style>
 :root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}
@@ -242,12 +242,7 @@ def editorial_nav(active=""):
 
 
 def legal_footer():
-    return '''<footer class="legal-footer"><div class="wrap">
-<p><strong>Copyright e licenze.</strong> Salvo diversa indicazione, i contenuti originali pubblicati su ZazoomTek sono distribuiti con licenza <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.it" target="_blank" rel="license noopener">Creative Commons CC BY-NC-ND 4.0</a>. Marchi, loghi, screenshot, immagini promozionali e altri materiali di terzi restano di proprietà dei rispettivi titolari.</p>
-<p><strong>Segnalazioni sui diritti.</strong> Per segnalare possibili violazioni di copyright, marchi o altri diritti scrivi a <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a> indicando l'URL e il materiale contestato. Le segnalazioni fondate saranno gestite tempestivamente.</p>
-<p><strong>Affiliazioni.</strong> Alcune pagine possono contenere link di affiliazione. <strong>In qualità di Affiliato Amazon io ricevo un guadagno dagli acquisti idonei.</strong> Eventuali sample, collaborazioni o sponsorizzazioni non determinano automaticamente un giudizio positivo.</p>
-<p><strong>Informazioni e link esterni.</strong> I contenuti hanno finalità informative, editoriali e di intrattenimento e non costituiscono consulenza professionale. Prezzi, disponibilità e specifiche possono cambiare; verifica sempre le informazioni presso produttore o venditore. ZazoomTek non è responsabile dei contenuti o delle condizioni applicate da siti e servizi esterni.</p>
-</div></footer>'''
+    return '''<footer class="legal-footer"><div class="wrap"><a href="/privacy.html">Privacy Policy</a> · <a href="/cookie.html">Cookie Policy</a> · <a href="/disclaimer.html">Disclaimer</a> · <a href="/note-legali.html">Note legali</a><br><span>© 2026 ZazoomTek</span></div></footer>'''
 
 def editorial_header(active=""):
     return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
