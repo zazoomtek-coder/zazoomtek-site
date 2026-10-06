@@ -1,0 +1,26 @@
+/* ZazoomTek global scrollbar */
+html{
+  scrollbar-width:thin;
+  scrollbar-color:#a30f35 #101114;
+}
+body{
+  scrollbar-gutter:stable;
+}
+::-webkit-scrollbar{
+  width:10px;
+  height:10px;
+}
+::-webkit-scrollbar-track{
+  background:#101114;
+}
+::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#006CFF 0%,#263778 48%,#D51232 100%);
+  border:2px solid #101114;
+  border-radius:999px;
+}
+::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,#1780ff 0%,#35458d 48%,#e21a3f 100%);
+}
+::-webkit-scrollbar-corner{
+  background:#101114;
+}
