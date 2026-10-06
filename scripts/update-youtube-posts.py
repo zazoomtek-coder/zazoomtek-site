@@ -137,10 +137,12 @@ def parse(s):
     tokens=continuation_tokens(data)
     used=set()
     pages=0
-    # Continue loading older Community posts until at least 20 written reviews
-    # are found, so the Recensioni archive is actually populated.
-    # A generous safety ceiling prevents runaway pagination.
-    while sum(1 for p in posts if looks_like_review_post(p)) < 20 and tokens and pages < 220:
+    # Continue through ALL available Community-post continuation pages.
+    # ZazoomTek publishes many posts, so the old 220-page ceiling only reached
+    # roughly the most recent month and missed older reviews.
+    # Keep a very high safety ceiling only to guard against a broken endless
+    # continuation chain; normal execution stops naturally when tokens end.
+    while tokens and pages < 3000:
         token=next((t for t in tokens if t not in used),None)
         if not token:break
         used.add(token);pages+=1
@@ -502,24 +504,59 @@ def render_review_rows(posts):
         )
     return "".join(rows)
 
-def write_review_archive(reviews):
-    rows=render_review_rows(reviews)
-    page=(
+REVIEW_PAGE_SIZE=20
+
+def review_page_href(n):
+    return "/recensioni-scritte.html" if n==1 else f"/recensioni-scritte-{n}.html"
+
+def render_review_pagination(current,total):
+    if total<=1:
+        return ""
+    items=[]
+    for n in range(1,total+1):
+        if n==current:
+            items.append(f'<span class="active">{n}</span>')
+        else:
+            items.append(f'<a href="{review_page_href(n)}">{n}</a>')
+    if current < total:
+        items.append(f'<a class="next" href="{review_page_href(current+1)}">NEXT</a>')
+    return '<nav class="archive-pagination" aria-label="Pagine Recensioni">'+"".join(items)+'</nav>'
+
+def build_review_archive_page(review_chunk,page_num,total_pages,reviews):
+    rows=render_review_rows(review_chunk)
+    title="Recensioni | ZazoomTek" if page_num==1 else f"Recensioni - Pagina {page_num} | ZazoomTek"
+    canonical="https://zazoomtek.it/recensioni-scritte.html" if page_num==1 else f"https://zazoomtek.it/recensioni-scritte-{page_num}.html"
+    return (
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>Recensioni | ZazoomTek</title>'
-        '<meta name="description" content="Archivio delle recensioni scritte di ZazoomTek.">'
-        '<link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html">'+NEWS_ARCHIVE_STYLE+'</head><body>'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>'+html.escape(title)+'</title>'
+        '<meta name="description" content="Archivio delle recensioni scritte di ZazoomTek, ordinate dalla più recente alla più vecchia.">'
+        '<link rel="canonical" href="'+canonical+'">'+NEWS_ARCHIVE_STYLE+'</head><body>'
         +rich_review_header()
         +'<main class="news-page"><div class="zt-wrap news-layout"><section class="news-main">'
         +'<div class="news-main-head"><h1>Recensioni</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Accessori</span></div></div>'
-        +'<div class="news-list" id="reviewList">'+rows+'</div></section>'
-        +'<aside class="news-sidebar">'+news_video_sidebar(reviews)+'</aside></div></main>'
+        +'<div class="news-list" id="reviewList">'+rows+'</div>'
+        +render_review_pagination(page_num,total_pages)
+        +'</section><aside class="news-sidebar">'+news_video_sidebar(reviews)+'</aside></div></main>'
         +legal_footer()+SMART_STICKY_SCRIPT
         +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
         +'</body></html>'
     )
-    Path("recensioni-scritte.html").write_text(page,encoding="utf-8")
 
+def write_review_archive(reviews):
+    total_pages=max(1,(len(reviews)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
+
+    # Remove obsolete numbered archive pages before rebuilding the complete set.
+    for old in Path(".").glob("recensioni-scritte-[0-9]*.html"):
+        try:
+            old.unlink()
+        except OSError:
+            pass
+
+    for page_num in range(1,total_pages+1):
+        chunk=reviews[(page_num-1)*REVIEW_PAGE_SIZE:page_num*REVIEW_PAGE_SIZE]
+        page=build_review_archive_page(chunk,page_num,total_pages,reviews)
+        filename="recensioni-scritte.html" if page_num==1 else f"recensioni-scritte-{page_num}.html"
+        Path(filename).write_text(page,encoding="utf-8")
 
 def news_title(p):
     lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
