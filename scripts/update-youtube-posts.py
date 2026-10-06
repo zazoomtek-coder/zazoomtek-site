@@ -479,22 +479,42 @@ def render_pagination(current,total):
 def write_article_pages(posts):
     total=max(1,(len(posts)+PAGE_SIZE-1)//PAGE_SIZE)
     total=min(total,5)
+
+    # Reuse the real Home HTML as the template so pagina 2-5 keep exactly
+    # the same header, colors, spacing, sidebar, footer and responsive layout.
+    home_template=INDEX.read_text(encoding="utf-8")
+
     for page_num in range(2,total+1):
         chunk=posts[(page_num-1)*PAGE_SIZE:page_num*PAGE_SIZE]
-        page=(
-            '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
-            '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-            f'<title>Articoli - Pagina {page_num} | ZazoomTek</title>'
-            f'<meta name="description" content="Archivio ZazoomTek, pagina {page_num}: news e recensioni meno recenti.">'
-            f'<link rel="canonical" href="https://zazoomtek.it/pagina-{page_num}.html">'
-            +PAGINATED_ARTICLE_STYLE+'</head><body>'
-            +editorial_header("")
-            +f'<main class="wrap"><div class="archive-head"><h1>Articoli - Pagina {page_num}</h1><p>News e recensioni in ordine cronologico, dalle più recenti alle meno recenti.</p></div>'
-            +'<div class="article-list">'+render_article_feed(chunk)+'</div>'
-            +render_pagination(page_num,total)
-            +'</main>'+legal_footer()+'</body></html>'
-        )
+        page=home_template
+
+        # Page-specific SEO.
+        page=re.sub(r'<title>.*?</title>',
+                    f'<title>Articoli - Pagina {page_num} | ZazoomTek</title>',
+                    page,count=1,flags=re.S)
+        page=re.sub(r'<meta name="description" content="[^"]*">',
+                    f'<meta name="description" content="Archivio ZazoomTek, pagina {page_num}: news e recensioni meno recenti.">',
+                    page,count=1)
+        page=re.sub(r'<link rel="canonical" href="[^"]+">',
+                    f'<link rel="canonical" href="https://zazoomtek.it/pagina-{page_num}.html">',
+                    page,count=1)
+
+        # Replace only the article stream and pagination.
+        feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(chunk)+"\n          <!-- ARTICLE_FEED_END -->"
+        page=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',
+                    feed,page,flags=re.S)
+
+        pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(page_num,total)+"\n        <!-- ARTICLE_PAGINATION_END -->"
+        if "<!-- ARTICLE_PAGINATION_START -->" in page:
+            page=re.sub(r'<!-- ARTICLE_PAGINATION_START -->.*?<!-- ARTICLE_PAGINATION_END -->',
+                        pagination,page,flags=re.S)
+        else:
+            page=page.replace('</div>\n      </section>\n    </div>\n\n    <aside class="sidebar">',
+                              '</div>\n        '+pagination+'\n      </section>\n    </div>\n\n    <aside class="sidebar">',1)
+
+        # Clear duplicated search query state and keep the Home visual shell unchanged.
         Path(f"pagina-{page_num}.html").write_text(page,encoding="utf-8")
+
     return total
 
 def main():
