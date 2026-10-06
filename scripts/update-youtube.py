@@ -98,61 +98,26 @@ def card(v):
       <div class="video-card-body"><span class="video-date">{date}</span><h3>{title}</h3><a href="https://youtu.be/{vid}" target="_blank" rel="noopener">Guarda su YouTube</a></div>
     </article>'''
 
-def update_category(name, vids, short_ids):
-    p=Path(name+".html")
-    if not p.exists(): return
+def update_category(category_name, vids, short_ids):
+    p=Path(category_name+".html")
+    if not p.exists():
+        return
+
     h=p.read_text(encoding="utf-8")
 
-    # Editorial Home: right-side category boxes show only the newest video
-    # for each category. The "Ultimi video" strip must never duplicate these.
-    ordered=sorted(vids,key=lambda v:v["snippet"]["publishedAt"],reverse=True)
-    marker_map={
-        "recensioni":("<!-- VIDEO_REVIEWS_START -->","<!-- VIDEO_REVIEWS_END -->","Recensioni"),
-        "test":("<!-- VIDEO_TEST_START -->","<!-- VIDEO_TEST_END -->","Test"),
-        "unboxing":("<!-- VIDEO_UNBOXING_START -->","<!-- VIDEO_UNBOXING_END -->","Unboxing"),
-        "gaming":("<!-- VIDEO_GAMING_START -->","<!-- VIDEO_GAMING_END -->","Gaming"),
-    }
-    sidebar_ids=set()
-    for name,(start_marker,end_marker,label) in marker_map.items():
-        candidate=next((v for v in ordered if classify(v)==name),None)
-        candidates=[candidate] if candidate else []
-        if candidate:
-            sidebar_ids.add(candidate["id"])
-        h=replace_marker_block(
-            h,start_marker,end_marker,
-            "\n".join(side_video_card(v,label) for v in candidates)
-        )
+    # Category pages: show the 20 newest videos belonging to that exact
+    # YouTube playlist/category, strictly newest -> oldest.
+    candidates=[v for v in vids if classify(v)==category_name]
+    candidates.sort(key=lambda v:v["snippet"]["publishedAt"], reverse=True)
+    chosen=candidates[:20]
 
-    long_videos=[v for v in ordered if v["id"] not in short_ids and v["id"] not in sidebar_ids]
-    if not long_videos:
-        long_videos=[v for v in ordered if sec(v["contentDetails"]["duration"])>180 and v["id"] not in sidebar_ids]
-    latest=long_videos[:5]
-    h=replace_marker_block(
-        h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
-        "\n".join(home_video_card(v) for v in latest)
-    )
     a=h.find('<section class="video-grid">')
-    if a<0:return
+    if a<0:
+        return
     b=h.find("</section>",a)
-    if b<0:return
-    candidates=[v for v in vids if classify(v)==name]
-    # Avoid duplicate coverage in category pages: when a long-form and a Short
-    # cover the same item/review, keep the long-form version.
-    def topic_key(v):
-        t=v["snippet"]["title"].lower()
-        t=re.sub(r'\b(shorts?|short|video|full|hd|4k|recensione|review|test|prova|unboxing|gameplay|ps5|ps4|xbox|nintendo|switch)\b',' ',t)
-        t=re.sub(r'[^a-z0-9à-ÿ]+',' ',t)
-        return set(x for x in t.split() if len(x)>2)
-    longs=[v for v in candidates if v["id"] not in short_ids]
-    chosen=[]
-    for v in candidates:
-        is_short=v["id"] in short_ids
-        if is_short:
-            vk=topic_key(v)
-            duplicate=any(len(vk & topic_key(l)) >= 2 and len(vk & topic_key(l))/max(1,min(len(vk),len(topic_key(l)))) >= .5 for l in longs)
-            if duplicate: continue
-        chosen.append(v)
-        if len(chosen)>=20: break
+    if b<0:
+        return
+
     block='<section class="video-grid">\n'+"\n".join(card(v) for v in chosen)+'\n  </section>'
     p.write_text(h[:a]+block+h[b+10:],encoding="utf-8")
 
