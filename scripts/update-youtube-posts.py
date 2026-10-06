@@ -132,7 +132,7 @@ def parse(s):
     pages=0
     # Continue loading older Community posts until at least 5 reviews are found
     # or a safe pagination limit is reached.
-    while len([p for p in posts if is_review(p)])<5 and tokens and pages<40:
+    while len(posts)<40 and tokens and pages<40:
         token=next((t for t in tokens if t not in used),None)
         if not token:break
         used.add(token);pages+=1
@@ -200,7 +200,7 @@ def write_review_page(p):
     title=review_title(p)
     slug=review_slug(p)
     img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.web.app/{slug}"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd;--cyan:#20d9ff;--blue:#2588ff}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}}.wrap{{width:min(980px,calc(100% - 32px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}.back{{display:block;margin-top:8px;color:#7de9ff;font-weight:800}}.hero{{margin:26px 0 18px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}}.hero img{{width:100%;max-height:560px;object-fit:cover;display:block}}.hero-copy{{padding:22px}}.hero h1{{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}}.meta{{color:var(--muted);font-size:.9rem}}.article{{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;margin-bottom:36px}}.article h2{{margin:30px 0 10px;color:#8beeff}}.article p{{margin:0 0 18px;white-space:pre-line}}.review-score{{margin-top:28px;padding:16px 18px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#04101c;font-size:1.35rem;font-weight:900}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="recensioni-scritte.html">← Tutte le recensioni</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{review_body_html(p)}</article></main></body></html>'''
+    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.it/{slug}"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header .wrap{display:flex;align-items:center;gap:22px}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}.back{color:#fff;font-weight:800}.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;max-height:560px;object-fit:cover;display:block}.hero-copy{padding:22px;border-top:5px solid var(--orange)}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}.meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}.article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}.review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}@media(max-width:650px){header .wrap{display:block}.back{display:block;margin-top:8px}.article{padding:20px}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="recensioni-scritte.html">← Tutte le recensioni</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{review_body_html(p)}</article></main></body></html>'''
     Path(slug).write_text(page,encoding="utf-8")
 
 def render_review_cards(posts, home=False):
@@ -213,7 +213,7 @@ def render_review_cards(posts, home=False):
 
 def write_review_archive(reviews):
     cards=render_review_cards(reviews)
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>Recensioni | ZazoomTek</title><meta name="description" content="Archivio delle recensioni scritte di ZazoomTek."><link rel="canonical" href="https://zazoomtek.web.app/recensioni-scritte.html"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif}}.wrap{{width:min(1420px,calc(100% - 36px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}h1{{margin:28px 0 6px}}.sub{{color:var(--muted)}}.community-posts-grid{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:18px 0 40px}}.community-post-card{{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}}.community-post-card img{{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}}.community-post-copy{{padding:14px}}.community-post-copy p{{margin:0;font-size:.86rem;line-height:1.45}}.community-post-copy small{{display:block;margin-top:10px;color:var(--muted);font-size:.72rem}}.community-post-copy a{{display:inline-block;margin-top:10px;color:#77e8ff;font-size:.78rem;font-weight:900}}@media(max-width:1000px){{.community-posts-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.community-posts-grid{{grid-template-columns:1fr}}}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
+    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>Recensioni | ZazoomTek</title><meta name="description" content="Archivio delle recensioni scritte di ZazoomTek."><link rel="canonical" href="https://zazoomtek.it/recensioni-scritte.html"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(--muted);margin-bottom:18px}.community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid var(--orange);min-width:0}.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}.community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--orange);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.community-posts-grid{grid-template-columns:1fr}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>Recensioni</h1><p class="sub">Le recensioni scritte pubblicate da ZazoomTek, dalla più recente.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
     Path("recensioni-scritte.html").write_text(page,encoding="utf-8")
 
 def news_title(p):
@@ -237,7 +237,7 @@ def write_news_page(p):
     title=news_title(p)
     slug=news_slug(p)
     img=(f'<img src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.web.app/{slug}"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd;--cyan:#20d9ff;--blue:#2588ff}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}}.wrap{{width:min(980px,calc(100% - 32px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}.back{{display:block;margin-top:8px;color:#7de9ff;font-weight:800}}.hero{{margin:26px 0 18px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}}.hero img{{width:100%;max-height:560px;object-fit:cover;display:block}}.hero-copy{{padding:22px}}.hero h1{{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}}.meta{{color:var(--muted);font-size:.9rem}}.article{{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;margin-bottom:36px}}.article p{{margin:0 0 18px;white-space:pre-line}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="news.html">← Tutte le News</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{news_body_html(p)}</article></main></body></html>'''
+    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}"><link rel="canonical" href="https://zazoomtek.it/{slug}"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header .wrap{display:flex;align-items:center;gap:22px}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}.back{color:#fff;font-weight:800}.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;max-height:560px;object-fit:cover;display:block}.hero-copy{padding:22px;border-top:5px solid var(--orange)}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}.meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}.article h2{margin:30px 0 10px;border-left:6px solid var(--orange);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}.review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--orange);color:#fff;font-size:1.35rem;font-weight:900}@media(max-width:650px){header .wrap{display:block}.back{display:block;margin-top:8px}.article{padding:20px}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong><a class="back" href="news.html">← Tutte le News</a></div></header><main class="wrap"><section class="hero">{img}<div class="hero-copy"><h1>{html.escape(title)}</h1><div class="meta">{html.escape(p.get("published") or "")} · ZazoomTek</div></div></section><article class="article">{news_body_html(p)}</article></main></body></html>'''
     Path(slug).write_text(page,encoding="utf-8")
 
 def render_news_cards(posts):
@@ -250,8 +250,76 @@ def render_news_cards(posts):
 
 def write_news_archive(news):
     cards=render_news_cards(news)
-    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title><meta name="description" content="Le ultime News pubblicate da ZazoomTek."><link rel="canonical" href="https://zazoomtek.web.app/news.html"><style>:root{{--panel:#0b1626;--line:rgba(111,148,204,.24);--text:#f7f9ff;--muted:#9ca9bd}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(180deg,#07111f,#050b14);color:var(--text);font-family:Arial,Helvetica,sans-serif}}.wrap{{width:min(1420px,calc(100% - 36px));margin:auto}}header{{padding:18px 0;border-bottom:1px solid var(--line)}}a{{color:inherit;text-decoration:none}}h1{{margin:28px 0 6px}}.sub{{color:var(--muted)}}.community-posts-grid{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:18px 0 40px}}.community-post-card{{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}}.community-post-card img{{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}}.community-post-copy{{padding:14px}}.community-post-copy p{{margin:0;font-size:.86rem;line-height:1.45}}.community-post-copy small{{display:block;margin-top:10px;color:var(--muted);font-size:.72rem}}.community-post-copy a{{display:inline-block;margin-top:10px;color:#77e8ff;font-size:.78rem;font-weight:900}}@media(max-width:1000px){{.community-posts-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.community-posts-grid{{grid-template-columns:1fr}}}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
+    page=f'''<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title><meta name="description" content="Le ultime News pubblicate da ZazoomTek."><link rel="canonical" href="https://zazoomtek.it/news.html"><style>:root{--orange:#ff7a00;--line:#ddd;--text:#303030;--muted:#777}*{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid var(--orange);padding:18px 0}header strong{font-size:1.5rem}a{color:inherit;text-decoration:none}main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(--muted);margin-bottom:18px}.community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid var(--orange);min-width:0}.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}.community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--orange);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.community-posts-grid{grid-template-columns:1fr}}</style></head><body><header><div class="wrap"><strong><a href="/">ZazoomTek</a></strong></div></header><main class="wrap"><h1>News</h1><p class="sub">Le ultime News pubblicate da ZazoomTek.</p><section class="community-posts-grid">{cards}</section></main></body></html>'''
     Path("news.html").write_text(page,encoding="utf-8")
+
+
+def post_kind(p):
+    return "Recensione" if is_review(p) else "News"
+
+def post_title(p):
+    return review_title(p) if is_review(p) else news_title(p)
+
+def post_slug(p):
+    return review_slug(p) if is_review(p) else news_slug(p)
+
+def post_excerpt(p, limit=220):
+    text=(p.get("text") or "").replace("⠀"," ").replace("\n"," ")
+    title=post_title(p)
+    if text.startswith(title):
+        text=text[len(title):].strip(" :-–—")
+    text=re.sub(r"\s+"," ",text).strip()
+    return text if len(text)<=limit else text[:limit].rsplit(" ",1)[0]+"…"
+
+def render_ticker(news):
+    rows=[]
+    for i,p in enumerate(news[:5]):
+        cls=' class="active"' if i==0 else ""
+        rows.append(f'    <a{cls} href="{news_slug(p)}">{html.escape(news_title(p))}</a>')
+    return "\n".join(rows)
+
+def render_featured_news(news):
+    news=news[:5]
+    slides=[]
+    tabs=[]
+    for i,p in enumerate(news):
+        title=html.escape(news_title(p))
+        slug=news_slug(p)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        active=" active" if i==0 else ""
+        slides.append(
+            f'            <article class="news-slide{active}" data-slide="{i}">'
+            f'<a href="{slug}"><img src="{img}" alt="{title}"></a>'
+            f'<div class="news-slide-copy"><span class="tag">News</span>'
+            f'<h1><a href="{slug}">{title}</a></h1>'
+            f'<p>{html.escape(post_excerpt(p,180))}</p></div></article>'
+        )
+        tabs.append(f'            <button class="news-tab{active}" data-go="{i}">{title}</button>')
+    return (
+        '<div class="news-slider" id="newsSlider">\n'
+        '          <div class="news-slides">\n'+"\n".join(slides)+'\n          </div>\n'
+        '          <div class="news-tabs">\n'+"\n".join(tabs)+'\n          </div>\n'
+        '        </div>'
+    )
+
+def render_article_feed(posts):
+    rows=[]
+    for p in posts:
+        kind=post_kind(p)
+        title=post_title(p)
+        slug=post_slug(p)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        excerpt=html.escape(post_excerpt(p,230))
+        search=html.escape((title+" "+kind+" "+(p.get("text") or ""))[:1200],quote=True)
+        rows.append(
+            f'          <article class="article-row" data-search="{search.lower()}">'
+            f'<a href="{slug}"><img class="article-image" src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
+            f'<div class="article-copy"><span class="article-kicker">{kind}</span>'
+            f'<h3><a href="{slug}">{html.escape(title)}</a></h3>'
+            f'<div class="article-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
+            f'<p>{excerpt}</p><a class="read-more" href="{slug}">Leggi tutto ›</a></div></article>'
+        )
+    return "\n".join(rows)
 
 def render(posts):
     return render_news_cards(posts)
@@ -270,7 +338,7 @@ def update_sitemap():
         priority="1.0000" if n=="" else "0.8000"
         rows.append(
             "  <url>\n"
-            f"       <loc>https://zazoomtek.web.app/{html.escape(n)}</loc>\n"
+            f"       <loc>https://zazoomtek.it/{html.escape(n)}</loc>\n"
             f"       <lastmod>{lastmod}</lastmod>\n"
             f"       <priority>{priority}</priority>\n"
             "  </url>"
@@ -290,22 +358,24 @@ def main():
         print("No public posts parsed; keeping current site unchanged.")
         return
     STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    reviews=[p for p in posts if is_review(p)][:5]
-    news=[p for p in posts if not is_review(p)][:5]
+    reviews=[p for p in posts if is_review(p)]
+    news=[p for p in posts if not is_review(p)]
     for p in reviews: write_review_page(p)
     write_review_archive(reviews)
     for p in news: write_news_page(p)
     write_news_archive(news)
     # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
     s=INDEX.read_text(encoding="utf-8")
-    repl="<!-- COMMUNITY_POSTS_START -->\n  <section class=\"community-posts-grid\" id=\"community-posts-grid\">\n"+render(news)+"\n  </section>\n  <!-- COMMUNITY_POSTS_END -->"
-    s2=re.sub(r'<!-- COMMUNITY_POSTS_START -->.*?<!-- COMMUNITY_POSTS_END -->',repl,s,flags=re.S)
+    s2=s
+    ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
+    s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
-    home_reviews=reviews[:5]
-    rrepl="<!-- PATREON_REVIEWS_START -->\n  <section class=\"community-posts-grid\" id=\"patreon-reviews-grid\">\n"+render_review_cards(home_reviews,True)+"\n  </section>\n  <!-- PATREON_REVIEWS_END -->"
-    s2=re.sub(r'<!-- PATREON_REVIEWS_START -->.*?<!-- PATREON_REVIEWS_END -->',rrepl,s2,flags=re.S)
-    s2=s2.replace('href="https://www.patreon.com/c/ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutte →</a>','href="recensioni-scritte.html">Vedi tutte →</a>')
-    s2=s2.replace('href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Vedi tutti →</a>','href="news.html">Vedi tutti →</a>')
+    featured="<!-- FEATURED_NEWS_START -->\n        "+render_featured_news(news)+"\n        <!-- FEATURED_NEWS_END -->"
+    s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
+
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:20])+"\n          <!-- ARTICLE_FEED_END -->"
+    s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
+
     if s2!=s:INDEX.write_text(s2,encoding="utf-8")
     print("Synced",len(news),"YouTube Community news posts and",len(reviews),"review posts")
 
