@@ -257,7 +257,7 @@ NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
 .news-page{background:#fff;padding:24px 0 40px}.news-layout{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:22px;align-items:start}
 .news-main{min-width:0}.news-main-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:3px solid transparent;border-image:var(--zt-grad) 1}.news-main-head h1{font-size:1.65rem;margin:0;padding:0 0 10px;text-transform:uppercase}.news-filter{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:10px}.news-filter span{font-size:.72rem;font-weight:900;text-transform:uppercase;color:#666}
 .news-list{border:1px solid var(--zt-line);border-bottom:0}.news-row{display:grid;grid-template-columns:360px minmax(0,1fr);gap:20px;padding:18px;border-bottom:1px solid var(--zt-line);background:#fff;align-items:start}.news-row img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.news-copy h2{margin:0 0 8px;font-size:1.3rem;line-height:1.12}.news-meta{font-size:.76rem;color:#888;margin-bottom:9px}.news-copy p{margin:0 0 13px;color:#555;line-height:1.48;font-size:.93rem}.news-read{display:inline-block;background:var(--zt-grad);color:#fff;padding:10px 14px;font-size:.75rem;font-weight:900;text-transform:uppercase}
-.news-sidebar{min-width:0;align-self:start;height:auto;position:static;top:auto}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}
+.news-sidebar{min-width:0;align-self:start;height:auto;position:static;top:auto}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}.archive-pagination{margin:28px 0 0;background:#202020;padding:20px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}.archive-pagination a,.archive-pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.archive-pagination .active{background:var(--zt-grad);border-color:transparent}.archive-pagination .next{min-width:92px}
 @media(max-width:980px){.news-layout{grid-template-columns:1fr}.news-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.side-box{margin:0}}
 @media(max-width:720px){.news-row{grid-template-columns:1fr;padding:14px}.news-sidebar{grid-template-columns:1fr}}
 </style>"""
@@ -533,23 +533,54 @@ def render_news_rows(posts):
         )
     return "".join(rows)
 
-def write_news_archive(news):
-    rows=render_news_rows(news)
-    page=(
+NEWS_PAGE_SIZE=20
+NEWS_MAX_PAGES=5
+
+def news_page_href(n):
+    return "/news.html" if n==1 else f"/news-{n}.html"
+
+def render_news_pagination(current,total):
+    if total<=1:
+        return ""
+    items=[]
+    for n in range(1,total+1):
+        if n==current:
+            items.append(f'<span class="active">{n}</span>')
+        else:
+            items.append(f'<a href="{news_page_href(n)}">{n}</a>')
+    if current < total:
+        items.append(f'<a class="next" href="{news_page_href(current+1)}">NEXT</a>')
+    return '<nav class="archive-pagination" aria-label="Pagine News">'+"".join(items)+'</nav>'
+
+def build_news_archive_page(news_chunk,page_num,total_pages):
+    rows=render_news_rows(news_chunk)
+    title="News | ZazoomTek" if page_num==1 else f"News - Pagina {page_num} | ZazoomTek"
+    canonical="https://zazoomtek.it/news.html" if page_num==1 else f"https://zazoomtek.it/news-{page_num}.html"
+    return (
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>News | ZazoomTek</title>'
-        '<meta name="description" content="Le ultime News pubblicate da ZazoomTek.">'
-        '<link rel="canonical" href="https://zazoomtek.it/news.html">'+NEWS_ARCHIVE_STYLE+'</head><body>'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>'+html.escape(title)+'</title>'
+        '<meta name="description" content="Le ultime News pubblicate da ZazoomTek, in ordine cronologico.">'
+        '<link rel="canonical" href="'+canonical+'">'+NEWS_ARCHIVE_STYLE+'</head><body>'
         +rich_editorial_header("news")
         +'<main class="news-page"><div class="zt-wrap news-layout"><section class="news-main">'
         +'<div class="news-main-head"><h1>Notizie</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Software</span></div></div>'
-        +'<div class="news-list" id="newsList">'+rows+'</div></section>'
-        +'<aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
+        +'<div class="news-list" id="newsList">'+rows+'</div>'
+        +render_news_pagination(page_num,total_pages)
+        +'</section><aside class="news-sidebar">'+news_video_sidebar()+'</aside></div></main>'
         +legal_footer()
         +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
         +'</body></html>'
     )
-    Path("news.html").write_text(page,encoding="utf-8")
+
+def write_news_archive(news):
+    news=news[:NEWS_PAGE_SIZE*NEWS_MAX_PAGES]
+    total_pages=max(1,min(NEWS_MAX_PAGES,(len(news)+NEWS_PAGE_SIZE-1)//NEWS_PAGE_SIZE))
+    for page_num in range(1,total_pages+1):
+        chunk=news[(page_num-1)*NEWS_PAGE_SIZE:page_num*NEWS_PAGE_SIZE]
+        page=build_news_archive_page(chunk,page_num,total_pages)
+        filename="news.html" if page_num==1 else f"news-{page_num}.html"
+        Path(filename).write_text(page,encoding="utf-8")
+
 
 
 def post_kind(p):
