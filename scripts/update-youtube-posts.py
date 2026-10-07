@@ -172,10 +172,13 @@ def is_review(p):
     return (not first.startswith("news:")) and ("recensione" in first or "review" in first or "voto finale" in body)
 
 def review_title(p):
-    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    raw_lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    lines=[clean_site_title(x) for x in raw_lines]
     # Ignore generic labels such as "Review:" and use the first real line
     # that identifies the reviewed product/game.
     for line in lines[:8]:
+        if not line:
+            continue
         low=line.lower().strip()
         plain=re.sub(r'[^a-zà-ÿ]+','',low)
         if plain in ("review","recensione"):
@@ -183,6 +186,8 @@ def review_title(p):
         if "recensione" in low or "review" in low:
             return line
     for line in lines:
+        if not line:
+            continue
         low=line.lower().strip()
         plain=re.sub(r'[^a-zà-ÿ]+','',low)
         if plain not in ("review","recensione"):
@@ -193,7 +198,7 @@ def review_slug(p):
     return "recensione-"+p["id"]+".html"
 
 def review_body_html(p):
-    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',p.get("text") or "") if x.strip()]
+    blocks=clean_site_blocks(p.get("text") or "")
     title=review_title(p)
     cleaned=[]
     for b in blocks:
@@ -570,15 +575,128 @@ def write_review_archive(reviews):
         filename="recensioni-scritte.html" if page_num==1 else f"recensioni-scritte-{page_num}.html"
         Path(filename).write_text(page,encoding="utf-8")
 
+def strip_site_emojis(text):
+    """Remove decorative emoji/icons while preserving normal punctuation and words."""
+    if not text:
+        return ""
+    out=[]
+    for ch in text:
+        cp=ord(ch)
+        if (
+            0x1F000 <= cp <= 0x1FAFF or
+            0x2600 <= cp <= 0x26FF or
+            0x2700 <= cp <= 0x27BF or
+            0x1F1E6 <= cp <= 0x1F1FF or
+            cp in (0xFE0E,0xFE0F,0x200D,0x20E3)
+        ):
+            continue
+        out.append(ch)
+    return "".join(out)
+
+def clean_site_line(line):
+    line=(line or "").strip()
+    if not line:
+        return ""
+
+    # Remove URLs and bare web links copied from Community posts.
+    line=re.sub(r'https?://\S+','',line,flags=re.I)
+    line=re.sub(r'\bwww\.\S+','',line,flags=re.I)
+
+    # Remove decorative emoji/icons from visible site text.
+    line=strip_site_emojis(line)
+
+    # Normalize whitespace left behind by removed icons/links.
+    line=re.sub(r'[ \t]+',' ',line)
+    line=re.sub(r'\s+([,.;:!?])',r'\1',line)
+    return line.strip(" \t-–—|")
+
+def is_site_social_line(line):
+    low=(line or "").strip().lower()
+    if not low:
+        return True
+
+    # Social/CTA lines belong on YouTube, not inside the imported article.
+    exact_prefixes=(
+        "subscribe",
+        "iscriviti",
+        "youtube:",
+        "patreon:",
+        "tiktok:",
+        "whatsapp:",
+        "zazoomtek.it",
+        "www.zazoomtek.it",
+        "@zazoomtek",
+    )
+    if low.startswith(exact_prefixes):
+        return True
+
+    social_phrases=(
+        "se ti piacciono tecnologia",
+        "seguimi su zazoomtek",
+        "seguici su zazoomtek",
+        "segui zazoomtek",
+        "subscribe to the channel",
+        "iscriviti al canale",
+    )
+    if any(x in low for x in social_phrases):
+        return True
+
+    # A line containing only a URL or social handle becomes empty after cleanup.
+    cleaned=clean_site_line(line)
+    return not cleaned
+
+def clean_site_hashtags(line, limit=8):
+    """Keep a concise, unique set of topic hashtags; drop channel/self-promo tags."""
+    tags=re.findall(r'#[\wÀ-ÿ]+',line or "",flags=re.UNICODE)
+    out=[]
+    seen=set()
+    blocked={"#zazoomtek","#zazoomteknews","#zazoomtekreview"}
+    for tag in tags:
+        key=tag.lower()
+        if key in blocked or key in seen:
+            continue
+        seen.add(key)
+        out.append(tag)
+        if len(out)>=limit:
+            break
+    return " ".join(out)
+
+def clean_site_blocks(raw):
+    """Convert a Community post into clean editorial blocks for the website."""
+    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',raw or "") if x.strip()]
+    cleaned=[]
+    for block in blocks:
+        # Work line-by-line so a social footer does not contaminate a valid paragraph.
+        lines=[]
+        for line in block.splitlines():
+            if is_site_social_line(line):
+                continue
+            stripped=line.strip()
+            if stripped.startswith("#"):
+                hashtags=clean_site_hashtags(stripped)
+                if hashtags:
+                    lines.append(hashtags)
+                continue
+            visible=clean_site_line(line)
+            if visible:
+                lines.append(visible)
+        text=" ".join(lines).strip()
+        if text:
+            cleaned.append(text)
+    return cleaned
+
+def clean_site_title(line):
+    return clean_site_line(line)
+
 def news_title(p):
-    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    lines=[clean_site_title(x) for x in (p.get("text") or "").splitlines() if clean_site_title(x)]
     return lines[0] if lines else "News ZazoomTek"
 
 def news_slug(p):
     return "news-"+p["id"]+".html"
 
 def news_body_html(p):
-    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',p.get("text") or "") if x.strip()]
+    blocks=clean_site_blocks(p.get("text") or "")
     title=news_title(p)
     cleaned=[]
     for b in blocks:
@@ -694,7 +812,7 @@ def post_slug(p):
     return review_slug(p) if is_review(p) else news_slug(p)
 
 def post_excerpt(p, limit=220):
-    text=(p.get("text") or "").replace("⠀"," ").replace("\n"," ")
+    text=" ".join(clean_site_blocks(p.get("text") or ""))
     title=post_title(p)
     if text.startswith(title):
         text=text[len(title):].strip(" :-–—")
