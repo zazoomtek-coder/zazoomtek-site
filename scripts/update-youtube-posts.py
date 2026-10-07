@@ -282,7 +282,7 @@ def review_body_html(p):
 
     standard_headings=[
         (("introduzione",), "Introduzione"),
-        (("storia",), "Storia"),
+        (("storia e campagna","storia"), "Storia e Campagna"),
         (("gameplay",), "Gameplay"),
         (("aspetto tecnico","aspetto tecnico su ps5","comparto tecnico","comparto tecnico ps5","comparto tecnico su ps5"), "Aspetto Tecnico"),
         (("esperienza complessiva",), "Esperienza Complessiva"),
@@ -350,6 +350,23 @@ def review_body_html(p):
         if heading_label:
             flush_paragraph()
             out.append(f'<h2><strong>{heading_label}</strong></h2>')
+            continue
+
+        merged_heading_label=None
+        merged_heading_rest=None
+        for keys,label in standard_headings:
+            for key in sorted(keys,key=len,reverse=True):
+                prefix=key+" "
+                if low.startswith(prefix):
+                    merged_heading_label=label
+                    merged_heading_rest=line[len(key):].strip()
+                    break
+            if merged_heading_label:
+                break
+        if merged_heading_label and merged_heading_rest:
+            flush_paragraph()
+            out.append(f'<h2><strong>{merged_heading_label}</strong></h2>')
+            out.append(f'<p>{html.escape(merged_heading_rest)}</p>')
             continue
 
         if low_nocolon in legacy_headings or (len(line)<60 and line.isupper()):
