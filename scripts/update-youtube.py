@@ -231,6 +231,21 @@ def sidebar_short_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     return f'''          <article class="side-video zt-short-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>Shorts</small></div></article>'''
 
+
+def sidebar_short_slide_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return (
+        f'          <article class="zt-short-slide">'
+        f'<div class="zt-short-media"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
+        f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
+        f'alt="{title}" loading="lazy"></button></div>'
+        f'<div class="zt-short-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+    )
+
 def sidebar_analog_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
@@ -336,10 +351,16 @@ def update_home(vids, short_ids):
         h=h[:pos]+segment+h[end+10:]
 
     # Exactly five latest Shorts.
-    shorts=[v for v in vids if v["id"] in short_ids]
+    shorts=[v for v in vids if v["id"] in short_ids and not is_live_upload(v)]
     if not shorts:
-        shorts=[v for v in vids if sec(v["contentDetails"]["duration"])<=180]
+        shorts=[v for v in vids if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)]
     shorts=shorts[:5]
+
+    # Home sidebar Shorts carousel: always the five newest real Shorts.
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_SHORTS_CAROUSEL_START -->","<!-- SIDEBAR_SHORTS_CAROUSEL_END -->",
+        "\n".join(sidebar_short_slide_card(v) for v in shorts)
+    )
     a=h.find('<section class="recent-grid" id="shorts-grid">')
     if a>=0:
         b=h.find("</section>",a)
