@@ -374,8 +374,6 @@ def update_home(vids, short_ids):
                 and v["id"] not in short_ids
                 and not is_live_upload(v)
                 and is_true_landscape(v)
-                and (category in ("test","unboxing") or v["id"] not in editorial_latest_ids)
-                and (category in ("test","unboxing") or v["id"] != sidebar_short_id)
             ),
             None
         )
