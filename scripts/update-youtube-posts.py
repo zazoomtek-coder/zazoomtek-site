@@ -125,9 +125,14 @@ def distribute_inline_images(blocks,p,title):
         return blocks
 
     # Prefer placement after paragraphs, not directly after headings/scores.
-    candidates=[i for i,b in enumerate(blocks) if b.lstrip().startswith("<p>")]
+    # Never place imported photos after the Conclusioni section.
+    conclusion_idx=next((
+        i for i,b in enumerate(blocks)
+        if re.search(r'<h2><strong>\\s*Conclusioni\\s*</strong></h2>',b,flags=re.I)
+    ),len(blocks))
+    candidates=[i for i,b in enumerate(blocks[:conclusion_idx]) if b.lstrip().startswith("<p>")]
     if not candidates:
-        candidates=list(range(len(blocks)))
+        candidates=list(range(conclusion_idx))
     if not candidates:
         return blocks
 
