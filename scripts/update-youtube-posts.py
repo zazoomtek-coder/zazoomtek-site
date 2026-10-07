@@ -778,11 +778,11 @@ def update_sitemap():
         except OSError:
             continue
 
-        mrobots=re.search(r'<meta\\s+name=["\\']robots["\\']\\s+content=["\\']([^"\\']+)["\\']',page,re.I)
+        mrobots=re.search(r"<meta\\s+name=[\\\"']robots[\\\"']\\s+content=[\\\"']([^\\\"']+)[\\\"']",page,re.I)
         if mrobots and "noindex" in mrobots.group(1).lower():
             continue
 
-        mcanonical=re.search(r'<link\\s+rel=["\\']canonical["\\']\\s+href=["\\']([^"\\']+)["\\']',page,re.I)
+        mcanonical=re.search(r"<link\\s+rel=[\\\"']canonical[\\\"']\\s+href=[\\\"']([^\\\"']+)[\\\"']",page,re.I)
         if not mcanonical:
             continue
         url=mcanonical.group(1).strip()
