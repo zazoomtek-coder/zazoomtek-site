@@ -198,9 +198,8 @@ def review_slug(p):
     return "recensione-"+p["id"]+".html"
 
 def review_body_html(p):
-    # Reviews are rendered as clean editorial text: no decorative emoji/icons
-    # from the original Community post, and the standard section labels are
-    # always visually emphasized.
+    # Reviews are rendered as clean editorial text: no decorative emoji/icons,
+    # no social/footer CTA lines, and standard section labels are emphasized.
     blocks=clean_site_blocks(p.get("text") or "")
     title=review_title(p)
     cleaned=[]
@@ -212,28 +211,59 @@ def review_body_html(p):
             continue
         if b==title:
             continue
+        if is_site_social_line(b):
+            continue
         if b:
             cleaned.append(b)
 
     out=[]
     standard_headings=[
-        ("introduzione","Introduzione"),
-        ("storia","Storia"),
-        ("gameplay","Gameplay"),
-        ("aspetto tecnico","Aspetto Tecnico"),
-        ("esperienza complessiva","Esperienza Complessiva"),
-        ("conclusioni","Conclusioni"),
-        ("materiali e design","Materiali e Design"),
-        ("hardware e prestazioni","Hardware e Prestazioni"),
-        ("uso quotidiano","Uso Quotidiano"),
+        (("introduzione",), "Introduzione"),
+        (("storia",), "Storia"),
+        (("gameplay",), "Gameplay"),
+        (("aspetto tecnico","aspetto tecnico su ps5","comparto tecnico","comparto tecnico ps5","comparto tecnico su ps5"), "Aspetto Tecnico"),
+        (("esperienza complessiva",), "Esperienza Complessiva"),
+        (("conclusioni",), "Conclusioni"),
+        (("materiali e design",), "Materiali e Design"),
+        (("hardware e prestazioni",), "Hardware e Prestazioni"),
+        (("uso quotidiano","esperienza d'uso quotidiana","esperienza d’uso quotidiana"), "Uso Quotidiano"),
     ]
     legacy_headings={"la città","my player","my career","my nba, the w e my wnba","my team"}
 
     for b in cleaned:
         low=b.lower().strip()
+        low_nocolon=low.rstrip(":").strip()
 
-        # Keep the real score from the Community post; never hard-code a vote.
-        vote_match=re.match(r'^(voto\s+finale\s*:\s*[^\n]+)
+        vote_match=re.match(r'^voto\s+finale\s*:\s*(.+)$',b,flags=re.I|re.S)
+        if vote_match:
+            vote_text="Voto finale: "+vote_match.group(1).strip()
+            out.append(f'<div class="review-score"><strong>{html.escape(vote_text)}</strong></div>')
+            continue
+
+        matched=False
+        for keys,label in standard_headings:
+            if low_nocolon in keys:
+                out.append(f'<h2><strong>{label}</strong></h2>')
+                matched=True
+                break
+            for key in keys:
+                m=re.match(r'^'+re.escape(key)+r'\s*[:\-–—]?\s+(.+)$',b,flags=re.I|re.S)
+                if m:
+                    out.append(f'<h2><strong>{label}</strong></h2>')
+                    out.append(f'<p>{html.escape(m.group(1).strip())}</p>')
+                    matched=True
+                    break
+            if matched:
+                break
+        if matched:
+            continue
+
+        if low_nocolon in legacy_headings or (len(b)<60 and b.isupper()):
+            out.append(f"<h2><strong>{html.escape(b.rstrip(':'))}</strong></h2>")
+        else:
+            out.append(f"<p>{html.escape(b)}</p>")
+    return "\n".join(out)
+
 DETAIL_STYLE = """<style>
 :root{--orange:#D51232;--accent-blue:#D51232;--accent-mid:#D51232;--accent-red:#D51232;--accent-gradient:linear-gradient(90deg,#D51232 0%,#D51232 100%);--line:#ddd;--text:#303030;--muted:#777}
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}
@@ -244,7 +274,7 @@ DETAIL_STYLE = """<style>
 .hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;background:#111}
 .hero-copy{padding:22px;border-top:5px solid transparent;border-image:var(--accent-gradient) 1}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}
 .meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}
-.article h2{margin:30px 0 10px;border-left:6px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red);padding-left:10px;font-weight:900;color:#202020}.article h2 strong{font-weight:900}.article p{margin:0 0 18px;white-space:pre-line}
+.article h2{margin:30px 0 10px;border-left:6px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red);padding-left:10px;font-weight:900;color:#181818}.article h2 strong{font-weight:900}.article p{margin:0 0 18px;white-space:pre-line;color:#222}
 .review-score{margin-top:28px;padding:16px 18px;background:#202020;border-left:8px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red);color:#fff;font-size:1.35rem;font-weight:900}
 @media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article{padding:20px}}
 .legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}</style>"""
@@ -655,6 +685,14 @@ def is_site_social_line(line):
         "segui zazoomtek",
         "subscribe to the channel",
         "iscriviti al canale",
+        "video recensione completa",
+        "videorecensione completa",
+        "recensione completa scritta",
+        "recensione completa",
+        "canale youtube zazoomtek",
+        "canale youtube",
+        "guarda la recensione completa",
+        "leggi la recensione completa",
     )
     if any(x in low for x in social_phrases):
         return True
