@@ -415,14 +415,23 @@ def update_home(vids, short_ids):
                 break
     editorial_latest_ids={v["id"] for v in editorial_latest}
 
-    # Unified Home sidebar: the six newest REAL 16:9 uploads,
-    # strictly newest -> oldest. No Shorts, vertical clips or live streams.
+    # Unified Home sidebar: exactly one newest valid 16:9 video
+    # from each editorial category. No filler/extra videos.
     stack=[]
-    for v in ordered:
-        if is_true_landscape(v):
-            stack.append(v)
-            if len(stack)>=6:
-                break
+    used=set()
+    for category in ["recensioni","test","unboxing","gaming","analogiktek"]:
+        candidate=next(
+            (
+                v for v in ordered
+                if classify(v)==category
+                and is_true_landscape(v)
+                and v["id"] not in used
+            ),
+            None
+        )
+        if candidate:
+            stack.append(candidate)
+            used.add(candidate["id"])
 
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
