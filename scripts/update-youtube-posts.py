@@ -198,25 +198,12 @@ def review_slug(p):
     return "recensione-"+p["id"]+".html"
 
 def review_body_html(p):
-    # Reviews are rendered as clean editorial text: no decorative emoji/icons,
-    # no social/footer CTA lines, and standard section labels are emphasized.
-    blocks=clean_site_blocks(p.get("text") or "")
+    # Build review content line-by-line so the Community title is never merged
+    # with "Introduzione" or with the first paragraph.
+    raw=p.get("text") or ""
     title=review_title(p)
-    cleaned=[]
-    for b in blocks:
-        b=strip_site_emojis(b).strip()
-        low=b.lower().strip()
-        plain=re.sub(r'[^a-zà-ÿ]+','',low)
-        if plain in ("review","recensione"):
-            continue
-        if b==title:
-            continue
-        if is_site_social_line(b):
-            continue
-        if b:
-            cleaned.append(b)
+    title_low=clean_site_title(title).lower().strip()
 
-    out=[]
     standard_headings=[
         (("introduzione",), "Introduzione"),
         (("storia",), "Storia"),
@@ -230,38 +217,73 @@ def review_body_html(p):
     ]
     legacy_headings={"la città","my player","my career","my nba, the w e my wnba","my team"}
 
-    for b in cleaned:
-        low=b.lower().strip()
-        low_nocolon=low.rstrip(":").strip()
+    out=[]
+    paragraph=[]
 
-        vote_match=re.match(r'^voto\s+finale\s*:\s*(.+)$',b,flags=re.I|re.S)
+    def flush_paragraph():
+        if paragraph:
+            text=" ".join(paragraph).strip()
+            if text:
+                out.append(f"<p>{html.escape(text)}</p>")
+            paragraph.clear()
+
+    first_content_line=True
+    for raw_line in raw.splitlines():
+        stripped=(raw_line or "").strip()
+        if not stripped:
+            flush_paragraph()
+            continue
+        if stripped.startswith("#") or is_site_social_line(stripped):
+            flush_paragraph()
+            continue
+
+        line=clean_site_line(stripped)
+        if not line:
+            continue
+        line=strip_site_emojis(line).strip()
+        low=line.lower().strip()
+        low_nocolon=low.rstrip(":").strip()
+        plain=re.sub(r'[^a-zà-ÿ]+','',low)
+
+        # The first Community line is the review title. It belongs in H1 only,
+        # never inside the article body.
+        if first_content_line:
+            first_content_line=False
+            if low==title_low or "recensione" in low or "review" in low:
+                continue
+
+        if plain in ("review","recensione"):
+            flush_paragraph()
+            continue
+        if low==title_low:
+            flush_paragraph()
+            continue
+
+        vote_match=re.match(r'^voto\s+finale\s*:\s*(.+)$',line,flags=re.I|re.S)
         if vote_match:
+            flush_paragraph()
             vote_text="Voto finale: "+vote_match.group(1).strip()
             out.append(f'<div class="review-score"><strong>{html.escape(vote_text)}</strong></div>')
             continue
 
-        matched=False
+        heading_label=None
         for keys,label in standard_headings:
             if low_nocolon in keys:
-                out.append(f'<h2><strong>{label}</strong></h2>')
-                matched=True
+                heading_label=label
                 break
-            for key in keys:
-                m=re.match(r'^'+re.escape(key)+r'\s*[:\-–—]?\s+(.+)$',b,flags=re.I|re.S)
-                if m:
-                    out.append(f'<h2><strong>{label}</strong></h2>')
-                    out.append(f'<p>{html.escape(m.group(1).strip())}</p>')
-                    matched=True
-                    break
-            if matched:
-                break
-        if matched:
+        if heading_label:
+            flush_paragraph()
+            out.append(f'<h2><strong>{heading_label}</strong></h2>')
             continue
 
-        if low_nocolon in legacy_headings or (len(b)<60 and b.isupper()):
-            out.append(f"<h2><strong>{html.escape(b.rstrip(':'))}</strong></h2>")
-        else:
-            out.append(f"<p>{html.escape(b)}</p>")
+        if low_nocolon in legacy_headings or (len(line)<60 and line.isupper()):
+            flush_paragraph()
+            out.append(f"<h2><strong>{html.escape(line.rstrip(':'))}</strong></h2>")
+            continue
+
+        paragraph.append(line)
+
+    flush_paragraph()
     return "\n".join(out)
 
 DETAIL_STYLE = """<style>
