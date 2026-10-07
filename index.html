@@ -77,9 +77,6 @@ header{background:#171717;color:#fff;border-top:3px solid transparent;border-ima
 .zt-video-stack{margin-bottom:20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07);overflow:hidden}
 .zt-video-stack .side-head{height:50px}
 .zt-video-stack .side-head:before{width:66%}
-.zt-stack-controls{position:relative;z-index:2;display:flex;gap:6px;padding-right:8px}
-.zt-stack-controls button{width:31px;height:31px;border:1px solid rgba(255,255,255,.18);background:#222b34;color:#fff;font-size:1.15rem;line-height:1;cursor:pointer}
-.zt-stack-controls button:hover{background:#D51232}
 .zt-stack-list{background:#fff}
 .zt-stack-card{background:#fff;border-bottom:1px solid #e9e9e9}
 .zt-stack-card:last-child{border-bottom:0}
@@ -94,27 +91,24 @@ header{background:#171717;color:#fff;border-top:3px solid transparent;border-ima
 @media(max-width:820px){.zt-video-stack{grid-column:1/-1}.zt-stack-copy h3{font-size:1rem}}
 .zt-amazon-game-box{margin:0 0 20px;background:#fff;border:1px solid #ddd;border-top:5px solid #FF9900;box-shadow:0 3px 10px rgba(0,0,0,.08);overflow:hidden}
 .zt-amazon-game-head{background:#131921;color:#fff;padding:13px 15px;font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
-.zt-amazon-game-body{padding:18px;background:linear-gradient(180deg,#fff 0%,#fff7ea 100%)}
-.zt-amazon-game-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.zt-amazon-game-body{padding:14px 16px;background:linear-gradient(180deg,#fff 0%,#fff7ea 100%)}
+.zt-amazon-game-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
 .zt-amazon-game-platform{display:inline-block;background:#232F3E;color:#fff;padding:5px 9px;border-radius:3px;font-size:.7rem;font-weight:900}
 .zt-amazon-game-plane{font-size:1.6rem}
-.zt-amazon-game-name{margin:0;color:#131921;font-size:1.65rem;line-height:1;font-weight:900}
+.zt-amazon-game-name{margin:0;color:#131921;font-size:1.5rem;line-height:1;font-weight:900}
 .zt-amazon-game-subtitle{margin:5px 0 10px;color:#E47911;font-size:.78rem;font-weight:900;letter-spacing:.06em}
-.zt-amazon-game-info{margin:0 0 14px;color:#444;font-size:.78rem;line-height:1.4}
-.zt-amazon-game-button2{display:block;width:100%;box-sizing:border-box;padding:13px 10px;border-radius:7px;background:#FF9900;color:#111!important;text-align:center;text-decoration:none!important;font-size:.78rem;font-weight:900;transition:.2s ease}
+.zt-amazon-game-info{margin:0 0 11px;color:#444;font-size:.76rem;line-height:1.35}
+.zt-amazon-game-button2{display:block;width:100%;box-sizing:border-box;padding:11px 10px;border-radius:7px;background:#FF9900;color:#111!important;text-align:center;text-decoration:none!important;font-size:.78rem;font-weight:900;transition:.2s ease}
 .zt-amazon-game-button2:hover{background:#E88B00;transform:translateY(-1px)}
 .zt-amazon-game-note{margin-top:8px;text-align:center;color:#777;font-size:.62rem}
-.zt-shorts-box{margin:0 0 20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07);overflow:hidden}
+.zt-shorts-box{width:100%;box-sizing:border-box;margin:0 0 20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07);overflow:hidden}
 .zt-shorts-box .side-head{height:50px}
 .zt-shorts-box .side-head:before{width:66%}
-.zt-shorts-controls{position:relative;z-index:2;display:flex;gap:6px;padding-right:8px}
-.zt-shorts-controls button{width:31px;height:31px;border:1px solid rgba(255,255,255,.18);background:#222b34;color:#fff;font-size:1.15rem;line-height:1;cursor:pointer}
-.zt-shorts-controls button:hover{background:#D51232}
 .zt-shorts-viewport{overflow:hidden;background:#0d0d0d}
 .zt-shorts-track{display:flex;width:100%;transition:transform .5s ease;will-change:transform}
 .zt-short-slide{flex:0 0 100%;min-width:100%;background:#fff}
-.zt-short-media{display:flex;justify-content:center;background:#0b0b0b;padding:12px 0}
-.zt-short-slide .video-thumb{width:62%;aspect-ratio:9/16;height:auto}
+.zt-short-media{display:flex;justify-content:center;align-items:center;background:#0b0b0b;padding:14px 0}
+.zt-short-slide .video-thumb{width:min(66%,260px);aspect-ratio:9/16;height:auto}
 .zt-short-slide .video-thumb img{width:100%;height:100%;object-fit:cover}
 .zt-short-slide .video-thumb:after{width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:rgba(0,0,0,.75);font-size:.95rem}
 .zt-short-copy{padding:13px 15px 14px;background:#fff}
@@ -498,10 +492,6 @@ battlefield 6 and redsec are preparing major gameplay changes with season 5, inc
       <div class="zt-video-stack">
         <div class="side-head">
           <a class="side-head-title" href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Ultimi Video</a>
-          <div class="zt-stack-controls">
-            <button type="button" id="ztStackPrev" aria-label="Video precedente">‹</button>
-            <button type="button" id="ztStackNext" aria-label="Video successivo">›</button>
-          </div>
         </div>
         <div class="zt-stack-list" id="ztStackList">
           <!-- SIDEBAR_STACK_VIDEOS_START -->
@@ -559,7 +549,7 @@ battlefield 6 and redsec are preparing major gameplay changes with season 5, inc
       <div class="zt-shorts-box">
         <div class="side-head">
           <a class="side-head-title" href="https://www.youtube.com/@ZazoomTek/shorts" target="_blank" rel="noopener">Ultimi Shorts</a>
-          <div class="zt-shorts-controls"><button type="button" id="ztShortPrev" aria-label="Short precedente">‹</button><button type="button" id="ztShortNext" aria-label="Short successivo">›</button></div>
+
         </div>
         <div class="zt-shorts-viewport" id="ztShortViewport">
           <div class="zt-shorts-track" id="ztShortTrack">
@@ -691,25 +681,8 @@ function playVideo(button){
   startAutoplay();
 })();
 (function(){
-  const list=document.getElementById('ztStackList');
-  const prev=document.getElementById('ztStackPrev');
-  const next=document.getElementById('ztStackNext');
-  if(!list)return;
-  const cards=[...list.querySelectorAll('.zt-stack-card')];
-  if(!cards.length)return;
-  let current=0;
-  function go(i){
-    current=(i+cards.length)%cards.length;
-    cards[current].scrollIntoView({behavior:'smooth',block:'center'});
-  }
-  prev?.addEventListener('click',()=>go(current-1));
-  next?.addEventListener('click',()=>go(current+1));
-})();;
-(function(){
   const track=document.getElementById('ztShortTrack');
   const viewport=document.getElementById('ztShortViewport');
-  const prev=document.getElementById('ztShortPrev');
-  const next=document.getElementById('ztShortNext');
   const dotsWrap=document.getElementById('ztShortDots');
   if(!track||!viewport)return;
   const cards=[...track.querySelectorAll('.zt-short-slide')];
@@ -727,12 +700,9 @@ function playVideo(button){
     dots.forEach((d,n)=>d.classList.toggle('active',n===current));
   }
   function nextSlide(){show(current+1)}
-  function prevSlide(){show(current-1)}
   function stop(){if(timer){clearInterval(timer);timer=null}}
   function start(){stop();timer=setInterval(nextSlide,4500)}
   function restart(){start()}
-  prev?.addEventListener('click',()=>{prevSlide();restart()});
-  next?.addEventListener('click',()=>{nextSlide();restart()});
   viewport.addEventListener('mouseenter',stop);
   viewport.addEventListener('mouseleave',start);
   viewport.addEventListener('touchstart',stop,{passive:true});
