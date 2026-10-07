@@ -194,6 +194,21 @@ def side_video_card(v, label):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
 
+
+def sidebar_latest_video_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return (
+        f'          <article class="zt-sidebar-card">'
+        f'<button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
+        f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
+        f'alt="{title}" loading="lazy"></button>'
+        f'<div class="zt-sidebar-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+    )
+
 def sidebar_short_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     return f'''          <article class="side-video zt-short-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>Shorts</small></div></article>'''
@@ -328,6 +343,12 @@ def update_home(vids, short_ids):
         if not is_live_upload(v) and is_true_landscape(v)
     ][:5]
     editorial_latest_ids={v["id"] for v in editorial_latest}
+    # Right sidebar: exactly the five newest regular landscape uploads,
+    # ordered newest -> oldest. The visual carousel itself lives in index.html.
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_LATEST_VIDEOS_START -->","<!-- SIDEBAR_LATEST_VIDEOS_END -->",
+        "\n".join(sidebar_latest_video_card(v) for v in editorial_latest)
+    )
     # Resolve the newest Short before choosing the right-sidebar category cards.
     # This lets us explicitly exclude it from every category box.
     sidebar_short=next((v for v in ordered if v["id"] in short_ids and not is_live_upload(v)),None)
