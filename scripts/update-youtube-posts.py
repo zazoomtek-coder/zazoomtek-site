@@ -691,20 +691,22 @@ def post_excerpt(p, limit=220):
     return text if len(text)<=limit else text[:limit].rsplit(" ",1)[0]+"…"
 
 def render_home_latest_reviews(reviews, limit=5):
-    rows=[]
+    cards=[]
     for p in reviews[:limit]:
         title=html.escape(review_title(p))
         slug=review_slug(p)
         img=html.escape(p.get("image") or "/ChatGPT.png")
         when=html.escape(p.get("published") or "")
-        rows.append(
-            f'<a class="zt-home-review-item" href="/{slug}"><img src="{img}" alt="{title}" loading="lazy">'
-            f'<span><strong>{title}</strong><small>{when}</small></span></a>'
+        cards.append(
+            f'<article class="video-card zt-review-card">'
+            f'<a class="video-thumb zt-review-thumb" href="/{slug}" aria-label="{title}"><img src="{img}" alt="{title}" loading="lazy"></a>'
+            f'<h3><a href="/{slug}">{title}</a></h3>'
+            f'<small>{when}</small>'
+            f'</article>'
         )
-    return ('<!-- HOME_LATEST_REVIEWS_START -->\n'
-            '<section class="zt-home-reviews"><a class="zt-home-reviews-head" href="/recensioni-scritte.html">ULTIME RECENSIONI</a>'
-            '<div class="zt-home-reviews-list">'+"".join(rows)+'</div></section>\n'
-            '<!-- HOME_LATEST_REVIEWS_END -->')
+    return ('<!-- HOME_LATEST_REVIEWS_MAIN_START -->\n'
+            +"\n".join(cards)+'\n'
+            '<!-- HOME_LATEST_REVIEWS_MAIN_END -->')
 
 def render_ticker(news):
     rows=[]
@@ -906,8 +908,11 @@ def main():
     s=INDEX.read_text(encoding="utf-8")
     s2=s
     home_reviews=render_home_latest_reviews(reviews)
-    if "<!-- HOME_LATEST_REVIEWS_START -->" in s2:
-        s2=re.sub(r'<!-- HOME_LATEST_REVIEWS_START -->.*?<!-- HOME_LATEST_REVIEWS_END -->',home_reviews,s2,flags=re.S)
+    if "<!-- HOME_LATEST_REVIEWS_MAIN_START -->" in s2:
+        s2=re.sub(r'<!-- HOME_LATEST_REVIEWS_MAIN_START -->.*?<!-- HOME_LATEST_REVIEWS_MAIN_END -->',home_reviews,s2,flags=re.S)
+
+    # The old sidebar reviews box was moved into the main content area.
+    s2=re.sub(r'\s*<!-- HOME_LATEST_REVIEWS_START -->.*?<!-- HOME_LATEST_REVIEWS_END -->\s*','\n',s2,flags=re.S)
 
     ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
