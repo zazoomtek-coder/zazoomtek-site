@@ -267,14 +267,17 @@ def update_home(vids, short_ids):
     # cannot be read. This change is intentionally isolated to the main feature.
     # Main feature: newest true 16:9 long-form upload, regardless of category.
     # Shorts/vertical videos never enter the large box.
-    def is_true_landscape(v):
-        # Home large box: verify the REAL source dimensions from YouTube player data.
-        # Duration/title/category do not matter.
-        if v["id"] in short_ids:
-            return False
+    ratio_cache={}
+
+    def video_aspect_ratio(v):
+        """Return the real source width/height ratio from YouTube player data."""
+        vid=v["id"]
+        if vid in ratio_cache:
+            return ratio_cache[vid]
+        ratio=None
         try:
             req=urllib.request.Request(
-                f"https://www.youtube.com/watch?v={v['id']}",
+                f"https://www.youtube.com/watch?v={vid}",
                 headers={"User-Agent":"Mozilla/5.0","Accept-Language":"it-IT,it;q=0.9,en;q=0.8"}
             )
             with urllib.request.urlopen(req,timeout=12) as r:
@@ -296,7 +299,8 @@ def update_home(vids, short_ids):
                             elif ch=="}":
                                 depth-=1
                                 if depth==0:
-                                    endpos=i+1; break
+                                    endpos=i+1
+                                    break
                     if endpos:
                         data=json.loads(page[brace:endpos])
                         fmts=(data.get("streamingData",{}).get("adaptiveFormats",[]) or
@@ -305,20 +309,28 @@ def update_home(vids, short_ids):
                         if dims:
                             w,h=max(dims,key=lambda x:x[0]*x[1])
                             ratio=float(w)/float(h)
-                            return 1.70 <= ratio <= 1.82
         except Exception:
-            pass
-        # Safe fallback: if YouTube does not expose source dimensions during
-        # this run, never blank the Home. Known Shorts and live streams are
-        # already excluded elsewhere; treat the remaining regular upload as
-        # landscape so the previous 16:9 feed cannot disappear.
-        return v["id"] not in short_ids and not is_live_upload(v)
+            ratio=None
+        ratio_cache[vid]=ratio
+        return ratio
+
+    def is_true_landscape(v):
+        if v["id"] in short_ids or is_live_upload(v):
+            return False
+        ratio=video_aspect_ratio(v)
+        return ratio is not None and 1.70 <= ratio <= 1.82
+
+    def is_true_vertical_short(v):
+        if v["id"] not in short_ids or is_live_upload(v):
+            return False
+        ratio=video_aspect_ratio(v)
+        return ratio is not None and 0.54 <= ratio <= 0.59
 
     # Choose the newest upload by YouTube publish date, but never a known Short.
     # For ZazoomTek the upload order is authoritative; vertical Shorts are removed
     # by the Shorts shelf before selecting the main Home feature.
     ordered=sorted(vids,key=lambda v:v["snippet"]["publishedAt"],reverse=True)
-    main_video=next((v for v in ordered if v["id"] not in short_ids),None)
+    main_video=next((v for v in ordered if is_true_landscape(v)),None)
     if main_video:
         a=h.find('<article class="feature-main">')
         if a>=0:
@@ -350,11 +362,15 @@ def update_home(vids, short_ids):
         )
         h=h[:pos]+segment+h[end+10:]
 
-    # Exactly five latest Shorts.
-    shorts=[v for v in vids if v["id"] in short_ids and not is_live_upload(v)]
-    if not shorts:
-        shorts=[v for v in vids if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)]
-    shorts=shorts[:5]
+    # Exactly five latest REAL 9:16 Shorts, newest -> oldest.
+    # Do not use duration alone: only videos that are on the Shorts shelf AND
+    # whose source dimensions are truly vertical are allowed here.
+    shorts=[]
+    for v in ordered:
+        if is_true_vertical_short(v):
+            shorts.append(v)
+            if len(shorts)>=5:
+                break
 
     # Home sidebar Shorts carousel: always the five newest real Shorts.
     h=replace_marker_block(
@@ -440,9 +456,7 @@ def update_home(vids, short_ids):
     )
     # Resolve the newest Short before choosing the right-sidebar category cards.
     # This lets us explicitly exclude it from every category box.
-    sidebar_short=next((v for v in ordered if v["id"] in short_ids and not is_live_upload(v)),None)
-    if not sidebar_short:
-        sidebar_short=next((v for v in ordered if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)),None)
+    sidebar_short=next((v for v in shorts),None)
     sidebar_short_id=sidebar_short["id"] if sidebar_short else None
 
     editorial_markers={
