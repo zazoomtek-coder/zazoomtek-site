@@ -119,34 +119,75 @@ def post_extra_images(p):
     return out
 
 def distribute_inline_images(blocks,p,title):
-    """Place additional Community photos between meaningful text blocks."""
+    """Place Community photos cleanly between article sections.
+
+    Default rule: images go only after the final paragraph of a section,
+    never between normal paragraphs of the same section and never after
+    Conclusioni. An internal slot is allowed only for an exceptionally long
+    section (4+ paragraphs and over 5,000 visible characters).
+    """
     extras=post_extra_images(p)
     if not extras or not blocks:
         return blocks
 
-    # Prefer placement after paragraphs, not directly after headings/scores.
-    # Never place imported photos after the Conclusioni section.
     conclusion_idx=next((
         i for i,b in enumerate(blocks)
         if b.lstrip().lower().startswith("<h2") and "conclusioni" in b.lower()
     ),len(blocks))
-    candidates=[i for i,b in enumerate(blocks[:conclusion_idx]) if b.lstrip().startswith("<p>")]
-    if not candidates:
-        candidates=list(range(conclusion_idx))
+
+    heading_idxs=[
+        i for i,b in enumerate(blocks[:conclusion_idx])
+        if b.lstrip().lower().startswith("<h2")
+    ]
+    candidates=[]
+    internal_candidates=[]
+
+    for pos,hidx in enumerate(heading_idxs):
+        next_h=heading_idxs[pos+1] if pos+1<len(heading_idxs) else conclusion_idx
+        p_idxs=[
+            i for i in range(hidx+1,next_h)
+            if blocks[i].lstrip().startswith("<p>")
+        ]
+        if not p_idxs:
+            continue
+
+        # Main placement: after the section's last paragraph.
+        candidates.append(p_idxs[-1])
+
+        # Only very long sections may receive one additional image internally.
+        visible_chars=sum(len(re.sub(r"<[^>]+>","",blocks[i])) for i in p_idxs)
+        if len(p_idxs)>=4 and visible_chars>5000:
+            internal_candidates.append(p_idxs[len(p_idxs)//2-1])
+
+    # Keep normal articles visually clean. Add internal slots only when a
+    # section is exceptionally long.
+    candidates=sorted(set(candidates+internal_candidates))
     if not candidates:
         return blocks
 
+    # Never stack several imported photos at one boundary. If the post contains
+    # more photos than clean slots, use a representative subset.
+    slot_count=min(len(extras),len(candidates))
+    if slot_count<=0:
+        return blocks
+
+    if len(extras)==slot_count:
+        chosen=extras
+    else:
+        chosen=[]
+        for n in range(slot_count):
+            src_idx=((n+1)*len(extras))//(slot_count+1)
+            src_idx=max(0,min(len(extras)-1,src_idx))
+            chosen.append(extras[src_idx])
+
     inserts={}
-    for n,u in enumerate(extras):
-        rank=((n+1)*len(candidates))//(len(extras)+1)
-        rank=max(0,min(len(candidates)-1,rank))
-        idx=candidates[rank]
+    for n,(idx,u) in enumerate(zip(candidates[:slot_count],chosen)):
         media=(
             f'<figure class="article-inline-media">'
             f'<img src="{html.escape(u)}" alt="{html.escape(title)} - immagine {n+2}" loading="lazy">'
             f'</figure>'
         )
-        inserts.setdefault(idx,[]).append(media)
+        inserts[idx]=[media]
 
     out=[]
     for i,b in enumerate(blocks):
