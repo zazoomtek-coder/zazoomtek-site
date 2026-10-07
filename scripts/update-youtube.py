@@ -400,10 +400,12 @@ def update_home(vids, short_ids):
     # The main Home carousel is now reserved for the latest written reviews
     # and is managed by update-youtube-posts.py. Keep the five newest landscape
     # video IDs only for sidebar de-duplication; do not rewrite the Home carousel.
-    editorial_latest=[
-        v for v in ordered
-        if not is_live_upload(v) and is_true_landscape(v)
-    ][:5]
+    editorial_latest=[]
+    for v in ordered:
+        if is_true_landscape(v):
+            editorial_latest.append(v)
+            if len(editorial_latest)>=5:
+                break
     editorial_latest_ids={v["id"] for v in editorial_latest}
 
     # Unified Home sidebar: the six newest REAL 16:9 uploads,
