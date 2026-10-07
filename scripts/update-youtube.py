@@ -321,10 +321,14 @@ def update_home(vids, short_ids):
         return ratio is not None and 1.70 <= ratio <= 1.82
 
     def is_true_vertical_short(v):
-        if v["id"] not in short_ids or is_live_upload(v):
+        if is_live_upload(v):
             return False
         ratio=video_aspect_ratio(v)
-        return ratio is not None and 0.54 <= ratio <= 0.59
+        if ratio is None or not (0.54 <= ratio <= 0.59):
+            return False
+        # Prefer YouTube's Shorts shelf. If that shelf cannot be read during
+        # a run, a true 9:16 upload up to 3 minutes is a safe Shorts fallback.
+        return v["id"] in short_ids or sec(v["contentDetails"]["duration"])<=180
 
     # Choose the newest upload by YouTube publish date, but never a known Short.
     # For ZazoomTek the upload order is authoritative; vertical Shorts are removed
@@ -402,51 +406,18 @@ def update_home(vids, short_ids):
     ][:5]
     editorial_latest_ids={v["id"] for v in editorial_latest}
 
-    # Unified Home sidebar: six large cards under one "Ultimi Video" heading.
-    # Card 1 is the latest regular upload; the next cards come from the
-    # Recensioni, Test, Unboxing, Gaming and AnalogikTek playlists. Avoid
-    # duplicates whenever a newer unique item is available.
+    # Unified Home sidebar: the six newest REAL 16:9 uploads,
+    # strictly newest -> oldest. No Shorts, vertical clips or live streams.
     stack=[]
-    used=set()
-
-    def add_unique(candidate):
-        if candidate and candidate["id"] not in used:
-            stack.append(candidate)
-            used.add(candidate["id"])
-
-    add_unique(next((v for v in ordered if not is_live_upload(v) and v["id"] not in short_ids and is_true_landscape(v)),None))
-
-    for category in ["recensioni","test","unboxing","gaming"]:
-        add_unique(next((
-            v for v in ordered
-            if classify(v)==category
-            and not is_live_upload(v)
-            and v["id"] not in short_ids
-            and is_true_landscape(v)
-            and v["id"] not in used
-        ),None))
-
-    add_unique(next((
-        v for v in ordered
-        if v["id"] in ANALOGIKTEK_VIDEO_IDS
-        and not is_live_upload(v)
-        and v["id"] not in short_ids
-        and is_true_landscape(v)
-        and v["id"] not in used
-    ),None))
-
-    # If a playlist did not provide a unique card, fill the remaining slots
-    # with the newest regular landscape uploads so the Home always has six.
     for v in ordered:
-        if len(stack)>=6:
-            break
-        if v["id"] in used or v["id"] in short_ids or is_live_upload(v) or not is_true_landscape(v):
-            continue
-        add_unique(v)
+        if is_true_landscape(v):
+            stack.append(v)
+            if len(stack)>=6:
+                break
 
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
-        "\n".join(sidebar_stack_card(v) for v in stack[:6])
+        "\n".join(sidebar_stack_card(v) for v in stack)
     )
     # Right sidebar: exactly the five newest regular landscape uploads,
     # ordered newest -> oldest. The visual carousel itself lives in index.html.
