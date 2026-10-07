@@ -2,6 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://zazoomtek.it/sitemap.xml
-Sitemap: https://zazoomtek.it/sitemap.txt
-Sitemap: https://zazoomtek.it/google-sitemap.xml
-
