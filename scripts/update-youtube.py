@@ -421,7 +421,7 @@ def update_home(vids, short_ids):
     # with the newest unused 16:9 uploads overall.
     stack=[]
     used=set()
-    for category in ["recensioni","test","unboxing","gaming"]:
+    for category in ["recensioni","test","unboxing","gaming","analogiktek"]:
         candidate=next(
             (
                 v for v in ordered
