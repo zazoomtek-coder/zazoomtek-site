@@ -223,7 +223,7 @@ def review_body_html(p):
     return "\n".join(out)
 
 DETAIL_STYLE = """<style>
-:root{--orange:#006CFF;--accent-blue:#006CFF;--accent-mid:#263778;--accent-red:#D51232;--accent-gradient:linear-gradient(90deg,var(--accent-blue) 0%,var(--accent-mid) 48%,var(--accent-red) 100%);--line:#ddd;--text:#303030;--muted:#777}
+:root{--orange:#D51232;--accent-blue:#D51232;--accent-mid:#D51232;--accent-red:#D51232;--accent-gradient:linear-gradient(90deg,#D51232 0%,#D51232 100%);--line:#ddd;--text:#303030;--muted:#777}
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.68}
 .wrap{width:min(1100px,calc(100% - 32px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--accent-gradient) 1}
 .headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
@@ -238,7 +238,7 @@ DETAIL_STYLE = """<style>
 .legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}</style>"""
 
 ARCHIVE_STYLE = """<style>
-:root{--orange:#006CFF;--line:#ddd;--text:#303030;--muted:#777}
+:root{--orange:#D51232;--line:#ddd;--text:#303030;--muted:#777}
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}
 .wrap{width:min(1320px,calc(100% - 36px));margin:auto}header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--accent-gradient) 1}
 .headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
@@ -253,7 +253,7 @@ main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(-
 
 
 NEWS_COMMON = """
-:root{--zt-blue:#006CFF;--zt-mid:#263778;--zt-red:#D51232;--zt-grad:linear-gradient(90deg,var(--zt-blue) 0%,var(--zt-mid) 48%,var(--zt-red) 100%);--zt-dark:#171717;--zt-line:#e3e3e3;--zt-text:#303030;--zt-muted:#777}
+:root{--zt-blue:#D51232;--zt-mid:#D51232;--zt-red:#D51232;--zt-grad:linear-gradient(90deg,#D51232 0%,#D51232 100%);--zt-dark:#171717;--zt-line:#e3e3e3;--zt-text:#303030;--zt-muted:#777}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#ececec;color:var(--zt-text);font-family:Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}
 .zt-wrap{width:min(1460px,calc(100% - 28px));margin:auto}
 .zt-header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--zt-grad) 1}
@@ -957,7 +957,7 @@ def update_sitemap():
 PAGE_SIZE=20
 
 PAGINATED_ARTICLE_STYLE = """<style>
-:root{--blue:#006CFF;--mid:#263778;--red:#D51232;--grad:linear-gradient(90deg,var(--blue) 0%,var(--mid) 48%,var(--red) 100%);--line:#e5e5e5;--text:#303030;--muted:#777}
+:root{--blue:#D51232;--mid:#D51232;--red:#D51232;--grad:linear-gradient(90deg,#D51232 0%,#D51232 100%);--line:#e5e5e5;--text:#303030;--muted:#777}
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1180px,calc(100% - 32px));margin:auto}
 header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--grad) 1}.headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}.nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 14px;font-size:.76rem;font-weight:900;text-transform:uppercase;border-left:1px solid #2d2d2d}.nav a:hover,.nav a.active{background:var(--grad)}a{color:inherit;text-decoration:none}
 main{background:#fff;padding:26px 0 40px}.archive-head{padding:0 22px 18px}.archive-head h1{margin:0 0 6px}.archive-head p{margin:0;color:var(--muted)}
