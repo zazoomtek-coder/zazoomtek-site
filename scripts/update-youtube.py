@@ -212,6 +212,21 @@ def sidebar_latest_video_card(v):
         f'<div class="zt-sidebar-copy"><h3>{title}</h3><small>{date}</small></div></article>'
     )
 
+
+def sidebar_stack_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return (
+        f'          <article class="zt-stack-card">'
+        f'<button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
+        f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
+        f'alt="{title}" loading="lazy"></button>'
+        f'<div class="zt-stack-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+    )
+
 def sidebar_short_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     return f'''          <article class="side-video zt-short-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>Shorts</small></div></article>'''
@@ -349,6 +364,53 @@ def update_home(vids, short_ids):
         if not is_live_upload(v) and is_true_landscape(v)
     ][:5]
     editorial_latest_ids={v["id"] for v in editorial_latest}
+
+    # Unified Home sidebar: six large cards under one "Ultimi Video" heading.
+    # Card 1 is the latest regular upload; the next cards come from the
+    # Recensioni, Test, Unboxing, Gaming and AnalogikTek playlists. Avoid
+    # duplicates whenever a newer unique item is available.
+    stack=[]
+    used=set()
+
+    def add_unique(candidate):
+        if candidate and candidate["id"] not in used:
+            stack.append(candidate)
+            used.add(candidate["id"])
+
+    add_unique(next((v for v in ordered if not is_live_upload(v) and v["id"] not in short_ids and is_true_landscape(v)),None))
+
+    for category in ["recensioni","test","unboxing","gaming"]:
+        add_unique(next((
+            v for v in ordered
+            if classify(v)==category
+            and not is_live_upload(v)
+            and v["id"] not in short_ids
+            and is_true_landscape(v)
+            and v["id"] not in used
+        ),None))
+
+    add_unique(next((
+        v for v in ordered
+        if v["id"] in ANALOGIKTEK_VIDEO_IDS
+        and not is_live_upload(v)
+        and v["id"] not in short_ids
+        and is_true_landscape(v)
+        and v["id"] not in used
+    ),None))
+
+    # If a playlist did not provide a unique card, fill the remaining slots
+    # with the newest regular landscape uploads so the Home always has six.
+    for v in ordered:
+        if len(stack)>=6:
+            break
+        if v["id"] in used or v["id"] in short_ids or is_live_upload(v) or not is_true_landscape(v):
+            continue
+        add_unique(v)
+
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
+        "\n".join(sidebar_stack_card(v) for v in stack[:6])
+    )
     # Right sidebar: exactly the five newest regular landscape uploads,
     # ordered newest -> oldest. The visual carousel itself lives in index.html.
     h=replace_marker_block(
