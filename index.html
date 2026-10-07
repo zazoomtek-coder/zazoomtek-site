@@ -35,7 +35,25 @@ header{background:#171717;color:#fff;border-top:3px solid transparent;border-ima
 .news-slider{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(240px,.8fr);background:#1b1b1b}.news-slides{position:relative;min-height:500px;overflow:hidden}.news-slide{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .35s}.news-slide.active{opacity:1;pointer-events:auto}.news-slide img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.78)}.news-slide-copy{position:absolute;left:0;right:0;bottom:0;padding:70px 26px 24px;background:linear-gradient(transparent,rgba(0,0,0,.92));color:#fff}.news-slide-copy .tag{display:inline-block;background:var(--orange);padding:6px 9px;font-size:.68rem;font-weight:900;text-transform:uppercase}.news-slide-copy h1{font-size:clamp(1.55rem,3vw,2.4rem);line-height:1.05;margin:10px 0 8px}.news-slide-copy p{margin:0;color:#ddd;line-height:1.45;max-width:780px}.news-tabs{display:grid;grid-template-rows:repeat(5,1fr)}.news-tab{border:0;border-bottom:1px solid #333;background:#222;color:#fff;text-align:left;padding:14px 16px;cursor:pointer;font-size:.9rem;line-height:1.25}.news-tab:hover,.news-tab.active{background:#2b2b2b;color:#7fdcff;box-shadow:inset 4px 0 var(--accent-red)}
 .video-strip{background:#1b1b1b;padding:22px 16px 26px;overflow:hidden}.video-strip-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}.video-strip-track::-webkit-scrollbar{display:none}.video-card{background:#111;color:#fff;min-width:0;flex:0 0 calc((100% - 32px)/3);scroll-snap-align:start}.video-thumb{display:block;position:relative;width:100%;aspect-ratio:16/9;border:0;padding:0;background:#000;cursor:pointer}.video-thumb img{width:100%;height:100%;object-fit:cover;display:block}.video-thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:30px;border-radius:7px;background:rgba(220,0,0,.93);display:grid;place-items:center;color:#fff;font-size:.75rem}.video-card h3{margin:0;padding:14px 14px 18px;font-size:1rem;line-height:1.28;min-height:64px}
 .article-list{border:1px solid var(--line);border-top:0}.article-row{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;padding:16px;border-bottom:1px solid var(--line);background:#fff}.article-row:last-child{border-bottom:0}.article-image{width:100%;aspect-ratio:16/9;object-fit:cover;background:#eee}.article-copy{min-width:0}.article-kicker{display:inline-block;background:var(--accent-gradient);color:#fff;padding:5px 8px;font-size:.65rem;font-weight:900;text-transform:uppercase}.article-copy h3{font-size:1.25rem;line-height:1.15;margin:8px 0 6px}.article-meta{color:#888;font-size:.75rem;margin-bottom:8px}.article-copy p{margin:0 0 12px;color:#555;line-height:1.46;font-size:.9rem}.read-more{display:inline-block;background:var(--accent-gradient);color:#fff;padding:9px 13px;font-weight:900;font-size:.72rem;text-transform:uppercase}.pagination{margin:28px 16px 0;background:#202020;padding:20px;display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap}.pagination a,.pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.pagination .active{background:var(--accent-gradient);border-color:transparent}.pagination .next{min-width:92px}
-.sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.side-module{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-head{height:44px;background:#202020;color:#fff;display:flex;align-items:center;padding:0 14px;font-size:.85rem;font-weight:900;text-transform:uppercase;border-left:6px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red)}.side-head[href]{text-decoration:none}.side-head[href]:hover{background:#2d2d2d;color:var(--accent-red)}.side-video-list{padding:10px}.side-video{display:block;padding:0;background:#fff}.side-video:not(:first-child){display:none}.side-video .video-thumb{width:100%;aspect-ratio:16/9}.side-video .video-thumb:after{width:54px;height:38px;font-size:.9rem}.side-video h3{margin:9px 4px 4px;font-size:.9rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 4px 8px;font-size:.7rem}.ad-slot{min-height:280px;border:1px solid #ddd;background:linear-gradient(#fafafa,#f4f4f4);display:grid;place-items:center;color:#999;text-align:center;margin-bottom:18px}.ad-slot strong{display:block;color:#555;font-size:1rem}.ad-slot span{display:block;margin-top:5px;font-size:.74rem}
+.sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}
+.side-module{margin-bottom:18px;border:1px solid #e4e4e4;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.side-head{height:46px;background:#111a23;color:#fff;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;text-transform:uppercase}
+.side-head:before{content:"";position:absolute;inset:0 auto 0 0;width:62%;background:linear-gradient(90deg,#006CFF 0%,#6a2c91 45%,#D51232 100%);clip-path:polygon(0 0,88% 0,100% 100%,0 100%)}
+.side-head-title,.side-head-more{position:relative;z-index:1;display:flex;align-items:center;height:100%;color:#fff;text-decoration:none;font-weight:900}
+.side-head-title{padding:0 13px;font-size:.78rem;letter-spacing:.02em}
+.side-head-more{padding:0 11px;font-size:.66rem;color:#e8e8e8;white-space:nowrap}
+.side-head-more:hover{color:#fff}
+.side-video-list{padding:9px}
+.side-video{display:grid;grid-template-columns:minmax(0,56%) minmax(0,44%);gap:10px;align-items:center;padding:0;background:#fff}
+.side-video:not(:first-child){display:none}
+.side-video .video-thumb{width:100%;aspect-ratio:16/9}
+.side-video .video-thumb:after{width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.95);background:rgba(0,0,0,.78);font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.side-video>div{min-width:0;padding-right:3px}
+.side-video h3{margin:0;font-size:.82rem;line-height:1.17;color:#111;font-weight:900;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}
+.side-video small{display:block;color:#999;margin-top:8px;font-size:.66rem;text-transform:uppercase;font-weight:700}
+.side-video.zt-short-card .video-thumb{aspect-ratio:16/9;max-height:none}
+@media(max-width:1120px){.side-head-title{font-size:.7rem;padding-left:10px}.side-head-more{font-size:.58rem;padding-right:8px}.side-video{grid-template-columns:minmax(0,54%) minmax(0,46%);gap:8px}.side-video h3{font-size:.75rem}}
+@media(max-width:820px){.side-head-title{font-size:.78rem}.side-head-more{font-size:.64rem}.side-video h3{font-size:.84rem}}
 footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem}.cc-license{margin:18px auto 0;max-width:1100px;text-align:center;font-size:.72rem;line-height:1.5}.cc-license a{color:#ddd;text-decoration:underline}
 .latest-reviews-module{margin-bottom:42px}
 .latest-reviews-module .module-head{height:54px}
@@ -406,40 +424,28 @@ battlefield 6 and redsec are preparing major gameplay changes with season 5, inc
            rel="nofollow sponsored noopener"
            class="zt-amazon-button">VEDI I PRODOTTI SU AMAZON</a>
       </div>
-      <div class="side-module"><a class="side-head" href="recensioni.html">Video · Recensioni</a><div class="side-video-list">
+      <div class="side-module"><div class="side-head"><a class="side-head-title" href="recensioni.html">Video · Recensioni</a><a class="side-head-more" href="recensioni.html">Vedi tutti ›</a></div><div class="side-video-list">
         <!-- VIDEO_REVIEWS_START -->
         <article class="side-video"><button class="video-thumb" data-video="6hLJq9njq5o" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/6hLJq9njq5o/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg'" alt="realme Buds T500 Pro Harry Potter Edition Recensione" loading="lazy"></button><div><h3>realme Buds T500 Pro Harry Potter Edition Recensione</h3><small>Recensioni</small></div></article>
         <!-- VIDEO_REVIEWS_END -->
       </div></div>
-      <div class="side-module"><a class="side-head" href="test.html">Video · Test</a><div class="side-video-list">
+      <div class="side-module"><div class="side-head"><a class="side-head-title" href="test.html">Video · Test</a><a class="side-head-more" href="test.html">Vedi tutti ›</a></div><div class="side-video-list">
         <!-- VIDEO_TEST_START -->
         <article class="side-video"><button class="video-thumb" data-video="WmIXQGZYhTc" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/WmIXQGZYhTc/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/WmIXQGZYhTc/hqdefault.jpg'" alt="realme C100 5G Test Gaming" loading="lazy"></button><div><h3>realme C100 5G Test Gaming</h3><small>Test</small></div></article>
         <!-- VIDEO_TEST_END -->
       </div></div>
-      <div class="side-module"><a class="side-head" href="unboxing.html">Video · Unboxing</a><div class="side-video-list">
+      <div class="side-module"><div class="side-head"><a class="side-head-title" href="unboxing.html">Video · Unboxing</a><a class="side-head-more" href="unboxing.html">Vedi tutti ›</a></div><div class="side-video-list">
         <!-- VIDEO_UNBOXING_START -->
         <article class="side-video"><button class="video-thumb" data-video="lmOGs9M_vhw" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/lmOGs9M_vhw/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/lmOGs9M_vhw/hqdefault.jpg'" alt="IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?" loading="lazy"></button><div><h3>IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?</h3><small>Unboxing</small></div></article>
         <!-- VIDEO_UNBOXING_END -->
       </div></div>
-      <div class="side-module"><a class="side-head" href="gaming.html">Video · Gaming</a><div class="side-video-list">
+      <div class="side-module"><div class="side-head"><a class="side-head-title" href="gaming.html">Video · Gaming</a><a class="side-head-more" href="gaming.html">Vedi tutti ›</a></div><div class="side-video-list">
         <!-- VIDEO_GAMING_START -->
         <article class="side-video"><button class="video-thumb" data-video="bC-VdBWXGw4" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/bC-VdBWXGw4/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg'" alt="Crazy Taxi: World Tour – GAMEPLAY GIAPPONESE! Il ritorno folle di SEGA 🚕🔥" loading="lazy"></button><div><h3>Crazy Taxi: World Tour – GAMEPLAY GIAPPONESE! Il ritorno folle di SEGA 🚕🔥</h3><small>Gaming</small></div></article>
         <!-- VIDEO_GAMING_END -->
       </div></div>
-      <div class="zt-reviewed-games">
-        <div class="zt-games-title">🎮 Giochi recensiti da ZazoomTek</div>
-        <div class="zt-game-card">
-          <div class="zt-game-top"><div class="zt-game-platform">PS5</div><div class="zt-game-plane">✈️</div></div>
-          <div class="zt-game-name">ACE COMBAT 8</div>
-          <div class="zt-game-subtitle">WINGS OF THEVE</div>
-          <div class="zt-game-info">Recensito da ZazoomTek su PlayStation 5</div>
-          <a href="https://www.amazon.it/Ace-Combat-Wings-Theve-PS5/dp/B0H42CMT89?crid=19IMZ6TR5OA6T&amp;dib=eyJ2IjoiMSJ9.JEqq2sQW-KijjevSEtbSu3ScfOBpdTeFVO_pb7OkwbvHSqTt1oJ_NCKc6SF-Hqfs_urGNFpSz14CWOGDeaAA_ngGEnZiHcq1FXA3kN_hnlR0NlPRIC8JLDlZ-pvxCAcSknNT3ghFcZB-MV1BTCLhZykfD_5QBd1yf0vHtGxaAov2dvXgE4f47qKi6fk4jYZ6vhuAnFdXAF2VpMrHqtyD5xofvVse706gi_IsF1b7_BRwE_uKLjk3Hor9LxJFmKCJ.9E0lHj9AOWVOBQGe7wiohJNSQg8FKRzKg6S_1cAq6h4&amp;dib_tag=se&amp;keywords=ace%2Bcombat%2B8%2Bps5&amp;qid=1791297087&amp;refinements=p_n_free_shipping_eligible%3A20930967031&amp;rnid=20930966031&amp;sprefix=ACE%2BCOMBAT%2B8%2Caps%2C140&amp;sr=8-1&amp;th=1&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d7abba8ef1e4db7558812b681ae2ad90&amp;ref_=as_li_ss_tl"
-             target="_blank" rel="nofollow sponsored noopener" class="zt-amazon-game-button">VEDI SU AMAZON ›</a>
-          <div class="zt-affiliate-note">Link affiliato Amazon</div>
-        </div>
-      </div>
       <div class="side-module zt-short-module">
-        <a class="side-head" href="https://www.youtube.com/@ZazoomTek/shorts" target="_blank" rel="noopener">Ultimo Short</a>
+        <div class="side-head"><a class="side-head-title" href="https://www.youtube.com/@ZazoomTek/shorts" target="_blank" rel="noopener">Shorts</a><a class="side-head-more" href="https://www.youtube.com/@ZazoomTek/shorts" target="_blank" rel="noopener">Vedi tutti ›</a></div>
         <div class="side-video-list">
           <!-- SIDEBAR_SHORT_START -->
           <article class="side-video zt-short-card"><button class="video-thumb" data-video="Mf8B30PKjqY" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/Mf8B30PKjqY/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/Mf8B30PKjqY/hqdefault.jpg'" alt="Princess of the Water Lilies gameplay on PS5" loading="lazy"></button><div><h3>Princess of the Water Lilies gameplay on PS5</h3><small>Shorts</small></div></article>
@@ -447,14 +453,13 @@ battlefield 6 and redsec are preparing major gameplay changes with season 5, inc
         </div>
       </div>
       <div class="side-module zt-analog-module">
-        <a class="side-head" href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">Video · AnalogikTek</a>
+        <div class="side-head"><a class="side-head-title" href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">AnalogikTek</a><a class="side-head-more" href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">Vedi tutti ›</a></div>
         <div class="side-video-list">
           <!-- SIDEBAR_ANALOG_START -->
           <article class="side-video"><button class="video-thumb" data-video="An2RZr9_Cxs" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/An2RZr9_Cxs/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/An2RZr9_Cxs/hqdefault.jpg'" alt="Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming" loading="lazy"></button><div><h3>Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming</h3><small>AnalogikTek</small></div></article>
         <!-- SIDEBAR_ANALOG_END -->
         </div>
       </div>
-      <div class="side-module ad-module"><div class="ad-slot"><div class="ad-placeholder"><strong>SPAZIO BANNER</strong><span>Da configurare in seguito</span></div></div></div>
     </aside>
   </div>
 </main>
