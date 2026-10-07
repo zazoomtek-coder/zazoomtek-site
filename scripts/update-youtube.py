@@ -315,20 +315,27 @@ def update_home(vids, short_ids):
         return ratio
 
     def is_true_landscape(v):
+        # Never allow known Shorts or live streams in the 16:9 feed.
         if v["id"] in short_ids or is_live_upload(v):
             return False
         ratio=video_aspect_ratio(v)
-        return ratio is not None and 1.70 <= ratio <= 1.82
+        # YouTube does not always expose source dimensions to the workflow.
+        # In that case the Shorts shelf remains the authoritative separator:
+        # a normal, non-live upload must stay visible instead of blanking Home.
+        if ratio is None:
+            return True
+        return 1.70 <= ratio <= 1.82
 
     def is_true_vertical_short(v):
-        if is_live_upload(v):
+        if is_live_upload(v) or v["id"] not in short_ids:
             return False
         ratio=video_aspect_ratio(v)
-        if ratio is None or not (0.54 <= ratio <= 0.59):
-            return False
-        # Prefer YouTube's Shorts shelf. If that shelf cannot be read during
-        # a run, a true 9:16 upload up to 3 minutes is a safe Shorts fallback.
-        return v["id"] in short_ids or sec(v["contentDetails"]["duration"])<=180
+        # If dimensions are temporarily unavailable, keep a video that YouTube
+        # itself placed on the Shorts shelf. When dimensions are available,
+        # require a true portrait 9:16-ish source.
+        if ratio is None:
+            return True
+        return 0.54 <= ratio <= 0.59
 
     # Choose the newest upload by YouTube publish date, but never a known Short.
     # For ZazoomTek the upload order is authoritative; vertical Shorts are removed
