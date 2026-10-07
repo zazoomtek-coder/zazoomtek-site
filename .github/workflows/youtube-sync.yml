@@ -25,7 +25,9 @@ jobs:
           fetch-depth: 0
 
       - name: Validate sync scripts
-        run: python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py
+        run: |
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py
+          find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Sync public YouTube Community posts
         run: python3 scripts/update-youtube-posts.py
@@ -33,15 +35,14 @@ jobs:
       - name: Commit Community changes
         id: community_commit
         run: |
-          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+          git config user.name "zazoomtek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A index.html news.html recensioni-scritte.html .youtube-posts.json
+          git add -A -- 'news-*.html' 'recensione-*.html' 'pagina-*.html' 'recensioni-scritte-*.html' 2>/dev/null || true
+          git add sitemap.xml google-sitemap.xml sitemap.txt robots.txt 2>/dev/null || true
+          if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git config user.name "zazoomtek-bot"
-            git config user.email "actions@users.noreply.github.com"
-            git add -A index.html news.html recensioni-scritte.html .youtube-posts.json
-            git add news-*.html recensione-*.html pagina-*.html 2>/dev/null || true
-            git add recensioni-scritte-*.html 2>/dev/null || true
-            git add sitemap.xml google-sitemap.xml sitemap.txt robots.txt 2>/dev/null || true
             git commit -m "Auto-sync YouTube Community reviews"
             git pull --rebase origin main
             git push
@@ -65,12 +66,12 @@ jobs:
       - name: Commit video changes
         id: video_commit
         run: |
-          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+          git config user.name "zazoomtek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html recensioni.html test.html unboxing.html gaming.html .youtube-latest.json
+          if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git config user.name "zazoomtek-bot"
-            git config user.email "actions@users.noreply.github.com"
-            git add index.html recensioni.html test.html unboxing.html gaming.html .youtube-latest.json
             git commit -m "Auto-sync latest YouTube uploads"
             git pull --rebase origin main
             git push
