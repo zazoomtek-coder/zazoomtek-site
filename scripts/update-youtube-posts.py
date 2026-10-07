@@ -149,6 +149,30 @@ def distribute_inline_images(blocks,p,title):
         out.extend(inserts.get(i,[]))
     return out
 
+def distribute_review_media(blocks,p,title):
+    """Distribute review media only before Conclusions / final score.
+
+    Editorial rule: once the review reaches the Conclusioni heading, or a
+    Voto finale block, no photo/video may appear afterwards.
+    """
+    if not blocks:
+        return blocks
+
+    cutoff=len(blocks)
+    for i,b in enumerate(blocks):
+        low=b.lower()
+        if (
+            '<div class="review-score"' in low
+            or ('<h2' in low and 'conclusioni' in low)
+        ):
+            cutoff=i
+            break
+
+    before=blocks[:cutoff]
+    after=blocks[cutoff:]
+    before=distribute_inline_images(before,p,title)
+    return before+after
+
 def continuation_tokens(x):
     out=[]
     def w(v):
@@ -355,7 +379,7 @@ def review_body_html(p):
         paragraph.append(line)
 
     flush_paragraph()
-    out=distribute_inline_images(out,p,title)
+    out=distribute_review_media(out,p,title)
     return "\n".join(out)
 
 DETAIL_STYLE = """<style>
