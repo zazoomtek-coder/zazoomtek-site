@@ -192,7 +192,10 @@ def home_video_card(v):
 
 def side_video_card(v, label):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{date}</small></div></article>'''
 
 
 def sidebar_latest_video_card(v):
@@ -215,7 +218,10 @@ def sidebar_short_card(v):
 
 def sidebar_analog_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    return f'''          <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>AnalogikTek</small></div></article>'''
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return f'''          <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{date}</small></div></article>'''
 
 def replace_marker_block(text, start_marker, end_marker, inner):
     pat=re.escape(start_marker)+r'.*?'+re.escape(end_marker)
