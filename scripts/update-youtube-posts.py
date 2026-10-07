@@ -128,7 +128,7 @@ def distribute_inline_images(blocks,p,title):
     # Never place imported photos after the Conclusioni section.
     conclusion_idx=next((
         i for i,b in enumerate(blocks)
-        if re.search(r'<h2><strong>\\s*Conclusioni\\s*</strong></h2>',b,flags=re.I)
+        if b.lstrip().lower().startswith("<h2") and "conclusioni" in b.lower()
     ),len(blocks))
     candidates=[i for i,b in enumerate(blocks[:conclusion_idx]) if b.lstrip().startswith("<p>")]
     if not candidates:
