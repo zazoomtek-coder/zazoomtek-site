@@ -90,9 +90,11 @@ def esc(s): return html.escape(s,quote=True)
 
 def card(v):
     s=v["snippet"]; vid=v["id"]; title=esc(s["title"])
-    date=datetime.fromisoformat(s["publishedAt"].replace("Z","+00:00")).strftime("%d %b %Y")
+    dt=datetime.fromisoformat(s["publishedAt"].replace("Z","+00:00"))
+    months=["GEN","FEB","MAR","APR","MAG","GIU","LUG","AGO","SET","OTT","NOV","DIC"]
+    date=f"{dt.day:02d} {months[dt.month-1]} {dt.year}"
     return f'''    <article class="video-card">
-      <button type="button" data-video="{vid}" aria-label="Riproduci {title}">
+      <button type="button" data-video="{vid}" onclick="playVideo(this)" aria-label="Riproduci {title}">
         <img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy" decoding="async">
       </button>
       <div class="video-card-body"><span class="video-date">{date}</span><h3>{title}</h3><a href="https://youtu.be/{vid}" target="_blank" rel="noopener">Guarda su YouTube</a></div>
