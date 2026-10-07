@@ -760,31 +760,60 @@ def render(posts):
 
 
 def update_sitemap():
-    base=["","recensioni.html","test.html","unboxing.html","gaming.html","news.html","recensioni-scritte.html","chi-sono.html","contatti.html"]
-    dynamic=sorted([p.name for p in Path(".").glob("news-*.html")]+[p.name for p in Path(".").glob("recensione-*.html")])
-    names=[]; seen=set()
-    for n in base+dynamic:
-        if n in seen: continue
-        seen.add(n); names.append(n)
-    lastmod=datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-    rows=[]
-    for n in names:
-        priority="1.0000" if n=="" else "0.8000"
-        rows.append(
-            "  <url>\n"
-            f"       <loc>https://zazoomtek.it/{html.escape(n)}</loc>\n"
-            f"       <lastmod>{lastmod}</lastmod>\n"
-            f"       <priority>{priority}</priority>\n"
-            "  </url>"
-        )
+    """Build one canonical, Google-friendly sitemap from the pages that are
+    actually indexable on zazoomtek.it.  Deliberately omit priority/changefreq
+    and synthetic lastmod values: inaccurate metadata is worse than no metadata.
+    """
+    origin="https://zazoomtek.it"
+    urls=[]
+    seen=set()
+
+    # Only HTML pages with a self-canonical on the production domain are eligible.
+    # noindex pages (privacy/legal pages, etc.) are intentionally excluded.
+    for p in sorted(Path(".").glob("*.html")):
+        if p.name in ("404.html","googlea3c594e14c6f832d.html","nba-2k27-recensione-ps5.html"):
+            continue
+        try:
+            page=p.read_text(encoding="utf-8",errors="replace")
+        except OSError:
+            continue
+
+        mrobots=re.search(r'<meta\\s+name=["\\']robots["\\']\\s+content=["\\']([^"\\']+)["\\']',page,re.I)
+        if mrobots and "noindex" in mrobots.group(1).lower():
+            continue
+
+        mcanonical=re.search(r'<link\\s+rel=["\\']canonical["\\']\\s+href=["\\']([^"\\']+)["\\']',page,re.I)
+        if not mcanonical:
+            continue
+        url=mcanonical.group(1).strip()
+        if not (url==origin or url.startswith(origin+"/")):
+            continue
+        if url in seen:
+            continue
+        seen.add(url)
+        urls.append(url)
+
+    # Home first, then stable alphabetical order for deterministic diffs.
+    urls=sorted(urls,key=lambda u:(u!=origin+"/",u))
+
+    rows="\\n".join(f"  <url><loc>{html.escape(u)}</loc></url>" for u in urls)
     xml=(
-        '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<?xml-stylesheet type="text/css" href="https://www.xml-sitemaps.com/css/sitemap.css"?>\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n'
-        +"\n".join(rows)
-        +'\n</urlset>\n'
+        '<?xml version="1.0" encoding="UTF-8"?>\\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n'
+        +rows+
+        '\\n</urlset>\\n'
     )
     Path("sitemap.xml").write_text(xml,encoding="utf-8")
+
+    # Keep legacy sitemap endpoints coherent, but advertise only sitemap.xml.
+    Path("google-sitemap.xml").write_text(xml,encoding="utf-8")
+    Path("sitemap.txt").write_text("\\n".join(urls)+"\\n",encoding="utf-8")
+    Path("robots.txt").write_text(
+        "User-agent: *\\n"
+        "Allow: /\\n\\n"
+        "Sitemap: https://zazoomtek.it/sitemap.xml\\n",
+        encoding="utf-8"
+    )
 
 
 PAGE_SIZE=20
@@ -871,7 +900,8 @@ def main():
     for p in news: write_news_page(p,news)
     write_news_archive(news,reviews)
     total_article_pages=write_article_pages(posts)
-    # sitemap.xml is manually approved; automatic YouTube sync must not rewrite it.
+    # Rebuild canonical sitemap after every content sync so Search Console always sees current URLs.
+    update_sitemap()
     s=INDEX.read_text(encoding="utf-8")
     s2=s
     home_reviews=render_home_latest_reviews(reviews)
