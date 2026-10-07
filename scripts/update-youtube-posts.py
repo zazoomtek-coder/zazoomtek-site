@@ -602,10 +602,13 @@ def clean_site_line(line):
     line=re.sub(r'https?://\S+','',line,flags=re.I)
     line=re.sub(r'\bwww\.\S+','',line,flags=re.I)
 
+    # Website articles must never display social hashtags.
+    line=re.sub(r'(?<!\w)#[\wÀ-ÿ]+','',line,flags=re.UNICODE)
+
     # Remove decorative emoji/icons from visible site text.
     line=strip_site_emojis(line)
 
-    # Normalize whitespace left behind by removed icons/links.
+    # Normalize whitespace left behind by removed icons/links/hashtags.
     line=re.sub(r'[ \t]+',' ',line)
     line=re.sub(r'\s+([,.;:!?])',r'\1',line)
     return line.strip(" \t-–—|")
@@ -651,22 +654,6 @@ def is_site_social_line(line):
 
     return False
 
-def clean_site_hashtags(line, limit=8):
-    """Keep a concise, unique set of topic hashtags; drop channel/self-promo tags."""
-    tags=re.findall(r'#[\wÀ-ÿ]+',line or "",flags=re.UNICODE)
-    out=[]
-    seen=set()
-    blocked={"#zazoomtek","#zazoomteknews","#zazoomtekreview"}
-    for tag in tags:
-        key=tag.lower()
-        if key in blocked or key in seen:
-            continue
-        seen.add(key)
-        out.append(tag)
-        if len(out)>=limit:
-            break
-    return " ".join(out)
-
 def clean_site_blocks(raw):
     """Convert a Community post into clean editorial blocks for the website."""
     blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',raw or "") if x.strip()]
@@ -679,9 +666,7 @@ def clean_site_blocks(raw):
                 continue
             stripped=line.strip()
             if stripped.startswith("#"):
-                hashtags=clean_site_hashtags(stripped)
-                if hashtags:
-                    lines.append(hashtags)
+                # Hashtags belong to social posts, never to the website article.
                 continue
             visible=clean_site_line(line)
             if visible:
