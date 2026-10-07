@@ -411,11 +411,11 @@ def comments_box(content_id, content_type):
 
 def legal_footer():
     return '''<footer class="legal-footer"><div class="wrap">
+      <div class="footer-links"><a href="/">Home</a><a href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni scritte</a><a href="/recensioni.html">Video recensioni</a><a href="/test.html">Test</a><a href="/unboxing.html">Unboxing</a><a href="/gaming.html">Gaming</a></div>
       <div class="footer-links"><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">▶ YouTube</a><a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">❤️ Patreon</a><a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">🎵 TikTok</a><a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">💬 WhatsApp</a><a href="/contatti.html">Contatti</a><a href="/chi-sono.html">Chi sono</a></div>
       <div class="legal-links"><a href="/privacy.html">Privacy Policy</a><a href="/cookie.html">Cookie Policy</a><a href="/disclaimer.html">Disclaimer</a><a href="/note-legali.html">Note legali</a></div>
       <div class="footer-copy">© 2026 ZazoomTek · Tecnologia e gaming.</div>
     </div></footer>'''
-
 def editorial_header(active=""):
     return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
 
@@ -484,6 +484,7 @@ def write_review_page(p, all_reviews=None):
         +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
         +img+f'<div class="article-body">{review_body_html(p)}</div>'+comments_box(slug,"review")+'</article>'
         +'<aside class="article-side">'+feature_html
+        +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
         +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'<script src="/comments.js" defer></script></body></html>'
     )
