@@ -45,46 +45,109 @@ def normalize_youtube_image_url(url):
         u=re.sub(r"=s\d+(?:-[^?]*)?$","=s1600-rw-nd-v1",u)
     return u
 
-def image_url(p):
-    # Prefer the FIRST photo attached to the Community post.
-    # Do not pick the largest image from the whole renderer (which can select
-    # a different attachment or unrelated thumbnail).
-    def first_thumb_group(x):
+def image_urls(p):
+    """Return Community-post images in attachment order, one URL per image."""
+    found=[]
+    seen=set()
+
+    def add(url):
+        u=normalize_youtube_image_url(url)
+        if not u or not u.startswith("http") or u in seen:
+            return
+        seen.add(u)
+        found.append(u)
+
+    def collect_thumb_groups(x):
         if isinstance(x,dict):
             thumbs=x.get("thumbnails")
             if isinstance(thumbs,list):
                 valid=[t for t in thumbs if isinstance(t,dict) and str(t.get("url","")).startswith("http")]
                 if valid:
                     best=max(valid,key=lambda t:(t.get("width",0) or 0)*(t.get("height",0) or 0))
-                    return normalize_youtube_image_url(best.get("url",""))
-            for v in x.values():
-                u=first_thumb_group(v)
-                if u:return u
+                    add(best.get("url",""))
+            for k,v in x.items():
+                if k!="thumbnails":
+                    collect_thumb_groups(v)
         elif isinstance(x,list):
             for v in x:
-                u=first_thumb_group(v)
-                if u:return u
-        return ""
+                collect_thumb_groups(v)
 
-    # YouTube normally stores Community post media here.
+    # Stay inside the post attachment tree so avatars/channel artwork are not
+    # accidentally imported as article images.
     for key in ("backstageAttachment","attachment","postMultiImageRenderer"):
         if isinstance(p,dict) and p.get(key):
-            u=first_thumb_group(p[key])
-            if u:return u
+            collect_thumb_groups(p[key])
 
-    # Fallback for renderer variants: keep previous behavior.
-    found=[]
-    def w(x):
+    if found:
+        return found
+
+    # Fallback for renderer variants that do not expose a normal attachment.
+    candidates=[]
+    def fallback_walk(x):
         if isinstance(x,dict):
-            if isinstance(x.get("thumbnails"),list):
-                for t in x["thumbnails"]:
-                    u=t.get("url","")
-                    if u.startswith("http"):found.append((t.get("width",0)*t.get("height",0),u))
-            for v in x.values():w(v)
+            thumbs=x.get("thumbnails")
+            if isinstance(thumbs,list):
+                for t in thumbs:
+                    if isinstance(t,dict):
+                        u=t.get("url","")
+                        if isinstance(u,str) and u.startswith("http"):
+                            candidates.append(((t.get("width",0) or 0)*(t.get("height",0) or 0),u))
+            for v in x.values():
+                fallback_walk(v)
         elif isinstance(x,list):
-            for v in x:w(v)
-    w(p)
-    return normalize_youtube_image_url(max(found,default=(0,""))[1])
+            for v in x:
+                fallback_walk(v)
+    fallback_walk(p)
+    if candidates:
+        add(max(candidates,key=lambda x:x[0])[1])
+    return found
+
+def image_url(p):
+    imgs=image_urls(p)
+    return imgs[0] if imgs else ""
+
+def post_extra_images(p):
+    """All post photos except the first cover image, with duplicates removed."""
+    imgs=p.get("images") or ([p.get("image")] if p.get("image") else [])
+    primary=p.get("image") or (imgs[0] if imgs else "")
+    out=[]
+    seen={primary} if primary else set()
+    for u in imgs:
+        if u and u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out
+
+def distribute_inline_images(blocks,p,title):
+    """Place additional Community photos between meaningful text blocks."""
+    extras=post_extra_images(p)
+    if not extras or not blocks:
+        return blocks
+
+    # Prefer placement after paragraphs, not directly after headings/scores.
+    candidates=[i for i,b in enumerate(blocks) if b.lstrip().startswith("<p>")]
+    if not candidates:
+        candidates=list(range(len(blocks)))
+    if not candidates:
+        return blocks
+
+    inserts={}
+    for n,u in enumerate(extras):
+        rank=((n+1)*len(candidates))//(len(extras)+1)
+        rank=max(0,min(len(candidates)-1,rank))
+        idx=candidates[rank]
+        media=(
+            f'<figure class="article-inline-media">'
+            f'<img src="{html.escape(u)}" alt="{html.escape(title)} - immagine {n+2}" loading="lazy">'
+            f'</figure>'
+        )
+        inserts.setdefault(idx,[]).append(media)
+
+    out=[]
+    for i,b in enumerate(blocks):
+        out.append(b)
+        out.extend(inserts.get(i,[]))
+    return out
 
 def continuation_tokens(x):
     out=[]
@@ -132,7 +195,15 @@ def parse_nodes(data,posts,seen):
         seen.add(pid)
         body=txt(p.get("contentText",{})) or txt(p.get("backstagePostText",{}))
         when=txt(p.get("publishedTimeText",{}))
-        posts.append({"id":pid,"text":body.strip(),"published":when,"image":image_url(p),"url":"https://www.youtube.com/post/"+pid})
+        imgs=image_urls(p)
+        posts.append({
+            "id":pid,
+            "text":body.strip(),
+            "published":when,
+            "image":imgs[0] if imgs else "",
+            "images":imgs,
+            "url":"https://www.youtube.com/post/"+pid
+        })
 
 def looks_like_review_post(p):
     lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
@@ -284,6 +355,7 @@ def review_body_html(p):
         paragraph.append(line)
 
     flush_paragraph()
+    out=distribute_inline_images(out,p,title)
     return "\n".join(out)
 
 DETAIL_STYLE = """<style>
@@ -345,7 +417,7 @@ NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
 </style>"""
 
 NEWS_DETAIL_STYLE = """<style>"""+NEWS_COMMON+"""
-.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65;color:#111!important;font-weight:500}.article-body p,.article-body li{margin:0 0 18px;white-space:pre-line;color:#111!important;font-weight:500}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:52px;aspect-ratio:16/9;object-fit:cover;object-position:center center;background:#111}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
+.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65;color:#111!important;font-weight:500}.article-body p,.article-body li{margin:0 0 18px;white-space:pre-line;color:#111!important;font-weight:500}.article-inline-media{margin:30px 0 32px}.article-inline-media img{display:block;width:100%;max-height:780px;object-fit:contain;background:#f5f5f5;border:1px solid #e4e4e4}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:52px;aspect-ratio:16/9;object-fit:cover;object-position:center center;background:#111}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
 .zt-subscribe-cta{margin-top:34px;padding:26px 30px;background:#050505;border-left:6px solid #D51232;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:28px;box-shadow:0 4px 16px rgba(0,0,0,.10)}
 .zt-subscribe-copy{min-width:0}.zt-subscribe-kicker{display:inline-block;margin-bottom:10px;color:#ff5b76;font-size:.72rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.zt-subscribe-copy h2{margin:0 0 10px;font-size:1.3rem;line-height:1.15;color:#fff}.zt-subscribe-copy p{margin:0;font-size:.95rem;line-height:1.5;color:#d3d3d3}
 .zt-social-icons{display:flex;align-items:center;gap:18px;flex-shrink:0}.zt-social-icon{width:72px;height:72px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#171717 0%,#101010 100%);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 0 0 1px rgba(255,255,255,.03);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;text-decoration:none}.zt-social-icon:hover{transform:translateY(-2px);border-color:rgba(213,18,50,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 0 0 1px rgba(213,18,50,.28)}.zt-social-icon img{width:38px;height:38px;object-fit:contain;display:block}
@@ -766,7 +838,9 @@ def news_body_html(p):
         if b==title:
             continue
         cleaned.append(b)
-    return "\n".join(f"<p>{html.escape(b)}</p>" for b in cleaned)
+    rendered=[f"<p>{html.escape(b)}</p>" for b in cleaned]
+    rendered=distribute_inline_images(rendered,p,title)
+    return "\n".join(rendered)
 
 def write_news_page(p, all_news=None):
     all_news=all_news or []
