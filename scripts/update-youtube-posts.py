@@ -611,7 +611,10 @@ def clean_site_line(line):
     return line.strip(" \t-–—|")
 
 def is_site_social_line(line):
-    low=(line or "").strip().lower()
+    # Normalize first so leading emoji/icons such as ▶ ❤️ 🎵 💬 cannot hide
+    # a social footer from the filter.
+    cleaned=clean_site_line(line)
+    low=cleaned.lower().strip()
     if not low:
         return True
 
@@ -641,9 +644,12 @@ def is_site_social_line(line):
     if any(x in low for x in social_phrases):
         return True
 
-    # A line containing only a URL or social handle becomes empty after cleanup.
-    cleaned=clean_site_line(line)
-    return not cleaned
+    # Catch compact footer rows where several channel labels are on one line.
+    social_labels=("youtube:","patreon:","tiktok:","whatsapp:")
+    if any(x in low for x in social_labels):
+        return True
+
+    return False
 
 def clean_site_hashtags(line, limit=8):
     """Keep a concise, unique set of topic hashtags; drop channel/self-promo tags."""
