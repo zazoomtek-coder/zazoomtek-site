@@ -172,10 +172,13 @@ def is_review(p):
     return (not first.startswith("news:")) and ("recensione" in first or "review" in first or "voto finale" in body)
 
 def review_title(p):
-    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    raw_lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    lines=[clean_site_title(x) for x in raw_lines]
     # Ignore generic labels such as "Review:" and use the first real line
     # that identifies the reviewed product/game.
     for line in lines[:8]:
+        if not line:
+            continue
         low=line.lower().strip()
         plain=re.sub(r'[^a-zà-ÿ]+','',low)
         if plain in ("review","recensione"):
@@ -183,6 +186,8 @@ def review_title(p):
         if "recensione" in low or "review" in low:
             return line
     for line in lines:
+        if not line:
+            continue
         low=line.lower().strip()
         plain=re.sub(r'[^a-zà-ÿ]+','',low)
         if plain not in ("review","recensione"):
@@ -193,7 +198,7 @@ def review_slug(p):
     return "recensione-"+p["id"]+".html"
 
 def review_body_html(p):
-    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',p.get("text") or "") if x.strip()]
+    blocks=clean_site_blocks(p.get("text") or "")
     title=review_title(p)
     cleaned=[]
     for b in blocks:
@@ -224,7 +229,7 @@ DETAIL_STYLE = """<style>
 .headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}
 .nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 14px;font-size:.76rem;font-weight:900;text-transform:uppercase;border-left:1px solid #2d2d2d}
 .nav a:hover{background:var(--orange)}a{color:inherit;text-decoration:none}
-.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;max-height:560px;object-fit:contain;object-position:center center;display:block;background:#111}
+.hero{margin:26px 0 0;overflow:hidden;border:1px solid var(--line);background:#fff}.hero img{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;background:#111}
 .hero-copy{padding:22px;border-top:5px solid transparent;border-image:var(--accent-gradient) 1}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.08}
 .meta{color:var(--muted);font-size:.9rem}.article{background:#fff;border:1px solid var(--line);border-top:0;padding:28px;margin-bottom:36px}
 .article h2{margin:30px 0 10px;border-left:6px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red);padding-left:10px}.article p{margin:0 0 18px;white-space:pre-line}
@@ -241,7 +246,7 @@ ARCHIVE_STYLE = """<style>
 .nav a:hover,.nav a.active{background:var(--accent-gradient)}a{color:inherit;text-decoration:none}
 main{background:#fff;padding:24px 24px 40px}h1{margin:4px 0 6px}.sub{color:var(--muted);margin-bottom:18px}
 .community-posts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.community-post-card{background:#fff;border:1px solid var(--line);border-top:5px solid transparent;border-image:var(--accent-gradient) 1;min-width:0}
-.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:contain;object-position:center center;display:block;background:#f3f3f3}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}
+.community-post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.community-post-copy{padding:14px}.community-post-copy p{margin:0;font-size:1rem;line-height:1.35;font-weight:800}
 .community-post-copy small{display:block;margin-top:9px;color:var(--muted);font-size:.72rem}.community-post-copy a{display:inline-block;margin-top:10px;background:var(--accent-gradient);color:#fff;padding:7px 10px;font-size:.72rem;font-weight:900}
 .legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}@media(max-width:900px){.community-posts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.community-posts-grid{grid-template-columns:1fr}}
 </style>"""
@@ -269,14 +274,14 @@ NEWS_COMMON = """
 NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
 .news-page{background:#fff;padding:24px 0 40px}.news-layout{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:22px;align-items:start}
 .news-main{min-width:0}.news-main-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:3px solid transparent;border-image:var(--zt-grad) 1}.news-main-head h1{font-size:1.65rem;margin:0;padding:0 0 10px;text-transform:uppercase}.news-filter{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:10px}.news-filter span{font-size:.72rem;font-weight:900;text-transform:uppercase;color:#666}
-.news-list{border:1px solid var(--zt-line);border-bottom:0}.news-row{display:grid;grid-template-columns:360px minmax(0,1fr);gap:20px;padding:18px;border-bottom:1px solid var(--zt-line);background:#fff;align-items:start}.news-row img{width:100%;aspect-ratio:16/9;object-fit:contain;object-position:center center;display:block;background:#f3f3f3}.news-copy h2{margin:0 0 8px;font-size:1.3rem;line-height:1.12}.news-meta{font-size:.76rem;color:#888;margin-bottom:9px}.news-copy p{margin:0 0 13px;color:#555;line-height:1.48;font-size:.93rem}.news-read{display:inline-block;background:var(--zt-grad);color:#fff;padding:10px 14px;font-size:.75rem;font-weight:900;text-transform:uppercase}
+.news-list{border:1px solid var(--zt-line);border-bottom:0}.news-row{display:grid;grid-template-columns:360px minmax(0,1fr);gap:20px;padding:18px;border-bottom:1px solid var(--zt-line);background:#fff;align-items:start}.news-row img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.news-copy h2{margin:0 0 8px;font-size:1.3rem;line-height:1.12}.news-meta{font-size:.76rem;color:#888;margin-bottom:9px}.news-copy p{margin:0 0 13px;color:#555;line-height:1.48;font-size:.93rem}.news-read{display:inline-block;background:var(--zt-grad);color:#fff;padding:10px 14px;font-size:.75rem;font-weight:900;text-transform:uppercase}
 .news-sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}.archive-pagination{margin:28px 0 0;background:#202020;padding:20px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}.archive-pagination a,.archive-pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.archive-pagination .active{background:var(--zt-grad);border-color:transparent}.archive-pagination .next{min-width:92px}
 @media(max-width:980px){.news-layout{grid-template-columns:1fr}.news-sidebar{position:static;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.side-box{margin:0}}
 @media(max-width:720px){.news-row{grid-template-columns:1fr;padding:14px}.news-sidebar{grid-template-columns:1fr}}
 </style>"""
 
 NEWS_DETAIL_STYLE = """<style>"""+NEWS_COMMON+"""
-.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;max-height:610px;object-fit:contain;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65}.article-body p{margin:0 0 18px;white-space:pre-line}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:64px;object-fit:contain;object-position:center center;background:#f3f3f3}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
+.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65}.article-body p{margin:0 0 18px;white-space:pre-line}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:52px;aspect-ratio:16/9;object-fit:cover;object-position:center center;background:#111}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
 @media(max-width:1180px){.detail-grid{grid-template-columns:minmax(0,1fr) 330px}.article-side.middle{display:none}}
 @media(max-width:820px){.detail-grid{grid-template-columns:1fr}.article-side{position:static;top:auto}.article-side.middle{display:block}.article-main h1{font-size:2rem}}
 </style>"""
@@ -570,15 +575,128 @@ def write_review_archive(reviews):
         filename="recensioni-scritte.html" if page_num==1 else f"recensioni-scritte-{page_num}.html"
         Path(filename).write_text(page,encoding="utf-8")
 
+def strip_site_emojis(text):
+    """Remove decorative emoji/icons while preserving normal punctuation and words."""
+    if not text:
+        return ""
+    out=[]
+    for ch in text:
+        cp=ord(ch)
+        if (
+            0x1F000 <= cp <= 0x1FAFF or
+            0x2600 <= cp <= 0x26FF or
+            0x2700 <= cp <= 0x27BF or
+            0x1F1E6 <= cp <= 0x1F1FF or
+            cp in (0xFE0E,0xFE0F,0x200D,0x20E3)
+        ):
+            continue
+        out.append(ch)
+    return "".join(out)
+
+def clean_site_line(line):
+    line=(line or "").strip()
+    if not line:
+        return ""
+
+    # Remove URLs and bare web links copied from Community posts.
+    line=re.sub(r'https?://\S+','',line,flags=re.I)
+    line=re.sub(r'\bwww\.\S+','',line,flags=re.I)
+
+    # Remove decorative emoji/icons from visible site text.
+    line=strip_site_emojis(line)
+
+    # Normalize whitespace left behind by removed icons/links.
+    line=re.sub(r'[ \t]+',' ',line)
+    line=re.sub(r'\s+([,.;:!?])',r'\1',line)
+    return line.strip(" \t-–—|")
+
+def is_site_social_line(line):
+    low=(line or "").strip().lower()
+    if not low:
+        return True
+
+    # Social/CTA lines belong on YouTube, not inside the imported article.
+    exact_prefixes=(
+        "subscribe",
+        "iscriviti",
+        "youtube:",
+        "patreon:",
+        "tiktok:",
+        "whatsapp:",
+        "zazoomtek.it",
+        "www.zazoomtek.it",
+        "@zazoomtek",
+    )
+    if low.startswith(exact_prefixes):
+        return True
+
+    social_phrases=(
+        "se ti piacciono tecnologia",
+        "seguimi su zazoomtek",
+        "seguici su zazoomtek",
+        "segui zazoomtek",
+        "subscribe to the channel",
+        "iscriviti al canale",
+    )
+    if any(x in low for x in social_phrases):
+        return True
+
+    # A line containing only a URL or social handle becomes empty after cleanup.
+    cleaned=clean_site_line(line)
+    return not cleaned
+
+def clean_site_hashtags(line, limit=8):
+    """Keep a concise, unique set of topic hashtags; drop channel/self-promo tags."""
+    tags=re.findall(r'#[\wÀ-ÿ]+',line or "",flags=re.UNICODE)
+    out=[]
+    seen=set()
+    blocked={"#zazoomtek","#zazoomteknews","#zazoomtekreview"}
+    for tag in tags:
+        key=tag.lower()
+        if key in blocked or key in seen:
+            continue
+        seen.add(key)
+        out.append(tag)
+        if len(out)>=limit:
+            break
+    return " ".join(out)
+
+def clean_site_blocks(raw):
+    """Convert a Community post into clean editorial blocks for the website."""
+    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',raw or "") if x.strip()]
+    cleaned=[]
+    for block in blocks:
+        # Work line-by-line so a social footer does not contaminate a valid paragraph.
+        lines=[]
+        for line in block.splitlines():
+            if is_site_social_line(line):
+                continue
+            stripped=line.strip()
+            if stripped.startswith("#"):
+                hashtags=clean_site_hashtags(stripped)
+                if hashtags:
+                    lines.append(hashtags)
+                continue
+            visible=clean_site_line(line)
+            if visible:
+                lines.append(visible)
+        text=" ".join(lines).strip()
+        if text:
+            cleaned.append(text)
+    return cleaned
+
+def clean_site_title(line):
+    return clean_site_line(line)
+
 def news_title(p):
-    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
+    lines=[clean_site_title(x) for x in (p.get("text") or "").splitlines() if clean_site_title(x)]
     return lines[0] if lines else "News ZazoomTek"
 
 def news_slug(p):
     return "news-"+p["id"]+".html"
 
 def news_body_html(p):
-    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',p.get("text") or "") if x.strip()]
+    blocks=clean_site_blocks(p.get("text") or "")
     title=news_title(p)
     cleaned=[]
     for b in blocks:
@@ -694,7 +812,7 @@ def post_slug(p):
     return review_slug(p) if is_review(p) else news_slug(p)
 
 def post_excerpt(p, limit=220):
-    text=(p.get("text") or "").replace("⠀"," ").replace("\n"," ")
+    text=" ".join(clean_site_blocks(p.get("text") or ""))
     title=post_title(p)
     if text.startswith(title):
         text=text[len(title):].strip(" :-–—")
@@ -837,7 +955,7 @@ PAGINATED_ARTICLE_STYLE = """<style>
 *{box-sizing:border-box}body{margin:0;background:#ececec;color:var(--text);font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1180px,calc(100% - 32px));margin:auto}
 header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--grad) 1}.headrow{min-height:76px;display:flex;align-items:stretch}.brand{display:flex;align-items:center;font-size:1.5rem;font-weight:900;padding-right:22px}.nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 14px;font-size:.76rem;font-weight:900;text-transform:uppercase;border-left:1px solid #2d2d2d}.nav a:hover,.nav a.active{background:var(--grad)}a{color:inherit;text-decoration:none}
 main{background:#fff;padding:26px 0 40px}.archive-head{padding:0 22px 18px}.archive-head h1{margin:0 0 6px}.archive-head p{margin:0;color:var(--muted)}
-.article-list{border-top:1px solid var(--line)}.article-row{display:grid;grid-template-columns:330px 1fr;gap:20px;padding:18px 22px;border-bottom:1px solid var(--line);align-items:start}.article-image{width:100%;aspect-ratio:16/9;object-fit:contain;object-position:center center;display:block;background:#f3f3f3}.article-copy h3{font-size:1.18rem;line-height:1.18;margin:0 0 6px}.article-meta{font-size:.78rem;color:var(--muted);margin-bottom:8px}.article-copy p{margin:0 0 12px;line-height:1.45}.read-more{display:inline-block;background:var(--grad);color:#fff;padding:9px 13px;font-size:.76rem;font-weight:900;text-transform:uppercase}
+.article-list{border-top:1px solid var(--line)}.article-row{display:grid;grid-template-columns:330px 1fr;gap:20px;padding:18px 22px;border-bottom:1px solid var(--line);align-items:start}.article-image{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.article-copy h3{font-size:1.18rem;line-height:1.18;margin:0 0 6px}.article-meta{font-size:.78rem;color:var(--muted);margin-bottom:8px}.article-copy p{margin:0 0 12px;line-height:1.45}.read-more{display:inline-block;background:var(--grad);color:#fff;padding:9px 13px;font-size:.76rem;font-weight:900;text-transform:uppercase}
 .pagination{margin:28px 22px 0;background:#202020;padding:20px;display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap}.pagination a,.pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.pagination .active{background:var(--grad);border-color:transparent}.pagination .next{min-width:92px}
 @media(max-width:760px){.headrow{display:block}.brand{padding:12px 0;justify-content:center}.nav{justify-content:center}.nav a{padding:11px 8px}.article-row{grid-template-columns:1fr;padding:16px}.pagination{margin:22px 16px 0;padding:14px}.pagination a,.pagination span{min-width:42px;height:44px;padding:0 10px}}
 </style>.legal-footer{margin-top:0;background:#161616;color:#aaa;padding:26px 16px;border-top:1px solid rgba(255,255,255,.07)}.legal-footer .wrap{width:min(1100px,calc(100% - 32px));margin:auto}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem;text-decoration:none}.footer-links a:hover,.legal-links a:hover{color:#fff}.footer-copy{text-align:center;font-size:.78rem;color:#aaa}"""
