@@ -1,4 +1,1 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://zazoomtek.it/sitemap.xml
+User-agent: *\nAllow: /\n\nSitemap: https://zazoomtek.it/sitemap.xml\n
