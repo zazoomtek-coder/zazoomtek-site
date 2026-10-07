@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate sync scripts
+        run: python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py
+
       - name: Sync public YouTube Community posts
         run: python3 scripts/update-youtube-posts.py
 
