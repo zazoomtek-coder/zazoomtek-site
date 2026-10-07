@@ -31,29 +31,113 @@
 header{background:#171717;color:#fff;border-top:3px solid transparent;border-image:var(--accent-gradient) 1}.topbar{min-height:78px;display:grid;grid-template-columns:auto 1fr minmax(220px,360px);align-items:stretch}.brand{display:flex;align-items:center;gap:10px;padding:10px 24px 10px 0;border-right:1px solid #333}.brand-logo-img{width:52px;height:52px;object-fit:cover;border-radius:8px}.brand-copy strong{font-size:1.7rem;letter-spacing:.01em}.brand-copy small{display:block;color:#aaa;font-size:.66rem;margin-top:3px}
 .nav{display:flex;align-items:stretch;flex-wrap:wrap}.nav a{display:flex;align-items:center;padding:0 20px;font-weight:800;font-size:.82rem;border-right:1px solid #2d2d2d;text-transform:uppercase}.nav a:hover,.nav a.active{background:var(--accent-gradient);color:#fff}.top-socials{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:8px}.top-socials a{display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;background:#181818;border:1px solid #353535;box-shadow:0 2px 7px rgba(0,0,0,.28);transition:.2s}.top-socials a:hover{background:#242424;border-color:#596bff;transform:translateY(-1px)}.top-socials img{display:block;width:27px;height:27px;object-fit:contain}.search-wrap{display:flex;flex-direction:column;justify-content:center;align-items:stretch;padding-left:16px}.search-box{display:flex;width:100%;background:#303030;border:1px solid #444}.search-box{display:flex;width:100%;background:#303030;border:1px solid #444}.search-box input{width:100%;border:0;background:transparent;color:#fff;padding:12px 14px;outline:none}.search-box button{width:48px;border:0;background:var(--accent-gradient);color:#fff;font-weight:900;cursor:pointer}
 .ticker{background:#222;border-top:1px solid #2c2c2c}.ticker-inner{display:flex;align-items:center;min-height:46px;overflow:hidden}.ticker-label{background:var(--accent-gradient);font-weight:900;padding:14px 20px;white-space:nowrap}.ticker-track{position:relative;flex:1;height:46px;overflow:hidden}.ticker-track a{position:absolute;inset:0;display:flex;align-items:center;padding:0 16px;opacity:0;transform:translateY(12px);transition:.35s;color:#ddd;font-size:.86rem}.ticker-track a.active{opacity:1;transform:none}
-.page{background:#fff;min-height:100vh;padding:20px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start}.maincol{min-width:0}.module{margin-bottom:24px}.module-head{height:48px;background:#202020;color:#fff;display:flex;align-items:center;justify-content:space-between;padding-right:12px}.module-head h2{margin:0;background:var(--accent-gradient);height:48px;display:flex;align-items:center;padding:0 20px;font-size:1rem;text-transform:uppercase;position:relative}.module-head h2:after{content:"";position:absolute;right:-28px;top:0;border-top:48px solid var(--accent-red);border-right:28px solid transparent}.module-head a,.module-head span{font-size:.78rem;color:#ddd}.module-controls{display:flex;gap:6px}.module-controls button{width:34px;height:34px;border:0;background:#333;color:#fff;cursor:pointer}.module-controls button:hover{background:var(--accent-gradient)}
+.page{background:#fff;min-height:100vh;padding:20px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}.maincol{min-width:0}.module{margin-bottom:24px}.module-head{height:48px;background:#202020;color:#fff;display:flex;align-items:center;justify-content:space-between;padding-right:12px}.module-head h2{margin:0;background:var(--accent-gradient);height:48px;display:flex;align-items:center;padding:0 20px;font-size:1rem;text-transform:uppercase;position:relative}.module-head h2:after{content:"";position:absolute;right:-28px;top:0;border-top:48px solid var(--accent-red);border-right:28px solid transparent}.module-head a,.module-head span{font-size:.78rem;color:#ddd}.module-controls{display:flex;gap:6px}.module-controls button{width:34px;height:34px;border:0;background:#333;color:#fff;cursor:pointer}.module-controls button:hover{background:var(--accent-gradient)}
 .news-slider{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(240px,.8fr);background:#1b1b1b}.news-slides{position:relative;min-height:500px;overflow:hidden}.news-slide{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .35s}.news-slide.active{opacity:1;pointer-events:auto}.news-slide img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.78)}.news-slide-copy{position:absolute;left:0;right:0;bottom:0;padding:70px 26px 24px;background:linear-gradient(transparent,rgba(0,0,0,.92));color:#fff}.news-slide-copy .tag{display:inline-block;background:var(--orange);padding:6px 9px;font-size:.68rem;font-weight:900;text-transform:uppercase}.news-slide-copy h1{font-size:clamp(1.55rem,3vw,2.4rem);line-height:1.05;margin:10px 0 8px}.news-slide-copy p{margin:0;color:#ddd;line-height:1.45;max-width:780px}.news-tabs{display:grid;grid-template-rows:repeat(5,1fr)}.news-tab{border:0;border-bottom:1px solid #333;background:#222;color:#fff;text-align:left;padding:14px 16px;cursor:pointer;font-size:.9rem;line-height:1.25}.news-tab:hover,.news-tab.active{background:#2b2b2b;color:#7fdcff;box-shadow:inset 4px 0 var(--accent-red)}
 .video-strip{background:#1b1b1b;padding:22px 16px 26px;overflow:hidden}.video-strip-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}.video-strip-track::-webkit-scrollbar{display:none}.video-card{background:#111;color:#fff;min-width:0;flex:0 0 calc((100% - 32px)/3);scroll-snap-align:start}.video-thumb{display:block;position:relative;width:100%;aspect-ratio:16/9;border:0;padding:0;background:#000;cursor:pointer}.video-thumb img{width:100%;height:100%;object-fit:cover;display:block}.video-thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:30px;border-radius:7px;background:rgba(220,0,0,.93);display:grid;place-items:center;color:#fff;font-size:.75rem}.video-card h3{margin:0;padding:14px 14px 18px;font-size:1rem;line-height:1.28;min-height:64px}
 .article-list{border:1px solid var(--line);border-top:0}.article-row{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;padding:16px;border-bottom:1px solid var(--line);background:#fff}.article-row:last-child{border-bottom:0}.article-image{width:100%;aspect-ratio:16/9;object-fit:cover;background:#eee}.article-copy{min-width:0}.article-kicker{display:inline-block;background:var(--accent-gradient);color:#fff;padding:5px 8px;font-size:.65rem;font-weight:900;text-transform:uppercase}.article-copy h3{font-size:1.25rem;line-height:1.15;margin:8px 0 6px}.article-meta{color:#888;font-size:.75rem;margin-bottom:8px}.article-copy p{margin:0 0 12px;color:#555;line-height:1.46;font-size:.9rem}.read-more{display:inline-block;background:var(--accent-gradient);color:#fff;padding:9px 13px;font-weight:900;font-size:.72rem;text-transform:uppercase}.pagination{margin:28px 16px 0;background:#202020;padding:20px;display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap}.pagination a,.pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.pagination .active{background:var(--accent-gradient);border-color:transparent}.pagination .next{min-width:92px}
-.sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.side-module{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-head{height:44px;background:#202020;color:#fff;display:flex;align-items:center;padding:0 14px;font-size:.85rem;font-weight:900;text-transform:uppercase;border-left:6px solid var(--accent-blue);box-shadow:inset 2px 0 0 var(--accent-red)}.side-head[href]{text-decoration:none}.side-head[href]:hover{background:#2d2d2d;color:var(--accent-red)}.side-video-list{padding:10px}.side-video{display:block;padding:0;background:#fff}.side-video:not(:first-child){display:none}.side-video .video-thumb{width:100%;aspect-ratio:16/9}.side-video .video-thumb:after{width:54px;height:38px;font-size:.9rem}.side-video h3{margin:9px 4px 4px;font-size:.9rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 4px 8px;font-size:.7rem}.ad-slot{min-height:280px;border:1px solid #ddd;background:linear-gradient(#fafafa,#f4f4f4);display:grid;place-items:center;color:#999;text-align:center;margin-bottom:18px}.ad-slot strong{display:block;color:#555;font-size:1rem}.ad-slot span{display:block;margin-top:5px;font-size:.74rem}
+.sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}
+.side-module{margin-bottom:20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07)}
+.side-head{height:50px;background:#111a23;color:#fff;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;text-transform:uppercase}
+.side-head:before{content:"";position:absolute;inset:0 auto 0 0;width:66%;background:linear-gradient(90deg,#006CFF 0%,#5c348e 45%,#D51232 100%);clip-path:polygon(0 0,88% 0,100% 100%,0 100%)}
+.side-head-title,.side-head-more{position:relative;z-index:1;display:flex;align-items:center;height:100%;color:#fff;text-decoration:none;font-weight:900}
+.side-head-title{padding:0 15px;font-size:.82rem;letter-spacing:.025em}
+.side-head-more{padding:0 13px;font-size:.64rem;color:#e7e7e7;white-space:nowrap}
+.side-head-more:hover{color:#fff}
+.side-video-list{padding:0;background:#fff}
+.side-video{display:block;width:100%;padding:0;background:#fff}
+.side-video:not(:first-child){display:none}
+.side-video .video-thumb{width:100%;height:auto;aspect-ratio:16/9;display:block}
+.side-video .video-thumb img{width:100%;height:100%;object-fit:cover}
+.side-video .video-thumb:after{width:58px;height:58px;border-radius:50%;border:3px solid rgba(255,255,255,.96);background:rgba(0,0,0,.76);font-size:1rem;box-shadow:0 3px 10px rgba(0,0,0,.38)}
+.side-video>div{min-width:0;display:block;padding:14px 16px 16px}
+.side-video h3{margin:0;font-size:1rem;line-height:1.2;color:#171717;font-weight:900;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.side-video small{display:block;color:#8a8a8a;margin-top:8px;font-size:.7rem;text-transform:none;font-weight:600;line-height:1.2}
+.side-video:hover h3{color:#D51232}
+@media(max-width:1120px){.side-head-title{font-size:.74rem;padding-left:12px}.side-head-more{font-size:.58rem;padding-right:9px}.side-video h3{font-size:.9rem}}
+@media(max-width:820px){.side-head-title{font-size:.82rem}.side-head-more{font-size:.64rem}.side-video h3{font-size:1rem}}
+.zt-latest-videos{margin-bottom:20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07)}
+.zt-latest-videos .side-head{height:50px}
+.zt-latest-videos .side-head:before{width:66%}
+.zt-latest-controls{position:relative;z-index:2;display:flex;gap:6px;padding-right:8px}
+.zt-latest-controls button{width:31px;height:31px;border:1px solid rgba(255,255,255,.18);background:#222b34;color:#fff;font-size:1.15rem;line-height:1;cursor:pointer}
+.zt-latest-controls button:hover{background:#D51232}
+.zt-sidebar-carousel{overflow:hidden;width:100%;background:#fff}
+.zt-sidebar-track{display:flex;width:100%;transition:transform .5s ease;will-change:transform}
+.zt-sidebar-card{flex:0 0 100%;min-width:100%;background:#fff}
+.zt-sidebar-card .video-thumb{width:100%;height:auto;aspect-ratio:16/9;border:0;padding:0}
+.zt-sidebar-card .video-thumb:after{width:58px;height:58px;border-radius:50%;border:3px solid #fff;background:rgba(0,0,0,.76);font-size:1rem}
+.zt-sidebar-copy{padding:14px 16px 16px}
+.zt-sidebar-copy h3{margin:0;font-size:1rem;line-height:1.2;color:#171717;font-weight:900;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.zt-sidebar-copy small{display:block;margin-top:8px;color:#8a8a8a;font-size:.7rem;font-weight:600}
+.zt-sidebar-dots{display:flex;justify-content:center;gap:7px;padding:0 0 14px}
+.zt-sidebar-dots button{width:7px;height:7px;border:0;border-radius:50%;padding:0;background:#c4c4c4;cursor:pointer}
+.zt-sidebar-dots button.active{background:#D51232}
+@media(max-width:1120px){.zt-sidebar-copy h3{font-size:.9rem}}
+@media(max-width:820px){.zt-latest-videos{grid-column:1/-1}.zt-sidebar-card .video-thumb{aspect-ratio:16/9}.zt-sidebar-copy h3{font-size:1rem}}
+.zt-video-stack{margin-bottom:20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07);overflow:hidden}
+.zt-video-stack .side-head{height:50px}
+.zt-video-stack .side-head:before{width:66%}
+.zt-stack-list{background:#fff}
+.zt-stack-card{background:#fff;border-bottom:1px solid #e9e9e9}
+.zt-stack-card:last-child{border-bottom:0}
+.zt-stack-card .video-thumb{width:100%;aspect-ratio:16/9;height:auto;display:block}
+.zt-stack-card .video-thumb img{width:100%;height:100%;object-fit:cover}
+.zt-stack-card .video-thumb:after{width:58px;height:58px;border-radius:50%;border:3px solid rgba(255,255,255,.96);background:rgba(0,0,0,.76);font-size:1rem;box-shadow:0 3px 10px rgba(0,0,0,.38)}
+.zt-stack-copy{padding:13px 15px 15px}
+.zt-stack-copy h3{margin:0;color:#171717;font-size:1rem;line-height:1.18;font-weight:900}
+.zt-stack-copy small{display:block;margin-top:7px;color:#8a8a8a;font-size:.7rem;font-weight:600}
+.zt-stack-card:hover .zt-stack-copy h3{color:#D51232}
+@media(max-width:1120px){.zt-stack-copy h3{font-size:.9rem}}
+@media(max-width:820px){.zt-video-stack{grid-column:1/-1}.zt-stack-copy h3{font-size:1rem}}
+.zt-amazon-game-box{margin:0 0 20px;background:#fff;border:1px solid #ddd;border-top:5px solid #FF9900;box-shadow:0 3px 10px rgba(0,0,0,.08);overflow:hidden}
+.zt-amazon-game-head{background:#131921;color:#fff;padding:13px 15px;font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
+.zt-amazon-game-body{padding:14px 16px;background:linear-gradient(180deg,#fff 0%,#fff7ea 100%)}
+.zt-amazon-game-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.zt-amazon-game-platform{display:inline-block;background:#232F3E;color:#fff;padding:5px 9px;border-radius:3px;font-size:.7rem;font-weight:900}
+.zt-amazon-game-plane{font-size:1.6rem}
+.zt-amazon-game-name{margin:0;color:#131921;font-size:1.5rem;line-height:1;font-weight:900}
+.zt-amazon-game-subtitle{margin:5px 0 10px;color:#E47911;font-size:.78rem;font-weight:900;letter-spacing:.06em}
+.zt-amazon-game-info{margin:0 0 11px;color:#444;font-size:.76rem;line-height:1.35}
+.zt-amazon-game-button2{display:block;width:100%;box-sizing:border-box;padding:11px 10px;border-radius:7px;background:#FF9900;color:#111!important;text-align:center;text-decoration:none!important;font-size:.78rem;font-weight:900;transition:.2s ease}
+.zt-amazon-game-button2:hover{background:#E88B00;transform:translateY(-1px)}
+.zt-amazon-game-note{margin-top:8px;text-align:center;color:#777;font-size:.62rem}
+.zt-shorts-box{width:100%;box-sizing:border-box;margin:0 0 20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07);overflow:hidden}
+.zt-shorts-box .side-head{height:50px}
+.zt-shorts-box .side-head:before{width:66%}
+.zt-shorts-viewport{overflow:hidden;background:#0d0d0d}
+.zt-shorts-track{display:flex;width:100%;transition:transform .5s ease;will-change:transform}
+.zt-short-slide{flex:0 0 100%;min-width:100%;background:#fff}
+.zt-short-media{display:flex;justify-content:center;align-items:center;background:#0b0b0b;padding:14px 0}
+.zt-short-slide .video-thumb{width:min(66%,260px);aspect-ratio:9/16;height:auto}
+.zt-short-slide .video-thumb img{width:100%;height:100%;object-fit:cover}
+.zt-short-slide .video-thumb:after{width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:rgba(0,0,0,.75);font-size:.95rem}
+.zt-short-copy{padding:13px 15px 14px;background:#fff}
+.zt-short-copy h3{margin:0;color:#171717;font-size:.95rem;line-height:1.2;font-weight:900}
+.zt-short-copy small{display:block;margin-top:7px;color:#888;font-size:.68rem}
+.zt-short-dots{display:flex;justify-content:center;gap:7px;padding:0 0 13px;background:#fff}
+.zt-short-dots button{width:7px;height:7px;border:0;border-radius:50%;padding:0;background:#c4c4c4;cursor:pointer}
+.zt-short-dots button.active{background:#D51232}
+@media(max-width:1120px){.zt-amazon-game-name{font-size:1.4rem}.zt-short-copy h3{font-size:.88rem}}
+@media(max-width:820px){.zt-amazon-game-box,.zt-shorts-box{grid-column:1/-1}.zt-short-slide .video-thumb{width:min(62%,320px)}}
 footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.legal-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}.footer-links a,.legal-links a{color:#ddd;font-size:.78rem}.cc-license{margin:18px auto 0;max-width:1100px;text-align:center;font-size:.72rem;line-height:1.5}.cc-license a{color:#ddd;text-decoration:underline}
-.latest-videos-module{margin-bottom:42px}
-.latest-videos-module .module-head{height:54px}
-.latest-videos-module .module-head h2{height:54px}
-.latest-videos-module .module-head h2:after{border-top-width:54px}
+.latest-reviews-module{margin-bottom:42px}
+.latest-reviews-module .module-head{height:54px}
+.latest-reviews-module .module-head h2{height:54px}
+.latest-reviews-module .module-head h2:after{border-top-width:54px}
 #articoli{margin-top:18px}
 .ad-module .side-head{display:none}
 .ad-module{border:0;background:transparent}
 .hidden-by-search{display:none!important}
-@media(max-width:1120px){.topbar{grid-template-columns:auto 1fr}.search-wrap{grid-column:1/-1;padding:10px 0 12px}.top-socials{justify-content:flex-end}.layout{grid-template-columns:1fr 290px}.news-slider{grid-template-columns:1fr}.news-tabs{grid-template-columns:repeat(5,1fr);grid-template-rows:none}.news-tab{font-size:.72rem}.video-strip-track{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1120px){.topbar{grid-template-columns:auto 1fr}.search-wrap{grid-column:1/-1;padding:10px 0 12px}.top-socials{justify-content:flex-end}.layout{grid-template-columns:1fr 340px}.news-slider{grid-template-columns:1fr}.news-tabs{grid-template-columns:repeat(5,1fr);grid-template-rows:none}.news-tab{font-size:.72rem}.video-strip-track{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:820px){.shell{width:min(100% - 18px,1460px)}.topbar{grid-template-columns:1fr}.top-socials{justify-content:center}.brand{justify-content:center;border:0}.nav{justify-content:center}.nav a{padding:12px 10px}.page{padding:12px}.layout{grid-template-columns:1fr}.sidebar{position:static;top:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.ad-slot,.side-module{margin:0}.news-slides{min-height:390px}.article-row{grid-template-columns:210px 1fr}.video-card{flex-basis:calc((100% - 16px)/2)}}
 @media(max-width:580px){.nav a{font-size:.72rem}.brand-copy small{display:none}.news-slides{min-height:340px}.news-tabs{display:block}.news-tab{width:100%}.news-tab:not(.active){display:none}.article-row{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr}.video-card{flex-basis:88%}.module-head h2{font-size:.82rem;padding-left:12px}}
 
 .zt-amazon-box{
   width:100%;
   box-sizing:border-box;
-  background:#fff;
-  border-top:5px solid transparent;border-image:linear-gradient(90deg,#006CFF,#263778,#D51232) 1;
+  background:linear-gradient(180deg,#fff 0%,#fff8ed 100%);
+  border:1px solid #ddd;
+  border-top:5px solid #FF9900;
   padding:20px 18px;
   margin:0 0 20px 0;
   box-shadow:0 3px 10px rgba(0,0,0,.12);
@@ -63,7 +147,7 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
   font-size:23px;
   line-height:1.15;
   font-weight:800;
-  color:#111;
+  color:#131921;
 }
 .zt-amazon-box p{
   margin:0 0 18px;
@@ -75,7 +159,7 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
   display:block;
   width:100%;
   box-sizing:border-box;
-  background:#006CFF;
+  background:#FF9900;
   color:#111;
   text-align:center;
   padding:14px 8px;
@@ -83,8 +167,9 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
   font-size:13px;
   font-weight:800;
   text-decoration:none;
+  transition:background .2s ease,transform .2s ease;
 }
-.zt-amazon-button:hover{background:linear-gradient(90deg,#0050C9 0%,#263778 48%,#B30F2C 100%)}
+.zt-amazon-button:hover{background:#E88B00;transform:translateY(-1px)}
 .zt-amazon-disclosure{margin:0 0 9px!important;font-size:11px!important;line-height:1.35!important;color:#666!important}
 .zt-reviewed-games{width:100%;max-width:100%;box-sizing:border-box;margin:0 0 22px 0;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
 .zt-games-title{width:100%;box-sizing:border-box;background:#202020;border-left:5px solid var(--accent-blue);color:#fff;padding:13px 14px;font-size:14px;line-height:1.2;font-weight:800;text-transform:uppercase}
@@ -103,16 +188,14 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 .zt-short-card .video-thumb img{object-fit:cover}
 .zt-short-module,.zt-analog-module{border-top:0}
 
-.zt-home-reviews{width:100%;margin:0 0 20px;background:#fff;border:1px solid #ddd;box-sizing:border-box}
-.zt-home-reviews-head{display:block;background:#202020;color:#fff!important;border-left:5px solid #006CFF;box-shadow:inset 3px 0 0 #D51232;padding:12px 14px;font-size:14px;line-height:1.1;font-weight:900;text-transform:uppercase;text-decoration:none}
-.zt-home-reviews-list{display:block}
-.zt-home-review-item{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;align-items:center;padding:10px;border-bottom:1px solid #ececec;color:#303030;text-decoration:none}
-.zt-home-review-item:last-child{border-bottom:0}
-.zt-home-review-item img{width:82px;height:58px;object-fit:cover;display:block}
-.zt-home-review-item span{min-width:0}
-.zt-home-review-item strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:13px;line-height:1.18}
-.zt-home-review-item small{display:block;margin-top:4px;color:#888;font-size:10px}
-.zt-home-review-item:hover strong{color:#0B63CE}
+.zt-review-card{overflow:hidden}
+.zt-review-thumb:after{display:none}
+.zt-review-thumb{overflow:hidden}
+.zt-review-thumb img{transition:transform .2s ease}
+.zt-review-card:hover .zt-review-thumb img{transform:scale(1.025)}
+.zt-review-card h3 a{color:#fff;text-decoration:none}
+.zt-review-card h3 a:hover{color:#FF9900}
+.zt-review-card small{display:block;padding:0 14px 14px;color:#aaa;font-size:.72rem;margin-top:-8px}
 
 </style>
 <meta name="zazoomtek-build" content="fKiuvUW5eKI-2026-10-05T12:28:27Z">
@@ -182,16 +265,16 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
         <!-- FEATURED_NEWS_END -->
       </section>
 
-      <section class="module latest-videos-module">
-        <div class="module-head"><h2>Ultimi Video</h2><div style="display:flex;align-items:center;gap:10px"><span>Gli ultimi 5 video pubblicati sul canale</span><div class="module-controls"><button type="button" id="latestPrev" aria-label="Video precedenti">‹</button><button type="button" id="latestNext" aria-label="Video successivi">›</button></div></div></div>
+      <section class="module latest-reviews-module">
+        <div class="module-head"><h2>Ultime Recensioni</h2><div style="display:flex;align-items:center;gap:10px"><span>Le ultime 5 recensioni pubblicate</span><div class="module-controls"><button type="button" id="latestPrev" aria-label="Recensioni precedenti">‹</button><button type="button" id="latestNext" aria-label="Recensioni successive">›</button></div></div></div>
         <div class="video-strip"><div class="video-strip-track" id="latestVideos">
-          <!-- LATEST_VIDEOS_START -->
-          <article class="video-card"><button class="video-thumb" data-video="fKiuvUW5eKI" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/fKiuvUW5eKI/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/fKiuvUW5eKI/hqdefault.jpg'" alt="🐰 WALTO | Recensione PC - Boss rush oscuro tra schivate e attacchi" loading="lazy"></button><h3>🐰 WALTO | Recensione PC - Boss rush oscuro tra schivate e attacchi</h3></article>
-          <article class="video-card"><button class="video-thumb" data-video="RtHYQ7o5Gws" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/RtHYQ7o5Gws/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/RtHYQ7o5Gws/hqdefault.jpg'" alt="ACE COMBAT 8 WINGS OF THEVE Recensione PS5 | Il nuovo re dei cieli" loading="lazy"></button><h3>ACE COMBAT 8 WINGS OF THEVE Recensione PS5 | Il nuovo re dei cieli</h3></article>
-          <article class="video-card"><button class="video-thumb" data-video="O6VxSf8cYt0" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/O6VxSf8cYt0/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/O6VxSf8cYt0/hqdefault.jpg'" alt="Dead Spin PC - Primo Sguardo" loading="lazy"></button><h3>Dead Spin PC - Primo Sguardo</h3></article>
-          <article class="video-card"><button class="video-thumb" data-video="by7Qm_XFO8c" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/by7Qm_XFO8c/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/by7Qm_XFO8c/hqdefault.jpg'" alt="70mai Dash Cam 4K A900: Recensione e Test" loading="lazy"></button><h3>70mai Dash Cam 4K A900: Recensione e Test</h3></article>
-          <article class="video-card"><button class="video-thumb" data-video="GscZEOmzX80" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/GscZEOmzX80/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/GscZEOmzX80/hqdefault.jpg'" alt="Tomb Raider: Legacy of Atlantis – In Egitto cambia tutto: mummie e creature soprannaturali" loading="lazy"></button><h3>Tomb Raider: Legacy of Atlantis – In Egitto cambia tutto: mummie e creature soprannaturali</h3></article>
-        <!-- LATEST_VIDEOS_END -->
+          <!-- HOME_LATEST_REVIEWS_MAIN_START -->
+          <article class="video-card zt-review-card"><a class="video-thumb zt-review-thumb" href="/recensione-Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1.html" aria-label="Review 🐰 WALTO PC"><img src="https://yt3.ggpht.com/N4pfXhDsrSM30VYS6UEzap9MuNHjA6ZFyI26hUnobKUtGVGGLM5opLabhZlPbRwXpqrVcPvmzDc7Ug=s1254-c-fcrop64=1,00000000ffffffff-rw-nd-v1" alt="Review 🐰 WALTO PC" loading="lazy"></a><h3><a href="/recensione-Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1.html">Review 🐰 WALTO PC</a></h3><small>1 giorno fa (modificato)</small></article>
+          <article class="video-card zt-review-card"><a class="video-thumb zt-review-thumb" href="/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html" aria-label="📹 70mai Dash Cam 4K A900 | Recensione"><img src="https://yt3.ggpht.com/_Dt3qOg45HgYDTfEAyPaMIcIFyrOaQLiH8WoY2GfoAvX7uaU1uc9OUTBBBqKuTgWNnWAGeV-aoFx4Ug=s1254-c-fcrop64=1,00000000ffffffff-rw-nd-v1" alt="📹 70mai Dash Cam 4K A900 | Recensione" loading="lazy"></a><h3><a href="/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html">📹 70mai Dash Cam 4K A900 | Recensione</a></h3><small>2 giorni fa</small></article>
+          <article class="video-card zt-review-card"><a class="video-thumb zt-review-thumb" href="/recensione-UgkxPQVLBegGEPWvHmDjVq-rA5b8EwFeFrtk.html" aria-label="✈️ ACE COMBAT 8: WINGS OF THEVE | Recensione PS5"><img src="https://yt3.ggpht.com/PnhfNW7_MLtVB63Z8DDccG7u0wQyS4_e2LAdFfOSdS5gA2TcCbuYiscWwQDf5kU2ETFYo7g7O1OFECI=s799-c-fcrop64=1,37fa0000c805ffff-rw-nd-v1" alt="✈️ ACE COMBAT 8: WINGS OF THEVE | Recensione PS5" loading="lazy"></a><h3><a href="/recensione-UgkxPQVLBegGEPWvHmDjVq-rA5b8EwFeFrtk.html">✈️ ACE COMBAT 8: WINGS OF THEVE | Recensione PS5</a></h3><small>2 giorni fa</small></article>
+          <article class="video-card zt-review-card"><a class="video-thumb zt-review-thumb" href="/recensione-Ugkxq4wPsbAKxSo1aB0OptleaGIR5iyfIuyz.html" aria-label="🐺 Marvel&#x27;s Wolverine | Recensione PS5"><img src="https://yt3.ggpht.com/2BbUGmq4OqF8GJfN-ww0ZjdnK_MMsFvOBCdH2JKjC1pvyCvQPOOxSxFVUotZTLLr8X_EoXMnfi1opw=s2160-c-fcrop64=1,38000000c7ffffff-rw-nd-v1" alt="🐺 Marvel&#x27;s Wolverine | Recensione PS5" loading="lazy"></a><h3><a href="/recensione-Ugkxq4wPsbAKxSo1aB0OptleaGIR5iyfIuyz.html">🐺 Marvel&#x27;s Wolverine | Recensione PS5</a></h3><small>2 settimane fa</small></article>
+          <article class="video-card zt-review-card"><a class="video-thumb zt-review-thumb" href="/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html" aria-label="🕶️ IIFACTOR M08E AI Smart Glasses | Recensione"><img src="https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1254-c-fcrop64=1,00000000ffffffff-rw-nd-v1" alt="🕶️ IIFACTOR M08E AI Smart Glasses | Recensione" loading="lazy"></a><h3><a href="/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html">🕶️ IIFACTOR M08E AI Smart Glasses | Recensione</a></h3><small>3 settimane fa</small></article>
+          <!-- HOME_LATEST_REVIEWS_MAIN_END -->
         </div></div>
       </section>
 
@@ -410,58 +493,96 @@ galaxies autumn showcase returns on october 15 with more than 40 confirmed partn
            rel="nofollow sponsored noopener"
            class="zt-amazon-button">VEDI I PRODOTTI SU AMAZON</a>
       </div>
-      <!-- HOME_LATEST_REVIEWS_START -->
-<section class="zt-home-reviews"><a class="zt-home-reviews-head" href="/recensioni-scritte.html">ULTIME RECENSIONI</a><div class="zt-home-reviews-list"><a class="zt-home-review-item" href="/recensione-Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1.html"><img src="https://yt3.ggpht.com/N4pfXhDsrSM30VYS6UEzap9MuNHjA6ZFyI26hUnobKUtGVGGLM5opLabhZlPbRwXpqrVcPvmzDc7Ug=s1254-c-fcrop64=1,00000000ffffffff-rw-nd-v1" alt="Review 🐰 WALTO PC" loading="lazy"><span><strong>Review 🐰 WALTO PC</strong><small>1 giorno fa (modificato)</small></span></a><a class="zt-home-review-item" href="/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html"><img src="https://yt3.ggpht.com/_Dt3qOg45HgYDTfEAyPaMIcIFyrOaQLiH8WoY2GfoAvX7uaU1uc9OUTBBBqKuTgWNnWAGeV-aoFx4Ug=s1254-c-fcrop64=1,00000000ffffffff-rw-nd-v1" alt="📹 70mai Dash Cam 4K A900 | Recensione" loading="lazy"><span><strong>📹 70mai Dash Cam 4K A900 | Recensione</strong><small>2 giorni fa</small></span></a><a class="zt-home-review-item" href="/recensione-UgkxPQVLBegGEPWvHmDjVq-rA5b8EwFeFrtk.html"><img src="https://yt3.ggpht.com/PnhfNW7_MLtVB63Z8DDccG7u0wQyS4_e2LAdFfOSdS5gA2TcCbuYiscWwQDf5kU2ETFYo7g7O1OFECI=s799-c-fcrop64=1,37fa0000c805ffff-rw-nd-v1" alt="✈️ ACE COMBAT 8: WINGS OF THEVE | Recensione PS5" loading="lazy"><span><strong>✈️ ACE COMBAT 8: WINGS OF THEVE | Recensione PS5</strong><small>2 giorni fa</small></span></a><a class="zt-home-review-item" href="/recensione-Ugkxq4wPsbAKxSo1aB0OptleaGIR5iyfIuyz.html"><img src="https://yt3.ggpht.com/2BbUGmq4OqF8GJfN-ww0ZjdnK_MMsFvOBCdH2JKjC1pvyCvQPOOxSxFVUotZTLLr8X_EoXMnfi1opw=s2160-c-fcrop64=1,38000000c7ffffff-rw-nd-v1" alt="🐺 Marvel&#x27;s Wolverine | Recensione PS5" loading="lazy"><span><strong>🐺 Marvel&#x27;s Wolverine | Recensione PS5</strong><small>2 settimane fa</small></span></a><a class="zt-home-review-item" href="/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html"><img src="https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1254-c-fcrop64=1,00000000ffffffff-rw-nd-v1" alt="🕶️ IIFACTOR M08E AI Smart Glasses | Recensione" loading="lazy"><span><strong>🕶️ IIFACTOR M08E AI Smart Glasses | Recensione</strong><small>3 settimane fa</small></span></a></div></section>
-<!-- HOME_LATEST_REVIEWS_END -->
-      <div class="side-module"><a class="side-head" href="recensioni.html">Video · Recensioni</a><div class="side-video-list">
-        <!-- VIDEO_REVIEWS_START -->
-        <article class="side-video"><button class="video-thumb" data-video="6hLJq9njq5o" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/6hLJq9njq5o/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg'" alt="realme Buds T500 Pro Harry Potter Edition Recensione" loading="lazy"></button><div><h3>realme Buds T500 Pro Harry Potter Edition Recensione</h3><small>Recensioni</small></div></article>
-        <!-- VIDEO_REVIEWS_END -->
-      </div></div>
-      <div class="side-module"><a class="side-head" href="test.html">Video · Test</a><div class="side-video-list">
-        <!-- VIDEO_TEST_START -->
-        <article class="side-video"><button class="video-thumb" data-video="WmIXQGZYhTc" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/WmIXQGZYhTc/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/WmIXQGZYhTc/hqdefault.jpg'" alt="realme C100 5G Test Gaming" loading="lazy"></button><div><h3>realme C100 5G Test Gaming</h3><small>Test</small></div></article>
-        <!-- VIDEO_TEST_END -->
-      </div></div>
-      <div class="side-module"><a class="side-head" href="unboxing.html">Video · Unboxing</a><div class="side-video-list">
-        <!-- VIDEO_UNBOXING_START -->
-        <article class="side-video"><button class="video-thumb" data-video="lmOGs9M_vhw" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/lmOGs9M_vhw/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/lmOGs9M_vhw/hqdefault.jpg'" alt="IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?" loading="lazy"></button><div><h3>IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?</h3><small>Unboxing</small></div></article>
-        <!-- VIDEO_UNBOXING_END -->
-      </div></div>
-      <div class="side-module"><a class="side-head" href="gaming.html">Video · Gaming</a><div class="side-video-list">
-        <!-- VIDEO_GAMING_START -->
-        <article class="side-video"><button class="video-thumb" data-video="bC-VdBWXGw4" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/bC-VdBWXGw4/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/bC-VdBWXGw4/hqdefault.jpg'" alt="Crazy Taxi: World Tour – GAMEPLAY GIAPPONESE! Il ritorno folle di SEGA 🚕🔥" loading="lazy"></button><div><h3>Crazy Taxi: World Tour – GAMEPLAY GIAPPONESE! Il ritorno folle di SEGA 🚕🔥</h3><small>Gaming</small></div></article>
-        <!-- VIDEO_GAMING_END -->
-      </div></div>
-      <div class="zt-reviewed-games">
-        <div class="zt-games-title">🎮 Giochi recensiti da ZazoomTek</div>
-        <div class="zt-game-card">
-          <div class="zt-game-top"><div class="zt-game-platform">PS5</div><div class="zt-game-plane">✈️</div></div>
-          <div class="zt-game-name">ACE COMBAT 8</div>
-          <div class="zt-game-subtitle">WINGS OF THEVE</div>
-          <div class="zt-game-info">Recensito da ZazoomTek su PlayStation 5</div>
+      <div class="zt-video-stack">
+        <div class="side-head">
+          <a class="side-head-title" href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Ultimi Video</a>
+        </div>
+        <div class="zt-stack-list" id="ztStackList">
+          <!-- SIDEBAR_STACK_VIDEOS_START -->
+          <article class="zt-stack-card" data-stack-index="0">
+            <button class="video-thumb" data-video="fKiuvUW5eKI" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/fKiuvUW5eKI/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/fKiuvUW5eKI/hqdefault.jpg'" alt="🐰 WALTO | Recensione PC - Boss rush oscuro tra schivate e attacchi" loading="lazy">
+            </button>
+            <div class="zt-stack-copy"><h3>🐰 WALTO | Recensione PC - Boss rush oscuro tra schivate e attacchi</h3><small>5 ottobre 2026</small></div>
+          </article>
+          <article class="zt-stack-card" data-stack-index="1">
+            <button class="video-thumb" data-video="RtHYQ7o5Gws" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/RtHYQ7o5Gws/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/RtHYQ7o5Gws/hqdefault.jpg'" alt="ACE COMBAT 8 WINGS OF THEVE Recensione PS5 | Il nuovo re dei cieli" loading="lazy">
+            </button>
+            <div class="zt-stack-copy"><h3>ACE COMBAT 8 WINGS OF THEVE Recensione PS5 | Il nuovo re dei cieli</h3><small>5 ottobre 2026</small></div>
+          </article>
+          <article class="zt-stack-card" data-stack-index="2">
+            <button class="video-thumb" data-video="WmIXQGZYhTc" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/WmIXQGZYhTc/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/WmIXQGZYhTc/hqdefault.jpg'" alt="realme C100 5G Test Gaming" loading="lazy">
+            </button>
+            <div class="zt-stack-copy"><h3>realme C100 5G Test Gaming</h3><small>21 maggio 2026</small></div>
+          </article>
+          <article class="zt-stack-card" data-stack-index="3">
+            <button class="video-thumb" data-video="lmOGs9M_vhw" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/lmOGs9M_vhw/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/lmOGs9M_vhw/hqdefault.jpg'" alt="IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?" loading="lazy">
+            </button>
+            <div class="zt-stack-copy"><h3>IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?</h3><small>12 settembre 2026</small></div>
+          </article>
+          <article class="zt-stack-card" data-stack-index="4">
+            <button class="video-thumb" data-video="O6VxSf8cYt0" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/O6VxSf8cYt0/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/O6VxSf8cYt0/hqdefault.jpg'" alt="Dead Spin PC - Primo Sguardo" loading="lazy">
+            </button>
+            <div class="zt-stack-copy"><h3>Dead Spin PC - Primo Sguardo</h3><small>4 ottobre 2026</small></div>
+          </article>
+          <article class="zt-stack-card" data-stack-index="5">
+            <button class="video-thumb" data-video="An2RZr9_Cxs" onclick="playVideo(this)">
+              <img src="https://i.ytimg.com/vi/An2RZr9_Cxs/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/An2RZr9_Cxs/hqdefault.jpg'" alt="Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming" loading="lazy">
+            </button>
+            <div class="zt-stack-copy"><h3>Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming</h3><small>8 settembre 2026</small></div>
+          </article>
+          <!-- SIDEBAR_STACK_VIDEOS_END -->
+        </div>
+      </div>
+      <div class="zt-amazon-game-box">
+        <div class="zt-amazon-game-head">Amazon · Gioco recensito</div>
+        <div class="zt-amazon-game-body">
+          <div class="zt-amazon-game-brand"><span class="zt-amazon-game-platform">PS5</span><span class="zt-amazon-game-plane">✈️</span></div>
+          <div class="zt-amazon-game-name">ACE COMBAT 8</div>
+          <div class="zt-amazon-game-subtitle">WINGS OF THEVE</div>
+          <p class="zt-amazon-game-info">Recensito da ZazoomTek su PlayStation 5.</p>
           <a href="https://www.amazon.it/Ace-Combat-Wings-Theve-PS5/dp/B0H42CMT89?crid=19IMZ6TR5OA6T&amp;dib=eyJ2IjoiMSJ9.JEqq2sQW-KijjevSEtbSu3ScfOBpdTeFVO_pb7OkwbvHSqTt1oJ_NCKc6SF-Hqfs_urGNFpSz14CWOGDeaAA_ngGEnZiHcq1FXA3kN_hnlR0NlPRIC8JLDlZ-pvxCAcSknNT3ghFcZB-MV1BTCLhZykfD_5QBd1yf0vHtGxaAov2dvXgE4f47qKi6fk4jYZ6vhuAnFdXAF2VpMrHqtyD5xofvVse706gi_IsF1b7_BRwE_uKLjk3Hor9LxJFmKCJ.9E0lHj9AOWVOBQGe7wiohJNSQg8FKRzKg6S_1cAq6h4&amp;dib_tag=se&amp;keywords=ace%2Bcombat%2B8%2Bps5&amp;qid=1791297087&amp;refinements=p_n_free_shipping_eligible%3A20930967031&amp;rnid=20930966031&amp;sprefix=ACE%2BCOMBAT%2B8%2Caps%2C140&amp;sr=8-1&amp;th=1&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d7abba8ef1e4db7558812b681ae2ad90&amp;ref_=as_li_ss_tl"
-             target="_blank" rel="nofollow sponsored noopener" class="zt-amazon-game-button">VEDI SU AMAZON ›</a>
-          <div class="zt-affiliate-note">Link affiliato Amazon</div>
+             target="_blank" rel="nofollow sponsored noopener" class="zt-amazon-game-button2">VEDI SU AMAZON ›</a>
+          <div class="zt-amazon-game-note">Link affiliato Amazon</div>
         </div>
       </div>
-      <div class="side-module zt-short-module">
-        <a class="side-head" href="https://www.youtube.com/@ZazoomTek/shorts" target="_blank" rel="noopener">Ultimo Short</a>
-        <div class="side-video-list">
-          <!-- SIDEBAR_SHORT_START -->
-          <article class="side-video zt-short-card"><button class="video-thumb" data-video="Mf8B30PKjqY" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/Mf8B30PKjqY/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/Mf8B30PKjqY/hqdefault.jpg'" alt="Princess of the Water Lilies gameplay on PS5" loading="lazy"></button><div><h3>Princess of the Water Lilies gameplay on PS5</h3><small>Shorts</small></div></article>
-        <!-- SIDEBAR_SHORT_END -->
+      <div class="zt-shorts-box">
+        <div class="side-head">
+          <a class="side-head-title" href="https://www.youtube.com/@ZazoomTek/shorts" target="_blank" rel="noopener">Ultimi Shorts</a>
+
+        </div>
+        <div class="zt-shorts-viewport" id="ztShortViewport">
+          <div class="zt-shorts-track" id="ztShortTrack">
+          <!-- SIDEBAR_SHORTS_CAROUSEL_START -->
+          <article class="zt-short-slide">
+            <div class="zt-short-media"><button class="video-thumb" data-video="Mf8B30PKjqY" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/Mf8B30PKjqY/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/Mf8B30PKjqY/hqdefault.jpg'" alt="Princess of the Water Lilies gameplay on PS5" loading="lazy"></button></div>
+            <div class="zt-short-copy"><h3>Princess of the Water Lilies gameplay on PS5</h3><small>2 ottobre 2026</small></div>
+          </article>
+          <article class="zt-short-slide">
+            <div class="zt-short-media"><button class="video-thumb" data-video="EaLvvrd6ysI" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/EaLvvrd6ysI/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/EaLvvrd6ysI/hqdefault.jpg'" alt="Tomb Raider: Legacy of Atlantis – Everything changes in Egypt: mummies and supernatural creatures" loading="lazy"></button></div>
+            <div class="zt-short-copy"><h3>Tomb Raider: Legacy of Atlantis – Everything changes in Egypt: mummies and supernatural creatures</h3><small>29 settembre 2026</small></div>
+          </article>
+          <article class="zt-short-slide">
+            <div class="zt-short-media"><button class="video-thumb" data-video="FOy-9dAvFMM" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/FOy-9dAvFMM/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/FOy-9dAvFMM/hqdefault.jpg'" alt="70mai A900 Unboxing: cosa c’è nella confezione della Dash Cam 4K" loading="lazy"></button></div>
+            <div class="zt-short-copy"><h3>70mai A900 Unboxing: cosa c’è nella confezione della Dash Cam 4K</h3><small>28 settembre 2026</small></div>
+          </article>
+          <article class="zt-short-slide">
+            <div class="zt-short-media"><button class="video-thumb" data-video="PV6JenVnwTo" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/PV6JenVnwTo/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/PV6JenVnwTo/hqdefault.jpg'" alt="realme Buds T500 Pro Harry Potter Edition – UNBOXING 🪄🎧" loading="lazy"></button></div>
+            <div class="zt-short-copy"><h3>realme Buds T500 Pro Harry Potter Edition – UNBOXING 🪄🎧</h3><small>22 settembre 2026</small></div>
+          </article>
+          <article class="zt-short-slide">
+            <div class="zt-short-media"><button class="video-thumb" data-video="R2AFPqQpHaE" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/R2AFPqQpHaE/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/R2AFPqQpHaE/hqdefault.jpg'" alt="🎮 Marvel’s Wolverine – Gameplay PS5" loading="lazy"></button></div>
+            <div class="zt-short-copy"><h3>🎮 Marvel’s Wolverine – Gameplay PS5</h3><small>17 settembre 2026</small></div>
+          </article>
+          <!-- SIDEBAR_SHORTS_CAROUSEL_END -->
+          </div>
+          <div class="zt-short-dots" id="ztShortDots" aria-label="Seleziona Short"></div>
         </div>
       </div>
-      <div class="side-module zt-analog-module">
-        <a class="side-head" href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI" target="_blank" rel="noopener">Video · AnalogikTek</a>
-        <div class="side-video-list">
-          <!-- SIDEBAR_ANALOG_START -->
-          <article class="side-video"><button class="video-thumb" data-video="An2RZr9_Cxs" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/An2RZr9_Cxs/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/An2RZr9_Cxs/hqdefault.jpg'" alt="Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming" loading="lazy"></button><div><h3>Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming</h3><small>AnalogikTek</small></div></article>
-        <!-- SIDEBAR_ANALOG_END -->
-        </div>
-      </div>
-      <div class="side-module ad-module"><div class="ad-slot"><div class="ad-placeholder"><strong>SPAZIO BANNER</strong><span>Da configurare in seguito</span></div></div></div>
     </aside>
   </div>
 </main>
@@ -562,6 +683,36 @@ function playVideo(button){
   });
 
   startAutoplay();
+})();
+(function(){
+  const track=document.getElementById('ztShortTrack');
+  const viewport=document.getElementById('ztShortViewport');
+  const dotsWrap=document.getElementById('ztShortDots');
+  if(!track||!viewport)return;
+  const cards=[...track.querySelectorAll('.zt-short-slide')];
+  if(!cards.length)return;
+  let current=0,timer=null;
+  const dots=cards.map((_,i)=>{
+    const b=document.createElement('button');
+    b.type='button';b.setAttribute('aria-label','Mostra Short '+(i+1));
+    b.addEventListener('click',()=>{show(i);restart();});
+    dotsWrap?.appendChild(b);return b;
+  });
+  function show(i){
+    current=(i+cards.length)%cards.length;
+    track.style.transform='translateX(-'+(current*100)+'%)';
+    dots.forEach((d,n)=>d.classList.toggle('active',n===current));
+  }
+  function nextSlide(){show(current+1)}
+  function stop(){if(timer){clearInterval(timer);timer=null}}
+  function start(){stop();timer=setInterval(nextSlide,4500)}
+  function restart(){start()}
+  viewport.addEventListener('mouseenter',stop);
+  viewport.addEventListener('mouseleave',start);
+  viewport.addEventListener('touchstart',stop,{passive:true});
+  viewport.addEventListener('touchend',start,{passive:true});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():start()});
+  show(0);start();
 })();
 document.getElementById('siteSearch')?.addEventListener('submit',e=>{
   e.preventDefault();const q=(document.getElementById('siteSearchInput').value||'').trim().toLowerCase();

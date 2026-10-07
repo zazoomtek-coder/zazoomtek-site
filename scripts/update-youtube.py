@@ -192,15 +192,66 @@ def home_video_card(v):
 
 def side_video_card(v, label):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{label}</small></div></article>'''
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return f'''        <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{date}</small></div></article>'''
+
+
+def sidebar_latest_video_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return (
+        f'          <article class="zt-sidebar-card">'
+        f'<button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
+        f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
+        f'alt="{title}" loading="lazy"></button>'
+        f'<div class="zt-sidebar-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+    )
+
+
+def sidebar_stack_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return (
+        f'          <article class="zt-stack-card">'
+        f'<button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
+        f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
+        f'alt="{title}" loading="lazy"></button>'
+        f'<div class="zt-stack-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+    )
 
 def sidebar_short_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
     return f'''          <article class="side-video zt-short-card"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>Shorts</small></div></article>'''
 
+
+def sidebar_short_slide_card(v):
+    vid=v["id"]; title=esc(v["snippet"]["title"])
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return (
+        f'          <article class="zt-short-slide">'
+        f'<div class="zt-short-media"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
+        f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
+        f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
+        f'alt="{title}" loading="lazy"></button></div>'
+        f'<div class="zt-short-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+    )
+
 def sidebar_analog_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    return f'''          <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>AnalogikTek</small></div></article>'''
+    dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    date=f"{dt.day} {months[dt.month-1]} {dt.year}"
+    return f'''          <article class="side-video"><button class="video-thumb" data-video="{vid}" onclick="playVideo(this)"><img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/{vid}/hqdefault.jpg'" alt="{title}" loading="lazy"></button><div><h3>{title}</h3><small>{date}</small></div></article>'''
 
 def replace_marker_block(text, start_marker, end_marker, inner):
     pat=re.escape(start_marker)+r'.*?'+re.escape(end_marker)
@@ -300,10 +351,16 @@ def update_home(vids, short_ids):
         h=h[:pos]+segment+h[end+10:]
 
     # Exactly five latest Shorts.
-    shorts=[v for v in vids if v["id"] in short_ids]
+    shorts=[v for v in vids if v["id"] in short_ids and not is_live_upload(v)]
     if not shorts:
-        shorts=[v for v in vids if sec(v["contentDetails"]["duration"])<=180]
+        shorts=[v for v in vids if sec(v["contentDetails"]["duration"])<=180 and not is_live_upload(v)]
     shorts=shorts[:5]
+
+    # Home sidebar Shorts carousel: always the five newest real Shorts.
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_SHORTS_CAROUSEL_START -->","<!-- SIDEBAR_SHORTS_CAROUSEL_END -->",
+        "\n".join(sidebar_short_slide_card(v) for v in shorts)
+    )
     a=h.find('<section class="recent-grid" id="shorts-grid">')
     if a>=0:
         b=h.find("</section>",a)
@@ -320,20 +377,66 @@ def update_home(vids, short_ids):
             block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
             h=h[:a]+block+h[b+6:]
 
-    # Editorial homepage video rules:
-    # - "Ultimi Video" = only true 16:9 videos.
-    # - Keep strict chronological order: skip live streams and vertical/9:16 uploads,
-    #   then continue with the next newer valid 16:9 upload until there are 5.
-    # - Right sidebar = newest video in each category that is NOT already in
-    #   the five latest, preventing duplicates on the Home page.
+    # The main Home carousel is now reserved for the latest written reviews
+    # and is managed by update-youtube-posts.py. Keep the five newest landscape
+    # video IDs only for sidebar de-duplication; do not rewrite the Home carousel.
     editorial_latest=[
         v for v in ordered
         if not is_live_upload(v) and is_true_landscape(v)
     ][:5]
     editorial_latest_ids={v["id"] for v in editorial_latest}
+
+    # Unified Home sidebar: six large cards under one "Ultimi Video" heading.
+    # Card 1 is the latest regular upload; the next cards come from the
+    # Recensioni, Test, Unboxing, Gaming and AnalogikTek playlists. Avoid
+    # duplicates whenever a newer unique item is available.
+    stack=[]
+    used=set()
+
+    def add_unique(candidate):
+        if candidate and candidate["id"] not in used:
+            stack.append(candidate)
+            used.add(candidate["id"])
+
+    add_unique(next((v for v in ordered if not is_live_upload(v) and v["id"] not in short_ids and is_true_landscape(v)),None))
+
+    for category in ["recensioni","test","unboxing","gaming"]:
+        add_unique(next((
+            v for v in ordered
+            if classify(v)==category
+            and not is_live_upload(v)
+            and v["id"] not in short_ids
+            and is_true_landscape(v)
+            and v["id"] not in used
+        ),None))
+
+    add_unique(next((
+        v for v in ordered
+        if v["id"] in ANALOGIKTEK_VIDEO_IDS
+        and not is_live_upload(v)
+        and v["id"] not in short_ids
+        and is_true_landscape(v)
+        and v["id"] not in used
+    ),None))
+
+    # If a playlist did not provide a unique card, fill the remaining slots
+    # with the newest regular landscape uploads so the Home always has six.
+    for v in ordered:
+        if len(stack)>=6:
+            break
+        if v["id"] in used or v["id"] in short_ids or is_live_upload(v) or not is_true_landscape(v):
+            continue
+        add_unique(v)
+
     h=replace_marker_block(
-        h,"<!-- LATEST_VIDEOS_START -->","<!-- LATEST_VIDEOS_END -->",
-        "\n".join(home_video_card(v) for v in editorial_latest)
+        h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
+        "\n".join(sidebar_stack_card(v) for v in stack[:6])
+    )
+    # Right sidebar: exactly the five newest regular landscape uploads,
+    # ordered newest -> oldest. The visual carousel itself lives in index.html.
+    h=replace_marker_block(
+        h,"<!-- SIDEBAR_LATEST_VIDEOS_START -->","<!-- SIDEBAR_LATEST_VIDEOS_END -->",
+        "\n".join(sidebar_latest_video_card(v) for v in editorial_latest)
     )
     # Resolve the newest Short before choosing the right-sidebar category cards.
     # This lets us explicitly exclude it from every category box.
@@ -360,8 +463,6 @@ def update_home(vids, short_ids):
                 and v["id"] not in short_ids
                 and not is_live_upload(v)
                 and is_true_landscape(v)
-                and (category in ("test","unboxing") or v["id"] not in editorial_latest_ids)
-                and (category in ("test","unboxing") or v["id"] != sidebar_short_id)
             ),
             None
         )
