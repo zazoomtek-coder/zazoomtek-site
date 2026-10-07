@@ -282,8 +282,11 @@ NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
 
 NEWS_DETAIL_STYLE = """<style>"""+NEWS_COMMON+"""
 .news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65}.article-body p{margin:0 0 18px;white-space:pre-line}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:52px;aspect-ratio:16/9;object-fit:cover;object-position:center center;background:#111}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
+.zt-subscribe-cta{margin-top:34px;padding:24px;background:#202020;border-left:7px solid #D51232;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:22px;box-shadow:0 4px 16px rgba(0,0,0,.10)}
+.zt-subscribe-copy{min-width:0}.zt-subscribe-kicker{display:inline-block;margin-bottom:7px;color:#ff6b7e;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.zt-subscribe-copy h2{margin:0 0 8px;font-size:1.35rem;line-height:1.15}.zt-subscribe-copy p{margin:0;color:#d3d3d3;font-size:.9rem;line-height:1.45}
+.zt-subscribe-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.zt-subscribe-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 15px;font-size:.76rem;font-weight:900;text-decoration:none;white-space:nowrap}.zt-subscribe-youtube{background:#D51232;color:#fff}.zt-subscribe-youtube:hover{background:#B30F2C}.zt-subscribe-whatsapp{background:#111;color:#fff;border:1px solid #555}.zt-subscribe-whatsapp:hover{border-color:#D51232}
 @media(max-width:1180px){.detail-grid{grid-template-columns:minmax(0,1fr) 330px}.article-side.middle{display:none}}
-@media(max-width:820px){.detail-grid{grid-template-columns:1fr}.article-side{position:static;top:auto}.article-side.middle{display:block}.article-main h1{font-size:2rem}}
+@media(max-width:820px){.detail-grid{grid-template-columns:1fr}.article-side{position:static;top:auto}.article-side.middle{display:block}.article-main h1{font-size:2rem}.zt-subscribe-cta{display:block;padding:20px}.zt-subscribe-actions{justify-content:flex-start;margin-top:16px}.zt-subscribe-actions a{width:100%}}
 </style>"""
 
 SMART_STICKY_SCRIPT = """<script>
@@ -402,27 +405,17 @@ def editorial_nav(active=""):
     )
 
 
-def comments_box(content_id, content_type):
-    cid=html.escape(content_id,quote=True)
-    ctype=html.escape(content_type,quote=True)
-    return f'''<section class="zt-comments" data-zt-comments data-content-id="{cid}" data-content-type="{ctype}">
-      <div class="zt-comments-head"><h2>Commenti</h2><span class="zt-comments-count">0 commenti</span></div>
-      <div class="zt-comments-note">Commenti moderati automaticamente prima della pubblicazione. Usa un nickname e non inserire dati personali, contatti, link, accuse personali o contenuti illeciti. <a href="/commenti-policy.html" target="_blank" rel="noopener">Regole e informativa privacy</a>.</div>
-      <div class="zt-replying"><span></span><button class="zt-reply-cancel" type="button">Annulla risposta</button></div>
-      <form class="zt-comment-form" novalidate>
-        <div class="zt-comment-grid">
-          <div class="zt-comment-field"><label>Nome o nickname</label><input name="displayName" maxlength="40" autocomplete="nickname" required></div>
-          <div class="zt-comment-field"><label>Commento</label><textarea name="comment" maxlength="1200" required></textarea></div>
-        </div>
-        <div class="zt-comment-hp" aria-hidden="true"><label>Lascia vuoto<input name="website" tabindex="-1" autocomplete="off"></label></div>
-        <div class="zt-comment-checks">
-          <label><input type="checkbox" name="age14" required> Confermo di avere almeno 14 anni.</label>
-          <label><input type="checkbox" name="consent" required> Ho letto le <a href="/commenti-policy.html" target="_blank" rel="noopener">regole e l'informativa</a> e acconsento alla pubblicazione del nickname e del commento.</label>
-        </div>
-        <div class="zt-comment-actions"><button class="zt-comment-submit" type="submit">PUBBLICA COMMENTO</button><span class="zt-comment-status" aria-live="polite"></span></div>
-      </form>
-      <div class="zt-comments-list"><div class="zt-comment-loading">Caricamento commenti…</div></div>
-      <div class="zt-comments-foot">Puoi eliminare il tuo commento dallo stesso browser. Per contenuti illeciti o richieste di rimozione usa <strong>Segnala</strong> oppure scrivi a <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a>.</div>
+def subscribe_cta_box():
+    return '''<section class="zt-subscribe-cta">
+      <div class="zt-subscribe-copy">
+        <span class="zt-subscribe-kicker">ZazoomTek Community</span>
+        <h2>Non perderti le prossime recensioni e news</h2>
+        <p>Segui ZazoomTek per ricevere nuovi contenuti su tecnologia, gaming, test e unboxing.</p>
+      </div>
+      <div class="zt-subscribe-actions">
+        <a class="zt-subscribe-youtube" href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a>
+        <a class="zt-subscribe-whatsapp" href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">SEGUI SU WHATSAPP</a>
+      </div>
     </section>'''
 
 def legal_footer():
@@ -493,16 +486,16 @@ def write_review_page(p, all_reviews=None):
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}"><link rel="stylesheet" href="/comments.css">'+NEWS_DETAIL_STYLE+'</head><body>'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
         +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
-        +img+f'<div class="article-body">{review_body_html(p)}</div>'+comments_box(slug,"review")+'</article>'
+        +img+f'<div class="article-body">{review_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)
-        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
-        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'<script src="/comments.js" defer></script></body></html>'
+        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a></div></section>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
@@ -715,16 +708,16 @@ def write_news_page(p, all_news=None):
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
         f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}"><link rel="stylesheet" href="/comments.css">'+NEWS_DETAIL_STYLE+'</head><body>'
+        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_editorial_header("news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
         +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 News</span></div>'
-        +img+f'<div class="article-body">{news_body_html(p)}</div>'+comments_box(slug,"news")+'</article>'
+        +img+f'<div class="article-body">{news_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
-        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">SEGUI SU YOUTUBE</a></div></section>'
+        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a></div></section>'
         +'<section class="compact-box"><div class="module-title">Ultimi articoli</div><div class="compact-list">'+recent+'</div></section>'
-        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'<script src="/comments.js" defer></script></body></html>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
     )
     Path(slug).write_text(page,encoding="utf-8")
 
