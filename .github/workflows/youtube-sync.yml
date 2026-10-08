@@ -80,6 +80,43 @@ jobs:
           git reset --hard HEAD
           git clean -fd
 
+      - name: Publish Community update immediately
+        id: community_push
+        if: steps.community_commit.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          git fetch origin main
+          if ! git rebase origin/main; then
+            git rebase --abort || true
+            echo "Remote branch changed while publishing Community update."
+            exit 1
+          fi
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Fast Community push attempt $attempt failed; retrying."
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              exit 1
+            fi
+            sleep $((attempt * 2))
+          done
+          exit 1
+
+      - name: Deploy Community update immediately
+        id: community_deploy
+        if: steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome == 'success'
+        continue-on-error: true
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
+
       - name: Sync and validate YouTube uploads
         id: video_sync
         if: always()
@@ -237,6 +274,8 @@ jobs:
           community="${{ steps.community_sync.outcome }}"
           videos="${{ steps.video_sync.outcome }}"
           community_commit="${{ steps.community_commit.outcome }}"
+          community_push="${{ steps.community_push.outcome }}"
+          community_deploy="${{ steps.community_deploy.outcome }}"
           video_commit="${{ steps.video_commit.outcome }}"
           related="${{ steps.related_sync.outcome }}"
           related_commit="${{ steps.related_commit.outcome }}"
@@ -251,13 +290,15 @@ jobs:
           echo "GA4 injection result: $analytics"
           echo "Search index result: $search"
           echo "Community commit: $community_commit"
+          echo "Fast Community push: $community_push"
+          echo "Fast Community deploy: $community_deploy"
           echo "Video commit: $video_commit"
           echo "Related articles commit: $related_commit"
           echo "GA4 commit: $analytics_commit"
           echo "Search commit: $search_commit"
           echo "Firebase deploy: $deploy"
           if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" != "success" ] || \
-             [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
+             [ "$community_commit" = "failure" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_push" != "success" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_deploy" != "success" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
           fi
