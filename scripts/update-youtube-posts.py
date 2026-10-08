@@ -1169,7 +1169,10 @@ def auto_news_heading(text, section_index=0):
 def news_body_html(p):
     blocks=clean_news_site_blocks(p.get("text") or "")
     title=news_title(p)
-    cleaned=[b for b in blocks if b!=title]
+    cleaned=[
+        b for b in blocks
+        if b!=title and b.lower().rstrip(":").strip()!="news"
+    ]
     if not cleaned:
         return ""
 
@@ -1183,6 +1186,7 @@ def news_body_html(p):
     rendered=[]
     paragraph_count=0
     auto_section_index=0
+    used_auto_headings=set()
     has_explicit_headings=bool(explicit)
 
     for i,b in enumerate(cleaned):
@@ -1200,6 +1204,15 @@ def news_body_html(p):
             if not previous_was_heading:
                 context=" ".join(cleaned[i:min(len(cleaned),i+2)])
                 heading=auto_news_heading(context,auto_section_index)
+                if heading in used_auto_headings:
+                    alternatives=[
+                        "Le novità principali",
+                        "Caratteristiche e dettagli",
+                        "Cosa cambia",
+                        "Disponibilità e prospettive",
+                    ]
+                    heading=next((x for x in alternatives if x not in used_auto_headings),heading)
+                used_auto_headings.add(heading)
                 rendered.append(f"<h2><strong>{html.escape(heading)}</strong></h2>")
                 auto_section_index+=1
                 paragraph_count=0
