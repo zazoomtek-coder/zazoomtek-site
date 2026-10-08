@@ -857,7 +857,374 @@ def write_review_page(p, all_reviews=None):
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        +article_head_metadata(p,title,slug,"News")+NEWS_DETAIL_STYLE+'</head><body>'
+        +article_head_metadata(p,title,slug,"Recensioni")+NEWS_DETAIL_STYLE+'</head><body>'
+        +rich_review_header()
+        +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
+        +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
+        +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
+        +img+f'<div class="article-body">{review_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
+        +'<aside class="article-side">'+feature_html
+        +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)
+        +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a></div></section>'
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT+'</body></html>'
+    )
+    Path(slug).write_text(page,encoding="utf-8")
+
+def render_review_rows(posts):
+    rows=[]
+    for p in posts:
+        title=review_title(p); slug=review_slug(p)
+        img=html.escape(p.get("image") or "/ChatGPT.png")
+        excerpt=html.escape(post_excerpt(p,250))
+        rows.append(
+            f'<article class="news-row" data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
+            f'<a href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
+            f'<div class="news-copy"><h2><a href="/{slug}">{html.escape(title)}</a></h2>'
+            f'<div class="news-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
+            f'<p>{excerpt}</p><a class="news-read" href="/{slug}">Leggi la recensione ›</a></div></article>'
+        )
+    return "".join(rows)
+
+REVIEW_PAGE_SIZE=20
+
+def review_page_href(n):
+    return "/recensioni-scritte.html" if n==1 else f"/recensioni-scritte-{n}.html"
+
+def render_review_pagination(current,total):
+    if total<=1:
+        return ""
+    items=[]
+    for n in range(1,total+1):
+        if n==current:
+            items.append(f'<span class="active">{n}</span>')
+        else:
+            items.append(f'<a href="{review_page_href(n)}">{n}</a>')
+    if current < total:
+        items.append(f'<a class="next" href="{review_page_href(current+1)}">NEXT</a>')
+    return '<nav class="archive-pagination" aria-label="Pagine Recensioni">'+"".join(items)+'</nav>'
+
+def build_review_archive_page(review_chunk,page_num,total_pages,reviews):
+    rows=render_review_rows(review_chunk)
+    title="Recensioni | ZazoomTek" if page_num==1 else f"Recensioni - Pagina {page_num} | ZazoomTek"
+    canonical="https://zazoomtek.it/recensioni-scritte.html" if page_num==1 else f"https://zazoomtek.it/recensioni-scritte-{page_num}.html"
+    return (
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png"><title>'+html.escape(title)+'</title>'
+        '<meta name="description" content="Archivio delle recensioni scritte di ZazoomTek, ordinate dalla più recente alla più vecchia.">'
+        '<link rel="canonical" href="'+canonical+'">'+NEWS_ARCHIVE_STYLE+'</head><body>'
+        +rich_review_header()
+        +'<main class="news-page"><div class="zt-wrap news-layout"><section class="news-main">'
+        +'<div class="news-main-head"><h1>Recensioni</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Accessori</span></div></div>'
+        +'<div class="news-list" id="reviewList">'+rows+'</div>'
+        +render_review_pagination(page_num,total_pages)
+        +'</section><aside class="news-sidebar">'+news_video_sidebar(reviews)+'</aside></div></main>'
+        +legal_footer()+SMART_STICKY_SCRIPT
+        +'''<script>(function(){const p=new URLSearchParams(location.search);const q=(p.get("q")||"").trim().toLowerCase();if(!q)return;document.querySelectorAll("[data-news-search]").forEach(function(x){x.style.display=(x.dataset.newsSearch||"").includes(q)?"grid":"none"})})();</script>'''
+        +'</body></html>'
+    )
+
+def write_review_archive(reviews):
+    total_pages=max(1,(len(reviews)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
+
+    # Remove obsolete numbered archive pages before rebuilding the complete set.
+    for old in Path(".").glob("recensioni-scritte-[0-9]*.html"):
+        try:
+            old.unlink()
+        except OSError:
+            pass
+
+    for page_num in range(1,total_pages+1):
+        chunk=reviews[(page_num-1)*REVIEW_PAGE_SIZE:page_num*REVIEW_PAGE_SIZE]
+        page=build_review_archive_page(chunk,page_num,total_pages,reviews)
+        filename="recensioni-scritte.html" if page_num==1 else f"recensioni-scritte-{page_num}.html"
+        Path(filename).write_text(page,encoding="utf-8")
+
+def strip_site_emojis(text):
+    """Remove decorative emoji/icons while preserving normal punctuation and words."""
+    if not text:
+        return ""
+    out=[]
+    for ch in text:
+        cp=ord(ch)
+        if (
+            0x1F000 <= cp <= 0x1FAFF or
+            0x2600 <= cp <= 0x26FF or
+            0x2700 <= cp <= 0x27BF or
+            0x1F1E6 <= cp <= 0x1F1FF or
+            cp in (0xFE0E,0xFE0F,0x200D,0x20E3)
+        ):
+            continue
+        out.append(ch)
+    return "".join(out)
+
+def clean_site_line(line):
+    line=(line or "").strip()
+    if not line:
+        return ""
+
+    # Remove URLs and bare web links copied from Community posts.
+    line=re.sub(r'https?://\S+','',line,flags=re.I)
+    line=re.sub(r'\bwww\.\S+','',line,flags=re.I)
+
+    # Website articles must never display social hashtags.
+    line=re.sub(r'(?<!\w)#[\wÀ-ÿ]+','',line,flags=re.UNICODE)
+
+    # Remove decorative emoji/icons from visible site text.
+    line=strip_site_emojis(line)
+
+    # Normalize whitespace left behind by removed icons/links/hashtags.
+    line=re.sub(r'[ \t]+',' ',line)
+    line=re.sub(r'\s+([,.;:!?])',r'\1',line)
+    return line.strip(" \t-–—|")
+
+def is_site_social_line(line):
+    # Normalize first so leading emoji/icons such as ▶ ❤️ 🎵 💬 cannot hide
+    # a social footer from the filter.
+    cleaned=clean_site_line(line)
+    low=cleaned.lower().strip()
+    if not low:
+        return True
+
+    # Social/CTA lines belong on YouTube, not inside the imported article.
+    exact_prefixes=(
+        "subscribe",
+        "iscriviti",
+        "youtube:",
+        "patreon:",
+        "tiktok:",
+        "whatsapp:",
+        "zazoomtek.it",
+        "www.zazoomtek.it",
+        "@zazoomtek",
+    )
+    if low.startswith(exact_prefixes):
+        return True
+
+    social_phrases=(
+        "se ti piacciono tecnologia",
+        "seguimi su zazoomtek",
+        "seguici su zazoomtek",
+        "segui zazoomtek",
+        "subscribe to the channel",
+        "iscriviti al canale",
+        "video recensione completa",
+        "videorecensione completa",
+        "recensione completa scritta",
+        "recensione completa",
+        "canale youtube zazoomtek",
+        "canale youtube",
+        "guarda la recensione completa",
+        "leggi la recensione completa",
+    )
+    if any(x in low for x in social_phrases):
+        return True
+
+    # Catch compact footer rows where several channel labels are on one line.
+    social_labels=("youtube:","patreon:","tiktok:","whatsapp:")
+    if any(x in low for x in social_labels):
+        return True
+
+    return False
+
+def clean_site_blocks(raw):
+    """Convert a Community post into clean editorial blocks for the website."""
+    blocks=[x.strip() for x in re.split(r'\n\s*\n|⠀',raw or "") if x.strip()]
+    cleaned=[]
+    for block in blocks:
+        # Work line-by-line so a social footer does not contaminate a valid paragraph.
+        lines=[]
+        for line in block.splitlines():
+            if is_site_social_line(line):
+                continue
+            stripped=line.strip()
+            if stripped.startswith("#"):
+                # Hashtags belong to social posts, never to the website article.
+                continue
+            visible=clean_site_line(line)
+            if visible:
+                lines.append(visible)
+        text=" ".join(lines).strip()
+        if text:
+            cleaned.append(text)
+    return cleaned
+
+def clean_site_title(line):
+    return clean_site_line(line)
+
+def news_title(p):
+    lines=[clean_site_title(x) for x in (p.get("text") or "").splitlines() if clean_site_title(x)]
+    if not lines:
+        return "News ZazoomTek"
+    first=lines[0].strip()
+    if first.lower().rstrip(":")=="news" and len(lines)>1:
+        return lines[1]
+    return first
+
+def news_slug(p):
+    return "news-"+p["id"]+".html"
+
+def is_news_section_heading(text, next_text=""):
+    """Detect editorial section headings from Community paragraph blocks.
+
+    A heading must be short, standalone and followed by real body copy.
+    This intentionally avoids converting normal short paragraphs into H2s.
+    """
+    text=(text or "").strip()
+    next_text=(next_text or "").strip()
+    if not text or len(text)>100:
+        return False
+    words=text.split()
+    if len(words)<3 or len(words)>15:
+        return False
+    if text.endswith((".", "!", "?", "…")):
+        return False
+    if len(next_text)<90:
+        return False
+    low=text.lower()
+    if low.startswith(("web:", "youtube:", "patreon:", "tiktok:", "whatsapp:")):
+        return False
+    # Standalone headings usually have no sentence-style punctuation. A colon
+    # at the end is accepted because it is common in editorial subheadings.
+    core=text[:-1] if text.endswith(":") else text
+    if core.count(",")>1 or ";" in core:
+        return False
+    return True
+
+def news_body_html(p):
+    blocks=clean_site_blocks(p.get("text") or "")
+    title=news_title(p)
+    cleaned=[b for b in blocks if b!=title]
+    rendered=[]
+    for i,b in enumerate(cleaned):
+        next_b=cleaned[i+1] if i+1<len(cleaned) else ""
+        if is_news_section_heading(b,next_b):
+            rendered.append(f"<h2><strong>{html.escape(b.rstrip(':'))}</strong></h2>")
+        else:
+            rendered.append(f"<p>{html.escape(b)}</p>")
+    rendered=distribute_inline_images(rendered,p,title)
+    return "\n".join(rendered)
+
+def json_ld_script(data):
+    payload=json.dumps(data,ensure_ascii=False,separators=(",",":")).replace("</","<\\/")
+    return '<script type="application/ld+json">'+payload+'</script>'
+
+def article_head_metadata(p,title,slug,section):
+    """Invisible metadata for Google/Search/Discover and social previews."""
+    canonical="https://zazoomtek.it/"+slug
+    description=post_excerpt(p,300) or title
+    image=(p.get("image") or "").strip()
+    published=(p.get("published_iso") or published_iso_from_label(p.get("published") or "")).strip()
+    modified=(p.get("modified_iso") or published).strip()
+    schema_type="NewsArticle" if section=="News" else "Article"
+    archive_url="https://zazoomtek.it/news.html" if section=="News" else "https://zazoomtek.it/recensioni-scritte.html"
+    org_id="https://zazoomtek.it/#organization"
+    site_id="https://zazoomtek.it/#website"
+
+    article={
+        "@type":schema_type,
+        "@id":canonical+"#article",
+        "headline":title,
+        "description":description,
+        "url":canonical,
+        "mainEntityOfPage":{"@type":"WebPage","@id":canonical},
+        "author":{"@id":org_id},
+        "publisher":{"@id":org_id},
+        "isPartOf":{"@id":site_id},
+        "inLanguage":"it-IT",
+        "articleSection":section,
+        "isAccessibleForFree":True,
+    }
+    if image:
+        article["image"]=[image]
+    if published:
+        article["datePublished"]=published
+    if modified:
+        article["dateModified"]=modified
+
+    graph=[
+        {
+            "@type":"Organization",
+            "@id":org_id,
+            "name":"ZazoomTek",
+            "url":"https://zazoomtek.it/",
+            "logo":{"@type":"ImageObject","url":"https://zazoomtek.it/ChatGPT.png"},
+            "sameAs":[
+                "https://www.youtube.com/@ZazoomTek",
+                "https://www.tiktok.com/@zazoomtek",
+            ],
+        },
+        {
+            "@type":"WebSite",
+            "@id":site_id,
+            "url":"https://zazoomtek.it/",
+            "name":"ZazoomTek",
+            "publisher":{"@id":org_id},
+            "inLanguage":"it-IT",
+        },
+        {
+            "@type":"BreadcrumbList",
+            "@id":canonical+"#breadcrumb",
+            "itemListElement":[
+                {"@type":"ListItem","position":1,"name":"Home","item":"https://zazoomtek.it/"},
+                {"@type":"ListItem","position":2,"name":section,"item":archive_url},
+                {"@type":"ListItem","position":3,"name":title,"item":canonical},
+            ],
+        },
+        article,
+    ]
+    structured=json_ld_script({"@context":"https://schema.org","@graph":graph})
+
+    esc_title=html.escape(title,quote=True)
+    esc_desc=html.escape(description,quote=True)
+    esc_url=html.escape(canonical,quote=True)
+    parts=[
+        f'<title>{esc_title} | ZazoomTek</title>',
+        f'<meta name="description" content="{esc_desc}">',
+        '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
+        '<meta name="author" content="ZazoomTek">',
+        f'<link rel="canonical" href="{esc_url}">',
+        '<meta property="og:type" content="article">',
+        '<meta property="og:locale" content="it_IT">',
+        '<meta property="og:site_name" content="ZazoomTek">',
+        f'<meta property="og:title" content="{esc_title}">',
+        f'<meta property="og:description" content="{esc_desc}">',
+        f'<meta property="og:url" content="{esc_url}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:title" content="{esc_title}">',
+        f'<meta name="twitter:description" content="{esc_desc}">',
+    ]
+    if image:
+        esc_image=html.escape(image,quote=True)
+        parts.extend([
+            f'<meta property="og:image" content="{esc_image}">',
+            f'<meta name="twitter:image" content="{esc_image}">',
+        ])
+    if published:
+        parts.append(f'<meta property="article:published_time" content="{html.escape(published,quote=True)}">')
+    if modified:
+        parts.append(f'<meta property="article:modified_time" content="{html.escape(modified,quote=True)}">')
+    parts.append(structured)
+    return "".join(parts)
+
+def write_review_page(p, all_reviews=None):
+    all_reviews=all_reviews or []
+    title=review_title(p)
+    slug=review_slug(p)
+    img=(f'<img class="article-hero" src="{html.escape(p["image"])}" alt="{html.escape(title)}">' if p.get("image") else "")
+    recent=compact_review_list(all_reviews,p.get("id") or "",5)
+    featured=next((x for x in all_reviews if x.get("id")!=p.get("id")),None)
+    feature_html=""
+    if featured:
+        ft=review_title(featured); fs=review_slug(featured); fi=html.escape(featured.get("image") or "/ChatGPT.png")
+        feature_html=(
+            f'<section class="compact-box"><div class="module-title">In evidenza</div><div class="feature-card">'
+            f'<a href="/{fs}"><img src="{fi}" alt="{html.escape(ft)}"></a><h3><a href="/{fs}">{html.escape(ft)}</a></h3>'
+            f'<a class="cta" href="/{fs}">LEGGI LA RECENSIONE ›</a></div></section>'
+        )
+    page=(
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+        +article_head_metadata(p,title,slug,"Recensioni")+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
@@ -1224,7 +1591,7 @@ def write_news_page(p, all_news=None):
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        +article_head_metadata(p,title,slug,"Recensioni")+NEWS_DETAIL_STYLE+'</head><body>'
+        +article_head_metadata(p,title,slug,"News")+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_editorial_header("news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
