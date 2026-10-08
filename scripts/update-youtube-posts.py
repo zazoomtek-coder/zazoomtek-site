@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Global scrollbar refresh marker
-import json,re,html,urllib.request
+import json,re,html,time,urllib.error,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
 
@@ -8,9 +8,28 @@ URL="https://www.youtube.com/@ZazoomTek/posts"
 STATE=Path(".youtube-posts.json")
 INDEX=Path("index.html")
 
+def open_with_retry(req, *, timeout=30, parse_json=False, attempts=5):
+    """Retry transient YouTube/network failures; never hide a partial sync."""
+    last_error=None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req,timeout=timeout) as r:
+                return json.load(r) if parse_json else r.read().decode("utf-8","replace")
+        except urllib.error.HTTPError as err:
+            last_error=err
+            if err.code not in (408,425,429,500,502,503,504):
+                raise
+        except (urllib.error.URLError,ConnectionResetError,TimeoutError) as err:
+            last_error=err
+        if attempt<attempts-1:
+            wait=min(16,2 ** (attempt+1))
+            print(f"Temporary YouTube error ({last_error}); retrying in {wait}s...")
+            time.sleep(wait)
+    raise RuntimeError(f"YouTube request failed after {attempts} attempts: {last_error}")
+
 def fetch():
     req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36","Accept-Language":"it-IT,it;q=0.9,en;q=0.8"})
-    with urllib.request.urlopen(req,timeout=30) as r:return r.read().decode("utf-8","replace")
+    return open_with_retry(req,timeout=30)
 
 def initial_data(s):
     pats=[r'var ytInitialData = ({.*?});</script>',r'ytInitialData\s*=\s*({.*?});</script>']
@@ -231,7 +250,7 @@ def fetch_continuation(token,key,ver):
             "Accept-Language":"it-IT,it;q=0.9,en;q=0.8"
         }
     )
-    with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+    return open_with_retry(req,timeout=30,parse_json=True)
 
 def parse_nodes(data,posts,seen):
     nodes=[];walk(data,nodes)
@@ -274,10 +293,9 @@ def parse(s):
         token=next((t for t in tokens if t not in used),None)
         if not token:break
         used.add(token);pages+=1
-        try:
-            more=fetch_continuation(token,key,ver)
-        except Exception:
-            break
+        # A failed continuation means the archive is incomplete.
+        # Abort the whole run instead of publishing a truncated Community feed.
+        more=fetch_continuation(token,key,ver)
         parse_nodes(more,posts,seen)
         tokens.extend(t for t in continuation_tokens(more) if t not in used)
     return posts
@@ -1220,13 +1238,35 @@ def write_article_pages(posts):
     return total
 
 def main():
+    previous=[]
+    if STATE.exists():
+        try:
+            previous=json.loads(STATE.read_text(encoding="utf-8"))
+            if not isinstance(previous,list):
+                previous=[]
+        except Exception:
+            previous=[]
+
     posts=parse(fetch())
     if not posts:
-        print("No public posts parsed; keeping current site unchanged.")
-        return
-    STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
+
+    # Safety guard: a transient parser/API issue must never replace a healthy
+    # archive with a suspiciously small partial result.
+    if previous:
+        minimum=max(20,int(len(previous)*0.80))
+        if len(posts)<minimum:
+            raise RuntimeError(
+                f"Community safety check failed: parsed {len(posts)} posts, "
+                f"previous valid state had {len(previous)}. Site left unchanged."
+            )
+
     reviews=[p for p in posts if is_review(p)]
     news=[p for p in posts if not is_review(p)]
+    if not news:
+        raise RuntimeError("Community safety check failed: zero news parsed.")
+
+    STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     for p in reviews: write_review_page(p,reviews)
     write_review_archive(reviews)
     for p in news: write_news_page(p,news)
