@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cerca su ZazoomTek</title>
+<meta name="description" content="Cerca news, recensioni, articoli e video pubblicati su ZazoomTek.">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" href="/ChatGPT.png">
+<style>
+:root{--red:#df1235;--dark:#151515;--text:#171717}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f3f3;color:var(--text)}
+a{color:inherit}.wrap{width:min(1180px,calc(100% - 28px));margin:auto}
+header{background:#151515;color:#fff}.head{display:flex;align-items:center;gap:24px;min-height:78px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:900;font-size:25px}.brand img{width:52px;height:52px;border-radius:50%}
+nav{display:flex;align-self:stretch}nav a{display:flex;align-items:center;padding:0 18px;text-decoration:none;text-transform:uppercase;font-weight:800;font-size:13px;border-left:1px solid #292929}nav a:hover{background:#d81234}
+.search-top{margin-left:auto;display:flex;min-width:360px;background:#303030;border:1px solid #444}.search-top input{flex:1;min-width:0;border:0;background:transparent;color:#fff;padding:13px 15px;font-size:16px;outline:0}.search-top button{width:54px;border:0;background:#df1235;color:#fff;font-size:20px;font-weight:900;cursor:pointer}
+.hero{background:#fff;border-top:4px solid var(--red);padding:32px;margin:28px 0 18px;box-shadow:0 2px 10px #00000010}.hero h1{margin:0 0 8px;font-size:34px}.hero p{margin:0;color:#666}
+.search-main{display:flex;margin-top:22px;border:2px solid #202020;background:#fff}.search-main input{flex:1;min-width:0;border:0;padding:16px;font-size:18px;outline:0}.search-main button{border:0;background:var(--red);color:#fff;padding:0 25px;font-weight:900;cursor:pointer}
+.summary{margin:17px 0;color:#666;font-size:14px}.results{display:grid;gap:14px;padding-bottom:50px}
+.card{display:grid;grid-template-columns:190px 1fr;background:#fff;border:1px solid #ddd;text-decoration:none;box-shadow:0 2px 8px #0000000a;overflow:hidden}.card:hover{border-color:#bbb;box-shadow:0 4px 16px #00000014}.thumb{width:190px;height:108px;background:#111;object-fit:cover}.copy{padding:14px 16px}.meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#df1235;color:#fff;font-size:11px;font-weight:900;text-transform:uppercase}.copy h2{margin:0 0 7px;font-size:20px;line-height:1.18}.copy p{margin:0;color:#666;line-height:1.4;font-size:14px}.empty{background:#fff;padding:30px;border:1px solid #ddd}.empty strong{display:block;font-size:21px;margin-bottom:7px}
+footer{background:#151515;color:#bbb;padding:30px 0;margin-top:30px}.footer-links{display:flex;gap:18px;flex-wrap:wrap}.footer-links a{color:#fff;text-decoration:none}
+@media(max-width:900px){.head{flex-wrap:wrap;padding:12px 0}.search-top{order:3;width:100%;min-width:0;margin:0 0 12px}.head nav{order:2;margin-left:auto}nav a{padding:0 10px}.card{grid-template-columns:140px 1fr}.thumb{width:140px;height:100%}}
+@media(max-width:620px){nav{display:none}.brand{font-size:22px}.hero{padding:22px 18px}.hero h1{font-size:28px}.card{display:block}.thumb{width:100%;height:auto;aspect-ratio:16/9}.copy h2{font-size:18px}.search-main button{padding:0 16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap head">
+    <a class="brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek">ZazoomTek</a>
+    <nav><a href="/">Home</a><a href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni</a><a href="/gaming.html">Gaming</a></nav>
+    <form class="search-top" action="/cerca.html" method="get"><input id="topQ" name="q" type="search" placeholder="Cerca articoli..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Cerca su ZazoomTek</h1>
+    <p>News, recensioni, articoli, test, unboxing e video in un'unica ricerca.</p>
+    <form class="search-main" action="/cerca.html" method="get">
+      <input id="mainQ" name="q" type="search" placeholder="Scrivi cosa stai cercando..." autocomplete="off" aria-label="Cerca su ZazoomTek">
+      <button type="submit">CERCA</button>
+    </form>
+  </section>
+  <div id="summary" class="summary">Inserisci almeno 2 caratteri per cercare.</div>
+  <section id="results" class="results" aria-live="polite"></section>
+</main>
+
+<footer><div class="wrap footer-links"><a href="/">Home</a><a href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni</a><a href="/gaming.html">Gaming</a><a href="/contatti.html">Contatti</a><a href="/privacy.html">Privacy</a></div></footer>
+
+<script>
+const params=new URLSearchParams(location.search);
+const query=(params.get('q')||'').trim();
+document.getElementById('topQ').value=query;
+document.getElementById('mainQ').value=query;
+function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function score(item,full,terms){
+  const title=norm(item.title), excerpt=norm(item.excerpt), type=norm((item.type||'')+' '+(item.category||''));
+  const hay=title+' '+excerpt+' '+type;
+  if(!terms.every(function(t){return hay.includes(t)}))return -1;
+  let n=0;
+  if(title===full)n+=120;
+  if(title.startsWith(full))n+=80;
+  if(title.includes(full))n+=55;
+  terms.forEach(function(t){if(title.includes(t))n+=16;if(type.includes(t))n+=7;if(excerpt.includes(t))n+=3});
+  if(item.type==='News'||item.type==='Recensione')n+=4;
+  return n;
+}
+function render(items){
+  const summary=document.getElementById('summary'), results=document.getElementById('results');
+  const full=norm(query),terms=full.split(/\s+/).filter(Boolean);
+  if(query.length<2){summary.textContent='Inserisci almeno 2 caratteri per cercare.';results.innerHTML='';return}
+  const found=items.map(function(item,i){return {item:item,i:i,s:score(item,full,terms)}})
+    .filter(function(x){return x.s>=0})
+    .sort(function(a,b){return b.s-a.s||a.i-b.i}).slice(0,100);
+  summary.textContent=found.length ? found.length+' risultati per “'+query+'”' : 'Nessun risultato per “'+query+'”';
+  if(!found.length){results.innerHTML='<div class="empty"><strong>Nessun risultato trovato</strong>Prova con meno parole oppure con il nome del prodotto, gioco o azienda.</div>';return}
+  results.innerHTML=found.map(function(x){
+    const item=x.item, external=item.external?' target="_blank" rel="noopener"':'', img=item.image||'/ChatGPT.png';
+    return '<a class="card" href="'+esc(item.url)+'"'+external+'>'+
+      '<img class="thumb" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'/ChatGPT.png\'">'+
+      '<div class="copy"><div class="meta"><span class="badge">'+esc(item.type)+'</span></div>'+
+      '<h2>'+esc(item.title)+'</h2><p>'+esc(item.excerpt||'')+'</p></div></a>';
+  }).join('');
+}
+fetch('/search-index.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Indice non disponibile');return r.json()})
+.then(render).catch(function(){document.getElementById('summary').textContent='La ricerca è temporaneamente non disponibile. Riprova tra poco.';document.getElementById('results').innerHTML=''});
+</script>
+</body>
+</html>
