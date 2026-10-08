@@ -61,12 +61,25 @@ def add_html(items,path,kind=None):
         content=path.read_text(encoding="utf-8",errors="replace")
     except Exception:
         return
+    item_type=kind or editorial_type(path)
     title=title_of(content)
+
+    # Legacy Community posts sometimes generated a generic "News" page title
+    # while the real headline is the first paragraph of the article body.
+    if item_type=="News" and clean_text(title).lower() in ("news","news | zazoomtek"):
+        body=re.search(r'<div class="article-body">([\s\S]*?)</div>',content,re.I)
+        if body:
+            first_p=re.search(r'<p[^>]*>([\s\S]*?)</p>',body.group(1),re.I)
+            if first_p:
+                candidate=clean_text(first_p.group(1))
+                if candidate:
+                    title=candidate
+
     if not title:
         return
     items.append({
         "id":"page:"+path.name,
-        "type":kind or editorial_type(path),
+        "type":item_type,
         "title":title,
         "excerpt":desc_of(content),
         "url":"/"+path.name,
@@ -80,7 +93,7 @@ def main():
     seen=set()
 
     # Individual editorial pages are the highest-value site search results.
-    for pattern in ("news-*.html","recensione-*.html"):
+    for pattern in ("news-Ugkx*.html","recensione-Ugkx*.html"):
         for path in sorted(ROOT.glob(pattern)):
             if path.name in seen:
                 continue
