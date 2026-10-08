@@ -8,7 +8,7 @@ on:
       - main
 concurrency:
   group: firebase-hosting-live
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build_and_deploy:
