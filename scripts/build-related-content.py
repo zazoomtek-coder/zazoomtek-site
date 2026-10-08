@@ -10,7 +10,17 @@ END = "<!-- RELATED_CONTENT_END -->"
 STYLE_ID = "zt-related-style"
 LIMIT = 4
 MIN_RELATED = 2
-MIN_SCORE = 5.0
+MIN_SCORE = 6.0
+
+GENERIC_TITLE_TERMS = {
+    "ps4","ps5","xbox","series","switch","nintendo","playstation","pc","steam","windows",
+    "dlc","update","aggiornamento","trailer","video","gameplay","demo","beta","edition","complete",
+    "enhanced","remastered","remake","accesso","anticipato","early","available","disponibile"
+}
+
+WEAK_TOPICS = {
+    "playstation","xbox","nintendo","pcgaming","multiplayer","dlc"
+}
 
 STOPWORDS = {
     "alla","alle","allo","anche","ancora","avere","come","con","contro","cosa","dalla","dalle","dallo",
@@ -142,6 +152,19 @@ def normalized_words(text):
         if len(w) >= 3 and w not in STOPWORDS and not w.isdigit()
     }
 
+def strong_title_tokens(text):
+    return {
+        w for w in normalized_words(text)
+        if w not in GENERIC_TITLE_TERMS
+    }
+
+def title_bigrams(text):
+    words=[
+        w for w in re.findall(r"[a-z0-9]+", unicodedata.normalize("NFKD", text.lower()))
+        if len(w)>=3 and w not in STOPWORDS and w not in GENERIC_TITLE_TERMS
+    ]
+    return {" ".join(words[i:i+2]) for i in range(len(words)-1)}
+
 def phrase_present(text, phrase):
     text = text.lower()
     if " " in phrase or "-" in phrase:
@@ -193,6 +216,8 @@ def article_record(path):
     if not title or not body:
         return None
     title_tokens = normalized_words(title)
+    strong_tokens = strong_title_tokens(title)
+    bigrams = title_bigrams(title)
     body_tokens = normalized_words(body[:8000])
     return {
         "path": path,
@@ -206,6 +231,8 @@ def article_record(path):
         "domain": domain_for(title, body),
         "topics": topics_for(title, body),
         "title_tokens": title_tokens,
+        "strong_tokens": strong_tokens,
+        "bigrams": bigrams,
         "body_tokens": body_tokens,
     }
 
@@ -222,25 +249,34 @@ def relevance(current, candidate):
     cb = current["body_tokens"]
     tt = candidate["title_tokens"]
     tb = candidate["body_tokens"]
+    cs = current["strong_tokens"]
+    ts = candidate["strong_tokens"]
+
+    strong_overlap = cs & ts
+    bigram_overlap = current["bigrams"] & candidate["bigrams"]
+    topic_overlap = current["topics"] & candidate["topics"]
+    strong_topics = {x for x in topic_overlap if x not in WEAK_TOPICS}
 
     title_overlap = len(ct & tt)
-    current_title_in_body = len(ct & tb)
-    candidate_title_in_body = len(tt & cb)
+    current_title_in_body = len(cs & tb)
+    candidate_title_in_body = len(ts & cb)
     body_overlap = len(cb & tb)
-    topic_overlap = len(current["topics"] & candidate["topics"])
 
+    # Strong entity/franchise matching dominates everything else.
     score = (
-        title_overlap * 10.0
+        len(strong_overlap) * 12.0
+        + len(bigram_overlap) * 22.0
+        + len(strong_topics) * 7.0
+        + len(topic_overlap & WEAK_TOPICS) * 1.0
         + current_title_in_body * 2.2
         + candidate_title_in_body * 1.8
-        + topic_overlap * 6.0
-        + min(body_overlap, 10) * 0.12
+        + min(body_overlap, 8) * 0.08
     )
 
     if current["domain"] == candidate["domain"] and current["domain"] != "mixed":
-        score += 1.0
+        score += 0.75
     if current["kind"] == candidate["kind"]:
-        score += 0.25
+        score += 0.2
 
     return score
 
@@ -249,22 +285,34 @@ def related_for(current, records, limit=LIMIT):
     for candidate in records:
         if candidate["name"] == current["name"]:
             continue
+
         score = relevance(current, candidate)
         if score < MIN_SCORE:
             continue
 
-        # A result must share something meaningful: a title/entity token or a
-        # recognised topic. Generic body vocabulary alone is not enough.
-        meaningful = bool(
-            (current["title_tokens"] & candidate["title_tokens"])
-            or (current["topics"] & candidate["topics"])
-        )
-        if not meaningful:
-            continue
-        ranked.append((score, candidate))
+        strong_overlap = current["strong_tokens"] & candidate["strong_tokens"]
+        bigram_overlap = current["bigrams"] & candidate["bigrams"]
+        topic_overlap = current["topics"] & candidate["topics"]
+        strong_topics = {x for x in topic_overlap if x not in WEAK_TOPICS}
 
-    ranked.sort(key=lambda item: (-item[0], item[1]["name"]))
-    return [item[1] for item in ranked[:limit]]
+        # Tiered relevance:
+        # 1) same entity/franchise/product family,
+        # 2) otherwise at least one specific shared topic,
+        # 3) platform/update alone is never sufficient.
+        tier = None
+        if bigram_overlap or len(strong_overlap) >= 2:
+            tier = 0
+        elif len(strong_overlap) == 1 and strong_topics:
+            tier = 1
+        elif len(strong_topics) >= 1:
+            tier = 2
+        else:
+            continue
+
+        ranked.append((tier, -score, candidate["name"], candidate))
+
+    ranked.sort(key=lambda item: (item[0], item[1], item[2]))
+    return [item[3] for item in ranked[:limit]]
 
 def render_related(items):
     cards = []
