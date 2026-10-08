@@ -290,11 +290,38 @@ def strong_title_tokens(text):
         if w not in GENERIC_TITLE_TERMS
     }
 
+def title_token_sequence(text):
+    text=unicodedata.normalize("NFKD", html.unescape(text).lower())
+    text="".join(ch for ch in text if not unicodedata.combining(ch))
+    text=re.sub(r"^\s*news\s*:\s*","",text)
+    raw=re.findall(r"[a-z0-9]+",text)
+    out=[]
+    for token in raw:
+        if token in STOPWORDS or token in GENERIC_TITLE_TERMS:
+            continue
+        # Keep sequel/model numbers (e.g. GTA 6, Transport Fever 3, A900),
+        # but discard years and large standalone numbers.
+        if token.isdigit() and (len(token)>2 or int(token)>99):
+            continue
+        if len(token)>=2 or token.isdigit():
+            out.append(token)
+    return out[:14]
+
+def entity_phrases(text):
+    """Extract title entities/product names as ordered 2-4 token phrases."""
+    words=title_token_sequence(text)
+    phrases=set()
+    for size in (4,3,2):
+        for i in range(len(words)-size+1):
+            chunk=words[i:i+size]
+            # A phrase made only of generic numbers/short tokens is useless.
+            if sum(1 for x in chunk if not x.isdigit() and len(x)>=3) < 1:
+                continue
+            phrases.add(" ".join(chunk))
+    return phrases
+
 def title_bigrams(text):
-    words=[
-        w for w in re.findall(r"[a-z0-9]+", unicodedata.normalize("NFKD", text.lower()))
-        if len(w)>=3 and w not in STOPWORDS and w not in GENERIC_TITLE_TERMS
-    ]
+    words=title_token_sequence(text)
     return {" ".join(words[i:i+2]) for i in range(len(words)-1)}
 
 def phrase_present(text, phrase):
@@ -390,6 +417,7 @@ def article_record(path):
     title_tokens = normalized_words(title)
     strong_tokens = strong_title_tokens(title)
     bigrams = title_bigrams(title)
+    entities = entity_phrases(title)
     body_tokens = normalized_words(body[:2200])
     topic_scores = topic_hits(title,body)
     topics = {topic for topic,score in topic_scores.items() if score >= 1}
@@ -409,6 +437,7 @@ def article_record(path):
         "title_tokens": title_tokens,
         "strong_tokens": strong_tokens,
         "bigrams": bigrams,
+        "entities": entities,
         "body_tokens": body_tokens,
     }
 
@@ -422,6 +451,27 @@ def build_idf(records):
         token: math.log((1+total)/(1+freq))+1.0
         for token,freq in df.items()
     }
+
+def build_entity_idf(records):
+    total=max(1,len(records))
+    df=Counter()
+    for record in records:
+        for entity in record["entities"]:
+            df[entity]+=1
+    return {
+        entity: math.log((1+total)/(1+freq))+1.0
+        for entity,freq in df.items()
+    }
+
+def entity_overlap_score(current,candidate,entity_idf):
+    shared=current["entities"] & candidate["entities"]
+    if not shared:
+        return 0.0,set()
+    score=0.0
+    for entity in shared:
+        length=len(entity.split())
+        score += entity_idf.get(entity,1.0) * (length**2)
+    return score,shared
 
 def rare_title_overlap(current,candidate,idf):
     shared=current["strong_tokens"] & candidate["strong_tokens"]
@@ -464,12 +514,13 @@ def primary_topics(record):
     best=max(pool.values())
     return {topic for topic,score in pool.items() if score >= max(2,best-1)}
 
-def relevance(current,candidate,idf):
+def relevance(current,candidate,idf,entity_idf):
     # Cross vertical recommendations are never allowed.
     if current["domain"] in {"gaming","tech"} and candidate["domain"] in {"gaming","tech"}:
         if current["domain"] != candidate["domain"]:
             return -999.0
 
+    entity_score,_=entity_overlap_score(current,candidate,entity_idf)
     franchise_overlap=current["franchises"] & candidate["franchises"]
     bigram_overlap=current["bigrams"] & candidate["bigrams"]
     rare_overlap=rare_title_overlap(current,candidate,idf)
@@ -477,11 +528,12 @@ def relevance(current,candidate,idf):
     topic_score=topic_similarity(current,candidate)
 
     score=(
-        len(franchise_overlap)*180.0
-        + len(bigram_overlap)*45.0
-        + rare_overlap*14.0
-        + cosine*45.0
-        + topic_score*13.0
+        entity_score*30.0
+        + len(franchise_overlap)*220.0
+        + len(bigram_overlap)*38.0
+        + rare_overlap*12.0
+        + cosine*35.0
+        + topic_score*12.0
     )
     if current["domain"] == candidate["domain"] and current["domain"] != "mixed":
         score += 4.0
@@ -489,7 +541,7 @@ def relevance(current,candidate,idf):
         score += 1.0
     return score
 
-def related_for(current, records, idf, limit=LIMIT):
+def related_for(current, records, idf, entity_idf, limit=LIMIT):
     ranked=[]
     current_primary=primary_topics(current)
 
@@ -497,11 +549,11 @@ def related_for(current, records, idf, limit=LIMIT):
         if candidate["name"] == current["name"]:
             continue
 
-        # Never cross gaming and tech when both sides are known.
         if current["domain"] in {"gaming","tech"} and candidate["domain"] in {"gaming","tech"}:
             if current["domain"] != candidate["domain"]:
                 continue
 
+        entity_score,entity_overlap=entity_overlap_score(current,candidate,entity_idf)
         franchise_overlap=current["franchises"] & candidate["franchises"]
         bigram_overlap=current["bigrams"] & candidate["bigrams"]
         rare_overlap=rare_title_overlap(current,candidate,idf)
@@ -510,27 +562,30 @@ def related_for(current, records, idf, limit=LIMIT):
         primary_overlap=current_primary & candidate_primary
         shared_topics=current["topics"] & candidate["topics"]
         topic_score=topic_similarity(current,candidate)
-        score=relevance(current,candidate,idf)
+        score=relevance(current,candidate,idf,entity_idf)
 
-        # Editorial priority:
-        # 0 same franchise / brand / product family
-        # 1 very strong title/entity similarity
-        # 2 same PRIMARY category (camera security, FPS, smartphone, etc.)
-        # 3 secondary shared category + meaningful title similarity
-        if franchise_overlap:
+        # Zazoom-style editorial hierarchy:
+        # 0 exact title entity/product/game overlap
+        # 1 known franchise/brand/product family
+        # 2 strong rare title similarity
+        # 3 same specific primary category
+        # 4 secondary category only with supporting title similarity
+        if entity_overlap:
             tier=0
-        elif bigram_overlap or rare_overlap >= 4.2:
+        elif franchise_overlap:
             tier=1
-        elif primary_overlap:
+        elif bigram_overlap or rare_overlap >= 4.5:
             tier=2
-            score += len(primary_overlap)*35
+        elif primary_overlap:
+            tier=3
+            score += len(primary_overlap)*30
         elif (
             shared_topics
             and not (shared_topics <= BROAD_TOPICS)
             and topic_score >= 3
-            and (cosine >= 0.08 or rare_overlap >= 1.4)
+            and (cosine >= 0.12 or rare_overlap >= 1.8)
         ):
-            tier=3
+            tier=4
         else:
             continue
 
@@ -596,12 +651,13 @@ def main():
         raise RuntimeError(f"Too few editorial articles found: {len(records)}")
 
     idf=build_idf(records)
+    entity_idf=build_entity_idf(records)
     changed = 0
     with_blocks = 0
     total_links = 0
     no_match=[]
     for record in records:
-        related = related_for(record, records, idf, LIMIT)
+        related = related_for(record, records, idf, entity_idf, LIMIT)
         block = render_related(related) if len(related) >= MIN_RELATED else ""
         if not related:
             no_match.append(record["name"])
@@ -619,7 +675,7 @@ def main():
 
     coverage=(with_blocks/len(records))*100 if records else 0
     print(
-        f"Hybrid related content evaluated for {len(records)} articles; "
+        f"Entity-first related content evaluated for {len(records)} articles; "
         f"{with_blocks} pages have matches ({coverage:.1f}% coverage), "
         f"{total_links} links total; {changed} files updated."
     )
