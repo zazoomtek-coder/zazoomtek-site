@@ -223,16 +223,25 @@ def sidebar_latest_video_card(v):
 
 def sidebar_stack_card(v):
     vid=v["id"]; title=esc(v["snippet"]["title"])
+    category=classify(v)
+    category_label={
+        "recensioni":"RECENSIONI",
+        "test":"TEST",
+        "unboxing":"UNBOXING",
+        "gaming":"GAMING",
+        "analogiktek":"RETROGAMING",
+    }.get(category,(category or "VIDEO").upper())
     dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
     months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
     date=f"{dt.day} {months[dt.month-1]} {dt.year}"
     return (
-        f'          <article class="zt-stack-card">'
+        f'          <article class="zt-stack-card" data-category="{esc(category or "")}">'
         f'<button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
         f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
         f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
         f'alt="{title}" loading="lazy"></button>'
-        f'<div class="zt-stack-copy"><h3>{title}</h3><small>{date}</small></div></article>'
+        f'<div class="zt-stack-copy"><span class="zt-stack-category">{category_label}</span>'
+        f'<h3>{title}</h3><small>{date}</small></div></article>'
     )
 
 def sidebar_short_card(v):
