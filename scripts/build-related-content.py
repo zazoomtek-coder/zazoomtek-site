@@ -543,6 +543,7 @@ def relevance(current,candidate,idf,entity_idf):
 
 def related_for(current, records, idf, entity_idf, limit=LIMIT):
     ranked=[]
+    family_ranked=[]
     current_primary=primary_topics(current)
 
     for candidate in records:
@@ -564,12 +565,12 @@ def related_for(current, records, idf, entity_idf, limit=LIMIT):
         topic_score=topic_similarity(current,candidate)
         score=relevance(current,candidate,idf,entity_idf)
 
-        # Zazoom-style editorial hierarchy:
-        # 0 exact title entity/product/game overlap
-        # 1 known franchise/brand/product family
-        # 2 strong rare title similarity
-        # 3 same specific primary category
-        # 4 secondary category only with supporting title similarity
+        # Same exact entity / franchise / brand is always the best family.
+        if entity_overlap or franchise_overlap:
+            family_tier=0 if entity_overlap else 1
+            family_ranked.append((family_tier,-score,candidate["name"],candidate))
+
+        # General ranking, used only when the exact family is too small.
         if entity_overlap:
             tier=0
         elif franchise_overlap:
@@ -590,6 +591,13 @@ def related_for(current, records, idf, entity_idf, limit=LIMIT):
             continue
 
         ranked.append((tier,-score,candidate["name"],candidate))
+
+    family_ranked.sort(key=lambda item:(item[0],item[1],item[2]))
+
+    # If we already have at least two items from the same exact
+    # franchise/product/brand, do not dilute the block with generic content.
+    if len(family_ranked) >= 2:
+        return [item[3] for item in family_ranked[:limit]]
 
     ranked.sort(key=lambda item:(item[0],item[1],item[2]))
     return [item[3] for item in ranked[:limit]]
