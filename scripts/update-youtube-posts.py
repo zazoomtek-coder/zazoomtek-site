@@ -7,6 +7,7 @@ from pathlib import Path
 URL="https://www.youtube.com/@ZazoomTek/posts"
 STATE=Path(".youtube-posts.json")
 INDEX=Path("index.html")
+FEATURED_NEWS_CONFIG=Path("featured-news.json")
 
 def open_with_retry(req, *, timeout=30, parse_json=False, attempts=5):
     """Retry transient YouTube/network failures; never hide a partial sync."""
@@ -1153,6 +1154,36 @@ def render_ticker(news):
         rows.append(f'    <a{cls} href="{news_slug(p)}">{html.escape(news_title(p))}</a>')
     return "\n".join(rows)
 
+def selected_featured_news(news):
+    """Return manually pinned Home featured news in the chosen order.
+
+    The automatic Community import must never replace these selections.
+    If a configured item no longer exists, it is skipped rather than
+    replaced with an unrelated latest story.
+    """
+    if not FEATURED_NEWS_CONFIG.exists():
+        return news[:5]
+    try:
+        config=json.loads(FEATURED_NEWS_CONFIG.read_text(encoding="utf-8"))
+    except Exception as err:
+        raise RuntimeError(f"Invalid featured-news.json: {err}")
+
+    ids=config.get("ids") if isinstance(config,dict) else None
+    if not isinstance(ids,list):
+        raise RuntimeError("featured-news.json must contain an ids list")
+
+    by_id={p.get("id"):p for p in news if isinstance(p,dict) and p.get("id")}
+    selected=[]
+    seen=set()
+    for post_id in ids[:5]:
+        if not isinstance(post_id,str) or post_id in seen:
+            continue
+        post=by_id.get(post_id)
+        if post:
+            selected.append(post)
+            seen.add(post_id)
+    return selected
+
 def render_featured_news(news):
     news=news[:5]
     slides=[]
@@ -1395,7 +1426,7 @@ def main():
     ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
-    featured="<!-- FEATURED_NEWS_START -->\n        "+render_featured_news(news)+"\n        <!-- FEATURED_NEWS_END -->"
+    featured="<!-- FEATURED_NEWS_START -->\n        "+render_featured_news(selected_featured_news(news))+"\n        <!-- FEATURED_NEWS_END -->"
     s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
 
     feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
