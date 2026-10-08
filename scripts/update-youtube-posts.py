@@ -747,8 +747,8 @@ def rich_review_header():
         '<a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a>'
         '<a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a>'
         '</nav>'
-        '<div class="zt-tools"><form class="zt-search" action="/recensioni-scritte.html" method="get">'
-        '<input name="q" type="search" placeholder="Cerca recensioni..." aria-label="Cerca recensioni"><button type="submit">⌕</button></form>'
+        '<div class="zt-tools"><form class="zt-search" action="/cerca.html" method="get">'
+        '<input name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form>'
         '<div class="zt-socials">'
         '<a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube"></a>'
         '<a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a>'
@@ -992,7 +992,12 @@ def clean_site_title(line):
 
 def news_title(p):
     lines=[clean_site_title(x) for x in (p.get("text") or "").splitlines() if clean_site_title(x)]
-    return lines[0] if lines else "News ZazoomTek"
+    if not lines:
+        return "News ZazoomTek"
+    first=lines[0].strip()
+    if first.lower().rstrip(":")=="news" and len(lines)>1:
+        return lines[1]
+    return first
 
 def news_slug(p):
     return "news-"+p["id"]+".html"
