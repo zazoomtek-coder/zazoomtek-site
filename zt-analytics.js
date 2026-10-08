@@ -79,9 +79,9 @@
     box.setAttribute('role','dialog');
     box.setAttribute('aria-label','Preferenze cookie');
     box.innerHTML=
-      '<strong>Privacy e misurazione del traffico</strong>'+
-      '<p>ZazoomTek usa Google Analytics 4 solo con il tuo consenso per capire quante persone visitano il sito e quali contenuti funzionano meglio. Puoi accettare o rifiutare. <a href="/cookie.html">Cookie Policy</a> · <a href="/privacy.html">Privacy</a></p>'+
-      '<div class="zt-actions"><button type="button" class="zt-accept">Accetta Analytics</button><button type="button" class="zt-reject">Rifiuta</button></div>';
+      '<p><strong>ZazoomTek utilizza cookie e tecnologie simili per misurare il traffico e migliorare i contenuti. Puoi accettare o rifiutare.</strong></p>'+
+      '<p><a href="/cookie.html">Cookie Policy</a></p>'+
+      '<div class="zt-actions"><button type="button" class="zt-accept">ACCETTA</button><button type="button" class="zt-reject">RIFIUTA</button></div>';
     box.querySelector('.zt-accept').addEventListener('click',function(){choose('granted');});
     box.querySelector('.zt-reject').addEventListener('click',function(){choose('denied');});
     document.body.appendChild(box);
