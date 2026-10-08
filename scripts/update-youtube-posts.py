@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # Global scrollbar refresh marker
 # Structured data refresh marker
-import json,re,html,time,unicodedata,urllib.error,urllib.request
+import json,re,html,time,unicodedata,urllib.error,urllib.request,urllib.parse
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
 URL="https://www.youtube.com/@ZazoomTek/posts"
+CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
 STATE=Path(".youtube-posts.json")
 INDEX=Path("index.html")
 FEATURED_NEWS_CONFIG=Path("featured-news.json")
@@ -373,6 +374,160 @@ def fetch_continuation(token,key,ver):
         }
     )
     return open_with_retry(req,timeout=30,parse_json=True)
+
+
+def italian_date_from_timestamp(ts):
+    try:
+        dt=datetime.fromtimestamp(int(ts),timezone.utc)
+    except Exception:
+        return "", ""
+    months=[
+        "gennaio","febbraio","marzo","aprile","maggio","giugno",
+        "luglio","agosto","settembre","ottobre","novembre","dicembre"
+    ]
+    return f"{dt.day} {months[dt.month-1]} {dt.year}", dt.replace(microsecond=0).isoformat().replace("+00:00","Z")
+
+def invidious_attachment_images(attachment):
+    urls=[]
+    if not isinstance(attachment,dict):
+        return urls
+
+    def best(thumbnails):
+        candidates=[
+            x for x in (thumbnails or [])
+            if isinstance(x,dict) and x.get("url")
+        ]
+        if not candidates:
+            return ""
+        candidates.sort(key=lambda x:(int(x.get("width") or 0)*int(x.get("height") or 0),int(x.get("width") or 0)))
+        return candidates[-1]["url"]
+
+    kind=attachment.get("type")
+    if kind=="image":
+        u=best(attachment.get("imageThumbnails"))
+        if u: urls.append(u)
+    elif kind=="multiImage":
+        for group in attachment.get("images") or []:
+            u=best(group)
+            if u: urls.append(u)
+    return urls
+
+def invidious_instances():
+    # Prefer currently healthy API-enabled public instances. This source is
+    # used only for one-time historical recovery; normal sync still uses
+    # YouTube directly.
+    candidates=["https://invidious.f5.si"]
+    try:
+        req=urllib.request.Request(
+            "https://api.invidious.io/instances.json",
+            headers={"User-Agent":"Mozilla/5.0","Accept":"application/json"}
+        )
+        data=open_with_retry(req,timeout=20,parse_json=True,attempts=2)
+        for host,meta in data if isinstance(data,list) else []:
+            if not isinstance(meta,dict):
+                continue
+            if meta.get("api") is not True or meta.get("type")!="https":
+                continue
+            monitor=meta.get("monitor") or {}
+            if isinstance(monitor,dict) and monitor.get("down") is True:
+                continue
+            uri=meta.get("uri") or ("https://"+host)
+            if uri not in candidates:
+                candidates.append(uri.rstrip("/"))
+    except Exception as err:
+        print(f"Invidious instance discovery unavailable: {err}")
+    return candidates[:6]
+
+def fetch_invidious_full_history():
+    best_posts=[]
+    best_complete=False
+    for base in invidious_instances():
+        posts=[]
+        seen=set()
+        continuation=""
+        complete=False
+        try:
+            for page in range(1200):
+                endpoint=f"{base}/api/v1/channels/{CHANNEL_ID}/community"
+                if continuation:
+                    endpoint += "?continuation="+urllib.parse.quote(continuation,safe="")
+                req=urllib.request.Request(
+                    endpoint,
+                    headers={"User-Agent":"Mozilla/5.0","Accept":"application/json"}
+                )
+                data=open_with_retry(req,timeout=30,parse_json=True,attempts=3)
+                comments=data.get("comments") if isinstance(data,dict) else None
+                if not isinstance(comments,list):
+                    raise RuntimeError("invalid Community API response")
+
+                for item in comments:
+                    if not isinstance(item,dict):
+                        continue
+                    pid=item.get("commentId")
+                    if not pid or pid in seen:
+                        continue
+                    seen.add(pid)
+                    published,published_iso=italian_date_from_timestamp(item.get("published"))
+                    imgs=invidious_attachment_images(item.get("attachment"))
+                    posts.append({
+                        "id":pid,
+                        "text":(item.get("content") or "").strip(),
+                        "published":published or (item.get("publishedText") or ""),
+                        "published_iso":published_iso,
+                        "image":imgs[0] if imgs else "",
+                        "images":imgs,
+                        "url":"https://www.youtube.com/post/"+pid
+                    })
+
+                nxt=data.get("continuation") if isinstance(data,dict) else None
+                if not nxt:
+                    complete=True
+                    break
+                continuation=nxt
+                # Be polite to the public instance and avoid triggering rate limits.
+                time.sleep(0.45)
+
+            print(f"Historical Community fallback via {base}: {len(posts)} posts; complete={complete}")
+        except Exception as err:
+            print(f"Historical Community fallback failed on {base} after {len(posts)} posts: {err}")
+
+        if len(posts)>len(best_posts):
+            best_posts=posts
+            best_complete=complete
+        if complete and len(posts)>=500:
+            break
+    return best_posts,best_complete
+
+def merge_historical_posts(primary, historical, previous):
+    """Use historical ordering/coverage while preserving richer direct YouTube records."""
+    richer={}
+    for source in (previous,primary):
+        for item in source:
+            if isinstance(item,dict) and item.get("id"):
+                richer[item["id"]]=item
+
+    merged=[]
+    seen=set()
+    for item in historical:
+        pid=item.get("id") if isinstance(item,dict) else None
+        if not pid or pid in seen:
+            continue
+        seen.add(pid)
+        base=dict(item)
+        rich=richer.get(pid)
+        if rich:
+            for key,val in rich.items():
+                if val not in ("",None,[]):
+                    base[key]=val
+        merged.append(base)
+
+    # Preserve any very recent post that a third-party mirror has not indexed yet.
+    for item in primary:
+        pid=item.get("id") if isinstance(item,dict) else None
+        if pid and pid not in seen:
+            merged.insert(0,item)
+            seen.add(pid)
+    return merged
 
 def parse_nodes(data,posts,seen):
     nodes=[];walk(data,nodes)
@@ -1968,6 +2123,25 @@ def main():
     if force_full_scan:
         print("FULL Community history scan requested: ignoring incremental boundary.")
     posts,complete=parse(fetch(),scan_known_ids)
+    if force_full_scan:
+        direct_posts=list(posts)
+        historical,historical_complete=fetch_invidious_full_history()
+        if len(historical)>len(direct_posts):
+            posts=merge_historical_posts(direct_posts,historical,previous)
+            complete=historical_complete
+            print(
+                f"Historical fallback expanded Community archive from "
+                f"{len(direct_posts)} to {len(posts)} posts."
+            )
+        elif len(direct_posts)<=len(previous):
+            # YouTube's Posts tab can stop at a recent-history cap while
+            # reporting no continuation. Keep the flag so a later retry or
+            # alternate public instance can recover older posts.
+            complete=False
+            print(
+                f"Full scan still capped at {len(direct_posts)} posts; "
+                "keeping the one-time recovery flag for another attempt."
+            )
     if not posts:
         raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
 
