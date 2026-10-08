@@ -118,6 +118,14 @@ def article_record(path):
     content = without_related(raw)
     title = title_of(content)
     body = body_of(content)
+    if kind_for(path) == "News" and title.strip().lower() == "news":
+        m = re.search(r'<div\\s+class=["\\']article-body["\\'][^>]*>([\\s\\S]*?)</div>', content, re.I)
+        if m:
+            first_p = re.search(r'<p[^>]*>([\\s\\S]*?)</p>', m.group(1), re.I)
+            if first_p:
+                candidate = clean_text(first_p.group(1))
+                if candidate:
+                    title = candidate
     if not title or not body:
         return None
     title_tokens = normalized_words(title)
