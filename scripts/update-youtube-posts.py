@@ -107,6 +107,64 @@ def stable_published_label(value):
             "luglio","agosto","settembre","ottobre","novembre","dicembre"]
     return f"{dt.day} {months[dt.month-1]} {dt.year}"
 
+def published_iso_from_label(value):
+    """Return the most accurate ISO-8601 publication value available."""
+    raw=(value or "").strip()
+    if not raw:
+        return ""
+
+    # Already ISO-like.
+    if re.match(r"^\d{4}-\d{2}-\d{2}(?:T.*)?$",raw):
+        return raw
+
+    low=raw.lower()
+    now=datetime.now(timezone.utc)
+    delta=None
+    patterns=[
+        (r"^(\d+)\s+second[oi]\s+fa$", "seconds"),
+        (r"^(\d+)\s+minut[oi]\s+fa$", "minutes"),
+        (r"^(\d+)\s+or[ae]\s+fa$", "hours"),
+        (r"^(\d+)\s+giorn[oi]\s+fa$", "days"),
+        (r"^(\d+)\s+settiman[ae]\s+fa$", "weeks"),
+    ]
+    singular={
+        "un secondo fa":("seconds",1),"1 secondo fa":("seconds",1),
+        "un minuto fa":("minutes",1),"1 minuto fa":("minutes",1),
+        "un'ora fa":("hours",1),"un’ora fa":("hours",1),"1 ora fa":("hours",1),
+        "un giorno fa":("days",1),"1 giorno fa":("days",1),"ieri":("days",1),
+        "una settimana fa":("weeks",1),"1 settimana fa":("weeks",1),
+    }
+    if low in singular:
+        unit,n=singular[low]
+        delta=timedelta(**{unit:n})
+    else:
+        for pattern,unit in patterns:
+            m=re.match(pattern,low)
+            if m:
+                delta=timedelta(**{unit:int(m.group(1))})
+                break
+
+    if delta is not None:
+        dt=(now-delta).replace(microsecond=0)
+        return dt.isoformat().replace("+00:00","Z")
+
+    months={
+        "gennaio":1,"febbraio":2,"marzo":3,"aprile":4,"maggio":5,"giugno":6,
+        "luglio":7,"agosto":8,"settembre":9,"ottobre":10,"novembre":11,"dicembre":12,
+        "gen":1,"feb":2,"mar":3,"apr":4,"mag":5,"giu":6,"lug":7,"ago":8,
+        "set":9,"ott":10,"nov":11,"dic":12,
+    }
+    m=re.match(r"^(\d{1,2})\s+([a-zà-ÿ.]+)\s+(\d{4})$",low)
+    if m:
+        month=months.get(m.group(2).rstrip("."))
+        if month:
+            return f"{int(m.group(3)):04d}-{month:02d}-{int(m.group(1)):02d}"
+
+    m=re.match(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$",low)
+    if m:
+        return f"{int(m.group(3)):04d}-{int(m.group(2)):02d}-{int(m.group(1)):02d}"
+    return ""
+
 def walk(x,out):
     if isinstance(x,dict):
         for k,v in x.items():
@@ -323,12 +381,15 @@ def parse_nodes(data,posts,seen):
         seen.add(pid)
         added.append(pid)
         body=txt(p.get("contentText",{})) or txt(p.get("backstagePostText",{}))
-        when=stable_published_label(txt(p.get("publishedTimeText",{})))
+        when_raw=txt(p.get("publishedTimeText",{}))
+        when=stable_published_label(when_raw)
+        when_iso=published_iso_from_label(when_raw)
         imgs=image_urls(p)
         posts.append({
             "id":pid,
             "text":body.strip(),
             "published":when,
+            "published_iso":when_iso,
             "image":imgs[0] if imgs else "",
             "images":imgs,
             "url":"https://www.youtube.com/post/"+pid
@@ -796,8 +857,7 @@ def write_review_page(p, all_reviews=None):
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
+        +article_head_metadata(p,title,slug,"News")+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
@@ -1044,6 +1104,108 @@ def news_body_html(p):
     rendered=distribute_inline_images(rendered,p,title)
     return "\n".join(rendered)
 
+def json_ld_script(data):
+    payload=json.dumps(data,ensure_ascii=False,separators=(",",":")).replace("</","<\\/")
+    return '<script type="application/ld+json">'+payload+'</script>'
+
+def article_head_metadata(p,title,slug,section):
+    """Invisible metadata for Google/Search/Discover and social previews."""
+    canonical="https://zazoomtek.it/"+slug
+    description=post_excerpt(p,300) or title
+    image=(p.get("image") or "").strip()
+    published=(p.get("published_iso") or published_iso_from_label(p.get("published") or "")).strip()
+    modified=(p.get("modified_iso") or published).strip()
+    schema_type="NewsArticle" if section=="News" else "Article"
+    archive_url="https://zazoomtek.it/news.html" if section=="News" else "https://zazoomtek.it/recensioni-scritte.html"
+    org_id="https://zazoomtek.it/#organization"
+    site_id="https://zazoomtek.it/#website"
+
+    article={
+        "@type":schema_type,
+        "@id":canonical+"#article",
+        "headline":title,
+        "description":description,
+        "url":canonical,
+        "mainEntityOfPage":{"@type":"WebPage","@id":canonical},
+        "author":{"@id":org_id},
+        "publisher":{"@id":org_id},
+        "isPartOf":{"@id":site_id},
+        "inLanguage":"it-IT",
+        "articleSection":section,
+        "isAccessibleForFree":True,
+    }
+    if image:
+        article["image"]=[image]
+    if published:
+        article["datePublished"]=published
+    if modified:
+        article["dateModified"]=modified
+
+    graph=[
+        {
+            "@type":"Organization",
+            "@id":org_id,
+            "name":"ZazoomTek",
+            "url":"https://zazoomtek.it/",
+            "logo":{"@type":"ImageObject","url":"https://zazoomtek.it/ChatGPT.png"},
+            "sameAs":[
+                "https://www.youtube.com/@ZazoomTek",
+                "https://www.tiktok.com/@zazoomtek",
+            ],
+        },
+        {
+            "@type":"WebSite",
+            "@id":site_id,
+            "url":"https://zazoomtek.it/",
+            "name":"ZazoomTek",
+            "publisher":{"@id":org_id},
+            "inLanguage":"it-IT",
+        },
+        {
+            "@type":"BreadcrumbList",
+            "@id":canonical+"#breadcrumb",
+            "itemListElement":[
+                {"@type":"ListItem","position":1,"name":"Home","item":"https://zazoomtek.it/"},
+                {"@type":"ListItem","position":2,"name":section,"item":archive_url},
+                {"@type":"ListItem","position":3,"name":title,"item":canonical},
+            ],
+        },
+        article,
+    ]
+    structured=json_ld_script({"@context":"https://schema.org","@graph":graph})
+
+    esc_title=html.escape(title,quote=True)
+    esc_desc=html.escape(description,quote=True)
+    esc_url=html.escape(canonical,quote=True)
+    parts=[
+        f'<title>{esc_title} | ZazoomTek</title>',
+        f'<meta name="description" content="{esc_desc}">',
+        '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
+        '<meta name="author" content="ZazoomTek">',
+        f'<link rel="canonical" href="{esc_url}">',
+        '<meta property="og:type" content="article">',
+        '<meta property="og:locale" content="it_IT">',
+        '<meta property="og:site_name" content="ZazoomTek">',
+        f'<meta property="og:title" content="{esc_title}">',
+        f'<meta property="og:description" content="{esc_desc}">',
+        f'<meta property="og:url" content="{esc_url}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:title" content="{esc_title}">',
+        f'<meta name="twitter:description" content="{esc_desc}">',
+    ]
+    if image:
+        esc_image=html.escape(image,quote=True)
+        parts.extend([
+            f'<meta property="og:image" content="{esc_image}">',
+            f'<meta name="twitter:image" content="{esc_image}">',
+        ])
+    if published:
+        parts.append(f'<meta property="article:published_time" content="{html.escape(published,quote=True)}">')
+    if modified:
+        parts.append(f'<meta property="article:modified_time" content="{html.escape(modified,quote=True)}">')
+    parts.append(structured)
+    return "".join(parts)
+
 def write_news_page(p, all_news=None):
     all_news=all_news or []
     title=news_title(p)
@@ -1062,8 +1224,7 @@ def write_news_page(p, all_news=None):
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        f'<title>{html.escape(title)} | ZazoomTek</title><meta name="description" content="{html.escape(title)}">'
-        f'<link rel="canonical" href="https://zazoomtek.it/{slug}">'+NEWS_DETAIL_STYLE+'</head><body>'
+        +article_head_metadata(p,title,slug,"Recensioni")+NEWS_DETAIL_STYLE+'</head><body>'
         +rich_editorial_header("news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
@@ -1416,6 +1577,36 @@ def main():
             f"Community scan was partial: merged {len(posts)-len(preserved)} fresh items "
             f"with {len(preserved)} preserved previous items."
         )
+
+    previous_by_id={
+        p.get("id"):p for p in previous
+        if isinstance(p,dict) and p.get("id")
+    }
+    sync_now=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+    for p in posts:
+        if not isinstance(p,dict) or not p.get("id"):
+            continue
+        old=previous_by_id.get(p.get("id")) or {}
+        published_iso=(
+            old.get("published_iso")
+            or p.get("published_iso")
+            or published_iso_from_label(old.get("published") or p.get("published") or "")
+        )
+        if published_iso:
+            p["published_iso"]=published_iso
+
+        old_modified=old.get("modified_iso") or published_iso
+        content_changed=bool(old) and any([
+            (old.get("text") or "") != (p.get("text") or ""),
+            (old.get("image") or "") != (p.get("image") or ""),
+            (old.get("images") or []) != (p.get("images") or []),
+        ])
+        if content_changed:
+            p["modified_iso"]=sync_now
+        elif old_modified:
+            p["modified_iso"]=old_modified
+        elif published_iso:
+            p["modified_iso"]=published_iso
 
     # Safety guard: a transient parser/API issue must never replace a healthy
     # archive with a suspiciously small partial result.
