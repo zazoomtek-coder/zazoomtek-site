@@ -24,7 +24,7 @@ permissions:
 # Never kill a healthy sync just because the next 5-minute check has arrived.
 # At most one sync runs at a time; later checks wait for the current one.
 concurrency:
-  group: zazoomtek-site-publish
+  group: youtube-site-sync
   cancel-in-progress: false
 
 jobs:
