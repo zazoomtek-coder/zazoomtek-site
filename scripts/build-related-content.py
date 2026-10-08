@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import html
+import math
 import re
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(".")
@@ -15,11 +17,26 @@ MIN_SCORE = 8.0
 GENERIC_TITLE_TERMS = {
     "ps4","ps5","xbox","series","switch","nintendo","playstation","pc","steam","windows",
     "dlc","update","aggiornamento","trailer","video","gameplay","demo","beta","edition","complete",
-    "enhanced","remastered","remake","accesso","anticipato","early","available","disponibile"
+    "enhanced","remastered","remake","accesso","anticipato","early","available","disponibile",
+    "data","uscita","preorder","pre-order","annuncia","annunciato","presenta","presentato","svela",
+    "prime","primo","prima","nuove","nuovi","novita","versione","modalita","contenuti","arrivo",
+    "ottobre","settembre","novembre","dicembre","gennaio","febbraio","marzo","aprile","maggio",
+    "giugno","luglio","agosto","2025","2026","2027"
 }
 
 WEAK_TOPICS = {
     "playstation","xbox","nintendo","pcgaming","multiplayer","dlc"
+}
+
+GAMING_TOPICS = {
+    "transport_sim","city_builder","management_sim","simulation","fps_shooter","third_person_shooter",
+    "action_adventure","open_world","rpg","action_rpg","soulslike","roguelike","survivors_like",
+    "survival","horror","strategy","tactical","racing","sports","fighting","platformer","metroidvania",
+    "puzzle","party_game","cozy","multiplayer","mmo","deckbuilder","stealth","flight_combat"
+}
+TECH_TOPICS = {
+    "camera_security","robot_cleaning","networking","audio","keyboard","mouse","controller","dashcam",
+    "smartphone","tablet","computer","storage","monitor","smart_home","wearable","power","printer","air_quality"
 }
 
 FRANCHISE_ALIASES = {
@@ -62,43 +79,56 @@ FRANCHISE_TOPICS = {
 }
 
 TITLE_TOPIC_GROUPS = {
-    "transport_sim": {
-        "transport","transportation","railway","railroad","ferrovia","ferrovie","treno","treni",
-        "logistics","logistica","airport","aeroporto"
-    },
-    "city_builder": {
-        "city builder","city-building","construction simulator","construction","costruzione",
-        "cities skylines","simcity"
-    },
-    "management_sim": {
-        "tycoon","management","gestionale","economic simulator","economy simulator"
-    },
-    "simulation": {
-        "simulator","simulation","simulatore","simulazione"
-    },
-    "fps_shooter": {
-        "fps","shooter","sparatutto","battlefield","call of duty","cod","doom","serious sam",
-        "delta force","counter-strike","valorant"
-    },
-    "rpg": {"rpg","jrpg","gdr","role-playing"},
-    "roguelike": {"roguelike","roguelite","survivor","survivors"},
+    # Gaming
+    "transport_sim": {"transport","transportation","railway","railroad","ferrovia","ferrovie","treno","treni","logistics","logistica","airport","aeroporto"},
+    "city_builder": {"city builder","city-building","cities skylines","simcity","urbanistica","citta","costruzione citta"},
+    "management_sim": {"tycoon","management","gestionale","economy","economico","gestione","manageriale"},
+    "simulation": {"simulator","simulation","simulatore","simulazione"},
+    "fps_shooter": {"fps","shooter","sparatutto","gunplay","battlefield","call of duty","cod","doom","serious sam","delta force","counter-strike","valorant"},
+    "third_person_shooter": {"third person shooter","third-person shooter","tps"},
+    "action_adventure": {"action adventure","action-adventure","azione","avventura","adventure"},
+    "open_world": {"open world","open-world","mondo aperto"},
+    "rpg": {"rpg","jrpg","gdr","role-playing","gioco di ruolo"},
+    "action_rpg": {"action rpg","action-rpg","arpg"},
+    "soulslike": {"soulslike","souls-like","soulsborne"},
+    "roguelike": {"roguelike","rogue-like","roguelite","rogue-lite"},
+    "survivors_like": {"survivors-like","survivor-like","bullet heaven","vampire survivors"},
     "survival": {"survival","sopravvivenza"},
-    "horror": {"horror"},
-    "strategy": {"strategy","strategia","strategico","rts","4x"},
-    "racing": {"racing","corse","rally","motorsport","sim racing"},
-    "sports": {"football","calcio","basket","ufc","sport","sports"},
+    "horror": {"horror","survival horror","orrore"},
+    "strategy": {"strategy","strategia","strategico","rts","4x","turn-based strategy","strategia a turni"},
+    "tactical": {"tactical","tattico","tattica"},
+    "racing": {"racing","corse","rally","motorsport","sim racing","automobilismo"},
+    "sports": {"football","calcio","basket","basketball","ufc","sport","sports","tennis"},
     "fighting": {"fighting","picchiaduro","tekken","street fighter","mortal kombat"},
-    "platformer": {"platform","platformer"},
-    "open_world": {"open world","open-world"},
-    "camera_security": {"camera","telecamera","videosorveglianza","security","sicurezza","reolink"},
-    "robot_cleaning": {"roomba","irobot","robot","aspirapolvere","lavapavimenti","pulizia"},
-    "networking": {"router","wifi","wi-fi","ethernet","fibra","fritz!box","fritz box"},
-    "audio": {"cuffie","headset","auricolari","earbuds","speaker","audio","microfono"},
-    "keyboard": {"tastiera","keyboard","epomaker","keychron"},
-    "controller": {"controller","gamepad","scuf","dualSense","dualsense"},
+    "platformer": {"platform","platformer","platforming"},
+    "metroidvania": {"metroidvania"},
+    "puzzle": {"puzzle","rompicapo"},
+    "party_game": {"party game","minigiochi","mini giochi"},
+    "cozy": {"cozy","rilassante","relaxing"},
+    "multiplayer": {"multiplayer","co-op","coop","cooperativa","online"},
+    "mmo": {"mmo","mmorpg"},
+    "deckbuilder": {"deckbuilder","deck-builder","deck building","deck-building","carte"},
+    "stealth": {"stealth","furtivo","infiltrazione"},
+    "flight_combat": {"flight combat","combattimento aereo","aerei","aviazione"},
+    # Tech
+    "camera_security": {"camera","telecamera","videosorveglianza","security camera","sicurezza","nvr","reolink"},
+    "robot_cleaning": {"roomba","irobot","robot aspirapolvere","aspirapolvere robot","lavapavimenti","pulizia pavimenti","robot cleaning"},
+    "networking": {"router","wifi","wi-fi","ethernet","fibra","mesh","modem","fritz!box","fritz box"},
+    "audio": {"cuffie","headset","auricolari","earbuds","speaker","audio","microfono","soundbar"},
+    "keyboard": {"tastiera","keyboard","switch meccanici","meccanica","epomaker","keychron"},
+    "mouse": {"mouse","sensore ottico","dpi"},
+    "controller": {"controller","gamepad","scuf","dualsense","dual sense"},
     "dashcam": {"dashcam","dash cam","70mai"},
-    "smartphone": {"smartphone","telefono","android","iphone","realme"},
-    "computer": {"notebook","laptop","mini pc","minipc","workstation","cpu","gpu","scheda video"},
+    "smartphone": {"smartphone","telefono","android","iphone","realme","display amoled","fotocamera smartphone"},
+    "tablet": {"tablet","ipad"},
+    "computer": {"notebook","laptop","mini pc","minipc","workstation","cpu","gpu","scheda video","processore"},
+    "storage": {"ssd","nvme","hard disk","archiviazione","storage"},
+    "monitor": {"monitor","display gaming","hz","refresh rate"},
+    "smart_home": {"smart home","domotica","matter","zigbee","casa intelligente"},
+    "wearable": {"smartwatch","wearable","fitness tracker","smart glasses","occhiali smart"},
+    "power": {"powerbank","power bank","caricatore","charger","batteria"},
+    "printer": {"stampante","printer"},
+    "air_quality": {"purificatore","purificatore aria","air purifier","qualita aria"},
 }
 
 STOPWORDS = {
@@ -259,13 +289,30 @@ def franchise_for(title):
             found.add(franchise)
     return found
 
-def domain_for(title):
-    sample=title.lower()
-    gaming=sum(1 for term in GAMING_TERMS if phrase_present(sample, term))
-    tech=sum(1 for term in TECH_TERMS if phrase_present(sample, term))
+def topic_hits(title, body):
+    # Title weighs most, while the first part of the article is used only to
+    # understand its editorial category. This improves coverage without making
+    # unrelated body words create false matches.
+    title_sample=unicodedata.normalize("NFKD", title.lower())
+    title_sample="".join(ch for ch in title_sample if not unicodedata.combining(ch))
+    body_sample=unicodedata.normalize("NFKD", body[:2200].lower())
+    body_sample="".join(ch for ch in body_sample if not unicodedata.combining(ch))
 
-    # Known game franchises are always gaming; known hardware brands/products
-    # remain tech unless the title itself is clearly about a videogame.
+    scores=Counter()
+    for topic, terms in TITLE_TOPIC_GROUPS.items():
+        for term in terms:
+            term=term.lower()
+            if phrase_present(title_sample,term):
+                scores[topic]+=4
+            elif phrase_present(body_sample,term):
+                scores[topic]+=1
+
+    for franchise in franchise_for(title):
+        for topic in FRANCHISE_TOPICS.get(franchise,set()):
+            scores[topic]+=5
+    return scores
+
+def domain_for(title, body, topics):
     franchises=franchise_for(title)
     game_franchises={
         "gta","risk_of_rain","transport_fever","ace_combat","battlefield",
@@ -276,22 +323,19 @@ def domain_for(title):
         return "gaming"
     if franchises & tech_franchises:
         return "tech"
-    if gaming > tech:
+
+    gaming_score=sum(score for topic,score in topics.items() if topic in GAMING_TOPICS)
+    tech_score=sum(score for topic,score in topics.items() if topic in TECH_TOPICS)
+
+    sample=(title+" "+body[:900]).lower()
+    gaming_score += sum(1 for term in GAMING_TERMS if phrase_present(sample,term))
+    tech_score += sum(1 for term in TECH_TERMS if phrase_present(sample,term))
+
+    if gaming_score > tech_score:
         return "gaming"
-    if tech > gaming:
+    if tech_score > gaming_score:
         return "tech"
     return "mixed"
-
-def topics_for(title):
-    sample=unicodedata.normalize("NFKD", title.lower())
-    sample="".join(ch for ch in sample if not unicodedata.combining(ch))
-    topics={
-        topic for topic, terms in TITLE_TOPIC_GROUPS.items()
-        if any(phrase_present(sample, term.lower()) for term in terms)
-    }
-    for franchise in franchise_for(title):
-        topics.update(FRANCHISE_TOPICS.get(franchise,set()))
-    return topics
 
 def kind_for(path):
     name = path.name.lower()
@@ -323,7 +367,9 @@ def article_record(path):
     title_tokens = normalized_words(title)
     strong_tokens = strong_title_tokens(title)
     bigrams = title_bigrams(title)
-    body_tokens = normalized_words(body[:8000])
+    body_tokens = normalized_words(body[:2200])
+    topic_scores = topic_hits(title,body)
+    topics = {topic for topic,score in topic_scores.items() if score >= 1}
     return {
         "path": path,
         "name": path.name,
@@ -333,8 +379,9 @@ def article_record(path):
         "body": body,
         "image": image_of(content),
         "kind": kind_for(path),
-        "domain": domain_for(title),
-        "topics": topics_for(title),
+        "domain": domain_for(title,body,topic_scores),
+        "topics": topics,
+        "topic_scores": topic_scores,
         "franchises": franchise_for(title),
         "title_tokens": title_tokens,
         "strong_tokens": strong_tokens,
@@ -342,66 +389,121 @@ def article_record(path):
         "body_tokens": body_tokens,
     }
 
-def relevance(current, candidate):
-    # Never mix clear gaming and clear tech.
-    if (
-        current["domain"] != "mixed"
-        and candidate["domain"] != "mixed"
-        and current["domain"] != candidate["domain"]
-    ):
-        return -999.0
+def build_idf(records):
+    total=max(1,len(records))
+    df=Counter()
+    for record in records:
+        for token in record["strong_tokens"]:
+            df[token]+=1
+    return {
+        token: math.log((1+total)/(1+freq))+1.0
+        for token,freq in df.items()
+    }
 
-    franchise_overlap=current["franchises"] & candidate["franchises"]
-    strong_overlap=current["strong_tokens"] & candidate["strong_tokens"]
-    bigram_overlap=current["bigrams"] & candidate["bigrams"]
-    topic_overlap=current["topics"] & candidate["topics"]
+def rare_title_overlap(current,candidate,idf):
+    shared=current["strong_tokens"] & candidate["strong_tokens"]
+    return sum(idf.get(token,1.0) for token in shared)
 
-    # Ranking is deliberately TITLE-ONLY. Body copy is ignored.
-    score=(
-        len(franchise_overlap) * 100.0
-        + len(bigram_overlap) * 30.0
-        + len(strong_overlap) * 14.0
-        + len(topic_overlap) * 12.0
-    )
-    if current["kind"] == candidate["kind"]:
-        score += 0.5
+def title_cosine(current,candidate,idf):
+    a={t:idf.get(t,1.0) for t in current["strong_tokens"]}
+    b={t:idf.get(t,1.0) for t in candidate["strong_tokens"]}
+    if not a or not b:
+        return 0.0
+    dot=sum(a[t]*b.get(t,0.0) for t in a)
+    na=math.sqrt(sum(v*v for v in a.values()))
+    nb=math.sqrt(sum(v*v for v in b.values()))
+    return dot/(na*nb) if na and nb else 0.0
+
+def topic_similarity(current,candidate):
+    shared=current["topics"] & candidate["topics"]
+    if not shared:
+        return 0.0
+    score=0.0
+    for topic in shared:
+        score += min(current["topic_scores"].get(topic,0),candidate["topic_scores"].get(topic,0))
     return score
 
-def related_for(current, records, limit=LIMIT):
+def relevance(current,candidate,idf):
+    # Cross vertical recommendations are never allowed.
+    if current["domain"] in {"gaming","tech"} and candidate["domain"] in {"gaming","tech"}:
+        if current["domain"] != candidate["domain"]:
+            return -999.0
+
+    franchise_overlap=current["franchises"] & candidate["franchises"]
+    bigram_overlap=current["bigrams"] & candidate["bigrams"]
+    rare_overlap=rare_title_overlap(current,candidate,idf)
+    cosine=title_cosine(current,candidate,idf)
+    topic_score=topic_similarity(current,candidate)
+
+    score=(
+        len(franchise_overlap)*180.0
+        + len(bigram_overlap)*45.0
+        + rare_overlap*14.0
+        + cosine*45.0
+        + topic_score*13.0
+    )
+    if current["domain"] == candidate["domain"] and current["domain"] != "mixed":
+        score += 4.0
+    if current["kind"] == candidate["kind"]:
+        score += 1.0
+    return score
+
+def related_for(current, records, idf, limit=LIMIT):
     ranked=[]
+    fallback=[]
     for candidate in records:
         if candidate["name"] == current["name"]:
             continue
+        if current["domain"] in {"gaming","tech"} and candidate["domain"] in {"gaming","tech"}:
+            if current["domain"] != candidate["domain"]:
+                continue
 
         franchise_overlap=current["franchises"] & candidate["franchises"]
-        strong_overlap=current["strong_tokens"] & candidate["strong_tokens"]
         bigram_overlap=current["bigrams"] & candidate["bigrams"]
-        topic_overlap=current["topics"] & candidate["topics"]
+        rare_overlap=rare_title_overlap(current,candidate,idf)
+        cosine=title_cosine(current,candidate,idf)
+        shared_topics=current["topics"] & candidate["topics"]
+        topic_score=topic_similarity(current,candidate)
+        score=relevance(current,candidate,idf)
 
-        # A platform alone (PS5/Xbox/PC/Switch) is never a reason to relate.
-        # Require one of:
-        # - same franchise/product family;
-        # - a meaningful two-word title phrase;
-        # - at least two strong title terms;
-        # - a specific title-derived genre/category.
+        # Tier 0-3 are true editorial relations.
         if franchise_overlap:
             tier=0
-        elif bigram_overlap:
+        elif bigram_overlap or rare_overlap >= 4.2:
             tier=1
-        elif len(strong_overlap) >= 2:
+        elif shared_topics and topic_score >= 2:
             tier=2
-        elif topic_overlap:
+        elif cosine >= 0.16 and rare_overlap >= 1.8:
             tier=3
         else:
+            tier=None
+
+        if tier is not None:
+            ranked.append((tier,-score,candidate["name"],candidate))
             continue
 
-        score=relevance(current,candidate)
-        if score < MIN_SCORE:
-            continue
-        ranked.append((tier,-score,candidate["name"],candidate))
+        # Sensitive fallback: same vertical + at least one inferred editorial
+        # category OR a modest title similarity. This raises coverage but still
+        # prevents gaming/tech nonsense.
+        if current["domain"] == candidate["domain"] and current["domain"] in {"gaming","tech"}:
+            if shared_topics or cosine >= 0.08:
+                fallback.append((-score,candidate["name"],candidate))
 
     ranked.sort(key=lambda item:(item[0],item[1],item[2]))
-    return [item[3] for item in ranked[:limit]]
+    selected=[item[3] for item in ranked[:limit]]
+    used={item["name"] for item in selected}
+
+    if len(selected) < limit:
+        fallback.sort(key=lambda item:(item[0],item[1]))
+        for _,_,candidate in fallback:
+            if candidate["name"] in used:
+                continue
+            selected.append(candidate)
+            used.add(candidate["name"])
+            if len(selected)>=limit:
+                break
+
+    return selected[:limit]
 
 def render_related(items):
     cards = []
@@ -459,12 +561,16 @@ def main():
     if len(records) < 20:
         raise RuntimeError(f"Too few editorial articles found: {len(records)}")
 
+    idf=build_idf(records)
     changed = 0
     with_blocks = 0
     total_links = 0
+    no_match=[]
     for record in records:
-        related = related_for(record, records, LIMIT)
+        related = related_for(record, records, idf, LIMIT)
         block = render_related(related) if len(related) >= MIN_RELATED else ""
+        if not related:
+            no_match.append(record["name"])
         output = inject(record, block)
         if block:
             with_blocks += 1
@@ -477,11 +583,18 @@ def main():
             record["path"].write_text(output, encoding="utf-8")
             changed += 1
 
+    coverage=(with_blocks/len(records))*100 if records else 0
     print(
-        f"Title-based related content evaluated for {len(records)} articles; "
-        f"{with_blocks} pages have strong matches, {total_links} links total; "
-        f"{changed} files updated."
+        f"Hybrid related content evaluated for {len(records)} articles; "
+        f"{with_blocks} pages have matches ({coverage:.1f}% coverage), "
+        f"{total_links} links total; {changed} files updated."
     )
+    if no_match:
+        print("Pages without a safe related match:", ", ".join(no_match[:20]))
+    if coverage < 70:
+        raise RuntimeError(
+            f"Related-content coverage too low ({coverage:.1f}%); refusing to publish a weak recommendation build."
+        )
 
 if __name__ == "__main__":
     main()
