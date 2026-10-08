@@ -46,22 +46,87 @@ def get(endpoint, **params):
 
     raise last_error
 
-def uploads():
+def cached_video(item):
+    """Rebuild the small API-like shape needed by the renderer from saved state."""
+    live=bool(item.get("live"))
+    return {
+        "id":item.get("id"),
+        "snippet":{
+            "title":item.get("title") or "",
+            "publishedAt":item.get("publishedAt") or "1970-01-01T00:00:00Z",
+            "liveBroadcastContent":"live" if live else "none",
+        },
+        "contentDetails":{"duration":"PT0S"},
+        "_cached_short":bool(item.get("short")),
+        "_cached_live":live,
+    }
+
+def uploads(previous=None, recent_limit=100):
+    """Fetch only recent uploads, then merge them with the last valid full state.
+
+    This keeps the five-minute sync well below unnecessary YouTube API load while
+    retaining the complete historic catalogue needed by category pages.
+    """
+    previous=previous or []
     c=get("channels",part="contentDetails",id=CHANNEL_ID)
-    pl=c["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+    items=c.get("items") or []
+    if not items:
+        raise RuntimeError("YouTube channels response contained no channel.")
+    pl=items[0]["contentDetails"]["relatedPlaylists"]["uploads"]
+
+    # On first bootstrap there is no cache, so build the complete history.
+    limit=None if not previous else recent_limit
     ids=[]
     token=None
     while True:
         params={"part":"snippet,contentDetails","playlistId":pl,"maxResults":50}
         if token: params["pageToken"]=token
         p=get("playlistItems",**params)
-        ids.extend(x["contentDetails"]["videoId"] for x in p.get("items",[]))
+        batch=[
+            x.get("contentDetails",{}).get("videoId")
+            for x in p.get("items",[])
+            if x.get("contentDetails",{}).get("videoId")
+        ]
+        ids.extend(batch)
         token=p.get("nextPageToken")
-        if not token: break
-    v=[]
+        if limit and len(ids)>=limit:
+            ids=ids[:limit]
+            break
+        if not token:
+            break
+
+    if previous and not ids:
+        raise RuntimeError("YouTube recent uploads response was empty.")
+
+    fresh=[]
     for i in range(0,len(ids),50):
-        v.extend(get("videos",part="snippet,contentDetails,liveStreamingDetails",id=",".join(ids[i:i+50]))["items"])
-    return sorted(v,key=lambda x:x["snippet"]["publishedAt"],reverse=True)
+        fresh.extend(
+            get(
+                "videos",
+                part="snippet,contentDetails,liveStreamingDetails",
+                id=",".join(ids[i:i+50])
+            ).get("items",[])
+        )
+    fresh=sorted(fresh,key=lambda x:x["snippet"]["publishedAt"],reverse=True)
+
+    if not previous:
+        return fresh
+
+    fresh_ids={v["id"] for v in fresh}
+    cutoff=min((v["snippet"]["publishedAt"] for v in fresh),default="")
+    merged=list(fresh)
+
+    # Preserve older cached history, but do not resurrect a recent video that
+    # disappeared from the channel's upload feed.
+    for item in previous:
+        if not isinstance(item,dict) or not item.get("id") or item["id"] in fresh_ids:
+            continue
+        published=item.get("publishedAt") or ""
+        if cutoff and published>=cutoff:
+            continue
+        merged.append(cached_video(item))
+
+    return sorted(merged,key=lambda x:x["snippet"]["publishedAt"],reverse=True)
 
 def sec(d):
     m=re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?",d or "")
@@ -565,7 +630,7 @@ def main():
         except Exception:
             previous=[]
 
-    vids=uploads()
+    vids=uploads(previous)
     if not vids:
         raise RuntimeError("YouTube safety check failed: zero uploads returned.")
 
@@ -621,7 +686,7 @@ def main():
             "title":v["snippet"]["title"],
             "publishedAt":v["snippet"]["publishedAt"],
             "category":classify(v),
-            "short": (v["id"] in short_ids) if short_ids else sec(v["contentDetails"]["duration"])<=180,
+            "short": (v["id"] in short_ids) or bool(v.get("_cached_short")),
             "live": is_live_upload(v)
         } for v in vids],ensure_ascii=False,indent=2),
         encoding="utf-8"
