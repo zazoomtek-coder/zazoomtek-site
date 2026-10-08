@@ -229,7 +229,7 @@ def sidebar_stack_card(v):
         "test":"TEST",
         "unboxing":"UNBOXING",
         "gaming":"GAMING",
-        "analogiktek":"RETROGAMING",
+        "analogiktek":"ANALOGICTEK",
     }.get(category,(category or "VIDEO").upper())
     dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
     months=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]
