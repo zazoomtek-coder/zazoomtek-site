@@ -254,10 +254,12 @@ def fetch_continuation(token,key,ver):
 
 def parse_nodes(data,posts,seen):
     nodes=[];walk(data,nodes)
+    added=[]
     for p in nodes:
         pid=p.get("postId") or p.get("backstagePostId")
         if not pid or pid in seen:continue
         seen.add(pid)
+        added.append(pid)
         body=txt(p.get("contentText",{})) or txt(p.get("backstagePostText",{}))
         when=txt(p.get("publishedTimeText",{}))
         imgs=image_urls(p)
@@ -269,6 +271,7 @@ def parse_nodes(data,posts,seen):
             "images":imgs,
             "url":"https://www.youtube.com/post/"+pid
         })
+    return added
 
 def looks_like_review_post(p):
     lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
@@ -276,18 +279,31 @@ def looks_like_review_post(p):
     body=(p.get("text") or "").lower()
     return (not first.startswith("news:")) and ("recensione" in first or "review" in first or "voto finale" in body)
 
-def parse(s):
+def parse(s,known_ids=None):
+    known_ids=set(known_ids or [])
     data=initial_data(s)
     posts=[];seen=set()
-    parse_nodes(data,posts,seen)
+    first_ids=parse_nodes(data,posts,seen)
     key,ver=innertube_config(s)
     tokens=continuation_tokens(data)
     used=set()
     pages=0
     complete=True
-    # Continue through all available Community-post continuation pages.
-    # If an older continuation fails after retries, keep the fresh items already
-    # collected and let main() merge them with the last known-good archive.
+
+    def reached_known_boundary(page_ids):
+        if not known_ids or not page_ids:
+            return False
+        known=sum(1 for pid in page_ids if pid in known_ids)
+        # Avoid stopping because of a single pinned/old post. Once a meaningful
+        # part of a page is already known, the saved archive can safely supply
+        # the older tail.
+        return known>=max(3,len(page_ids)//3)
+
+    if reached_known_boundary(first_ids):
+        return posts,False
+
+    # Continue only until we reconnect with the saved archive. On first
+    # bootstrap (no known_ids) this naturally walks the complete history.
     while tokens and pages < 3000:
         token=next((t for t in tokens if t not in used),None)
         if not token:break
@@ -298,8 +314,12 @@ def parse(s):
             print(f"Community continuation failed after retries at page {pages}: {err}")
             complete=False
             break
-        parse_nodes(more,posts,seen)
+        page_ids=parse_nodes(more,posts,seen)
         tokens.extend(t for t in continuation_tokens(more) if t not in used)
+        if reached_known_boundary(page_ids):
+            complete=False
+            break
+
     if pages>=3000 and tokens:
         complete=False
         print("Community safety ceiling reached; preserving previous archive tail.")
@@ -1252,7 +1272,11 @@ def main():
         except Exception:
             previous=[]
 
-    posts,complete=parse(fetch())
+    known_ids={
+        p.get("id") for p in previous
+        if isinstance(p,dict) and p.get("id")
+    }
+    posts,complete=parse(fetch(),known_ids)
     if not posts:
         raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
 
