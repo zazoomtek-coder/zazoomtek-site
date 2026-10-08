@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Global scrollbar refresh marker
 # Structured data refresh marker
-import json,re,html,time,urllib.error,urllib.request
+import json,re,html,time,unicodedata,urllib.error,urllib.request
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
