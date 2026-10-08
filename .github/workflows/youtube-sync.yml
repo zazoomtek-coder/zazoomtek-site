@@ -11,6 +11,7 @@ on:
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
       - 'scripts/build-search-index.py'
+      - 'scripts/build-related-content.py'
       - 'scripts/inject-analytics.py'
       - 'zt-analytics.js'
       - 'cerca.html'
@@ -36,7 +37,7 @@ jobs:
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/inject-analytics.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
@@ -115,6 +116,32 @@ jobs:
           git reset --hard HEAD
           git clean -fd
 
+      - name: Build automatic related articles
+        id: related_sync
+        if: always()
+        continue-on-error: true
+        run: python3 scripts/build-related-content.py
+
+      - name: Save related article links locally
+        id: related_commit
+        if: steps.related_sync.outcome == 'success'
+        continue-on-error: true
+        run: |
+          git add -- '*.html'
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Update automatic related articles"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Recover from related article build failure
+        if: steps.related_commit.outcome == 'failure'
+        run: |
+          echo "Related article commit failed; discarding uncommitted related-link output."
+          git reset --hard HEAD
+          git clean -fd
+
       - name: Ensure GA4 on every HTML page
         id: analytics_sync
         if: always()
@@ -168,7 +195,7 @@ jobs:
           git clean -fd
 
       - name: Push validated site update
-        if: always() && steps.search_sync.outcome == 'success' && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
+        if: always() && steps.search_sync.outcome == 'success' && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
         run: |
           git fetch origin main
           if ! git rebase origin/main; then
@@ -194,7 +221,7 @@ jobs:
 
       - name: Deploy validated site to Firebase
         id: site_deploy
-        if: always() && steps.analytics_sync.outcome == 'success' && steps.search_sync.outcome == 'success'
+        if: always() && steps.related_sync.outcome == 'success' && steps.analytics_sync.outcome == 'success' && steps.search_sync.outcome == 'success'
         continue-on-error: true
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -210,6 +237,8 @@ jobs:
           videos="${{ steps.video_sync.outcome }}"
           community_commit="${{ steps.community_commit.outcome }}"
           video_commit="${{ steps.video_commit.outcome }}"
+          related="${{ steps.related_sync.outcome }}"
+          related_commit="${{ steps.related_commit.outcome }}"
           analytics="${{ steps.analytics_sync.outcome }}"
           analytics_commit="${{ steps.analytics_commit.outcome }}"
           search="${{ steps.search_sync.outcome }}"
@@ -217,15 +246,17 @@ jobs:
           deploy="${{ steps.site_deploy.outcome }}"
           echo "Community result: $community"
           echo "Video result: $videos"
+          echo "Related articles result: $related"
           echo "GA4 injection result: $analytics"
           echo "Search index result: $search"
           echo "Community commit: $community_commit"
           echo "Video commit: $video_commit"
+          echo "Related articles commit: $related_commit"
           echo "GA4 commit: $analytics_commit"
           echo "Search commit: $search_commit"
           echo "Firebase deploy: $deploy"
-          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" != "success" ] || \
-             [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
+          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" != "success" ] || \
+             [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
           fi
