@@ -284,21 +284,26 @@ def parse(s):
     tokens=continuation_tokens(data)
     used=set()
     pages=0
-    # Continue through ALL available Community-post continuation pages.
-    # ZazoomTek publishes many posts, so the old 220-page ceiling only reached
-    # roughly the most recent month and missed older reviews.
-    # Keep a very high safety ceiling only to guard against a broken endless
-    # continuation chain; normal execution stops naturally when tokens end.
+    complete=True
+    # Continue through all available Community-post continuation pages.
+    # If an older continuation fails after retries, keep the fresh items already
+    # collected and let main() merge them with the last known-good archive.
     while tokens and pages < 3000:
         token=next((t for t in tokens if t not in used),None)
         if not token:break
         used.add(token);pages+=1
-        # A failed continuation means the archive is incomplete.
-        # Abort the whole run instead of publishing a truncated Community feed.
-        more=fetch_continuation(token,key,ver)
+        try:
+            more=fetch_continuation(token,key,ver)
+        except Exception as err:
+            print(f"Community continuation failed after retries at page {pages}: {err}")
+            complete=False
+            break
         parse_nodes(more,posts,seen)
         tokens.extend(t for t in continuation_tokens(more) if t not in used)
-    return posts
+    if pages>=3000 and tokens:
+        complete=False
+        print("Community safety ceiling reached; preserving previous archive tail.")
+    return posts,complete
 
 def is_review(p):
     lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
@@ -1247,9 +1252,23 @@ def main():
         except Exception:
             previous=[]
 
-    posts=parse(fetch())
+    posts,complete=parse(fetch())
     if not posts:
         raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
+
+    if not complete:
+        if not previous:
+            raise RuntimeError(
+                "Community scan incomplete and no previous valid state is available; "
+                "refusing to modify the site."
+            )
+        fresh_ids={p.get("id") for p in posts if isinstance(p,dict)}
+        preserved=[p for p in previous if isinstance(p,dict) and p.get("id") not in fresh_ids]
+        posts=posts+preserved
+        print(
+            f"Community scan was partial: merged {len(posts)-len(preserved)} fresh items "
+            f"with {len(preserved)} preserved previous items."
+        )
 
     # Safety guard: a transient parser/API issue must never replace a healthy
     # archive with a suspiciously small partial result.
