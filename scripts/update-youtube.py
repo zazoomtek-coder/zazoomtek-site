@@ -543,17 +543,62 @@ def update_home(vids, short_ids):
 
 def main():
     global TEST_VIDEO_IDS, GAMING_VIDEO_IDS, UNBOXING_VIDEO_IDS, REVIEWS_VIDEO_IDS, ANALOGIKTEK_VIDEO_IDS
+
+    state_path=Path(".youtube-latest.json")
+    previous=[]
+    if state_path.exists():
+        try:
+            previous=json.loads(state_path.read_text(encoding="utf-8"))
+            if not isinstance(previous,list):
+                previous=[]
+        except Exception:
+            previous=[]
+
     vids=uploads()
+    if not vids:
+        raise RuntimeError("YouTube safety check failed: zero uploads returned.")
+
+    # Protect the site from a transient partial API response.
+    if previous:
+        minimum=max(20,int(len(previous)*0.80))
+        if len(vids)<minimum:
+            raise RuntimeError(
+                f"YouTube safety check failed: received {len(vids)} videos, "
+                f"previous valid state had {len(previous)}. Site left unchanged."
+            )
+
     TEST_VIDEO_IDS=playlist_video_ids(TEST_PLAYLIST_ID)
     GAMING_VIDEO_IDS=playlist_video_ids(GAMING_PLAYLIST_ID)
     UNBOXING_VIDEO_IDS=playlist_video_ids(UNBOXING_PLAYLIST_ID)
     REVIEWS_VIDEO_IDS=playlist_video_ids(REVIEWS_PLAYLIST_ID)
     ANALOGIKTEK_VIDEO_IDS=playlist_video_ids(ANALOGIKTEK_PLAYLIST_ID)
+
+    # If a category that previously had videos suddenly comes back empty,
+    # treat it as a bad API read rather than wiping that category from the site.
+    previous_categories={}
+    for item in previous:
+        cat=item.get("category") if isinstance(item,dict) else None
+        if cat:
+            previous_categories[cat]=previous_categories.get(cat,0)+1
+    current_playlists={
+        "test":TEST_VIDEO_IDS,
+        "gaming":GAMING_VIDEO_IDS,
+        "unboxing":UNBOXING_VIDEO_IDS,
+        "recensioni":REVIEWS_VIDEO_IDS,
+        "analogiktek":ANALOGIKTEK_VIDEO_IDS,
+    }
+    for category,ids in current_playlists.items():
+        if previous_categories.get(category,0)>0 and not ids:
+            raise RuntimeError(
+                f"YouTube safety check failed: playlist {category} unexpectedly empty. "
+                "Site left unchanged."
+            )
+
     short_ids=youtube_short_ids()
     update_home(vids,short_ids)
     for n in ["recensioni","test","unboxing","gaming","analogiktek"]:
         update_category(n,vids,short_ids)
-    Path(".youtube-latest.json").write_text(
+    state_path.write_text(
         json.dumps([{
             "id":v["id"],
             "title":v["snippet"]["title"],
