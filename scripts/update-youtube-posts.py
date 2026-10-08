@@ -1224,10 +1224,7 @@ def render_featured_news(news):
         active=" active" if i==0 else ""
         slides.append(
             f'            <article class="news-slide{active}" data-slide="{i}">'
-            f'<a href="{slug}"><img src="{img}" alt="{title}"></a>'
-            f'<div class="news-slide-copy"><span class="tag">News</span>'
-            f'<h1><a href="{slug}">{title}</a></h1>'
-            f'<p>{html.escape(post_excerpt(p,180))}</p></div></article>'
+            f'<a href="{slug}"><img src="{img}" alt="{title}"></a></article>'
         )
         tabs.append(f'            <button class="news-tab{active}" data-go="{i}">{title}</button>')
     return (
