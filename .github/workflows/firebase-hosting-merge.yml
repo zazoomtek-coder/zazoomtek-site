@@ -7,7 +7,7 @@ on:
     branches:
       - main
 concurrency:
-  group: firebase-hosting-live
+  group: zazoomtek-site-publish
   cancel-in-progress: false
 
 jobs:
