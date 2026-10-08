@@ -1,5 +1,5 @@
 name: Sync YouTube to site
-# manual sync trigger 2026-10-04 18:00 sitemap
+
 on:
   schedule:
     - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
@@ -9,78 +9,125 @@ on:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
       - 'scripts/update-youtube.py'
-      - 'index.html'
+      - 'scripts/validate-sync-output.py'
   workflow_dispatch:
+
 permissions:
   contents: write
+
+# Never kill a healthy sync just because the next 5-minute check has arrived.
+# At most one sync runs at a time; later checks wait for the current one.
 concurrency:
   group: youtube-site-sync
-  cancel-in-progress: true
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Validate sync scripts
+      - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
-      - name: Sync public YouTube Community posts
-        run: python3 scripts/update-youtube-posts.py
-
-      - name: Commit Community changes
-        id: community_commit
+      - name: Configure Git
         run: |
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
+
+      - name: Sync and validate YouTube Community
+        id: community_sync
+        continue-on-error: true
+        run: |
+          python3 scripts/update-youtube-posts.py
+          python3 scripts/validate-sync-output.py community
+
+      - name: Discard unsafe Community changes
+        if: steps.community_sync.outcome != 'success'
+        run: |
+          echo "Community sync failed validation; restoring last known-good repository state."
+          git reset --hard HEAD
+          git clean -fd
+
+      - name: Save validated Community changes locally
+        id: community_commit
+        if: steps.community_sync.outcome == 'success'
+        run: |
           git add -A
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "Auto-sync YouTube Community reviews"
-            git pull --rebase origin main
-            git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Deploy Community updates to Firebase
-        if: steps.community_commit.outputs.changed == 'true'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
-
-      - name: Sync public YouTube uploads
+      - name: Sync and validate YouTube uploads
+        id: video_sync
+        if: always()
+        continue-on-error: true
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-        run: python3 scripts/update-youtube.py
-
-      - name: Commit video changes
-        id: video_commit
         run: |
-          git config user.name "zazoomtek-bot"
-          git config user.email "actions@users.noreply.github.com"
+          python3 scripts/update-youtube.py
+          python3 scripts/validate-sync-output.py videos
+
+      - name: Discard unsafe video changes
+        if: always() && steps.video_sync.outcome != 'success'
+        run: |
+          echo "Video sync failed validation; restoring last known-good local state."
+          git reset --hard HEAD
+          git clean -fd
+
+      - name: Save validated video changes locally
+        id: video_commit
+        if: steps.video_sync.outcome == 'success'
+        run: |
           git add -A
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "Auto-sync latest YouTube uploads"
-            git pull --rebase origin main
-            git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Deploy video updates to Firebase
-        if: steps.video_commit.outputs.changed == 'true'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+      - name: Push validated site update
+        if: always() && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true')
+        run: |
+          git fetch origin main
+          if ! git rebase origin/main; then
+            git rebase --abort || true
+            echo "Remote branch changed incompatibly; refusing an unsafe automatic merge."
+            exit 1
+          fi
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; refreshing main before retry."
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              exit 1
+            fi
+            sleep $((attempt * 2))
+          done
+          echo "Unable to push after 3 attempts."
+          exit 1
+
+      - name: Report partial source failures
+        if: always()
+        run: |
+          community="${{ steps.community_sync.outcome }}"
+          videos="${{ steps.video_sync.outcome }}"
+          echo "Community result: $community"
+          echo "Video result: $videos"
+          if [ "$community" != "success" ] || [ "$videos" != "success" ]; then
+            echo "At least one YouTube source failed. Any successful source was preserved independently."
+            exit 1
+          fi
