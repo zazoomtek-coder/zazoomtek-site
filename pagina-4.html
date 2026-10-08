@@ -226,7 +226,7 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
       <a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a>
     </nav>
     <div class="search-wrap">
-      <form class="search-box" id="siteSearch"><input id="siteSearchInput" type="search" placeholder="Cerca articoli..." aria-label="Cerca articoli"><button type="submit">⌕</button></form>
+      <form class="search-box" id="siteSearch" action="/cerca.html" method="get"><input id="siteSearchInput" name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form>
     <div class="top-socials" aria-label="Canali social ZazoomTek">
       <a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener" aria-label="YouTube ZazoomTek" title="YouTube">
         <img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube">
@@ -685,9 +685,8 @@ function playVideo(button){
   show(0);start();
 })();
 document.getElementById('siteSearch')?.addEventListener('submit',e=>{
-  e.preventDefault();const q=(document.getElementById('siteSearchInput').value||'').trim().toLowerCase();
-  const rows=[...document.querySelectorAll('.article-row')];rows.forEach(r=>r.classList.toggle('hidden-by-search',q && !(r.dataset.search||r.textContent.toLowerCase()).includes(q)));
-  document.getElementById('articoli')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const q=(document.getElementById('siteSearchInput').value||'').trim();
+  if(!q){e.preventDefault();document.getElementById('siteSearchInput')?.focus();}
 });
 </script>
 
