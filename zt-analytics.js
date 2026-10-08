@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  var ID='G-9KXL79DB0G';
+  var ID='G-01F6Q4BGTC';
   var KEY='zt_analytics_consent';
   var loaded=false;
 
