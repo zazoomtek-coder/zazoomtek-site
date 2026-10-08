@@ -39,6 +39,10 @@ TECH_TOPICS = {
     "smartphone","tablet","computer","storage","monitor","smart_home","wearable","power","printer","air_quality"
 }
 
+BROAD_TOPICS = {
+    "simulation","action_adventure","multiplayer","computer","smart_home"
+}
+
 FRANCHISE_ALIASES = {
     "gta": {"gta vi","gta 6","grand theft auto vi","grand theft auto 6","grand theft auto"},
     "risk_of_rain": {"risk of rain"},
@@ -443,7 +447,7 @@ def topic_similarity(current,candidate):
     return score
 
 def primary_topics(record):
-    """Return only the strongest editorial categories for this article."""
+    """Return only the strongest, specific editorial categories."""
     scores=record["topic_scores"]
     if not scores:
         return set()
@@ -451,10 +455,14 @@ def primary_topics(record):
     relevant={topic:score for topic,score in scores.items() if topic in allowed and score>0}
     if not relevant:
         return set()
-    best=max(relevant.values())
-    # Keep ties / near-ties only. A weak incidental body mention cannot become
-    # the reason for a recommendation.
-    return {topic for topic,score in relevant.items() if score >= max(2,best-1)}
+
+    # If a specific category exists, broad umbrellas such as "simulation",
+    # "multiplayer" or generic "computer" must not drive recommendations.
+    specific={topic:score for topic,score in relevant.items() if topic not in BROAD_TOPICS}
+    pool=specific if specific else relevant
+
+    best=max(pool.values())
+    return {topic for topic,score in pool.items() if score >= max(2,best-1)}
 
 def relevance(current,candidate,idf):
     # Cross vertical recommendations are never allowed.
@@ -516,7 +524,12 @@ def related_for(current, records, idf, limit=LIMIT):
         elif primary_overlap:
             tier=2
             score += len(primary_overlap)*35
-        elif shared_topics and topic_score >= 3 and (cosine >= 0.08 or rare_overlap >= 1.4):
+        elif (
+            shared_topics
+            and not (shared_topics <= BROAD_TOPICS)
+            and topic_score >= 3
+            and (cosine >= 0.08 or rare_overlap >= 1.4)
+        ):
             tier=3
         else:
             continue
