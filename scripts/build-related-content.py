@@ -42,11 +42,39 @@ FRANCHISE_ALIASES = {
     "scuf": {"scuf"},
 }
 
+FRANCHISE_TOPICS = {
+    "transport_fever": {"transport_sim"},
+    "risk_of_rain": {"roguelike","fps_shooter"},
+    "battlefield": {"fps_shooter"},
+    "call_of_duty": {"fps_shooter"},
+    "ace_combat": {"simulation"},
+    "gta": {"open_world"},
+    "resident_evil": {"horror"},
+    "final_fantasy": {"rpg"},
+    "monster_hunter": {"rpg"},
+    "roomba": {"robot_cleaning"},
+    "reolink": {"camera_security"},
+    "fritz": {"networking"},
+    "70mai": {"dashcam"},
+    "epomaker": {"keyboard"},
+    "scuf": {"controller"},
+    "realme": {"smartphone"},
+}
+
 TITLE_TOPIC_GROUPS = {
-    "simulation_management": {
-        "simulator","simulation","simulatore","simulazione","tycoon","manager","management",
-        "builder","building","construction","costruzione","city builder","transport","railway",
-        "railroad","ferrovia","treno","logistics","logistica","economy","gestionale"
+    "transport_sim": {
+        "transport","transportation","railway","railroad","ferrovia","ferrovie","treno","treni",
+        "logistics","logistica","airport","aeroporto"
+    },
+    "city_builder": {
+        "city builder","city-building","construction simulator","construction","costruzione",
+        "cities skylines","simcity"
+    },
+    "management_sim": {
+        "tycoon","management","gestionale","economic simulator","economy simulator"
+    },
+    "simulation": {
+        "simulator","simulation","simulatore","simulazione"
     },
     "fps_shooter": {
         "fps","shooter","sparatutto","battlefield","call of duty","cod","doom","serious sam",
@@ -257,10 +285,13 @@ def domain_for(title):
 def topics_for(title):
     sample=unicodedata.normalize("NFKD", title.lower())
     sample="".join(ch for ch in sample if not unicodedata.combining(ch))
-    return {
+    topics={
         topic for topic, terms in TITLE_TOPIC_GROUPS.items()
         if any(phrase_present(sample, term.lower()) for term in terms)
     }
+    for franchise in franchise_for(title):
+        topics.update(FRANCHISE_TOPICS.get(franchise,set()))
+    return topics
 
 def kind_for(path):
     name = path.name.lower()
