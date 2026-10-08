@@ -28,8 +28,29 @@ def open_with_retry(req, *, timeout=30, parse_json=False, attempts=5):
     raise RuntimeError(f"YouTube request failed after {attempts} attempts: {last_error}")
 
 def fetch():
-    req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36","Accept-Language":"it-IT,it;q=0.9,en;q=0.8"})
-    return open_with_retry(req,timeout=30)
+    req=urllib.request.Request(
+        URL,
+        headers={
+            "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+            "Accept-Language":"it-IT,it;q=0.9,en;q=0.8",
+            "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Cache-Control":"no-cache",
+        }
+    )
+    last_problem="unknown"
+    for attempt in range(5):
+        page=open_with_retry(req,timeout=30,attempts=3)
+        # A successful HTTP response can still be a transient YouTube
+        # interstitial/challenge with no usable ytInitialData. Treat that as a
+        # temporary failure and retry instead of publishing an empty feed.
+        if initial_data(page):
+            return page
+        last_problem="YouTube page contained no usable ytInitialData"
+        if attempt<4:
+            wait=min(20,3*(attempt+1))
+            print(f"{last_problem}; retrying in {wait}s...")
+            time.sleep(wait)
+    raise RuntimeError(f"Community page unavailable after retries: {last_problem}")
 
 def initial_data(s):
     pats=[r'var ytInitialData = ({.*?});</script>',r'ytInitialData\s*=\s*({.*?});</script>']
