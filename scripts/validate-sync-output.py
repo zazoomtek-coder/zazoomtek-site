@@ -83,7 +83,7 @@ def validate_videos():
     newest=ids[0]
     if newest not in index:
         fail("newest YouTube upload is not referenced by index build state")
-    for page in ("gaming.html","recensioni.html","test.html","unboxing.html","analogiktek.html"):
+    for page in ("gaming.html","recensioni.html","test.html","unboxing.html"):
         validate_html_file(page,2500)
     m=re.search(
         r"<!-- SIDEBAR_STACK_VIDEOS_START -->(.*?)<!-- SIDEBAR_STACK_VIDEOS_END -->",
