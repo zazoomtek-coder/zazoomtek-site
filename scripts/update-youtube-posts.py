@@ -1101,43 +1101,96 @@ def news_slug(p):
     return "news-"+p["id"]+".html"
 
 def is_news_section_heading(text, next_text=""):
-    """Detect editorial section headings from Community paragraph blocks.
-
-    A heading must be short, standalone and followed by real body copy.
-    This intentionally avoids converting normal short paragraphs into H2s.
-    """
+    """Detect editorial section headings already present in Community posts."""
     text=(text or "").strip()
     next_text=(next_text or "").strip()
     if not text or len(text)>100:
         return False
     words=text.split()
-    if len(words)<3 or len(words)>15:
+    if len(words)<2 or len(words)>15:
         return False
     if text.endswith((".", "!", "?", "…")):
         return False
-    if len(next_text)<90:
+    if len(next_text)<70:
         return False
     low=text.lower()
     if low.startswith(("web:", "youtube:", "patreon:", "tiktok:", "whatsapp:")):
         return False
-    # Standalone headings usually have no sentence-style punctuation. A colon
-    # at the end is accepted because it is common in editorial subheadings.
     core=text[:-1] if text.endswith(":") else text
     if core.count(",")>1 or ";" in core:
         return False
     return True
 
+def auto_news_heading(text, section_index=0):
+    """Create a short factual section label from the paragraphs that follow."""
+    low=unicodedata.normalize("NFKD",(text or "").lower())
+    low="".join(ch for ch in low if not unicodedata.combining(ch))
+
+    rules=[
+        (("prezzo","prezzi","euro","€","disponibile","disponibilita","uscita","debutto","lancio","arrivera","arriva dal"), "Prezzi e disponibilità"),
+        (("ram","gb","tb","display","schermo","processore","chip","gpu","cpu","hz","risoluzione","batteria","hardware"), "Caratteristiche e specifiche"),
+        (("intelligenza artificiale"," ia ","ai ","alexa","gemini","assistente","machine learning"), "Intelligenza artificiale e funzioni smart"),
+        (("gameplay","combattimento","missioni","modalita","multiplayer","campagna","meccaniche","progressione"), "Gameplay e contenuti"),
+        (("aggiornamento","update","patch","versione","novita introdotte","nuove funzioni"), "Le novità dell'aggiornamento"),
+        (("ps5","playstation","xbox","switch","pc","steam","piattaforme"), "Piattaforme e caratteristiche"),
+        (("azienda","strategia","mercato","ecosistema","concorrenza","produttori","business"), "Strategia e contesto"),
+        (("fotocamera","camera","telecamera","sensore","video","registrazione"), "Fotocamera e funzioni video"),
+        (("design","materiali","scocca","dimensioni","peso"), "Design e costruzione"),
+        (("software","android","sistema operativo","app","play store","interfaccia"), "Software e funzionalità"),
+    ]
+    padded=" "+low+" "
+    for terms,label in rules:
+        if any(term in padded for term in terms):
+            return label
+
+    defaults=[
+        "Le novità principali",
+        "Caratteristiche e dettagli",
+        "Cosa cambia",
+        "Disponibilità e prospettive",
+    ]
+    return defaults[section_index % len(defaults)]
+
 def news_body_html(p):
     blocks=clean_news_site_blocks(p.get("text") or "")
     title=news_title(p)
     cleaned=[b for b in blocks if b!=title]
-    rendered=[]
+    if not cleaned:
+        return ""
+
+    # Preserve genuine Community subheadings when present.
+    explicit=set()
     for i,b in enumerate(cleaned):
         next_b=cleaned[i+1] if i+1<len(cleaned) else ""
         if is_news_section_heading(b,next_b):
+            explicit.add(i)
+
+    rendered=[]
+    paragraph_count=0
+    auto_section_index=0
+
+    for i,b in enumerate(cleaned):
+        next_b=cleaned[i+1] if i+1<len(cleaned) else ""
+
+        if i in explicit:
             rendered.append(f"<h2><strong>{html.escape(b.rstrip(':'))}</strong></h2>")
-        else:
-            rendered.append(f"<p>{html.escape(b)}</p>")
+            paragraph_count=0
+            continue
+
+        # Keep the opening paragraph clean. Afterwards, when the source has no
+        # nearby explicit heading, insert an editorial H2 every two paragraphs.
+        if i>0 and paragraph_count>=2:
+            previous_was_heading=(i-1 in explicit)
+            if not previous_was_heading:
+                context=" ".join(cleaned[i:min(len(cleaned),i+2)])
+                heading=auto_news_heading(context,auto_section_index)
+                rendered.append(f"<h2><strong>{html.escape(heading)}</strong></h2>")
+                auto_section_index+=1
+                paragraph_count=0
+
+        rendered.append(f"<p>{html.escape(b)}</p>")
+        paragraph_count+=1
+
     rendered=distribute_inline_images(rendered,p,title)
     return "\n".join(rendered)
 
