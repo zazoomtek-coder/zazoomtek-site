@@ -81,19 +81,30 @@ def is_completed_broadcast(v):
 
 def youtube_short_ids():
     # YouTube Data API doesn't expose a direct isShort flag.
-    # Read the channel Shorts shelf and use duration only as a fallback.
+    # Read the channel Shorts shelf. Return None on a temporary fetch failure so
+    # main() can preserve the last known-good Short IDs instead of emptying UI.
     try:
         req=urllib.request.Request(
             f"https://www.youtube.com/{HANDLE}/shorts",
             headers={"User-Agent":"Mozilla/5.0"}
         )
-        with urllib.request.urlopen(req,timeout=30) as r:
-            page=r.read().decode("utf-8","ignore")
-        ids=set(re.findall(r'"videoId":"([A-Za-z0-9_-]{11})"',page))
-        ids.update(re.findall(r'/shorts/([A-Za-z0-9_-]{11})',page))
-        return ids
-    except Exception:
-        return set()
+        last_error=None
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(req,timeout=30) as r:
+                    page=r.read().decode("utf-8","ignore")
+                ids=set(re.findall(r'"videoId":"([A-Za-z0-9_-]{11})"',page))
+                ids.update(re.findall(r'/shorts/([A-Za-z0-9_-]{11})',page))
+                return ids
+            except (urllib.error.URLError,ConnectionResetError,TimeoutError) as err:
+                last_error=err
+                if attempt<3:
+                    time.sleep(2 ** (attempt+1))
+        print(f"Shorts shelf temporarily unavailable: {last_error}")
+        return None
+    except Exception as err:
+        print(f"Shorts shelf temporarily unavailable: {err}")
+        return None
 
 def playlist_video_ids(playlist_id):
     ids=set()
@@ -595,6 +606,12 @@ def main():
             )
 
     short_ids=youtube_short_ids()
+    if short_ids is None:
+        short_ids={
+            item.get("id") for item in previous
+            if isinstance(item,dict) and item.get("short") and item.get("id")
+        }
+        print(f"Using {len(short_ids)} last known-good Short IDs from state.")
     update_home(vids,short_ids)
     for n in ["recensioni","test","unboxing","gaming","analogiktek"]:
         update_category(n,vids,short_ids)
