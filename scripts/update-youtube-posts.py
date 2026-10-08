@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Global scrollbar refresh marker
 import json,re,html,time,urllib.error,urllib.request
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
 URL="https://www.youtube.com/@ZazoomTek/posts"
@@ -44,6 +44,46 @@ def txt(v):
     if not isinstance(v,dict):return ""
     if "simpleText" in v:return v["simpleText"]
     return "".join(x.get("text","") for x in v.get("runs",[]) if isinstance(x,dict))
+
+def stable_published_label(value):
+    """Convert fast-changing recent relative times into a stable calendar date."""
+    raw=(value or "").strip()
+    low=raw.lower()
+    now=datetime.now(timezone.utc)
+    delta=None
+
+    patterns=[
+        (r"^(\d+)\s+second[oi]\s+fa$", "seconds"),
+        (r"^(\d+)\s+minut[oi]\s+fa$", "minutes"),
+        (r"^(\d+)\s+or[ae]\s+fa$", "hours"),
+        (r"^(\d+)\s+giorn[oi]\s+fa$", "days"),
+        (r"^(\d+)\s+settiman[ae]\s+fa$", "weeks"),
+    ]
+    singular={
+        "un secondo fa":("seconds",1),"1 secondo fa":("seconds",1),
+        "un minuto fa":("minutes",1),"1 minuto fa":("minutes",1),
+        "un'ora fa":("hours",1),"un’ora fa":("hours",1),"1 ora fa":("hours",1),
+        "un giorno fa":("days",1),"1 giorno fa":("days",1),"ieri":("days",1),
+        "una settimana fa":("weeks",1),"1 settimana fa":("weeks",1),
+    }
+
+    if low in singular:
+        unit,n=singular[low]
+        delta=timedelta(**{unit:n})
+    else:
+        for pattern,unit in patterns:
+            m=re.match(pattern,low)
+            if m:
+                delta=timedelta(**{unit:int(m.group(1))})
+                break
+
+    if delta is None:
+        return raw
+
+    dt=now-delta
+    months=["gennaio","febbraio","marzo","aprile","maggio","giugno",
+            "luglio","agosto","settembre","ottobre","novembre","dicembre"]
+    return f"{dt.day} {months[dt.month-1]} {dt.year}"
 
 def walk(x,out):
     if isinstance(x,dict):
@@ -261,7 +301,7 @@ def parse_nodes(data,posts,seen):
         seen.add(pid)
         added.append(pid)
         body=txt(p.get("contentText",{})) or txt(p.get("backstagePostText",{}))
-        when=txt(p.get("publishedTimeText",{}))
+        when=stable_published_label(txt(p.get("publishedTimeText",{})))
         imgs=image_urls(p)
         posts.append({
             "id":pid,
