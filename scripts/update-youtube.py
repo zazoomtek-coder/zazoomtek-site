@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import html, json, os, re, urllib.parse, urllib.request
+import html, json, os, re, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 from datetime import datetime
 
@@ -19,9 +19,32 @@ REVIEWS_VIDEO_IDS=set()
 ANALOGIKTEK_VIDEO_IDS=set()
 
 def get(endpoint, **params):
+    """YouTube API request with retries for temporary network/server errors."""
     params["key"]=KEY
-    with urllib.request.urlopen(API+endpoint+"?"+urllib.parse.urlencode(params), timeout=30) as r:
-        return json.load(r)
+    url=API+endpoint+"?"+urllib.parse.urlencode(params)
+    last_error=None
+    for attempt in range(4):
+        try:
+            req=urllib.request.Request(
+                url,
+                headers={"User-Agent":"ZazoomTek-Sync/1.0","Accept":"application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as err:
+            last_error=err
+            # Authentication/configuration errors should fail immediately.
+            if err.code not in (429,500,502,503,504):
+                raise
+        except (urllib.error.URLError, ConnectionResetError, TimeoutError) as err:
+            last_error=err
+
+        if attempt<3:
+            wait=2 ** (attempt+1)
+            print(f"YouTube request failed temporarily ({last_error}); retrying in {wait}s...")
+            time.sleep(wait)
+
+    raise last_error
 
 def uploads():
     c=get("channels",part="contentDetails",id=CHANNEL_ID)
