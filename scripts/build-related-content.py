@@ -9,6 +9,8 @@ START = "<!-- RELATED_CONTENT_START -->"
 END = "<!-- RELATED_CONTENT_END -->"
 STYLE_ID = "zt-related-style"
 LIMIT = 4
+MIN_RELATED = 2
+MIN_SCORE = 5.0
 
 STOPWORDS = {
     "alla","alle","allo","anche","ancora","avere","come","con","contro","cosa","dalla","dalle","dallo",
@@ -17,6 +19,45 @@ STOPWORDS = {
     "quali","quando","questa","queste","questi","questo","senza","sono","sua","sue","sul","sulla","sulle",
     "tra","tutto","una","uno","verso","news","recensione","review","zazoomtek","nuovo","nuova","nuovi","nuove",
     "arriva","ecco","mostra","disponibile","ufficiale","oggi","ora","finale"
+}
+
+GAMING_TERMS = {
+    "playstation","ps4","ps5","xbox","nintendo","switch","steam","videogioco","videogiochi","gaming",
+    "gameplay","dlc","espansione","multiplayer","coop","co-op","rpg","jrpg","roguelike","roguelite",
+    "shooter","fps","survival","horror","strategia","strategy","simulatore","simulazione","racing",
+    "picchiaduro","adventure","avventura","action","gdr","console","demo","beta","early access"
+}
+TECH_TERMS = {
+    "smartphone","tablet","notebook","laptop","monitor","display","router","wifi","wi-fi","ethernet",
+    "tastiera","keyboard","mouse","cuffie","headset","auricolari","earbuds","speaker","audio","microfono",
+    "webcam","dashcam","camera","telecamera","ssd","hard disk","minipc","mini pc","processore","cpu","gpu",
+    "scheda video","robot","roomba","aspirapolvere","lavapavimenti","domotica","smart home","wearable",
+    "smartwatch","occhiali smart","powerbank","caricatore","batteria","stampante","rete","fibra"
+}
+
+TOPIC_GROUPS = {
+    "playstation": {"playstation","ps4","ps5"},
+    "xbox": {"xbox","series x","series s"},
+    "nintendo": {"nintendo","switch"},
+    "pcgaming": {"steam","pc gaming","windows"},
+    "rpg": {"rpg","jrpg","gdr","role-playing"},
+    "roguelike": {"roguelike","roguelite"},
+    "shooter": {"shooter","fps","sparatutto"},
+    "survival": {"survival","sopravvivenza"},
+    "horror": {"horror"},
+    "strategy": {"strategia","strategy","strategico"},
+    "racing": {"racing","corse","sim racing"},
+    "sports": {"calcio","football","basket","ufc","sports","sportivo"},
+    "multiplayer": {"multiplayer","coop","co-op","online"},
+    "dlc": {"dlc","espansione","update","aggiornamento"},
+    "phone": {"smartphone","telefono","android","iphone"},
+    "audio": {"cuffie","headset","auricolari","earbuds","speaker","audio","microfono"},
+    "network": {"router","wifi","wi-fi","ethernet","fibra","rete"},
+    "camera": {"camera","telecamera","dashcam","webcam"},
+    "storage": {"ssd","hard disk","nvme","archiviazione"},
+    "computer": {"notebook","laptop","mini pc","minipc","cpu","gpu","processore","scheda video"},
+    "robot_home": {"robot","roomba","aspirapolvere","lavapavimenti","pulizia"},
+    "wearable": {"smartwatch","wearable","occhiali smart"},
 }
 
 STYLE = """<style id="zt-related-style">
@@ -101,6 +142,29 @@ def normalized_words(text):
         if len(w) >= 3 and w not in STOPWORDS and not w.isdigit()
     }
 
+def phrase_present(text, phrase):
+    text = text.lower()
+    if " " in phrase or "-" in phrase:
+        return phrase in text
+    return re.search(r"(?<![a-z0-9])"+re.escape(phrase)+r"(?![a-z0-9])", text) is not None
+
+def domain_for(title, body):
+    sample=(title+" "+body[:6000]).lower()
+    gaming=sum(2 if phrase_present(title.lower(), term) else 1 for term in GAMING_TERMS if phrase_present(sample, term))
+    tech=sum(2 if phrase_present(title.lower(), term) else 1 for term in TECH_TERMS if phrase_present(sample, term))
+    if gaming >= tech + 2:
+        return "gaming"
+    if tech >= gaming + 2:
+        return "tech"
+    return "mixed"
+
+def topics_for(title, body):
+    sample=(title+" "+body[:6000]).lower()
+    return {
+        topic for topic, terms in TOPIC_GROUPS.items()
+        if any(phrase_present(sample, term) for term in terms)
+    }
+
 def kind_for(path):
     name = path.name.lower()
     return "Recensione" if name.startswith("recensione-") or "recensione" in name else "News"
@@ -119,9 +183,9 @@ def article_record(path):
     title = title_of(content)
     body = body_of(content)
     if kind_for(path) == "News" and title.strip().lower() == "news":
-        m = re.search(r'<div\\s+class=["\\']article-body["\\'][^>]*>([\\s\\S]*?)</div>', content, re.I)
+        m = re.search(r'<div\s+class=["\']article-body["\'][^>]*>([\s\S]*?)</div>', content, re.I)
         if m:
-            first_p = re.search(r'<p[^>]*>([\\s\\S]*?)</p>', m.group(1), re.I)
+            first_p = re.search(r'<p[^>]*>([\s\S]*?)</p>', m.group(1), re.I)
             if first_p:
                 candidate = clean_text(first_p.group(1))
                 if candidate:
@@ -139,11 +203,21 @@ def article_record(path):
         "body": body,
         "image": image_of(content),
         "kind": kind_for(path),
+        "domain": domain_for(title, body),
+        "topics": topics_for(title, body),
         "title_tokens": title_tokens,
         "body_tokens": body_tokens,
     }
 
 def relevance(current, candidate):
+    # Never mix a clearly gaming article with a clearly tech article.
+    if (
+        current["domain"] != "mixed"
+        and candidate["domain"] != "mixed"
+        and current["domain"] != candidate["domain"]
+    ):
+        return -999.0
+
     ct = current["title_tokens"]
     cb = current["body_tokens"]
     tt = candidate["title_tokens"]
@@ -153,15 +227,21 @@ def relevance(current, candidate):
     current_title_in_body = len(ct & tb)
     candidate_title_in_body = len(tt & cb)
     body_overlap = len(cb & tb)
+    topic_overlap = len(current["topics"] & candidate["topics"])
 
     score = (
-        title_overlap * 8.0
-        + current_title_in_body * 2.0
-        + candidate_title_in_body * 1.5
-        + min(body_overlap, 12) * 0.18
+        title_overlap * 10.0
+        + current_title_in_body * 2.2
+        + candidate_title_in_body * 1.8
+        + topic_overlap * 6.0
+        + min(body_overlap, 10) * 0.12
     )
+
+    if current["domain"] == candidate["domain"] and current["domain"] != "mixed":
+        score += 1.0
     if current["kind"] == candidate["kind"]:
-        score += 0.5
+        score += 0.25
+
     return score
 
 def related_for(current, records, limit=LIMIT):
@@ -170,32 +250,21 @@ def related_for(current, records, limit=LIMIT):
         if candidate["name"] == current["name"]:
             continue
         score = relevance(current, candidate)
+        if score < MIN_SCORE:
+            continue
+
+        # A result must share something meaningful: a title/entity token or a
+        # recognised topic. Generic body vocabulary alone is not enough.
+        meaningful = bool(
+            (current["title_tokens"] & candidate["title_tokens"])
+            or (current["topics"] & candidate["topics"])
+        )
+        if not meaningful:
+            continue
         ranked.append((score, candidate))
 
     ranked.sort(key=lambda item: (-item[0], item[1]["name"]))
-    chosen = [item[1] for item in ranked if item[0] > 0][:limit]
-
-    # Always keep 3-4 useful internal links even for an unusually isolated topic.
-    if len(chosen) < min(3, limit):
-        used = {x["name"] for x in chosen}
-        same_kind = [
-            item[1] for item in ranked
-            if item[1]["name"] not in used and item[1]["kind"] == current["kind"]
-        ]
-        for candidate in same_kind:
-            chosen.append(candidate)
-            used.add(candidate["name"])
-            if len(chosen) >= limit:
-                break
-        if len(chosen) < limit:
-            for _, candidate in ranked:
-                if candidate["name"] in used:
-                    continue
-                chosen.append(candidate)
-                used.add(candidate["name"])
-                if len(chosen) >= limit:
-                    break
-    return chosen[:limit]
+    return [item[1] for item in ranked[:limit]]
 
 def render_related(items):
     cards = []
@@ -224,6 +293,8 @@ def render_related(items):
 
 def inject(record, block):
     content = record["clean"]
+    if not block:
+        return content
     if f'id="{STYLE_ID}"' not in content:
         pos = content.lower().find("</head>")
         if pos < 0:
@@ -252,18 +323,28 @@ def main():
         raise RuntimeError(f"Too few editorial articles found: {len(records)}")
 
     changed = 0
+    with_blocks = 0
+    total_links = 0
     for record in records:
         related = related_for(record, records, LIMIT)
-        if len(related) < 3:
-            raise RuntimeError(f"{record['name']}: only {len(related)} related items")
-        output = inject(record, render_related(related))
-        if output.count(START) != 1 or output.count(END) != 1:
-            raise RuntimeError(f"{record['name']}: invalid related-content markers")
+        block = render_related(related) if len(related) >= MIN_RELATED else ""
+        output = inject(record, block)
+        if block:
+            with_blocks += 1
+            total_links += len(related)
+            if output.count(START) != 1 or output.count(END) != 1:
+                raise RuntimeError(f"{record['name']}: invalid related-content markers")
+        elif START in output or END in output:
+            raise RuntimeError(f"{record['name']}: stale related-content markers")
         if output != record["raw"]:
             record["path"].write_text(output, encoding="utf-8")
             changed += 1
 
-    print(f"Related content built for {len(records)} articles; {changed} files updated; {LIMIT} links per article.")
+    print(
+        f"Related content evaluated for {len(records)} articles; "
+        f"{with_blocks} pages have strong matches, {total_links} links total; "
+        f"{changed} files updated."
+    )
 
 if __name__ == "__main__":
     main()
