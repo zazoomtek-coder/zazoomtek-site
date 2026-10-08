@@ -627,7 +627,7 @@ def rich_editorial_header(active="news"):
         +nav("Home","/","home")+nav("News","/news.html","news")+nav("Recensioni","/recensioni-scritte.html","recensioni")
         +nav("Community","https://www.youtube.com/@ZazoomTek/posts","community")+nav("Video","https://www.youtube.com/@ZazoomTek/videos","video")
         +'</nav>'
-        '<div class="zt-tools"><form class="zt-search" action="/news.html" method="get"><input name="q" type="search" placeholder="Cerca articoli..." aria-label="Cerca articoli"><button type="submit">⌕</button></form>'
+        '<div class="zt-tools"><form class="zt-search" action="/cerca.html" method="get"><input name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form>'
         '<div class="zt-socials">'
         '<a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube"></a>'
         '<a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a>'
