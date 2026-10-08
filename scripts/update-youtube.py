@@ -45,11 +45,16 @@ def sec(d):
     return (int(m.group(1) or 0)*3600+int(m.group(2) or 0)*60+int(m.group(3) or 0)) if m else 0
 
 def is_live_upload(v):
-    # Exclude only broadcasts that are currently live or still upcoming.
-    # Completed premieres/live broadcasts become normal VODs and may appear
-    # in Home/category boxes like any other uploaded video.
+    # Exclude broadcasts that are currently live or still upcoming.
     live_state=(v.get("snippet",{}).get("liveBroadcastContent") or "none").lower()
     return live_state in ("live","upcoming")
+
+def is_completed_broadcast(v):
+    # YouTube keeps liveStreamingDetails on completed Live/Premiere videos.
+    # A completed broadcast is treated as a normal editorial video only after
+    # the user explicitly assigns it to one of the site's YouTube playlists.
+    live_state=(v.get("snippet",{}).get("liveBroadcastContent") or "none").lower()
+    return live_state=="none" and bool(v.get("liveStreamingDetails"))
 
 def youtube_short_ids():
     # YouTube Data API doesn't expose a direct isShort flag.
@@ -318,8 +323,12 @@ def update_home(vids, short_ids):
         return ratio
 
     def is_true_landscape(v):
-        # Never allow known Shorts or live streams in the 16:9 feed.
+        # Never allow known Shorts or active/upcoming live streams.
         if v["id"] in short_ids or is_live_upload(v):
+            return False
+        # Completed Live/Premiere videos require an explicit editorial playlist.
+        # Example: they become Gaming only after being added to the Gaming playlist.
+        if is_completed_broadcast(v) and classify(v) is None:
             return False
         ratio=video_aspect_ratio(v)
         # YouTube does not always expose source dimensions to the workflow.
