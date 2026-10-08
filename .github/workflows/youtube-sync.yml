@@ -22,7 +22,7 @@ permissions:
 # Never kill a healthy sync just because the next 5-minute check has arrived.
 # At most one sync runs at a time; later checks wait for the current one.
 concurrency:
-  group: youtube-site-sync
+  group: zazoomtek-site-publish
   cancel-in-progress: false
 
 jobs:
@@ -192,6 +192,17 @@ jobs:
           echo "Unable to push after 3 attempts."
           exit 1
 
+      - name: Deploy validated site to Firebase
+        id: site_deploy
+        if: always() && steps.analytics_sync.outcome == 'success' && steps.search_sync.outcome == 'success'
+        continue-on-error: true
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
+
       - name: Report partial source failures
         if: always()
         run: |
@@ -203,6 +214,7 @@ jobs:
           analytics_commit="${{ steps.analytics_commit.outcome }}"
           search="${{ steps.search_sync.outcome }}"
           search_commit="${{ steps.search_commit.outcome }}"
+          deploy="${{ steps.site_deploy.outcome }}"
           echo "Community result: $community"
           echo "Video result: $videos"
           echo "GA4 injection result: $analytics"
@@ -211,7 +223,8 @@ jobs:
           echo "Video commit: $video_commit"
           echo "GA4 commit: $analytics_commit"
           echo "Search commit: $search_commit"
-          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || \
+          echo "Firebase deploy: $deploy"
+          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" != "success" ] || \
              [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
