@@ -9,6 +9,7 @@ URL="https://www.youtube.com/@ZazoomTek/posts"
 STATE=Path(".youtube-posts.json")
 INDEX=Path("index.html")
 FEATURED_NEWS_CONFIG=Path("featured-news.json")
+FULL_COMMUNITY_SCAN_FLAG=Path(".force-community-full-scan")
 
 def open_with_retry(req, *, timeout=30, parse_json=False, attempts=5):
     """Retry transient YouTube/network failures; never hide a partial sync."""
@@ -450,10 +451,41 @@ def parse(s,known_ids=None):
     return posts,complete
 
 def is_review(p):
-    lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
-    first=lines[0].lower() if lines else ""
-    body=(p.get("text") or "").lower()
-    return (not first.startswith("news:")) and ("recensione" in first or "review" in first or "voto finale" in body)
+    """Classify Community posts as reviews even when older posts omit 'Recensione' in the title."""
+    raw=p.get("text") or ""
+    lines=[clean_site_line(x) for x in raw.splitlines()]
+    lines=[x.strip() for x in lines if x and x.strip()]
+    first=(lines[0] if lines else "").lower().strip()
+
+    # Explicit editorial news labels always win.
+    if first=="news" or first.startswith("news:"):
+        return False
+
+    body=raw.lower()
+    if "recensione" in first or "review" in first or "voto finale" in body:
+        return True
+
+    heading_keys={
+        "introduzione","storia","storia e campagna","gameplay",
+        "aspetto tecnico","aspetto tecnico su ps5","comparto tecnico",
+        "comparto tecnico ps5","comparto tecnico su ps5",
+        "esperienza complessiva","conclusioni","conclusione",
+        "materiali e design","hardware e prestazioni","uso quotidiano",
+        "esperienza d'uso quotidiana","esperienza d’uso quotidiana",
+        "pro","contro","pro e contro"
+    }
+    section_hits=0
+    for line in lines:
+        low=line.lower().rstrip(":").strip()
+        if low in heading_keys:
+            section_hits+=1
+
+    score_like=bool(re.search(r'\b(?:voto|voto finale)\b[^\n]{0,40}\b\d+(?:[.,]\d+)?\s*/\s*10\b',raw,flags=re.I))
+    pro_contra=bool(re.search(r'(?:^|\n)\s*pro\s*(?:\n|:)',raw,flags=re.I)) and bool(re.search(r'(?:^|\n)\s*contro\s*(?:\n|:)',raw,flags=re.I))
+
+    # Three review-style sections are enough to identify an unlabeled legacy
+    # review. Two are enough when accompanied by a score or Pro/Contro.
+    return section_hits>=3 or (section_hits>=2 and (score_like or pro_contra))
 
 def review_title(p):
     raw_lines=[x.strip() for x in (p.get("text") or "").splitlines() if x.strip()]
@@ -1931,7 +1963,11 @@ def main():
         p.get("id") for p in previous
         if isinstance(p,dict) and p.get("id")
     }
-    posts,complete=parse(fetch(),known_ids)
+    force_full_scan=FULL_COMMUNITY_SCAN_FLAG.exists()
+    scan_known_ids=set() if force_full_scan else known_ids
+    if force_full_scan:
+        print("FULL Community history scan requested: ignoring incremental boundary.")
+    posts,complete=parse(fetch(),scan_known_ids)
     if not posts:
         raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
 
@@ -2028,6 +2064,11 @@ def main():
                       '</div>\n        '+pagination+'\n      </section>\n    </div>\n\n    <aside class="sidebar">',1)
 
     if s2!=s:INDEX.write_text(s2,encoding="utf-8")
+    if force_full_scan and complete:
+        FULL_COMMUNITY_SCAN_FLAG.unlink(missing_ok=True)
+        print("Full Community history scan completed; one-time flag removed.")
+    elif force_full_scan:
+        print("Full Community history scan was incomplete; flag kept for automatic retry.")
     print("Synced",len(news),"YouTube Community news posts and",len(reviews),"review posts")
 
 if __name__=="__main__":main()
