@@ -9,8 +9,8 @@ START = "<!-- RELATED_CONTENT_START -->"
 END = "<!-- RELATED_CONTENT_END -->"
 STYLE_ID = "zt-related-style"
 LIMIT = 4
-MIN_RELATED = 2
-MIN_SCORE = 6.0
+MIN_RELATED = 1
+MIN_SCORE = 8.0
 
 GENERIC_TITLE_TERMS = {
     "ps4","ps5","xbox","series","switch","nintendo","playstation","pc","steam","windows",
@@ -20,6 +20,57 @@ GENERIC_TITLE_TERMS = {
 
 WEAK_TOPICS = {
     "playstation","xbox","nintendo","pcgaming","multiplayer","dlc"
+}
+
+FRANCHISE_ALIASES = {
+    "gta": {"gta vi","gta 6","grand theft auto vi","grand theft auto 6","grand theft auto"},
+    "risk_of_rain": {"risk of rain"},
+    "transport_fever": {"transport fever"},
+    "ace_combat": {"ace combat"},
+    "battlefield": {"battlefield"},
+    "call_of_duty": {"call of duty","cod"},
+    "resident_evil": {"resident evil"},
+    "final_fantasy": {"final fantasy"},
+    "monster_hunter": {"monster hunter"},
+    "marvel_wolverine": {"marvel's wolverine","marvel wolverine","wolverine"},
+    "reolink": {"reolink"},
+    "roomba": {"roomba","irobot"},
+    "fritz": {"fritz!box","fritz box","fritz"},
+    "realme": {"realme"},
+    "70mai": {"70mai"},
+    "epomaker": {"epomaker"},
+    "scuf": {"scuf"},
+}
+
+TITLE_TOPIC_GROUPS = {
+    "simulation_management": {
+        "simulator","simulation","simulatore","simulazione","tycoon","manager","management",
+        "builder","building","construction","costruzione","city builder","transport","railway",
+        "railroad","ferrovia","treno","logistics","logistica","economy","gestionale"
+    },
+    "fps_shooter": {
+        "fps","shooter","sparatutto","battlefield","call of duty","cod","doom","serious sam",
+        "delta force","counter-strike","valorant"
+    },
+    "rpg": {"rpg","jrpg","gdr","role-playing"},
+    "roguelike": {"roguelike","roguelite","survivor","survivors"},
+    "survival": {"survival","sopravvivenza"},
+    "horror": {"horror"},
+    "strategy": {"strategy","strategia","strategico","rts","4x"},
+    "racing": {"racing","corse","rally","motorsport","sim racing"},
+    "sports": {"football","calcio","basket","ufc","sport","sports"},
+    "fighting": {"fighting","picchiaduro","tekken","street fighter","mortal kombat"},
+    "platformer": {"platform","platformer"},
+    "open_world": {"open world","open-world"},
+    "camera_security": {"camera","telecamera","videosorveglianza","security","sicurezza","reolink"},
+    "robot_cleaning": {"roomba","irobot","robot","aspirapolvere","lavapavimenti","pulizia"},
+    "networking": {"router","wifi","wi-fi","ethernet","fibra","fritz!box","fritz box"},
+    "audio": {"cuffie","headset","auricolari","earbuds","speaker","audio","microfono"},
+    "keyboard": {"tastiera","keyboard","epomaker","keychron"},
+    "controller": {"controller","gamepad","scuf","dualSense","dualsense"},
+    "dashcam": {"dashcam","dash cam","70mai"},
+    "smartphone": {"smartphone","telefono","android","iphone","realme"},
+    "computer": {"notebook","laptop","mini pc","minipc","workstation","cpu","gpu","scheda video"},
 }
 
 STOPWORDS = {
@@ -171,21 +222,44 @@ def phrase_present(text, phrase):
         return phrase in text
     return re.search(r"(?<![a-z0-9])"+re.escape(phrase)+r"(?![a-z0-9])", text) is not None
 
-def domain_for(title, body):
-    sample=(title+" "+body[:6000]).lower()
-    gaming=sum(2 if phrase_present(title.lower(), term) else 1 for term in GAMING_TERMS if phrase_present(sample, term))
-    tech=sum(2 if phrase_present(title.lower(), term) else 1 for term in TECH_TERMS if phrase_present(sample, term))
-    if gaming >= tech + 2:
+def franchise_for(title):
+    sample=unicodedata.normalize("NFKD", title.lower())
+    sample="".join(ch for ch in sample if not unicodedata.combining(ch))
+    found=set()
+    for franchise, aliases in FRANCHISE_ALIASES.items():
+        if any(phrase_present(sample, alias) for alias in aliases):
+            found.add(franchise)
+    return found
+
+def domain_for(title):
+    sample=title.lower()
+    gaming=sum(1 for term in GAMING_TERMS if phrase_present(sample, term))
+    tech=sum(1 for term in TECH_TERMS if phrase_present(sample, term))
+
+    # Known game franchises are always gaming; known hardware brands/products
+    # remain tech unless the title itself is clearly about a videogame.
+    franchises=franchise_for(title)
+    game_franchises={
+        "gta","risk_of_rain","transport_fever","ace_combat","battlefield",
+        "call_of_duty","resident_evil","final_fantasy","monster_hunter","marvel_wolverine"
+    }
+    tech_franchises={"reolink","roomba","fritz","realme","70mai","epomaker","scuf"}
+    if franchises & game_franchises:
         return "gaming"
-    if tech >= gaming + 2:
+    if franchises & tech_franchises:
+        return "tech"
+    if gaming > tech:
+        return "gaming"
+    if tech > gaming:
         return "tech"
     return "mixed"
 
-def topics_for(title, body):
-    sample=(title+" "+body[:6000]).lower()
+def topics_for(title):
+    sample=unicodedata.normalize("NFKD", title.lower())
+    sample="".join(ch for ch in sample if not unicodedata.combining(ch))
     return {
-        topic for topic, terms in TOPIC_GROUPS.items()
-        if any(phrase_present(sample, term) for term in terms)
+        topic for topic, terms in TITLE_TOPIC_GROUPS.items()
+        if any(phrase_present(sample, term.lower()) for term in terms)
     }
 
 def kind_for(path):
@@ -228,8 +302,9 @@ def article_record(path):
         "body": body,
         "image": image_of(content),
         "kind": kind_for(path),
-        "domain": domain_for(title, body),
-        "topics": topics_for(title, body),
+        "domain": domain_for(title),
+        "topics": topics_for(title),
+        "franchises": franchise_for(title),
         "title_tokens": title_tokens,
         "strong_tokens": strong_tokens,
         "bigrams": bigrams,
@@ -237,7 +312,7 @@ def article_record(path):
     }
 
 def relevance(current, candidate):
-    # Never mix a clearly gaming article with a clearly tech article.
+    # Never mix clear gaming and clear tech.
     if (
         current["domain"] != "mixed"
         and candidate["domain"] != "mixed"
@@ -245,73 +320,56 @@ def relevance(current, candidate):
     ):
         return -999.0
 
-    ct = current["title_tokens"]
-    cb = current["body_tokens"]
-    tt = candidate["title_tokens"]
-    tb = candidate["body_tokens"]
-    cs = current["strong_tokens"]
-    ts = candidate["strong_tokens"]
+    franchise_overlap=current["franchises"] & candidate["franchises"]
+    strong_overlap=current["strong_tokens"] & candidate["strong_tokens"]
+    bigram_overlap=current["bigrams"] & candidate["bigrams"]
+    topic_overlap=current["topics"] & candidate["topics"]
 
-    strong_overlap = cs & ts
-    bigram_overlap = current["bigrams"] & candidate["bigrams"]
-    topic_overlap = current["topics"] & candidate["topics"]
-    strong_topics = {x for x in topic_overlap if x not in WEAK_TOPICS}
-
-    title_overlap = len(ct & tt)
-    current_title_in_body = len(cs & tb)
-    candidate_title_in_body = len(ts & cb)
-    body_overlap = len(cb & tb)
-
-    # Strong entity/franchise matching dominates everything else.
-    score = (
-        len(strong_overlap) * 12.0
-        + len(bigram_overlap) * 22.0
-        + len(strong_topics) * 7.0
-        + len(topic_overlap & WEAK_TOPICS) * 1.0
-        + current_title_in_body * 2.2
-        + candidate_title_in_body * 1.8
-        + min(body_overlap, 8) * 0.08
+    # Ranking is deliberately TITLE-ONLY. Body copy is ignored.
+    score=(
+        len(franchise_overlap) * 100.0
+        + len(bigram_overlap) * 30.0
+        + len(strong_overlap) * 14.0
+        + len(topic_overlap) * 12.0
     )
-
-    if current["domain"] == candidate["domain"] and current["domain"] != "mixed":
-        score += 0.75
     if current["kind"] == candidate["kind"]:
-        score += 0.2
-
+        score += 0.5
     return score
 
 def related_for(current, records, limit=LIMIT):
-    ranked = []
+    ranked=[]
     for candidate in records:
         if candidate["name"] == current["name"]:
             continue
 
-        score = relevance(current, candidate)
-        if score < MIN_SCORE:
-            continue
+        franchise_overlap=current["franchises"] & candidate["franchises"]
+        strong_overlap=current["strong_tokens"] & candidate["strong_tokens"]
+        bigram_overlap=current["bigrams"] & candidate["bigrams"]
+        topic_overlap=current["topics"] & candidate["topics"]
 
-        strong_overlap = current["strong_tokens"] & candidate["strong_tokens"]
-        bigram_overlap = current["bigrams"] & candidate["bigrams"]
-        topic_overlap = current["topics"] & candidate["topics"]
-        strong_topics = {x for x in topic_overlap if x not in WEAK_TOPICS}
-
-        # Tiered relevance:
-        # 1) same entity/franchise/product family,
-        # 2) otherwise at least one specific shared topic,
-        # 3) platform/update alone is never sufficient.
-        tier = None
-        if bigram_overlap or len(strong_overlap) >= 2:
-            tier = 0
-        elif len(strong_overlap) == 1 and strong_topics:
-            tier = 1
-        elif len(strong_topics) >= 1:
-            tier = 2
+        # A platform alone (PS5/Xbox/PC/Switch) is never a reason to relate.
+        # Require one of:
+        # - same franchise/product family;
+        # - a meaningful two-word title phrase;
+        # - at least two strong title terms;
+        # - a specific title-derived genre/category.
+        if franchise_overlap:
+            tier=0
+        elif bigram_overlap:
+            tier=1
+        elif len(strong_overlap) >= 2:
+            tier=2
+        elif topic_overlap:
+            tier=3
         else:
             continue
 
-        ranked.append((tier, -score, candidate["name"], candidate))
+        score=relevance(current,candidate)
+        if score < MIN_SCORE:
+            continue
+        ranked.append((tier,-score,candidate["name"],candidate))
 
-    ranked.sort(key=lambda item: (item[0], item[1], item[2]))
+    ranked.sort(key=lambda item:(item[0],item[1],item[2]))
     return [item[3] for item in ranked[:limit]]
 
 def render_related(items):
@@ -389,7 +447,7 @@ def main():
             changed += 1
 
     print(
-        f"Related content evaluated for {len(records)} articles; "
+        f"Title-based related content evaluated for {len(records)} articles; "
         f"{with_blocks} pages have strong matches, {total_links} links total; "
         f"{changed} files updated."
     )
