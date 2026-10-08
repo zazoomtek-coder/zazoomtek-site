@@ -445,6 +445,10 @@ def update_home(vids, short_ids):
             stack.append(candidate)
             used.add(candidate["id"])
 
+    # Keep exactly one newest video per category, with no duplicates,
+    # then order those category representatives globally by publish date.
+    stack.sort(key=lambda v:v["snippet"]["publishedAt"],reverse=True)
+
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
         "\n".join(sidebar_stack_card(v) for v in stack)
