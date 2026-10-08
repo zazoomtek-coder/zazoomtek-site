@@ -45,10 +45,11 @@ def sec(d):
     return (int(m.group(1) or 0)*3600+int(m.group(2) or 0)*60+int(m.group(3) or 0)) if m else 0
 
 def is_live_upload(v):
-    # Exclude live streams (past, current or scheduled) from the Home "Ultimi Video".
-    # YouTube keeps liveStreamingDetails on completed live broadcasts too.
+    # Exclude only broadcasts that are currently live or still upcoming.
+    # Completed premieres/live broadcasts become normal VODs and may appear
+    # in Home/category boxes like any other uploaded video.
     live_state=(v.get("snippet",{}).get("liveBroadcastContent") or "none").lower()
-    return live_state in ("live","upcoming") or bool(v.get("liveStreamingDetails"))
+    return live_state in ("live","upcoming")
 
 def youtube_short_ids():
     # YouTube Data API doesn't expose a direct isShort flag.
