@@ -1049,6 +1049,42 @@ def clean_site_blocks(raw):
             cleaned.append(text)
     return cleaned
 
+def is_english_community_block(text):
+    """Detect the short English summary paragraph used in Community news posts."""
+    text=(text or "").strip()
+    if not text:
+        return False
+    normalized=unicodedata.normalize("NFKD",text.lower())
+    normalized="".join(ch for ch in normalized if not unicodedata.combining(ch))
+    words=re.findall(r"[a-z]+",normalized)
+    if len(words)<8:
+        return False
+
+    english={
+        "the","and","with","will","from","this","that","these","those","its","their","our",
+        "is","are","was","were","be","been","being","has","have","had","can","could","would",
+        "new","based","full","starting","launch","available","coming","features","including",
+        "for","to","of","in","on","at","by","as","into","about","after","before","while"
+    }
+    italian={
+        "il","lo","la","i","gli","le","un","una","uno","e","con","per","del","della","dei",
+        "delle","che","nel","nella","sono","sarà","sara","anche","come","più","piu","nuovo",
+        "nuova","arriva","disponibile","dal","dalla","su","tra","fra"
+    }
+    en_hits=sum(1 for w in words if w in english)
+    it_hits=sum(1 for w in words if w in italian)
+
+    # Community convention: one standalone paragraph containing the two
+    # English summary sentences. Require a strong English-language signal so
+    # product names and English technical terms inside Italian prose survive.
+    return en_hits>=4 and en_hits>=it_hits+3
+
+def clean_news_site_blocks(raw):
+    return [
+        block for block in clean_site_blocks(raw)
+        if not is_english_community_block(block)
+    ]
+
 def clean_site_title(line):
     return clean_site_line(line)
 
@@ -1092,7 +1128,7 @@ def is_news_section_heading(text, next_text=""):
     return True
 
 def news_body_html(p):
-    blocks=clean_site_blocks(p.get("text") or "")
+    blocks=clean_news_site_blocks(p.get("text") or "")
     title=news_title(p)
     cleaned=[b for b in blocks if b!=title]
     rendered=[]
@@ -1680,7 +1716,8 @@ def post_slug(p):
     return review_slug(p) if is_review(p) else news_slug(p)
 
 def post_excerpt(p, limit=220):
-    text=" ".join(clean_site_blocks(p.get("text") or ""))
+    blocks=clean_site_blocks(p.get("text") or "") if is_review(p) else clean_news_site_blocks(p.get("text") or "")
+    text=" ".join(blocks)
     title=post_title(p)
     if text.startswith(title):
         text=text[len(title):].strip(" :-–—")
