@@ -57,6 +57,7 @@ jobs:
       - name: Save validated Community changes locally
         id: community_commit
         if: steps.community_sync.outcome == 'success'
+        continue-on-error: true
         run: |
           git add -A
           if git diff --cached --quiet; then
@@ -65,6 +66,13 @@ jobs:
             git commit -m "Auto-sync YouTube Community reviews"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Recover from Community commit failure
+        if: steps.community_commit.outcome == 'failure'
+        run: |
+          echo "Community commit failed; discarding uncommitted Community output."
+          git reset --hard HEAD
+          git clean -fd
 
       - name: Sync and validate YouTube uploads
         id: video_sync
@@ -86,6 +94,7 @@ jobs:
       - name: Save validated video changes locally
         id: video_commit
         if: steps.video_sync.outcome == 'success'
+        continue-on-error: true
         run: |
           git add -A
           if git diff --cached --quiet; then
@@ -94,6 +103,13 @@ jobs:
             git commit -m "Auto-sync latest YouTube uploads"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Recover from video commit failure
+        if: steps.video_commit.outcome == 'failure'
+        run: |
+          echo "Video commit failed; discarding uncommitted video output."
+          git reset --hard HEAD
+          git clean -fd
 
       - name: Push validated site update
         if: always() && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true')
@@ -125,9 +141,14 @@ jobs:
         run: |
           community="${{ steps.community_sync.outcome }}"
           videos="${{ steps.video_sync.outcome }}"
+          community_commit="${{ steps.community_commit.outcome }}"
+          video_commit="${{ steps.video_commit.outcome }}"
           echo "Community result: $community"
           echo "Video result: $videos"
-          if [ "$community" != "success" ] || [ "$videos" != "success" ]; then
-            echo "At least one YouTube source failed. Any successful source was preserved independently."
+          echo "Community commit: $community_commit"
+          echo "Video commit: $video_commit"
+          if [ "$community" != "success" ] || [ "$videos" != "success" ] || \
+             [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ]; then
+            echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
           fi
