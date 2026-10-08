@@ -10,6 +10,8 @@ on:
       - 'scripts/update-youtube-posts.py'
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
+      - 'scripts/build-search-index.py'
+      - 'cerca.html'
   workflow_dispatch:
 
 permissions:
@@ -32,7 +34,7 @@ jobs:
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/build-search-index.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
@@ -111,8 +113,34 @@ jobs:
           git reset --hard HEAD
           git clean -fd
 
+      - name: Build global search index
+        id: search_sync
+        if: always()
+        continue-on-error: true
+        run: python3 scripts/build-search-index.py
+
+      - name: Save global search index locally
+        id: search_commit
+        if: steps.search_sync.outcome == 'success'
+        continue-on-error: true
+        run: |
+          git add search-index.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Update global site search index"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Recover from search index commit failure
+        if: steps.search_commit.outcome == 'failure'
+        run: |
+          echo "Search index commit failed; discarding uncommitted search output."
+          git reset --hard HEAD
+          git clean -fd
+
       - name: Push validated site update
-        if: always() && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true')
+        if: always() && steps.search_sync.outcome == 'success' && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
         run: |
           git fetch origin main
           if ! git rebase origin/main; then
@@ -143,12 +171,16 @@ jobs:
           videos="${{ steps.video_sync.outcome }}"
           community_commit="${{ steps.community_commit.outcome }}"
           video_commit="${{ steps.video_commit.outcome }}"
+          search="${{ steps.search_sync.outcome }}"
+          search_commit="${{ steps.search_commit.outcome }}"
           echo "Community result: $community"
           echo "Video result: $videos"
+          echo "Search index result: $search"
           echo "Community commit: $community_commit"
           echo "Video commit: $video_commit"
-          if [ "$community" != "success" ] || [ "$videos" != "success" ] || \
-             [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ]; then
+          echo "Search commit: $search_commit"
+          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$search" != "success" ] || \
+             [ "$community_commit" = "failure" ] || [ "$video_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
           fi
