@@ -38,8 +38,11 @@ def main():
     output=[]
     for item in items[:6]:
         # Google News RSS redirects and page titles are NOT sufficient evidence.
+        # Newsrooms are legitimate sources too. A substantive original article
+        # or official statement can be enough to draft; only publication requires
+        # a final check. Aggregators are already excluded by source retrieval.
         sources=[x["data"] for x in item.get("sources",[]) if x.get("result")=="retrieved"
-                 and len(x.get("data",{}).get("excerpts",[]))>=3]
+                 and len(" ".join(x.get("data",{}).get("excerpts",[])).split())>=110]
         if not sources:
             output.append({"section":item.get("section"),"topic":item.get("title"),
                 "status":"insufficient_primary_material","approved":False})
@@ -47,7 +50,7 @@ def main():
         # Supply short excerpts for understanding, never for copying.
         evidence=[{"url":x["url"],"publication_meta":x.get("metadata",{}),
                    "research_extracts":x["excerpts"][:9]} for x in sources[:2]]
-        prompt="""Sei un redattore italiano di ZazoomTek. Prepara UNA BOZZA NON PUBBLICABILE da 300-600 parole, usando ESCLUSIVAMENTE le informazioni che trovi nei materiali riportati. Sono estratti parziali di pagine web e NON implicano verifica indipendente. Evita ogni fatto non dimostrato, qualifica le incertezze, niente informazioni inventate, citazioni attribuite, accuse o contenuti coperti da copyright copiati letteralmente. Non affermare di aver compiuto un'inchiesta autonoma, un test o una verifica definitiva. Scrivi in modo originale e giornalistico, con paragrafi corposi e sottotitoli pertinenti. Se il materiale non è sufficiente a scrivere almeno 300 parole reali e informative, restituisci {"status":"insufficient_evidence"}. NON ALLUNGARE per arrivare a 300 con ripetizioni. Restituisci JSON: {"status":"draft","title":"...","summary":"...","paragraphs":["..."],"evidence_limits":["..."]}. NON includere HTML. Tema: """+str(item.get("title",""))+"\nEstratti per la ricerca:\n"+json.dumps(evidence,ensure_ascii=False)[:13500]
+        prompt="""Sei un redattore italiano di ZazoomTek. Sono fonti utilizzabili sia testate giornalistiche credibili, sia fonti ufficiali e documenti pubblici: attribuisci ogni informazione sostanziale alla sua provenienza, senza appropriarti di esclusive altrui. Evita toni accusatori quando mancano conferme e distingui ipotesi da decisioni definitive. Prepara UNA BOZZA NON PUBBLICABILE da 300-600 parole, usando ESCLUSIVAMENTE le informazioni che trovi nei materiali riportati. Sono estratti parziali di pagine web e NON implicano verifica indipendente. Evita ogni fatto non dimostrato, qualifica le incertezze, niente informazioni inventate, citazioni attribuite, accuse o contenuti coperti da copyright copiati letteralmente. Non affermare di aver compiuto un'inchiesta autonoma, un test o una verifica definitiva. Scrivi in modo originale e giornalistico, con paragrafi corposi e sottotitoli pertinenti. Se il materiale non è sufficiente a scrivere almeno 300 parole reali e informative, restituisci {"status":"insufficient_evidence"}. NON ALLUNGARE per arrivare a 300 con ripetizioni. Restituisci JSON: {"status":"draft","title":"...","summary":"...","paragraphs":["..."],"evidence_limits":["..."]}. NON includere HTML. Tema: """+str(item.get("title",""))+"\nEstratti per la ricerca:\n"+json.dumps(evidence,ensure_ascii=False)[:13500]
         raw=generate(prompt)
         if not isinstance(raw,dict) or raw.get("status")!="draft":
             output.append({"section":item.get("section"),"topic":item.get("title"),
