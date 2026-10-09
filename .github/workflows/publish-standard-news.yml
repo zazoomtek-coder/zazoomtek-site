@@ -1,5 +1,7 @@
 name: Publish approved standard NEWS
 on:
+  schedule:
+    - cron: '43 7 * * *'
   push:
     paths:
       - standard-news.json
