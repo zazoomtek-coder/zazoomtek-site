@@ -76,7 +76,7 @@ def make_page(x,filename,related):
                 +' · <a href="'+esc(licence)+'" rel="noopener noreferrer">'+esc(art["license"])
                 +'</a> · immagine ritagliata ed elaborata graficamente da ZazoomTek.</figcaption>')
     hero_html=('<figure class="hero"><img src="'+esc(hero)+'" alt="'+esc(x["title"])+'" '
-               'loading="eager" decoding="async">'+credit_html+'</figure>') if hero.startswith("/") else ""
+               'loading="eager" decoding="async"></figure>') if hero.startswith("/") else ""
     structured=json.dumps({
         "@context":"https://schema.org","@type":"NewsArticle",
         "headline":x["title"],"description":x["summary"],
@@ -107,6 +107,7 @@ footer a{{color:#fff}}</style>
 <div class="meta">{esc(x["date"])} · Redazione ZazoomTek</div>
 {hero_html}<p class="lead">{summary}</p>{body}
 {related_html}
+{('<details class="zt-photo-credits"><summary>Crediti fotografici</summary>'+credit_html+'</details>') if credit_html else ''}
 <p><a href="{esc(section_link)}">← Torna a {name}</a></p></main>
 <footer>© ZazoomTek · <a href="/privacy.html">Privacy</a></footer></body></html>'''
 

@@ -101,7 +101,7 @@ def decorate(page,section_label="News"):
                 +html.escape(html.unescape(title_plain))+'</div>')
     if section_path!="/news.html":
         article=article.replace('href="/news.html"','href="'+section_path+'"')
-    # Preserve the original article body, image, captions and license credits.
+    # Preserve original article body and move any photographic attribution away from the image.
     sidebar=_sidebar_from_current_news(sidebar,"")
     cta=('<section class="zt-subscribe-cta"><div class="zt-subscribe-copy">'
          '<span class="zt-subscribe-kicker">ZazoomTek Community</span>'
