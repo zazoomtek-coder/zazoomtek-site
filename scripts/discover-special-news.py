@@ -22,6 +22,9 @@ QUERIES={
   'technology patent innovation semiconductors',
   'big tech layoffs acquisition antitrust policy',
   'smartphone security vulnerability major software',
+  'attacco hacker ministero istituzioni sicurezza informatica',
+  'cyberattack critical infrastructure government Asia Europe',
+  'Japan South Korea semiconductor digital policy AI regulation',
  ],
  "gaming":[
   'videogame industry legislation political regulation rights',
@@ -30,6 +33,11 @@ QUERIES={
   'games industry studios closures layoffs acquisitions',
   'video games artificial intelligence copyright lawsuit',
   'gaming platforms refunds consumer rights antitrust',
+  'video game regulation European Commission Parliament player rights',
+  'video game studio closures employees layoffs Japan US Europe',
+  'online game shutdown access purchased games consumer rights',
+  'gaming industry copyright law government investigations',
+  'videogiochi legge tutela consumatori chiusura server',
  ]
 }
 def fetch(url):
@@ -50,10 +58,16 @@ def discover():
         except (ValueError,OSError):pass
     fresh={}
     errors=[]
+    regions=[
+        {"hl":"ja","gl":"JP","ceid":"JP:ja"},
+        {"hl":"it","gl":"IT","ceid":"IT:it"},
+        {"hl":"en-US","gl":"US","ceid":"US:en"}
+    ]
     for section,queries in QUERIES.items():
-        for query in queries:
+        for index,query in enumerate(queries):
+            region=regions[index % len(regions)]
             # Google News is used for discovery only, NOT as factual proof.
-            url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":query+" when:2d","hl":"en-US","gl":"US","ceid":"US:en"})
+            url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":query+" when:2d",**region})
             try:
                 root=ET.fromstring(fetch(url))
                 for item in root.findall(".//channel/item")[:12]:
