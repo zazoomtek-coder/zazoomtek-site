@@ -4,7 +4,7 @@ on:
     - cron: '*/30 * * * *'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: special-editorial-discovery
   cancel-in-progress: false
@@ -14,24 +14,12 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-      - name: Research worldwide news (no automatic publication)
+      - name: Scan international coverage without publishing
         run: python3 scripts/discover-special-news.py
-      - name: Commit leads only when changed
-        run: |
-          if ! git diff --quiet -- special-candidates.json; then
-            git config user.name "ZazoomTek Editorial Research Bot"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -- special-candidates.json
-            git commit -m "chore: refresh special news research leads"
-            git push
-          elif [ -n "$(git ls-files --others --exclude-standard -- special-candidates.json)" ]; then
-            git config user.name "ZazoomTek Editorial Research Bot"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -- special-candidates.json
-            git commit -m "chore: initialize special news research leads"
-            git push
-          else
-            echo "No new research data"
-          fi
+      - name: Preserve research report independently of live site
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-news-research
+          path: special-candidates.json
+          retention-days: 7
+          overwrite: true
