@@ -22,7 +22,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.5-flash-lite
+          GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/generate-special-drafts.py
       - name: Preserve research report independently of live site
         uses: actions/upload-artifact@v4
