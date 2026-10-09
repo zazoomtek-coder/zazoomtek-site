@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Idempotent post-processing ONLY: keep ten featured and four standard NEWS on the website.
+"""Idempotent post-processing: ten newest photographic NEWS, with daily updates.
 
 Never imports YouTube, never edits review/video pages or special editorial content.
 Call after the existing YouTube Community sync, which rewrites the homepage/NEWS.
@@ -29,9 +29,9 @@ def esc(v):
 def load():
     standard = json.loads(STANDARD.read_text(encoding="utf-8")).get("articles", [])
     special = json.loads(SPECIAL.read_text(encoding="utf-8")).get("items", [])
-    if len(standard) != 4 or len(special) != 6:
+    if len(standard) < 4 or len(special) != 6:
         raise ValueError("Expected four approved standard NEWS and six existing specials.")
-    if sum(x.get("kind") == "tech" for x in standard) != 2 or sum(x.get("kind") == "gaming" for x in standard) != 2:
+    if sum(x.get("kind") == "tech" for x in standard) < 2 or sum(x.get("kind") == "gaming" for x in standard) < 2:
         raise ValueError("Standard NEWS must contain precisely 2 tech + 2 gaming.")
     if sum(x.get("section") == "tech" for x in special) != 4 or sum(x.get("section") == "gaming" for x in special) != 2:
         raise ValueError("The original 4+2 special selection has changed.")
@@ -49,6 +49,7 @@ def load():
             raise ValueError("Invalid special slug")
         if not (ROOT / slug).is_file():
             raise RuntimeError("Special page missing: " + slug)
+    standard.sort(key=lambda x: publication_key(x.get("published_at") or x.get("date")), reverse=True)
     return standard, special
 
 
@@ -196,11 +197,12 @@ def main():
     feed = re.sub(r'\s*' + re.escape(STANDARD_START) + r'.*?' + re.escape(STANDARD_END), '', feed, flags=re.S)
     # Normalize spacing on every run so a periodic YouTube sync doesn't
     # create meaningless diffs and unnecessary Firebase deployments.
-    feed = STANDARD_START + '\n' + standard_home_rows(standard) + '\n' + STANDARD_END + '\n' + feed.strip()
+    feed = STANDARD_START + '\n' + standard_home_rows(standard[:4]) + '\n' + STANDARD_END + '\n' + feed.strip()
     s = replace_between(s, FEED_START, FEED_END, feed)
     feature = s[s.index(PAGE_START):s.index(PAGE_END)]
-    if len(re.findall(r'data-slide="\d+"', feature)) != 10 or len(re.findall(r'data-go="\d+"', feature)) != 10:
-        raise RuntimeError("Carousel validation failed")
+    slide_count = len(re.findall(r'data-slide="\d+"', feature))
+    if not 1 <= slide_count <= 10 or len(re.findall(r'data-go="\d+"', feature)) != slide_count:
+        raise RuntimeError("Chronological carousel validation failed")
     if s.count('data-standard-news="true"') != 4:
         raise RuntimeError("Home NEWS count validation failed")
 
@@ -219,11 +221,11 @@ def main():
 
     if INDEX.read_text(encoding="utf-8") != s:
         INDEX.write_text(s, encoding="utf-8")
-        print("Updated ten-slide home carousel and four Latest Articles.")
+        print("Updated chronological featured NEWS carousel and latest approved articles.")
     if NEWS.read_text(encoding="utf-8") != news:
         NEWS.write_text(news, encoding="utf-8")
         print("Updated standard NEWS archive.")
-    print("VALIDATED: 10 featured slides (4+2+2+2), 4 latest standard articles, 4 standard NEWS; source importers unchanged.")
+    print(f"VALIDATED: {slide_count} latest photographic NEWS in publishing order; source importers unchanged.")
 
 
 if __name__ == "__main__":
