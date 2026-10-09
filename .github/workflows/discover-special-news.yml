@@ -17,13 +17,16 @@ jobs:
       - name: Scan international coverage without publishing
         run: python3 scripts/discover-special-news.py
       - name: Validate editorial draft generator
-        run: python3 -m py_compile scripts/discover-special-news.py scripts/generate-special-drafts.py
+        run: python3 -m py_compile scripts/discover-special-news.py scripts/generate-special-drafts.py scripts/check-special-sources.py
       - name: Generate Gemini drafts on manual test only (no auto-publication)
         if: github.event_name == 'workflow_dispatch'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/generate-special-drafts.py
+      - name: Retrieve source evidence for manual review
+        if: github.event_name == 'workflow_dispatch'
+        run: python3 scripts/check-special-sources.py
       - name: Preserve research report independently of live site
         uses: actions/upload-artifact@v4
         with:
@@ -37,6 +40,15 @@ jobs:
         with:
           name: special-news-drafts-review
           path: special-drafts-review.json
+          if-no-files-found: ignore
+          retention-days: 7
+          overwrite: true
+      - name: Preserve source evidence for manual review
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-source-evidence-review
+          path: special-source-evidence.json
           if-no-files-found: ignore
           retention-days: 7
           overwrite: true
