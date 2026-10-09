@@ -2269,7 +2269,9 @@ def main():
     ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
-    specials=selected_special_featured()\n    featured_html=render_special_featured(specials) if specials else render_featured_news(selected_featured_news(news))\n    featured="<!-- FEATURED_NEWS_START -->\\n        "+featured_html+"\\n        <!-- FEATURED_NEWS_END -->"
+    specials=selected_special_featured()
+    featured_html=render_special_featured(specials) if specials else render_featured_news(selected_featured_news(news))
+    featured="<!-- FEATURED_NEWS_START -->\n        "+featured_html+"\n        <!-- FEATURED_NEWS_END -->"
     s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
 
     feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
