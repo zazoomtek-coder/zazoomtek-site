@@ -1,0 +1,42 @@
+name: Publish approved Tech Impact and Gaming Inside articles
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'approved-special-articles.json'
+      - 'scripts/publish-special-news.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: special-editorial-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python syntax before touching pages
+        run: |
+          python3 -m py_compile scripts/publish-special-news.py scripts/update-youtube-posts.py scripts/discover-special-news.py
+          python3 -m json.tool approved-special-articles.json >/dev/null
+      - name: Build approved articles and separate archives
+        run: python3 scripts/publish-special-news.py
+      - name: Commit published articles atomically
+        run: |
+          git config user.name "ZazoomTek Editorial Publisher"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- tech-today.html gaming-today.html special-featured.json 'tech-impact-*.html' 'gaming-inside-*.html'
+          if ! git diff --cached --quiet; then
+            git commit -m "content: publish editorially approved special articles"
+            for attempt in 1 2 3; do
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                exit 0
+              fi
+              git rebase --abort || true
+              sleep "$((attempt * 5))"
+            done
+            echo "Could not synchronize generated content safely."
+            exit 1
+          fi
