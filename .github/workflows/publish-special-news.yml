@@ -24,6 +24,8 @@ jobs:
           python3 -m json.tool approved-special-articles.json >/dev/null
       - name: Install free image optimizer
         run: python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Verify original cover generation offline
+        run: python3 scripts/build-special-covers.py --self-test
       - name: Find rights-cleared images and prepare lightweight WebP covers
         run: python3 scripts/build-special-covers.py
       - name: Build approved articles and separate archives
