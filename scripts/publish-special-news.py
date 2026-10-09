@@ -8,6 +8,7 @@ import html
 import json
 import re
 from pathlib import Path
+from featured_article_layout import decorate
 
 ROOT=Path(__file__).resolve().parent.parent
 APPROVED=ROOT/"approved-special-articles.json"
@@ -142,7 +143,8 @@ def main():
         related=[r for r in published if r["filename"]!=item["filename"] and r["section"]==item["section"]]
         if not related:
             related=[r for r in published if r["filename"]!=item["filename"]]
-        save_if_changed(ROOT/item["filename"],make_page(item,item["filename"],related))
+        page=make_page(item,item["filename"],related)
+        save_if_changed(ROOT/item["filename"],decorate(page,LABEL[item["section"]]))
     for section,archive in SECTION_FILES.items():
         path=ROOT/archive;s=path.read_text(encoding="utf-8")
         rows=[]
