@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
+      - 'scripts/remove-duplicate-article-images.py'
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
       - 'scripts/build-search-index.py'
@@ -41,7 +42,7 @@ jobs:
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/remove-duplicate-article-images.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
@@ -55,6 +56,10 @@ jobs:
         run: |
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
+
+      - name: Remove duplicate images across all existing article pages
+        if: steps.community_sync.outcome == 'success'
+        run: python3 scripts/remove-duplicate-article-images.py
 
       # Post-process the generated HTML only; the YouTube news, video and review
       # importers and their validations remain untouched.
