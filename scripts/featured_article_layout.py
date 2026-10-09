@@ -62,6 +62,13 @@ def decorate(page,section_label="News"):
     if 'class="news-detail-page"' in page:
         return page
     css,header,sidebar,footer=_reference()
+    section_path={"Tech Impact":"/tech-today.html","Gaming Inside":"/gaming-today.html"}.get(section_label,"/news.html")
+    if section_path!="/news.html":
+        header=header.replace('<a class="active" href="/news.html">News</a>','<a href="/news.html">News</a>')
+        header=header.replace('href="'+section_path+'">'+section_label+'</a>','class="active" href="'+section_path+'">'+section_label+'</a>')
+        header=header.replace('<strong>News</strong>','<strong>'+section_label+'</strong>')
+        header=header.replace('Notizie tech, gaming e novità dalla Community ZazoomTek','Articoli della sezione '+section_label)
+
     head=re.search(r'\A(.*?</head>)',page,re.S)
     main=re.search(r'<main\b[^>]*>(.*?)</main>',page,re.S)
     if not(head and main):
@@ -90,8 +97,10 @@ def decorate(page,section_label="News"):
     article=main.group(1)
     title=re.search(r'<h1>(.*?)</h1>',article,re.S)
     title_plain=re.sub(r'<[^>]+>','',title.group(1)) if title else section_label
-    breadcrumb=('<div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '
+    breadcrumb=('<div class="breadcrumbs"><a href="/">Home</a> / <a href="'+section_path+'">'+html.escape(section_label)+'</a> / '
                 +html.escape(html.unescape(title_plain))+'</div>')
+    if section_path!="/news.html":
+        article=article.replace('href="/news.html"','href="'+section_path+'"')
     # Preserve the original article body, image, captions and license credits.
     sidebar=_sidebar_from_current_news(sidebar,"")
     cta=('<section class="zt-subscribe-cta"><div class="zt-subscribe-copy">'
