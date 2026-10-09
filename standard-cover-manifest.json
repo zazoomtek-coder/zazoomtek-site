@@ -3,29 +3,49 @@
     "standard/microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026": {
       "path": "/assets/special/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.webp",
       "origin": {
-        "origin": "ZazoomTek original graphic",
-        "license": "Original in-house art"
+        "origin": "Wikimedia Commons",
+        "license": "CC BY-SA 4.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Surface_Laptop_Studio_-_1.jpg",
+        "file": "File:Surface Laptop Studio - 1.jpg",
+        "photographer": "KKPCW",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "modified": true
       }
     },
     "standard/apple-welcome-home-evento-13-ottobre-2026-smart-home": {
       "path": "/assets/special/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.webp",
       "origin": {
-        "origin": "ZazoomTek original graphic",
-        "license": "Original in-house art"
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 4.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:HomePod_mini_2024.jpg",
+        "file": "File:HomePod mini 2024.jpg",
+        "photographer": "Seasider53",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "modified": true
       }
     },
     "standard/forza-horizon-6-ps5-26-gennaio-2027-preordini": {
       "path": "/assets/special/news-forza-horizon-6-ps5-26-gennaio-2027-preordini.webp",
       "origin": {
-        "origin": "ZazoomTek original graphic",
-        "license": "Original in-house art"
+        "origin": "Wikimedia Commons",
+        "license": "CC BY-SA 4.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Nissan_GT-R_Tokyo_2018.jpg",
+        "file": "File:Nissan GT-R Tokyo 2018.jpg",
+        "photographer": "Otto Domes",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "modified": true
       }
     },
     "standard/one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026": {
       "path": "/assets/special/news-one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026.webp",
       "origin": {
-        "origin": "ZazoomTek original graphic",
-        "license": "Original in-house art"
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:One_Piece_(8368984102).jpg",
+        "file": "File:One Piece (8368984102).jpg",
+        "photographer": "Stefan Schubert",
+        "license_url": "https://creativecommons.org/licenses/by/2.0",
+        "modified": true
       }
     }
   }
