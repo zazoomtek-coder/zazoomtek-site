@@ -22,8 +22,7 @@
       "featured": true,
       "cover_mode": "auto",
       "cover_search": "European parliament building",
-      "cover_file": "Berlaymont EU Building-Brussels.jpg",
-      "cover_refresh": true
+      "cover_file": "Berlaymont EU Building-Brussels.jpg"
     },
     {
       "section": "tech",
@@ -47,8 +46,7 @@
       "featured": true,
       "cover_mode": "auto",
       "cover_search": "server cyber security",
-      "cover_file": "FBI Headquarters.jpg",
-      "cover_refresh": true
+      "cover_file": "FBI Headquarters.jpg"
     },
     {
       "section": "tech",
@@ -72,8 +70,7 @@
       "featured": true,
       "cover_mode": "auto",
       "cover_search": "data center servers",
-      "cover_file": "CAMPUS - Military Data Center (52106762896).jpg",
-      "cover_refresh": true
+      "cover_file": "CAMPUS - Military Data Center (52106762896).jpg"
     },
     {
       "section": "tech",
@@ -98,8 +95,7 @@
       "featured": true,
       "cover_mode": "auto",
       "cover_search": "smart glasses technology",
-      "cover_file": "Ray-Ban Meta Gen 1 smart glasses with charging case.jpg",
-      "cover_refresh": true
+      "cover_file": "Ray-Ban Meta Gen 1 smart glasses with charging case.jpg"
     },
     {
       "section": "gaming",
@@ -124,8 +120,7 @@
       "featured": true,
       "cover_mode": "auto",
       "cover_search": "video game controller",
-      "cover_file": "Playing with smartphone.jpg",
-      "cover_refresh": true
+      "cover_file": "Playing with smartphone.jpg"
     },
     {
       "section": "gaming",
@@ -149,8 +144,7 @@
       "featured": true,
       "cover_mode": "auto",
       "cover_search": "children videogame controller",
-      "cover_file": "Child playing with video game console at home closeup.jpg",
-      "cover_refresh": true
+      "cover_file": "Child playing with video game console at home closeup.jpg"
     }
   ]
 }
