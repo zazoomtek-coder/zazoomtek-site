@@ -42,6 +42,6 @@ if manual_path.is_file():
     previous=json.loads(manual_path.read_text(encoding="utf-8")).get("items",[])
 used={item["slug"] for item in items}
 items.extend(item for item in previous if isinstance(item,dict) and item.get("slug") not in used)
-manual_path.write_text(json.dumps({"items":items},ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+manual_path.write_text(json.dumps({"items":items},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 (ROOT/"standard-cover-manifest.json").write_text(json.dumps({"articles":manifest},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 print("Built",len(items),"NEWS with WebP covers")
