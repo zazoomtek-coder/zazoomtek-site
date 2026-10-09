@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Keep the featured layout identical to the Community NEWS reference, including metadata and sidebar.
 # All featured NEWS use the published Community NEWS article frontend.
 # Layout revision: the shared featured-article header keeps desktop navigation on one line.
 """Publish only approved standalone NEWS, without changing YouTube importers."""
