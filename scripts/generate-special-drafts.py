@@ -12,7 +12,7 @@ import urllib.request
 
 ROOT=Path(__file__).resolve().parent.parent
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
-MODEL=os.environ.get("GEMINI_MODEL","gemini-2.5-flash-lite")
+MODEL=os.environ.get("GEMINI_MODEL","gemini-3.5-flash-lite")
 OUT=ROOT/"special-drafts-review.json"
 def main():
     if not KEY:
@@ -45,7 +45,7 @@ def main():
         raise SystemExit(1)
     available={m.get("name","").removeprefix("models/") for m in catalog
                if "generateContent" in m.get("supportedGenerationMethods",[])}
-    preferred=[MODEL,"gemini-2.5-flash-lite","gemini-2.5-flash","gemini-2.0-flash-lite","gemini-2.0-flash","gemini-1.5-flash"]
+    preferred=[MODEL,"gemini-3.5-flash-lite","gemini-3.5-flash"]
     selected=next((name for name in preferred if name in available),None)
     if not selected:
         # Never guess a paid-only model or silently enable billing.
