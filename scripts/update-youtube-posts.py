@@ -1883,7 +1883,10 @@ def write_news_archive(news,reviews):
         if slug in known:continue
         when=news_publication_timestamp(p.get("published_iso") or p.get("published"))
         if when is None:
-            raise RuntimeError("Missing Community publication timestamp: "+slug)
+            # Never invent a publication date for a malformed Community item.
+            # Skip this single item rather than blocking the entire archive sync.
+            print("Skipping undated Community NEWS in archive:",slug)
+            continue
         combined.append((when,slug,render_news_rows([p])))
         known.add(slug)
     combined.sort(key=lambda entry:(entry[0],entry[1]),reverse=True)
