@@ -3,29 +3,44 @@
     "tech/ue-bulgaria-digital-services-act-controlli-piattaforme": {
       "path": "/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp",
       "origin": {
-        "origin": "ZazoomTek AI-generated original editorial artwork",
-        "license": "Original editorial illustration created for ZazoomTek",
-        "modified": false
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 4.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Berlaymont_EU_Building-Brussels.jpg",
+        "file": "File:Berlaymont EU Building-Brussels.jpg",
+        "photographer": "acediscovery",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "modified": true
       },
-      "bytes": 75276
+      "search_terms": "European parliament building",
+      "bytes": 172598
     },
     "tech/fbi-sequestro-microscan-fishhub-flax-typhoon": {
       "path": "/assets/special/tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.webp",
       "origin": {
-        "origin": "ZazoomTek AI-generated original editorial artwork",
-        "license": "Original editorial illustration created for ZazoomTek",
-        "modified": false
+        "origin": "Wikimedia Commons",
+        "license": "Public domain / CC0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:FBI_Headquarters.jpg",
+        "file": "File:FBI Headquarters.jpg",
+        "photographer": "FBI",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modified": true
       },
-      "bytes": 102820
+      "search_terms": "server cyber security",
+      "bytes": 103620
     },
     "tech/anthropic-cyber-mission-ai-infrastrutture-critiche": {
       "path": "/assets/special/tech-impact-anthropic-cyber-mission-ai-infrastrutture-critiche.webp",
       "origin": {
-        "origin": "ZazoomTek AI-generated original editorial artwork",
-        "license": "Original editorial illustration created for ZazoomTek",
-        "modified": false
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:CAMPUS_-_Military_Data_Center_(52106762896).jpg",
+        "file": "File:CAMPUS - Military Data Center (52106762896).jpg",
+        "photographer": "Kecko from Eastern Switzerland",
+        "license_url": "https://creativecommons.org/licenses/by/2.0",
+        "modified": true
       },
-      "bytes": 105092
+      "search_terms": "data center servers",
+      "bytes": 81422
     },
     "tech/norvegia-proposta-divieto-occhiali-intelligenza-artificiale": {
       "path": "/assets/special/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.webp",
