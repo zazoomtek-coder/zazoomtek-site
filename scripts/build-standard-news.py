@@ -7,7 +7,8 @@ ROOT=Path(__file__).resolve().parent.parent
 data=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8"))["articles"]
 spec=importlib.util.spec_from_file_location("cover",ROOT/"scripts/build-special-covers.py")
 mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
-manifest={}
+manifest_path=ROOT/"standard-cover-manifest.json"
+manifest=json.loads(manifest_path.read_text(encoding="utf-8")).get("articles",{}) if manifest_path.exists() else {}
 items=[]
 for x in data:
     slug=x["slug"]
@@ -24,6 +25,8 @@ for x in data:
         file.parent.mkdir(parents=True,exist_ok=True)
         file.write_bytes(mod.encode(mod.render({**x,"section":x["kind"]},photo)))
         manifest[key]={"path":img,"origin":rights or {"origin":"ZazoomTek original graphic","license":"Original in-house art"}}
+    if key not in manifest or manifest[key].get("path")!=img:
+        raise RuntimeError("Missing copyright provenance for cover: "+img)
     if file.stat().st_size>300000:raise ValueError("Cover too large")
     esc=lambda t:html.escape(str(t),quote=True)
     credit=""
