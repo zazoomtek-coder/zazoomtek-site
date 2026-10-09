@@ -32,6 +32,13 @@ jobs:
           git add -- manual-news.json standard-cover-manifest.json news-*.html assets/special/news-*.webp index.html
           if ! git diff --cached --quiet; then
             git commit -m "content: publish four approved standard NEWS and optimized covers"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            for attempt in 1 2 3; do
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                exit 0
+              fi
+              git rebase --abort || true
+              sleep "$((attempt * 3))"
+            done
+            echo "Could not push safely after retries."
+            exit 1
           fi
