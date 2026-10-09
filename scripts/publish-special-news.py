@@ -66,7 +66,7 @@ def make_page(x,filename,related):
         licence=art.get("license_url","")
         artist=art.get("photographer") or "Autore indicato su Wikimedia Commons"
         if (source.startswith("https://commons.wikimedia.org/wiki/")
-                and licence.startswith("https://creativecommons.org/licenses/by/")):
+                and (licence.startswith("https://creativecommons.org/licenses/by/") or licence.startswith("https://creativecommons.org/licenses/by-sa/"))):
             credit_html=('<figcaption class="image-credit">Foto: '+esc(artist)
                 +' · <a href="'+esc(source)+'" rel="noopener noreferrer">Wikimedia Commons</a>'
                 +' · <a href="'+esc(licence)+'" rel="noopener noreferrer">'+esc(art["license"])
