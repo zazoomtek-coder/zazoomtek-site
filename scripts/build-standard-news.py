@@ -21,15 +21,11 @@ for x in data:
     # For mainstream games use original subject-labelled editorial artwork.
     # General Commons search can return legally reusable but misleading images
     # (e.g. unrelated buildings); avoid that for these titles.
-    old_origin=manifest.get(key,{}).get("origin",{}).get("origin","")
-    force_original=(x["kind"]=="gaming")
-    must_draw=(not file.exists()) or (force_original and old_origin!="ZazoomTek original graphic")
+    must_draw=(not file.exists()) or bool(x.get("cover_refresh"))
     if must_draw:
-        photo,rights=None,None
-        if not force_original:
-            try:photo,rights=mod.commons_cc0({**x,"section":x["kind"]})
-            except Exception as e:
-                print("Photo unavailable; original fallback:",e)
+        photo,rights=mod.commons_cc0({**x,"section":x["kind"]})
+        if photo is None or rights is None:
+            raise RuntimeError("Missing rights-cleared photographic cover: "+slug)
         file.parent.mkdir(parents=True,exist_ok=True)
         file.write_bytes(mod.encode(mod.render({**x,"section":x["kind"]},photo)))
         manifest[key]={"path":img,"origin":rights or {"origin":"ZazoomTek original graphic","license":"Original in-house art"}}
@@ -42,6 +38,9 @@ for x in data:
     origin=manifest.get(key,{}).get("origin",{})
     if origin.get("license","").upper().startswith("CC BY") and origin.get("source_page","").startswith("https://commons.wikimedia.org/wiki/"):
         credit='<figcaption>Foto: '+esc(origin.get("photographer","Autore Wikimedia Commons"))+' · <a href="'+esc(origin["source_page"])+'">Wikimedia Commons</a> · <a href="'+esc(origin["license_url"])+'">'+esc(origin["license"])+'</a> · ritaglio e grafica ZazoomTek</figcaption>'
+    note=x.get("image_note","")
+    if note:
+        credit += '<figcaption>'+esc(note)+'</figcaption>'
     article="news-"+slug+".html"
     paragraphs="".join("<p>"+esc(p)+"</p>" for p in x["paragraphs"])
     page='''<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="canonical" href="https://zazoomtek.it/'''+article+'''"><title>'''+esc(title)+''' | ZazoomTek</title><meta name="description" content="'''+esc(x["summary"])+'''"><meta property="og:type" content="article"><meta property="og:title" content="'''+esc(title)+'''"><meta property="og:image" content="https://zazoomtek.it'''+img+'''"><style>body{margin:0;background:#10131a;color:#f1f2f5;font:17px/1.75 Arial,sans-serif}header{background:#191c24;padding:20px 5%;border-bottom:3px solid #df3243}header a{color:white;text-decoration:none;font-weight:bold}main{max-width:880px;margin:40px auto;padding:0 20px}h1{font-size:clamp(27px,4vw,43px);line-height:1.2}figure{margin:20px 0}img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:9px}figcaption{font-size:12px;color:#b9c1ca}figcaption a{color:#9ed8ff}.summary{font-size:20px;color:#c4cbd8}a{color:#8acfff}.meta{color:#f3a75b;font-size:13px}p{margin:20px 0}</style></head><body><header><a href="/">Zazoom<span style="color:#ee3447">Tek</span>.it</a> · <a href="/news.html">NEWS</a></header><main><div class="meta">NEWS · '''+esc(x["date"])+''' · '''+esc(x["kind"].upper())+'''</div><h1>'''+esc(title)+'''</h1><p class="summary">'''+esc(x["summary"])+'''</p><figure><img src="'''+img+'''" alt="'''+esc(title)+'''" width="1280" height="720">'''+credit+'''</figure>'''+paragraphs+'''<p><a href="/news.html">← Torna alle NEWS</a></p></main></body></html>'''
