@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent.parent
 APPROVED=ROOT/"approved-special-articles.json"
+COVER_MANIFEST=ROOT/"special-cover-manifest.json"
 SECTION_FILES={"tech":"tech-today.html","gaming":"gaming-today.html"}
 PREFIX={"tech":"tech-impact","gaming":"gaming-inside"}
 LABEL={"tech":"Tech Impact","gaming":"Gaming Inside"}
@@ -101,13 +102,24 @@ def main():
     # Validate all input before writing any site file.
     for item in items:
         if not valid(item):raise ValueError("Invalid or not approved article: "+str(item.get("slug") if isinstance(item,dict) else item))
+    # The cover generator writes its selections separately. The editorial source
+    # JSON remains unchanged, so repeated publishes do not create deploy loops.
+    cover_data={}
+    if COVER_MANIFEST.exists():
+        cover_data=json.loads(COVER_MANIFEST.read_text(encoding="utf-8")).get("articles",{})
     published=[];used=set()
     for item in items:
         if not valid(item):raise ValueError("Invalid or not approved article: "+str(item.get("slug") if isinstance(item,dict) else item))
         filename=PREFIX[item["section"]]+"-"+item["slug"]+".html"
         if filename in used:raise ValueError("Duplicate slug: "+filename)
         used.add(filename)
-        published.append({**item,"filename":filename})
+        article={**item,"filename":filename}
+        if not article.get("image") or article["image"]=="/ChatGPT.png":
+            generated=cover_data.get(item["section"]+"/"+item["slug"],{}).get("path","")
+            if (isinstance(generated,str) and generated.startswith("/assets/special/")
+                    and (ROOT/generated.lstrip("/")).is_file()):
+                article["image"]=generated
+        published.append(article)
     published.sort(key=lambda x:(x["date"],x["filename"]),reverse=True)
     for item in published:
         related=[r for r in published if r["filename"]!=item["filename"] and r["section"]==item["section"]]
