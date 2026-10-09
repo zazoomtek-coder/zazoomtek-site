@@ -123,19 +123,17 @@ def slide_block(standard, special):
     if not all_items:
         raise RuntimeError("No published articles with verified photographic covers")
 
-    slides, tabs = [], []
+    slides = []
     for i, item in enumerate(all_items):
         active = " active" if i == 0 else ""
         slides.append(
             '<article class="news-slide' + active + '" data-slide="' + str(i) + '"><a href="' + esc(item["slug"]) + '">'
             '<img src="' + esc(item["image"]) + '" alt="' + esc(item["title"]) + '" loading="lazy"></a></article>'
         )
-        tabs.append(
-            '<button class="news-tab' + active + '" data-go="' + str(i) + '">' + esc(item["title"]) + '</button>'
-        )
+    # The titles are already present on the photographic covers.
+    # Keep the image-only hero and existing arrow / auto-advance controls.
     return ('<div class="news-slider" id="newsSlider"><div class="news-slides">'
-        + "\n".join(slides) + '</div><div class="news-tabs">'
-        + "\n".join(tabs) + '</div></div>')
+            + "\n".join(slides) + '</div></div>')
 
 
 def replace_between(s, begin, end, text):
@@ -181,17 +179,23 @@ def main():
     standard, special = load()
     s = INDEX.read_text(encoding="utf-8")
     s = replace_between(s, PAGE_START, PAGE_END, slide_block(standard, special))
-    # Desktop has ten compact headlines; mobile retains its existing responsive rules.
-    s = s.replace(
-        ".news-tabs{display:grid;grid-template-rows:repeat(6,minmax(0,1fr))}",
-        ".news-tabs{display:grid;grid-template-rows:repeat(10,minmax(0,1fr))}"
+    # The importer rewrites HTML, so enforce the full-width photo layout on every sync.
+    # No right-hand title column; photographs are 16:9 with text already inside.
+    s, slider_changes = re.subn(
+        r"\.news-slider\{[^}]*\}",
+        ".news-slider{display:block;width:100%;background:#111}", s, count=1
     )
-    s = s.replace(
-        ".news-tab{border:0;border-bottom:1px solid #333;background:#222;color:#fff;text-align:left;padding:14px 16px;cursor:pointer;font-size:.9rem;line-height:1.25}",
-        ".news-tab{border:0;border-bottom:1px solid #333;background:#222;color:#fff;text-align:left;padding:7px 11px;cursor:pointer;font-size:.76rem;line-height:1.2}"
+    s, tabs_changes = re.subn(
+        r"\.news-tabs\{[^}]*\}",
+        ".news-tabs{display:none!important}", s, count=1
     )
-    if ".news-tabs{display:grid;grid-template-rows:repeat(10,minmax(0,1fr))}" not in s:
-        raise RuntimeError("Unable to set ten-row desktop carousel")
+    s, image_changes = re.subn(
+        r"\.news-slide img\{[^}]*\}",
+        ".news-slide img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:none}",
+        s, count=1
+    )
+    if slider_changes != 1 or tabs_changes != 1 or image_changes != 1:
+        raise RuntimeError("Unable to enforce photo-only full-width NEWS carousel")
     # The importer fully rebuilds this region; reinsert manually approved posts on every run.
     feed = s[s.index(FEED_START) + len(FEED_START):s.index(FEED_END)]
     feed = re.sub(r'\s*' + re.escape(STANDARD_START) + r'.*?' + re.escape(STANDARD_END), '', feed, flags=re.S)
@@ -201,8 +205,8 @@ def main():
     s = replace_between(s, FEED_START, FEED_END, feed)
     feature = s[s.index(PAGE_START):s.index(PAGE_END)]
     slide_count = len(re.findall(r'data-slide="\d+"', feature))
-    if not 1 <= slide_count <= 10 or len(re.findall(r'data-go="\d+"', feature)) != slide_count:
-        raise RuntimeError("Chronological carousel validation failed")
+    if not 1 <= slide_count <= 10 or 'class="news-tab' in feature:
+        raise RuntimeError("Full-width photo-only carousel validation failed")
     if s.count('data-standard-news="true"') != 4:
         raise RuntimeError("Home NEWS count validation failed")
 
@@ -225,7 +229,7 @@ def main():
     if NEWS.read_text(encoding="utf-8") != news:
         NEWS.write_text(news, encoding="utf-8")
         print("Updated standard NEWS archive.")
-    print(f"VALIDATED: {slide_count} latest photographic NEWS in publishing order; source importers unchanged.")
+    print(f"VALIDATED: {slide_count} latest photo-only full-width NEWS in publishing order; importers unchanged.")
 
 
 if __name__ == "__main__":
