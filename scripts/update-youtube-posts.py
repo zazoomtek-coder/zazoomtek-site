@@ -248,15 +248,32 @@ def image_url(p):
     imgs=image_urls(p)
     return imgs[0] if imgs else ""
 
+def community_image_identity(url):
+    """Identify the underlying photo, ignoring YouTube thumbnail size/crop variants."""
+    u=html.unescape(str(url or "").replace("\\u0026","&")).strip()
+    if not u:
+        return ""
+    parsed=urllib.parse.urlsplit(u)
+    host=(parsed.hostname or "").lower()
+    path=urllib.parse.unquote(parsed.path)
+    if host in ("yt3.ggpht.com","yt3.googleusercontent.com","lh3.googleusercontent.com"):
+        # YouTube appends =s1600-rw-nd-v1 or =s320-c-fcrop64=... to
+        # different renditions of the same underlying Community photo.
+        path=re.split(r"=s\\d+(?:[-=].*)?$",path,maxsplit=1)[0]
+        return "youtube-community:"+path
+    return urllib.parse.urlunsplit((parsed.scheme.lower(),host,path,parsed.query,""))
+
+
 def post_extra_images(p):
-    """All post photos except the first cover image, with duplicates removed."""
+    """Keep genuinely distinct Community photos, never repeat the article cover."""
     imgs=p.get("images") or ([p.get("image")] if p.get("image") else [])
     primary=p.get("image") or (imgs[0] if imgs else "")
     out=[]
-    seen={primary} if primary else set()
+    seen={community_image_identity(primary)} if primary else set()
     for u in imgs:
-        if u and u not in seen:
-            seen.add(u)
+        key=community_image_identity(u)
+        if key and key not in seen:
+            seen.add(key)
             out.append(u)
     return out
 
