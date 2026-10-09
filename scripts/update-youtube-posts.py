@@ -1950,7 +1950,7 @@ def selected_special_featured():
         checked=[]
         for x in items:
             slug=x.get("slug","")
-            if not isinstance(slug,str) or not re.fullmatch(r"(?:tech-impact|gaming-inside)-[a-z0-9-]+\\.html",slug):
+            if not isinstance(slug,str) or not re.fullmatch(r"(?:tech-impact|gaming-inside)-[a-z0-9-]+\.html",slug):
                 return None
             if not Path(slug).is_file():
                 return None
@@ -1975,7 +1975,7 @@ def render_special_featured(items):
         active=" active" if i==0 else ""
         slides.append(f'<article class="news-slide{active}" data-slide="{i}"><a href="{slug}"><img src="{image}" alt="{title}" loading="lazy"></a></article>')
         tabs.append(f'<button class="news-tab{active}" data-go="{i}">{title}</button>')
-    return '<div class="news-slider" id="newsSlider"><div class="news-slides">'+"\\n".join(slides)+'</div><div class="news-tabs">'+"\\n".join(tabs)+'</div></div>'
+    return '<div class="news-slider" id="newsSlider"><div class="news-slides">'+"\n".join(slides)+'</div><div class="news-tabs">'+"\n".join(tabs)+'</div></div>'
 
 def render_featured_news(news):
     news=news[:5]
