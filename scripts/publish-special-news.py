@@ -40,14 +40,26 @@ def save_if_changed(path,content):
     if not path.exists() or path.read_text(encoding="utf-8")!=content:
         path.write_text(content,encoding="utf-8")
         print("Updated:",path.name)
-def make_page(x,filename):
+def make_page(x,filename,related):
     title=esc(x["title"])
     summary=esc(x["summary"])
     name=LABEL[x["section"]]
-    url="https://www.zazoomtek.it/"+filename
+    url="https://zazoomtek.it/"+filename
     section_link="/"+SECTION_FILES[x["section"]]
     body="".join("<p>"+esc(p)+"</p>" for p in x["paragraphs"])
-    sources="".join('<li><a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer nofollow">'+esc(u)+'</a></li>' for u in x["sources"])
+    # Research URLs stay in approved-special-articles.json, outside the public page.
+    # Editorially required attribution belongs inside the original prose.
+    related_rows="".join(
+        '<li><a href="/'+esc(r["filename"])+'">'+esc(r["title"])+'</a></li>'
+        for r in related[:3]
+    )
+    related_html=(
+        '<section class="related"><h2>Articoli correlati</h2><ul>'+related_rows+'</ul></section>'
+        if related_rows else ""
+    )
+    hero=x.get("image","")
+    hero_html=('<figure class="hero"><img src="'+esc(hero)+'" alt="'+esc(x["title"])+'" '
+               'loading="eager" decoding="async"></figure>') if hero.startswith("/") else ""
     structured=json.dumps({
         "@context":"https://schema.org","@type":"NewsArticle",
         "headline":x["title"],"description":x["summary"],
@@ -65,17 +77,19 @@ header{{background:#171717;color:#fff;padding:24px max(16px,calc((100vw - 1130px
 header a{{color:#fff;text-decoration:none;font-weight:bold}}
 main{{box-sizing:border-box;max-width:1130px;margin:26px auto;background:#fff;padding:clamp(20px,4vw,54px)}}
 h1{{line-height:1.17;font-size:clamp(28px,4vw,43px);margin:15px 0}}
-h2{{font-size:23px}}a{{color:#b7132a}}.eyebrow{{font-size:13px;text-transform:uppercase;color:#b7132a;font-weight:bold}}
+h2{{font-size:23px;color:#171717;font-weight:900}}a{{color:#b7132a}}.eyebrow{{font-size:13px;text-transform:uppercase;color:#b7132a;font-weight:bold}}
 .lead{{font-size:21px;line-height:1.55;color:#444}}.meta{{color:#777;font-size:14px}}
-.sources{{overflow-wrap:anywhere;border-top:1px solid #ddd;padding-top:20px}}
+.hero{{margin:20px 0 26px}}.hero img{{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block}}
+.related{{margin-top:40px;border-top:1px solid #dedede;padding-top:20px}}.related ul{{padding-left:20px}}
+.related li{{margin:0 0 13px}}.related h2{{color:#161616;font-weight:900}}
 footer{{background:#171717;color:#ddd;text-align:center;padding:25px;font-size:14px}}
 footer a{{color:#fff}}</style>
 <script type="application/ld+json">{structured}</script></head>
 <body><header><a href="/">ZAZOOMTEK</a> &nbsp; / &nbsp; <a href="{esc(section_link)}">{name}</a></header>
 <main><div class="eyebrow">{name}</div><h1>{title}</h1>
 <div class="meta">{esc(x["date"])} · Redazione ZazoomTek</div>
-<p class="lead">{summary}</p>{body}
-<div class="sources"><h2>Documenti e fonti consultate</h2><ul>{sources}</ul></div>
+{hero_html}<p class="lead">{summary}</p>{body}
+{related_html}
 <p><a href="{esc(section_link)}">← Torna a {name}</a></p></main>
 <footer>© ZazoomTek · <a href="/privacy.html">Privacy</a></footer></body></html>'''
 
@@ -84,30 +98,40 @@ def main():
     items=raw.get("articles",[])
     if not isinstance(items,list):raise ValueError("articles must be a list")
     if len(items)>1500:raise ValueError("Too many articles")
+    # Validate all input before writing any site file.
+    for item in items:
+        if not valid(item):raise ValueError("Invalid or not approved article: "+str(item.get("slug") if isinstance(item,dict) else item))
     published=[];used=set()
     for item in items:
         if not valid(item):raise ValueError("Invalid or not approved article: "+str(item.get("slug") if isinstance(item,dict) else item))
         filename=PREFIX[item["section"]]+"-"+item["slug"]+".html"
         if filename in used:raise ValueError("Duplicate slug: "+filename)
         used.add(filename)
-        save_if_changed(ROOT/filename,make_page(item,filename))
         published.append({**item,"filename":filename})
     published.sort(key=lambda x:(x["date"],x["filename"]),reverse=True)
+    for item in published:
+        related=[r for r in published if r["filename"]!=item["filename"] and r["section"]==item["section"]]
+        if not related:
+            related=[r for r in published if r["filename"]!=item["filename"]]
+        save_if_changed(ROOT/item["filename"],make_page(item,item["filename"],related))
     for section,archive in SECTION_FILES.items():
         path=ROOT/archive;s=path.read_text(encoding="utf-8")
         rows=[]
         for x in (p for p in published if p["section"]==section):
             url="/"+x["filename"];title=esc(x["title"]);summary=esc(x["summary"])
-            rows.append('<article class="news-row"><a href="'+esc(url)+'"><img src="/ChatGPT.png" alt="ZazoomTek" loading="lazy"></a><div class="news-copy"><h2><a href="'+esc(url)+'">'+title+'</a></h2><div class="news-meta">ZazoomTek · '+esc(x["date"])+'</div><p>'+summary+'</p><a class="news-read" href="'+esc(url)+'">Leggi tutto</a></div></article>')
+            cover=esc(x.get("image") or "/ChatGPT.png")
+            rows.append('<article class="news-row"><a href="'+esc(url)+'"><img src="'+cover+'" alt="'+title+'" loading="lazy"></a><div class="news-copy"><h2><a href="'+esc(url)+'">'+title+'</a></h2><div class="news-meta">ZazoomTek · '+esc(x["date"])+'</div><p>'+summary+'</p><a class="news-read" href="'+esc(url)+'">Leggi tutto</a></div></article>')
         replacement='<div class="news-list" id="newsList" data-auto-articles="'+section+'">'+"\n".join(rows)+'</div>'
         pattern=r'<div class="news-list" id="newsList" data-auto-articles="'+section+r'">.*?</div>(?=</section>)'
         updated,count=re.subn(pattern,lambda match:replacement,s,count=1,flags=re.S)
         if count!=1:raise RuntimeError("Archive marker missing: "+archive)
         save_if_changed(path,updated)
-    chosen=[p for p in published if p["section"]=="tech"][:4]+[p for p in published if p["section"]=="gaming"][:2]
+    # Prefer explicitly highlighted stories while retaining older ones as fallback.
+    choices=sorted(published,key=lambda x:(bool(x.get("featured",False)),x["date"],x["filename"]),reverse=True)
+    chosen=[p for p in choices if p["section"]=="tech"][:4]+[p for p in choices if p["section"]=="gaming"][:2]
     if len(chosen)==6:
         # Only replace when both editorial sections have a complete set.
-        payload={"items":[{"section":x["section"],"slug":x["filename"],"title":x["title"],"image":"/ChatGPT.png"} for x in chosen]}
+        payload={"items":[{"section":x["section"],"slug":x["filename"],"title":x["title"],"image":x.get("image") or "/ChatGPT.png"} for x in chosen]}
         save_if_changed(ROOT/"special-featured.json",json.dumps(payload,ensure_ascii=False,indent=2)+"\n")
     print("Approved:",len(published)," / highlighted:",len(chosen) if len(chosen)==6 else "previous selection preserved")
 if __name__=="__main__":main()
