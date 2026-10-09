@@ -119,6 +119,9 @@ def main():
             if (isinstance(generated,str) and generated.startswith("/assets/special/")
                     and (ROOT/generated.lstrip("/")).is_file()):
                 article["image"]=generated
+            else:
+                # Do not publish new stories with broken or generic hero images.
+                raise RuntimeError("Missing generated cover for approved article: "+filename)
         published.append(article)
     published.sort(key=lambda x:(x["date"],x["filename"]),reverse=True)
     for item in published:
