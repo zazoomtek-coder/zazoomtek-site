@@ -834,7 +834,7 @@ NEWS_ARCHIVE_STYLE = """<style>"""+NEWS_COMMON+"""
 </style>"""
 
 NEWS_DETAIL_STYLE = """<style>"""+NEWS_COMMON+"""
-.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65;color:#111!important;font-weight:500}.article-body p,.article-body li{margin:0 0 18px;white-space:pre-line;color:#111!important;font-weight:500}.article-body h2{margin:32px 0 10px;font-size:1.34rem;line-height:1.22;color:#111!important;font-weight:900;letter-spacing:-.01em}.article-body h2 strong{font-weight:900;color:#111!important}.article-inline-media{margin:30px 0 32px}.article-inline-media img{display:block;width:100%;max-height:780px;object-fit:contain;background:#f5f5f5;border:1px solid #e4e4e4}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:52px;aspect-ratio:16/9;object-fit:cover;object-position:center center;background:#111}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
+.news-detail-page{background:#fff;padding:24px 0 42px}.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start}.article-main{min-width:0}.breadcrumbs{font-size:.8rem;color:#777;border-bottom:1px solid #ddd;padding:0 0 13px;margin-bottom:16px}.article-main h1{font-size:clamp(2rem,3.3vw,3.25rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.02em}.article-meta{display:flex;gap:16px;flex-wrap:wrap;color:#777;font-size:.86rem;margin-bottom:18px}.article-hero{width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;object-position:center center;display:block;margin-bottom:20px;background:#111}.article-body{font-size:1.05rem;line-height:1.65;color:#111!important;font-weight:500}.article-body p,.article-body li{margin:0 0 18px;white-space:pre-line;color:#111!important;font-weight:500}.article-body h2{margin:32px 0 10px;font-size:1.34rem;line-height:1.22;color:#111!important;font-weight:900;letter-spacing:-.01em}.article-body h2 strong{font-weight:900;color:#111!important}.article-body h3,.article-body h3 strong{color:#111!important;font-weight:900;line-height:1.3}.article-main h1{color:#202020;font-weight:900}.article-inline-media{margin:30px 0 32px}.article-inline-media img{display:block;width:100%;max-height:780px;object-fit:contain;background:#f5f5f5;border:1px solid #e4e4e4}.article-side{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.compact-box{margin-bottom:18px}.compact-list{border:1px solid #ddd;border-top:0;background:#fff}.compact-item{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:11px;border-bottom:1px solid #eee}.compact-item:last-child{border-bottom:0}.compact-item img{width:92px;height:52px;aspect-ratio:16/9;object-fit:cover;object-position:center center;background:#111}.compact-item h3{margin:0;font-size:.86rem;line-height:1.18}.compact-item small{display:block;margin-top:5px;color:#888;font-size:.7rem}.feature-card{border:1px solid #ddd;border-top:0;background:#fff;padding:10px}.feature-card img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center center;display:block;background:#111}.feature-card h3{margin:10px 2px 4px;font-size:1rem}.feature-card .cta{display:block;margin-top:10px;background:var(--zt-grad);color:#fff;text-align:center;padding:11px 8px;font-weight:900;font-size:.75rem}.follow-box{padding:14px;text-align:center;border:1px solid #ddd;border-top:0;background:#fff}.follow-box img{width:58px;height:58px;border-radius:12px}.follow-box strong{display:block;margin-top:6px}.follow-box a{display:inline-block;margin-top:9px;background:var(--zt-grad);color:#fff;padding:9px 12px;font-size:.74rem;font-weight:900}
 .zt-subscribe-cta{margin-top:34px;padding:26px 30px;background:#050505;border-left:6px solid #D51232;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:28px;box-shadow:0 4px 16px rgba(0,0,0,.10)}
 .zt-subscribe-copy{min-width:0}.zt-subscribe-kicker{display:inline-block;margin-bottom:10px;color:#ff5b76;font-size:.72rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.zt-subscribe-copy h2{margin:0 0 10px;font-size:1.3rem;line-height:1.15;color:#fff}.zt-subscribe-copy p{margin:0;font-size:.95rem;line-height:1.5;color:#d3d3d3}
 .zt-social-icons{display:flex;align-items:center;gap:18px;flex-shrink:0}.zt-social-icon{width:72px;height:72px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#171717 0%,#101010 100%);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 0 0 1px rgba(255,255,255,.03);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;text-decoration:none}.zt-social-icon:hover{transform:translateY(-2px);border-color:rgba(213,18,50,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 0 0 1px rgba(213,18,50,.28)}.zt-social-icon img{width:38px;height:38px;object-fit:contain;display:block}
@@ -1372,42 +1372,15 @@ def news_body_html(p):
         if is_news_section_heading(b,next_b):
             explicit.add(i)
 
+    # Editorial standard: the source article stays narrative. Never fabricate
+    # filler subheadings; display a black bold H2 only when an actual heading
+    # exists in the source text. The review formatter remains unchanged.
     rendered=[]
-    paragraph_count=0
-    auto_section_index=0
-    used_auto_headings=set()
-    has_explicit_headings=bool(explicit)
-
     for i,b in enumerate(cleaned):
-        next_b=cleaned[i+1] if i+1<len(cleaned) else ""
-
         if i in explicit:
             rendered.append(f"<h2><strong>{html.escape(b.rstrip(':'))}</strong></h2>")
-            paragraph_count=0
-            continue
-
-        # Keep the opening paragraph clean. Afterwards, when the source has no
-        # nearby explicit heading, insert an editorial H2 every two paragraphs.
-        if not has_explicit_headings and i>0 and paragraph_count>=2:
-            previous_was_heading=(i-1 in explicit)
-            if not previous_was_heading:
-                context=" ".join(cleaned[i:min(len(cleaned),i+2)])
-                heading=auto_news_heading(context,auto_section_index)
-                if heading in used_auto_headings:
-                    alternatives=[
-                        "Le novità principali",
-                        "Caratteristiche e dettagli",
-                        "Cosa cambia",
-                        "Disponibilità e prospettive",
-                    ]
-                    heading=next((x for x in alternatives if x not in used_auto_headings),heading)
-                used_auto_headings.add(heading)
-                rendered.append(f"<h2><strong>{html.escape(heading)}</strong></h2>")
-                auto_section_index+=1
-                paragraph_count=0
-
-        rendered.append(f"<p>{html.escape(b)}</p>")
-        paragraph_count+=1
+        else:
+            rendered.append(f"<p>{html.escape(b)}</p>")
 
     rendered=distribute_inline_images(rendered,p,title)
     return "\n".join(rendered)
