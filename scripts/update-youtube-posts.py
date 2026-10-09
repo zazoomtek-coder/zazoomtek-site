@@ -1844,7 +1844,7 @@ def render_manual_news_rows():
         if not isinstance(p,dict):
             continue
         slug=p.get("slug","")
-        if not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\\.html",slug) or not Path(slug).is_file():
+        if not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\.html",slug) or not Path(slug).is_file():
             continue
         title=html.escape(str(p.get("title") or "News ZazoomTek"))
         image=html.escape(str(p.get("image") or "/ChatGPT.png"),quote=True)
