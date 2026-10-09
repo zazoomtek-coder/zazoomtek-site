@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Layout revision: the shared featured-article header keeps desktop navigation on one line.
 """Publish ONLY editor-approved original pieces in the isolated special sections.
 Input is approved-special-articles.json, never unverified RSS candidates.
 Safe to re-run: deterministic pages, no Community news/archive changes.
