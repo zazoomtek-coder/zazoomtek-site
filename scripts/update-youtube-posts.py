@@ -1831,6 +1831,7 @@ def manual_news_entries():
             continue
         slug=p.get("slug","")
         if (not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\.html",slug)
+                or p.get("kind") in ("tech","gaming")
                 or slug in seen or not Path(slug).is_file()):
             continue
         when=news_publication_timestamp(p.get("published_at") or p.get("date"))
