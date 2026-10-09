@@ -259,13 +259,6 @@ def chronological_home_feed(original_feed, standard):
         new_manual += 1
 
     combined.sort(key=lambda pair: pair[0], reverse=True)
-    # Editorially spotlight the newly published standalone Two Point Museum news.
-    # Preserve its real publication date and the chronological order of all other articles.
-    spotlight = "news-two-point-museum-attrazioni-da-museo-dlc-2026.html"
-    featured = [item for item in combined if spotlight in item[1]]
-    if len(featured) != 1:
-        raise RuntimeError("Two Point Museum must appear exactly once in Latest Articles")
-    combined = featured + [item for item in combined if spotlight not in item[1]]
     merged = "\n".join(row for _, row in combined)
     if merged.count('data-standard-news="true"') != 4:
         raise RuntimeError("Duplicate or missing manually approved NEWS")
