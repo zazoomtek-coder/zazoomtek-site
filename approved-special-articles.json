@@ -1,3 +1,23 @@
 {
-  "articles": []
+  "articles": [
+    {
+      "section": "tech",
+      "slug": "ue-bulgaria-digital-services-act-controlli-piattaforme",
+      "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
+      "summary": "La Commissione europea ha contestato alla Bulgaria carenze nell'attuazione del Digital Services Act, soprattutto nei poteri delle autorità incaricate di far rispettare le regole alle piattaforme digitali. La procedura è ancora aperta: non si tratta di una condanna definitiva.",
+      "date": "2026-10-09",
+      "paragraphs": [
+        "Il Digital Services Act europeo non si limita a fissare obblighi per i grandi servizi online: richiede anche autorità nazionali capaci di farli rispettare. Il 1° ottobre 2026 la Commissione europea ha annunciato un nuovo passaggio nella procedura avviata nei confronti della Bulgaria, ritenendo ancora incompleta l'attuazione del regolamento. La contestazione riguarda soprattutto l'organizzazione dei controlli nazionali e gli strumenti disponibili per intervenire quando una piattaforma non rispetta le norme.",
+        "La questione è importante perché una legge europea può funzionare in modo diseguale se gli organismi incaricati di applicarla non dispongono di competenze e poteri adeguati. Il DSA prevede la presenza di coordinatori dei servizi digitali negli Stati membri, con responsabilità precise nella supervisione e nella cooperazione tra autorità. Il problema segnalato da Bruxelles non coincide dunque con un singolo comportamento di un social network: riguarda l'efficacia dell'apparato pubblico che deve vigilare sull'ambiente digitale.",
+        "Secondo il comunicato ufficiale della Commissione, la Bulgaria aveva già ricevuto un parere motivato nel maggio 2025 e successivamente aveva approvato disposizioni per conferire poteri a una delle autorità coinvolte. L'esecutivo europeo considera però ancora insufficienti le misure adottate. In particolare, indica la mancata designazione e attribuzione dei poteri necessari alla Commissione per la protezione dei dati personali e al Consiglio dei media elettronici, organismi che dovrebbero completare il sistema nazionale di applicazione delle norme.",
+        "Un altro punto contestato riguarda le sanzioni. La Commissione ritiene che le disposizioni bulgare non rispecchino sempre i limiti massimi previsti dal regolamento e non assicurino in ogni situazione penalità effettive, proporzionate e dissuasive. Si tratta della valutazione dell'istituzione europea all'interno di una procedura formale, non di un accertamento giudiziario definitivo. Confondere queste fasi porterebbe a descrivere in modo scorretto la posizione del Paese interessato.",
+        "Alla Bulgaria sono stati concessi due mesi per rispondere e affrontare le carenze evidenziate. Se le risposte non saranno ritenute soddisfacenti, la Commissione potrà adottare ulteriori iniziative nella procedura. Questo significa che, al momento del comunicato, il percorso è ancora aperto e può evolvere in base ai chiarimenti o ai provvedimenti delle autorità bulgare. Non è stata annunciata, in quel passaggio, una sentenza che abbia già chiuso la vicenda.",
+        "Per gli utenti europei il caso mette in evidenza un aspetto meno visibile della regolamentazione digitale: oltre alle regole scritte, conta la capacità concreta di applicarle. Autorità funzionanti e responsabilità ben definite possono rendere più efficace la tutela online e fornire maggiore certezza agli operatori. La vicenda bulgara mostra quindi come il confronto sulle piattaforme non riguardi soltanto aziende tecnologiche e contenuti pubblicati, ma anche il funzionamento delle istituzioni chiamate a garantire il rispetto delle regole."
+      ],
+      "sources": [
+        "https://digital-strategy.ec.europa.eu/en/news/commission-asks-bulgaria-comply-digital-services-act-and-empower-national-authorities-enforce-it"
+      ],
+      "editor_approved": true
+    }
+  ]
 }
