@@ -1934,6 +1934,49 @@ def selected_featured_news(news):
             seen.add(post_id)
     return selected
 
+SPECIAL_FEATURED_CONFIG=Path("special-featured.json")
+
+def selected_special_featured():
+    """Only show verified, complete 4+2 special selection; otherwise preserve old slider."""
+    if not SPECIAL_FEATURED_CONFIG.is_file():
+        return None
+    try:
+        data=json.loads(SPECIAL_FEATURED_CONFIG.read_text(encoding="utf-8"))
+        items=data.get("items",[])
+        if len(items)!=6:
+            return None
+        if [x.get("section") for x in items].count("tech")!=4 or [x.get("section") for x in items].count("gaming")!=2:
+            return None
+        checked=[]
+        for x in items:
+            slug=x.get("slug","")
+            if not isinstance(slug,str) or not re.fullmatch(r"(?:tech-impact|gaming-inside)-[a-z0-9-]+\\.html",slug):
+                return None
+            if not Path(slug).is_file():
+                return None
+            title=x.get("title","")
+            if not isinstance(title,str) or len(title)<15:
+                return None
+            checked.append({"title":title,"slug":"/"+slug,"image":x.get("image") or "/ChatGPT.png"})
+        if len({x["slug"] for x in checked})!=6:
+            return None
+        return checked
+    except (OSError,ValueError,TypeError,AttributeError) as err:
+        print("Special featured selection invalid; retaining previous slider:",err)
+        return None
+
+def render_special_featured(items):
+    slides=[]
+    tabs=[]
+    for i,p in enumerate(items):
+        title=html.escape(p["title"])
+        image=html.escape(p["image"],quote=True)
+        slug=html.escape(p["slug"],quote=True)
+        active=" active" if i==0 else ""
+        slides.append(f'<article class="news-slide{active}" data-slide="{i}"><a href="{slug}"><img src="{image}" alt="{title}" loading="lazy"></a></article>')
+        tabs.append(f'<button class="news-tab{active}" data-go="{i}">{title}</button>')
+    return '<div class="news-slider" id="newsSlider"><div class="news-slides">'+"\\n".join(slides)+'</div><div class="news-tabs">'+"\\n".join(tabs)+'</div></div>'
+
 def render_featured_news(news):
     news=news[:5]
     slides=[]
@@ -2226,7 +2269,7 @@ def main():
     ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
-    featured="<!-- FEATURED_NEWS_START -->\n        "+render_featured_news(selected_featured_news(news))+"\n        <!-- FEATURED_NEWS_END -->"
+    specials=selected_special_featured()\n    featured_html=render_special_featured(specials) if specials else render_featured_news(selected_featured_news(news))\n    featured="<!-- FEATURED_NEWS_START -->\\n        "+featured_html+"\\n        <!-- FEATURED_NEWS_END -->"
     s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
 
     feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
