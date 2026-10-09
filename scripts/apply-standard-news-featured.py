@@ -135,7 +135,9 @@ def main():
     # The importer fully rebuilds this region; reinsert manually approved posts on every run.
     feed = s[s.index(FEED_START) + len(FEED_START):s.index(FEED_END)]
     feed = re.sub(r'\s*' + re.escape(STANDARD_START) + r'.*?' + re.escape(STANDARD_END), '', feed, flags=re.S)
-    feed = '\n' + STANDARD_START + '\n' + standard_home_rows(standard) + '\n' + STANDARD_END + '\n' + feed
+    # Normalize spacing on every run so a periodic YouTube sync doesn't
+    # create meaningless diffs and unnecessary Firebase deployments.
+    feed = STANDARD_START + '\n' + standard_home_rows(standard) + '\n' + STANDARD_END + '\n' + feed.strip()
     s = replace_between(s, FEED_START, FEED_END, feed)
     feature = s[s.index(PAGE_START):s.index(PAGE_END)]
     if len(re.findall(r'data-slide="\d+"', feature)) != 10 or len(re.findall(r'data-go="\d+"', feature)) != 10:
