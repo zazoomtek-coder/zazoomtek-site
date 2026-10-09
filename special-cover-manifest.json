@@ -30,29 +30,44 @@
     "tech/norvegia-proposta-divieto-occhiali-intelligenza-artificiale": {
       "path": "/assets/special/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.webp",
       "origin": {
-        "origin": "ZazoomTek AI-generated original editorial artwork",
-        "license": "Original editorial illustration created for ZazoomTek",
-        "modified": false
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 4.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Ray-Ban_Meta_Gen_1_smart_glasses_with_charging_case.jpg",
+        "file": "File:Ray-Ban Meta Gen 1 smart glasses with charging case.jpg",
+        "photographer": "CCadio",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "modified": true
       },
-      "bytes": 103428
+      "search_terms": "smart glasses technology",
+      "bytes": 57474
     },
     "gaming/agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali": {
       "path": "/assets/special/gaming-inside-agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali.webp",
       "origin": {
-        "origin": "ZazoomTek AI-generated original editorial artwork",
-        "license": "Original editorial illustration created for ZazoomTek",
-        "modified": false
+        "origin": "Wikimedia Commons",
+        "license": "CC BY-SA 4.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Playing_with_smartphone.jpg",
+        "file": "File:Playing with smartphone.jpg",
+        "photographer": "Santeri Viinamäki",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "modified": true
       },
-      "bytes": 68810
+      "search_terms": "video game controller",
+      "bytes": 43008
     },
     "gaming/eu-kids-act-giochi-online-minori-proposta-europea": {
       "path": "/assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp",
       "origin": {
-        "origin": "ZazoomTek AI-generated original editorial artwork",
-        "license": "Original editorial illustration created for ZazoomTek",
-        "modified": false
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Child_playing_with_video_game_console_at_home_closeup.jpg",
+        "file": "File:Child playing with video game console at home closeup.jpg",
+        "photographer": "Shixart1985",
+        "license_url": "https://creativecommons.org/licenses/by/2.0",
+        "modified": true
       },
-      "bytes": 76324
+      "search_terms": "children videogame controller",
+      "bytes": 33528
     }
   }
 }
