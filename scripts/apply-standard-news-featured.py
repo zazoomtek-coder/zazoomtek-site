@@ -226,11 +226,43 @@ def chronological_home_feed(original_feed, standard):
             raise RuntimeError("Invalid editorial publication date: " + x.get("slug", ""))
         combined.append((timestamp, row))
 
+    # Independently written articles belong on Home as well as /news.html.
+    manual_file = ROOT / "manual-news.json"
+    manual_items = json.loads(manual_file.read_text(encoding="utf-8")).get("items", []) if manual_file.is_file() else []
+    if not isinstance(manual_items, list):
+        raise RuntimeError("Invalid manual NEWS registry")
+    existing_links = set(re.findall(r'href="/?(news-[a-z0-9-]+\.html)"', "\n".join(row for _, row in combined)))
+    new_manual = 0
+    for x in manual_items:
+        if not isinstance(x, dict):
+            continue
+        slug = x.get("slug", "")
+        if not isinstance(slug, str) or not re.fullmatch(r"news-[a-z0-9-]+\.html", slug):
+            continue
+        if slug in existing_links or not (ROOT / slug).is_file():
+            continue
+        timestamp = when(x.get("published_at") or x.get("date"))
+        if timestamp is None:
+            raise RuntimeError("Manual NEWS lacks a valid publication date: " + slug)
+        title = esc(x.get("title") or "News ZazoomTek")
+        image = esc(x.get("image") or "/ChatGPT.png")
+        excerpt = esc(x.get("excerpt") or "")
+        date = esc(x.get("date") or "")
+        search = esc((str(x.get("title") or "") + " " + str(x.get("excerpt") or "")).lower())
+        row = ('<article class="article-row" data-manual-news="true" data-search="' + search + '">'
+               '<a href="/' + slug + '"><img class="article-image" src="' + image + '" alt="' + title + '" loading="lazy"></a>'
+               '<div class="article-copy"><h3><a href="/' + slug + '">' + title + '</a></h3>'
+               '<div class="article-meta">ZazoomTek · ' + date + '</div><p>' + excerpt
+               + '</p><a class="read-more" href="/' + slug + '">Leggi tutto ›</a></div></article>')
+        combined.append((timestamp, row))
+        existing_links.add(slug)
+        new_manual += 1
+
     combined.sort(key=lambda pair: pair[0], reverse=True)
     merged = "\n".join(row for _, row in combined)
     if merged.count('data-standard-news="true"') != 4:
         raise RuntimeError("Duplicate or missing manually approved NEWS")
-    print(f"Latest Articles ordered chronologically: {community_count} Community + 4 editorial.")
+    print(f"Latest Articles chronological: {community_count} Community + 4 standard + {new_manual} independent NEWS.")
     return STANDARD_START + "\n" + merged + "\n" + STANDARD_END
 
 
