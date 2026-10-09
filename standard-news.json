@@ -21,7 +21,10 @@
         "La configurazione d'ingresso annunciata per il mercato statunitense prevede un processore da 18 core, 24 GB di memoria unificata e un SSD da 512 GB. Le versioni superiori arrivano a un chip con 20 core, 128 GB di memoria e prezzi molto più elevati. Questi dettagli descrivono differenti configurazioni commerciali: non tutte le caratteristiche più avanzate sono presenti sul modello base.",
         "Fra gli elementi hardware segnalati rientrano un display touch HDR da 15 pollici, un trackpad aptico più ampio e una dotazione di porte orientata al lavoro quotidiano: USB-C, HDMI, USB-A, lettore SD e presa audio. È una direzione interessante perché molti notebook sottili sacrificano i collegamenti fisici, obbligando chi lavora con fotografie, video o periferiche professionali a utilizzare adattatori.",
         "Microsoft presenta Surface Laptop Ultra come un dispositivo per la cosiddetta intelligenza ibrida, in cui il computer e il cloud collaborano a seconda dell'attività. Resta da verificare sul campo quanto incidano autonomia, raffreddamento e prestazioni sostenute, soprattutto nelle configurazioni di fascia alta. Per il pubblico italiano sarà importante attendere disponibilità ufficiale, prezzi locali e test indipendenti prima di valutarne il rapporto qualità-prezzo."
-      ]
+      ],
+      "cover_file": "Surface Laptop Studio - 1.jpg",
+      "cover_refresh": true,
+      "image_note": "Foto illustrativa di un dispositivo Microsoft Surface, non del nuovo Laptop Ultra."
     },
     {
       "kind": "tech",
@@ -41,7 +44,10 @@
         "Le indiscrezioni citano anche una nuova versione dell'HomePod mini e una Apple TV aggiornata. Per questi prodotti non sono ancora disponibili specifiche definitive o prezzi ufficiali relativi all'evento. È quindi importante distinguere le aspettative della stampa specializzata dagli annunci che Apple farà effettivamente il 13 ottobre.",
         "La questione centrale non è soltanto aggiungere altri accessori al catalogo. Un hub fisso potrebbe rendere più semplice la gestione di una casa con più utenti, permettendo di richiamare scene automatizzate, controllare dispositivi compatibili e consultare informazioni condivise. Anche l'integrazione con Siri e con le nuove funzioni basate sull'intelligenza artificiale potrebbe giocare un ruolo, ma al momento rimane da verificare il livello reale delle novità.",
         "Per capire il peso di Welcome Home bisognerà aspettare l'evento e controllare disponibilità, supporto dei servizi nei diversi paesi e compatibilità con i prodotti già in commercio. La presentazione, comunque, potrebbe diventare un passaggio importante per un settore nel quale semplicità d'uso, privacy e interoperabilità contano almeno quanto le caratteristiche hardware."
-      ]
+      ],
+      "cover_file": "HomePod mini 2024.jpg",
+      "cover_refresh": true,
+      "image_note": "Foto illustrativa di un HomePod mini già in commercio, non di un prodotto annunciato all'evento."
     },
     {
       "kind": "gaming",
@@ -61,7 +67,10 @@
         "Il porting su PlayStation 5 è stato realizzato da Panic Button, lo studio che aveva già lavorato alla versione PS5 di Forza Horizon 5, in collaborazione con Playground Games e Turn 10. Secondo la comunicazione ufficiale, il gioco proporrà una modalità Qualità in 4K a 30 fotogrammi al secondo e una modalità Prestazioni a 60 fps. La resa effettiva dovrà naturalmente essere valutata nel prodotto finale.",
         "Per i giocatori che hanno amici su piattaforme differenti arriva una conferma particolarmente importante: Forza Horizon 6 su PS5 supporterà cross-play e cross-save con le versioni Xbox e Steam. Anche i contenuti creati dalla community, come gare, personalizzazioni e attività EventLab, potranno essere condivisi fra piattaforme, rendendo molto più ampia la scelta disponibile fin dal primo giorno.",
         "Il 21 gennaio 2027 arriverà inoltre la prima espansione Premium, prevista su tutte le piattaforme insieme a contenuti gratuiti che accompagneranno l'uscita PlayStation. La Premium Edition include diversi pacchetti aggiuntivi, mentre le edizioni Standard e Deluxe restano opzioni separate. Un bonus per i preordini è la Ferrari J50 preconfigurata, disponibile nel garage dopo il prologo. Con questa uscita, una delle serie racing più note di Xbox continua la sua espansione su PlayStation."
-      ]
+      ],
+      "cover_file": "Nissan GT-R Tokyo 2018.jpg",
+      "cover_refresh": true,
+      "image_note": "Foto automobilistica illustrativa, non uno screenshot di Forza Horizon 6."
     },
     {
       "kind": "gaming",
@@ -82,7 +91,10 @@
         "Un elemento centrale è la presenza di oltre 400 personaggi della serie, che possono comparire come clienti o membri dello staff. Non si tratta soltanto di figure decorative: gli sviluppatori promettono interazioni e piccoli eventi legati agli ospiti, aumentando la varietà durante la gestione del locale e incoraggiando a sperimentare combinazioni diverse di menù e ambienti.",
         "Anche la personalizzazione dovrebbe avere un peso significativo. Secondo le informazioni ufficiali sono previsti più di 200 oggetti fra mobili e decorazioni, con riferimenti ad ambientazioni come Whole Cake Island ed Egghead. Collaborare con Sanji per cucinare, scoprire ingredienti e organizzare nuove proposte gastronomiche costituisce il nucleo della progressione.",
         "L'arrivo su Android e iPhone rende il progetto interessante anche per chi preferisce sessioni brevi lontano dal PC o dalla console. La pagina italiana dell'App Store indica una data prevista che può differire di un giorno rispetto alla comunicazione globale del 23 ottobre, per ragioni di distribuzione e fuso orario. Il gioco si distingue soprattutto per la formula gestionale accessibile, che potrebbe coinvolgere sia gli appassionati storici di ONE PIECE sia il pubblico dei simulatori su smartphone."
-      ]
+      ],
+      "cover_file": "One Piece (8368984102).jpg",
+      "cover_refresh": true,
+      "image_note": "Foto illustrativa riferita alla serie ONE PIECE, non uno screenshot del nuovo videogioco."
     }
   ]
 }
