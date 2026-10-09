@@ -60,6 +60,10 @@ jobs:
         continue-on-error: true
         run: python3 scripts/apply-standard-news-featured.py
 
+      - name: Build Facebook RSS from approved new general NEWS
+        if: steps.community_sync.outcome == 'success'
+        run: python3 scripts/build-news-rss.py
+
       - name: Discard unsafe Community changes
         if: steps.community_sync.outcome != 'success'
         run: |
