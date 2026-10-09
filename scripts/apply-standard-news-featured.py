@@ -8,6 +8,7 @@ import html
 import json
 import re
 from pathlib import Path
+from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parent.parent
 INDEX = ROOT / "index.html"
@@ -160,6 +161,79 @@ def standard_home_rows(standard):
     return "\n".join(rows)
 
 
+def chronological_home_feed(original_feed, standard):
+    """Merge the 20 imported Community articles with four approved NEWS.
+
+    Preserve the existing article HTML, but interleave by actual publication
+    timestamp, instead of permanently pinning the four editorial articles.
+    Do not change YouTube news, video or review importers.
+    """
+    row_pattern = r'<article\b[^>]*class="article-row"[^>]*>.*?</article>'
+    imported_rows = re.findall(row_pattern, original_feed, flags=re.S)
+    if len(imported_rows) < 4:
+        raise RuntimeError("Latest Articles source feed is incomplete")
+
+    state_file = ROOT / ".youtube-posts.json"
+    if not state_file.is_file():
+        raise RuntimeError("Community timestamp state is unavailable")
+    posts = json.loads(state_file.read_text(encoding="utf-8"))
+    if not isinstance(posts, list):
+        raise RuntimeError("Invalid Community timestamp state")
+    by_id = {p["id"]: p for p in posts if isinstance(p, dict) and isinstance(p.get("id"), str)}
+
+    def when(raw):
+        raw = str(raw or "").strip()
+        try:
+            dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc).timestamp()
+        except ValueError:
+            date_only = publication_key(raw)
+            if not date_only:
+                return None
+            try:
+                return datetime.fromisoformat(date_only).replace(tzinfo=timezone.utc).timestamp()
+            except ValueError:
+                return None
+
+    combined = []
+    community_count = 0
+    for row in imported_rows:
+        # Remove already-injected manual entries before recombining; idempotent.
+        if 'data-standard-news="true"' in row:
+            continue
+        ref = re.search(r'href="/?(?:news|recensione)-(Ugkx[A-Za-z0-9_-]+)\.html"', row)
+        if not ref:
+            raise RuntimeError("Unable to identify a Community article in the home feed")
+        post = by_id.get(ref.group(1))
+        if post is None:
+            raise RuntimeError("Missing Community timestamp for " + ref.group(1))
+        timestamp = when(post.get("published_iso") or post.get("published"))
+        if timestamp is None:
+            raise RuntimeError("Invalid Community publication date for " + ref.group(1))
+        combined.append((timestamp, row))
+        community_count += 1
+
+    manual_rows = re.findall(row_pattern, standard_home_rows(standard[:4]), flags=re.S)
+    if len(manual_rows) != 4 or community_count < 5:
+        raise RuntimeError("Expected four editorial NEWS and recent Community articles")
+    for x, row in zip(standard[:4], manual_rows):
+        # Prefer exact publication timestamps; date-only is midnight UTC, not
+        # an invented time. New editorial articles should supply published_at.
+        timestamp = when(x.get("published_at") or x.get("date"))
+        if timestamp is None:
+            raise RuntimeError("Invalid editorial publication date: " + x.get("slug", ""))
+        combined.append((timestamp, row))
+
+    combined.sort(key=lambda pair: pair[0], reverse=True)
+    merged = "\n".join(row for _, row in combined)
+    if merged.count('data-standard-news="true"') != 4:
+        raise RuntimeError("Duplicate or missing manually approved NEWS")
+    print(f"Latest Articles ordered chronologically: {community_count} Community + 4 editorial.")
+    return STANDARD_START + "\n" + merged + "\n" + STANDARD_END
+
+
 def standard_news_rows(standard):
     rows = []
     for x in standard:
@@ -196,12 +270,9 @@ def main():
     )
     if slider_changes != 1 or tabs_changes != 1 or image_changes != 1:
         raise RuntimeError("Unable to enforce photo-only full-width NEWS carousel")
-    # The importer fully rebuilds this region; reinsert manually approved posts on every run.
+    # Reorder the actual existing articles; never pin manual news at the top.
     feed = s[s.index(FEED_START) + len(FEED_START):s.index(FEED_END)]
-    feed = re.sub(r'\s*' + re.escape(STANDARD_START) + r'.*?' + re.escape(STANDARD_END), '', feed, flags=re.S)
-    # Normalize spacing on every run so a periodic YouTube sync doesn't
-    # create meaningless diffs and unnecessary Firebase deployments.
-    feed = STANDARD_START + '\n' + standard_home_rows(standard[:4]) + '\n' + STANDARD_END + '\n' + feed.strip()
+    feed = chronological_home_feed(feed, standard)
     s = replace_between(s, FEED_START, FEED_END, feed)
     feature = s[s.index(PAGE_START):s.index(PAGE_END)]
     slide_count = len(re.findall(r'data-slide="\d+"', feature))
