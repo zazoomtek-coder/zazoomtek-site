@@ -1803,37 +1803,57 @@ def render_news_pagination(current,total):
         items.append(f'<a class="next" href="{news_page_href(current+1)}">NEXT</a>')
     return '<nav class="archive-pagination" aria-label="Pagine News">'+"".join(items)+'</nav>'
 
-def render_manual_news_rows():
-    """Keep independently authored NEWS visible through the YouTube sync."""
+def news_publication_timestamp(value):
+    """UTC timestamp, with midnight UTC for a date without a recorded hour."""
+    raw=(value or "").strip()
+    normalized=published_iso_from_label(raw)
+    if not normalized:
+        return None
+    try:
+        date=datetime.fromisoformat(normalized.replace("Z","+00:00"))
+        if date.tzinfo is None:
+            date=date.replace(tzinfo=timezone.utc)
+        return date.astimezone(timezone.utc).timestamp()
+    except ValueError:
+        return None
+
+
+def manual_news_entries():
+    """Verified stand-alone articles with their original publication timestamps."""
     config=Path("manual-news.json")
     if not config.exists():
-        return ""
-    try:
-        items=json.loads(config.read_text(encoding="utf-8")).get("items",[])
-    except (ValueError,OSError,AttributeError):
-        return ""
-    rows=[]
-    for p in items[:10]:
+        return []
+    items=json.loads(config.read_text(encoding="utf-8")).get("items",[])
+    result=[]
+    seen=set()
+    for p in items:
         if not isinstance(p,dict):
             continue
         slug=p.get("slug","")
-        if not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\.html",slug) or not Path(slug).is_file():
+        if (not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\.html",slug)
+                or slug in seen or not Path(slug).is_file()):
             continue
+        when=news_publication_timestamp(p.get("published_at") or p.get("date"))
+        if when is None:
+            raise RuntimeError("Missing publication date for manually published NEWS: "+slug)
+        seen.add(slug)
         title=html.escape(str(p.get("title") or "News ZazoomTek"))
         image=html.escape(str(p.get("image") or "/ChatGPT.png"),quote=True)
         excerpt=html.escape(str(p.get("excerpt") or ""))
         date=html.escape(str(p.get("date") or ""))
-        rows.append(
+        row=(
           f'<article class="news-row" data-news-search="{title.lower()}">'
           f'<a href="/{slug}"><img src="{image}" alt="{title}" loading="lazy"></a>'
           f'<div class="news-copy"><h2><a href="/{slug}">{title}</a></h2>'
           f'<div class="news-meta">ZazoomTek · {date}</div>'
           f'<p>{excerpt}</p><a class="news-read" href="/{slug}">Leggi tutto ›</a></div></article>'
         )
-    return "".join(rows)
+        result.append((when,slug,row))
+    return result
+
 
 def build_news_archive_page(news_chunk,page_num,total_pages,reviews):
-    rows=(render_manual_news_rows() if page_num==1 else "")+render_news_rows(news_chunk)
+    rows="".join(news_chunk)
     title="News | ZazoomTek" if page_num==1 else f"News - Pagina {page_num} | ZazoomTek"
     canonical="https://zazoomtek.it/news.html" if page_num==1 else f"https://zazoomtek.it/news-{page_num}.html"
     return (
@@ -1853,13 +1873,27 @@ def build_news_archive_page(news_chunk,page_num,total_pages,reviews):
     )
 
 def write_news_archive(news,reviews):
-    news=news[:NEWS_PAGE_SIZE*NEWS_MAX_PAGES]
-    total_pages=max(1,min(NEWS_MAX_PAGES,(len(news)+NEWS_PAGE_SIZE-1)//NEWS_PAGE_SIZE))
+    # A single chronological feed for manual + Community NEWS, including
+    # pagination. Never pin manually authored articles ahead of newer posts.
+    combined=manual_news_entries()
+    known={slug for _,slug,_ in combined}
+    for p in news:
+        slug=news_slug(p)
+        if slug in known:continue
+        when=news_publication_timestamp(p.get("published_iso") or p.get("published"))
+        if when is None:
+            raise RuntimeError("Missing Community publication timestamp: "+slug)
+        combined.append((when,slug,render_news_rows([p])))
+        known.add(slug)
+    combined.sort(key=lambda entry:(entry[0],entry[1]),reverse=True)
+    combined=combined[:NEWS_PAGE_SIZE*NEWS_MAX_PAGES]
+    total_pages=max(1,(len(combined)+NEWS_PAGE_SIZE-1)//NEWS_PAGE_SIZE)
     for page_num in range(1,total_pages+1):
-        chunk=news[(page_num-1)*NEWS_PAGE_SIZE:page_num*NEWS_PAGE_SIZE]
+        chunk=[row for _,_,row in combined[(page_num-1)*NEWS_PAGE_SIZE:page_num*NEWS_PAGE_SIZE]]
         page=build_news_archive_page(chunk,page_num,total_pages,reviews)
         filename="news.html" if page_num==1 else f"news-{page_num}.html"
         Path(filename).write_text(page,encoding="utf-8")
+    print("NEWS archive merged and ordered by publication:",len(combined),"articles")
 
 
 
