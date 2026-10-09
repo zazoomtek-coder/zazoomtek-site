@@ -73,13 +73,23 @@ def terms(item):
     return " ".join(words[:2])+" technology" if words else "digital technology"
 def commons_cc0(item):
     """Only accept explicit reusable licenses; preserve author/license details."""
-    args={"action":"query","generator":"search",
-      "gsrsearch":terms(item)+" filetype:bitmap","gsrnamespace":"6",
-      "gsrlimit":"30","prop":"imageinfo","iiprop":"url|extmetadata|size",
-      "iiurlwidth":"1500","format":"json","formatversion":"2"}
+    chosen=item.get("cover_file")
+    if chosen:
+        if not isinstance(chosen,str) or len(chosen)>180 or not chosen.lower().endswith((".jpg",".jpeg",".png",".webp")):
+            raise ValueError("Invalid curated image filename")
+        args={"action":"query","titles":"File:"+chosen,
+          "prop":"imageinfo","iiprop":"url|extmetadata|size",
+          "iiurlwidth":"1500","format":"json","formatversion":"2"}
+    else:
+        args={"action":"query","generator":"search",
+          "gsrsearch":terms(item)+" filetype:bitmap","gsrnamespace":"6",
+          "gsrlimit":"30","prop":"imageinfo","iiprop":"url|extmetadata|size",
+          "iiurlwidth":"1500","format":"json","formatversion":"2"}
     url=API+"?"+urllib.parse.urlencode(args)
     data=json.loads(request(url,1_000_000).decode("utf-8"))
     candidates=data.get("query",{}).get("pages",[])
+    if chosen and (not candidates or "missing" in candidates[0]):
+        raise RuntimeError("Missing Wikimedia Commons file: "+chosen)
     for page in candidates:
         infos=page.get("imageinfo") or []
         if not infos:continue
@@ -94,7 +104,8 @@ def commons_cc0(item):
             or "creativecommons.org/publicdomain/mark/1.0" in licenceurl)
         by=(re.fullmatch(r"cc by (?:2\.0|2\.5|3\.0|4\.0)",licence) is not None
             and re.fullmatch(r"https?://creativecommons\.org/licenses/by/(?:2\.0|2\.5|3\.0|4\.0)/?",licenceurl) is not None)
-        bysa=(licence.startswith("cc by-sa ") and "/licenses/by-sa/" in licenceurl)
+        bysa=(re.fullmatch(r"cc by-sa (?:2[.]0|2[.]5|3[.]0|4[.]0)",licence) is not None
+            and re.fullmatch(r"https?://creativecommons[.]org/licenses/by-sa/(?:2[.]0|2[.]5|3[.]0|4[.]0)/?",licenceurl) is not None)
         if not (pd or by or bysa):continue
         if int(meta.get("width") or 0)<1000 or int(meta.get("height") or 0)<650:continue
         img_url=meta.get("thumburl") or meta.get("url") or ""
@@ -246,13 +257,15 @@ def main():
         key=item["section"]+"/"+slug
         relative="assets/special/"+shortname(item)+".webp"
         target=ROOT/relative
-        if target.is_file() and target.stat().st_size<=MAX_BYTES:
+        if target.is_file() and target.stat().st_size<=MAX_BYTES and not item.get("cover_refresh"):
             if manifest.get(key,{}).get("path")=="/"+relative:continue
         try:
             photo,rights=commons_cc0(item)
         except Exception as exc:
             photo,rights=None,None
             print("Commons unavailable; using original artwork:",str(exc)[:130])
+        if photo is None:
+            raise RuntimeError("No reusable photographic cover found: "+key)
         encoded=encode(render(item,photo))
         if not target.exists() or target.read_bytes()!=encoded:
             target.write_bytes(encoded);changed=True
