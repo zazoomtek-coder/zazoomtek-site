@@ -91,7 +91,9 @@
       "editor_approved": true,
       "featured": true,
       "cover_mode": "auto",
-      "cover_search": "smart glasses technology"
+      "cover_search": "smart glasses technology",
+      "cover_file": "Ray-Ban Meta Gen 1 smart glasses with charging case.jpg",
+      "cover_refresh": true
     },
     {
       "section": "gaming",
@@ -115,7 +117,9 @@
       "editor_approved": true,
       "featured": true,
       "cover_mode": "auto",
-      "cover_search": "video game controller"
+      "cover_search": "video game controller",
+      "cover_file": "Playing with smartphone.jpg",
+      "cover_refresh": true
     },
     {
       "section": "gaming",
@@ -138,7 +142,9 @@
       "editor_approved": true,
       "featured": true,
       "cover_mode": "auto",
-      "cover_search": "children videogame controller"
+      "cover_search": "children videogame controller",
+      "cover_file": "Child playing with video game console at home closeup.jpg",
+      "cover_refresh": true
     }
   ]
 }
