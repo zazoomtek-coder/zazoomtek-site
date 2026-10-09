@@ -2,6 +2,12 @@
   "items": [
     {
       "section": "tech",
+      "slug": "tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html",
+      "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
+      "image": "/assets/special/ue-bulgaria-dsa.svg"
+    },
+    {
+      "section": "tech",
       "slug": "tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html",
       "title": "Occhiali con IA, la Norvegia propone restrizioni temporanee: privacy e riprese al centro del dibattito",
       "image": "/assets/special/norvegia-occhiali-ia-privacy.svg"
@@ -17,12 +23,6 @@
       "slug": "tech-impact-anthropic-cyber-mission-ai-infrastrutture-critiche.html",
       "title": "Anthropic lancia Cyber Mission: intelligenza artificiale per proteggere reti elettriche e software aperto",
       "image": "/assets/special/anthropic-cyber-mission-sicurezza.svg"
-    },
-    {
-      "section": "tech",
-      "slug": "tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html",
-      "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
-      "image": "/ChatGPT.png"
     },
     {
       "section": "gaming",
