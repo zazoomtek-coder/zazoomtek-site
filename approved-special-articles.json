@@ -18,6 +18,113 @@
         "https://digital-strategy.ec.europa.eu/en/news/commission-asks-bulgaria-comply-digital-services-act-and-empower-national-authorities-enforce-it"
       ],
       "editor_approved": true
+    },
+    {
+      "section": "tech",
+      "slug": "fbi-sequestro-microscan-fishhub-flax-typhoon",
+      "title": "Cyberattacchi, FBI e Dipartimento di Giustizia sequestrano strumenti attribuiti a Flax Typhoon",
+      "summary": "Le autorità statunitensi annunciano un intervento giudiziario su infrastrutture utilizzate, secondo le accuse, per individuare vulnerabilità e colpire reti sensibili. Al centro dell'operazione ci sono Microscan, FishHub e attività collegate alla società cinese Integrity Technology Group.",
+      "sources": [
+        "https://www.justice.gov/opa/pr/justice-department-and-fbi-seize-vulnerability-scanning-and-spear-phishing-tools-operated"
+      ],
+      "image": "/assets/special/fbi-microscan-fishhub-infrastrutture.svg",
+      "paragraphs": [
+        "Un attacco informatico non comincia necessariamente con un furto di dati. Spesso la prima fase consiste nel cercare sistemi esposti, identificare software vulnerabili e preparare l'accesso a reti strategiche. È proprio su questa parte della catena operativa che gli Stati Uniti affermano di essere intervenuti l'8 ottobre 2026, annunciando sequestri autorizzati da un tribunale federale contro strumenti utilizzati da soggetti associati al gruppo noto come Flax Typhoon.",
+        "Secondo il Dipartimento di Giustizia statunitense, l'operazione ha interessato Microscan e FishHub, due strumenti con ruoli differenti. Il primo sarebbe stato impiegato per ricognizioni e scansioni di vulnerabilità; il secondo, stando ai documenti giudiziari citati dalle autorità, avrebbe favorito l'invio di comunicazioni mirate e l'installazione di software malevolo dopo la compromissione iniziale. Non sono due semplici nomi tecnici: rappresentano fasi diverse di un'intrusione informatica.",
+        "Le autorità americane collegano questi strumenti ad attività di soggetti che avrebbero operato per Integrity Technology Group, azienda con sede in Cina. Le accuse riguardano operazioni rivolte anche a infrastrutture critiche e organizzazioni fuori dagli Stati Uniti. Nel comunicato vengono menzionati, fra i bersagli delle scansioni, aeroporti, società energetiche, università e altri enti. È importante precisare che si tratta di contestazioni riportate dalle autorità statunitensi, non di responsabilità definitivamente accertate da una sentenza.",
+        "La dimensione internazionale rende la vicenda particolarmente significativa. Una vulnerabilità in una rete collegata all'energia, ai trasporti o a servizi pubblici può avere conseguenze più ampie rispetto alla compromissione di un normale account. Inoltre, molti attacchi sfruttano dispositivi apparentemente innocui e infrastrutture distribuite, complicando l'identificazione degli operatori e la neutralizzazione delle attività.",
+        "L'intervento si inserisce in una strategia che non punta soltanto a inseguire i responsabili dopo un incidente: mira anche a togliere loro strumenti e punti d'appoggio. Il Dipartimento di Giustizia ricorda un'operazione precedente, svolta nel 2024 contro una rete di dispositivi compromessi attribuita agli stessi soggetti. Questo non significa che la minaccia sia scomparsa, ma indica il tentativo delle autorità di ridurne le capacità operative.",
+        "Per aziende e amministrazioni, la notizia è un richiamo alla necessità di controllare le esposizioni delle proprie reti e di monitorare segnali di compromissione. I comunicati ufficiali possono fornire elementi utili alla difesa, ma nessun sequestro garantisce da solo la fine di una campagna informatica. La questione centrale resta la capacità di prevenire nuove intrusioni prima che raggiungano i sistemi da cui dipendono servizi essenziali."
+      ],
+      "date": "2026-10-09",
+      "editor_approved": true,
+      "featured": true
+    },
+    {
+      "section": "tech",
+      "slug": "anthropic-cyber-mission-ai-infrastrutture-critiche",
+      "title": "Anthropic lancia Cyber Mission: intelligenza artificiale per proteggere reti elettriche e software aperto",
+      "summary": "La società presenta un programma che affianca modelli di IA, ingegneri e specialisti della sicurezza a chi difende infrastrutture e progetti open source. L'iniziativa nasce dalle difficoltà concrete nel correggere vulnerabilità su sistemi che non possono fermarsi.",
+      "sources": [
+        "https://www.anthropic.com/news/anthropic-cyber-mission"
+      ],
+      "image": "/assets/special/anthropic-cyber-mission-sicurezza.svg",
+      "paragraphs": [
+        "L'intelligenza artificiale può diventare uno strumento di difesa informatica, ma la sua efficacia dipende dal contesto in cui viene utilizzata. Con Cyber Mission, annunciata l'8 ottobre 2026, Anthropic propone un intervento che guarda oltre i tradizionali software per computer: l'obiettivo dichiarato è contribuire alla sicurezza di infrastrutture critiche e programmi open source su cui si basano numerosi servizi digitali.",
+        "La prima componente è il Critical Infrastructure Defense Program. Secondo la presentazione ufficiale, Anthropic intende mettere a disposizione modelli avanzati, competenze tecniche e attività di ricerca sulle minacce, lavorando con organizzazioni specializzate nella protezione degli ambienti industriali. Il campo comprende, fra gli altri, sistemi utilizzati nell'energia, nell'acqua e nei trasporti. Non si tratta quindi di un antivirus da installare sul computer di casa.",
+        "La difficoltà principale di questi ambienti è che le macchine possono restare operative per molti anni. Aggiornare un sistema che controlla un impianto non è paragonabile al riavvio di un telefono: una modifica sbagliata potrebbe interrompere un servizio o causare conseguenze operative serie. Individuare una vulnerabilità è solo il primo passaggio; occorre poi capire se la correzione sia applicabile senza introdurre problemi maggiori.",
+        "Anthropic coinvolge fornitori di sicurezza e aziende che già lavorano con operatori industriali. Il programma, spiegano i promotori, parte da collaborazioni mirate per valutare quali procedure producano risultati utili nella pratica. È una distinzione importante: la presentazione dell'iniziativa non dimostra che ogni problema informatico possa già essere risolto automaticamente da un modello.",
+        "La seconda componente riguarda il software open source. Attraverso OSS Scanner, Anthropic dichiara di voler offrire scansioni periodiche a progetti aperti, aiutando a individuare difetti e a proporre possibili correzioni. Molti programmi e servizi commerciali incorporano librerie condivise; una debolezza in un componente ampiamente utilizzato può quindi interessare organizzazioni molto diverse tra loro.",
+        "L'annuncio evidenzia anche il carattere ambivalente dell'IA nella cybersecurity: strumenti capaci di analizzare codice e sistemi possono aiutare i difensori, ma tecniche analoghe potrebbero essere usate da chi cerca falle da sfruttare. Per questo la qualità delle verifiche umane, la gestione responsabile delle informazioni sensibili e i test sulle modifiche restano essenziali. Cyber Mission apre una strada interessante, ma i benefici andranno misurati sulle vulnerabilità realmente corrette e sui sistemi effettivamente protetti."
+      ],
+      "date": "2026-10-09",
+      "editor_approved": true,
+      "featured": true
+    },
+    {
+      "section": "tech",
+      "slug": "norvegia-proposta-divieto-occhiali-intelligenza-artificiale",
+      "title": "Occhiali con IA, la Norvegia propone restrizioni temporanee: privacy e riprese al centro del dibattito",
+      "summary": "Il governo norvegese vuole discutere limitazioni temporanee all'uso degli occhiali intelligenti in determinati ambienti e avviare un esame più ampio delle regole sulla privacy. Non esiste ancora un divieto generale già applicato a tutti i dispositivi.",
+      "sources": [
+        "https://www.regjeringen.no/no/aktuelt/vil-innfore-midlertidig-forbud-mot-ki-briller/id3175516/",
+        "https://www.stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Representantforslag/2026-2027/dok8-202627-008s"
+      ],
+      "image": "/assets/special/norvegia-occhiali-ia-privacy.svg",
+      "paragraphs": [
+        "Gli occhiali intelligenti possono sembrare accessori comuni, ma alcuni modelli integrano videocamere, microfoni e funzioni di intelligenza artificiale. Questa combinazione apre interrogativi difficili: chi si trova vicino a chi li indossa è sempre consapevole di poter essere ripreso? E quali regole sono necessarie quando una registrazione può avvenire senza un telefono chiaramente visibile? La Norvegia ha deciso di affrontare pubblicamente questi problemi.",
+        "Il 5 ottobre 2026 il governo norvegese ha annunciato l'intenzione di proporre restrizioni temporanee all'uso degli occhiali con IA in determinati luoghi. Il ministero competente ha inoltre comunicato la volontà di costituire un gruppo di esperti incaricato di studiare una regolamentazione nazionale più duratura. È un passaggio politico e preparatorio: non significa che ogni paio di occhiali intelligenti sia stato già vietato nel Paese.",
+        "La preoccupazione nasce soprattutto dalla possibilità di acquisire immagini, audio e video di altre persone in condizioni nelle quali il consenso e la consapevolezza non sono affatto scontati. Il comunicato governativo cita l'ipotesi di limitare l'utilizzo in spazi frequentati dal pubblico e in contesti che coinvolgono bambini. Il perimetro effettivo delle misure dovrà essere definito attraverso il processo politico e normativo.",
+        "Il tema non riguarda soltanto un singolo produttore. Con la miniaturizzazione delle videocamere e l'integrazione di assistenti intelligenti, numerosi dispositivi indossabili possono acquisire informazioni sull'ambiente circostante. Una spia luminosa o un avviso tecnico non risolvono necessariamente tutti i dubbi, soprattutto quando chi viene ripreso non può controllare come e dove siano conservati i dati.",
+        "Esiste però anche un altro lato della questione: queste tecnologie possono offrire funzioni utili di accessibilità, comunicazione e assistenza quotidiana. Qualsiasi regolazione dovrà quindi valutare eccezioni e proporzionalità, evitando di trattare tutte le situazioni nello stesso modo. La distinzione fra una funzione di supporto e una registrazione invasiva potrebbe diventare uno degli aspetti centrali del confronto.",
+        "La proposta norvegese mostra quanto la legislazione fatichi a seguire l'evoluzione dell'elettronica indossabile. Per gli utenti europei il risultato non è ancora scritto: prima di parlare di proibizioni definitive occorrerà attendere i testi normativi e le decisioni delle autorità. Nel frattempo, il caso porta la privacy dal mondo delle applicazioni a quello degli oggetti che portiamo sul viso ogni giorno."
+      ],
+      "date": "2026-10-09",
+      "editor_approved": true,
+      "featured": true
+    },
+    {
+      "section": "gaming",
+      "slug": "agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali",
+      "title": "Diablo Immortal e Call of Duty Mobile, l'Antitrust guida un'azione europea sugli acquisti in-game",
+      "summary": "L'AGCM coordina con Norvegia e Danimarca un'azione che riguarda società del gruppo Microsoft e i sistemi di monetizzazione dei videogiochi. Sotto esame ci sono chiarezza dei prezzi, valute virtuali e protezione dei consumatori, soprattutto dei minori.",
+      "sources": [
+        "https://www.agcm.it/media/comunicati-stampa/2026/10/Gaming-azioni-coordinate-nell-UE-Autorita-guida-attivita-su-videogiochi-gruppo-Microsoft",
+        "https://commission.europa.eu/topics/consumers/consumer-rights-and-complaints/enforcement-consumer-protection/coordinated-actions/social-media-online-games-and-search-engines_en"
+      ],
+      "image": "/assets/special/agcm-diablo-call-of-duty-acquisti.svg",
+      "paragraphs": [
+        "Un acquisto all'interno di un videogioco può sembrare una scelta semplice, ma il prezzo reale diventa meno immediato quando bisogna prima convertire euro in una o più monete virtuali. Questa è una delle questioni al centro dell'azione europea annunciata l'8 ottobre 2026 dall'Autorità Garante della Concorrenza e del Mercato, che assume un ruolo di coordinamento nei confronti di società del gruppo Microsoft.",
+        "L'iniziativa coinvolge anche le autorità di tutela dei consumatori di Norvegia e Danimarca e si colloca nella cooperazione europea per la protezione degli acquirenti. Il riferimento specifico riguarda, fra gli altri, Diablo Immortal e Call of Duty Mobile. Secondo il comunicato dell'AGCM, l'obiettivo è verificare se determinate pratiche possano configurare un'infrazione diffusa alle regole europee. Non si tratta di una sanzione definitiva né di una colpevolezza già stabilita.",
+        "Il nodo più visibile è quello delle valute digitali acquistate con denaro reale. Quando gli oggetti vengono venduti in unità fittizie, magari disponibili soltanto in pacchetti prestabiliti, l'utente può fare più fatica a valutare la spesa effettiva. L'autorità richiama anche altre caratteristiche delle interfacce che, a suo giudizio, potrebbero orientare le decisioni dei giocatori in maniera poco trasparente.",
+        "Fra gli aspetti oggetto dell'esame rientrano inoltre i controlli parentali e l'assistenza quando un account viene bloccato. Sono temi diversi ma collegati da una domanda comune: un consumatore, e in particolare un minorenne, dispone davvero delle informazioni e degli strumenti necessari per comprendere le conseguenze delle proprie scelte? Un gioco gratuito all'installazione può infatti prevedere numerose transazioni successive.",
+        "L'azione europea si affianca a istruttorie nazionali avviate in precedenza. Questa continuità rende la notizia rilevante per tutto il settore: eventuali orientamenti comuni delle autorità potrebbero influenzare il modo in cui diversi editori presentano prezzi, offerte e sistemi di pagamento, senza riguardare esclusivamente i titoli citati oggi.",
+        "Per i giocatori, il punto da seguire non è un ipotetico divieto degli acquisti in-game, che non è stato annunciato. La questione riguarda trasparenza, correttezza contrattuale e tutela delle fasce più vulnerabili. Il procedimento dovrà accertare i fatti e consentire alle imprese interessate di far valere le proprie posizioni. Soltanto gli sviluppi successivi chiariranno se verranno richiesti cambiamenti concreti o adottati provvedimenti."
+      ],
+      "date": "2026-10-09",
+      "editor_approved": true,
+      "featured": true
+    },
+    {
+      "section": "gaming",
+      "slug": "eu-kids-act-giochi-online-minori-proposta-europea",
+      "title": "EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori",
+      "summary": "La Commissione europea ha presentato a settembre una proposta che coinvolge, oltre ai social network, giochi online e altri servizi frequentati da bambini e adolescenti. Al centro ci sono sicurezza predefinita, verifica dell'età e responsabilità delle piattaforme.",
+      "sources": [
+        "https://commission.europa.eu/news-and-media/news/eu-kids-act-helping-children-navigate-safer-online-world-2026-09-17_it"
+      ],
+      "image": "/assets/special/eu-kids-act-videogiochi-minori.svg",
+      "paragraphs": [
+        "Quando si parla di protezione dei minori su Internet, l'attenzione si concentra spesso sui social network. La proposta europea EU KIDS ACT, illustrata dalla Commissione il 17 settembre 2026, prende però in considerazione un ecosistema più ampio. Fra i servizi citati figurano anche i giochi online, nei quali chat, notifiche, sistemi di ricompensa e interazioni fra utenti possono incidere sull'esperienza di bambini e adolescenti.",
+        "Il primo elemento da chiarire riguarda lo stato dell'iniziativa. Si tratta di una proposta legislativa, non di un regolamento già definitivamente approvato e applicabile. Il Parlamento europeo e il Consiglio dovranno esaminarne il contenuto e negoziare il testo finale. Presentare oggi i requisiti come obblighi già entrati in vigore sarebbe quindi inesatto.",
+        "La Commissione indica una serie di principi per rendere i servizi utilizzati dai minori più sicuri fin dalla loro configurazione iniziale. Fra le misure proposte ci sono protezioni della riservatezza degli account, strumenti semplici per bloccare contatti indesiderati e limiti a determinate funzioni progettate per trattenere a lungo l'attenzione. Non tutte queste indicazioni comportano automaticamente lo stesso intervento su ogni videogioco.",
+        "Per il mondo gaming il dibattito è particolarmente delicato. Un titolo online può riunire persone di età differenti, offrire comunicazioni vocali o testuali e proporre attività ricorrenti che incoraggiano il ritorno quotidiano. La protezione dei giocatori più giovani richiede quindi un equilibrio fra accessibilità, libertà di gioco e prevenzione di rischi concreti, senza trasformare in un problema ogni meccanica di progressione.",
+        "Un altro capitolo riguarda la verifica dell'età. La proposta prevede strumenti che dovrebbero accertare l'idoneità degli utenti limitando la raccolta di dati sensibili. È una sfida tecnica e normativa complessa: controlli troppo deboli potrebbero essere aggirati, mentre procedure invasive rischierebbero di introdurre nuovi problemi per la privacy delle famiglie.",
+        "L'iniziativa non equivale a un divieto generale dei videogiochi online per i minori. La Commissione distingue, ad esempio, le proprie proposte sull'accesso ai social media dalle tutele da applicare ai vari servizi digitali. Per editori, sviluppatori e piattaforme sarà fondamentale seguire il testo durante l'iter legislativo, perché soltanto allora si capirà quali obblighi operativi riguarderanno concretamente le diverse categorie di prodotti."
+      ],
+      "date": "2026-10-09",
+      "editor_approved": true,
+      "featured": true
     }
   ]
 }
