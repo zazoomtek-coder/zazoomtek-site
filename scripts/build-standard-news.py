@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Layout revision: the shared featured-article header keeps desktop navigation on one line.
 """Publish only approved standalone NEWS, without changing YouTube importers."""
 import html,json,re,datetime as dt,io
 from PIL import Image,ImageOps
