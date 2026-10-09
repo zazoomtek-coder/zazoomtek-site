@@ -1,3 +1,83 @@
 {
-  "articles": {}
+  "articles": {
+    "tech/ue-bulgaria-digital-services-act-controlli-piattaforme": {
+      "path": "/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Hemicycle_of_Louise_Weiss_building_of_the_European_Parliament,_Strasbourg.jpg",
+        "file": "File:Hemicycle of Louise Weiss building of the European Parliament, Strasbourg.jpg",
+        "photographer": "jeffowenphotos",
+        "license_url": "https://creativecommons.org/licenses/by/2.0",
+        "modified": true
+      },
+      "search_terms": "European parliament building",
+      "bytes": 108488
+    },
+    "tech/fbi-sequestro-microscan-fishhub-flax-typhoon": {
+      "path": "/assets/special/tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:C4ISR_Senior_Leaders_Conference,_February_2011_(5424432505).jpg",
+        "file": "File:C4ISR Senior Leaders Conference, February 2011 (5424432505).jpg",
+        "photographer": "US Army Africa from Vicenza, Italy",
+        "license_url": "https://creativecommons.org/licenses/by/2.0",
+        "modified": true
+      },
+      "search_terms": "server cyber security",
+      "bytes": 100938
+    },
+    "tech/anthropic-cyber-mission-ai-infrastrutture-critiche": {
+      "path": "/assets/special/tech-impact-anthropic-cyber-mission-ai-infrastrutture-critiche.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:CAMPUS_-_Military_Data_Center_(52106762896).jpg",
+        "file": "File:CAMPUS - Military Data Center (52106762896).jpg",
+        "photographer": "Kecko from Eastern Switzerland",
+        "license_url": "https://creativecommons.org/licenses/by/2.0",
+        "modified": true
+      },
+      "search_terms": "data center servers",
+      "bytes": 81422
+    },
+    "tech/norvegia-proposta-divieto-occhiali-intelligenza-artificiale": {
+      "path": "/assets/special/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "Public domain / CC0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Berninabahn_zwischen_Lagalb_und_Ospizio_Bernina_im_Winter.jpg",
+        "file": "File:Berninabahn zwischen Lagalb und Ospizio Bernina im Winter.jpg",
+        "photographer": "Kabelleger / David Gubler",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modified": true
+      },
+      "search_terms": "smart glasses technology",
+      "bytes": 79908
+    },
+    "gaming/agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali": {
+      "path": "/assets/special/gaming-inside-agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "Public domain / CC0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Xbox-360-Wireless-Controller-White.jpg",
+        "file": "File:Xbox-360-Wireless-Controller-White.jpg",
+        "photographer": "Evan-Amos",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modified": true
+      },
+      "search_terms": "video game controller",
+      "bytes": 35568
+    },
+    "gaming/eu-kids-act-giochi-online-minori-proposta-europea": {
+      "path": "/assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp",
+      "origin": {
+        "origin": "ZazoomTek original graphic",
+        "license": "Original in-house art"
+      },
+      "search_terms": "children videogame controller",
+      "bytes": 47862
+    }
+  }
 }
