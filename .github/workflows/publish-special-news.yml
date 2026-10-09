@@ -5,6 +5,7 @@ on:
     paths:
       - 'approved-special-articles.json'
       - 'scripts/publish-special-news.py'
+      - 'scripts/build-special-covers.py'
   workflow_dispatch:
 permissions:
   contents: write
@@ -19,15 +20,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate Python syntax before touching pages
         run: |
-          python3 -m py_compile scripts/publish-special-news.py scripts/update-youtube-posts.py scripts/discover-special-news.py
+          python3 -m py_compile scripts/publish-special-news.py scripts/build-special-covers.py scripts/update-youtube-posts.py scripts/discover-special-news.py
           python3 -m json.tool approved-special-articles.json >/dev/null
+      - name: Install free image optimizer
+        run: python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Find rights-cleared images and prepare lightweight WebP covers
+        run: python3 scripts/build-special-covers.py
       - name: Build approved articles and separate archives
         run: python3 scripts/publish-special-news.py
       - name: Commit published articles atomically
         run: |
           git config user.name "ZazoomTek Editorial Publisher"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- tech-today.html gaming-today.html special-featured.json
+          git add -- tech-today.html gaming-today.html special-featured.json special-cover-manifest.json
+          # Keep only generated licensed/fallback covers; do not stage unrelated files.
+          shopt -s nullglob
+          cover_files=(assets/special/*.webp)
+          if [ ${#cover_files[@]} -gt 0 ]; then git add -- "${cover_files[@]}"; fi
           shopt -s nullglob
           article_files=(tech-impact-*.html gaming-inside-*.html)
           if [ ${#article_files[@]} -gt 0 ]; then git add -- "${article_files[@]}"; fi
