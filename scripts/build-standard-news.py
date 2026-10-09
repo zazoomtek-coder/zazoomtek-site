@@ -18,13 +18,22 @@ for x in data:
     key="standard/"+slug
     img="/assets/special/news-"+slug+".webp"
     file=ROOT/img.lstrip("/")
-    if not file.exists():
-        try:photo,rights=mod.commons_cc0({**x,"section":x["kind"]})
-        except Exception as e:
-            print("Photo unavailable; original fallback:",e);photo,rights=None,None
+    # For mainstream games use original subject-labelled editorial artwork.
+    # General Commons search can return legally reusable but misleading images
+    # (e.g. unrelated buildings); avoid that for these titles.
+    old_origin=manifest.get(key,{}).get("origin",{}).get("origin","")
+    force_original=(x["kind"]=="gaming")
+    must_draw=(not file.exists()) or (force_original and old_origin!="ZazoomTek original graphic")
+    if must_draw:
+        photo,rights=None,None
+        if not force_original:
+            try:photo,rights=mod.commons_cc0({**x,"section":x["kind"]})
+            except Exception as e:
+                print("Photo unavailable; original fallback:",e)
         file.parent.mkdir(parents=True,exist_ok=True)
         file.write_bytes(mod.encode(mod.render({**x,"section":x["kind"]},photo)))
         manifest[key]={"path":img,"origin":rights or {"origin":"ZazoomTek original graphic","license":"Original in-house art"}}
+        print("Verified WebP:",img,file.stat().st_size,"bytes")
     if key not in manifest or manifest[key].get("path")!=img:
         raise RuntimeError("Missing copyright provenance for cover: "+img)
     if file.stat().st_size>300000:raise ValueError("Cover too large")
