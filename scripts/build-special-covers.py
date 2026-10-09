@@ -94,7 +94,8 @@ def commons_cc0(item):
             or "creativecommons.org/publicdomain/mark/1.0" in licenceurl)
         by=(re.fullmatch(r"cc by (?:2\.0|2\.5|3\.0|4\.0)",licence) is not None
             and re.fullmatch(r"https?://creativecommons\.org/licenses/by/(?:2\.0|2\.5|3\.0|4\.0)/?",licenceurl) is not None)
-        if not (pd or by):continue
+        bysa=(licence.startswith("cc by-sa ") and "/licenses/by-sa/" in licenceurl)
+        if not (pd or by or bysa):continue
         if int(meta.get("width") or 0)<1000 or int(meta.get("height") or 0)<650:continue
         img_url=meta.get("thumburl") or meta.get("url") or ""
         if not img_url.startswith("https://"):continue
