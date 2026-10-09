@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="BANCHE SOTTO ATTACCO — La Corea del Sud rafforza i controlli">
+<defs><linearGradient id="b" x2="1" y2=".65"><stop stop-color="#060c1b"/><stop offset=".65" stop-color="#102648"/><stop offset="1" stop-color="#0b111f"/></linearGradient><linearGradient id="c"><stop stop-color="#18b5ff"/><stop offset=".58" stop-color="#356aff"/><stop offset="1" stop-color="#f21c42"/></linearGradient><pattern id="g" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#2e6aa3" opacity=".35" stroke-width="1"/></pattern><filter id="glow"><feGaussianBlur stdDeviation="18"/></filter></defs>
+<rect width="1280" height="720" fill="url(#b)"/><rect width="1280" height="720" fill="url(#g)"/>
+<path d="M480-50L790 770" stroke="#163b63" stroke-width="160" opacity=".35"/>
+<circle cx="1010" cy="350" r="225" fill="#047cf6" opacity=".22" filter="url(#glow)"/>
+<path d="M0 0h1280v8H0z" fill="#df153a"/><path d="M0 704h1280v16H0z" fill="url(#c)"/>
+<g opacity=".65" stroke="#2d7ac5" stroke-width="3"><path d="M760 135l100 80 280-20 120 120M755 540l180-70 200 80 145-80" fill="none"/></g>
+<path d="M825 296 l173-108 173 108" fill="none" stroke="#53d1ff" stroke-width="15"/><path d="M842 315 h312 M833 490 h330 M815 517 h365" stroke="#bfeeff" stroke-width="10"/><path d="M875 322 v165 M950 322 v165 M1040 322 v165 M1117 322 v165" stroke="#198add" stroke-width="27"/><circle cx="998" cy="257" r="14" fill="#f31b43"/>
+<rect x="50" y="39" width="14" height="50" fill="#168fff"/><rect x="68" y="39" width="14" height="50" fill="#ed2548"/>
+<text x="99" y="77" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="38" fill="#fff">Zazoom<tspan fill="#ed2548">Tek</tspan><tspan font-size="26" fill="#c1c9d5">.it</tspan></text>
+<text x="56" y="158" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="27" letter-spacing="4" fill="#60c9ff">TECH IMPACT</text>
+<foreignObject x="0" y="0" width="0" height="0" />
+<text x="52" y="300" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="58" textLength="690" lengthAdjust="spacingAndGlyphs" fill="#fff">BANCHE SOTTO ATTACCO</text>
+<rect x="56" y="339" width="425" height="7" fill="url(#c)"/>
+<text x="56" y="419" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="32" fill="#dfeefa">La Corea del Sud rafforza i controlli</text>
+<text x="56" y="625" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#8cacc8">INCHIESTE · ISTITUZIONI · DIRITTI DIGITALI</text>
+</svg>
