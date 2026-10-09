@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# All featured NEWS use the published Community NEWS article frontend.
 # Layout revision: the shared featured-article header keeps desktop navigation on one line.
 """Publish only approved standalone NEWS, without changing YouTube importers."""
 import html,json,re,datetime as dt,io
