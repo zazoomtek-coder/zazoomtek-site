@@ -32,11 +32,11 @@ def main():
     if not leads:
         print("No timely leads; no AI request.")
         return
-    prompt="""Sei il filtro editoriale di ZazoomTek. Input: SOLO TITOLI RSS NON VERIFICATI, non testi degli articoli. Devi scegliere fino a quattro temi per TECH IMPACT e fino a due per GAMING INSIDE. Non devi inventare fatti.
-TECH IMPACT: tecnologia con conseguenze concrete e documentabili su politica, istituzioni, cybersecurity, IA, privacy, innovazione e società.
-GAMING INSIDE: SOLO temi direttamente collegati a videogiochi, editori/studi di videogiochi, piattaforme gaming, diritti dei videogiocatori, legislazione gaming, server dei videogiochi, censura e controversie nell'industria gaming. Escludi in modo rigoroso notizie genericamente su Meta, copyright o IA se non riguardano esplicitamente videogiochi.
-Scarta argomenti che paiono titoli sensazionalistici, accuse non comprovate, articoli di opinione non documentati o duplicati sullo stesso evento. Se non ci sono due notizie pertinenti al gaming, selezionane meno, mai riempire.
-Rispondi SOLO con JSON: {"drafts":[{"section":"tech oppure gaming","title":"titolo originale italiano","summary":"breve ipotesi di notizia, 80-130 parole, senza trattare titolo come fatto verificato","source_urls":["URL preso dall'input"],"verification_needed":["controllo concreto prima della pubblicazione"],"editorial_status":"needs_human_review"}]}. Questi sono spunti di ricerca, NON articoli pronti. Non inventare citazioni, prove, date, dichiarazioni o scoperte. Input:\\n"""+json.dumps(leads,ensure_ascii=False)
+    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 4 proposte TECH IMPACT e massimo 2 GAMING INSIDE, senza completare la quota con casi dubbi.
+TECH IMPACT: politica e tecnologia, cybersicurezza pubblica, sicurezza digitale, diritti, innovazioni con implicazioni documentabili; escludi ordinaria pubblicità e lanci banali.
+GAMING INSIDE: esclusivamente politica e leggi dei VIDEOGIOCHI, proprietà di giochi digitali, chiusura server, consumatori, censura, tutela minori, crisi e acquisizioni di studi videoludici. Un evento su Meta, Hollywood, IA o copyright SENZA un rapporto esplicito con i videogiochi NON è pertinente.
+Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO DI 300-600 PAROLE, NON un articolo pronto: titolo italiano originale, summary neutrale di 80-130 parole, 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo 300-600 parole dovrà essere scritto SOLO DOPO verifica documentale separata.
+Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"titolo originale italiano","summary":"breve descrizione prudente della pista di ricerca, non del fatto confermato","source_urls":["URL presente nell'input"],"verification_needed":["verifica puntuale da effettuare"],"outline":["aspetto da approfondire"],"target_words":450,"editorial_status":"needs_human_review"}]}. Inserisci solo URL forniti nell'input, non riempire posti mancanti. Input:\\n"""+json.dumps(leads,ensure_ascii=False)
     # Query available models for this key instead of assuming a model exists.
     list_req=urllib.request.Request(
         "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",
@@ -88,7 +88,8 @@ Rispondi SOLO con JSON: {"drafts":[{"section":"tech oppure gaming","title":"tito
         urls=x.get("source_urls",[])
         if not isinstance(urls,list) or not urls or any(u not in allowed for u in urls):continue
         if not isinstance(x.get("title"),str) or not isinstance(x.get("summary"),str):continue
-        verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"editorial_status":"needs_human_review"})
+        if x["section"]=="gaming" and not any(w in ("gaming","game","games","videogame","videogiochi","videogioco","xbox","playstation","nintendo","steam","videoludic","giocatori") for w in __import__("re").findall(r"[a-zA-Z]+",(x["title"]+" "+" ".join(next((lead["title"] for lead in leads if lead["url"]==u),"") for u in urls)).lower())):continue
+        verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":450,"editorial_status":"needs_human_review"})
     report={"generated_utc":now.isoformat(),"published":False,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:6]}
     OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Gemini drafts created for human review:",len(verified[:6]),"; published: 0")
