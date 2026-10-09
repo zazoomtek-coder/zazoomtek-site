@@ -259,7 +259,7 @@ def community_image_identity(url):
     if host in ("yt3.ggpht.com","yt3.googleusercontent.com","lh3.googleusercontent.com"):
         # YouTube appends =s1600-rw-nd-v1 or =s320-c-fcrop64=... to
         # different renditions of the same underlying Community photo.
-        path=re.split(r"=s\\d+(?:[-=].*)?$",path,maxsplit=1)[0]
+        path=re.split(r"=s\d+(?:[-=].*)?$",path,maxsplit=1)[0]
         return "youtube-community:"+path
     return urllib.parse.urlunsplit((parsed.scheme.lower(),host,path,parsed.query,""))
 
