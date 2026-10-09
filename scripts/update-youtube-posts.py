@@ -874,7 +874,7 @@ def rich_editorial_header(active="news"):
         '<header class="zt-header"><div class="zt-wrap zt-headrow">'
         '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
         '<nav class="zt-nav">'
-        +nav("Home","/","home")+nav("News","/news.html","news")+nav("Recensioni","/recensioni-scritte.html","recensioni")+nav("Tech Today","/tech-today.html","tech-today")+nav("Gaming Today","/gaming-today.html","gaming-today")
+        +nav("Home","/","home")+nav("News","/news.html","news")+nav("Recensioni","/recensioni-scritte.html","recensioni")+nav("Tech Today","/tech-today.html","tech-today")+nav("Gaming","/gaming-today.html","gaming-today")
         +nav("Community","https://www.youtube.com/@ZazoomTek/posts","community")+nav("Video","https://www.youtube.com/@ZazoomTek/videos","video")
         +'</nav>'
         '<div class="zt-tools"><form class="zt-search" action="/cerca.html" method="get"><input name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form>'
@@ -953,7 +953,7 @@ def editorial_nav(active=""):
         +a("News","/news.html","news")
         +a("Recensioni","/recensioni-scritte.html","recensioni")
          +a("Tech Today","/tech-today.html","tech-today")
-         +a("Gaming Today","/gaming-today.html","gaming-today")
+         +a("Gaming","/gaming-today.html","gaming-today")
         +a("Community","https://www.youtube.com/@ZazoomTek/posts","community")
         +a("Video","https://www.youtube.com/@ZazoomTek/videos","video")
         +'</nav>'
@@ -995,7 +995,7 @@ def rich_review_header():
         '<header class="zt-header"><div class="zt-wrap zt-headrow">'
         '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
         '<nav class="zt-nav">'
-        '<a href="/">Home</a><a href="/news.html">News</a><a class="active" href="/recensioni-scritte.html">Recensioni</a><a href="/tech-today.html">Tech Today</a><a href="/gaming-today.html">Gaming Today</a>'
+        '<a href="/">Home</a><a href="/news.html">News</a><a class="active" href="/recensioni-scritte.html">Recensioni</a><a href="/tech-today.html">Tech Today</a><a href="/gaming-today.html">Gaming</a>'
         '<a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a>'
         '<a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a>'
         '</nav>'
