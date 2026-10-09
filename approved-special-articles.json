@@ -19,7 +19,9 @@
       ],
       "editor_approved": true,
       "image": "/assets/special/ue-bulgaria-dsa.svg",
-      "featured": true
+      "featured": true,
+      "cover_mode": "auto",
+      "cover_search": "European parliament building"
     },
     {
       "section": "tech",
@@ -40,7 +42,9 @@
       ],
       "date": "2026-10-09",
       "editor_approved": true,
-      "featured": true
+      "featured": true,
+      "cover_mode": "auto",
+      "cover_search": "server cyber security"
     },
     {
       "section": "tech",
@@ -61,7 +65,9 @@
       ],
       "date": "2026-10-09",
       "editor_approved": true,
-      "featured": true
+      "featured": true,
+      "cover_mode": "auto",
+      "cover_search": "data center servers"
     },
     {
       "section": "tech",
@@ -83,7 +89,9 @@
       ],
       "date": "2026-10-09",
       "editor_approved": true,
-      "featured": true
+      "featured": true,
+      "cover_mode": "auto",
+      "cover_search": "smart glasses technology"
     },
     {
       "section": "gaming",
@@ -105,7 +113,9 @@
       ],
       "date": "2026-10-09",
       "editor_approved": true,
-      "featured": true
+      "featured": true,
+      "cover_mode": "auto",
+      "cover_search": "video game controller"
     },
     {
       "section": "gaming",
@@ -126,7 +136,9 @@
       ],
       "date": "2026-10-09",
       "editor_approved": true,
-      "featured": true
+      "featured": true,
+      "cover_mode": "auto",
+      "cover_search": "children videogame controller"
     }
   ]
 }
