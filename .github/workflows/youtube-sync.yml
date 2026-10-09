@@ -53,6 +53,12 @@ jobs:
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
 
+      # Post-process the generated HTML only; the YouTube news, video and review
+      # importers and their validations remain untouched.
+      - name: Keep ten featured NEWS and four approved standard articles visible
+        if: steps.community_sync.outcome == 'success'
+        run: python3 scripts/apply-standard-news-featured.py
+
       - name: Discard unsafe Community changes
         if: steps.community_sync.outcome != 'success'
         run: |
