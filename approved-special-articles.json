@@ -21,7 +21,9 @@
       "image": "/assets/special/ue-bulgaria-dsa.svg",
       "featured": true,
       "cover_mode": "auto",
-      "cover_search": "European parliament building"
+      "cover_search": "European parliament building",
+      "cover_file": "Berlaymont EU Building-Brussels.jpg",
+      "cover_refresh": true
     },
     {
       "section": "tech",
@@ -44,7 +46,9 @@
       "editor_approved": true,
       "featured": true,
       "cover_mode": "auto",
-      "cover_search": "server cyber security"
+      "cover_search": "server cyber security",
+      "cover_file": "FBI Headquarters.jpg",
+      "cover_refresh": true
     },
     {
       "section": "tech",
@@ -67,7 +71,9 @@
       "editor_approved": true,
       "featured": true,
       "cover_mode": "auto",
-      "cover_search": "data center servers"
+      "cover_search": "data center servers",
+      "cover_file": "CAMPUS - Military Data Center (52106762896).jpg",
+      "cover_refresh": true
     },
     {
       "section": "tech",
