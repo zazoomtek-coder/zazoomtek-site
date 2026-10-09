@@ -36,6 +36,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install image comparison dependency
+        run: python3 -m pip install --quiet pillow
+
       - name: Validate sync programs
         run: |
           python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
