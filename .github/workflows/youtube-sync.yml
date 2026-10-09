@@ -57,6 +57,7 @@ jobs:
       # importers and their validations remain untouched.
       - name: Keep ten featured NEWS and four approved standard articles visible
         if: steps.community_sync.outcome == 'success'
+        continue-on-error: true
         run: python3 scripts/apply-standard-news-featured.py
 
       - name: Discard unsafe Community changes
