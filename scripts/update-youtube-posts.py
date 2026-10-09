@@ -2010,7 +2010,7 @@ def render_home_latest_reviews(reviews, limit=5):
 
 def render_ticker(news):
     rows=[]
-    for i,p in enumerate(news[:5]):
+    for i,p in enumerate(news[:15]):
         cls=' class="active"' if i==0 else ""
         rows.append(f'    <a{cls} href="{news_slug(p)}">{html.escape(news_title(p))}</a>')
     return "\n".join(rows)
