@@ -59,7 +59,21 @@ def main():
         with urllib.request.urlopen(req,timeout=65) as response:
             data=json.load(response)
     except urllib.error.HTTPError as exc:
-        print("Gemini HTTP error:",exc.code,"(details and key hidden)")
+        # Google error text may contain project-specific information; display only
+        # the public API's safe structured status and a short redacted message.
+        raw=exc.read(3000).decode("utf-8","replace")
+        try:
+            err=json.loads(raw).get("error",{})
+            status=str(err.get("status","unknown"))[:60]
+            message=str(err.get("message","unknown"))
+        except (ValueError,AttributeError,TypeError):
+            status="unknown"
+            message="No structured API error returned"
+        import re
+        message=re.sub(r"AIza[A-Za-z0-9_-]+","[REDACTED_KEY]",message)
+        message=re.sub(r"projects/[0-9]+","projects/[REDACTED]",message)
+        print("Gemini HTTP error:",exc.code,"status:",status,"message:",message[:380])
+        print("No article was published. Check model access and billing tier in Google AI Studio.")
         raise SystemExit(1)
     response_text="".join(p.get("text","") for c in data.get("candidates",[]) for p in c.get("content",{}).get("parts",[]))
     parsed=json.loads(response_text)
