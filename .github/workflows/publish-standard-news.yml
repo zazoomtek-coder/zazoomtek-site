@@ -31,7 +31,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- manual-news.json standard-cover-manifest.json news-*.html assets/special/news-*.webp index.html
+          git add -- manual-news.json standard-cover-manifest.json news-*.html assets/special/news-*.webp assets/special/article-*.webp index.html
           if ! git diff --cached --quiet; then
             git commit -m "content: publish four approved standard NEWS and optimized covers"
             for attempt in 1 2 3; do
