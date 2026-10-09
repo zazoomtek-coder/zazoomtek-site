@@ -291,13 +291,27 @@ def main():
         r"\.news-slider\{[^}]*\}",
         ".news-slider{display:block;width:100%;background:#111}", s, count=1
     )
+    # Preserve the approved compact hero height after Community refreshes.
+    s, hero_changes = re.subn(
+        r"\.news-slides\{[^}]*\}",
+        ".news-slides{position:relative;aspect-ratio:2.08/1;min-height:0;overflow:hidden;background:#111}", s, count=1
+    )
+    if hero_changes != 1:
+        raise RuntimeError("Featured NEWS slide dimensions missing")
+    s = s.replace(".news-slides{min-height:0;aspect-ratio:16/9}", ".news-slides{min-height:0;aspect-ratio:2.08/1}")
+    if ".latest-reviews-module .video-card{flex-basis:" not in s:
+        s = s.replace("</style>", """
+.latest-reviews-module .video-card{flex-basis:calc((100% - 16px)/2)}
+.latest-reviews-module .video-card h3{font-size:1.12rem;line-height:1.35;padding:16px 16px 20px}
+@media(max-width:580px){.latest-reviews-module .video-card{flex-basis:88%}.news-slides{aspect-ratio:16/9}}
+</style>""", 1)
     s, tabs_changes = re.subn(
         r"\.news-tabs\{[^}]*\}",
         ".news-tabs{display:none!important}", s, count=1
     )
     s, image_changes = re.subn(
         r"\.news-slide img\{[^}]*\}",
-        ".news-slide img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:none}",
+        ".news-slide img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;filter:none}",
         s, count=1
     )
     if slider_changes != 1 or tabs_changes != 1 or image_changes != 1:
