@@ -313,18 +313,15 @@ def main():
     if s.count('data-standard-news="true"') != 4:
         raise RuntimeError("Home NEWS count validation failed")
 
+    # Dedicated Tech Impact/Gaming Inside content is forbidden in the general NEWS archive.
+    # The Community importer owns that archive. Never inject editorial section items.
     news = NEWS.read_text(encoding="utf-8")
-    # The Community publisher already reads manual-news.json; only add entries
-    # missing from this particular generated file, never duplicate them.
-    absent = [x for x in standard if 'href="/news-' + x["slug"] + '.html"' not in news]
-    if absent:
-        marker = '<div class="news-list" id="newsList">'
-        if news.count(marker) != 1:
-            raise RuntimeError("NEWS list not found, aborting safely")
-        news = news.replace(marker, marker + standard_news_rows(absent), 1)
-    for x in standard:
-        if 'href="/news-' + x["slug"] + '.html"' not in news:
-            raise RuntimeError("Standard NEWS missing from archive")
+    forbidden = re.findall(r'href="/(?:tech-impact|gaming-inside)-[^"]+\.html"', news)
+    if forbidden:
+        raise RuntimeError("Dedicated section articles leaked into general NEWS archive")
+    standard_urls = ["/news-" + x["slug"] + ".html" for x in standard if x.get("kind") in ("tech", "gaming")]
+    if any('href="' + url + '"' in news for url in standard_urls):
+        raise RuntimeError("Standard Tech Impact/Gaming Inside story leaked into NEWS")
 
     if INDEX.read_text(encoding="utf-8") != s:
         INDEX.write_text(s, encoding="utf-8")
