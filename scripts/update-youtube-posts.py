@@ -264,17 +264,71 @@ def community_image_identity(url):
     return urllib.parse.urlunsplit((parsed.scheme.lower(),host,path,parsed.query,""))
 
 
+# Some Community uploads have separate CDN identifiers for the exact same artwork.
+# Keep these confirmed aliases even when downloading thumbnails is temporarily blocked.
+KNOWN_DUPLICATE_COMMUNITY_IMAGES = {
+    "7esQLR53uJ9x0_gVYh0cE6maRvHLntmOeUeeGOdjN7LJmbXwsC6VbJSFOWfBf2qEGLR6QFT5bew":
+        "ahl8LogGQOGEgxY-BQrojHMfWHiMH7uV9uAbfUwXHrTw3dRywRKUFpzneYc6RDhdS48IHI70buVi4g",
+}
+_image_fingerprints = {}
+
+
+def community_image_fingerprint(url):
+    """Small perceptual hash: identical artwork can have unrelated YouTube URLs."""
+    if url in _image_fingerprints:
+        return _image_fingerprints[url]
+    result=None
+    try:
+        from io import BytesIO
+        from PIL import Image
+        request=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
+        with urllib.request.urlopen(request,timeout=3) as response:
+            data=response.read(2500001)
+        if len(data)<=2500000:
+            with Image.open(BytesIO(data)) as image:
+                pixels=list(image.convert("L").resize((9,8)).getdata())
+                result=sum((1 << (y*8+x)) for y in range(8) for x in range(8)
+                           if pixels[y*9+x]>pixels[y*9+x+1])
+    except Exception:
+        pass  # A temporary thumbnail error must never block news publishing.
+    _image_fingerprints[url]=result
+    return result
+
+
 def post_extra_images(p):
-    """Keep genuinely distinct Community photos, never repeat the article cover."""
+    """Remove URL variants AND visually identical images, preserving other photos."""
     imgs=p.get("images") or ([p.get("image")] if p.get("image") else [])
     primary=p.get("image") or (imgs[0] if imgs else "")
     out=[]
-    seen={community_image_identity(primary)} if primary else set()
+    seen=set()
+    fingerprints=[]
+    if primary:
+        seen.add(community_image_identity(primary))
+        marker=community_image_identity(primary).split("youtube-community:")[-1].lstrip("/")
+        seen.add("known:"+KNOWN_DUPLICATE_COMMUNITY_IMAGES.get(marker,marker))
     for u in imgs:
+        if not u:
+            continue
         key=community_image_identity(u)
-        if key and key not in seen:
+        marker=key.split("youtube-community:")[-1].lstrip("/")
+        alias="known:"+KNOWN_DUPLICATE_COMMUNITY_IMAGES.get(marker,marker)
+        if key in seen or alias in seen:
+            continue
+        # Perceptual comparison runs only when a separate inline image is possible.
+        candidate=community_image_fingerprint(u)
+        if primary and not fingerprints:
+            fingerprints.append(community_image_fingerprint(primary))
+        if candidate is not None and any(
+            previous is not None and (candidate ^ previous).bit_count() <= 3
+            for previous in fingerprints
+        ):
             seen.add(key)
-            out.append(u)
+            seen.add(alias)
+            continue
+        seen.add(key)
+        seen.add(alias)
+        out.append(u)
+        fingerprints.append(candidate)
     return out
 
 def distribute_inline_images(blocks,p,title):
