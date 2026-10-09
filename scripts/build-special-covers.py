@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Free, rights-conscious hero images for APPROVED special news only.
 
-Search Wikimedia Commons for explicitly CC0 images, convert them to light WebP
+Search Wikimedia Commons for CC0/public-domain or attributed CC BY images, convert to light WebP
 and store the original file page in a provenance manifest. If none pass the
 checks or the network fails, draw original themed artwork locally with Pillow.
 No API key, subscriptions or copying other publications' covers.
@@ -72,10 +72,10 @@ def terms(item):
     words=[w for w in re.findall(r"[a-zà-ÿ]{4,}",low) if w not in STOP_WORDS]
     return " ".join(words[:2])+" technology" if words else "digital technology"
 def commons_cc0(item):
-    """Only accept unequivocal CC0; source and licence are retained internally."""
+    """Only accept explicit reusable licenses; preserve author/license details."""
     args={"action":"query","generator":"search",
       "gsrsearch":terms(item)+" filetype:bitmap","gsrnamespace":"6",
-      "gsrlimit":"12","prop":"imageinfo","iiprop":"url|extmetadata|size",
+      "gsrlimit":"30","prop":"imageinfo","iiprop":"url|extmetadata|size",
       "iiurlwidth":"1500","format":"json","formatversion":"2"}
     url=API+"?"+urllib.parse.urlencode(args)
     data=json.loads(request(url,1_000_000).decode("utf-8"))
@@ -87,8 +87,14 @@ def commons_cc0(item):
         ext=meta.get("extmetadata") or {}
         licence=html.unescape(re.sub("<[^>]*>","",str(ext.get("LicenseShortName",{}).get("value","")))).strip().lower()
         licenceurl=str(ext.get("LicenseUrl",{}).get("value","")).lower()
-        if licence not in ("cc0","cc0 1.0","cc0 1.0 universal") and "creativecommons.org/publicdomain/zero/1.0" not in licenceurl:
-            continue
+        # CC BY is legally reusable for a modified editorial cover provided
+        # that the article displays author, license, source and modifications.
+        pd=licence in ("public domain","pd","cc0","cc0 1.0","cc0 1.0 universal") or (
+            "creativecommons.org/publicdomain/zero/1.0" in licenceurl
+            or "creativecommons.org/publicdomain/mark/1.0" in licenceurl)
+        by=(re.fullmatch(r"cc by (?:2\.0|2\.5|3\.0|4\.0)",licence) is not None
+            and re.fullmatch(r"https?://creativecommons\.org/licenses/by/(?:2\.0|2\.5|3\.0|4\.0)/?",licenceurl) is not None)
+        if not (pd or by):continue
         if int(meta.get("width") or 0)<1000 or int(meta.get("height") or 0)<650:continue
         img_url=meta.get("thumburl") or meta.get("url") or ""
         if not img_url.startswith("https://"):continue
@@ -102,11 +108,12 @@ def commons_cc0(item):
             photo=Image.open(io.BytesIO(raw)).convert("RGB")
             if photo.width<1000 or photo.height<650:continue
             return photo,{
-                "origin":"Wikimedia Commons","license":"CC0 1.0",
+                "origin":"Wikimedia Commons","license":("Public domain / CC0" if pd else licence.upper()),
                 "source_page":meta.get("descriptionurl",""),
                 "file":page.get("title",""),
                 "photographer":re.sub("<[^>]*>","",str(ext.get("Artist",{}).get("value","")))[:200],
-                "license_url":"https://creativecommons.org/publicdomain/zero/1.0/",
+                "license_url":(licenceurl if (licenceurl.startswith("https://") or licenceurl.startswith("http://")) else "https://creativecommons.org/publicdomain/zero/1.0/"),
+                "modified":True,
             }
         except (OSError,ValueError,TypeError):
             continue
@@ -231,8 +238,10 @@ def main():
         if item.get("section") not in ("tech","gaming"):continue
         slug=item.get("slug","")
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):continue
-        # Respect existing editorial covers, whether supplied manually or earlier.
-        if item.get("image") and item["image"]!="/ChatGPT.png":continue
+        # Only replace editorial covers explicitly marked 'auto'. Otherwise
+        # respect any existing image chosen by the editor.
+        automatic=item.get("cover_mode")=="auto"
+        if item.get("image") and item["image"]!="/ChatGPT.png" and not automatic:continue
         key=item["section"]+"/"+slug
         relative="assets/special/"+shortname(item)+".webp"
         target=ROOT/relative
