@@ -38,13 +38,44 @@ def save_if_changed(path,content):
         path.write_text(content,encoding="utf-8")
         print("Updated:",path.name)
 def make_page(x,filename):
-    title=esc(x["title"]);summary=esc(x["summary"]);name=LABEL[x["section"]]
+    title=esc(x["title"])
+    summary=esc(x["summary"])
+    name=LABEL[x["section"]]
     url="https://www.zazoomtek.it/"+filename
+    section_link="/"+SECTION_FILES[x["section"]]
     body="".join("<p>"+esc(p)+"</p>" for p in x["paragraphs"])
     sources="".join('<li><a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer nofollow">'+esc(u)+'</a></li>' for u in x["sources"])
-    section_link="/"+SECTION_FILES[x["section"]]
-    # Site-owned brand graphic only; never republish third-party photos without licensing.
-    return """<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>"""+title+""" | ZazoomTek</title><meta name="description" content="""+'"'+summary+'"'+"""><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href=""""+esc(url)+""""><style>body{margin:0;background:#ededed;color:#222;font:17px/1.75 Arial,Helvetica,sans-serif}header{background:#171717;color:#fff;padding:24px max(16px,calc((100vw - 1130px)/2));border-top:4px solid #d51232}header a{color:#fff;text-decoration:none;font-weight:bold}main{box-sizing:border-box;max-width:1130px;margin:26px auto;background:#fff;padding:clamp(20px,4vw,54px)}h1{line-height:1.17;font-size:clamp(28px,4vw,43px);margin:15px 0}h2{font-size:23px}a{color:#b7132a}.eyebrow{font-size:13px;text-transform:uppercase;color:#b7132a;font-weight:bold}.lead{font-size:21px;line-height:1.55;color:#444}.meta{color:#777;font-size:14px}.sources{overflow-wrap:anywhere;border-top:1px solid #ddd;padding-top:20px}footer{background:#171717;color:#ddd;text-align:center;padding:25px;font-size:14px}footer a{color:#fff}</style><script type="application/ld+json">"""+json.dumps({"@context":"https://schema.org","@type":"NewsArticle","headline":x["title"],"description":x["summary"],"mainEntityOfPage":url,"datePublished":x["date"],"dateModified":x["date"],"author":{"@type":"Organization","name":"ZazoomTek"},"publisher":{"@type":"Organization","name":"ZazoomTek"}},ensure_ascii=False).replace("<","\\u003c")+"""</script></head><body><header><a href="/">ZAZOOMTEK</a> &nbsp; / &nbsp; <a href=""""+esc(section_link)+"""">"""+name+"""</a></header><main><div class="eyebrow">"""+name+"""</div><h1>"""+title+"""</h1><div class="meta">"""+esc(x["date"])+""" · Redazione ZazoomTek</div><p class="lead">"""+summary+"""</p>"""+body+"""<div class="sources"><h2>Documenti e fonti consultate</h2><ul>"""+sources+"""</ul></div><p><a href=""""+esc(section_link)+"""">← Torna a """+name+"""</a></p></main><footer>© ZazoomTek · <a href="/privacy.html">Privacy</a></footer></body></html>"""
+    structured=json.dumps({
+        "@context":"https://schema.org","@type":"NewsArticle",
+        "headline":x["title"],"description":x["summary"],
+        "mainEntityOfPage":url,"datePublished":x["date"],"dateModified":x["date"],
+        "author":{"@type":"Organization","name":"ZazoomTek"},
+        "publisher":{"@type":"Organization","name":"ZazoomTek"}
+    },ensure_ascii=False).replace("<",r"\u003c")
+    return f'''<!doctype html><html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title} | ZazoomTek</title><meta name="description" content="{summary}">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="{esc(url)}">
+<style>body{{margin:0;background:#ededed;color:#222;font:17px/1.75 Arial,Helvetica,sans-serif}}
+header{{background:#171717;color:#fff;padding:24px max(16px,calc((100vw - 1130px)/2));border-top:4px solid #d51232}}
+header a{{color:#fff;text-decoration:none;font-weight:bold}}
+main{{box-sizing:border-box;max-width:1130px;margin:26px auto;background:#fff;padding:clamp(20px,4vw,54px)}}
+h1{{line-height:1.17;font-size:clamp(28px,4vw,43px);margin:15px 0}}
+h2{{font-size:23px}}a{{color:#b7132a}}.eyebrow{{font-size:13px;text-transform:uppercase;color:#b7132a;font-weight:bold}}
+.lead{{font-size:21px;line-height:1.55;color:#444}}.meta{{color:#777;font-size:14px}}
+.sources{{overflow-wrap:anywhere;border-top:1px solid #ddd;padding-top:20px}}
+footer{{background:#171717;color:#ddd;text-align:center;padding:25px;font-size:14px}}
+footer a{{color:#fff}}</style>
+<script type="application/ld+json">{structured}</script></head>
+<body><header><a href="/">ZAZOOMTEK</a> &nbsp; / &nbsp; <a href="{esc(section_link)}">{name}</a></header>
+<main><div class="eyebrow">{name}</div><h1>{title}</h1>
+<div class="meta">{esc(x["date"])} · Redazione ZazoomTek</div>
+<p class="lead">{summary}</p>{body}
+<div class="sources"><h2>Documenti e fonti consultate</h2><ul>{sources}</ul></div>
+<p><a href="{esc(section_link)}">← Torna a {name}</a></p></main>
+<footer>© ZazoomTek · <a href="/privacy.html">Privacy</a></footer></body></html>'''
+
 def main():
     raw=json.loads(APPROVED.read_text(encoding="utf-8"))
     items=raw.get("articles",[])
