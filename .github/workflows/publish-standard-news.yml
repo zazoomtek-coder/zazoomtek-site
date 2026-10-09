@@ -4,6 +4,7 @@ on:
     paths:
       - standard-news.json
       - scripts/build-standard-news.py
+      - scripts/apply-standard-news-featured.py
       - .github/workflows/publish-standard-news.yml
   workflow_dispatch:
 permissions:
@@ -22,11 +23,13 @@ jobs:
         run: python3 -m pip install 'Pillow>=10,<13'
       - name: Publish standalone NEWS and free WebP covers
         run: python3 scripts/build-standard-news.py
+      - name: Merge four standard NEWS into 10-slide featured, NEWS archive and latest articles
+        run: python3 scripts/apply-standard-news-featured.py
       - name: Commit new article pages and images only
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- manual-news.json standard-cover-manifest.json news-*.html assets/special/news-*.webp
+          git add -- manual-news.json standard-cover-manifest.json news-*.html assets/special/news-*.webp index.html
           if ! git diff --cached --quiet; then
             git commit -m "content: publish four approved standard NEWS and optimized covers"
             git pull --rebase origin main
