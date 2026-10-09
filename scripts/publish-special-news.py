@@ -26,6 +26,9 @@ def valid(item):
     if not isinstance(title,str) or not 25<=len(title)<=170:return False
     if not isinstance(intro,str) or not 65<=len(intro)<=420:return False
     if not isinstance(paragraphs,list) or len(paragraphs)<3 or any(not isinstance(p,str) or len(p.strip())<100 for p in paragraphs):return False
+    # Editorial target: 300–600 words total, including title and summary.
+    word_count=len(re.findall(r"\\b[\\wÀ-ÿ’\x27-]+\\b"," ".join([title,intro]+paragraphs)))
+    if not 300<=word_count<=600:return False
     if not isinstance(sources,list) or not sources or any(not isinstance(u,str) or not u.startswith("https://") for u in sources):return False
     if not item.get("editor_approved",False):return False
     try:
