@@ -17,7 +17,9 @@
       "sources": [
         "https://digital-strategy.ec.europa.eu/en/news/commission-asks-bulgaria-comply-digital-services-act-and-empower-national-authorities-enforce-it"
       ],
-      "editor_approved": true
+      "editor_approved": true,
+      "image": "/assets/special/ue-bulgaria-dsa.svg",
+      "featured": true
     },
     {
       "section": "tech",
