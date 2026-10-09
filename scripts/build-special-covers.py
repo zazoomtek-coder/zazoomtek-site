@@ -114,7 +114,7 @@ def commons_cc0(item):
 
 def rgb(code):return tuple(int(code[i:i+2],16) for i in (1,3,5))
 def font(size,bold=True):
-    path="/usr/share/fonts/truetype/dejavu/DejaVuSans-"+("Bold" if bold else "Book")+".ttf"
+    path="/usr/share/fonts/truetype/dejavu/DejaVuSans"+("-Bold" if bold else "")+".ttf"
     try:return ImageFont.truetype(path,size)
     except OSError:return ImageFont.load_default()
 def cover_text(item):
@@ -258,4 +258,20 @@ def main():
     if not OUT.exists() or OUT.read_text(encoding="utf-8")!=content:
         OUT.write_text(content,encoding="utf-8");changed=True
     print("Cover pipeline finished; changed:",changed)
-if __name__=="__main__":main()
+def self_test():
+    """Exercise the rights-safe fallback, typography and WebP compression."""
+    item={
+      "section":"tech","slug":"test-sicurezza-infrastrutture",
+      "title":"La sicurezza delle infrastrutture digitali in Europa",
+      "summary":"Un controllo locale della generazione di copertine originali senza servizi esterni.",
+    }
+    raw=encode(render(item))
+    assert 0<len(raw)<=MAX_BYTES,(len(raw),MAX_BYTES)
+    picture=Image.open(io.BytesIO(raw))
+    assert picture.format=="WEBP" and picture.size==SIZE,(picture.format,picture.size)
+    assert terms(item), "Cover search terms are empty"
+    print("COVER SELF TEST PASSED:",len(raw),"bytes",picture.size)
+
+if __name__=="__main__":
+    import sys
+    self_test() if "--self-test" in sys.argv else main()
