@@ -59,8 +59,20 @@ def make_page(x,filename,related):
         if related_rows else ""
     )
     hero=x.get("image","")
+    art=x.get("_cover_origin") or {}
+    credit_html=""
+    if isinstance(art,dict) and art.get("origin")=="Wikimedia Commons" and art.get("license","").upper().startswith("CC BY"):
+        source=art.get("source_page","")
+        licence=art.get("license_url","")
+        artist=art.get("photographer") or "Autore indicato su Wikimedia Commons"
+        if (source.startswith("https://commons.wikimedia.org/wiki/")
+                and licence.startswith("https://creativecommons.org/licenses/by/")):
+            credit_html=('<figcaption class="image-credit">Foto: '+esc(artist)
+                +' · <a href="'+esc(source)+'" rel="noopener noreferrer">Wikimedia Commons</a>'
+                +' · <a href="'+esc(licence)+'" rel="noopener noreferrer">'+esc(art["license"])
+                +'</a> · immagine ritagliata ed elaborata graficamente da ZazoomTek.</figcaption>')
     hero_html=('<figure class="hero"><img src="'+esc(hero)+'" alt="'+esc(x["title"])+'" '
-               'loading="eager" decoding="async"></figure>') if hero.startswith("/") else ""
+               'loading="eager" decoding="async">'+credit_html+'</figure>') if hero.startswith("/") else ""
     structured=json.dumps({
         "@context":"https://schema.org","@type":"NewsArticle",
         "headline":x["title"],"description":x["summary"],
@@ -80,7 +92,7 @@ main{{box-sizing:border-box;max-width:1130px;margin:26px auto;background:#fff;pa
 h1{{line-height:1.17;font-size:clamp(28px,4vw,43px);margin:15px 0}}
 h2{{font-size:23px;color:#171717;font-weight:900}}a{{color:#b7132a}}.eyebrow{{font-size:13px;text-transform:uppercase;color:#b7132a;font-weight:bold}}
 .lead{{font-size:21px;line-height:1.55;color:#444}}.meta{{color:#777;font-size:14px}}
-.hero{{margin:20px 0 26px}}.hero img{{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block}}
+.hero{{margin:20px 0 26px}}.hero img{{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block}}.image-credit{{font-size:12px;color:#666;line-height:1.45;margin-top:6px}}
 .related{{margin-top:40px;border-top:1px solid #dedede;padding-top:20px}}.related ul{{padding-left:20px}}
 .related li{{margin:0 0 13px}}.related h2{{color:#161616;font-weight:900}}
 footer{{background:#171717;color:#ddd;text-align:center;padding:25px;font-size:14px}}
@@ -114,11 +126,13 @@ def main():
         if filename in used:raise ValueError("Duplicate slug: "+filename)
         used.add(filename)
         article={**item,"filename":filename}
-        if not article.get("image") or article["image"]=="/ChatGPT.png":
-            generated=cover_data.get(item["section"]+"/"+item["slug"],{}).get("path","")
+        if item.get("cover_mode")=="auto" or not article.get("image") or article["image"]=="/ChatGPT.png":
+            info=cover_data.get(item["section"]+"/"+item["slug"],{})
+            generated=info.get("path","")
             if (isinstance(generated,str) and generated.startswith("/assets/special/")
                     and (ROOT/generated.lstrip("/")).is_file()):
                 article["image"]=generated
+                article["_cover_origin"]=info.get("origin") or {}
             else:
                 # Do not publish new stories with broken or generic hero images.
                 raise RuntimeError("Missing generated cover for approved article: "+filename)
