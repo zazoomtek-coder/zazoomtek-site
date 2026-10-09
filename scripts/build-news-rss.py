@@ -57,6 +57,21 @@ def main():
         if slug not in approved or not date or date<=START:continue
         title=p.get("title") or re.sub(r"^News:\s*","",str(p.get("text") or "").split("\n")[0],flags=re.I)
         records[slug]=dict(slug=slug,title=title or "News ZazoomTek",body=p.get("text") or "",date=date,image=p.get("image") or "")
+    # Metricool may reject an RSS channel with zero items.
+    # Add exactly one clearly identified existing standard story as a
+    # temporary setup item. It must be removed from the Autolist queue before
+    # enabling scheduling; never bulk-import the historical archive.
+    if not records:
+        eligible=[p for p in manual if isinstance(p,dict)
+                  and p.get("slug") in approved
+                  and p.get("kind") not in ("special","political")
+                  and timestamp(p.get("published_at"))]
+        eligible.sort(key=lambda p: timestamp(p.get("published_at")),reverse=True)
+        if eligible:
+            p=eligible[0]
+            records[p["slug"]]=dict(slug=p["slug"],title=p.get("title",""),
+                                     body=p.get("excerpt",""),date=timestamp(p["published_at"]),
+                                     image=p.get("image",""))
     rss=ET.Element("rss",{"version":"2.0"})
     channel=ET.SubElement(rss,"channel")
     for tag,value in (("title","ZazoomTek | Ultime News"),("link",SITE+"/news.html"),("description","Nuove notizie di tecnologia e gaming pubblicate nella sezione News di ZazoomTek.it."),("language","it-it")):
@@ -74,5 +89,5 @@ def main():
     output=ET.tostring(rss,encoding="unicode",xml_declaration=True)
     ET.fromstring(output)
     (ROOT/"rss.xml").write_text(output+"\n",encoding="utf-8")
-    print(f"Verified rss.xml: {len(records)} newly published ordinary News (no archive backfill)")
+    print(f"Verified rss.xml: {len(records)} News entries, at most one setup sample when no new stories")
 if __name__=="__main__":main()
