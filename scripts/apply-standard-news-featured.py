@@ -52,17 +52,76 @@ def load():
     return standard, special
 
 
+def publication_key(value):
+    """Sort by publication date/time, falling back to editorial order on ties."""
+    value = str(value or "").strip()
+    match = re.match(r"^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}(?::\d{2})?))?", value)
+    if match:
+        return match.group(1) + "T" + (match.group(2) or "00:00:00")
+    match = re.fullmatch(r"(\d{1,2}) ([a-zà]+) (\d{4})", value.lower())
+    months = {"gennaio":1,"febbraio":2,"marzo":3,"aprile":4,"maggio":5,
+              "giugno":6,"luglio":7,"agosto":8,"settembre":9,
+              "ottobre":10,"novembre":11,"dicembre":12}
+    if match and match.group(2) in months:
+        return f"{int(match.group(3)):04d}-{months[match.group(2)]:02d}-{int(match.group(1)):02d}T00:00:00"
+    return ""
+
+
+def photo_ready(path):
+    if not isinstance(path, str) or not re.fullmatch(r"/assets/special/[a-z0-9-]+\.webp", path):
+        return False
+    file = ROOT / path.lstrip("/")
+    return file.is_file() and 0 < file.stat().st_size <= 300000
+
+
 def slide_block(standard, special):
-    all_items = [
-        {"slug": "/" + x["slug"], "title": x["title"], "image": x["image"]}
-        for x in special
-    ] + [
-        {"slug": "/news-" + x["slug"] + ".html",
-         "title": x["title"], "image": "/assets/special/news-" + x["slug"] + ".webp"}
-        for x in standard
-    ]
-    if len(set(x["slug"] for x in all_items)) != 10:
-        raise ValueError("Duplicated featured links")
+    """Ten newest published photographic articles, not the original frozen 6+4."""
+    candidates = []
+    standard_rights = json.loads((ROOT / "standard-cover-manifest.json").read_text(encoding="utf-8")).get("articles", {})
+    special_rights = json.loads((ROOT / "special-cover-manifest.json").read_text(encoding="utf-8")).get("articles", {})
+    approved = json.loads((ROOT / "approved-special-articles.json").read_text(encoding="utf-8")).get("articles", [])
+
+    for x in standard:
+        slug = x["slug"]
+        page = "news-" + slug + ".html"
+        image = "/assets/special/news-" + slug + ".webp"
+        rights = standard_rights.get("standard/" + slug, {}).get("origin", {})
+        if (ROOT / page).is_file() and photo_ready(image) and rights.get("origin") == "Wikimedia Commons":
+            candidates.append({"slug": "/" + page, "title": x["title"], "image": image,
+                               "date": x.get("published_at") or x["date"]})
+
+    for x in approved:
+        if not x.get("editor_approved") or x.get("section") not in ("tech", "gaming"):
+            continue
+        slug = x["slug"]
+        page = ("tech-impact-" if x["section"] == "tech" else "gaming-inside-") + slug + ".html"
+        cover = special_rights.get(x["section"] + "/" + slug, {})
+        image = cover.get("path", "")
+        origin = cover.get("origin", {})
+        if (ROOT / page).is_file() and photo_ready(image) and origin.get("origin") == "Wikimedia Commons":
+            candidates.append({"slug": "/" + page, "title": x["title"], "image": image,
+                               "date": x.get("published_at") or x["date"]})
+
+    # Include any other original editorial NEWS with correctly licensed local photographs.
+    manual = ROOT / "manual-news.json"
+    if manual.exists():
+        manual_items = json.loads(manual.read_text(encoding="utf-8")).get("items", [])
+        for x in manual_items:
+            slug, image = x.get("slug", ""), x.get("image", "")
+            if (isinstance(slug, str) and re.fullmatch(r"news-[a-z0-9-]+\.html", slug)
+                    and (ROOT / slug).is_file() and photo_ready(image)):
+                candidates.append({"slug": "/" + slug, "title": x.get("title", "News ZazoomTek"),
+                                   "image": image, "date": x.get("published_at") or x.get("date", "")})
+
+    # Unique pages, newest first. Same-day ties retain input (editorial) order.
+    by_slug = {}
+    for item in candidates:
+        if item["slug"] not in by_slug and publication_key(item["date"]):
+            by_slug[item["slug"]] = item
+    all_items = sorted(by_slug.values(), key=lambda x: publication_key(x["date"]), reverse=True)[:10]
+    if not all_items:
+        raise RuntimeError("No published articles with verified photographic covers")
+
     slides, tabs = [], []
     for i, item in enumerate(all_items):
         active = " active" if i == 0 else ""
