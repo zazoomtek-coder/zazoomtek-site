@@ -12,7 +12,7 @@ import urllib.request
 
 ROOT=Path(__file__).resolve().parent.parent
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
-MODEL=os.environ.get("GEMINI_MODEL","gemini-3.5-flash-lite")
+MODEL=os.environ.get("GEMINI_MODEL","gemini-2.5-flash-lite")
 OUT=ROOT/"special-drafts-review.json"
 def main():
     if not KEY:
