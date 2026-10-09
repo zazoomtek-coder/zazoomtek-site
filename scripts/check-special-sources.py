@@ -50,11 +50,15 @@ def fetch(url):
     parsed=urllib.parse.urlsplit(url)
     if parsed.scheme!="https" or not parsed.hostname:
         raise ValueError("Only public HTTPS sources accepted")
+    if parsed.hostname.lower() in ("news.google.com","google.com","www.google.com"):
+        raise ValueError("Aggregator link, not the original publisher. Requires direct source URL")
     req=urllib.request.Request(url,headers={"User-Agent":USER_AGENT,"Accept":"text/html,application/xhtml+xml"})
     with urllib.request.urlopen(req,timeout=16) as response:
         final=response.geturl()
         p=urllib.parse.urlsplit(final)
         if p.scheme!="https" or not p.hostname:raise ValueError("Untrusted redirect")
+        if p.hostname.lower() in ("news.google.com","google.com","www.google.com"):
+            raise ValueError("Redirect points to aggregator, not original source")
         size=response.read(650_001)
         if len(size)>650_000:raise ValueError("Source over size limit")
         content_type=response.headers.get("Content-Type","").lower()
