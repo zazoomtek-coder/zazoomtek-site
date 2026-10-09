@@ -201,7 +201,7 @@ def chronological_home_feed(original_feed, standard):
     community_count = 0
     for row in imported_rows:
         # Remove already-injected manual entries before recombining; idempotent.
-        if 'data-standard-news="true"' in row:
+        if 'data-standard-news="true"' in row or 'data-manual-news="true"' in row:
             continue
         ref = re.search(r'href="/?(?:news|recensione)-(Ugkx[A-Za-z0-9_-]+)\.html"', row)
         if not ref:
