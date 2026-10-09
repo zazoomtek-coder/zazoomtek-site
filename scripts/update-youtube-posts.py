@@ -1830,8 +1830,37 @@ def render_news_pagination(current,total):
         items.append(f'<a class="next" href="{news_page_href(current+1)}">NEXT</a>')
     return '<nav class="archive-pagination" aria-label="Pagine News">'+"".join(items)+'</nav>'
 
+def render_manual_news_rows():
+    """Keep independently authored NEWS visible through the YouTube sync."""
+    config=Path("manual-news.json")
+    if not config.exists():
+        return ""
+    try:
+        items=json.loads(config.read_text(encoding="utf-8")).get("items",[])
+    except (ValueError,OSError,AttributeError):
+        return ""
+    rows=[]
+    for p in items[:10]:
+        if not isinstance(p,dict):
+            continue
+        slug=p.get("slug","")
+        if not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\\.html",slug) or not Path(slug).is_file():
+            continue
+        title=html.escape(str(p.get("title") or "News ZazoomTek"))
+        image=html.escape(str(p.get("image") or "/ChatGPT.png"),quote=True)
+        excerpt=html.escape(str(p.get("excerpt") or ""))
+        date=html.escape(str(p.get("date") or ""))
+        rows.append(
+          f'<article class="news-row" data-news-search="{title.lower()}">'
+          f'<a href="/{slug}"><img src="{image}" alt="{title}" loading="lazy"></a>'
+          f'<div class="news-copy"><h2><a href="/{slug}">{title}</a></h2>'
+          f'<div class="news-meta">ZazoomTek · {date}</div>'
+          f'<p>{excerpt}</p><a class="news-read" href="/{slug}">Leggi tutto ›</a></div></article>'
+        )
+    return "".join(rows)
+
 def build_news_archive_page(news_chunk,page_num,total_pages,reviews):
-    rows=render_news_rows(news_chunk)
+    rows=(render_manual_news_rows() if page_num==1 else "")+render_news_rows(news_chunk)
     title="News | ZazoomTek" if page_num==1 else f"News - Pagina {page_num} | ZazoomTek"
     canonical="https://zazoomtek.it/news.html" if page_num==1 else f"https://zazoomtek.it/news-{page_num}.html"
     return (
