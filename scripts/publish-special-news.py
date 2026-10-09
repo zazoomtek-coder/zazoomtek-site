@@ -148,23 +148,11 @@ def main():
             related=[r for r in published if r["filename"]!=item["filename"]]
         page=make_page(item,item["filename"],related)
         save_if_changed(ROOT/item["filename"],decorate(page,LABEL[item["section"]]))
-    # Include approved technology/gaming stories in their respective dedicated
-    # archives only, irrespective of their legacy news- URL names.
-    extra_file=ROOT/"standard-news.json"
-    extra=json.loads(extra_file.read_text(encoding="utf-8")).get("articles",[]) if extra_file.is_file() else []
+    # Editorially special topics only. Ordinary product/game announcements
+    # live in NEWS + HOME, not in these dedicated analysis archives.
     for section,archive in SECTION_FILES.items():
         path=ROOT/archive;s=path.read_text(encoding="utf-8")
         rows=[]
-        for x in sorted((e for e in extra if e.get("kind")==section),key=lambda e:e.get("published_at") or e.get("date",""),reverse=True):
-            target="news-"+x["slug"]+".html"
-            if not (ROOT/target).is_file():
-                raise RuntimeError("Dedicated article page missing: "+target)
-            image="/assets/special/news-"+x["slug"]+".webp"
-            if not (ROOT/image.lstrip("/")).is_file():
-                raise RuntimeError("Dedicated article cover missing: "+image)
-            url="/"+target;title=esc(x["title"]);summary=esc(x["summary"])
-            rows.append('<article class="news-row" data-published="'+esc(x.get("published_at") or x["date"])+'"><a href="'+esc(url)+'"><img src="'+esc(image)+'" alt="'+title+'" loading="lazy"></a><div class="news-copy"><h2><a href="'+esc(url)+'">'+title+'</a></h2><div class="news-meta">ZazoomTek · '+esc(x["date"])+'</div><p>'+summary+'</p><a class="news-read" href="'+esc(url)+'">Leggi tutto</a></div></article>')
-
         for x in (p for p in published if p["section"]==section):
             url="/"+x["filename"];title=esc(x["title"]);summary=esc(x["summary"])
             cover=esc(x.get("image") or "/ChatGPT.png")
