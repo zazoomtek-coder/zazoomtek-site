@@ -117,7 +117,7 @@ def decorate(page,section_label="News"):
     result=(top+'<body>'+header+'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
             '<article class="article-main">'+breadcrumb+article+cta+'</article>'+sidebar+'</div></main>'
             +footer+scripts+'</body></html>')
-    for required in ('class="zt-header"','class="news-detail-page"','class="detail-grid"',
+    for required in ('class="zt-header"','class="news-detail-page"','detail-grid',
                      'class="article-main"','class="article-side"','class="legal-footer"'):
         if required not in result:raise RuntimeError("Missing reference layout component: "+required)
     return result
