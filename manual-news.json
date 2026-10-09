@@ -1,6 +1,42 @@
 {
   "items": [
     {
+      "slug": "news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
+      "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
+      "image": "/assets/special/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.webp",
+      "excerpt": "Microsoft avvia i preordini del Surface Laptop Ultra: debutto il 16 ottobre 2026, chip NVIDIA RTX Spark e configurazioni fino a 128 GB di memoria unificata. Il listino statunitense parte da 2.599 dollari.",
+      "date": "2026-10-09",
+      "published_at": "2026-10-09T11:20:47Z",
+      "kind": "standard"
+    },
+    {
+      "slug": "news-apple-welcome-home-evento-13-ottobre-2026-smart-home.html",
+      "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
+      "image": "/assets/special/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.webp",
+      "excerpt": "Apple ha fissato per il 13 ottobre 2026 l'evento Welcome Home a New York. Le indiscrezioni parlano di un hub domestico con schermo, HomePod mini e Apple TV aggiornati, ma i prodotti non sono ancora stati confermati.",
+      "date": "2026-10-09",
+      "published_at": "2026-10-09T11:20:47Z",
+      "kind": "standard"
+    },
+    {
+      "slug": "news-forza-horizon-6-ps5-26-gennaio-2027-preordini.html",
+      "title": "Forza Horizon 6 arriva su PS5 il 26 gennaio 2027: preordini aperti e accesso anticipato",
+      "image": "/assets/special/news-forza-horizon-6-ps5-26-gennaio-2027-preordini.webp",
+      "excerpt": "Playground Games conferma Forza Horizon 6 su PlayStation 5 dal 26 gennaio 2027. La Premium Edition permette di giocare dal 21 gennaio; previste modalità a 30 e 60 fps e supporto cross-play e cross-save.",
+      "date": "2026-10-09",
+      "published_at": "2026-10-09T11:20:47Z",
+      "kind": "standard"
+    },
+    {
+      "slug": "news-one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026.html",
+      "title": "ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC il 23 ottobre",
+      "image": "/assets/special/news-one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026.webp",
+      "excerpt": "Bandai Namco e Kairosoft portano ONE PIECE: Grand Gourmet su smartphone, Nintendo Switch, Switch 2 e PC dal 23 ottobre 2026: gestione di un ristorante galleggiante, oltre 400 personaggi e arredi personalizzabili.",
+      "date": "2026-10-09",
+      "published_at": "2026-10-09T11:20:47Z",
+      "kind": "standard"
+    },
+    {
       "slug": "news-two-point-museum-attrazioni-da-museo-dlc-2026.html",
       "title": "Two Point Museum: Attrazioni da Museo è disponibile, montagne russe e una collaborazione con Little Kitty, Big City",
       "date": "9 ottobre 2026",
