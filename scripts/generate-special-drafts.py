@@ -33,7 +33,26 @@ def main():
         print("No timely leads; no AI request.")
         return
     prompt="""Sei un assistente editoriale di ZazoomTek. Questa è una lista di TITOLI RSS NON VERIFICATI. Seleziona fino a 4 temi Tech Impact (politica, cybersecurity, impatto sociale) e fino a 2 Gaming Inside (leggi, diritti, industria, casi particolari), usando SOLO i titoli forniti, senza inventare fatti o dire di aver verificato. Produci un JSON con campo 'drafts' lista; ogni elemento deve avere section, title, summary (80-130 parole in italiano, tono condizionale quando il fatto non è confermato), source_urls (URL tra quelli forniti), verification_needed (lista di ciò che deve essere confermato prima di pubblicare), editorial_status fisso 'needs_human_review'. NON creare articoli pubblicabili; NON inventare citazioni, immagini, dati, date, istituzioni, decisioni definitive, test o dichiarazioni. Se insufficiente, meno bozze. Input:\n"""+json.dumps(leads,ensure_ascii=False)
-    endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent"
+    # Query available models for this key instead of assuming a model exists.
+    list_req=urllib.request.Request(
+        "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",
+        headers={"x-goog-api-key":KEY})
+    try:
+        with urllib.request.urlopen(list_req,timeout=25) as response:
+            catalog=json.load(response).get("models",[])
+    except urllib.error.HTTPError as exc:
+        print("Gemini model discovery HTTP error:",exc.code,"(key hidden)")
+        raise SystemExit(1)
+    available={m.get("name","").removeprefix("models/") for m in catalog
+               if "generateContent" in m.get("supportedGenerationMethods",[])}
+    preferred=[MODEL,"gemini-2.5-flash-lite","gemini-2.5-flash","gemini-2.0-flash-lite","gemini-2.0-flash","gemini-1.5-flash"]
+    selected=next((name for name in preferred if name in available),None)
+    if not selected:
+        # Never guess a paid-only model or silently enable billing.
+        print("No configured Gemini text model available. Supported names:",", ".join(sorted(available)[:15]))
+        raise SystemExit(1)
+    print("Gemini model selected:",selected)
+    endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+selected+":generateContent"
     payload={"contents":[{"parts":[{"text":prompt}]}],"generationConfig":{"responseMimeType":"application/json","maxOutputTokens":2800,"temperature":0.2}}
     req=urllib.request.Request(endpoint,data=json.dumps(payload).encode("utf-8"),headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
     try:
