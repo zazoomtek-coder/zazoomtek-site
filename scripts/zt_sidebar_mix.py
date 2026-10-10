@@ -81,23 +81,59 @@ def mini_article(heading, article, section_url):
             f'<img loading="lazy" src="{image}" alt="{title}">'
             f'<span>{title}</span></a></section>')
 
+def all_published_news():
+    """All pages of the published News archive in archive order, newest first."""
+    files = [ROOT / "news.html"]
+    files.extend(sorted(
+        ROOT.glob("news-[0-9]*.html"),
+        key=lambda p: int(p.stem.split("-")[-1]) if p.stem.split("-")[-1].isdigit() else 9999
+    ))
+    results = []
+    seen = set()
+    for path in files:
+        if not path.exists():
+            continue
+        for item in news_rows(path.name, max_count=10000):
+            if item["url"] not in seen:
+                results.append(item)
+                seen.add(item["url"])
+    return results
+
+
 def recent_list(items):
+    """Scroll through the full news archive without stretching the sidebar."""
     if not items:
         return ""
     rows = []
-    seen = set()
     for item in items:
-        if item["url"] in seen:
-            continue
-        seen.add(item["url"])
-        rows.append(f'<a href="{e(item["url"])}" class="zt-mix-recent-row">'
-                    f'<img loading="lazy" src="{e(item["image"])}" alt="">'
-                    f'<span>{e(item["title"])}</span></a>')
-        if len(rows) == 3:
-            break
+        rows.append(
+            f'<a href="{e(item["url"])}" class="zt-mix-recent-row">'
+            f'<img loading="lazy" src="{e(item["image"])}" alt="">'
+            f'<span>{e(item["title"])}</span></a>'
+        )
     return ('<section class="side-box zt-mix-recent">'
-            '<a class="module-title" href="/news.html">Ultime News</a>'
-            '<div class="zt-mix-recent-list">' + "".join(rows) + '</div></section>')
+            '<a class="module-title" href="/news.html">Tutte le News</a>'
+            f'<p class="zt-mix-news-count">{len(items)} articoli · Scorri per esplorarli</p>'
+            '<div class="zt-mix-recent-list" tabindex="0" role="region" '
+            'aria-label="Elenco di tutte le notizie pubblicate">' +
+            "".join(rows) + '</div>'
+            '<a class="zt-mix-news-all" href="/news.html">APRI L’ARCHIVIO NEWS ›</a>'
+            '</section>')
+
+
+def featured_article(news):
+    """Use the editorially chosen featured news; fallback to the most recent."""
+    path = ROOT / "featured-news.json"
+    try:
+        featured_ids = json.loads(path.read_text(encoding="utf-8")).get("ids", [])
+        for ident in featured_ids:
+            match = next((item for item in news if ident and ident in item["url"]), None)
+            if match:
+                return match
+    except (OSError, ValueError, AttributeError):
+        pass
+    return news[0] if news else None
+
 
 def video_box(category, caption, link, cache):
     v = next((v for v in cache if v.get("category") == category
@@ -121,23 +157,26 @@ def amazon():
 
 def build_sidebar(kind, news, tech, gaming, videos):
     if not news:
-        return None # Never wipe the existing column on a partial import.
-    featured = feature("In evidenza",news[0],"/news.html")
-    recent = recent_list(news[1:5])
-    tech_module = mini_article("Tech Impact",tech[0] if tech else None,"/tech-today.html")
-    gaming_module = mini_article("Gaming Inside",gaming[0] if gaming else None,"/gaming-today.html")
-    reviews = video_box("recensioni","Recensioni","/recensioni.html",videos)
-    tests = video_box("test","Test","/test.html",videos)
-    unboxing = video_box("unboxing","Unboxing","/unboxing.html",videos)
-    gaming_video = video_box("gaming","Gaming","/gaming.html",videos)
-    choices={
-        "news":[featured,reviews,recent,tech_module,gaming_video,gaming_module],
-        "reviews":[featured,tests,recent,gaming_module,unboxing,tech_module],
-        "tech":[tech_module,reviews,recent,gaming_module,tests,featured],
-        "gaming":[gaming_module,gaming_video,recent,tech_module,reviews,featured],
-        "guides":[featured,recent,tech_module,unboxing,gaming_module,reviews],
+        return None  # Never wipe the sidebar after a partial import.
+    featured = feature("News in evidenza", featured_article(news), "/news.html")
+    all_news = recent_list(news)
+    tech_module = mini_article("Tech Impact", tech[0] if tech else None, "/tech-today.html")
+    gaming_module = mini_article("Gaming Inside", gaming[0] if gaming else None, "/gaming-today.html")
+    reviews = video_box("recensioni", "Recensioni", "/recensioni.html", videos)
+    tests = video_box("test", "Test", "/test.html", videos)
+    unboxing = video_box("unboxing", "Unboxing", "/unboxing.html", videos)
+    gaming_video = video_box("gaming", "Gaming", "/gaming.html", videos)
+    choices = {
+        "news": [reviews, all_news, tech_module, gaming_video, gaming_module],
+        "reviews": [tests, all_news, gaming_module, unboxing, tech_module],
+        "tech": [reviews, all_news, gaming_module, tests],
+        "gaming": [gaming_video, all_news, tech_module, reviews],
+        "guides": [all_news, tech_module, unboxing, gaming_module, reviews],
     }
-    return '<aside class="news-sidebar zt-side-mix">' + amazon() + "".join(x for x in choices[kind] if x) + '</aside>'
+    # Feature always on top, Amazon immediately below, then diversified blocks.
+    return ('<aside class="news-sidebar zt-side-mix">'
+            + featured + amazon() + "".join(x for x in choices[kind] if x)
+            + '</aside>')
 
 def page_kind(filename):
     if re.fullmatch(r'news(?:-\d+)?\.html',filename):
@@ -150,7 +189,7 @@ def page_kind(filename):
     return None
 
 def refresh_sidebars():
-    news = news_rows("news.html")
+    news = all_published_news()
     tech = news_rows("tech-today.html",3)
     gaming = news_rows("gaming-today.html",3)
     videos = video_cache()
