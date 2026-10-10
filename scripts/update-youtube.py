@@ -527,25 +527,42 @@ def update_home(vids, short_ids):
             block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
             h=h[:a]+block+h[b+6:]
 
-    # Keep the review carousel separate. "Ultimi Video" displays the six
-    # latest published long-form channel uploads in publication-date order,
-    # regardless of playlist category. Shorts have their own shelf.
-    # A completed livestream recording counts as GAMEPLAY, but currently
-    # active or scheduled streams are excluded.
-    stack=[]
-    for v in ordered:
-        if v["id"] in short_ids or bool(v.get("_cached_short")) or is_live_upload(v):
-            continue
-        ratio=video_aspect_ratio(v)
-        if ratio is not None and not (1.45 <= ratio <= 2.10):
-            continue
-        stack.append(v)
-        if len(stack)>=6:
-            break
+    # "Ultimi Video" is one latest 16:9 upload per editorial playlist,
+    # plus one latest completed stream archive labelled GAMEPLAY.
+    # The six distinct selections are then ordered by YouTube publish date.
+    # "Esplora Video" remains independent and retains channel playlist order.
+    selected={}
+    for category in ("recensioni","test","unboxing","gaming","analogiktek"):
+        selected[category]=next((
+            v for v in ordered
+            if classify(v)==category
+            and not is_completed_broadcast(v)
+            and is_true_landscape(v)
+        ),None)
 
+    # GAMEPLAY never duplicates a Gaming/other playlist tile and is shown once.
+    used={v["id"] for v in selected.values() if v}
+    gameplay=next((
+        v for v in ordered
+        if is_completed_broadcast(v)
+        and not is_live_upload(v)
+        and v["id"] not in short_ids
+        and not bool(v.get("_cached_short"))
+        and v["id"] not in used
+        and is_true_landscape(v)
+    ),None)
+    if gameplay:
+        selected["gameplay"]=gameplay
+
+    stack=sorted(
+        (v for v in selected.values() if v),
+        key=lambda v:v["snippet"]["publishedAt"],
+        reverse=True
+    )
+    gameplay_id=gameplay["id"] if gameplay else None
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
-        "\n".join(sidebar_stack_card(v,"gameplay" if is_completed_broadcast(v) else None) for v in stack)
+        "\n".join(sidebar_stack_card(v,"gameplay" if v["id"]==gameplay_id else None) for v in stack)
     )
     editorial_latest=stack[:5]
     # Right sidebar: exactly the five newest regular landscape uploads,
