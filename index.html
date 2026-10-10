@@ -739,33 +739,67 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
 </script>
 <script id="zt-editorial-feature-script">
 (function(){
- const root=document.getElementById('newsSlider');if(!root||root.dataset.editorialReady)return;
- root.dataset.editorialReady='1';const slides=[...root.querySelectorAll('.news-slide')];if(!slides.length)return;
- const entries=slides.slice(0,5).map((slide,i)=>{
-  const a=slide.querySelector('a'),img=a?.querySelector('img');
-  return {slide,i,href:a?.getAttribute('href')||'#',src:img?.getAttribute('src')||'',title:(img?.getAttribute('alt')||'Notizia ZazoomTek').replace(/^News:\s*/i,''),cat:(slide.dataset.trendCategory||'tech').toUpperCase()};
- });
- for(const e of entries){
-  const a=e.slide.querySelector('a');if(!a)continue;
-  const title=document.createElement('div');title.className='zt-editorial-copy';
-  title.innerHTML='<h2 class="zt-only-headline"></h2><span class="zt-editorial-link">Leggi la notizia completa ›</span>';
-  title.querySelector('h2').textContent=e.title;
-  a.appendChild(title);
- }
- const side=document.createElement('div');side.className='zt-editorial-side';side.setAttribute('aria-label','Seleziona una notizia in evidenza');
- entries.forEach((e,i)=>{
-  const b=document.createElement('button');b.type='button';b.className='zt-editorial-item';
-  const img=document.createElement('img');img.src=e.src;img.alt='';img.loading='lazy';
-  const info=document.createElement('span');info.className='zt-editorial-info';
-  const num=document.createElement('div');num.className='zt-editorial-num';num.textContent='0'+(i+1)+' · ';
-  const cat=document.createElement('span');cat.className='zt-editorial-cat';cat.textContent=e.cat;num.appendChild(cat);
-  const title=document.createElement('div');title.className='zt-editorial-headline';title.textContent=e.title;
-  info.append(num,title);b.append(img,info);
-  b.addEventListener('click',()=>{const all=[...root.querySelectorAll('.news-slide')];let current=all.findIndex(sl=>sl.classList.contains('active'));if(current<0)current=0;const steps=(i-current+all.length)%all.length;for(let j=0;j<steps;j++)document.getElementById('newsNext')?.click();update()});
-  side.appendChild(b);
- });root.appendChild(side);
- function update(){let idx=slides.findIndex(sl=>sl.classList.contains('active'));[...side.children].forEach((b,i)=>b.setAttribute('aria-current',String(i===idx)))}
- new MutationObserver(update).observe(root.querySelector('.news-slides'),{subtree:true,attributes:true,attributeFilter:['class']});update();
+  const root=document.getElementById('newsSlider');
+  if(!root||root.dataset.editorialReady)return;
+  root.dataset.editorialReady='1';
+  const slides=[...root.querySelectorAll('.news-slide')];
+  if(!slides.length)return;
+  const entries=slides.map((slide,i)=>{
+    const link=slide.querySelector('a'), image=link?.querySelector('img');
+    return {slide,index:i,src:image?.getAttribute('src')||'',
+      title:(image?.getAttribute('alt')||'Notizia ZazoomTek').trim(),
+      cat:(slide.dataset.trendCategory||'tech').toUpperCase()};
+  });
+  // Same presentation for EVERY slide, not just the first five.
+  entries.forEach(e=>{
+    const link=e.slide.querySelector('a');if(!link)return;
+    [...link.querySelectorAll('.zt-editorial-copy')].forEach(old=>old.remove());
+    const copy=document.createElement('div');copy.className='zt-editorial-copy';
+    const heading=document.createElement('h2');heading.className='zt-only-headline';
+    heading.textContent=e.title;
+    const read=document.createElement('span');read.className='zt-editorial-link';
+    read.textContent='Leggi la notizia completa ›';
+    copy.append(heading,read);link.append(copy);
+  });
+  const side=document.createElement('div');side.className='zt-editorial-side';
+  side.setAttribute('aria-label','Altre notizie in evidenza');
+  root.appendChild(side);
+  let displayedStart=-1;
+  function activeIndex(){return Math.max(0,slides.findIndex(el=>el.classList.contains('active')))}
+  function pick(i){
+    const current=activeIndex(); const steps=(i-current+slides.length)%slides.length;
+    const next=document.getElementById('newsNext');
+    if(next){for(let j=0;j<steps;j++)next.click()}
+    update();
+  }
+  function renderGroup(start){
+    side.replaceChildren();
+    entries.slice(start,start+5).forEach(e=>{
+      const button=document.createElement('button');button.type='button';button.className='zt-editorial-item';
+      button.setAttribute('aria-label','Seleziona: '+e.title);
+      const image=document.createElement('img');image.src=e.src;image.alt='';image.loading='lazy';
+      const info=document.createElement('span');info.className='zt-editorial-info';
+      const meta=document.createElement('div');meta.className='zt-editorial-num';
+      meta.textContent=String(e.index+1).padStart(2,'0')+' · ';
+      const cat=document.createElement('span');cat.className='zt-editorial-cat';cat.textContent=e.cat;
+      meta.append(cat);
+      const title=document.createElement('div');title.className='zt-editorial-headline';title.textContent=e.title;
+      info.append(meta,title);button.append(image,info);
+      button.addEventListener('click',()=>pick(e.index));side.appendChild(button);
+    });
+    displayedStart=start;
+  }
+  function update(){
+    const current=activeIndex();
+    // The sidebar displays five news at a time and follows the carousel.
+    const start=Math.floor(current/5)*5;
+    if(start!==displayedStart)renderGroup(start);
+    [...side.children].forEach((button,i)=>button.setAttribute('aria-current',String(start+i===current)));
+  }
+  new MutationObserver(update).observe(root.querySelector('.news-slides'),{
+    subtree:true,attributes:true,attributeFilter:['class']
+  });
+  update();
 })();
 </script>
 </body>
