@@ -527,61 +527,27 @@ def update_home(vids, short_ids):
             block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
             h=h[:a]+block+h[b+6:]
 
-    # The main Home carousel is now reserved for the latest written reviews
-    # and is managed by update-youtube-posts.py. Keep the five newest landscape
-    # video IDs only for sidebar de-duplication; do not rewrite the Home carousel.
-    editorial_latest=[]
-    for v in ordered:
-        if is_true_landscape(v):
-            editorial_latest.append(v)
-            if len(editorial_latest)>=5:
-                break
-    editorial_latest_ids={v["id"] for v in editorial_latest}
-
-    # Unified Home sidebar: exactly one newest valid 16:9 video
-    # from each editorial category. No filler/extra videos.
+    # Keep the review carousel separate. "Ultimi Video" displays the six
+    # latest published long-form channel uploads in publication-date order,
+    # regardless of playlist category. Shorts have their own shelf.
+    # A completed livestream recording counts as GAMEPLAY, but currently
+    # active or scheduled streams are excluded.
     stack=[]
-    used=set()
-    for category in ["recensioni","test","unboxing","gaming","analogiktek"]:
-        candidate=next(
-            (
-                v for v in ordered
-                if classify(v)==category
-                and not is_completed_broadcast(v)
-                and is_true_landscape(v)
-                and v["id"] not in used
-            ),
-            None
-        )
-        if candidate:
-            stack.append(candidate)
-            used.add(candidate["id"])
-
-    # Dedicated GAMEPLAY: latest completed livestream, not an older duplicate.
-    # Its category is independent of the Gaming playlist.
-    gameplay=next(
-        (
-            v for v in ordered
-            if is_completed_broadcast(v)
-            and not is_live_upload(v)
-            and v["id"] not in short_ids
-            and v["id"] not in used
-            and (video_aspect_ratio(v) is None or 1.70 <= video_aspect_ratio(v) <= 1.82)
-        ),None
-    )
-    gameplay_id=gameplay["id"] if gameplay else None
-    if gameplay:
-        stack.append(gameplay)
-        used.add(gameplay_id)
-
-    # Preserve the official channel playlist order rather than global recency:
-    # Recensioni, Test, Unboxing, Gaming, AnalogikTek; GAMEPLAY always last.
-    # Recent uploads are still selected *within* each category.
+    for v in ordered:
+        if v["id"] in short_ids or bool(v.get("_cached_short")) or is_live_upload(v):
+            continue
+        ratio=video_aspect_ratio(v)
+        if ratio is not None and not (1.45 <= ratio <= 2.10):
+            continue
+        stack.append(v)
+        if len(stack)>=6:
+            break
 
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
-        "\n".join(sidebar_stack_card(v,"gameplay" if v["id"]==gameplay_id else None) for v in stack)
+        "\n".join(sidebar_stack_card(v,"gameplay" if is_completed_broadcast(v) else None) for v in stack)
     )
+    editorial_latest=stack[:5]
     # Right sidebar: exactly the five newest regular landscape uploads,
     # ordered newest -> oldest. The visual carousel itself lives in index.html.
     h=replace_marker_block(
