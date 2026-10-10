@@ -175,7 +175,7 @@ def build_sidebar(kind, news, tech, gaming, videos):
     choices = {
         "news": [reviews, all_news, tech_module, gaming_video, gaming_module],
         "reviews": [tests, all_news, gaming_module, unboxing, tech_module],
-        "tech": [reviews, all_news, gaming_module, tests],
+        "tech": [gaming_module, reviews, all_news, tests],
         "gaming": [tech_module, gaming_video, all_news, reviews],
         "guides": [all_news, tech_module, unboxing, gaming_module, reviews],
     }
