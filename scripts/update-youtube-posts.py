@@ -1369,7 +1369,7 @@ def news_title(p):
     first=lines[0].strip()
     if first.lower().rstrip(":")=="news" and len(lines)>1:
         return lines[1]
-    return first
+    return re.sub(r"(?i)^news\s*:\s*", "", first).strip() or "News ZazoomTek"
 
 def news_slug(p):
     return "news-"+p["id"]+".html"
