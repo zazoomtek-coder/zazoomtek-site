@@ -1067,7 +1067,7 @@ def rich_review_header():
         '<header class="zt-header"><div class="zt-wrap zt-headrow">'
         '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
         '<nav class="zt-nav">'
-        '<a href="/">Home</a><a href="/news.html">News</a><a class="active" href="/recensioni-scritte.html">Recensioni</a><a href="/tech-today.html">Tech Impact</a><a href="/gaming-today.html">Gaming Inside</a>'
+        '<a href="/">Home</a><a href="/news.html">News</a><a class="active" href="/recensioni-scritte.html">Recensioni</a><a href="/guide.html">Guide</a><a href="/tech-today.html">Tech Impact</a><a href="/gaming-today.html">Gaming Inside</a>'
         '<a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a>'
         '<a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a>'
         '</nav>'
