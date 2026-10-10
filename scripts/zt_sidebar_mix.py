@@ -100,10 +100,14 @@ def all_published_news():
     return results
 
 
-def recent_list(items):
-    """The six most recent unique News posts, image left and regular title right."""
+def recent_list(items, kind="news"):
+    """Six latest real news or reviews, with image left and normal-weight title right."""
     if not items:
         return ""
+    is_review = kind == "reviews"
+    link = "/recensioni-scritte.html" if is_review else "/news.html"
+    heading = "Ultime Recensioni" if is_review else "Ultime News"
+    cta = "Tutte le recensioni →" if is_review else "Tutte le notizie →"
     rows = []
     seen = set()
     for item in items:
@@ -119,11 +123,11 @@ def recent_list(items):
             break
     return ('<section class="side-box zt-mix-recent">'
             '<div class="zt-mix-news-heading">'
-            '<a class="module-title" href="/news.html">Ultime News</a>'
-            '<a class="zt-mix-header-more" href="/news.html" aria-label="Vedi tutte le news">VEDI →</a>'
+            f'<a class="module-title" href="{link}">{heading}</a>'
+            f'<a class="zt-mix-header-more" href="{link}" aria-label="Vedi {heading.lower()}">VEDI →</a>'
             '</div>'
             '<div class="zt-mix-recent-list">' + "".join(rows) + '</div>'
-            '<a class="zt-mix-news-all" href="/news.html">Tutte le notizie →</a>'
+            f'<a class="zt-mix-news-all" href="{link}">{cta}</a>'
             '</section>')
 
 
@@ -166,6 +170,7 @@ def build_sidebar(kind, news, tech, gaming, videos):
         return None  # Never wipe the sidebar after a partial import.
     featured = feature("News in evidenza", featured_article(news), "/news.html")
     all_news = recent_list(news)
+    last_reviews = recent_list(news_rows("recensioni-scritte.html", max_count=6), "reviews")
     tech_module = mini_article("Tech Impact", tech[0] if tech else None, "/tech-today.html")
     gaming_module = mini_article("Gaming Inside", gaming[0] if gaming else None, "/gaming-today.html")
     reviews = video_box("recensioni", "Recensioni", "/recensioni.html", videos)
@@ -173,8 +178,8 @@ def build_sidebar(kind, news, tech, gaming, videos):
     unboxing = video_box("unboxing", "Unboxing", "/unboxing.html", videos)
     gaming_video = video_box("gaming", "Gaming", "/gaming.html", videos)
     choices = {
-        "news": [reviews, all_news, tech_module, gaming_video, gaming_module],
-        "reviews": [tests, all_news, gaming_module, unboxing, tech_module],
+        "news": [last_reviews, reviews, tech_module, gaming_video, gaming_module],
+        "reviews": [all_news, tests, gaming_module, unboxing, tech_module],
         "tech": [gaming_module, reviews, all_news, tests],
         "gaming": [tech_module, gaming_video, all_news, reviews],
         "guides": [all_news, tech_module, unboxing, gaming_module, reviews],
