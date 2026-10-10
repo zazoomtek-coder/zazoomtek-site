@@ -230,6 +230,10 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 #newsSlider .news-slide>a{display:block;height:100%;position:relative}
 #newsSlider .news-slide img{height:100%!important;width:100%!important;object-fit:cover!important;object-position:center!important}
 #newsSlider .news-slide>a:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(3,7,15,.98) 0%,rgba(3,7,15,.85) 26%,transparent 78%),linear-gradient(to right,rgba(3,7,15,.6),transparent 78%)}
+/* Cover YouTube gia' titolata: immagine originale brillante, senza testo o velo scuro. */
+#newsSlider .news-slide.zt-cover-with-text>a:after{display:none!important}
+#newsSlider .news-slide.zt-cover-with-text .zt-editorial-copy{display:none!important}
+#newsSlider .news-slide.zt-cover-with-text img{filter:none!important;opacity:1!important}
 #newsSlider .zt-editorial-copy{position:absolute;bottom:5%;left:5%;width:89%;z-index:3;pointer-events:none;text-shadow:0 2px 6px #000}
 #newsSlider .zt-editorial-kicker{color:#acb7ff;font-size:clamp(9px,1vw,13px);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
 #newsSlider .zt-editorial-title{color:#fff;font-size:clamp(15px,2.15vw,30px);line-height:1.08;max-width:90%;font-weight:950;margin:9px 0 11px}
@@ -767,9 +771,16 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
       title:(image?.getAttribute('alt')||'Notizia ZazoomTek').trim(),
       cat:(slide.dataset.trendCategory||'tech').toUpperCase()};
   });
-  // Same presentation for EVERY slide, not just the first five.
+  // Le miniature create per i post YouTube sono normalmente gia' titolate.
+  // Un eventuale data-cover-text="false" forza il titolo bianco anche per YouTube;
+  // data-cover-text="true" lo elimina anche per altre copertine.
   entries.forEach(e=>{
     const link=e.slide.querySelector('a');if(!link)return;
+    const explicit=e.slide.getAttribute('data-cover-text');
+    const youtubeCover=/^(https?:)?\\/\\/(?:yt3\\.ggpht\\.com|i\\.ytimg\\.com|img\\.youtube\\.com)\\//i.test(e.src);
+    const hasText=explicit==='true'||(explicit!=='false'&&youtubeCover);
+    e.slide.classList.toggle('zt-cover-with-text',hasText);
+    e.slide.classList.toggle('zt-cover-needs-title',!hasText);
     [...link.querySelectorAll('.zt-editorial-copy')].forEach(old=>old.remove());
     const copy=document.createElement('div');copy.className='zt-editorial-copy';
     const heading=document.createElement('h2');heading.className='zt-only-headline';
