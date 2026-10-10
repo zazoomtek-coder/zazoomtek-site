@@ -2,8 +2,8 @@
 """Promote only existing ZazoomTek news by comparison with ten Italian publishers.
 
 --sources: read public homepage headlines and RSS fallbacks (no article bodies).
---apply: use cached trend headlines to reshuffle 10 existing ZazoomTek carousel
-         links, and cross-list eligible own news in the two dedicated archives.
+--apply: use cached trend headlines to select 2 Tech + 2 Gaming regular NEWS;
+         import 1 Tech Impact + 1 Gaming Inside from their independent feed.
 --test:   deterministic matcher and placement checks, no network or writes.
 
 No third-party content/images are imported into published pages.
@@ -276,30 +276,78 @@ def matches(owned,state):
     return owned
 
 def pick(articles):
-    for a in articles:a["promoted_section"]=a["section"]
-    ordinary_tech=sorted((a for a in articles if a["section"]=="tech"),key=lambda a:(a["trend_score"],a["freshness"]),reverse=True)
-    ordinary_game=sorted((a for a in articles if a["section"]=="gaming"),key=lambda a:(a["trend_score"],a["freshness"]),reverse=True)
-    special_tech=sorted((a for a in articles if a["section"]=="tech-impact"),key=lambda a:(a["trend_score"],a["freshness"]),reverse=True)
-    special_game=sorted((a for a in articles if a["section"]=="gaming-inside"),key=lambda a:(a["trend_score"],a["freshness"]),reverse=True)
-    has_st=any(a["trend_score"]>=55 for a in special_tech)
-    has_sg=any(a["trend_score"]>=55 for a in special_game)
-    if has_st and has_sg:quotas=[(special_tech,2),(special_game,2),(ordinary_tech,3),(ordinary_game,3)]
-    elif has_st:quotas=[(special_tech,2),(ordinary_tech,4),(ordinary_game,4)]
-    elif has_sg:quotas=[(special_game,2),(ordinary_tech,4),(ordinary_game,4)]
-    else:quotas=[(ordinary_tech,5),(ordinary_game,5)]
-    chosen=[];seen=set()
+    """Match ten large portals, but fill ONLY the four ordinary NEWS slots.
+
+    Tech Impact/Gaming Inside have their own publishing and featured selection:
+    import exactly their first approved item from special-featured.json without
+    ranking, rewriting or publishing anything for those special desks.
+    """
+    chosen = []
+    seen = set()
+
     def add(article):
-        if article["url"] in seen:return
-        seen.add(article["url"]);chosen.append(article)
-    for group,n in quotas:
-        for x in group[:n]:add(x)
-    # Do not duplicate or fabricate articles; rebalance slots if fewer than 10.
-    rest=sorted(ordinary_tech+ordinary_game+special_tech+special_game,
-                key=lambda a:(a["trend_score"],a["freshness"]),reverse=True)
-    for a in rest:
-        if len(chosen)>=10:break
-        add(a)
-    return chosen[:10]
+        if article["url"] in seen:
+            return False
+        seen.add(article["url"])
+        chosen.append(article)
+        return True
+
+    standard_feed = json.loads((ROOT / "standard-news.json").read_text(encoding="utf-8")).get("articles", [])
+    for kind in ("tech", "gaming"):
+        ordinary = sorted(
+            (a for a in articles if a["section"] == kind and a["url"].startswith("/news-")),
+            key=lambda a: (a["trend_score"] > 0, a["trend_score"], a["freshness"]),
+            reverse=True,
+        )
+        count = 0
+        for article in ordinary:
+            if count == 2:
+                break
+            count += add(article)
+
+        # Keep the quota even if a source temporarily has few matching stories.
+        # Fallback is still an already-published ZazoomTek editorial article.
+        for x in standard_feed:
+            if count == 2:
+                break
+            if x.get("kind") != kind:
+                continue
+            slug = x["slug"]
+            url = "/news-" + slug + ".html"
+            image = "/assets/special/news-" + slug + ".webp"
+            if not (ROOT / url.lstrip("/")).is_file() or not (ROOT / image.lstrip("/")).is_file():
+                continue
+            count += add({"url": url, "title": x["title"], "image": image,
+                          "section": kind, "trend_score": 0, "freshness": 0,
+                          "matched_sources": [], "summary": ""})
+        if count != 2:
+            raise RuntimeError("Not enough existing published ZazoomTek " + kind + " NEWS")
+
+    special_feed = json.loads((ROOT / "special-featured.json").read_text(encoding="utf-8")).get("items", [])
+    for kind, section, prefix in (("tech", "tech-impact", "tech-impact-"),
+                                  ("gaming", "gaming-inside", "gaming-inside-")):
+        # Preserve editorial priority set by the independent special-news script.
+        items = [x for x in special_feed if x.get("section") == kind]
+        if not items:
+            raise RuntimeError("Missing " + section + " from independent special feed")
+        item = items[0]
+        slug = item.get("slug", "")
+        image = item.get("image", "")
+        if not slug.startswith(prefix) or not slug.endswith(".html"):
+            raise RuntimeError("Invalid " + section + " slug: " + slug)
+        if not image.startswith("/assets/special/") or not (ROOT / slug).is_file() or not (ROOT / image.lstrip("/")).is_file():
+            raise RuntimeError("Special page/cover unavailable: " + slug)
+        if not add({"url": "/" + slug, "title": item["title"], "image": image,
+                    "section": section, "trend_score": 0, "freshness": 0,
+                    "matched_sources": [], "summary": ""}):
+            raise RuntimeError("Duplicate special URL: " + slug)
+
+    quota = {section: sum(x["section"] == section for x in chosen)
+             for section in ("tech", "gaming", "tech-impact", "gaming-inside")}
+    if len(chosen) != 6 or quota != {"tech": 2, "gaming": 2, "tech-impact": 1, "gaming-inside": 1}:
+        raise RuntimeError("Featured 2+2+1+1 quota violation: " + str(quota))
+    return chosen
+
 
 def slide_markup(chosen):
     cards=[]
@@ -364,12 +412,10 @@ def apply():
     articles=matches(owned_candidates(),state)
     matched=[x for x in articles if x["trend_score"]>0]
     if not matched:
-        print("NO RELIABLE TREND MATCHES: preserving existing carousel and special pages")
-        REPORT.write_text(json.dumps({"checked_at":NOW().isoformat(),"matches":0,
-             "note":"No new promotion until same-event trend matches exist."},indent=2)+"\n")
-        return
+        print("NO RELIABLE TREND MATCHES: using latest own published standard news and the independent special feed")
     chosen=pick(articles)
-    if len(chosen)<8:raise RuntimeError("Insufficient own published news for a balanced slider")
+    if len(chosen) != 6:
+        raise RuntimeError("Carousel must contain exactly 6 articles")
     index=INDEX.read_text(encoding="utf-8")
     index=set_featured(index,chosen)
     index=omit_from_home_feed(index,chosen)
@@ -386,7 +432,7 @@ def apply():
                         for a in chosen]}
     REPORT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("MATCHED OWN NEWS:",len(matched))
-    print("CAROUSEL 10:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
+    print("CAROUSEL 6:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
                                     for a in chosen],ensure_ascii=False))
 
 def selftest():
@@ -407,6 +453,16 @@ def selftest():
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
     assert classify("ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC")=="gaming"
     assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
+    # Verify the 2+2+1+1 quota without public network requests.
+    fake = []
+    for kind in ("tech", "gaming"):
+        for i in range(3):
+            fake.append({"url": f"/news-selftest-{kind}-{i}.html", "title": f"Test {kind} {i}",
+                         "image": "/ChatGPT.png", "section": kind, "trend_score": 88-i*9,
+                         "freshness": 70-i, "matched_sources": []})
+    sample = pick(fake)
+    assert len(sample) == 6
+    assert [x["section"] for x in sample] == ["tech", "tech", "gaming", "gaming", "tech-impact", "gaming-inside"]
     assert len(SITES)==10 and len({s[0] for s in SITES})==10
     print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
 
