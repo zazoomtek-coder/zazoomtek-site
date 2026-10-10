@@ -2,10 +2,11 @@
 """Ensure the site-wide CSS before Firebase deploy, including generated pages."""
 from pathlib import Path
 from zt_footer import unify_footer
+from zt_sidebar_mix import refresh_sidebars
 import re
 
 root=Path(__file__).resolve().parents[1]
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261010mastheadblue" data-zt-design="20261010">'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261010mixedsidebar" data-zt-design="20261010">'
 js_tag='<script src="/zt-visual.js?v=20261010" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
@@ -17,7 +18,7 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261010mastheadblue",html,count=1)
+                    "/zt-design.css?v=20261010mixedsidebar",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' not in html:
@@ -33,3 +34,6 @@ for path in root.rglob('*.html'):
         path.write_text(html,encoding='utf-8')
         changed+=1
 print(f"ZazoomTek: shared design ensured on {changed} HTML pages.")
+
+# Keep archive columns editorially varied after every Firebase build.
+refresh_sidebars()
