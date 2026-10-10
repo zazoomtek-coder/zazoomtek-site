@@ -302,3 +302,16 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
   .zt-unified-footer .footer-main-nav {column-gap:17px;row-gap:10px;}
   .zt-unified-footer .footer-links,.zt-unified-footer .legal-links {gap:10px 14px;}
 }
+
+
+/* ZazoomTek.it masthead wordmark in official blue + red, consistent on all pages. */
+.topbar .brand,.zt-header .zt-brand{gap:11px;align-items:center;min-width:0}
+.topbar .brand .brand-logo-img,.zt-header .zt-brand > img{width:60px;height:60px;flex:0 0 60px;max-width:60px;object-fit:contain;border-radius:8px}
+.topbar .brand .zt-brand-copy,.zt-header .zt-brand .zt-brand-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:6px}
+.topbar .brand .zt-wordmark,.zt-header .zt-brand .zt-wordmark{display:block;color:#fff;font-family:Arial,Helvetica,sans-serif;font-size:clamp(19px,1.45vw,24px);line-height:1;letter-spacing:-.055em;font-weight:900;text-transform:uppercase;white-space:nowrap}
+.topbar .brand .zt-wordmark .zt-mark-blue,.zt-header .zt-brand .zt-mark-blue{color:#58a8f0}
+.topbar .brand .zt-wordmark .zt-mark-red,.zt-header .zt-brand .zt-mark-red{color:#e41b45}
+.topbar .brand .zt-wordmark .zt-mark-tld,.zt-header .zt-brand .zt-mark-tld{color:#fff;font-size:.54em;vertical-align:baseline;letter-spacing:-.025em;text-transform:none}
+.topbar .brand .zt-brand-tagline,.zt-header .zt-brand .zt-brand-tagline{display:block;color:#a2a4aa;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.065em;line-height:1.2;font-weight:400;white-space:nowrap;margin:0}
+@media(max-width:1230px){.topbar .brand .zt-wordmark,.zt-header .zt-brand .zt-wordmark{font-size:20px}.topbar .brand .brand-logo-img,.zt-header .zt-brand > img{width:53px;height:53px;flex-basis:53px}.topbar .brand .zt-brand-tagline,.zt-header .zt-brand .zt-brand-tagline{font-size:9px}}
+@media(max-width:420px){.topbar .brand .zt-wordmark,.zt-header .zt-brand .zt-wordmark{font-size:20px}.topbar .brand .zt-brand-tagline,.zt-header .zt-brand .zt-brand-tagline{font-size:9px}}

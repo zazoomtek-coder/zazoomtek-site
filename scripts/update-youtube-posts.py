@@ -944,7 +944,7 @@ def rich_editorial_header(active="news"):
         return f'<a class="{cls.strip()}" href="{href}"{ext}>{label}</a>' if cls else f'<a href="{href}"{ext}>{label}</a>'
     return (
         '<header class="zt-header"><div class="zt-wrap zt-headrow">'
-        '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
+        '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><span class="zt-brand-copy"><strong class="zt-wordmark" aria-label="ZazoomTek.it"><span class="zt-mark-blue" aria-hidden="true">ZAZOOM</span><span class="zt-mark-red" aria-hidden="true">TEK</span><span class="zt-mark-tld" aria-hidden="true">.it</span></strong><small class="zt-brand-tagline">TECH · GAMING · COMMUNITY</small></span></a>'
         '<nav class="zt-nav">'
         +nav("Home","/","home")+nav("News","/news.html","news")+nav("Recensioni","/recensioni-scritte.html","recensioni")+nav("Guide","/guide.html","guide")+nav("Tech Impact","/tech-today.html","tech-today")+nav("Gaming Inside","/gaming-today.html","gaming-today")
         +nav("Community","https://www.youtube.com/@ZazoomTek/posts","community")+nav("Video","https://www.youtube.com/@ZazoomTek/videos","video")
@@ -1063,7 +1063,7 @@ def editorial_header(active=""):
 def rich_review_header():
     return (
         '<header class="zt-header"><div class="zt-wrap zt-headrow">'
-        '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong></a>'
+        '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><span class="zt-brand-copy"><strong class="zt-wordmark" aria-label="ZazoomTek.it"><span class="zt-mark-blue" aria-hidden="true">ZAZOOM</span><span class="zt-mark-red" aria-hidden="true">TEK</span><span class="zt-mark-tld" aria-hidden="true">.it</span></strong><small class="zt-brand-tagline">TECH · GAMING · COMMUNITY</small></span></a>'
         '<nav class="zt-nav">'
         '<a href="/">Home</a><a href="/news.html">News</a><a class="active" href="/recensioni-scritte.html">Recensioni</a><a href="/guide.html">Guide</a><a href="/tech-today.html">Tech Impact</a><a href="/gaming-today.html">Gaming Inside</a>'
         '<a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a>'
