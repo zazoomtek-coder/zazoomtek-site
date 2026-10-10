@@ -127,11 +127,13 @@ def slide_block(standard, special):
         active = " active" if i == 0 else ""
         image = str(item["image"])
         # A YouTube thumbnail normally already carries its editorial lettering.
-        has_text = any(host in image for host in ("yt3.ggpht.com/", "i.ytimg.com/", "img.youtube.com/"))
+        # All current featured artwork (standard news and specials) already has its title baked in.
+        # Allow explicit future overrides for genuinely text-free images.
+        has_text = item.get("cover_has_text", True) is not False
         cover_class = " zt-cover-with-text" if has_text else " zt-cover-needs-title"
         title = esc(re.sub(r"(?i)^news\\s*:\\s*", "", str(item["title"])))
         slides.append(
-            '<article class="news-slide' + active + cover_class + '" data-slide="' + str(i) +
+            '<article class="news-slide' + active + cover_class + '" data-cover-text="' + ('true' if has_text else 'false') + '" data-slide="' + str(i) +
             '" data-trend-category="' + esc(item["section"]) + '"><a href="' + esc(item["url"]) + '">'
             '<img src="' + esc(image) + '" alt="' + title + '" loading="lazy"></a></article>'
         )
