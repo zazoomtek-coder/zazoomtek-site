@@ -3,6 +3,8 @@
  'use strict';
  function enhanceHomeSlider(){
   document.querySelectorAll('.news-slide').forEach(function(slide){
+   // Il carosello News in evidenza gestisce da solo le cover: mai duplicare testi.
+   if(slide.closest('#newsSlider'))return;
    if(slide.querySelector('.zt-slide-overlay,.news-slide-copy'))return;
    var img=slide.querySelector('img[alt]');
    if(!img || !img.alt.trim())return;
