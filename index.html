@@ -257,6 +257,20 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 /* zt-visual.js injects an older CTA and headline into every slide. Hide its entire overlay, preserving the single editorial headline + CTA. */
 #newsSlider .news-slide .zt-slide-overlay{display:none!important}
 #newsSlider .news-slide .news-slide-copy{display:none!important}
+/* Anteprima: miniature laterali più grandi, testo più compatto; il resto della Home resta invariato */
+#newsSlider .zt-editorial-item{gap:7px!important;padding:5px 6px!important}
+#newsSlider .zt-editorial-item[aria-current="true"]{padding-left:3px!important}
+#newsSlider .zt-editorial-item img{width:54%!important;height:93%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:2px!important}
+#newsSlider .zt-editorial-info{min-width:0!important;align-self:center}
+#newsSlider .zt-editorial-num{font-size:clamp(7px,.61vw,9px)!important;line-height:1.1!important;margin-bottom:4px!important;letter-spacing:.04em}
+#newsSlider .zt-editorial-headline{font-size:clamp(8px,.70vw,10px)!important;font-weight:650!important;line-height:1.24!important;-webkit-line-clamp:4!important;overflow:hidden!important}
+@media(max-width:650px){
+  #newsSlider .zt-editorial-item{gap:3px!important;padding:3px!important}
+  #newsSlider .zt-editorial-item img{width:43%!important;height:92%!important}
+  #newsSlider .zt-editorial-headline{font-size:7px!important;line-height:1.17!important;-webkit-line-clamp:3!important}
+  #newsSlider .zt-editorial-num{font-size:7px!important;margin-bottom:2px!important}
+}
+
 </style>
 </head>
 <body>
