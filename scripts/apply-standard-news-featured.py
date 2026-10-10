@@ -325,7 +325,7 @@ def main():
     if not 1 <= slide_count <= 10 or 'class="news-tab' in feature:
         raise RuntimeError("Full-width photo-only carousel validation failed")
     home_feed=s[s.index(FEED_START)+len(FEED_START):s.index(FEED_END)]
-    if len(re.findall(r'<article\\b[^>]*class="article-row"',home_feed)) != 15:
+    if len(re.findall(r'<article\b[^>]*class="article-row"',home_feed)) != 15:
         raise RuntimeError("Home must show exactly 15 article rows")
 
     # Special/oversight stories belong only to their dedicated archives.
