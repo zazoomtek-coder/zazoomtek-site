@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-10T16:51:17.250818+00:00",
+  "checked_at": "2026-10-10T17:02:30.076915+00:00",
   "source_sites": 10,
   "matches": 4,
   "selected": [
@@ -28,27 +28,6 @@
           "score": 0.5664
         }
       ]
-    },
-    {
-      "title": "News: Adobe collega Claude Motion a Firefly Video Editor con “Send to Adobe”",
-      "section": "tech",
-      "url": "/news-UgkxRX5kd1mJsuqOfL803oOY1KYdc3cthHbb.html",
-      "trend_score": 0,
-      "sources": []
-    },
-    {
-      "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
-      "section": "tech",
-      "url": "/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.html",
-      "trend_score": 0,
-      "sources": []
-    },
-    {
-      "title": "News: Sony ECM-AX10 porta l’audio spaziale professionale sugli smartphone",
-      "section": "tech",
-      "url": "/news-UgkxSLVy8d-ZS0VYmC3f4aXFW7LCaKQ2q5AO.html",
-      "trend_score": 0,
-      "sources": []
     },
     {
       "title": "News: The Talos Principle 3 mostra il primo gameplay: l'Anomalia e nuovi enigmi nel capitolo finale della trilogia",
@@ -97,23 +76,16 @@
       ]
     },
     {
-      "title": "News: Battlefield 6 Stagione 5 porta la guerra a Las Vegas con tre nuove mappe, Rapid Royale e crossover Dead Space",
-      "section": "gaming",
-      "url": "/news-UgkxnhcQnMs37VSNzyLG45qciYrpRf-UCrx4.html",
+      "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
+      "section": "tech-impact",
+      "url": "/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html",
       "trend_score": 0,
       "sources": []
     },
     {
-      "title": "News: Tower Tactics II entra in Accesso Anticipato su Steam con oltre 190 carte e 150 gingilli",
-      "section": "gaming",
-      "url": "/news-Ugkxfsd8trxein5rQ0XB_q12VqIFPAZ9mgzR.html",
-      "trend_score": 0,
-      "sources": []
-    },
-    {
-      "title": "News: Dragon’s Dogma 2: Dark Arisen è disponibile con nuova regione, modalità Difficile e aggiornamento 4.0",
-      "section": "gaming",
-      "url": "/news-UgkxT_ejrIVnCp0dN2Na_0JgBwXQS7nqESBD.html",
+      "title": "EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori",
+      "section": "gaming-inside",
+      "url": "/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html",
       "trend_score": 0,
       "sources": []
     }
