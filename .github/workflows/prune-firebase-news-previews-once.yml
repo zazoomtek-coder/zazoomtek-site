@@ -46,3 +46,40 @@ jobs:
               subprocess.run(['firebase','hosting:channel:delete',name,'--project','zazomtek','--force'],check=True)
           print('Cleanup complete; live channel was not touched',flush=True)
           PY
+
+      - name: Delete only Firebase Hosting versions already EXPIRED
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet google-auth requests
+          python3 - <<'PY'
+          import collections
+          from google.auth import default
+          from google.auth.transport.requests import AuthorizedSession
+          credentials,_=default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+          session=AuthorizedSession(credentials)
+          base="https://firebasehosting.googleapis.com/v1beta1"
+          for site in ("zazoomtek","zazomtek"):
+              versions=[]
+              token=""
+              for page in range(12):
+                  params={"pageSize":"100"}
+                  if token: params["pageToken"]=token
+                  response=session.get(f"{base}/sites/{site}/versions",params=params,timeout=30)
+                  if not response.ok:
+                      print("Cannot inspect",site,response.status_code,response.text[:200],flush=True)
+                      break
+                  payload=response.json()
+                  versions.extend(payload.get("versions",[]))
+                  token=payload.get("nextPageToken","")
+                  if not token:break
+              counts=collections.Counter(v.get("status","?") for v in versions)
+              print("Hosting versions",site,len(versions),dict(counts),flush=True)
+              expired=[v for v in versions if v.get("status")=="EXPIRED"]
+              for version in expired[:80]:
+                  name=version["name"]
+                  if not name.startswith(f"sites/{site}/versions/"):continue
+                  reply=session.delete(f"{base}/{name}",timeout=30)
+                  print("Delete expired version",name,"status",reply.status_code,flush=True)
+              print("Only EXPIRED versions targeted; live FINALIZED versions untouched.",flush=True)
+          PY
