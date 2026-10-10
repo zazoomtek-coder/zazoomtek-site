@@ -50,7 +50,7 @@ svela svelato ecco cosa quanto quando potrebbe alcune dello quindi ecco grande g
 2026 2027 italia italiano italiana italiani italiane davvero meglio annuncia annunciato annunciate
 """.split())
 GAMING=set("""ps5 ps4 playstation xbox nintendo switch steam videogiochi videogioco gaming
-giochi gioco fifa ea games game forza horizon gta rockstar ubisoft capcom sega sony
+giochi gioco fifa ea games game forza horizon gta rockstar ubisoft capcom sega
 final fantasy battlefield mario zelda pokemon Pokémon playstation pc gamer remaster dlc""".lower().split())
 POLICY=set("""legge leggi norme normative normativa rimborsi rimborso tutela regolamento regolamenti antitrust agcm garante
 privacy censura censurare censurato censurati tribunale giudice giudici governo parlamentare
@@ -78,7 +78,7 @@ def classify(title,hint=""):
     words=set(title.split())
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
-    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima)\b",original))
+    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     return "gaming" if gaming or hint=="gaming" else "tech"
@@ -240,7 +240,7 @@ def owned_candidates():
     by_url={}
     for i,x in enumerate(regular+special):
         if x["url"] in by_url:continue
-        x["section"]=x.get("section") or classify(x["title"])
+        x["section"]=x.get("section") or classify(x["title"]+" "+x.get("summary",""))
         x["freshness"]=max(0,80-i)
         by_url[x["url"]]=x
     return list(by_url.values())
@@ -398,6 +398,10 @@ def selftest():
     assert classify("Nintendo Switch riceve un gioco Zelda")=="gaming"
     assert classify("ACE COMBAT 8 supera un milione di copie vendute")=="gaming"
     assert classify("The Talos Principle 3 mostra gameplay e trailer")=="gaming"
+    assert classify("Sony ECM-AX10 porta audio spaziale professionale su smartphone")=="tech"
+    assert classify("Dragon’s Dogma 2: Dark Arisen disponibile il nuovo aggiornamento")=="gaming"
+    assert classify("Beyond the Dark: Nightwatch horror cooperativo in uscita")=="gaming"
+    assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
     assert len(SITES)==10 and len({s[0] for s in SITES})==10
     print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
 
