@@ -777,7 +777,7 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
   entries.forEach(e=>{
     const link=e.slide.querySelector('a');if(!link)return;
     const explicit=e.slide.getAttribute('data-cover-text');
-    const youtubeCover=/^(https?:)?\\/\\/(?:yt3\\.ggpht\\.com|i\\.ytimg\\.com|img\\.youtube\\.com)\\//i.test(e.src);
+    const youtubeCover=['yt3.ggpht.com/','i.ytimg.com/','img.youtube.com/'].some(host=>e.src.includes(host));
     const hasText=explicit==='true'||(explicit!=='false'&&youtubeCover);
     e.slide.classList.toggle('zt-cover-with-text',hasText);
     e.slide.classList.toggle('zt-cover-needs-title',!hasText);
