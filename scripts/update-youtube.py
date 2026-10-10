@@ -712,7 +712,7 @@ def main():
         or is_completed_broadcast(v)
     ][:200]
     Path("home-video-feed.json").write_text(
-        json.dumps(visible_items,ensure_ascii=False,indent=2)+"\\n",
+        json.dumps(visible_items,ensure_ascii=False,indent=2)+"\n",
         encoding="utf-8"
     )
 
