@@ -243,7 +243,7 @@ def owned_candidates():
     by_url={}
     for i,x in enumerate(regular+special):
         if x["url"] in by_url:continue
-        x["section"]=x.get("section") or classify(x["title"]+" "+x.get("summary",""))
+        x["section"]=x.get("section") or classify(x["title"])
         x["freshness"]=max(0,80-i)
         by_url[x["url"]]=x
     return list(by_url.values())
@@ -405,6 +405,7 @@ def selftest():
     assert classify("Dragon’s Dogma 2: Dark Arisen disponibile il nuovo aggiornamento")=="gaming"
     assert classify("Beyond the Dark: Nightwatch horror cooperativo in uscita")=="gaming"
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
+    assert classify("ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC")=="gaming"
     assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
     assert len(SITES)==10 and len({s[0] for s in SITES})==10
     print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
