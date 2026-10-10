@@ -315,3 +315,19 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
 .topbar .brand .zt-brand-tagline,.zt-header .zt-brand .zt-brand-tagline{display:block;color:#a2a4aa;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.065em;line-height:1.2;font-weight:400;white-space:nowrap;margin:0}
 @media(max-width:1230px){.topbar .brand .zt-wordmark,.zt-header .zt-brand .zt-wordmark{font-size:20px}.topbar .brand .brand-logo-img,.zt-header .zt-brand > img{width:53px;height:53px;flex-basis:53px}.topbar .brand .zt-brand-tagline,.zt-header .zt-brand .zt-brand-tagline{font-size:9px}}
 @media(max-width:420px){.topbar .brand .zt-wordmark,.zt-header .zt-brand .zt-wordmark{font-size:20px}.topbar .brand .zt-brand-tagline,.zt-header .zt-brand .zt-brand-tagline{font-size:9px}}
+
+/* Mixed editorial archive sidebars */
+.zt-side-mix .module-title{min-height:42px;height:auto;line-height:1.25;padding:10px 13px;color:#fff!important}
+.zt-side-mix .zt-mix-feature-image{display:block;margin:11px 11px 0}
+.zt-side-mix .zt-mix-feature-image img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.zt-side-mix .zt-mix-feature-copy{padding:10px 13px 14px}
+.zt-side-mix .zt-mix-feature-copy h3{margin:0 0 10px;font-size:.92rem;line-height:1.32;font-weight:750}
+.zt-side-mix .zt-mix-feature-copy h3 a{color:#1b1b1b;text-decoration:none}
+.zt-side-mix .zt-mix-feature-copy h3 a:hover,.zt-side-mix .zt-mix-recent-row:hover,.zt-side-mix .zt-mix-editorial-row:hover{color:#d51232}
+.zt-side-mix .zt-mix-read{display:block;background:#d51232;color:#fff;text-align:center;padding:9px 8px;font-weight:800;font-size:.68rem;text-decoration:none}
+.zt-side-mix .zt-mix-recent-row,.zt-side-mix .zt-mix-editorial-row,.zt-side-mix .zt-mix-video-row{display:grid;grid-template-columns:100px minmax(0,1fr);align-items:center;gap:10px;padding:11px 10px;border-bottom:1px solid #eee;color:#191919;text-decoration:none;font-size:.75rem;font-weight:650;line-height:1.28}
+.zt-side-mix .zt-mix-recent-row:last-child{border-bottom:0}
+.zt-side-mix .zt-mix-recent-row img,.zt-side-mix .zt-mix-editorial-row img,.zt-side-mix .zt-mix-video-thumb img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block}
+.zt-side-mix .zt-mix-video-thumb{position:relative;display:block}
+.zt-side-mix .zt-mix-video-thumb:after{content:"▶";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;text-shadow:0 2px 5px #000;background:rgba(0,0,0,.1);font-size:16px;line-height:1}
+.zt-side-mix .side-box{overflow:hidden}
