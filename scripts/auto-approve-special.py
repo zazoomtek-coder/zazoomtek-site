@@ -39,7 +39,7 @@ def duplicate(article,existing):
     return False
 def review(article,docs):
     if not KEY:raise RuntimeError("GEMINI_API_KEY missing")
-    prompt="""Sei un verificatore indipendente di ZazoomTek. Esamina ogni paragrafo della
+    prompt=("""Sei un verificatore indipendente di ZazoomTek. Esamina ogni paragrafo della
 bozza confrontandolo con le fonti originali allegate. Non usare informazioni esterne,
 non inventare citazioni. Rifiuta se esiste anche UNA affermazione non documentata,
 una data dubbia, un'accusa non attribuita, un titolo sensazionalistico o due fonti che
@@ -51,7 +51,7 @@ pubblicate. Rispondi SOLO JSON:
 SEZIONE: """+article["section"]+"\nARTICOLO: "+json.dumps(
         {k:article[k] for k in ("title","summary","paragraphs")},ensure_ascii=False)+
         "\nFONTI: "+json.dumps([{"url":d["url"],"metadata":d["metadata"],"excerpts":d["excerpts"]}
-                             for d in docs],ensure_ascii=False)[:15000]
+                             for d in docs],ensure_ascii=False)[:15000])
     request=urllib.request.Request(
         "https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",
         method="POST",headers={"Content-Type":"application/json","x-goog-api-key":KEY},
