@@ -265,7 +265,7 @@ def main():
             photo,rights=None,None
             print("Commons unavailable; using original artwork:",str(exc)[:130])
         if photo is None:
-            raise RuntimeError("No reusable photographic cover found: "+key)
+            print("No rights-cleared photograph for",key,"— generating original ZazoomTek artwork")
         encoded=encode(render(item,photo))
         if not target.exists() or target.read_bytes()!=encoded:
             target.write_bytes(encoded);changed=True

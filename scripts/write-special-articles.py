@@ -23,14 +23,17 @@ def generate(prompt):
         headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
     try:
         with urllib.request.urlopen(req,timeout=80) as response:data=json.load(response)
-    except urllib.error.HTTPError as exc:
-        print("Gemini unavailable for full article draft:",exc.code,"no article published")
+    except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as exc:
+        print("Gemini unavailable for full article draft:",type(exc).__name__,"no article published")
         return None
     text="".join(p.get("text","") for c in data.get("candidates",[])
                  for p in c.get("content",{}).get("parts",[]))
     try:return json.loads(text)
     except (TypeError,ValueError):return None
 def main():
+    global MODEL
+    selected=json.loads((ROOT/"special-drafts-review.json").read_text(encoding="utf-8")).get("gemini_model","")
+    if isinstance(selected,str) and re.fullmatch(r"gemini-[a-z0-9.\-]+",selected): MODEL=selected
     if not KEY:
         print("Missing API key; no article drafts generated")
         return

@@ -1,69 +1,80 @@
-name: Discover Tech Impact and Gaming Inside leads
+name: Automatic verified Tech Impact and Gaming Inside
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '17 */4 * * *'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
-  group: special-editorial-discovery
+  group: special-editorial-publishing
   cancel-in-progress: false
 jobs:
-  research:
+  verify-and-approve:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
-      - name: Scan international coverage without publishing
+        with:
+          fetch-depth: 0
+      - name: Test strict editorial automation
+        run: |
+          python3 -m py_compile scripts/discover-special-news.py scripts/generate-special-drafts.py scripts/check-special-sources.py scripts/write-special-articles.py scripts/auto-approve-special.py scripts/publish-special-news.py
+          python3 scripts/auto-approve-special.py --self-test
+          python3 -m json.tool approved-special-articles.json >/dev/null
+      - name: Discover relevant current public news
         run: python3 scripts/discover-special-news.py
-      - name: Validate editorial draft generator
-        run: python3 -m py_compile scripts/discover-special-news.py scripts/generate-special-drafts.py scripts/check-special-sources.py scripts/write-special-articles.py
-      - name: Generate Gemini drafts on manual test only (no auto-publication)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Research titles without treating RSS headlines as evidence
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
-        run: python3 scripts/generate-special-drafts.py
-      - name: Retrieve source evidence for manual review
-        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::error::GEMINI_API_KEY missing, automatic publication safely disabled"
+            exit 1
+          fi
+          python3 scripts/generate-special-drafts.py
+      - name: Resolve real publishers and retrieve source material
         run: python3 scripts/check-special-sources.py
-      - name: Draft 300-600 word articles when evidence suffices (no publication)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Draft original source-grounded articles
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/write-special-articles.py
-      - name: Preserve research report independently of live site
+      - name: Audit every paragraph and approve verified stories
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.5-flash-lite
+        run: python3 scripts/auto-approve-special.py
+      - name: Preserve private audit logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: special-news-research
-          path: special-candidates.json
-          retention-days: 7
-          overwrite: true
-      - name: Preserve Gemini editorial drafts separately
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: special-news-drafts-review
-          path: special-drafts-review.json
+          name: special-auto-audit-${{ github.run_id }}
+          path: |
+            special-candidates.json
+            special-drafts-review.json
+            special-source-evidence.json
+            special-full-articles-review.json
+            special-auto-report.json
           if-no-files-found: ignore
           retention-days: 7
-          overwrite: true
-      - name: Preserve source evidence for manual review
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: special-source-evidence-review
-          path: special-source-evidence.json
-          if-no-files-found: ignore
-          retention-days: 7
-          overwrite: true
-      - name: Preserve complete article drafts for editorial review
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: special-full-articles-review
-          path: special-full-articles-review.json
-          if-no-files-found: ignore
-          retention-days: 7
-          overwrite: true
+      - name: Commit only new approved stories; existing publisher creates pages
+        run: |
+          git config user.name "ZazoomTek Verified Editorial Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add approved-special-articles.json
+          if git diff --cached --quiet; then
+            echo "No stories passed the publication safety gate."
+            exit 0
+          fi
+          git commit -m "content: auto-approve verified Tech Impact and Gaming Inside"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Verified articles committed, publishing triggered."
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep "$((attempt * 5))"
+          done
+          echo "::error::Could not safely synchronize approved articles"
+          exit 1

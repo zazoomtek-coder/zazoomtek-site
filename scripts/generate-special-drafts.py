@@ -90,7 +90,7 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         if not isinstance(x.get("title"),str) or not isinstance(x.get("summary"),str):continue
         if x["section"]=="gaming" and not any(w in ("gaming","game","games","videogame","videogiochi","videogioco","xbox","playstation","nintendo","steam","videoludic","giocatori") for w in __import__("re").findall(r"[a-zA-Z]+",(x["title"]+" "+" ".join(next((lead["title"] for lead in leads if lead["url"]==u),"") for u in urls)).lower())):continue
         verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":450,"editorial_status":"needs_human_review"})
-    report={"generated_utc":now.isoformat(),"published":False,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:6]}
+    report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:6]}
     OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Gemini drafts created for human review:",len(verified[:6]),"; published: 0")
 if __name__=="__main__":main()

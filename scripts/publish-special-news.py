@@ -35,7 +35,14 @@ def valid(item):
     word_count=len(" ".join([title,intro]+paragraphs).split())
     if not 300<=word_count<=600:return False
     if not isinstance(sources,list) or not sources or any(not isinstance(u,str) or not u.startswith("https://") for u in sources):return False
-    if not item.get("editor_approved",False):return False
+    editorial=item.get("editor_approved") is True
+    automatic=(item.get("auto_approved") is True and
+               item.get("approval_method")=="strict_source_evidence" and
+               isinstance(item.get("evidence_review"),dict) and
+               item["evidence_review"].get("paragraphs_supported") is True and
+               isinstance(item.get("source_fingerprints"),list) and
+               bool(item["source_fingerprints"]))
+    if not (editorial or automatic):return False
     try:
         date=dt.date.fromisoformat(item.get("date",""))
         if date>dt.date.today()+dt.timedelta(days=1):return False
