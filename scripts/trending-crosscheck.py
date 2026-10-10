@@ -78,7 +78,7 @@ def classify(title,hint=""):
     words=set(title.split())
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
-    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|battlefield)\b",original))
+    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima)\b",original))
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     return "gaming" if gaming or hint=="gaming" else "tech"
@@ -254,6 +254,15 @@ def matches(owned,state):
             if s>0.0:
                 matched.append((s,item))
         matched.sort(key=lambda y:y[0],reverse=True)
+        # The topic of a game's launch is a gaming news item even when the
+        # headline does not literally contain the words "videogame" or "PS5".
+        # Use corroborating *category only*, never publisher content or imagery.
+        if article["section"]=="tech" and matched:
+            game_sites={m[1]["source"] for m in matched if m[0]>=.52 and m[1]["kind"]=="gaming"}
+            tech_sites={m[1]["source"] for m in matched if m[0]>=.52 and m[1]["kind"]=="tech"}
+            hardware=bool(re.search(r"(?i)cuffie|headset|notebook|laptop|scheda grafica|monitor|processore|smartphone|periferic|driver|mouse|tastiera|hardware|router",article["title"]))
+            if game_sites and len(game_sites)>=len(tech_sites) and not hardware:
+                article["section"]="gaming"
         independent=len({m[1]["source"] for m in matched if m[0]>=.54})
         article["match_count"]=independent
         article["matched_sources"]=[{"site":item["name"],"title":item["title"],"score":score}
@@ -387,6 +396,8 @@ def selftest():
     assert classify("Commissione europea propone nuove regole sulla privacy delle piattaforme")=="tech-impact"
     assert classify("Nuove norme sui rimborsi di giochi PlayStation")=="gaming-inside"
     assert classify("Nintendo Switch riceve un gioco Zelda")=="gaming"
+    assert classify("ACE COMBAT 8 supera un milione di copie vendute")=="gaming"
+    assert classify("The Talos Principle 3 mostra gameplay e trailer")=="gaming"
     assert len(SITES)==10 and len({s[0] for s in SITES})==10
     print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
 
