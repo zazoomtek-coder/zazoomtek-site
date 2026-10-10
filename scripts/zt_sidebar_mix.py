@@ -101,23 +101,29 @@ def all_published_news():
 
 
 def recent_list(items):
-    """Scroll through the full news archive without stretching the sidebar."""
+    """The six most recent unique News posts, image left and regular title right."""
     if not items:
         return ""
     rows = []
+    seen = set()
     for item in items:
+        if item["url"] in seen:
+            continue
+        seen.add(item["url"])
         rows.append(
             f'<a href="{e(item["url"])}" class="zt-mix-recent-row">'
             f'<img loading="lazy" src="{e(item["image"])}" alt="">'
             f'<span>{e(item["title"])}</span></a>'
         )
+        if len(rows) == 6:
+            break
     return ('<section class="side-box zt-mix-recent">'
-            '<a class="module-title" href="/news.html">Tutte le News</a>'
-            f'<p class="zt-mix-news-count">{len(items)} articoli · Scorri per esplorarli</p>'
-            '<div class="zt-mix-recent-list" tabindex="0" role="region" '
-            'aria-label="Elenco di tutte le notizie pubblicate">' +
-            "".join(rows) + '</div>'
-            '<a class="zt-mix-news-all" href="/news.html">APRI L’ARCHIVIO NEWS ›</a>'
+            '<div class="zt-mix-news-heading">'
+            '<a class="module-title" href="/news.html">Ultime News</a>'
+            '<a class="zt-mix-header-more" href="/news.html" aria-label="Vedi tutte le news">VEDI →</a>'
+            '</div>'
+            '<div class="zt-mix-recent-list">' + "".join(rows) + '</div>'
+            '<a class="zt-mix-news-all" href="/news.html">Tutte le notizie →</a>'
             '</section>')
 
 
