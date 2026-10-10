@@ -1,0 +1,63 @@
+name: Scan Italian tech and gaming trends
+on:
+  schedule:
+    - cron: '11,41 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/trending-crosscheck.py'
+      - '.github/workflows/scan-trending-portals.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: zazoomtek-trending-scan
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate trend matching and source privacy
+        run: |
+          python3 -m py_compile scripts/trending-crosscheck.py
+          python3 scripts/trending-crosscheck.py --test
+      - name: Scan five Italian technology and five gaming portals
+        run: python3 scripts/trending-crosscheck.py --sources
+      - name: Match previously published ZazoomTek articles
+        run: python3 scripts/trending-crosscheck.py --apply
+      - name: Commit only trend metadata and placements
+        id: push_trends
+        run: |
+          git config user.name "zazoomtek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- trending-sources.json trending-match-report.json index.html tech-today.html gaming-today.html
+          if git diff --cached --quiet; then
+            echo "No updated trends or placements."
+            exit 0
+          fi
+          git commit -m "trends: refresh Italian highlights and matching own news"
+          for attempt in 1 2 3; do
+            if git fetch origin main && git rebase origin/main && git push origin HEAD:main; then
+              echo "updated=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep $((attempt * 4))
+          done
+          echo "::error::Could not sync trending placements"
+          exit 1
+      - name: Deploy verified existing-news placements
+        if: steps.push_trends.outputs.updated == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek

@@ -18,6 +18,7 @@ on:
       - 'zt-analytics.js'
       - 'cerca.html'
       - 'featured-news.json'
+      - 'scripts/trending-crosscheck.py'
   workflow_dispatch:
 
 permissions:
@@ -68,6 +69,13 @@ jobs:
         if: steps.community_sync.outcome == 'success'
         continue-on-error: true
         run: python3 scripts/apply-standard-news-featured.py
+
+      - name: Compare new Community news with cached Italian trends
+        if: steps.community_sync.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python3 scripts/trending-crosscheck.py --test
+          python3 scripts/trending-crosscheck.py --apply
 
       - name: Discard unsafe Community changes
         if: steps.community_sync.outcome != 'success'

@@ -52,7 +52,7 @@ svela svelato ecco cosa quanto quando potrebbe alcune dello quindi ecco grande g
 GAMING=set("""ps5 ps4 playstation xbox nintendo switch steam videogiochi videogioco gaming
 giochi gioco fifa ea games game forza horizon gta rockstar ubisoft capcom sega sony
 final fantasy battlefield mario zelda pokemon Pokémon playstation pc gamer remaster dlc""".lower().split())
-POLICY=set("""legge leggi normative normativa regolamento regolamenti antitrust agcm garante
+POLICY=set("""legge leggi norme normative normativa rimborsi rimborso tutela regolamento regolamenti antitrust agcm garante
 privacy censura censurare censurato censurati tribunale giudice giudici governo parlamentare
 parlamento europeo ue europa commissione indagine processo multa sanzione copyright
 diritti proprieta proprietà divieto vietare sicurezza hacker cyberattacco cyberattacchi
@@ -73,12 +73,13 @@ def tokens(s):
     return [t for t in norm(s).split() if (len(t)>2 or t.isdigit()) and t not in STOP]
 
 def classify(title,hint=""):
+    original=norm(title)
     title=" ".join(tokens(title))
     words=set(title.split())
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
-    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc|game pass|steam|fortnite|battlefield)\b",title))
-    if politics and gaming and bool(words&GAMING_POLICY):return "gaming-inside"
+    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|battlefield)\b",original))
+    if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     return "gaming" if gaming or hint=="gaming" else "tech"
 
@@ -250,7 +251,7 @@ def matches(owned,state):
         matched=[]
         for item in sources:
             s=similarity(article["title"],item.get("title",""))
-            if s>.0:
+            if s>0.0:
                 matched.append((s,item))
         matched.sort(key=lambda y:y[0],reverse=True)
         independent=len({m[1]["source"] for m in matched if m[0]>=.54})
