@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Global scrollbar refresh marker
 # Structured data refresh marker
+from zt_footer import FOOTER_HTML
 import json,re,html,time,unicodedata,urllib.error,urllib.request,urllib.parse
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
@@ -1053,12 +1054,9 @@ def subscribe_cta_box():
     </section>'''
 
 def legal_footer():
-    return '''<footer class="legal-footer"><div class="wrap">
-      <div class="footer-links"><a href="/">Home</a><a href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni scritte</a><a href="/guide.html">Guide</a><a href="/recensioni.html">Video recensioni</a><a href="/test.html">Test</a><a href="/unboxing.html">Unboxing</a><a href="/gaming.html">Gaming</a></div>
-      <div class="footer-links"><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener">▶ YouTube</a><a href="https://www.patreon.com/ZazoomTek" target="_blank" rel="noopener">❤️ Patreon</a><a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener">🎵 TikTok</a><a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener">💬 WhatsApp</a><a href="/rss.xml" title="Feed RSS delle News ZazoomTek" aria-label="Feed RSS delle News ZazoomTek" class="zt-rss-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" style="vertical-align:-3px"><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/></svg> RSS</a><a href="/contatti.html">Contatti</a><a href="/chi-sono.html">Chi sono</a></div>
-      <div class="legal-links"><a href="/privacy.html">Privacy Policy</a><a href="/cookie.html">Cookie Policy</a><a href="/disclaimer.html">Disclaimer</a><a href="/note-legali.html">Note legali</a></div>
-      <div class="footer-copy">© 2026 ZazoomTek · Tecnologia e gaming.</div>
-    </div></footer>'''
+    # Same footer as the homepage and every generated page.
+    return FOOTER_HTML
+
 def editorial_header(active=""):
     return '<header><div class="wrap headrow"><a class="brand" href="/">ZazoomTek</a>'+editorial_nav(active)+'</div></header>'
 

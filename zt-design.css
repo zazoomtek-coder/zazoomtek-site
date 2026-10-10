@@ -269,3 +269,61 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
     margin-top:8px;
   }
 }
+
+
+/* Approved ZazoomTek footer — same compact type as existing footer, on every page. */
+.zt-unified-footer {
+  background:#161616;
+  color:#aaa;
+  border-top:1px solid rgba(255,255,255,.07);
+  border-bottom:1px solid #363636;
+  padding:26px 0;
+  margin-top:0;
+}
+.zt-unified-footer .zt-footer-content {
+  width:min(1460px,calc(100% - 28px));
+  max-width:1460px;
+  margin:0 auto;
+}
+.zt-unified-footer .footer-links,
+.zt-unified-footer .legal-links {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:14px;
+  margin:0 0 12px;
+  padding:0;
+  line-height:1.35;
+}
+.zt-unified-footer .footer-links a,
+.zt-unified-footer .legal-links a {
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:.78rem;
+  line-height:1.35;
+  font-weight:400;
+  color:#ddd;
+  white-space:nowrap;
+  text-decoration:none;
+  letter-spacing:normal;
+}
+.zt-unified-footer .footer-links a:hover,
+.zt-unified-footer .legal-links a:hover {
+  color:#fff;
+  text-decoration:underline;
+}
+.zt-unified-footer .footer-main-nav {margin-bottom:12px;}
+.zt-unified-footer .footer-copy {
+  font-size:.78rem;
+  line-height:1.35;
+  font-family:Arial,Helvetica,sans-serif;
+  font-weight:400;
+  color:#aaa;
+  text-align:center;
+}
+.zt-unified-footer .rss-icon {vertical-align:-3px;}
+@media(max-width:760px) {
+  .zt-unified-footer {padding:26px 10px;}
+  .zt-unified-footer .footer-main-nav {column-gap:17px;row-gap:10px;}
+  .zt-unified-footer .footer-links,.zt-unified-footer .legal-links {gap:10px 14px;}
+}
