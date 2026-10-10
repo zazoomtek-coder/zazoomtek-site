@@ -245,9 +245,9 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
 .zt-video-stack .zt-stack-card>.video-thumb,
 .zt-video-stack .zt-stack-card .video-thumb{
   flex:0 0 auto;
-  width:88%;
+  width:80%;
   min-width:0;
-  max-width:88%;
+  max-width:80%;
   margin:10px auto 0;
   height:auto;
   aspect-ratio:16/9;
@@ -264,8 +264,8 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
 @media(max-width:720px){
   .zt-video-stack .zt-stack-card>.video-thumb,
   .zt-video-stack .zt-stack-card .video-thumb{
-    width:92%;
-    max-width:92%;
+    width:86%;
+    max-width:86%;
     margin-top:8px;
   }
 }
