@@ -340,10 +340,10 @@ def sidebar_stack_card(v, category_override=None):
         f'<button class="video-thumb" data-video="{vid}" onclick="playVideo(this)">'
         f'<img src="https://i.ytimg.com/vi/{vid}/maxresdefault.jpg" '
         f'onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/{vid}/hqdefault.jpg\'" '
-        f'alt="{title}" loading="lazy">'
-        f'<span class="zt-stack-category">{category_label}</span></button>'
+        f'alt="{title}" loading="lazy"></button>'
         f'<div class="zt-stack-copy">'
-        f'<h3>{title}</h3><small>{date}</small></div></article>'
+        f'<h3>{title}</h3><span class="zt-stack-category">{category_label}</span>'
+        f'<small>{date}</small></div></article>'
     )
 
 def sidebar_short_card(v):
