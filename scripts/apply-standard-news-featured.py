@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Idempotent post-processing: ten newest photographic NEWS, with daily updates.
+"""Idempotent post-processing: six balanced featured NEWS, with daily updates.
 
 Never imports YouTube, never edits review/video pages or special editorial content.
 Call after the existing YouTube Community sync, which rewrites the homepage/NEWS.
@@ -77,62 +77,58 @@ def photo_ready(path):
 
 
 def slide_block(standard, special):
-    """Ten newest published photographic articles, not the original frozen 6+4."""
-    candidates = []
+    """Six independently sourced highlights: 2 Tech + 2 Gaming + 1 per special desk.
+
+    The ordinary news are drawn ONLY from approved standard-news.json.
+    The two special selections are read from special-featured.json, maintained
+    by the independent Tech Impact / Gaming Inside publisher; never rewrite it.
+    The 10-site trend matcher may subsequently reprioritize ordinary items,
+    but must preserve this 2+2+1+1 quota.
+    """
     standard_rights = json.loads((ROOT / "standard-cover-manifest.json").read_text(encoding="utf-8")).get("articles", {})
     special_rights = json.loads((ROOT / "special-cover-manifest.json").read_text(encoding="utf-8")).get("articles", {})
-    approved = json.loads((ROOT / "approved-special-articles.json").read_text(encoding="utf-8")).get("articles", [])
+    chosen = []
 
-    for x in standard:
+    for kind in ("tech", "gaming"):
+        items = [x for x in standard if x.get("kind") == kind][:2]
+        if len(items) != 2:
+            raise RuntimeError("Exactly two approved standard NEWS are required for " + kind)
+        for x in items:
+            slug = x["slug"]
+            page = "/news-" + slug + ".html"
+            image = "/assets/special/news-" + slug + ".webp"
+            origin = standard_rights.get("standard/" + slug, {}).get("origin", {})
+            if not (ROOT / page.lstrip("/")).is_file() or not photo_ready(image) or origin.get("origin") != "Wikimedia Commons":
+                raise RuntimeError("Missing licensed standard NEWS cover or page: " + slug)
+            chosen.append({"url": page, "title": x["title"], "image": image, "section": kind})
+
+    for kind, section, prefix in (("tech", "tech-impact", "tech-impact-"),
+                                  ("gaming", "gaming-inside", "gaming-inside-")):
+        selected = [x for x in special if x.get("section") == kind]
+        if not selected:
+            raise RuntimeError("No existing " + section + " selection from the independent publisher")
+        x = selected[0]  # Respect that publisher's featured priority.
         slug = x["slug"]
-        page = "news-" + slug + ".html"
-        image = "/assets/special/news-" + slug + ".webp"
-        rights = standard_rights.get("standard/" + slug, {}).get("origin", {})
-        if (ROOT / page).is_file() and photo_ready(image) and rights.get("origin") == "Wikimedia Commons":
-            candidates.append({"slug": "/" + page, "title": x["title"], "image": image,
-                               "date": x.get("published_at") or x["date"]})
+        key = kind + "/" + slug[len(prefix):-len(".html")]
+        origin = special_rights.get(key, {}).get("origin", {})
+        image = x.get("image", "")
+        if (not slug.startswith(prefix) or not slug.endswith(".html")
+                or not (ROOT / slug).is_file() or not photo_ready(image)
+                or origin.get("origin") != "Wikimedia Commons"):
+            raise RuntimeError("Missing licensed special page or cover: " + slug)
+        chosen.append({"url": "/" + slug, "title": x["title"], "image": image, "section": section})
 
-    for x in approved:
-        if not x.get("editor_approved") or x.get("section") not in ("tech", "gaming"):
-            continue
-        slug = x["slug"]
-        page = ("tech-impact-" if x["section"] == "tech" else "gaming-inside-") + slug + ".html"
-        cover = special_rights.get(x["section"] + "/" + slug, {})
-        image = cover.get("path", "")
-        origin = cover.get("origin", {})
-        if (ROOT / page).is_file() and photo_ready(image) and origin.get("origin") == "Wikimedia Commons":
-            candidates.append({"slug": "/" + page, "title": x["title"], "image": image,
-                               "date": x.get("published_at") or x["date"]})
-
-    # Include any other original editorial NEWS with correctly licensed local photographs.
-    manual = ROOT / "manual-news.json"
-    if manual.exists():
-        manual_items = json.loads(manual.read_text(encoding="utf-8")).get("items", [])
-        for x in manual_items:
-            slug, image = x.get("slug", ""), x.get("image", "")
-            if (isinstance(slug, str) and re.fullmatch(r"news-[a-z0-9-]+\.html", slug)
-                    and (ROOT / slug).is_file() and photo_ready(image)):
-                candidates.append({"slug": "/" + slug, "title": x.get("title", "News ZazoomTek"),
-                                   "image": image, "date": x.get("published_at") or x.get("date", "")})
-
-    # Unique pages, newest first. Same-day ties retain input (editorial) order.
-    by_slug = {}
-    for item in candidates:
-        if item["slug"] not in by_slug and publication_key(item["date"]):
-            by_slug[item["slug"]] = item
-    all_items = sorted(by_slug.values(), key=lambda x: publication_key(x["date"]), reverse=True)[:10]
-    if not all_items:
-        raise RuntimeError("No published articles with verified photographic covers")
+    if len(chosen) != 6 or len({x["url"] for x in chosen}) != 6:
+        raise RuntimeError("Featured NEWS must contain six different articles")
 
     slides = []
-    for i, item in enumerate(all_items):
+    for i, item in enumerate(chosen):
         active = " active" if i == 0 else ""
         slides.append(
-            '<article class="news-slide' + active + '" data-slide="' + str(i) + '"><a href="' + esc(item["slug"]) + '">'
+            '<article class="news-slide' + active + '" data-slide="' + str(i) +
+            '" data-trend-category="' + esc(item["section"]) + '"><a href="' + esc(item["url"]) + '">'
             '<img src="' + esc(item["image"]) + '" alt="' + esc(item["title"]) + '" loading="lazy"></a></article>'
         )
-    # The titles are already present on the photographic covers.
-    # Keep the image-only hero and existing arrow / auto-advance controls.
     return ('<div class="news-slider" id="newsSlider"><div class="news-slides">'
             + "\n".join(slides) + '</div></div>')
 
@@ -286,7 +282,7 @@ def main():
     s = INDEX.read_text(encoding="utf-8")
     s = replace_between(s, PAGE_START, PAGE_END, slide_block(standard, special))
     # The importer rewrites HTML, so enforce the full-width photo layout on every sync.
-    # No right-hand title column; photographs are 16:9 with text already inside.
+    # Preserve existing responsive layout and the approved right-hand news column.
     s, slider_changes = re.subn(
         r"\.news-slider\{[^}]*\}",
         ".news-slider{display:block;width:100%;background:#111}", s, count=1
@@ -322,7 +318,7 @@ def main():
     s = replace_between(s, FEED_START, FEED_END, feed)
     feature = s[s.index(PAGE_START):s.index(PAGE_END)]
     slide_count = len(re.findall(r'data-slide="\d+"', feature))
-    if not 1 <= slide_count <= 10 or 'class="news-tab' in feature:
+    if slide_count != 6 or 'class="news-tab' in feature:
         raise RuntimeError("Full-width photo-only carousel validation failed")
     home_feed=s[s.index(FEED_START)+len(FEED_START):s.index(FEED_END)]
     if len(re.findall(r'<article\b[^>]*class="article-row"',home_feed)) != 15:
@@ -342,7 +338,7 @@ def main():
     if NEWS.read_text(encoding="utf-8") != news:
         NEWS.write_text(news, encoding="utf-8")
         print("Updated standard NEWS archive.")
-    print(f"VALIDATED: {slide_count} latest photo-only full-width NEWS in publishing order; importers unchanged.")
+    print(f"VALIDATED: {slide_count} NEWS (2 tech, 2 gaming, 1 Tech Impact, 1 Gaming Inside); independent special publisher unchanged.")
 
 
 if __name__ == "__main__":
