@@ -5,7 +5,7 @@ from zt_footer import unify_footer
 import re
 
 root=Path(__file__).resolve().parents[1]
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261010footernav" data-zt-design="20261010">'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261010thumb60" data-zt-design="20261010">'
 js_tag='<script src="/zt-visual.js?v=20261010" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
@@ -17,7 +17,7 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261010footernav",html,count=1)
+                    "/zt-design.css?v=20261010thumb60",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' not in html:
