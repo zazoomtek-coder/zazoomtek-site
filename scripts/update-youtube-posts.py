@@ -2132,59 +2132,57 @@ def render(posts):
 
 
 def update_sitemap():
-    """Build one canonical, Google-friendly sitemap from the pages that are
-    actually indexable on zazoomtek.it.  Deliberately omit priority/changefreq
-    and synthetic lastmod values: inaccurate metadata is worse than no metadata.
-    """
-    origin="https://zazoomtek.it"
-    urls=[]
-    seen=set()
+    """Generate valid XML and a list of indexable canonical pages."""
+    origin = "https://zazoomtek.it"
+    urls = set()
 
-    # Only HTML pages with a self-canonical on the production domain are eligible.
-    # noindex pages (privacy/legal pages, etc.) are intentionally excluded.
-    for p in sorted(Path(".").glob("*.html")):
-        if p.name in ("404.html","googlea3c594e14c6f832d.html","nba-2k27-recensione-ps5.html"):
+    for page_path in sorted(Path(".").glob("*.html")):
+        if page_path.name in (
+            "404.html", "googlea3c594e14c6f832d.html",
+            "nba-2k27-recensione-ps5.html",
+        ) or page_path.name.startswith("preview-"):
             continue
         try:
-            page=p.read_text(encoding="utf-8",errors="replace")
+            page = page_path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
 
-        mrobots=re.search(r"<meta\\s+name=[\\\"']robots[\\\"']\\s+content=[\\\"']([^\\\"']+)[\\\"']",page,re.I)
-        if mrobots and "noindex" in mrobots.group(1).lower():
+        robots = re.search(
+            r'<meta\b[^>]*name=["\x27]robots["\x27][^>]*content=["\x27]([^"\x27]+)',
+            page, re.I,
+        )
+        if robots and "noindex" in robots.group(1).lower():
             continue
 
-        mcanonical=re.search(r"<link\\s+rel=[\\\"']canonical[\\\"']\\s+href=[\\\"']([^\\\"']+)[\\\"']",page,re.I)
-        if not mcanonical:
+        canonical = re.search(
+            r'<link\b[^>]*rel=["\x27]canonical["\x27][^>]*href=["\x27]([^"\x27]+)',
+            page, re.I,
+        )
+        if not canonical:
             continue
-        url=mcanonical.group(1).strip()
-        if not (url==origin or url.startswith(origin+"/")):
+        url = canonical.group(1).strip()
+        expected = origin + ("/" if page_path.name == "index.html" else "/" + page_path.name)
+        if url != expected:
             continue
-        if url in seen:
-            continue
-        seen.add(url)
-        urls.append(url)
+        urls.add(url)
 
-    # Home first, then stable alphabetical order for deterministic diffs.
-    urls=sorted(urls,key=lambda u:(u!=origin+"/",u))
-
-    rows="\\n".join(f"  <url><loc>{html.escape(u)}</loc></url>" for u in urls)
-    xml=(
-        '<?xml version="1.0" encoding="UTF-8"?>\\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n'
-        +rows+
-        '\\n</urlset>\\n'
+    ordered = sorted(urls, key=lambda url: (url != origin + "/", url))
+    rows = "\n".join(
+        f"  <url><loc>{html.escape(url, quote=True)}</loc></url>"
+        for url in ordered
     )
-    Path("sitemap.xml").write_text(xml,encoding="utf-8")
-
-    # Keep legacy sitemap endpoints coherent, but advertise only sitemap.xml.
-    Path("google-sitemap.xml").write_text(xml,encoding="utf-8")
-    Path("sitemap.txt").write_text("\\n".join(urls)+"\\n",encoding="utf-8")
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + rows + '\n</urlset>\n'
+    )
+    Path("sitemap.xml").write_text(xml, encoding="utf-8")
+    Path("google-sitemap.xml").write_text(xml, encoding="utf-8")
+    Path("sitemap.txt").write_text("\n".join(ordered) + "\n", encoding="utf-8")
     Path("robots.txt").write_text(
-        "User-agent: *\\n"
-        "Allow: /\\n\\n"
-        "Sitemap: https://zazoomtek.it/sitemap.xml\\n",
-        encoding="utf-8"
+        "User-agent: *\nAllow: /\n\n"
+        "Sitemap: https://zazoomtek.it/sitemap.xml\n",
+        encoding="utf-8",
     )
 
 
