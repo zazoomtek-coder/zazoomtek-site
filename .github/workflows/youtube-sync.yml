@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
+      - 'scripts/zt_sidebar_mix.py'
       - 'scripts/remove-duplicate-article-images.py'
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
@@ -42,7 +43,7 @@ jobs:
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/remove-duplicate-article-images.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
+          python3 -m py_compile scripts/zt_sidebar_mix.py scripts/update-youtube.py scripts/update-youtube-posts.py scripts/remove-duplicate-article-images.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
@@ -78,6 +79,10 @@ jobs:
       - name: Build Facebook RSS from approved new general NEWS
         if: always()
         run: python3 scripts/build-news-rss.py
+
+      - name: Rebuild mixed archive sidebars
+        if: steps.community_sync.outcome == 'success'
+        run: python3 scripts/zt_sidebar_mix.py
 
       - name: Save validated Community changes locally
         id: community_commit
