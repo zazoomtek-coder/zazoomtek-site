@@ -211,6 +211,11 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 .zt-review-card h3 a:hover{color:#FF9900}
 .zt-review-card small{display:block;padding:0 14px 14px;color:#aaa;font-size:.72rem;margin-top:-8px}
 
+
+/* Keep only one compact white description at bottom; remove all original duplicate overlays */
+#newsSlider .news-slide-copy,#newsSlider .news-slide .tag,#newsSlider .news-slide h1,#newsSlider .news-slide h2,#newsSlider .news-slide h3:not(.zt-editorial-title),#newsSlider .news-slide .zt-editorial-title,#newsSlider .zt-editorial-kicker,#newsSlider .zt-editorial-pill,#newsSlider .zt-editorial-link{display:none!important}
+#newsSlider .zt-editorial-copy{bottom:5%!important;left:4%!important;width:91%!important}
+#newsSlider .zt-editorial-summary{font-size:clamp(11px,1.05vw,14px)!important;line-height:1.42!important;font-weight:600!important;margin:0!important;color:#fff!important;max-width:100%!important}
 </style>
 <meta name="zazoomtek-build" content="ppvxEfeg_2k-2026-10-08T11:45:38Z">
 <script src="/zt-analytics.js" defer></script>
@@ -737,9 +742,7 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
  for(const e of entries){
   const a=e.slide.querySelector('a');if(!a)continue;
   const title=document.createElement('div');title.className='zt-editorial-copy';
-  const short=e.title.length>105?e.title.slice(0,102)+'…':e.title;
-  title.innerHTML='<div class="zt-editorial-kicker">ZAZOOMTEK.IT · '+e.cat+'</div><h3 class="zt-editorial-title"></h3><span class="zt-editorial-pill">IN EVIDENZA</span><p class="zt-editorial-summary"></p><span class="zt-editorial-link">Leggi la notizia completa ›</span>';
-  title.querySelector('h3').textContent=short;
+  title.innerHTML='<p class="zt-editorial-summary"></p>';
   title.querySelector('p').textContent=e.title;
   a.appendChild(title);
  }
