@@ -1,8 +1,21 @@
 {
-  "checked_at": "2026-10-10T10:38:18.389180+00:00",
+  "checked_at": "2026-10-10T10:39:21.506458+00:00",
   "source_sites": 10,
   "matches": 4,
   "selected": [
+    {
+      "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
+      "section": "tech",
+      "url": "/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html",
+      "trend_score": 77.25,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "CORSAIR HS80 v2 MAX Wireless: cuffie gaming fino a 130 ore",
+          "score": 0.7323
+        }
+      ]
+    },
     {
       "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
       "section": "tech",
@@ -24,23 +37,16 @@
       "sources": []
     },
     {
+      "title": "ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC il 23 ottobre",
+      "section": "tech",
+      "url": "/news-one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
       "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
       "section": "tech",
       "url": "/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.html",
-      "trend_score": 0,
-      "sources": []
-    },
-    {
-      "title": "News: Sony ECM-AX10 porta l’audio spaziale professionale sugli smartphone",
-      "section": "tech",
-      "url": "/news-UgkxSLVy8d-ZS0VYmC3f4aXFW7LCaKQ2q5AO.html",
-      "trend_score": 0,
-      "sources": []
-    },
-    {
-      "title": "News: Amazon cambia rotta con Alexa Tablet: addio Fire OS, arriva il Google Play Store da 229,99 euro",
-      "section": "tech",
-      "url": "/news-UgkxVUH1K5Vf0YQoOtHwtjbdAkYKlh7_cSD9.html",
       "trend_score": 0,
       "sources": []
     },
@@ -73,19 +79,6 @@
       ]
     },
     {
-      "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
-      "section": "gaming",
-      "url": "/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html",
-      "trend_score": 77.25,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "CORSAIR HS80 v2 MAX Wireless: cuffie gaming fino a 130 ore",
-          "score": 0.7323
-        }
-      ]
-    },
-    {
       "title": "News: ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie",
       "section": "gaming",
       "url": "/news-UgkxSAfW_T-tL6dS7sn7syzWrfKVS2hxnK5L.html",
@@ -114,6 +107,13 @@
       "title": "News: Tower Tactics II entra in Accesso Anticipato su Steam con oltre 190 carte e 150 gingilli",
       "section": "gaming",
       "url": "/news-Ugkxfsd8trxein5rQ0XB_q12VqIFPAZ9mgzR.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "News: Dragon’s Dogma 2: Dark Arisen è disponibile con nuova regione, modalità Difficile e aggiornamento 4.0",
+      "section": "gaming",
+      "url": "/news-UgkxT_ejrIVnCp0dN2Na_0JgBwXQS7nqESBD.html",
       "trend_score": 0,
       "sources": []
     }
