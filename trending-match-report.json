@@ -1,0 +1,121 @@
+{
+  "checked_at": "2026-10-10T10:34:31.921939+00:00",
+  "source_sites": 10,
+  "matches": 4,
+  "selected": [
+    {
+      "title": "News: The Talos Principle 3 mostra il primo gameplay: l'Anomalia e nuovi enigmi nel capitolo finale della trilogia",
+      "section": "tech",
+      "url": "/news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html",
+      "trend_score": 90.79,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "The Talos Principle 3 mostra il primo trailer gameplay",
+          "score": 0.6817
+        },
+        {
+          "site": "IGN Italia",
+          "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC",
+          "score": 0.5668
+        },
+        {
+          "site": "SpazioGames",
+          "title": "The Talos Principle 3, il gran finale si avvicina",
+          "score": 0.5648
+        },
+        {
+          "site": "IGN Italia",
+          "title": "Game The Talos Principle 3",
+          "score": 0.5573
+        }
+      ]
+    },
+    {
+      "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
+      "section": "tech",
+      "url": "/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html",
+      "trend_score": 77.25,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "CORSAIR HS80 v2 MAX Wireless: cuffie gaming fino a 130 ore",
+          "score": 0.7323
+        }
+      ]
+    },
+    {
+      "title": "News: ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie",
+      "section": "tech",
+      "url": "/news-UgkxSAfW_T-tL6dS7sn7syzWrfKVS2hxnK5L.html",
+      "trend_score": 71.83,
+      "sources": [
+        {
+          "site": "SmartWorld",
+          "title": "Ace Combat 8: Wings of Theve",
+          "score": 0.6727
+        },
+        {
+          "site": "Gamesurf",
+          "title": "Ace Combat 8 spicca il volo con 1 milione di copie vendute",
+          "score": 0.5292
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
+      "section": "tech",
+      "url": "/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
+      "trend_score": 60.84,
+      "sources": [
+        {
+          "site": "Tom's Hardware Italia",
+          "title": "Surface Laptop Ultra con RTX Spark: l'IA torna sul PC, ma a che prezzo?",
+          "score": 0.5664
+        }
+      ]
+    },
+    {
+      "title": "News: Adobe collega Claude Motion a Firefly Video Editor con “Send to Adobe”",
+      "section": "tech",
+      "url": "/news-UgkxRX5kd1mJsuqOfL803oOY1KYdc3cthHbb.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "News: Battlefield 6 Stagione 5 porta la guerra a Las Vegas con tre nuove mappe, Rapid Royale e crossover Dead Space",
+      "section": "gaming",
+      "url": "/news-UgkxnhcQnMs37VSNzyLG45qciYrpRf-UCrx4.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "News: Tower Tactics II entra in Accesso Anticipato su Steam con oltre 190 carte e 150 gingilli",
+      "section": "gaming",
+      "url": "/news-Ugkxfsd8trxein5rQ0XB_q12VqIFPAZ9mgzR.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "News: Vaultbreakers, demo gratuita su Steam e ritorno di Square Enix Collective",
+      "section": "gaming",
+      "url": "/news-UgkxDax8FZb_susV2FQG_lKIddMe1ipqo7ET.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC il 23 ottobre",
+      "section": "gaming",
+      "url": "/news-one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "Forza Horizon 6 arriva su PS5 il 26 gennaio 2027: preordini aperti e accesso anticipato",
+      "section": "gaming",
+      "url": "/news-forza-horizon-6-ps5-26-gennaio-2027-preordini.html",
+      "trend_score": 0,
+      "sources": []
+    }
+  ]
+}
