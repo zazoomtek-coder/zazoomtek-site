@@ -13,7 +13,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 ASIDE = re.compile(r'<aside class="news-sidebar">[\s\S]*?</aside>')
-ROW = re.compile(r'<article class="news-row"\b[\s\S]*?</article>', re.I)
+ROW = re.compile(r'<article class="news-row"[\s\S]*?</article>', re.I)
 TITLE = re.compile(r'<h2[^>]*>\s*<a\s+href="([^"]+)"[^>]*>([\s\S]*?)</a>\s*</h2>', re.I)
 IMG = re.compile(r'<img\s[^>]*src="([^"]+)"', re.I)
 META = re.compile(r'<div class="news-meta"[^>]*>([\s\S]*?)</div>', re.I)
