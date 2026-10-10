@@ -168,12 +168,9 @@ def render(item,photo=None):
     accent=rgb(a);base=rgb(b)
     canvas=Image.new("RGB",SIZE,base)
     if photo is not None:
+        # Keep the source photograph at its original luminosity.
+        # Never bake a left/bottom black gradient into the exported WebP.
         canvas=ImageOps.fit(photo,SIZE,method=Image.Resampling.LANCZOS,centering=(.57,.5))
-        curtain=Image.new("RGBA",SIZE,(0,0,0,0));d=ImageDraw.Draw(curtain)
-        for x in range(SIZE[0]):
-            alpha=int(215*(1-x/SIZE[0])**1.35+65)
-            d.line((x,0,x,SIZE[1]),fill=(6,11,19,min(246,alpha)))
-        canvas=Image.alpha_composite(canvas.convert("RGBA"),curtain).convert("RGB")
     else:
         d=ImageDraw.Draw(canvas)
         # Original, varied subject-specific editorial graphic (not a copied cover).
