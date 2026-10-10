@@ -76,10 +76,18 @@ jobs:
               counts=collections.Counter(v.get("status","?") for v in versions)
               print("Hosting versions",site,len(versions),dict(counts),flush=True)
               expired=[v for v in versions if v.get("status")=="EXPIRED"]
-              for version in expired[:80]:
+              for version in expired[:1000]:
                   name=version["name"]
                   if not name.startswith(f"sites/{site}/versions/"):continue
                   reply=session.delete(f"{base}/{name}",timeout=30)
                   print("Delete expired version",name,"status",reply.status_code,flush=True)
               print("Only EXPIRED versions targeted; live FINALIZED versions untouched.",flush=True)
           PY
+
+      - name: Deploy restored photos after expired-version cleanup
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
