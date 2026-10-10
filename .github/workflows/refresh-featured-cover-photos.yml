@@ -1,0 +1,54 @@
+name: Restore bright featured cover photos
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/refresh-featured-cover-photos.yml
+      - scripts/refresh-featured-covers.py
+      - scripts/build-special-covers.py
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: refresh-bright-featured-photos
+  cancel-in-progress: false
+jobs:
+  restore_images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install free image tooling
+        run: python3 -m pip install --quiet 'Pillow>=10,<13'
+      - name: Validate cover generator
+        run: |
+          python3 -m py_compile scripts/build-special-covers.py scripts/refresh-featured-covers.py
+          python3 scripts/build-special-covers.py --self-test
+      - name: Remove baked-in black curtain from the six existing licensed cover photos
+        run: python3 scripts/refresh-featured-covers.py
+      - name: Commit only restored WebP assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- .featured-covers-original-light-v1.json \
+            assets/special/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.webp \
+            assets/special/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.webp \
+            assets/special/news-forza-horizon-6-ps5-26-gennaio-2027-preordini.webp \
+            assets/special/news-one-piece-grand-gourmet-android-ios-switch-23-ottobre-2026.webp \
+            assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp \
+            assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp
+          if git diff --cached --quiet; then
+            echo "Already bright; no files need changes."
+            exit 0
+          fi
+          git commit -m "Restore bright featured photographs without baked-in dark gradient"
+          for attempt in 1 2 3 4; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep "$((attempt * 3))"
+          done
+          exit 1
