@@ -987,7 +987,7 @@ def sidebar_video_box(title, category, link):
     )
 
 def amazon_sidebar_box():
-    return '''<section class="side-box"><div class="module-title">Su Amazon</div><div class="amazon-mini"><h3>I prodotti recensiti da ZazoomTek</h3><p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p><a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section>'''
+    return '''<section class="side-box zt-amazon-partner"><div class="module-title">Su Amazon</div><div class="amazon-mini"><h3>I prodotti recensiti da ZazoomTek</h3><p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p><a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section>'''
 
 def news_video_sidebar(reviews=None):
     reviews=reviews or []
