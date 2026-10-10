@@ -1,0 +1,44 @@
+name: One-time Firebase news preview cleanup
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prune-firebase-news-previews-once.yml'
+permissions:
+  contents: read
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}'
+          project_id: zazomtek
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@15.33.0
+      - name: Delete superseded PR16-PR22 preview channels only
+        shell: bash
+        run: |
+          set -euo pipefail
+          firebase hosting:channel:list --project zazomtek --json > "$RUNNER_TEMP/news-preview-channels.json"
+          python3 - <<'PY'
+          import json,os,subprocess
+          path=os.path.join(os.environ['RUNNER_TEMP'],'news-preview-channels.json')
+          with open(path,encoding='utf-8') as f: response=json.load(f)
+          if isinstance(response,dict) and response.get('status')=='error': raise RuntimeError('Cannot list Firebase channels')
+          channels=response.get('result',response) if isinstance(response,dict) else response
+          if isinstance(channels,dict): channels=channels.get('channels',[])
+          if not isinstance(channels,list): raise RuntimeError('Unexpected Firebase channels listing')
+          prefixes=tuple(f'pr{i}-' for i in range(16,23))
+          chosen=[]
+          for channel in channels:
+              name=channel.get('name','')
+              short=name.rsplit('/',1)[-1]
+              if short.startswith(prefixes): chosen.append(short)
+          print('Superseded news-preview channels found:',len(chosen),flush=True)
+          for name in chosen:
+              print('Deleting temporary channel:',name,flush=True)
+              subprocess.run(['firebase','hosting:channel:delete',name,'--project','zazomtek','--force'],check=True)
+          print('Cleanup complete; live channel was not touched',flush=True)
+          PY
