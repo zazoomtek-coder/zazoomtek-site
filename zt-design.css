@@ -239,3 +239,33 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
   }
   .zt-header .zt-tools,header .search-wrap{padding:10px 0 12px}
 }
+
+
+/* Ultimi Video — miniature leggermente più compatte, senza tagli. */
+.zt-video-stack .zt-stack-card>.video-thumb,
+.zt-video-stack .zt-stack-card .video-thumb{
+  flex:0 0 auto;
+  width:88%;
+  min-width:0;
+  max-width:88%;
+  margin:10px auto 0;
+  height:auto;
+  aspect-ratio:16/9;
+  border-radius:3px;
+}
+.zt-video-stack .zt-stack-card .video-thumb:after{
+  width:58px;
+  height:58px;
+  font-size:1rem;
+}
+.zt-video-stack .zt-stack-copy{
+  padding:12px 18px 16px;
+}
+@media(max-width:720px){
+  .zt-video-stack .zt-stack-card>.video-thumb,
+  .zt-video-stack .zt-stack-card .video-thumb{
+    width:92%;
+    max-width:92%;
+    margin-top:8px;
+  }
+}
