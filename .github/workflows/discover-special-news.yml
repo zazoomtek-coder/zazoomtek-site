@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: special-editorial-publishing
   cancel-in-progress: false
@@ -65,7 +66,8 @@ jobs:
             special-auto-report.json
           if-no-files-found: ignore
           retention-days: 7
-      - name: Commit only new approved stories; existing publisher creates pages
+      - name: Commit verified news to the repository
+        id: publish_commit
         run: |
           git config user.name "ZazoomTek Verified Editorial Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -77,7 +79,8 @@ jobs:
           git commit -m "content: auto-approve verified Tech Impact and Gaming Inside"
           for attempt in 1 2 3; do
             if git pull --rebase origin main && git push origin HEAD:main; then
-              echo "Verified articles committed, publishing triggered."
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              echo "Verified articles committed. Dispatching publisher next."
               exit 0
             fi
             git rebase --abort || true
@@ -85,3 +88,11 @@ jobs:
           done
           echo "::error::Could not safely synchronize approved articles"
           exit 1
+      - name: Build and deploy the approved news
+        if: steps.publish_commit.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A push made with GITHUB_TOKEN does not trigger other Actions workflows.
+          # workflow_dispatch explicitly starts the separate publishing pipeline.
+          gh workflow run publish-special-news.yml --ref main
