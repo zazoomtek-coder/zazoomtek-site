@@ -17,7 +17,7 @@ def _reference():
     css=re.search(r'<style>(.*?)</style>',page,re.S)
     header=re.search(r'(<header class="zt-header">.*?</header><div class="zt-strip">.*?</div></div>)<main',page,re.S)
     sidebar=re.search(r'(<aside class="article-side">.*?</aside>)',page,re.S)
-    footer=re.search(r'(<footer\\b[^>]*class="[^"]*\\blegal-footer\\b[^"]*"[^>]*>.*?</footer>)',page,re.S)
+    footer=re.search(r'(<footer[^>]*class="[^"]*legal-footer[^"]*"[^>]*>.*?</footer>)',page,re.S)
     if not (css and header and sidebar and footer):
         raise RuntimeError("Community NEWS reference layout incomplete")
     return css.group(1),header.group(1),sidebar.group(1),footer.group(1)
