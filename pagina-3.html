@@ -257,6 +257,22 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 /* zt-visual.js injects an older CTA and headline into every slide. Hide its entire overlay, preserving the single editorial headline + CTA. */
 #newsSlider .news-slide .zt-slide-overlay{display:none!important}
 #newsSlider .news-slide .news-slide-copy{display:none!important}
+/* Anteprima: miniature laterali più grandi, testo più compatto; il resto della Home resta invariato */
+#newsSlider .zt-editorial-item{gap:7px!important;padding:5px 6px!important}
+#newsSlider .zt-editorial-item[aria-current="true"]{padding-left:3px!important}
+#newsSlider .zt-editorial-item img{width:54%!important;height:93%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:2px!important}
+#newsSlider .zt-editorial-info{min-width:0!important;align-self:center}
+#newsSlider .zt-editorial-num,#newsSlider .zt-editorial-cat{display:none!important}
+#newsSlider .zt-editorial-num{font-size:clamp(7px,.61vw,9px)!important;line-height:1.1!important;margin-bottom:4px!important;letter-spacing:.04em}
+#newsSlider .zt-editorial-headline{font-size:clamp(7px,.58vw,8.5px)!important;font-weight:600!important;line-height:1.23!important;-webkit-line-clamp:5!important;overflow:hidden!important}
+@media(max-width:650px){
+  #newsSlider .zt-editorial-item{gap:3px!important;padding:3px!important}
+  #newsSlider .zt-editorial-item img{width:43%!important;height:92%!important}
+  #newsSlider .zt-editorial-headline{font-size:6.5px!important;line-height:1.18!important;-webkit-line-clamp:4!important}
+  #newsSlider .zt-editorial-num{font-size:7px!important;margin-bottom:2px!important}
+}
+
+
 </style>
 </head>
 <body>
@@ -541,9 +557,9 @@ battlefield 6 season 5 will launch on october 13, 2026, bringing the fight to la
             <h2>TECH IMPACT</h2><a href="/tech-today.html">VEDI <span aria-hidden="true">→</span></a>
           </div>
           <div class="zt-special-list" id="zt-special-tech">
-<article class="zt-special-item"><a href="/tech-impact-flock-safety-270-uscite-privacy-2026.html" class="zt-special-thumb" aria-label="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza"><img src="/assets/special/tech-impact-flock-safety-270-uscite-privacy-2026.svg" alt="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza" loading="lazy"></a><h3><a href="/tech-impact-flock-safety-270-uscite-privacy-2026.html">Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza</a></h3></article>
-<article class="zt-special-item"><a href="/tech-impact-ico-dieci-aziende-ia-privacy-2026.html" class="zt-special-thumb" aria-label="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici"><img src="/assets/special/tech-impact-ico-dieci-aziende-ia-privacy-2026.svg" alt="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici" loading="lazy"></a><h3><a href="/tech-impact-ico-dieci-aziende-ia-privacy-2026.html">Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici</a></h3></article>
-<article class="zt-special-item"><a href="/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html" class="zt-special-thumb" aria-label="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati"><img src="/assets/special/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.svg" alt="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati" loading="lazy"></a><h3><a href="/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html">Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati</a></h3></article>
+<article class="zt-special-item"><a href="/tech-impact-flock-safety-270-uscite-privacy-2026.html" class="zt-special-thumb" aria-label="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza"><img src="https://images.unsplash.com/photo-1685380458979-f8208307aab0?auto=format&fit=crop&w=1600&h=900&q=82" alt="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza" loading="lazy"></a><h3><a href="/tech-impact-flock-safety-270-uscite-privacy-2026.html">Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza</a></h3></article>
+<article class="zt-special-item"><a href="/tech-impact-ico-dieci-aziende-ia-privacy-2026.html" class="zt-special-thumb" aria-label="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici"><img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&h=900&q=82" alt="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici" loading="lazy"></a><h3><a href="/tech-impact-ico-dieci-aziende-ia-privacy-2026.html">Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici</a></h3></article>
+<article class="zt-special-item"><a href="/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html" class="zt-special-thumb" aria-label="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&h=900&q=82" alt="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati" loading="lazy"></a><h3><a href="/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html">Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati</a></h3></article>
             <article class="zt-special-item">
               <a href="/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html" class="zt-special-thumb" aria-label="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano"><img src="/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp" alt="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano" loading="lazy"></a>
               <h3><a href="/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html">Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano</a></h3>
@@ -565,8 +581,8 @@ battlefield 6 season 5 will launch on october 13, 2026, bringing the fight to la
             <h2>GAMING INSIDE</h2><a href="/gaming-today.html">VEDI <span aria-hidden="true">→</span></a>
           </div>
           <div class="zt-special-list" id="zt-special-gaming">
-<article class="zt-special-item"><a href="/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.html" class="zt-special-thumb" aria-label="Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane"><img src="/assets/special/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.svg" alt="Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane" loading="lazy"></a><h3><a href="/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.html">Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane</a></h3></article>
-<article class="zt-special-item"><a href="/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html" class="zt-special-thumb" aria-label="GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games"><img src="/assets/special/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.svg" alt="GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games" loading="lazy"></a><h3><a href="/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html">GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games</a></h3></article>
+<article class="zt-special-item"><a href="/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.html" class="zt-special-thumb" aria-label="Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane"><img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&h=900&q=82" alt="Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane" loading="lazy"></a><h3><a href="/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.html">Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane</a></h3></article>
+<article class="zt-special-item"><a href="/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html" class="zt-special-thumb" aria-label="GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games"><img src="https://images.unsplash.com/photo-1642976507711-77bc1efa2067?auto=format&fit=crop&w=1600&h=900&q=82" alt="GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games" loading="lazy"></a><h3><a href="/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html">GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games</a></h3></article>
             <article class="zt-special-item">
               <a href="/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html" class="zt-special-thumb" aria-label="EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori"><img src="/assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp" alt="EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori" loading="lazy"></a>
               <h3><a href="/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html">EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori</a></h3>
@@ -831,12 +847,8 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
       button.setAttribute('aria-label','Seleziona: '+e.title);
       const image=document.createElement('img');image.src=e.src;image.alt='';image.loading='lazy';
       const info=document.createElement('span');info.className='zt-editorial-info';
-      const meta=document.createElement('div');meta.className='zt-editorial-num';
-      meta.textContent=String(e.index+1).padStart(2,'0')+' · ';
-      const cat=document.createElement('span');cat.className='zt-editorial-cat';cat.textContent=e.cat;
-      meta.append(cat);
       const title=document.createElement('div');title.className='zt-editorial-headline';title.textContent=e.title;
-      info.append(meta,title);button.append(image,info);
+      info.append(title);button.append(image,info);
       button.addEventListener('click',()=>pick(e.index));side.appendChild(button);
     });
     displayedStart=start;
