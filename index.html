@@ -234,6 +234,13 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 /* Cover YouTube gia' titolata: immagine originale brillante, senza testo o velo scuro. */
 #newsSlider .news-slide.zt-cover-with-text>a:after{content:none!important;display:none!important}
 #newsSlider .news-slide.zt-cover-with-text .zt-editorial-copy{display:none!important}
+/* Tutte le cover restano senza velo/scurimento. Il testo esistente dentro le immagini non va duplicato. */
+#newsSlider .news-slide>a::before,#newsSlider .news-slide>a::after{content:none!important;display:none!important;background:none!important;opacity:0!important}
+#newsSlider .news-slide img{filter:none!important;opacity:1!important;mix-blend-mode:normal!important}
+#newsSlider .news-slide[data-cover-text="true"] .zt-editorial-copy,
+#newsSlider .news-slide.zt-cover-with-text .zt-editorial-copy,
+#newsSlider .news-slide[data-cover-text="true"] .zt-slide-overlay,
+#newsSlider .news-slide.zt-cover-with-text .zt-slide-overlay{display:none!important}
 #newsSlider .news-slide.zt-cover-with-text img{filter:none!important;opacity:1!important;object-fit:cover!important}
 #newsSlider .zt-editorial-copy{position:absolute;bottom:5%;left:5%;width:89%;z-index:3;pointer-events:none;text-shadow:0 2px 6px #000}
 #newsSlider .zt-editorial-kicker{color:#acb7ff;font-size:clamp(9px,1vw,13px);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
@@ -780,15 +787,19 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
     const explicit=e.slide.getAttribute('data-cover-text');
     const youtubeCover=['yt3.ggpht.com/','i.ytimg.com/','img.youtube.com/'].some(host=>e.src.includes(host));
     const hasText=explicit==='true'||(explicit!=='false'&&youtubeCover);
+    e.slide.dataset.coverText=String(hasText);
     e.slide.classList.toggle('zt-cover-with-text',hasText);
     e.slide.classList.toggle('zt-cover-needs-title',!hasText);
+    // Non creare mai scritte sovrapposte alle foto gia' titolate.
     [...link.querySelectorAll('.zt-editorial-copy')].forEach(old=>old.remove());
-    const copy=document.createElement('div');copy.className='zt-editorial-copy';
-    const heading=document.createElement('h2');heading.className='zt-only-headline';
-    heading.textContent=e.title;
-    const read=document.createElement('span');read.className='zt-editorial-link';
-    read.textContent='Leggi la notizia completa ›';
-    copy.append(heading,read);link.append(copy);
+    if(!hasText){
+      const copy=document.createElement('div');copy.className='zt-editorial-copy';
+      const heading=document.createElement('h2');heading.className='zt-only-headline';
+      heading.textContent=e.title;
+      const read=document.createElement('span');read.className='zt-editorial-link';
+      read.textContent='Leggi la notizia completa ›';
+      copy.append(heading,read);link.append(copy);
+    }
   });
   const side=root.querySelector('.zt-editorial-side')||document.createElement('div');
   side.className='zt-editorial-side';
