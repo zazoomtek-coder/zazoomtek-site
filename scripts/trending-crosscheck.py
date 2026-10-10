@@ -81,6 +81,9 @@ def classify(title,hint=""):
     gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
+    # Gaming-branded hardware is still technology, not video-game news.
+    device=bool(re.search(r"\b(cuffie|auricolari|headset|microfono|notebook|laptop|smartphone|router|tastiera|mouse|monitor|scheda grafica|videocamera|audio spaziale|tablet|fotocamera|ssd|dash cam)\b",original))
+    if device:return "tech"
     return "gaming" if gaming or hint=="gaming" else "tech"
 
 def similarity(a,b):
@@ -402,6 +405,7 @@ def selftest():
     assert classify("Dragon’s Dogma 2: Dark Arisen disponibile il nuovo aggiornamento")=="gaming"
     assert classify("Beyond the Dark: Nightwatch horror cooperativo in uscita")=="gaming"
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
+    assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
     assert len(SITES)==10 and len({s[0] for s in SITES})==10
     print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
 
