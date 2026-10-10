@@ -26,8 +26,11 @@ for path in root.rglob('*.html'):
     # Ensure the official ZazoomTek.it masthead is applied to every generated
     # article and static page, including pages rebuilt by YouTube sync.
     home_old='<span class="brand-copy"><strong>ZazoomTek</strong><small>TECH · GAMING · COMMUNITY</small></span>'
-    brand_markup="<span class=\"zt-brand-copy\"><strong class=\"zt-wordmark\" aria-label=\"ZazoomTek.it\"><span class=\"zt-mark-blue\" aria-hidden=\"true\">ZAZOOM</span><span class=\"zt-mark-red\" aria-hidden=\"true\">TEK</span><span class=\"zt-mark-tld\" aria-hidden=\"true\">.it</span></strong><small class=\"zt-brand-tagline\">TECH · GAMING · COMMUNITY</small></span>"
-    # Remove the unwanted suffix from existing pages as well as newly generated ones.\n    html=html.replace('<span class="zt-mark-tld" aria-hidden="true">.it</span>','')\n    html=html.replace('class="zt-wordmark" aria-label="ZazoomTek.it"','class="zt-wordmark" aria-label="ZazoomTek"')\n    html=html.replace(home_old,brand_markup)
+    brand_markup="<span class=\"zt-brand-copy\"><strong class=\"zt-wordmark\" aria-label=\"ZazoomTek\"><span class=\"zt-mark-blue\" aria-hidden=\"true\">ZAZOOM</span><span class=\"zt-mark-red\" aria-hidden=\"true\">TEK</span></strong><small class=\"zt-brand-tagline\">TECH · GAMING · COMMUNITY</small></span>"
+    # Strip the suffix from older published pages, too.
+    html=html.replace('<span class="zt-mark-tld" aria-hidden="true">.it</span>','')
+    html=html.replace('class="zt-wordmark" aria-label="ZazoomTek.it"','class="zt-wordmark" aria-label="ZazoomTek"')
+    html=html.replace(home_old,brand_markup)
     html=re.sub(r'(?<=<img src="/ChatGPT.png" alt="ZazoomTek">)<strong>ZazoomTek</strong>(?=</a>)',brand_markup,html)
     html=unify_footer(html)
     if html!=original:
