@@ -59,6 +59,7 @@ def cached_video(item):
         "contentDetails":{"duration":"PT0S"},
         "_cached_short":bool(item.get("short")),
         "_cached_live":live,
+        "_cached_completed_live":bool(item.get("completedLive")),
     }
 
 def uploads(previous=None, recent_limit=100):
@@ -142,7 +143,7 @@ def is_completed_broadcast(v):
     # A completed broadcast is treated as a normal editorial video only after
     # the user explicitly assigns it to one of the site's YouTube playlists.
     live_state=(v.get("snippet",{}).get("liveBroadcastContent") or "none").lower()
-    return live_state=="none" and bool(v.get("liveStreamingDetails"))
+    return live_state=="none" and (bool(v.get("_cached_completed_live")) or bool(v.get("liveStreamingDetails",{}).get("actualEndTime")))
 
 def youtube_short_ids():
     # YouTube Data API doesn't expose a direct isShort flag.
@@ -687,7 +688,8 @@ def main():
             "publishedAt":v["snippet"]["publishedAt"],
             "category":classify(v),
             "short": (v["id"] in short_ids) or bool(v.get("_cached_short")),
-            "live": is_live_upload(v)
+            "live": is_live_upload(v),
+            "completedLive": is_completed_broadcast(v)
         } for v in vids],ensure_ascii=False,indent=2),
         encoding="utf-8"
     )

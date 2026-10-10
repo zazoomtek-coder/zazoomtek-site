@@ -13,7 +13,8 @@
     "publishedAt": "2026-10-08T05:38:42Z",
     "category": "gaming",
     "short": false,
-    "live": false
+    "live": false,
+    "completedLive": true
   },
   {
     "id": "fKiuvUW5eKI",
@@ -45,7 +46,8 @@
     "publishedAt": "2026-10-03T23:22:40Z",
     "category": null,
     "short": false,
-    "live": false
+    "live": false,
+    "completedLive": true
   },
   {
     "id": "t4QW2iZYHcs",
@@ -53,7 +55,8 @@
     "publishedAt": "2026-10-03T22:04:38Z",
     "category": null,
     "short": false,
-    "live": false
+    "live": false,
+    "completedLive": true
   },
   {
     "id": "Mf8B30PKjqY",
@@ -69,7 +72,8 @@
     "publishedAt": "2026-10-02T07:29:04Z",
     "category": null,
     "short": false,
-    "live": false
+    "live": false,
+    "completedLive": true
   },
   {
     "id": "by7Qm_XFO8c",
@@ -277,7 +281,8 @@
     "publishedAt": "2026-09-03T04:45:39Z",
     "category": "gaming",
     "short": false,
-    "live": false
+    "live": false,
+    "completedLive": true
   },
   {
     "id": "nBgAmwYchWY",

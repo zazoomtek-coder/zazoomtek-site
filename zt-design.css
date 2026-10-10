@@ -120,3 +120,32 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
   .zt-slide-overlay h3{font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}a,button,img{transition:none!important}}
+
+
+/* Full-width HOME sections corresponding to ZazoomTek video/Shorts collections. */
+.zt-home-shelves{width:100%;display:grid;gap:26px;margin:32px 0 16px}
+.zt-shelf{background:#1c1c1c;color:#fff;overflow:hidden;border:1px solid #252525}
+.zt-shelf-head{height:66px;display:flex;align-items:stretch;justify-content:space-between;background:#202020}
+.zt-shelf-head h2{display:flex;align-items:center;margin:0;padding:0 42px 0 25px;background:#d51232;color:white;clip-path:polygon(0 0,100% 0,90% 100%,0 100%);font-size:1.18rem;letter-spacing:.035em;font-weight:900}
+.zt-shelf-head a{align-self:center;padding:10px 20px;font-size:.84rem;color:#f1f1f1;font-weight:700}
+.zt-shelf-head a:hover{color:#f899a9}
+.zt-shelf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:20px}
+.zt-shelf-card{min-width:0;background:#101010;display:flex;flex-direction:column;overflow:hidden}
+.zt-shelf-thumbnail{position:relative;display:block;aspect-ratio:16/9;width:100%;margin:0;padding:0;border:0;background:#090909;cursor:pointer;overflow:hidden}
+.zt-shelf-thumbnail img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .2s}
+.zt-shelf-thumbnail:hover img{transform:scale(1.025)}
+.zt-shelf-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#dc0000;color:white;width:49px;height:35px;border-radius:10px;display:grid;place-items:center;font-size:1rem;box-shadow:0 3px 10px #0006}
+.zt-shelf-thumbnail:hover .zt-shelf-play{background:#a80000}
+.zt-shelf-iframe{display:block;aspect-ratio:16/9;width:100%;border:0}
+.zt-shelf-copy{padding:14px 15px 18px;flex:1;display:flex;flex-direction:column;gap:17px}
+.zt-shelf-copy h3{margin:0;font-size:.97rem;line-height:1.36;font-weight:850;color:#fff}
+.zt-shelf-label{display:block;margin-top:auto;font-size:.72rem;color:#ffb8c4;letter-spacing:.025em}
+.zt-shelf-shorts{grid-template-columns:repeat(6,minmax(0,1fr))}
+.zt-shelf-short .zt-shelf-thumbnail,.zt-shelf-short .zt-shelf-iframe{aspect-ratio:9/16}
+.zt-shelf-short .zt-shelf-copy h3{font-size:.83rem;line-height:1.32}
+.zt-shelf-short .zt-shelf-copy{padding:11px 12px 14px}
+.zt-home-shelves-ready .sidebar .zt-shorts-box{display:none}
+@media(max-width:1100px){.zt-shelf-shorts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.zt-shelf-grid:not(.zt-shelf-shorts){grid-template-columns:repeat(2,minmax(0,1fr))}.zt-shelf-shorts{grid-template-columns:repeat(3,minmax(0,1fr))}.zt-shelf-grid{gap:12px;padding:12px}}
+@media(max-width:600px){.zt-shelf-grid:not(.zt-shelf-shorts){grid-template-columns:1fr}.zt-shelf-shorts{grid-template-columns:repeat(2,minmax(0,1fr))}.zt-shelf-head{height:53px}.zt-shelf-head h2{font-size:.95rem;padding-left:12px;padding-right:26px}.zt-shelf-head a{font-size:.73rem;padding:8px}.zt-home-shelves{margin-top:18px;gap:18px}}
+@media(max-width:370px){.zt-shelf-shorts{grid-template-columns:1fr}}
