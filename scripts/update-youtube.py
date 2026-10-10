@@ -321,14 +321,15 @@ def sidebar_latest_video_card(v):
     )
 
 
-def sidebar_stack_card(v):
+def sidebar_stack_card(v, category_override=None):
     vid=v["id"]; title=esc(v["snippet"]["title"])
-    category=classify(v)
+    category=category_override or classify(v)
     category_label={
         "recensioni":"RECENSIONI",
         "test":"TEST",
         "unboxing":"UNBOXING",
         "gaming":"GAMING",
+        "gameplay":"GAMEPLAY",
         "analogiktek":"ANALOGICTEK",
     }.get(category,(category or "VIDEO").upper())
     dt=datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z","+00:00"))
@@ -546,6 +547,7 @@ def update_home(vids, short_ids):
             (
                 v for v in ordered
                 if classify(v)==category
+                and not is_completed_broadcast(v)
                 and is_true_landscape(v)
                 and v["id"] not in used
             ),
@@ -555,13 +557,30 @@ def update_home(vids, short_ids):
             stack.append(candidate)
             used.add(candidate["id"])
 
-    # Keep exactly one newest video per category, with no duplicates,
-    # then order those category representatives globally by publish date.
+    # Dedicated GAMEPLAY: latest completed livestream, not an older duplicate.
+    # Its category is independent of the Gaming playlist.
+    gameplay=next(
+        (
+            v for v in ordered
+            if is_completed_broadcast(v)
+            and not is_live_upload(v)
+            and v["id"] not in short_ids
+            and v["id"] not in used
+            and (video_aspect_ratio(v) is None or 1.70 <= video_aspect_ratio(v) <= 1.82)
+        ),None
+    )
+    gameplay_id=gameplay["id"] if gameplay else None
+    if gameplay:
+        stack.append(gameplay)
+        used.add(gameplay_id)
+
+    # Keep one upload in each category, plus one real completed livestream,
+    # globally sorted by publication date.
     stack.sort(key=lambda v:v["snippet"]["publishedAt"],reverse=True)
 
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
-        "\n".join(sidebar_stack_card(v) for v in stack)
+        "\n".join(sidebar_stack_card(v,"gameplay" if v["id"]==gameplay_id else None) for v in stack)
     )
     # Right sidebar: exactly the five newest regular landscape uploads,
     # ordered newest -> oldest. The visual carousel itself lives in index.html.
@@ -591,6 +610,7 @@ def update_home(vids, short_ids):
                 if classify(v)==category
                 and v["id"] not in short_ids
                 and not is_live_upload(v)
+                and not is_completed_broadcast(v)
                 and is_true_landscape(v)
             ),
             None

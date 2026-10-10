@@ -149,3 +149,6 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
 @media(max-width:800px){.zt-shelf-grid:not(.zt-shelf-shorts){grid-template-columns:repeat(2,minmax(0,1fr))}.zt-shelf-shorts{grid-template-columns:repeat(3,minmax(0,1fr))}.zt-shelf-grid{gap:12px;padding:12px}}
 @media(max-width:600px){.zt-shelf-grid:not(.zt-shelf-shorts){grid-template-columns:1fr}.zt-shelf-shorts{grid-template-columns:repeat(2,minmax(0,1fr))}.zt-shelf-head{height:53px}.zt-shelf-head h2{font-size:.95rem;padding-left:12px;padding-right:26px}.zt-shelf-head a{font-size:.73rem;padding:8px}.zt-home-shelves{margin-top:18px;gap:18px}}
 @media(max-width:370px){.zt-shelf-shorts{grid-template-columns:1fr}}
+
+/* Dedicated stream-replay category (shown as GAMEPLAY, separate from Gaming). */
+.zt-stack-card[data-category="gameplay"] .zt-stack-category{background:#1771d8;color:#fff}
