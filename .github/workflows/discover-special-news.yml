@@ -2,6 +2,12 @@ name: Automatic verified Tech Impact and Gaming Inside
 on:
   schedule:
     - cron: '17 */4 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/featured_article_layout.py'
+      - 'scripts/auto-approve-special.py'
+      - '.github/workflows/discover-special-news.yml'
   workflow_dispatch:
 permissions:
   contents: write
