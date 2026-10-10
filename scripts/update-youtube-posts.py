@@ -1147,7 +1147,7 @@ def render_review_rows(posts):
         )
     return "".join(rows)
 
-REVIEW_PAGE_SIZE=15
+REVIEW_PAGE_SIZE=20
 
 def review_page_href(n):
     return "/recensioni-scritte.html" if n==1 else f"/recensioni-scritte-{n}.html"
@@ -2190,7 +2190,7 @@ def update_sitemap():
     )
 
 
-PAGE_SIZE=20
+PAGE_SIZE=15
 
 PAGINATED_ARTICLE_STYLE = """<style>
 :root{--blue:#D51232;--mid:#D51232;--red:#D51232;--grad:linear-gradient(90deg,#D51232 0%,#D51232 100%);--line:#e5e5e5;--text:#303030;--muted:#777}
