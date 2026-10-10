@@ -211,6 +211,11 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 .zt-review-card h3 a:hover{color:#FF9900}
 .zt-review-card small{display:block;padding:0 14px 14px;color:#aaa;font-size:.72rem;margin-top:-8px}
 
+
+/* Keep only one compact white description at bottom; remove all original duplicate overlays */
+#newsSlider .news-slide-copy,#newsSlider .news-slide .tag,#newsSlider .news-slide h1,#newsSlider .news-slide h2,#newsSlider .news-slide h3:not(.zt-editorial-title),#newsSlider .news-slide .zt-editorial-title,#newsSlider .zt-editorial-kicker,#newsSlider .zt-editorial-pill,#newsSlider .zt-editorial-link{display:none!important}
+#newsSlider .zt-editorial-copy{bottom:5%!important;left:4%!important;width:91%!important}
+#newsSlider .zt-editorial-summary{font-size:clamp(11px,1.05vw,14px)!important;line-height:1.42!important;font-weight:600!important;margin:0!important;color:#fff!important;max-width:100%!important}
 </style>
 <meta name="zazoomtek-build" content="ppvxEfeg_2k-2026-10-08T11:45:38Z">
 <script src="/zt-analytics.js" defer></script>
@@ -222,7 +227,42 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 .zt-brand-tagline{display:block;color:#fff!important;font-size:clamp(9px,1vw,15px);font-weight:400;letter-spacing:.095em;white-space:nowrap;line-height:1.35}
 .zt-brand{min-width:0}.zt-brand img{flex-shrink:0}
 @media(max-width:850px){.zt-brand-copy .zt-wordmark{font-size:22px!important}.zt-brand-tagline{font-size:10px;letter-spacing:.025em}}
-</style></head>
+</style><style id="zt-editorial-feature-css">
+/* ZazoomTek featured editorial preview — the remainder of the Home is unchanged */
+#newsSlider{position:relative!important;display:block!important;background:#10151e!important}
+#newsSlider .news-slides{aspect-ratio:2.34/1!important;min-height:0!important;background:#090e18!important}
+#newsSlider .news-slide{right:24%!important;overflow:hidden;background:#090e18!important}
+#newsSlider .news-slide>a{display:block;height:100%;position:relative}
+#newsSlider .news-slide img{height:100%!important;width:100%!important;object-fit:cover!important;object-position:center!important}
+#newsSlider .news-slide>a:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(3,7,15,.98) 0%,rgba(3,7,15,.85) 26%,transparent 78%),linear-gradient(to right,rgba(3,7,15,.6),transparent 78%)}
+#newsSlider .zt-editorial-copy{position:absolute;bottom:5%;left:5%;width:89%;z-index:3;pointer-events:none;text-shadow:0 2px 6px #000}
+#newsSlider .zt-editorial-kicker{color:#acb7ff;font-size:clamp(9px,1vw,13px);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+#newsSlider .zt-editorial-title{color:#fff;font-size:clamp(15px,2.15vw,30px);line-height:1.08;max-width:90%;font-weight:950;margin:9px 0 11px}
+#newsSlider .zt-editorial-pill{display:inline-block;background:#e60932;color:#fff;font-size:clamp(8px,.75vw,10px);padding:5px 9px;font-weight:900;letter-spacing:.04em}
+#newsSlider .zt-editorial-summary{color:#e8edf5;font-size:clamp(9px,.98vw,13px);line-height:1.35;font-weight:650;margin:10px 0}
+#newsSlider .zt-editorial-link{font-size:clamp(10px,1vw,13px);color:#fff;font-weight:900}
+#newsSlider .zt-editorial-side{position:absolute;right:0;top:0;bottom:0;width:24%;display:flex;flex-direction:column;z-index:5;background:#151a23}
+#newsSlider .zt-editorial-item{border:0;border-bottom:1px solid rgba(255,255,255,.09);background:transparent;color:#fff;flex:1;min-height:0;display:flex;gap:8px;padding:6px;text-align:left;cursor:pointer;align-items:center;overflow:hidden}
+#newsSlider .zt-editorial-item:hover{background:rgba(255,255,255,.045)}
+#newsSlider .zt-editorial-item[aria-current="true"]{background:transparent;border-left:3px solid #ea153b;padding-left:3px}
+#newsSlider .zt-editorial-item img{width:37%!important;height:85%!important;max-height:100%;object-fit:cover!important;border-radius:3px;flex-shrink:0}
+#newsSlider .zt-editorial-info{min-width:0;flex:1}
+#newsSlider .zt-editorial-num{font-size:clamp(8px,.7vw,10px);color:#93a4bd;margin-bottom:5px}
+#newsSlider .zt-editorial-cat{color:#5fafff;font-weight:900}
+#newsSlider .zt-editorial-headline{font-size:clamp(8px,.83vw,11px);font-weight:700;line-height:1.27;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:650px){#newsSlider .zt-editorial-side{width:32%}#newsSlider .news-slide{right:32%!important}#newsSlider .zt-editorial-item{padding:2px;gap:3px}#newsSlider .zt-editorial-item img{width:30%!important}#newsSlider .zt-editorial-headline{font-size:7px;-webkit-line-clamp:3}#newsSlider .zt-editorial-num{font-size:7px;margin-bottom:1px}#newsSlider .zt-editorial-title{font-size:clamp(14px,3.7vw,22px)}#newsSlider .zt-editorial-summary{font-size:9px}#newsSlider .zt-editorial-kicker{font-size:8px}#newsSlider .zt-editorial-copy{bottom:3%}}
+
+/* Preview: one large white headline and read-more link, no small summary or featured badge */
+#newsSlider .zt-editorial-copy .zt-only-headline{display:block!important;font-size:clamp(21px,2.6vw,37px)!important;line-height:1.12!important;color:white!important;font-weight:850!important;margin:0 0 16px!important;max-width:98%!important}
+#newsSlider .zt-editorial-copy .zt-editorial-link{display:block!important;color:white!important;font-size:clamp(11px,.95vw,14px)!important;font-weight:800!important}
+#newsSlider .zt-editorial-summary,#newsSlider .zt-editorial-pill{display:none!important}
+@media(max-width:650px){#newsSlider .zt-editorial-copy .zt-only-headline{font-size:clamp(14px,3.1vw,22px)!important;margin-bottom:7px!important}#newsSlider .zt-editorial-copy .zt-editorial-link{font-size:9px!important}}
+
+/* PR preview: remove the redundant red IN EVIDENZA badge injected by zt-visual.js, on every main news slide only */
+/* zt-visual.js injects an older CTA and headline into every slide. Hide its entire overlay, preserving the single editorial headline + CTA. */
+#newsSlider .news-slide .zt-slide-overlay{display:none!important}
+</style>
+</head>
 <body>
 <header>
   <div class="shell topbar">
@@ -700,6 +740,71 @@ function ztInitSmartSticky(selector,mobileWidth){
   if('ResizeObserver' in window){new ResizeObserver(update).observe(el);}
 }
 document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.sidebar',820);});
+</script>
+<script id="zt-editorial-feature-script">
+(function(){
+  const root=document.getElementById('newsSlider');
+  if(!root||root.dataset.editorialReady)return;
+  root.dataset.editorialReady='1';
+  const slides=[...root.querySelectorAll('.news-slide')];
+  if(!slides.length)return;
+  const entries=slides.map((slide,i)=>{
+    const link=slide.querySelector('a'), image=link?.querySelector('img');
+    return {slide,index:i,src:image?.getAttribute('src')||'',
+      title:(image?.getAttribute('alt')||'Notizia ZazoomTek').trim(),
+      cat:(slide.dataset.trendCategory||'tech').toUpperCase()};
+  });
+  // Same presentation for EVERY slide, not just the first five.
+  entries.forEach(e=>{
+    const link=e.slide.querySelector('a');if(!link)return;
+    [...link.querySelectorAll('.zt-editorial-copy')].forEach(old=>old.remove());
+    const copy=document.createElement('div');copy.className='zt-editorial-copy';
+    const heading=document.createElement('h2');heading.className='zt-only-headline';
+    heading.textContent=e.title;
+    const read=document.createElement('span');read.className='zt-editorial-link';
+    read.textContent='Leggi la notizia completa ›';
+    copy.append(heading,read);link.append(copy);
+  });
+  const side=document.createElement('div');side.className='zt-editorial-side';
+  side.setAttribute('aria-label','Altre notizie in evidenza');
+  root.appendChild(side);
+  let displayedStart=-1;
+  function activeIndex(){return Math.max(0,slides.findIndex(el=>el.classList.contains('active')))}
+  function pick(i){
+    const current=activeIndex(); const steps=(i-current+slides.length)%slides.length;
+    const next=document.getElementById('newsNext');
+    if(next){for(let j=0;j<steps;j++)next.click()}
+    update();
+  }
+  function renderGroup(start){
+    side.replaceChildren();
+    entries.slice(start,start+5).forEach(e=>{
+      const button=document.createElement('button');button.type='button';button.className='zt-editorial-item';
+      button.setAttribute('aria-label','Seleziona: '+e.title);
+      const image=document.createElement('img');image.src=e.src;image.alt='';image.loading='lazy';
+      const info=document.createElement('span');info.className='zt-editorial-info';
+      const meta=document.createElement('div');meta.className='zt-editorial-num';
+      meta.textContent=String(e.index+1).padStart(2,'0')+' · ';
+      const cat=document.createElement('span');cat.className='zt-editorial-cat';cat.textContent=e.cat;
+      meta.append(cat);
+      const title=document.createElement('div');title.className='zt-editorial-headline';title.textContent=e.title;
+      info.append(meta,title);button.append(image,info);
+      button.addEventListener('click',()=>pick(e.index));side.appendChild(button);
+    });
+    displayedStart=start;
+  }
+  function update(){
+    const current=activeIndex();
+    // The sidebar displays five news at a time and follows the carousel.
+    const start=Math.floor(current/5)*5;
+    if(start!==displayedStart)renderGroup(start);
+    [...side.children].forEach((button,i)=>button.setAttribute('aria-current',String(start+i===current)));
+  }
+  new MutationObserver(update).observe(root.querySelector('.news-slides'),{
+    subtree:true,attributes:true,attributeFilter:['class']
+  });
+  update();
+})();
 </script>
 </body>
 </html>
