@@ -67,7 +67,7 @@ def main():
             output.append({"section":item.get("section"),"topic":item.get("title"),
                 "status":"invalid_word_count","words":count,"approved":False})
             continue
-        output.append({"section":item["section"],"status":"needs_human_fact_check",
+        output.append({"section":item["section"],"topic":item.get("title"),"status":"needs_human_fact_check",
             "title":title,"summary":summary,"paragraphs":paragraphs,"words":count,
             "source_urls":[x["url"] for x in sources],"evidence_limits":raw.get("evidence_limits",[]),
             "approved":False,"publication_allowed":False})

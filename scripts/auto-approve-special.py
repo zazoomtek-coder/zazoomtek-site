@@ -28,7 +28,17 @@ def material(x):
         if not host or host in seen or len(excerpt.split())<175:continue
         docs.append({"url":d["url"],"text":excerpt,"excerpts":d.get("excerpts",[])[:10],"metadata":d.get("metadata",{})})
         seen.add(host)
-    return docs if any(primary(domain(d["url"])) for d in docs) or len(seen)>=2 else []
+    # A long, retrieved original report can be checked fact-by-fact without
+    # manufacturing a second source. Source URLs, body and metadata are required.
+    # For an ordinary newsroom story, always attribute reporting in the article.
+    authoritative=any(primary(domain(d["url"])) for d in docs)
+    independent=len(seen)>=2
+    documented_single=(len(docs)==1 and
+        len(docs[0]["text"].split())>=240 and
+        len(docs[0]["excerpts"])>=3 and
+        bool((docs[0]["metadata"].get("og:title") or
+              docs[0]["metadata"].get("description"))))
+    return docs if authoritative or independent or documented_single else []
 def duplicate(article,existing):
     x=norm(article["title"])
     urls=set(article.get("source_urls",[]))
@@ -44,10 +54,13 @@ bozza confrontandolo con le fonti originali allegate. Non usare informazioni est
 non inventare citazioni. Rifiuta se esiste anche UNA affermazione non documentata,
 una data dubbia, un'accusa non attribuita, un titolo sensazionalistico o due fonti che
 descrivono eventi differenti. Rifiuta testi troppo simili al copyright delle fonti.
+Una singola fonte giornalistica originale approfondita è ammissibile se ogni
+affermazione è supportata dall'articolo e attribuita correttamente, senza presentare
+il racconto della fonte come indagine autonoma di ZazoomTek.
 Per ogni paragrafo fornisci una CITAZIONE LETTERALE di 28-160 caratteri presa
 dagli estratti a sostegno dei fatti del paragrafo; queste citazioni NON saranno
 pubblicate. Rispondi SOLO JSON:
-{"publish":true/false,"unsupported_indices":[0],"supported":[{"index":0,"quote":"citazione letterale presente negli estratti"}],"reason":"..."}
+{"publish":true/false,"headline_supported":true/false,"summary_supported":true/false,"unsupported_indices":[0],"supported":[{"index":0,"quote":"citazione letterale presente negli estratti"}],"reason":"..."}
 SEZIONE: """+article["section"]+"\nARTICOLO: "+json.dumps(
         {k:article[k] for k in ("title","summary","paragraphs")},ensure_ascii=False)+
         "\nFONTI: "+json.dumps([{"url":d["url"],"metadata":d["metadata"],"excerpts":d["excerpts"]}
@@ -71,6 +84,7 @@ def verified(article,docs,audit):
     if not 300<=len(" ".join([article["title"],article["summary"]]+text).split())<=600:return False
     if article.get("status")!="needs_human_fact_check":return False
     if not isinstance(audit,dict) or audit.get("publish") is not True or audit.get("unsupported_indices"):return False
+    if audit.get("headline_supported") is not True or audit.get("summary_supported") is not True:return False
     grounded=set();quotes=set()
     corpus=[norm(d["text"]) for d in docs]
     for row in audit.get("supported",[]):
@@ -95,8 +109,16 @@ def main():
         sec=x.get("section")
         if sec not in counts or counts[sec]>=({"tech":2,"gaming":1}[sec]):continue
         why=""
-        docs=material(by_subject.get((sec,x.get("topic")),{}))
-        if not docs:why="Insufficient independent or authoritative source material"
+        source_record=by_subject.get((sec,x.get("topic")))
+        if source_record is None and isinstance(x.get("source_urls"),list):
+            # Recover topic linkage if an older draft omitted its source title.
+            matching=[v for v in evidence
+              if v.get("section")==sec and any(
+                row.get("data",{}).get("url") in x["source_urls"]
+                for row in v.get("sources",[]) if isinstance(row,dict))]
+            if len(matching)==1:source_record=matching[0]
+        docs=material(source_record or {})
+        if not docs:why="Insufficient original reporting or primary-source evidence"
         elif duplicate(x,old+created):why="Topic or original source already published"
         elif sec=="gaming" and not re.search(r"(?i)videogioc|videoludic|gaming|giocator|game|playstation|xbox|nintendo|steam|diablo|call.of.duty",(x.get("topic") or "")+" "+x.get("title","")):why="Not a gaming policy topic"
         elif x.get("status")!="needs_human_fact_check":why="Not a complete draft"
@@ -137,6 +159,17 @@ def self_test():
     assert primary("digital-strategy.ec.europa.eu")
     assert not primary("example.com")
     assert slug("PlayStation 2: TV 4K!")=="playstation-2-tv-4k"
+    detailed={
+       "sources":[{"result":"retrieved","data":{
+           "url":"https://example.org/technology-research",
+           "excerpts":["A detailed original public report explains the documented technology decision. "*8]*5,
+           "metadata":{"og:title":"Detailed original report about technology"}}}]
+    }
+    assert len(material(detailed))==1, "Documented single-source reporting should be reviewed"
+    assert material({"sources":[{"result":"retrieved","data":{
+           "url":"https://example.org/brief-note",
+           "excerpts":["Short, unsupported promotional blurb."],
+           "metadata":{"og:title":"Promotional note"}}}]})==[]
     assert not verified({"status":"needs_human_fact_check","title":"Title of test source article",
                          "summary":"A summary that contains enough information for an ordinary editorial website article.",
                          "paragraphs":["Invented facts do not belong in the site. "*5]*4},
