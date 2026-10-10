@@ -1,13 +1,13 @@
 {
-  "checked_at": "2026-10-10T17:33:17.668657+00:00",
+  "checked_at": "2026-10-10T17:39:15.656121+00:00",
   "source_sites": 10,
-  "matches": 4,
+  "matches": 5,
   "selected": [
     {
       "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
       "section": "tech",
       "url": "/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html",
-      "trend_score": 77.25,
+      "trend_score": 77.13,
       "sources": [
         {
           "site": "Gamesurf",
@@ -20,7 +20,7 @@
       "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
       "section": "tech",
       "url": "/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
-      "trend_score": 60.84,
+      "trend_score": 60.72,
       "sources": [
         {
           "site": "Tom's Hardware Italia",
@@ -33,7 +33,7 @@
       "title": "News: The Talos Principle 3 mostra il primo gameplay: l'Anomalia e nuovi enigmi nel capitolo finale della trilogia",
       "section": "gaming",
       "url": "/news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html",
-      "trend_score": 90.79,
+      "trend_score": 90.67,
       "sources": [
         {
           "site": "Gamesurf",
@@ -61,7 +61,7 @@
       "title": "News: ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie",
       "section": "gaming",
       "url": "/news-UgkxSAfW_T-tL6dS7sn7syzWrfKVS2hxnK5L.html",
-      "trend_score": 71.83,
+      "trend_score": 71.71,
       "sources": [
         {
           "site": "SmartWorld",
