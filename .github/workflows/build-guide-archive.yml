@@ -1,0 +1,65 @@
+name: Update Guide archive
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'guida-*.html'
+      - 'guide-*.html'
+      - 'scripts/build-guide-archive.py'
+      - '.github/workflows/build-guide-archive.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: guide-archive
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate generator
+        run: python3 -m py_compile scripts/build-guide-archive.py
+      - name: Rebuild all guide listings
+        run: python3 scripts/build-guide-archive.py
+      - name: Commit guide listing
+        id: save
+        run: |
+          git config user.name "zazoomtek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add guide.html
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Auto-update all published guides"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish updated guide listing
+        id: publish
+        if: steps.save.outputs.changed == 'true'
+        run: |
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          exit 1
+      - name: Deploy Guide to Firebase
+        if: steps.save.outputs.changed == 'true' && steps.publish.outcome == 'success'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
