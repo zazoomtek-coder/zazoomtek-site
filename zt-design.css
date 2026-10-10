@@ -56,15 +56,20 @@ a:hover>.article-image,.article-row a:hover img,.news-row a:hover img{transform:
 .zt-slide-overlay h3{font-size:clamp(18px,2.2vw,27px);line-height:1.16;max-width:92%;margin:10px 0 8px;text-shadow:0 2px 7px #000b}
 .zt-slide-overlay span.zt-slide-read{font-size:.77rem;font-weight:750}
 .zt-video-stack,.zt-latest-videos,.zt-shorts-box,.side-box{box-shadow:0 3px 12px rgba(0,0,0,.06)}
-/* "Ultimi Video": full-width thumbnails, video title and date below each image. */
-.zt-video-stack .zt-stack-card{display:flex;flex-direction:column;align-items:stretch;gap:0;width:100%;min-width:0;min-height:0;margin:0;padding:0;border-bottom:1px solid #e8e8e8;background:#fff}
-.zt-video-stack .zt-stack-card .video-thumb{display:block;flex:0 0 auto;width:100%;min-width:100%;max-width:100%;height:auto;aspect-ratio:16/9;overflow:hidden;margin:0;padding:0;background:#141b25}
+/* Ultimi Video — approved 60% thumbnail / 40% copy side-by-side layout. */
+.zt-video-stack .zt-stack-list{display:block;width:100%;background:#fff}
+.zt-video-stack .zt-stack-card{display:grid;grid-template-columns:minmax(0,60%) minmax(0,40%);align-items:center;gap:0;width:100%;min-width:0;min-height:0;padding:0;margin:0;border-bottom:1px solid #e8e8e8;background:#fff}
+.zt-video-stack .zt-stack-card .video-thumb{display:block;width:100%;min-width:0;max-width:100%;height:auto;aspect-ratio:16/9;overflow:hidden;margin:0;padding:0;border:0;background:#141b25;position:relative;cursor:pointer}
 .zt-video-stack .zt-stack-card .video-thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-.zt-video-stack .zt-stack-card .video-thumb:after{width:70px;height:70px;font-size:1.12rem;border-width:3px}
-.zt-video-stack .zt-stack-copy{display:block;flex:0 0 auto;width:100%;min-width:0;padding:16px 18px 19px}
-.zt-video-stack .zt-stack-copy h3{font-size:1.06rem;line-height:1.3;display:block;overflow:visible;word-break:normal;-webkit-line-clamp:unset}
-.zt-video-stack .zt-stack-copy small{margin-top:8px;font-size:.8rem}
-.zt-video-stack .zt-stack-category{left:12px;bottom:12px;position:absolute;padding:6px 10px;font-size:.64rem;border-radius:3px}
+.zt-video-stack .zt-stack-card .video-thumb:after{width:52px;height:38px;line-height:1;border:0;border-radius:10px;background:#e5092e;box-shadow:0 3px 10px rgba(0,0,0,.4);font-size:1.2rem}
+.zt-video-stack .zt-stack-copy{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;width:100%;min-width:0;min-height:0;gap:0;padding:11px 13px}
+.zt-video-stack .zt-stack-copy h3{margin:0;color:#171717;font-size:clamp(.84rem,1.12vw,1.07rem);font-weight:900;line-height:1.23;letter-spacing:0;overflow-wrap:anywhere;display:block;overflow:visible;-webkit-line-clamp:unset}
+.zt-video-stack .zt-stack-card .zt-stack-copy .zt-stack-category{display:block;position:static;left:auto;bottom:auto;z-index:auto;margin:12px 0 0;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent!important;color:#d51232!important;font-size:.78rem;font-weight:900;letter-spacing:.025em;line-height:1.2}
+.zt-video-stack .zt-stack-copy small{display:none}
+.zt-video-stack .side-head-more{display:flex;align-items:center;justify-content:center;min-width:70px;position:relative;z-index:2;color:#fff;text-decoration:none;font-size:.79rem;font-weight:900;letter-spacing:.035em}
+.zt-video-stack .side-head-more:hover{color:#ffd1d9}
+@media(max-width:720px){.zt-video-stack .zt-stack-copy{padding:9px 10px}.zt-video-stack .zt-stack-copy h3{font-size:.84rem}.zt-video-stack .zt-stack-card .zt-stack-copy .zt-stack-category{font-size:.7rem;margin-top:8px}}
+@media(max-width:420px){.zt-video-stack .zt-stack-card{grid-template-columns:minmax(0,55%) minmax(0,45%)}.zt-video-stack .zt-stack-copy h3{font-size:.78rem}.zt-video-stack .zt-stack-copy{padding:8px}.zt-video-stack .zt-stack-card .zt-stack-copy .zt-stack-category{font-size:.66rem}}
 .news-sidebar .side-video{display:grid;grid-template-columns:minmax(172px,55%) minmax(0,1fr);gap:11px;align-items:center;padding:12px;border-bottom:1px solid #eee}
 .news-sidebar .side-video a.thumb{width:100%;display:block}
 .news-sidebar .side-video img{width:100%;aspect-ratio:16/9;height:auto;object-fit:cover}
