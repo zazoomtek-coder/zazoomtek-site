@@ -1,0 +1,45 @@
+name: Validate six balanced featured news
+on:
+  push:
+    branches: [news-featured-six-balanced-20261010]
+  pull_request:
+    paths:
+      - 'scripts/apply-standard-news-featured.py'
+      - 'scripts/trending-crosscheck.py'
+      - 'index.html'
+      - '.github/workflows/validate-featured-six.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile news scripts and verify ten-site matching
+        run: |
+          python3 -m py_compile scripts/apply-standard-news-featured.py scripts/trending-crosscheck.py
+          python3 scripts/trending-crosscheck.py --test
+      - name: Simulate the standard and trend publishers (no website deploy)
+        run: |
+          python3 scripts/apply-standard-news-featured.py
+          python3 scripts/trending-crosscheck.py --apply
+      - name: Enforce six distinct featured links and 2+2+1+1 slots
+        run: |
+          python3 - <<'PY'
+          import re
+          from collections import Counter
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          area=s.split('<!-- FEATURED_NEWS_START -->',1)[1].split('<!-- FEATURED_NEWS_END -->',1)[0]
+          cats=re.findall(r'data-trend-category="([^"]+)"',area)
+          expected={'tech':2,'gaming':2,'tech-impact':1,'gaming-inside':1}
+          if dict(Counter(cats))!=expected or len(cats)!=6:
+              raise SystemExit(f'Wrong 6-slot mix: {cats}')
+          links=re.findall(r'<article class="news-slide[^"]*"[^>]*><a href="([^"]+)"',area)
+          if len(links)!=6 or len(set(links))!=6:
+              raise SystemExit(f'Duplicated/missing news links: {links}')
+          if 'entries.slice(start,start+6)' not in s:
+              raise SystemExit('Six-item sidebar missing')
+          print('PASSED: exactly six news, independent special feed intact, sidebar six')
+          PY
