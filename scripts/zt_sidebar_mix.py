@@ -170,7 +170,7 @@ def build_sidebar(kind, news, tech, gaming, videos):
         "news": [reviews, all_news, tech_module, gaming_video, gaming_module],
         "reviews": [tests, all_news, gaming_module, unboxing, tech_module],
         "tech": [reviews, all_news, gaming_module, tests],
-        "gaming": [gaming_video, all_news, tech_module, reviews],
+        "gaming": [tech_module, gaming_video, all_news, reviews],
         "guides": [all_news, tech_module, unboxing, gaming_module, reviews],
     }
     # Feature always on top, Amazon immediately below, then diversified blocks.
