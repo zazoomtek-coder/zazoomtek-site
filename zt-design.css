@@ -405,3 +405,23 @@ section.side-box:has(> .amazon-mini) .amazon-mini a:hover{
 .zt-amazon-game-head{background:#131921!important;color:#fff!important}
 .zt-amazon-game-button2{background:#ff9900!important;color:#131921!important}
 .zt-amazon-game-button2:hover{background:#e88b00!important}
+/* BRAND SIZE FIT 20261010: match the old header footprint.
+   Only affects the logo block; the carousel, navigation and page layouts stay unchanged. */
+.zt-header .zt-brand .zt-brand-copy{gap:6px}
+.zt-header .zt-brand .zt-wordmark{
+  font-size:clamp(19px,1.45vw,24px)!important;
+  line-height:1!important;
+  letter-spacing:-.055em!important;
+}
+.zt-header .zt-brand .zt-mark-blue{color:#58a8f0!important}
+.zt-header .zt-brand .zt-mark-red{color:#e41b45!important}
+.zt-header .zt-brand .zt-brand-tagline{
+  font-size:10px!important;
+  line-height:1.2!important;
+  letter-spacing:.065em!important;
+  color:#fff!important;
+}
+@media(max-width:1230px){
+  .zt-header .zt-brand .zt-wordmark{font-size:20px!important}
+  .zt-header .zt-brand .zt-brand-tagline{font-size:9px!important}
+}
