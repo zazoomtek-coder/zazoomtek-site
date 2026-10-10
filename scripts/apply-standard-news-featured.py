@@ -122,15 +122,28 @@ def slide_block(standard, special):
         raise RuntimeError("Featured NEWS must contain six different articles")
 
     slides = []
+    thumbnails = []
     for i, item in enumerate(chosen):
         active = " active" if i == 0 else ""
+        image = str(item["image"])
+        # A YouTube thumbnail normally already carries its editorial lettering.
+        has_text = any(host in image for host in ("yt3.ggpht.com/", "i.ytimg.com/", "img.youtube.com/"))
+        cover_class = " zt-cover-with-text" if has_text else " zt-cover-needs-title"
+        title = esc(re.sub(r"(?i)^news\\s*:\\s*", "", str(item["title"])))
         slides.append(
-            '<article class="news-slide' + active + '" data-slide="' + str(i) +
+            '<article class="news-slide' + active + cover_class + '" data-slide="' + str(i) +
             '" data-trend-category="' + esc(item["section"]) + '"><a href="' + esc(item["url"]) + '">'
-            '<img src="' + esc(item["image"]) + '" alt="' + esc(item["title"]) + '" loading="lazy"></a></article>'
+            '<img src="' + esc(image) + '" alt="' + title + '" loading="lazy"></a></article>'
+        )
+        thumbnails.append(
+            '<button type="button" class="zt-editorial-item" data-featured-index="' + str(i) +
+            '" aria-label="Seleziona: ' + title + '"><img src="' + esc(image) +
+            '" alt="" loading="lazy"><span class="zt-editorial-info"><span class="zt-editorial-headline">' +
+            title + '</span></span></button>'
         )
     return ('<div class="news-slider" id="newsSlider"><div class="news-slides">'
-            + "\n".join(slides) + '</div></div>')
+            + "\n".join(slides) + '</div><div class="zt-editorial-side" aria-label="Altre notizie in evidenza">'
+            + "".join(thumbnails) + '</div></div>')
 
 
 def replace_between(s, begin, end, text):
