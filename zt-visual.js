@@ -31,7 +31,7 @@ function ztHomeGallery(){
   shelves.id='zt-home-shelves';
   shelves.className='zt-home-shelves';
   if(!existing)main.appendChild(shelves);
-  const types=['gaming','recensioni','unboxing','analogiktek','test'];
+  const types=['recensioni','test','unboxing','gaming','analogiktek'];
   const labels={gaming:'GAMING',recensioni:'RECENSIONI',unboxing:'UNBOXING',analogiktek:'ANALOGIKTEK',test:'TEST',gameplay:'GAMEPLAY'};
   function card(video,short){
     const article=document.createElement('article');
@@ -77,19 +77,17 @@ function ztHomeGallery(){
     const clean=source.filter(x=>x && /^[A-Za-z0-9_-]{11}$/.test(x.id||'') && typeof x.title==='string' && x.title.trim());
     clean.sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||''));
     const selected=[];const used=new Set();
+    // Fixed category order: the same as the channel playlists, no sorting by upload date.
+    // Missing categories use their own last verified video without moving GAMEPLAY.
     for(const type of types){
-      const item=clean.find(x=>x.category===type && !x.short && !x.live && !x.completedLive && !used.has(x.id));
+      const item=clean.find(x=>x.category===type && !x.short && !x.live && !x.completedLive && !used.has(x.id))
+        || ztHomeVideoFallback.find(x=>x.category===type && !used.has(x.id));
       if(item){used.add(item.id);selected.push(Object.assign({},item,{category:type}))}
     }
-    // GAMEPLAY: most recent completed livestream, separate from regular GAMING uploads.
+    // GAMEPLAY always occupies the last tile, reserved for the latest completed livestream.
     let archive=clean.find(x=>x.completedLive && !x.short && !x.live && !used.has(x.id));
     if(!archive)archive=ztHomeVideoFallback.find(x=>x.category==='gameplay' && !used.has(x.id));
     if(archive){used.add(archive.id);selected.push(Object.assign({},archive,{category:'gameplay'}))}
-    // Missing playlist data must not create fake slots.
-    for(const item of ztHomeVideoFallback){
-      if(selected.length>=6)break;
-      if(!used.has(item.id) && item.category!=='gameplay'){used.add(item.id);selected.push(item)}
-    }
     const shorts=clean.filter(x=>x.short&&!x.live).slice(0,6);
     if(shorts.length<6){for(const item of ztHomeShortFallback){if(shorts.length>=6)break;if(!shorts.some(s=>s.id===item.id))shorts.push(item)}}
     shelves.replaceChildren(group('ESPLORA VIDEO','https://www.youtube.com/@ZazoomTek/videos',selected.slice(0,6),false),group('ULTIMI SHORTS','https://www.youtube.com/@ZazoomTek/shorts',shorts.slice(0,6),true));

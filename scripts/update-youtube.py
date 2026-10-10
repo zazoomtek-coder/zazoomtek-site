@@ -574,9 +574,9 @@ def update_home(vids, short_ids):
         stack.append(gameplay)
         used.add(gameplay_id)
 
-    # Keep one upload in each category, plus one real completed livestream,
-    # globally sorted by publication date.
-    stack.sort(key=lambda v:v["snippet"]["publishedAt"],reverse=True)
+    # Preserve the official channel playlist order rather than global recency:
+    # Recensioni, Test, Unboxing, Gaming, AnalogikTek; GAMEPLAY always last.
+    # Recent uploads are still selected *within* each category.
 
     h=replace_marker_block(
         h,"<!-- SIDEBAR_STACK_VIDEOS_START -->","<!-- SIDEBAR_STACK_VIDEOS_END -->",
