@@ -27,15 +27,19 @@ jobs:
           path=os.path.join(os.environ['RUNNER_TEMP'],'news-preview-channels.json')
           with open(path,encoding='utf-8') as f: response=json.load(f)
           if isinstance(response,dict) and response.get('status')=='error': raise RuntimeError('Cannot list Firebase channels')
-          channels=response.get('result',response) if isinstance(response,dict) else response
-          if isinstance(channels,dict): channels=channels.get('channels',[])
-          if not isinstance(channels,list): raise RuntimeError('Unexpected Firebase channels listing')
+          channels=[]
+          def scan(value):
+              if isinstance(value,dict):
+                  name=value.get('name')
+                  if isinstance(name,str) and '/channels/' in name: channels.append(name.rsplit('/',1)[-1])
+                  for nested in value.values(): scan(nested)
+              elif isinstance(value,list):
+                  for nested in value: scan(nested)
+          scan(response)
+          print('Firebase channels listed:',len(channels),flush=True)
+          print('Temporary PR channels:',sorted(x for x in channels if x.startswith('pr'))[:50],flush=True)
           prefixes=tuple(f'pr{i}-' for i in range(16,23))
-          chosen=[]
-          for channel in channels:
-              name=channel.get('name','')
-              short=name.rsplit('/',1)[-1]
-              if short.startswith(prefixes): chosen.append(short)
+          chosen=sorted(set(x for x in channels if x.startswith(prefixes)))
           print('Superseded news-preview channels found:',len(chosen),flush=True)
           for name in chosen:
               print('Deleting temporary channel:',name,flush=True)
