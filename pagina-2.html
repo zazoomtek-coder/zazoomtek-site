@@ -222,7 +222,43 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 .zt-brand-tagline{display:block;color:#fff!important;font-size:clamp(9px,1vw,15px);font-weight:400;letter-spacing:.095em;white-space:nowrap;line-height:1.35}
 .zt-brand{min-width:0}.zt-brand img{flex-shrink:0}
 @media(max-width:850px){.zt-brand-copy .zt-wordmark{font-size:22px!important}.zt-brand-tagline{font-size:10px;letter-spacing:.025em}}
-</style></head>
+</style><style id="zt-editorial-feature-css">
+/* ZazoomTek featured editorial preview — the remainder of the Home is unchanged */
+#newsSlider{position:relative!important;display:block!important;background:#10151e!important}
+#newsSlider .news-slides{aspect-ratio:2.34/1!important;min-height:0!important;background:#090e18!important}
+#newsSlider .news-slide{right:24%!important;overflow:hidden;background:#090e18!important}
+#newsSlider .news-slide>a{display:block;height:100%;position:relative}
+#newsSlider .news-slide img{height:100%!important;width:100%!important;object-fit:cover!important;object-position:center!important}
+#newsSlider .news-slide>a:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(3,7,15,.98) 0%,rgba(3,7,15,.85) 26%,transparent 78%),linear-gradient(to right,rgba(3,7,15,.6),transparent 78%)}
+#newsSlider .zt-editorial-copy{position:absolute;bottom:5%;left:5%;width:89%;z-index:3;pointer-events:none;text-shadow:0 2px 6px #000}
+#newsSlider .zt-editorial-kicker{color:#acb7ff;font-size:clamp(9px,1vw,13px);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+#newsSlider .zt-editorial-title{color:#fff;font-size:clamp(15px,2.15vw,30px);line-height:1.08;max-width:90%;font-weight:950;margin:9px 0 11px}
+#newsSlider .zt-editorial-pill{display:inline-block;background:#e60932;color:#fff;font-size:clamp(8px,.75vw,10px);padding:5px 9px;font-weight:900;letter-spacing:.04em}
+#newsSlider .zt-editorial-summary{color:#e8edf5;font-size:clamp(9px,.98vw,13px);line-height:1.35;font-weight:650;margin:10px 0}
+#newsSlider .zt-editorial-link{font-size:clamp(10px,1vw,13px);color:#fff;font-weight:900}
+#newsSlider .zt-editorial-side{position:absolute;right:0;top:0;bottom:0;width:24%;display:flex;flex-direction:column;z-index:5;background:#151a23}
+#newsSlider .zt-editorial-item{border:0;border-bottom:1px solid rgba(255,255,255,.09);background:transparent;color:#fff;flex:1;min-height:0;display:flex;gap:8px;padding:6px;text-align:left;cursor:pointer;align-items:center;overflow:hidden}
+#newsSlider .zt-editorial-item:hover{background:rgba(255,255,255,.045)}
+#newsSlider .zt-editorial-item[aria-current="true"]{background:transparent;border-left:3px solid #ea153b;padding-left:3px}
+#newsSlider .zt-editorial-item img{width:37%!important;height:85%!important;max-height:100%;object-fit:cover!important;border-radius:3px;flex-shrink:0}
+#newsSlider .zt-editorial-info{min-width:0;flex:1}
+#newsSlider .zt-editorial-num{font-size:clamp(8px,.7vw,10px);color:#93a4bd;margin-bottom:5px}
+#newsSlider .zt-editorial-cat{color:#5fafff;font-weight:900}
+#newsSlider .zt-editorial-headline{font-size:clamp(8px,.83vw,11px);font-weight:700;line-height:1.27;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:650px){#newsSlider .zt-editorial-side{width:32%}#newsSlider .news-slide{right:32%!important}#newsSlider .zt-editorial-item{padding:2px;gap:3px}#newsSlider .zt-editorial-item img{width:30%!important}#newsSlider .zt-editorial-headline{font-size:7px;-webkit-line-clamp:3}#newsSlider .zt-editorial-num{font-size:7px;margin-bottom:1px}#newsSlider .zt-editorial-title{font-size:clamp(14px,3.7vw,22px)}#newsSlider .zt-editorial-summary{font-size:9px}#newsSlider .zt-editorial-kicker{font-size:8px}#newsSlider .zt-editorial-copy{bottom:3%}}
+
+/* Preview: one large white headline and read-more link, no small summary or featured badge */
+#newsSlider .zt-editorial-copy .zt-only-headline{display:block!important;font-size:clamp(21px,2.6vw,37px)!important;line-height:1.12!important;color:white!important;font-weight:850!important;margin:0 0 16px!important;max-width:98%!important}
+#newsSlider .zt-editorial-copy .zt-editorial-link{display:block!important;color:white!important;font-size:clamp(11px,.95vw,14px)!important;font-weight:800!important}
+#newsSlider .zt-editorial-summary,#newsSlider .zt-editorial-pill{display:none!important}
+@media(max-width:650px){#newsSlider .zt-editorial-copy .zt-only-headline{font-size:clamp(14px,3.1vw,22px)!important;margin-bottom:7px!important}#newsSlider .zt-editorial-copy .zt-editorial-link{font-size:9px!important}}
+
+/* PR preview: remove the redundant red IN EVIDENZA badge injected by zt-visual.js, on every main news slide only */
+/* zt-visual.js injects an older CTA and headline into every slide. Hide its entire overlay, preserving the single editorial headline + CTA. */
+#newsSlider .news-slide .zt-slide-overlay{display:none!important}
+#newsSlider .news-slide .news-slide-copy{display:none!important}
+</style>
+</head>
 <body>
 <header>
   <div class="shell topbar">
@@ -366,7 +402,7 @@ xbox has announced xp, a new entertainment division focused on expanding its big
 ⠀
 🎬 xp nasce per riunire sotto un’unica struttura tutte le attività di intrattenimento legate ai franchise xbox, con quattro aree principali: xbox pictures, xbox products, xbox partnerships e xbox places.
 ⠀
-l’obiettivo è trasformare proprietà come minecraft, fallout, call of duty, diablo e gears of war in ecosistemi capaci di viv"><a href="news-UgkxXjhz4ShZfBNUniFxFdpPdwtmP8Ryivri.html"><img class="article-image" src="https://yt3.ggpht.com/A4Rt_GVz3YtvZCtHW4BN1gCVKX8XKvD3714IKah4ec8boeCTQYiSuzJK-RIgD9ydWWuOY1WE4pyirgg=s1600-rw-nd-v1" alt="News: Xbox lancia XP, la nuova divisione per film, serie TV, prodotti ed esperienze dal vivo" loading="lazy"></a><div class="article-copy"><h3><a href="news-UgkxXjhz4ShZfBNUniFxFdpPdwtmP8Ryivri.html">News: Xbox lancia XP, la nuova divisione per film, serie TV, prodotti ed esperienze dal vivo</a></h3><div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>Xbox amplia la propria strategia oltre il gaming con XP, una nuova divisione dedicata a portare i suoi franchise nel cinema, nelle serie TV, nei prodotti di consumo, nelle partnership e nelle esperienze dal vivo. Contestualmente…</p><a class="read-more" href="news-UgkxXjhz4ShZfBNUniFxFdpPdwtmP8Ryivri.html">Leggi tutto ›</a></div></article>
+l’obiettivo è trasformare proprietà come minecraft, fallout, call of duty, diablo e gears of war in ecosistemi capaci di viv"><a href="news-UgkxXjhz4ShZfBNUniFxFdpPdwtmP8Ryivri.html"><img class="article-image" src="https://yt3.ggpht.com/A4Rt_GVz3YtvZCtHW4BN1gCVKX8XKvD3714IKah4ec8boeCTQYiSuzJK-RIgD9ydWWuOY1WE4pyirgg=s1600-rw-nd-v1" alt="News: Xbox lancia XP, la nuova divisione per film, serie TV, prodotti ed esperienze dal vivo" loading="lazy"></a><div class="article-copy"><h3><a href="news-UgkxXjhz4ShZfBNUniFxFdpPdwtmP8Ryivri.html">News: Xbox lancia XP, la nuova divisione per film, serie TV, prodotti ed esperienze dal vivo</a></h3><div class="article-meta">ZazoomTek · 8 ottobre 2026</div><p>Xbox amplia la propria strategia oltre il gaming con XP, una nuova divisione dedicata a portare i suoi franchise nel cinema, nelle serie TV, nei prodotti di consumo, nelle partnership e nelle esperienze dal vivo. Contestualmente…</p><a class="read-more" href="news-UgkxXjhz4ShZfBNUniFxFdpPdwtmP8Ryivri.html">Leggi tutto ›</a></div></article>
           <article class="article-row" data-search="news: lucca comics &amp; games community awards 2026, aperte le votazioni news news: lucca comics &amp; games community awards 2026, aperte le votazioni 🏆🎮
 sono ufficialmente aperte le votazioni per la quarta edizione dei lucca comics &amp; games community awards, il progetto che permette ai fan di scegliere le opere e i personaggi più amati dell’anno. le preferenze potranno essere espresse fino alle 23:59 di domenica 25 ottobre 2026.
 ⠀
@@ -376,7 +412,7 @@ the lucca comics &amp; games community awards 2026 are now open for voting, givi
 ⠀
 🎮 la categoria videogame of the year comprende giochi single player e multiplayer usciti su console, pc e mobile, mentre game of the year è dedicata a board game, card game e giochi di ruolo.
 ⠀
-📚 ampio spazio anche a fumetti, manga, manhwa e libri, con ca"><a href="news-Ugkx3YQ6k5C_IkpHoadfOsa6PprI_jbqL6tJ.html"><img class="article-image" src="https://yt3.ggpht.com/FyYmscv5ZJO8KxBn3-nhR-OiV_B5mIkL8S_fR19fluaeP6Ysfj3F_oZ0Era7uqmgVD3m94nSnv7tpLU=s1600-rw-nd-v1" alt="News: Lucca Comics &amp; Games Community Awards 2026, aperte le votazioni" loading="lazy"></a><div class="article-copy"><h3><a href="news-Ugkx3YQ6k5C_IkpHoadfOsa6PprI_jbqL6tJ.html">News: Lucca Comics &amp; Games Community Awards 2026, aperte le votazioni</a></h3><div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>Sono ufficialmente aperte le votazioni per la quarta edizione dei Lucca Comics &amp; Games Community Awards, il progetto che permette ai fan di scegliere le opere e i personaggi più amati dell’anno. Le preferenze potranno essere…</p><a class="read-more" href="news-Ugkx3YQ6k5C_IkpHoadfOsa6PprI_jbqL6tJ.html">Leggi tutto ›</a></div></article>
+📚 ampio spazio anche a fumetti, manga, manhwa e libri, con ca"><a href="news-Ugkx3YQ6k5C_IkpHoadfOsa6PprI_jbqL6tJ.html"><img class="article-image" src="https://yt3.ggpht.com/FyYmscv5ZJO8KxBn3-nhR-OiV_B5mIkL8S_fR19fluaeP6Ysfj3F_oZ0Era7uqmgVD3m94nSnv7tpLU=s1600-rw-nd-v1" alt="News: Lucca Comics &amp; Games Community Awards 2026, aperte le votazioni" loading="lazy"></a><div class="article-copy"><h3><a href="news-Ugkx3YQ6k5C_IkpHoadfOsa6PprI_jbqL6tJ.html">News: Lucca Comics &amp; Games Community Awards 2026, aperte le votazioni</a></h3><div class="article-meta">ZazoomTek · 8 ottobre 2026</div><p>Sono ufficialmente aperte le votazioni per la quarta edizione dei Lucca Comics &amp; Games Community Awards, il progetto che permette ai fan di scegliere le opere e i personaggi più amati dell’anno. Le preferenze potranno essere…</p><a class="read-more" href="news-Ugkx3YQ6k5C_IkpHoadfOsa6PprI_jbqL6tJ.html">Leggi tutto ›</a></div></article>
           <article class="article-row" data-search="news: kingdom hearts collection [i~iii] è disponibile su nintendo switch 2, ps5, xbox series x|s e pc news news: kingdom hearts collection [i~iii] è disponibile su nintendo switch 2, ps5, xbox series x|s e pc 🔑✨
 square enix ha pubblicato oggi kingdom hearts collection [i~iii], la raccolta definitiva che porta gran parte della saga di sora sulle piattaforme moderne con versioni native, non cloud, su nintendo switch 2, playstation 5 e xbox series x|s, oltre alla versione pc tramite microsoft store su windows.
 ⠀
@@ -384,7 +420,7 @@ kingdom hearts collection [i~iii] is now available on nintendo switch 2, playsta
 ⠀
 🎮 il pacchetto comprende kingdom hearts -hd 1.5+2.5 remix-, kingdom hearts hd 2.8 final chapter prologue e kingdom hearts iii + re mind, offrendo così un punto di ingresso molto completo sia per chi conosce già la serie sia per i nuovi giocatori.
 ⠀
-🔑 tra i contenuti inclusi troviamo kingdom hearts final mix, re of memories, kingdom hearts ii final mix, birth by sleep final mix, dream drop distance hd, kingdom hearts 0.2 birth by sleep, kingdom heart"><a href="news-UgkxRhqClkU5wEpXx8DDDHXkguHeNPBBKuGg.html"><img class="article-image" src="https://yt3.ggpht.com/dHZZCvlsfIA9d41PUWU4K71PgvDGUbENEHF46Xsy1ho1ZztrMVc994xQKBSnScI1cxHH8siPvDVk=s1600-rw-nd-v1" alt="News: KINGDOM HEARTS Collection [I~III] è disponibile su Nintendo Switch 2, PS5, Xbox Series X|S e PC" loading="lazy"></a><div class="article-copy"><h3><a href="news-UgkxRhqClkU5wEpXx8DDDHXkguHeNPBBKuGg.html">News: KINGDOM HEARTS Collection [I~III] è disponibile su Nintendo Switch 2, PS5, Xbox Series X|S e PC</a></h3><div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>SQUARE ENIX ha pubblicato oggi KINGDOM HEARTS Collection [I~III], la raccolta definitiva che porta gran parte della saga di Sora sulle piattaforme moderne con versioni native, non cloud, su Nintendo Switch 2, PlayStation 5 e Xbox…</p><a class="read-more" href="news-UgkxRhqClkU5wEpXx8DDDHXkguHeNPBBKuGg.html">Leggi tutto ›</a></div></article>
+🔑 tra i contenuti inclusi troviamo kingdom hearts final mix, re of memories, kingdom hearts ii final mix, birth by sleep final mix, dream drop distance hd, kingdom hearts 0.2 birth by sleep, kingdom heart"><a href="news-UgkxRhqClkU5wEpXx8DDDHXkguHeNPBBKuGg.html"><img class="article-image" src="https://yt3.ggpht.com/dHZZCvlsfIA9d41PUWU4K71PgvDGUbENEHF46Xsy1ho1ZztrMVc994xQKBSnScI1cxHH8siPvDVk=s1600-rw-nd-v1" alt="News: KINGDOM HEARTS Collection [I~III] è disponibile su Nintendo Switch 2, PS5, Xbox Series X|S e PC" loading="lazy"></a><div class="article-copy"><h3><a href="news-UgkxRhqClkU5wEpXx8DDDHXkguHeNPBBKuGg.html">News: KINGDOM HEARTS Collection [I~III] è disponibile su Nintendo Switch 2, PS5, Xbox Series X|S e PC</a></h3><div class="article-meta">ZazoomTek · 8 ottobre 2026</div><p>SQUARE ENIX ha pubblicato oggi KINGDOM HEARTS Collection [I~III], la raccolta definitiva che porta gran parte della saga di Sora sulle piattaforme moderne con versioni native, non cloud, su Nintendo Switch 2, PlayStation 5 e Xbox…</p><a class="read-more" href="news-UgkxRhqClkU5wEpXx8DDDHXkguHeNPBBKuGg.html">Leggi tutto ›</a></div></article>
           <article class="article-row" data-search="news: enshrouded 1.0 arriva il 15 ottobre con sparkworks su pc e ps5 news news: enshrouded 1.0 arriva il 15 ottobre con sparkworks su pc e ps5 🔥🛠️
 keen games ha svelato sparkworks, la nuova suite di strumenti creativi che debutterà con enshrouded 1.0 il 15 ottobre 2026 su pc e playstation 5. la funzione permetterà ai giocatori di progettare, costruire e condividere vere esperienze interattive all’interno di embervale.
 ⠀
@@ -394,7 +430,7 @@ enshrouded 1.0 will launch on october 15, 2026, for pc and playstation 5 with th
 ⠀
 🎮 le possibilità spaziano dalla creazione di minigiochi e dungeon fino a eventi più complessi: una leva potrà generare un nemico, una piastra a pressione aprire un passaggio segreto oppure l’ingresso in una stanza potrà innescare una serie di esplosioni.
 ⠀
-⚙️ il sistema permetterà di costruire switchbox e collegarl"><a href="news-Ugkx8LSTnaP4crUX-xnHGKdsujtDyucLcXdj.html"><img class="article-image" src="https://yt3.ggpht.com/PJRy0cy7rZlJw3Cf0WWIKk7tYJjKu_vsQBDNXcDi38--CjEJes0hXplpBBMLeQXDWbwN8bJc6H4I=s1600-rw-nd-v1" alt="News: Enshrouded 1.0 arriva il 15 ottobre con Sparkworks su PC e PS5" loading="lazy"></a><div class="article-copy"><h3><a href="news-Ugkx8LSTnaP4crUX-xnHGKdsujtDyucLcXdj.html">News: Enshrouded 1.0 arriva il 15 ottobre con Sparkworks su PC e PS5</a></h3><div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>Keen Games ha svelato Sparkworks, la nuova suite di strumenti creativi che debutterà con Enshrouded 1.0 il 15 ottobre 2026 su PC e PlayStation 5. La funzione permetterà ai giocatori di progettare, costruire e condividere vere…</p><a class="read-more" href="news-Ugkx8LSTnaP4crUX-xnHGKdsujtDyucLcXdj.html">Leggi tutto ›</a></div></article>
+⚙️ il sistema permetterà di costruire switchbox e collegarl"><a href="news-Ugkx8LSTnaP4crUX-xnHGKdsujtDyucLcXdj.html"><img class="article-image" src="https://yt3.ggpht.com/PJRy0cy7rZlJw3Cf0WWIKk7tYJjKu_vsQBDNXcDi38--CjEJes0hXplpBBMLeQXDWbwN8bJc6H4I=s1600-rw-nd-v1" alt="News: Enshrouded 1.0 arriva il 15 ottobre con Sparkworks su PC e PS5" loading="lazy"></a><div class="article-copy"><h3><a href="news-Ugkx8LSTnaP4crUX-xnHGKdsujtDyucLcXdj.html">News: Enshrouded 1.0 arriva il 15 ottobre con Sparkworks su PC e PS5</a></h3><div class="article-meta">ZazoomTek · 8 ottobre 2026</div><p>Keen Games ha svelato Sparkworks, la nuova suite di strumenti creativi che debutterà con Enshrouded 1.0 il 15 ottobre 2026 su PC e PlayStation 5. La funzione permetterà ai giocatori di progettare, costruire e condividere vere…</p><a class="read-more" href="news-Ugkx8LSTnaP4crUX-xnHGKdsujtDyucLcXdj.html">Leggi tutto ›</a></div></article>
           <article class="article-row" data-search="news: gears of war: e-day debutta su geforce now news news: gears of war: e-day debutta su geforce now ⚙️☁️
 gears of war: e-day entra questa settimana nel catalogo geforce now, portando sul cloud gaming nvidia la prima grande battaglia di marcus fenix e dom santiago contro l’orda dei locust.
 ⠀
@@ -404,7 +440,7 @@ gears of war: e-day is now available on geforce now as part of this week’s gfn
 ⠀
 ☁️ il vantaggio resta quello tipico di geforce now: niente installazioni pesanti, nessuna necessità di acquistare un nuovo pc da gaming e nessuno spazio di archiviazione aggiuntivo richiesto sul dispositivo utilizzato per giocare.
 ⠀
-🔥 gears of war: e-day guida una settimana particolarmente ricca, affiancato da star wars: galactic racer, clive barker&#x27;s hellraiser: revival, forever ago, order of the sinking star, silver pines, permafrost, graveyard keeper 2"><a href="news-UgkxMUx7cHC-WKQOYPd6Z9mXodMEDMUkXAuU.html"><img class="article-image" src="https://yt3.ggpht.com/TCfUN-b0KXZ8Yn-UVR8Coe-C-OSPmTqU9lwEM44Nq8IFm3U10_n18jaG7x9hjHUcE2XHyNZsaK2dXA=s1600-rw-nd-v1" alt="News: Gears of War: E-Day debutta su GeForce NOW" loading="lazy"></a><div class="article-copy"><h3><a href="news-UgkxMUx7cHC-WKQOYPd6Z9mXodMEDMUkXAuU.html">News: Gears of War: E-Day debutta su GeForce NOW</a></h3><div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>Gears of War: E-Day entra questa settimana nel catalogo GeForce NOW, portando sul cloud gaming NVIDIA la prima grande battaglia di Marcus Fenix e Dom Santiago contro l’Orda dei Locust. Gli utenti Ultimate possono quindi…</p><a class="read-more" href="news-UgkxMUx7cHC-WKQOYPd6Z9mXodMEDMUkXAuU.html">Leggi tutto ›</a></div></article>
+🔥 gears of war: e-day guida una settimana particolarmente ricca, affiancato da star wars: galactic racer, clive barker&#x27;s hellraiser: revival, forever ago, order of the sinking star, silver pines, permafrost, graveyard keeper 2"><a href="news-UgkxMUx7cHC-WKQOYPd6Z9mXodMEDMUkXAuU.html"><img class="article-image" src="https://yt3.ggpht.com/TCfUN-b0KXZ8Yn-UVR8Coe-C-OSPmTqU9lwEM44Nq8IFm3U10_n18jaG7x9hjHUcE2XHyNZsaK2dXA=s1600-rw-nd-v1" alt="News: Gears of War: E-Day debutta su GeForce NOW" loading="lazy"></a><div class="article-copy"><h3><a href="news-UgkxMUx7cHC-WKQOYPd6Z9mXodMEDMUkXAuU.html">News: Gears of War: E-Day debutta su GeForce NOW</a></h3><div class="article-meta">ZazoomTek · 8 ottobre 2026</div><p>Gears of War: E-Day entra questa settimana nel catalogo GeForce NOW, portando sul cloud gaming NVIDIA la prima grande battaglia di Marcus Fenix e Dom Santiago contro l’Orda dei Locust. Gli utenti Ultimate possono quindi…</p><a class="read-more" href="news-UgkxMUx7cHC-WKQOYPd6Z9mXodMEDMUkXAuU.html">Leggi tutto ›</a></div></article>
           <article class="article-row" data-search="news: marvel cosmic invasion: the siege of castle doom arriva il 10 novembre news news: marvel cosmic invasion: the siege of castle doom arriva il 10 novembre 🦸‍♀️⚡
 dotemu e tribute games hanno annunciato che marvel cosmic invasion: the siege of castle doom sarà disponibile dal 10 novembre 2026. il nuovo dlc premium introdurrà susan storm, la donna invisibile, e doctor doom come personaggi giocabili, oltre a una nuova modalità dedicata al celebre villain marvel.
 ⠀
@@ -414,7 +450,7 @@ marvel cosmic invasion: the siege of castle doom will launch on november 10, 202
 ⠀
 ⚡ doctor doom entrerà invece in battaglia sfruttando la propria armatura tecnologica, le conoscenze occulte e il suo enorme intelletto, diventando per la prima volta direttamente controllabile dai giocatori in questo nuovo contenuto.
 ⠀
-🏰 the siege of "><a href="news-Ugkx-wU9CSJ9wHh6b91_RlutS-VkzkFCM1h7.html"><img class="article-image" src="https://yt3.ggpht.com/3sUa2M2MEh9oBWW84KL6il4YC6aJsqq2N08Xrh0GTyEAGE3JO2asW_eTrL8DXL9Ql2bF3cO7tXBg4rU=s1600-rw-nd-v1" alt="News: MARVEL Cosmic Invasion: The Siege of Castle Doom arriva il 10 novembre" loading="lazy"></a><div class="article-copy"><h3><a href="news-Ugkx-wU9CSJ9wHh6b91_RlutS-VkzkFCM1h7.html">News: MARVEL Cosmic Invasion: The Siege of Castle Doom arriva il 10 novembre</a></h3><div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>Dotemu e Tribute Games hanno annunciato che MARVEL Cosmic Invasion: The Siege of Castle Doom sarà disponibile dal 10 novembre 2026. Il nuovo DLC premium introdurrà Susan Storm, la Donna Invisibile, e Doctor Doom come personaggi…</p><a class="read-more" href="news-Ugkx-wU9CSJ9wHh6b91_RlutS-VkzkFCM1h7.html">Leggi tutto ›</a></div></article>
+🏰 the siege of "><a href="news-Ugkx-wU9CSJ9wHh6b91_RlutS-VkzkFCM1h7.html"><img class="article-image" src="https://yt3.ggpht.com/3sUa2M2MEh9oBWW84KL6il4YC6aJsqq2N08Xrh0GTyEAGE3JO2asW_eTrL8DXL9Ql2bF3cO7tXBg4rU=s1600-rw-nd-v1" alt="News: MARVEL Cosmic Invasion: The Siege of Castle Doom arriva il 10 novembre" loading="lazy"></a><div class="article-copy"><h3><a href="news-Ugkx-wU9CSJ9wHh6b91_RlutS-VkzkFCM1h7.html">News: MARVEL Cosmic Invasion: The Siege of Castle Doom arriva il 10 novembre</a></h3><div class="article-meta">ZazoomTek · 8 ottobre 2026</div><p>Dotemu e Tribute Games hanno annunciato che MARVEL Cosmic Invasion: The Siege of Castle Doom sarà disponibile dal 10 novembre 2026. Il nuovo DLC premium introdurrà Susan Storm, la Donna Invisibile, e Doctor Doom come personaggi…</p><a class="read-more" href="news-Ugkx-wU9CSJ9wHh6b91_RlutS-VkzkFCM1h7.html">Leggi tutto ›</a></div></article>
           <article class="article-row" data-search="news: arc raiders, frozen trail è disponibile con pendola pass e il weekend gratuito news news: arc raiders, frozen trail è disponibile con pendola pass e il weekend gratuito ❄️🔥
 embark studios ha pubblicato frozen trail, il più grande aggiornamento realizzato finora per arc raiders. l’update introduce la nuova mappa pendola pass, nuove minacce arc, avamposti, potenziamento delle armi, nuove missioni, oggetti, abilità e un nuovo reward pass.
 ⠀
@@ -505,6 +541,9 @@ playstation plus offers a strong selection of horror and dark-themed games for h
             <h2>TECH IMPACT</h2><a href="/tech-today.html">VEDI <span aria-hidden="true">→</span></a>
           </div>
           <div class="zt-special-list" id="zt-special-tech">
+<article class="zt-special-item"><a href="/tech-impact-flock-safety-270-uscite-privacy-2026.html" class="zt-special-thumb" aria-label="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza"><img src="/assets/special/tech-impact-flock-safety-270-uscite-privacy-2026.svg" alt="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza" loading="lazy"></a><h3><a href="/tech-impact-flock-safety-270-uscite-privacy-2026.html">Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza</a></h3></article>
+<article class="zt-special-item"><a href="/tech-impact-ico-dieci-aziende-ia-privacy-2026.html" class="zt-special-thumb" aria-label="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici"><img src="/assets/special/tech-impact-ico-dieci-aziende-ia-privacy-2026.svg" alt="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici" loading="lazy"></a><h3><a href="/tech-impact-ico-dieci-aziende-ia-privacy-2026.html">Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici</a></h3></article>
+<article class="zt-special-item"><a href="/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html" class="zt-special-thumb" aria-label="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati"><img src="/assets/special/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.svg" alt="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati" loading="lazy"></a><h3><a href="/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html">Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati</a></h3></article>
             <article class="zt-special-item">
               <a href="/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html" class="zt-special-thumb" aria-label="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano"><img src="/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp" alt="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano" loading="lazy"></a>
               <h3><a href="/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html">Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano</a></h3>
@@ -526,6 +565,8 @@ playstation plus offers a strong selection of horror and dark-themed games for h
             <h2>GAMING INSIDE</h2><a href="/gaming-today.html">VEDI <span aria-hidden="true">→</span></a>
           </div>
           <div class="zt-special-list" id="zt-special-gaming">
+<article class="zt-special-item"><a href="/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.html" class="zt-special-thumb" aria-label="Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane"><img src="/assets/special/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.svg" alt="Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane" loading="lazy"></a><h3><a href="/gaming-inside-double-fine-sindacato-petizione-ritirata-2026.html">Double Fine, perché il tentativo di creare un sindacato si è fermato dopo due settimane</a></h3></article>
+<article class="zt-special-item"><a href="/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html" class="zt-special-thumb" aria-label="GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games"><img src="/assets/special/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.svg" alt="GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games" loading="lazy"></a><h3><a href="/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html">GTA VI, nuove testimonianze nel caso dei dipendenti licenziati da Rockstar Games</a></h3></article>
             <article class="zt-special-item">
               <a href="/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html" class="zt-special-thumb" aria-label="EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori"><img src="/assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp" alt="EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori" loading="lazy"></a>
               <h3><a href="/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html">EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori</a></h3>
@@ -747,6 +788,71 @@ function ztInitSmartSticky(selector,mobileWidth){
   if('ResizeObserver' in window){new ResizeObserver(update).observe(el);}
 }
 document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.sidebar',820);});
+</script>
+<script id="zt-editorial-feature-script">
+(function(){
+  const root=document.getElementById('newsSlider');
+  if(!root||root.dataset.editorialReady)return;
+  root.dataset.editorialReady='1';
+  const slides=[...root.querySelectorAll('.news-slide')];
+  if(!slides.length)return;
+  const entries=slides.map((slide,i)=>{
+    const link=slide.querySelector('a'), image=link?.querySelector('img');
+    return {slide,index:i,src:image?.getAttribute('src')||'',
+      title:(image?.getAttribute('alt')||'Notizia ZazoomTek').trim(),
+      cat:(slide.dataset.trendCategory||'tech').toUpperCase()};
+  });
+  // Same presentation for EVERY slide, not just the first five.
+  entries.forEach(e=>{
+    const link=e.slide.querySelector('a');if(!link)return;
+    [...link.querySelectorAll('.zt-editorial-copy')].forEach(old=>old.remove());
+    const copy=document.createElement('div');copy.className='zt-editorial-copy';
+    const heading=document.createElement('h2');heading.className='zt-only-headline';
+    heading.textContent=e.title;
+    const read=document.createElement('span');read.className='zt-editorial-link';
+    read.textContent='Leggi la notizia completa ›';
+    copy.append(heading,read);link.append(copy);
+  });
+  const side=document.createElement('div');side.className='zt-editorial-side';
+  side.setAttribute('aria-label','Altre notizie in evidenza');
+  root.appendChild(side);
+  let displayedStart=-1;
+  function activeIndex(){return Math.max(0,slides.findIndex(el=>el.classList.contains('active')))}
+  function pick(i){
+    const current=activeIndex(); const steps=(i-current+slides.length)%slides.length;
+    const next=document.getElementById('newsNext');
+    if(next){for(let j=0;j<steps;j++)next.click()}
+    update();
+  }
+  function renderGroup(start){
+    side.replaceChildren();
+    entries.slice(start,start+5).forEach(e=>{
+      const button=document.createElement('button');button.type='button';button.className='zt-editorial-item';
+      button.setAttribute('aria-label','Seleziona: '+e.title);
+      const image=document.createElement('img');image.src=e.src;image.alt='';image.loading='lazy';
+      const info=document.createElement('span');info.className='zt-editorial-info';
+      const meta=document.createElement('div');meta.className='zt-editorial-num';
+      meta.textContent=String(e.index+1).padStart(2,'0')+' · ';
+      const cat=document.createElement('span');cat.className='zt-editorial-cat';cat.textContent=e.cat;
+      meta.append(cat);
+      const title=document.createElement('div');title.className='zt-editorial-headline';title.textContent=e.title;
+      info.append(meta,title);button.append(image,info);
+      button.addEventListener('click',()=>pick(e.index));side.appendChild(button);
+    });
+    displayedStart=start;
+  }
+  function update(){
+    const current=activeIndex();
+    // The sidebar displays five news at a time and follows the carousel.
+    const start=Math.floor(current/5)*5;
+    if(start!==displayedStart)renderGroup(start);
+    [...side.children].forEach((button,i)=>button.setAttribute('aria-current',String(start+i===current)));
+  }
+  new MutationObserver(update).observe(root.querySelector('.news-slides'),{
+    subtree:true,attributes:true,attributeFilter:['class']
+  });
+  update();
+})();
 </script>
 </body>
 </html>
