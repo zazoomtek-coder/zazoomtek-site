@@ -1,14 +1,7 @@
 name: Automatic verified Tech Impact and Gaming Inside
+# PAUSED by editorial decision: no scheduled runs or push-triggered special articles.
+# The workflow can be manually re-enabled for future editorial maintenance.
 on:
-  schedule:
-    - cron: '17 */4 * * *'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/featured_article_layout.py'
-      - 'scripts/auto-approve-special.py'
-      - 'scripts/write-special-articles.py'
-      - '.github/workflows/discover-special-news.yml'
   workflow_dispatch:
 permissions:
   contents: write

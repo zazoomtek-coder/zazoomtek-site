@@ -1,14 +1,7 @@
 name: Publish approved Tech Impact and Gaming Inside articles
+# PAUSED by editorial decision: no scheduled runs or push-triggered special articles.
+# The workflow can be manually re-enabled for future editorial maintenance.
 on:
-  schedule:
-    - cron: '19 7 * * *'
-  push:
-    branches: [main]
-    paths:
-      - 'approved-special-articles.json'
-      - 'scripts/publish-special-news.py'
-      - 'scripts/featured_article_layout.py'
-      - 'scripts/build-special-covers.py'
   workflow_dispatch:
 permissions:
   contents: write
