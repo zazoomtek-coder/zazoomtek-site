@@ -350,15 +350,33 @@ def pick(articles):
 
 
 def slide_markup(chosen):
+    """Keep six right-hand thumbnails and the original titled covers after every trend scan."""
     cards=[]
+    thumbnails=[]
     for n,x in enumerate(chosen):
+        original_title=str(x["title"])
+        title=re.sub(r"(?i)^news\s*:\s*", "", original_title).strip()
+        safe_title=html.escape(title,quote=True)
+        image=html.escape(x["image"],quote=True)
+        url=html.escape(x["url"],quote=True)
+        # Featured cover art has its lettering embedded already. Explicit exceptions
+        # can opt in to a small white title without any dark image gradient.
+        has_text=x.get("cover_has_text",True) is not False
+        cover_class=" zt-cover-with-text" if has_text else " zt-cover-needs-title"
         cards.append('<article class="news-slide'+(' active' if n==0 else '')+
+           cover_class+'" data-cover-text="'+str(has_text).lower()+
            '" data-slide="'+str(n)+'" data-trend-category="'+x["section"]+
            '" data-trend-matched="'+str(bool(x["trend_score"])).lower()+'"><a href="'+
-           html.escape(x["url"],quote=True)+'"><img src="'+
-           html.escape(x["image"],quote=True)+'" alt="'+html.escape(x["title"],quote=True)+
+           url+'"><img src="'+image+'" alt="'+safe_title+
            '" loading="lazy"></a></article>')
-    return '<div class="news-slider" id="newsSlider"><div class="news-slides">'+("\n".join(cards))+'</div></div>'
+        thumbnails.append(
+           '<button type="button" class="zt-editorial-item" data-featured-index="'+str(n)+
+           '" aria-label="Seleziona: '+safe_title+'"><img src="'+image+
+           '" alt="" loading="lazy"><span class="zt-editorial-info"><span class="zt-editorial-headline">'+
+           safe_title+'</span></span></button>')
+    return ('<div class="news-slider" id="newsSlider"><div class="news-slides">'+
+            ("\n".join(cards))+'</div><div class="zt-editorial-side" aria-label="Altre notizie in evidenza">'+
+            "".join(thumbnails)+'</div></div>')
 
 def set_featured(index,chosen):
     start,end="<!-- FEATURED_NEWS_START -->","<!-- FEATURED_NEWS_END -->"
