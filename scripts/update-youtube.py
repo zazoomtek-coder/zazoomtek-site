@@ -694,4 +694,26 @@ def main():
         encoding="utf-8"
     )
 
+    # Public and compact homepage feed: videos, six+ Shorts and completed livestream archives.
+    # Firebase intentionally excludes dotfiles (including the full .youtube-latest.json).
+    visible_items=[
+        {
+            "id":v["id"],
+            "title":v["snippet"]["title"],
+            "publishedAt":v["snippet"]["publishedAt"],
+            "category":classify(v),
+            "short":(v["id"] in short_ids) or bool(v.get("_cached_short")),
+            "live":is_live_upload(v),
+            "completedLive":is_completed_broadcast(v)
+        }
+        for v in vids
+        if classify(v) in ("gaming","recensioni","unboxing","test","analogiktek")
+        or (v["id"] in short_ids) or bool(v.get("_cached_short"))
+        or is_completed_broadcast(v)
+    ][:200]
+    Path("home-video-feed.json").write_text(
+        json.dumps(visible_items,ensure_ascii=False,indent=2)+"\\n",
+        encoding="utf-8"
+    )
+
 if __name__=="__main__": main()

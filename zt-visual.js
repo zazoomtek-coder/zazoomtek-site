@@ -96,6 +96,6 @@ function ztHomeGallery(){
     document.body.classList.add('zt-home-shelves-ready');
   }
   render([...ztHomeVideoFallback,...ztHomeShortFallback]);
-  fetch('/.youtube-latest.json',{cache:'no-store'}).then(x=>x.ok?x.json():Promise.reject(new Error('Catalogo non disponibile'))).then(render).catch(()=>{});
+  fetch('/home-video-feed.json',{cache:'no-store'}).then(x=>x.ok?x.json():Promise.reject(new Error('Catalogo non disponibile'))).then(render).catch(()=>{});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ztHomeGallery,{once:true});else ztHomeGallery();
