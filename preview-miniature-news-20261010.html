@@ -265,12 +265,13 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 #newsSlider .zt-editorial-item[aria-current="true"]{padding-left:3px!important}
 #newsSlider .zt-editorial-item img{width:54%!important;height:93%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:2px!important}
 #newsSlider .zt-editorial-info{min-width:0!important;align-self:center}
+#newsSlider .zt-editorial-num,#newsSlider .zt-editorial-cat{display:none!important}
 #newsSlider .zt-editorial-num{font-size:clamp(7px,.61vw,9px)!important;line-height:1.1!important;margin-bottom:4px!important;letter-spacing:.04em}
-#newsSlider .zt-editorial-headline{font-size:clamp(8px,.70vw,10px)!important;font-weight:650!important;line-height:1.24!important;-webkit-line-clamp:4!important;overflow:hidden!important}
+#newsSlider .zt-editorial-headline{font-size:clamp(7px,.58vw,8.5px)!important;font-weight:600!important;line-height:1.23!important;-webkit-line-clamp:5!important;overflow:hidden!important}
 @media(max-width:650px){
   #newsSlider .zt-editorial-item{gap:3px!important;padding:3px!important}
   #newsSlider .zt-editorial-item img{width:43%!important;height:92%!important}
-  #newsSlider .zt-editorial-headline{font-size:7px!important;line-height:1.17!important;-webkit-line-clamp:3!important}
+  #newsSlider .zt-editorial-headline{font-size:6.5px!important;line-height:1.18!important;-webkit-line-clamp:4!important}
   #newsSlider .zt-editorial-num{font-size:7px!important;margin-bottom:2px!important}
 }
 
@@ -801,12 +802,8 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
       button.setAttribute('aria-label','Seleziona: '+e.title);
       const image=document.createElement('img');image.src=e.src;image.alt='';image.loading='lazy';
       const info=document.createElement('span');info.className='zt-editorial-info';
-      const meta=document.createElement('div');meta.className='zt-editorial-num';
-      meta.textContent=String(e.index+1).padStart(2,'0')+' · ';
-      const cat=document.createElement('span');cat.className='zt-editorial-cat';cat.textContent=e.cat;
-      meta.append(cat);
       const title=document.createElement('div');title.className='zt-editorial-headline';title.textContent=e.title;
-      info.append(meta,title);button.append(image,info);
+      info.append(title);button.append(image,info);
       button.addEventListener('click',()=>pick(e.index));side.appendChild(button);
     });
     displayedStart=start;
