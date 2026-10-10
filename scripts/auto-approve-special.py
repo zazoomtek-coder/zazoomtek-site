@@ -40,7 +40,8 @@ def material(x):
               docs[0]["metadata"].get("description"))))
     return docs if authoritative or independent or documented_single else []
 def duplicate(article,existing):
-    x=norm(article["title"])
+    x=norm(article.get("title",""))
+    if not x:return False
     urls=set(article.get("source_urls",[]))
     for a in existing:
         if a.get("section")!=article["section"]:continue
@@ -118,7 +119,9 @@ def main():
                 for row in v.get("sources",[]) if isinstance(row,dict))]
             if len(matching)==1:source_record=matching[0]
         docs=material(source_record or {})
-        if not docs:why="Insufficient original reporting or primary-source evidence"
+        if x.get("status")!="needs_human_fact_check" or not x.get("title"):
+            why="Incomplete article draft; skip without stopping other news"
+        elif not docs:why="Insufficient original reporting or primary-source evidence"
         elif duplicate(x,old+created):why="Topic or original source already published"
         elif sec=="gaming" and not re.search(r"(?i)videogioc|videoludic|gaming|giocator|game|playstation|xbox|nintendo|steam|diablo|call.of.duty",(x.get("topic") or "")+" "+x.get("title","")):why="Not a gaming policy topic"
         elif x.get("status")!="needs_human_fact_check":why="Not a complete draft"
