@@ -99,3 +99,51 @@ function ztHomeGallery(){
   fetch('/home-video-feed.json',{cache:'no-store'}).then(x=>x.ok?x.json():Promise.reject(new Error('Catalogo non disponibile'))).then(render).catch(()=>{});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ztHomeGallery,{once:true});else ztHomeGallery();
+
+
+/* Refresh the 3 Tech Impact + 2 Gaming Inside entries from the site's
+   own approved editorial manifest. Static HTML above provides a safe fallback. */
+(function(){
+  'use strict';
+  function refreshSpecials(){
+    if(!document.getElementById('zt-special-tech'))return;
+    fetch('/special-featured.json',{cache:'no-store'}).then(function(r){
+      if(!r.ok)throw new Error('Special featured feed unavailable');
+      return r.json();
+    }).then(function(data){
+      if(!data||!Array.isArray(data.items))return;
+      [
+        {section:'tech',limit:3},
+        {section:'gaming',limit:2}
+      ].forEach(function(setting){
+        const items=data.items.filter(function(x){
+          return x && x.section===setting.section && typeof x.title==='string' &&
+            typeof x.slug==='string' && /^(tech-impact|gaming-inside)-[a-z0-9-]+\.html$/.test(x.slug) &&
+            typeof x.image==='string' && x.image.startsWith('/assets/special/');
+        }).slice(0,setting.limit);
+        if(items.length!==setting.limit)return;
+        const list=document.getElementById('zt-special-'+setting.section);
+        if(!list)return;
+        const fragment=document.createDocumentFragment();
+        items.forEach(function(item){
+          const article=document.createElement('article');
+          article.className='zt-special-item';
+          const thumb=document.createElement('a');
+          thumb.className='zt-special-thumb';thumb.href='/'+item.slug;
+          thumb.setAttribute('aria-label',item.title);
+          const img=document.createElement('img');
+          img.src=item.image;img.alt=item.title;img.loading='lazy';
+          thumb.append(img);
+          const h3=document.createElement('h3');
+          const link=document.createElement('a');link.href='/'+item.slug;link.textContent=item.title;
+          h3.append(link);
+          article.append(thumb,h3);
+          fragment.append(article);
+        });
+        list.replaceChildren(fragment);
+      });
+    }).catch(function(){/* Preserve server-rendered validated content. */});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshSpecials,{once:true});
+  else refreshSpecials();
+})();

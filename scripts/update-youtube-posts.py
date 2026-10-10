@@ -1147,7 +1147,7 @@ def render_review_rows(posts):
         )
     return "".join(rows)
 
-REVIEW_PAGE_SIZE=20
+REVIEW_PAGE_SIZE=15
 
 def review_page_href(n):
     return "/recensioni-scritte.html" if n==1 else f"/recensioni-scritte-{n}.html"

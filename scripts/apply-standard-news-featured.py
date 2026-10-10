@@ -162,7 +162,7 @@ def standard_home_rows(standard):
 
 
 def chronological_home_feed(original_feed, standard):
-    """Merge the 20 imported Community articles with four approved NEWS.
+    """Merge the 15 imported Community articles with approved NEWS.
 
     Preserve the existing article HTML, but interleave by actual publication
     timestamp, instead of permanently pinning the four editorial articles.
@@ -259,9 +259,9 @@ def chronological_home_feed(original_feed, standard):
         new_manual += 1
 
     combined.sort(key=lambda pair: pair[0], reverse=True)
-    merged = "\n".join(row for _, row in combined)
-    if merged.count('data-standard-news="true"') != 4:
-        raise RuntimeError("Duplicate or missing manually approved NEWS")
+    merged = "\n".join(row for _, row in combined[:15])
+    if merged.count('class="article-row"') != 15:
+        raise RuntimeError("Home must contain exactly 15 latest articles")
     print(f"Latest Articles chronological: {community_count} Community + 4 standard + {new_manual} independent NEWS.")
     return STANDARD_START + "\n" + merged + "\n" + STANDARD_END
 
@@ -324,8 +324,9 @@ def main():
     slide_count = len(re.findall(r'data-slide="\d+"', feature))
     if not 1 <= slide_count <= 10 or 'class="news-tab' in feature:
         raise RuntimeError("Full-width photo-only carousel validation failed")
-    if s.count('data-standard-news="true"') != 4:
-        raise RuntimeError("Home NEWS count validation failed")
+    home_feed=s[s.index(FEED_START)+len(FEED_START):s.index(FEED_END)]
+    if len(re.findall(r'<article\\b[^>]*class="article-row"',home_feed)) != 15:
+        raise RuntimeError("Home must show exactly 15 article rows")
 
     # Special/oversight stories belong only to their dedicated archives.
     # The four ordinary news (two tech and two gaming) belong in NEWS.
