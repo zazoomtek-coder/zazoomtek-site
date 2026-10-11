@@ -55,6 +55,9 @@ jobs:
             sleep $((attempt * 2))
           done
           exit 1
+      - name: Apply the unified community banner to all pages
+        if: steps.save.outputs.changed == 'true' && steps.publish.outcome == 'success'
+        run: python3 scripts/apply-site-design.py
       - name: Deploy Guide to Firebase
         if: steps.save.outputs.changed == 'true' && steps.publish.outcome == 'success'
         uses: FirebaseExtended/action-hosting-deploy@v0
