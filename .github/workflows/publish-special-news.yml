@@ -1,6 +1,5 @@
 name: Publish approved Tech Impact and Gaming Inside articles
-# PAUSED by editorial decision: no scheduled runs or push-triggered special articles.
-# The workflow can be manually re-enabled for future editorial maintenance.
+# Starts only after verified article approval or manual dispatch.
 on:
   workflow_dispatch:
 permissions:
@@ -26,11 +25,17 @@ jobs:
         run: python3 scripts/build-special-covers.py
       - name: Build approved articles and separate archives
         run: python3 scripts/publish-special-news.py
+      - name: Refresh homepage with previously scanned independent sources
+        run: |
+          if [ -s trending-sources.json ]; then
+            python3 scripts/trending-crosscheck.py --apply
+          fi
       - name: Commit published articles atomically
+        id: publish_commit
         run: |
           git config user.name "ZazoomTek Editorial Publisher"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- tech-today.html gaming-today.html special-featured.json special-cover-manifest.json
+          git add -- index.html trending-match-report.json tech-today.html gaming-today.html special-featured.json special-cover-manifest.json
           # Keep only generated licensed/fallback covers; do not stage unrelated files.
           shopt -s nullglob
           cover_files=(assets/special/*.webp)
@@ -42,6 +47,7 @@ jobs:
             git commit -m "content: publish editorially approved special articles"
             for attempt in 1 2 3; do
               if git pull --rebase origin main && git push origin HEAD:main; then
+                echo "published=true" >> "$GITHUB_OUTPUT"
                 exit 0
               fi
               git rebase --abort || true
@@ -50,3 +56,11 @@ jobs:
             echo "Could not synchronize generated content safely."
             exit 1
           fi
+      - name: Publish validated new pages to Firebase Hosting
+        if: steps.publish_commit.outputs.published == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
