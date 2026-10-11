@@ -9,3 +9,5 @@ Manual rerun requested to validate diversified Italian/global politics, economic
 Retry after correcting outlet ranking function shadowing; scan Italian and international authoritative news.
 
 Third source-verified check after raising Gemini output limit; do not publish unverified material.
+
+Retry editorial workflow after resolving Python re name shadowing in model response validation.
