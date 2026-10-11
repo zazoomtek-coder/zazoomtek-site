@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Discover original reporting leads; never auto-publish unverified news.
 Runs separately from the YouTube Community importer."""
+import concurrent.futures
 import datetime as dt
 import email.utils
 import hashlib
@@ -101,28 +102,49 @@ def discover():
         {"hl":"it","gl":"IT","ceid":"IT:it"},
         {"hl":"en-US","gl":"US","ceid":"US:en"}
     ]
-    for section,queries in QUERIES.items():
-        for index,query in enumerate(queries):
-            region=regions[index % len(regions)]
-            # Google News is used for discovery only, NOT as factual proof.
-            url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":query+" when:3d",**region})
-            try:
-                root=ET.fromstring(fetch(url))
-                for item in root.findall(".//channel/item")[:12]:
-                    title=clean(item.findtext("title"))
-                    link=clean(item.findtext("link"))
-                    source=item.find("source")
-                    outlet=clean(source.text if source is not None else "")
-                    pub=clean(item.findtext("pubDate"))
-                    try:date=email.utils.parsedate_to_datetime(pub).astimezone(dt.timezone.utc)
-                    except (TypeError,ValueError):continue
-                    if not title or not link.startswith("https://") or not outlet:continue
-                    if not (dt.timedelta(0)<=now-date<=dt.timedelta(hours=75)):continue
-                    if not relevant(section,title):continue
-                    ident=hashlib.sha256((section+"|"+link).encode()).hexdigest()[:20]
-                    fresh[ident]={"id":ident,"section":section,"title":title[:220],"source":outlet[:100],"source_url":link,"published_utc":date.isoformat(),"status":"research_only"}
-            except Exception as exc:
-                errors.append({"query":query,"error":str(exc)[:160]})
+    # Scan independent RSS searches concurrently; skip slow/unreachable
+    # publishers rather than delaying every other verified news source.
+    tasks=[(section,index,query) for section,queries in QUERIES.items()
+           for index,query in enumerate(queries)]
+    def scan_one(args):
+        section,index,query=args
+        region=regions[index % len(regions)]
+        # Google News is a discovery index, never primary factual evidence.
+        url="https://news.google.com/rss/search?"+urllib.parse.urlencode(
+            {"q":query+" when:3d",**region})
+        found=[]
+        try:
+            root=ET.fromstring(fetch(url))
+            for item in root.findall(".//channel/item")[:12]:
+                title=clean(item.findtext("title"))
+                link=clean(item.findtext("link"))
+                source=item.find("source")
+                outlet=clean(source.text if source is not None else "")
+                published=clean(item.findtext("pubDate"))
+                try:
+                    date=email.utils.parsedate_to_datetime(published).astimezone(dt.timezone.utc)
+                except (TypeError,ValueError):
+                    continue
+                if not title or not link.startswith("https://") or not outlet:
+                    continue
+                if not (dt.timedelta(0)<=now-date<=dt.timedelta(hours=75)):
+                    continue
+                if not relevant(section,title):
+                    continue
+                ident=hashlib.sha256((section+"|"+link).encode()).hexdigest()[:20]
+                found.append({"id":ident,"section":section,"title":title[:220],
+                              "source":outlet[:100],"source_url":link,
+                              "published_utc":date.isoformat(),
+                              "status":"research_only"})
+            return found,None
+        except Exception as exc:
+            return [],{"query":query,"error":str(exc)[:160]}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+        for items,problem in pool.map(scan_one,tasks):
+            for article in items:
+                fresh[article["id"]]=article
+            if problem:
+                errors.append(problem)
     # Preserve up to seven days of previously discovered leads and their status.
     for key,item in existing.items():
         try:age=now-dt.datetime.fromisoformat(item["published_utc"])
