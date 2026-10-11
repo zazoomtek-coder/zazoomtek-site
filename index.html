@@ -287,19 +287,19 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 
 </style>
 <style id="zt-featured-mosaic-css">
-/* Modifica locale: esclusivamente NEWS IN EVIDENZA, nessun altro modulo. */
-.zt-featured-module .module-head{margin-bottom:8px}
-#ztFeaturedGrid{display:grid!important;width:100%!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;aspect-ratio:32/9;gap:8px!important;background:#fff!important;overflow:visible!important}
-#ztFeaturedGrid .zt-feature-card{display:block;position:relative;min-width:0;min-height:0;overflow:hidden;border-radius:7px;background:#141923;box-shadow:0 1px 5px rgba(0,0,0,.15);outline-offset:3px}
-#ztFeaturedGrid .zt-feature-hero{grid-column:span 2;grid-row:span 2}
-#ztFeaturedGrid .zt-feature-card img{display:block;width:100%;height:100%;object-fit:contain!important;object-position:50% 50%!important;filter:none!important;opacity:1!important;mix-blend-mode:normal!important}
-#ztFeaturedGrid .zt-feature-card:before,#ztFeaturedGrid .zt-feature-card:after{content:none!important;display:none!important}
+/* Solo NEWS IN EVIDENZA, mosaico a cinque card sopra le due colonne della Home. */
+.zt-featured-module{width:100%;margin-bottom:18px}
+.zt-featured-module .module-head{margin-bottom:9px}
+#ztFeaturedGrid{display:grid!important;width:100%!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;aspect-ratio:3.3/1!important;gap:9px!important;background:#fff!important;overflow:visible!important}
+#ztFeaturedGrid .zt-feature-card{display:block;position:relative;min-width:0;min-height:0;overflow:hidden;border-radius:8px;background:#141923;box-shadow:0 1px 5px rgba(0,0,0,.12);outline-offset:3px}
+#ztFeaturedGrid .zt-feature-hero{grid-column:1;grid-row:1/span 2}
+#ztFeaturedGrid .zt-feature-card img{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;filter:none!important;opacity:1!important;mix-blend-mode:normal!important}
+#ztFeaturedGrid .zt-feature-card:before,#ztFeaturedGrid .zt-feature-card:after{content:none!important;display:none!important;background:none!important}
 #ztFeaturedGrid .zt-feature-card:hover{box-shadow:0 0 0 2px #D51232}
 @media(max-width:680px){
  #ztFeaturedGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:none!important;aspect-ratio:auto!important;gap:7px!important}
- #ztFeaturedGrid .zt-feature-hero{grid-column:span 2;grid-row:auto;aspect-ratio:16/9}
+ #ztFeaturedGrid .zt-feature-hero{grid-column:1/span 2;grid-row:auto;aspect-ratio:16/9}
  #ztFeaturedGrid .zt-feature-small{aspect-ratio:16/9}
- #ztFeaturedGrid .zt-feature-card img{position:absolute;inset:0;width:100%;height:100%}
 }
 </style>
 </head>
@@ -358,15 +358,16 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 </header>
 
 <main class="shell page">
-  <div class="layout">
-    <div class="maincol">
-      <section class="module zt-featured-module">
+  <section class="module zt-featured-module">
         <div class="module-head"><h2>News in evidenza</h2></div>
         <!-- FEATURED_NEWS_START -->
 <div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Cinque news ZazoomTek in evidenza"><a class="zt-feature-card zt-feature-hero" href="/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html" aria-label="CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia" title="CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia"><img src="https://yt3.ggpht.com/ArbM4BX2xFi4ZsqJM7XLsND3HLKtAyeEtu2zDa9nsJCYPXV0ymGw5DBbTpHU6dJgNLPf5cxDeUTrpw=s1600-rw-nd-v1" alt="CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia" loading="eager" decoding="async"></a><a class="zt-feature-card zt-feature-small" href="/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html" aria-label="Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari" title="Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari"><img src="/assets/special/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.webp" alt="Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari" loading="lazy" decoding="async"></a><a class="zt-feature-card zt-feature-small" href="/news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html" aria-label="The Talos Principle 3 mostra il primo gameplay: l&#x27;Anomalia e nuovi enigmi nel capitolo finale della trilogia" title="The Talos Principle 3 mostra il primo gameplay: l&#x27;Anomalia e nuovi enigmi nel capitolo finale della trilogia"><img src="https://yt3.ggpht.com/ahl8LogGQOGEgxY-BQrojHMfWHiMH7uV9uAbfUwXHrTw3dRywRKUFpzneYc6RDhdS48IHI70buVi4g=s1600-rw-nd-v1" alt="The Talos Principle 3 mostra il primo gameplay: l&#x27;Anomalia e nuovi enigmi nel capitolo finale della trilogia" loading="lazy" decoding="async"></a><a class="zt-feature-card zt-feature-small" href="/news-UgkxSAfW_T-tL6dS7sn7syzWrfKVS2hxnK5L.html" aria-label="ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie" title="ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie"><img src="https://yt3.ggpht.com/soZXps2f6_LkVELLnTcZjTelGeQafWPOg6YFZ_d-WGhmn4NY80bQR-itQ__Y-PahHkh7VNSnlIPLew=s1600-rw-nd-v1" alt="ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie" loading="lazy" decoding="async"></a><a class="zt-feature-card zt-feature-small" href="/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html" aria-label="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano" title="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano"><img src="/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp" alt="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano" loading="lazy" decoding="async"></a></div>
 <!-- FEATURED_NEWS_END -->
       </section>
 
+
+  <div class="layout">
+    <div class="maincol">
       <section class="module latest-reviews-module">
         <div class="module-head"><h2>Ultime Recensioni</h2><div style="display:flex;align-items:center;gap:10px"><span>Le ultime 5 recensioni pubblicate</span><div class="module-controls"><button type="button" id="latestPrev" aria-label="Recensioni precedenti">‹</button><button type="button" id="latestNext" aria-label="Recensioni successive">›</button></div></div></div>
         <div class="video-strip"><div class="video-strip-track" id="latestVideos">
