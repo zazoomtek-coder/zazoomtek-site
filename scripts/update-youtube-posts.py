@@ -2413,8 +2413,8 @@ def main():
     # Preserve the approved Home Guides widget across automatic Community syncs.
     # Its markup stays in index.html, not in archives or paginated pages.
     home_guide=re.search(
-        r'<!-- HOME_GUIDES_INSET_START -->[\\s\\S]*?<!-- HOME_GUIDES_INSET_END -->',
-        s,
+        r'<!-- HOME_GUIDES_INSET_START -->.*?<!-- HOME_GUIDES_INSET_END -->',
+        s,flags=re.S,
     )
     guide_markup=home_guide.group(0) if home_guide else ""
     feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE],guide_markup)+"\n          <!-- ARTICLE_FEED_END -->"
