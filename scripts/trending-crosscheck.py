@@ -277,22 +277,16 @@ def matches(owned,state):
                                 min(10,article["freshness"]*.06),2) if score else 0
     return owned
 
-def featured_special_kind(on_date=None):
-    """Impact oggi (11-10-2026), Inside domani, poi alternanza quotidiana."""
-    from zoneinfo import ZoneInfo
-    today=on_date or dt.datetime.now(ZoneInfo("Europe/Rome")).date()
-    return "tech" if (today-dt.date(2026,10,11)).days % 2 == 0 else "gaming"
-
-
 def pick(articles,on_date=None):
-    """3 Tech + 2 Gaming + 1 speciale alternato; solo articoli ZazoomTek."""
+    """Homepage: two Tech NEWS, two Gaming NEWS, one Impact and one Inside."""
     chosen=[];seen=set()
-    def add(a):
-        if a["url"] in seen:return False
-        seen.add(a["url"]);chosen.append(a);return True
+    def add(article):
+        if article["url"] in seen:
+            return False
+        seen.add(article["url"]);chosen.append(article)
+        return True
     standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
     for kind in ("tech","gaming"):
-        limit=3 if kind=="tech" else 2
         regular=sorted((a for a in articles
                         if a["section"]==kind and a["url"].startswith("/news-")
                         and (ROOT/a["url"].lstrip("/")).is_file()
@@ -301,11 +295,11 @@ def pick(articles,on_date=None):
                        key=lambda a:(a["trend_score"]>0,a["trend_score"],a["freshness"]),
                        reverse=True)
         count=0
-        for a in regular:
-            if count==limit:break
-            count+=add(a)
+        for article in regular:
+            if count==2:break
+            count+=add(article)
         for x in standard:
-            if count==limit:break
+            if count==2:break
             if x.get("kind")!=kind:continue
             url="/news-"+x["slug"]+".html"
             image="/assets/special/news-"+x["slug"]+".webp"
@@ -313,45 +307,49 @@ def pick(articles,on_date=None):
             count+=add({"url":url,"title":x["title"],"image":image,
                         "section":kind,"trend_score":0,"freshness":0,
                         "matched_sources":[],"summary":""})
-        if count!=limit:raise RuntimeError("Missing "+str(limit)+" original "+kind+" featured news articles")
-    kind=featured_special_kind(on_date)
-    section="tech-impact" if kind=="tech" else "gaming-inside"
-    prefix=section+"-"
+        if count!=2:
+            raise RuntimeError("Missing 2 verified "+kind+" standard NEWS")
     special_feed=json.loads((ROOT/"special-featured.json").read_text(encoding="utf-8")).get("items",[])
     approvals=json.loads((ROOT/"approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
-    by_url={"/"+("tech-impact" if v.get("section")=="tech" else "gaming-inside")+"-"+v.get("slug","")+".html":v
-            for v in approvals if v.get("section") in ("tech","gaming")}
-    eligible=[a for a in articles if a["section"]==section and a["url"].startswith("/"+prefix)
-              and (ROOT/a["url"].lstrip("/")).is_file()
-              and a.get("image","").startswith("/assets/special/")
-              and (ROOT/a["image"].lstrip("/")).is_file()]
-    for a in eligible:
-        approved=by_url.get(a["url"],{})
-        try:age=(NOW().date()-dt.date.fromisoformat(approved.get("date",""))).days
-        except (TypeError,ValueError):age=100
-        confirmed=approved.get("evidence_review",{}).get("source_count",0) if approved.get("trend_verified") is True else 0
-        a["special_source_count"]=max(a.get("match_count",0),confirmed) if 0<=age<=2 else 0
-    eligible.sort(key=lambda a:(a["special_source_count"],a.get("trend_score",0),a.get("freshness",0)),reverse=True)
-    winner=next((a for a in eligible if a["special_source_count"]>=2),None)
-    if winner is None:
+    for kind,section in (("tech","tech-impact"),("gaming","gaming-inside")):
+        prefix="/"+section+"-"
+        eligible=[a for a in articles if a["section"]==section
+                  and a["url"].startswith(prefix)
+                  and (ROOT/a["url"].lstrip("/")).is_file()
+                  and a.get("image","").startswith("/assets/special/")
+                  and (ROOT/a["image"].lstrip("/")).is_file()]
+        selected=None
         for item in special_feed:
             slug=item.get("slug","");img=item.get("image","")
-            if (item.get("section")!=kind or not slug.startswith(prefix) or
-                not slug.endswith(".html") or not img.startswith("/assets/special/") or
-                not (ROOT/slug).is_file() or not (ROOT/img.lstrip("/")).is_file()):continue
-            winner=next((a for a in eligible if a["url"]=="/"+slug),None)
-            if winner is None:
-                winner={"url":"/"+slug,"title":item.get("title",""),"image":img,
-                        "section":section,"trend_score":0,"freshness":0,
-                        "matched_sources":[],"match_count":0,"summary":""}
+            if (item.get("section")!=kind or not slug.startswith(section+"-")
+                or not slug.endswith(".html") or not img.startswith("/assets/special/")
+                or not (ROOT/slug).is_file() or not (ROOT/img.lstrip("/")).is_file()):
+                continue
+            selected=next((a for a in eligible if a["url"]=="/"+slug),None)
+            if selected is None:
+                selected={"url":"/"+slug,"title":item.get("title",""),"image":img,
+                          "section":section,"trend_score":0,"freshness":0,
+                          "matched_sources":[],"summary":""}
             break
-    if winner is None and eligible:winner=eligible[0]
-    if winner is None:raise RuntimeError("No previous verified story for "+section+"; cannot invent one")
-    if not add(winner):raise RuntimeError("Duplicate featured item: "+winner["url"])
-    # Keep the approved preview ordering: Tech, Tech, Gaming / Tech, Gaming, special.
-    chosen=[chosen[0],chosen[1],chosen[3],chosen[2],chosen[4],chosen[5]]
+        if selected is None:
+            # Honor explicitly editor-promoted, published and documented stories.
+            promoted=[a for a in eligible if any(
+                v.get("home_featured") is True and
+                v.get("section")==kind and
+                a["url"]=="/"+section+"-"+v.get("slug","")+".html"
+                for v in approvals)]
+            promoted.sort(key=lambda a:a.get("freshness",0),reverse=True)
+            if promoted:selected=promoted[0]
+        if selected is None and eligible:
+            selected=sorted(eligible,key=lambda a:(a.get("trend_score",0),
+                a.get("freshness",0)),reverse=True)[0]
+        if selected is None:
+            raise RuntimeError("No published special article for "+section)
+        if not add(selected):
+            raise RuntimeError("Duplicate highlighted special news")
     assert len(chosen)==6
-    assert [x["section"] for x in chosen]==["tech","tech","gaming","tech","gaming",section]
+    assert [x["section"] for x in chosen]==[
+        "tech","tech","gaming","gaming","tech-impact","gaming-inside"]
     return chosen
 
 
@@ -465,17 +463,12 @@ def selftest():
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
     assert classify("ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC")=="gaming"
     assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
-    # Verify the approved 3+2+1 quota without public network requests.
-    # Read genuine published ZazoomTek cards; no network and no fake files.
+    # Two curated editorial highlights alongside four standard NEWS.
     existing=matches(owned_candidates(),{"items":[]})
-    assert featured_special_kind(dt.date(2026,10,11))=="tech"
-    assert featured_special_kind(dt.date(2026,10,12))=="gaming"
-    assert featured_special_kind(dt.date(2026,10,13))=="tech"
     sample=pick(existing,on_date=dt.date(2026,10,11))
     assert len(sample)==6 and [x["section"] for x in sample]==[
-        "tech","tech","gaming","tech","gaming","tech-impact"]
-    sample2=pick(existing,on_date=dt.date(2026,10,12))
-    assert len(sample2)==6 and sample2[-1]["section"]=="gaming-inside"
+        "tech","tech","gaming","gaming","tech-impact","gaming-inside"]
+    assert len({x["url"] for x in sample})==6
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
         {"source":"hdblog","name":"HDblog","kind":"tech",

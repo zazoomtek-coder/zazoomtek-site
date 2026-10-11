@@ -145,6 +145,144 @@
       "cover_mode": "auto",
       "cover_search": "children videogame controller",
       "cover_file": "Child playing with video game console at home closeup.jpg"
+    },
+    {
+      "section": "tech",
+      "slug": "farnesina-cyberattacco-ambasciate-verifiche-ottobre-2026",
+      "title": "Cyberattacco alla Farnesina: sistemi protetti e verifiche estese alle sedi diplomatiche",
+      "summary": "Il Ministero degli Esteri conferma l'attacco informatico dell'8 ottobre e riferisce che le difese hanno evitato disservizi. Le verifiche riguardano anche i siti delle rappresentanze italiane all'estero e la cooperazione europea sulla cybersicurezza.",
+      "cover_headline": "FARNESINA SOTTO ATTACCO CYBER",
+      "cover_search": "Palazzo Farnesina Rome",
+      "home_featured": true,
+      "sources": [
+        "https://www.esteri.it/it/sala_stampa/archivionotizie/comunicati/2026/10/la-farnesina-respinge-nuovi-tentativi-di-attacchi-informatici-al-proprio-sito-e-alle-infrastrutture-nazionali/",
+        "https://www.ansa.it/sito/notizie/mondo/2026/10/08/farnesina-attacco-hacker-al-nostro-sito-effetti-mitigati-dai-sistemi-di-protezione_8a637c50-2276-4ea7-b030-adedb0a4c838.html"
+      ],
+      "paragraphs": [
+        "Un attacco informatico contro il portale del Ministero degli Affari Esteri ha riportato al centro dell'attenzione la sicurezza dei servizi digitali della pubblica amministrazione. L'episodio è stato comunicato ufficialmente l'8 ottobre 2026: secondo la Farnesina, le contromisure già attive hanno mitigato l'azione senza provocare disservizi. La precisazione è importante perché un tentativo ostile contro un sito istituzionale non equivale automaticamente alla compromissione delle banche dati, né dimostra che siano state sottratte informazioni riservate.",
+        "Il ministero ha spiegato che il controllo non si è fermato al sito centrale. Sono state avviate analisi anche sulle risorse informatiche delle sedi diplomatiche e consolari all'estero, con l'obiettivo di verificare eventuali tentativi analoghi. Il monitoraggio viene svolto in collaborazione con il Polo Strategico Nazionale e in raccordo con le autorità competenti. Non sono stati annunciati, nel comunicato esaminato, danni ai cittadini o interruzioni delle normali funzioni delle rappresentanze.",
+        "Il caso mostra perché la protezione di un'istituzione internazionale richieda più di una singola barriera tecnica. Portali pubblici, servizi amministrativi e reti distribuite in altri Paesi hanno funzioni diverse e superfici di esposizione differenti. Proteggere la continuità del sito non chiude quindi l'intera attività di analisi: occorre distinguere fra un'infrastruttura che rimane raggiungibile e un'indagine che verifica l'assenza di ulteriori attività sospette. Le autorità, per ora, hanno comunicato il contenimento dell'attacco, non la conclusione di tutti gli accertamenti.",
+        "Il ministro Antonio Tajani ha collegato la risposta alla riorganizzazione della Farnesina approvata nel 2025 e agli investimenti in capacità di prevenzione, monitoraggio e risposta. Fra gli strumenti menzionati figura anche la Sala operativa CSIRT, dedicata al trattamento degli incidenti informatici. In questo contesto l'Italia sta inoltre lavorando con Romania e altri Stati membri per discutere in sede europea possibili designazioni di soggetti ritenuti responsabili di attacchi cyber contro istituzioni.",
+        "Rimane essenziale separare le informazioni accertate dalle attribuzioni ancora oggetto di valutazione. La notizia confermata è che il ministero ha subito un attacco e ha dichiarato di averne limitato gli effetti. L'eventuale identificazione degli autori richiede invece elementi specifici e responsabilità formalmente stabilite. Per cittadini e imprese il messaggio più concreto riguarda la resilienza dei servizi pubblici: comunicazioni tempestive, difese operative e verifiche sulle sedi periferiche possono ridurre l'impatto di un incidente, senza sostituire il lavoro di indagine successivo."
+      ],
+      "date": "2026-10-11",
+      "editor_approved": true,
+      "featured": true,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "certificati-https-falsi-google-domini-gh-sl-as-2026",
+      "title": "Certificati HTTPS non autorizzati: Google spiega gli attacchi ai domini .gh, .sl e .as",
+      "summary": "Google Chrome ha bloccato certificati HTTPS emessi durante attacchi ai registri di tre domini nazionali. L'azienda chiarisce che non sono stati violati i propri sistemi e invita i gestori dei siti a verificare certificati e configurazioni DNS.",
+      "cover_headline": "HTTPS: CERTIFICATI FALSI E DNS",
+      "cover_search": "internet cybersecurity padlock",
+      "sources": [
+        "https://blog.google/security/chromes-response-to-recent-cctld-registry-hijacks/"
+      ],
+      "paragraphs": [
+        "Un lucchetto nel browser indica che una connessione è cifrata, ma da solo non garantisce che il sito raggiunto sia quello che l'utente intendeva visitare. È la lezione di un incidente descritto dal team di sicurezza di Chrome il 6 ottobre 2026. Google ha riferito di una serie di attacchi che hanno coinvolto i registri dei domini nazionali .gh, .sl e .as, assegnati rispettivamente a Ghana, Sierra Leone e Samoa Americane. Gli aggressori sono riusciti a modificare registrazioni DNS e a ottenere certificati HTTPS non autorizzati.",
+        "La società precisa che non sono stati compromessi i propri sistemi. L'elemento preso di mira era l'infrastruttura di terze parti che governa alcuni domini di primo livello. Un attacco di questo genere è significativo perché può spostare il traffico verso server non previsti, creando condizioni nelle quali il browser potrebbe visualizzare una connessione apparentemente regolare. Nel caso descritto sono stati emessi certificati riferiti ad alcuni domini di Google e di altre organizzazioni, mentre il dettaglio di tutti i soggetti coinvolti non è stato reso pubblico.",
+        "Chrome ha reagito bloccando i certificati individuati attraverso le proprie liste di revoca, note come CRLSets. Google ha inoltre collaborato con le autorità di certificazione che li avevano emessi affinché fossero revocati, intervenendo anche a tutela degli utenti di altri software. Dall'analisi dei registri pubblici di Certificate Transparency sono emersi ulteriori certificati potenzialmente interessati. Il team ha quindi esteso i blocchi e, ove possibile, avvisato direttamente le organizzazioni coinvolte.",
+        "La stessa Google sottolinea che l'intervento del browser non può essere l'unica difesa. Chi amministra un dominio dovrebbe monitorare l'emissione di nuovi certificati e usare registrazioni CAA restrittive, che indicano quali autorità possono rilasciarli. Queste misure non eliminano ogni rischio quando un aggressore ha già il controllo del DNS, ma aiutano a ridurre la possibilità che il problema prosegua dopo il ripristino della configurazione legittima. La gestione dei certificati è quindi parte della sicurezza del dominio, non un adempimento una tantum.",
+        "Per chi naviga, la comunicazione ufficiale specifica che gli utenti di Chrome non devono compiere azioni particolari per i certificati già bloccati. Non significa però che qualunque attacco ai DNS sia impossibile o che tutti i browser condividano sempre le medesime protezioni. Per questo la sicurezza del web dipende sia dai controlli del software sia dalle responsabilità degli operatori che amministrano infrastrutture di registrazione e siti internet. La vicenda riporta al centro una questione spesso invisibile: la fiducia nella rete nasce da più soggetti, non soltanto dal browser."
+      ],
+      "date": "2026-10-11",
+      "editor_approved": true,
+      "featured": false,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "diritto-oblio-google-tribunale-milano-rifiuti-deindicizzazione-2026",
+      "title": "Diritto all'oblio, il Tribunale di Milano chiede a Google di motivare i rifiuti",
+      "summary": "Una decisione del Tribunale di Milano impone a Google modifiche alle procedure di deindicizzazione e motivazioni sui dinieghi. L'azienda ha annunciato ricorso: il caso riguarda le garanzie per chi chiede di limitare la reperibilità di informazioni personali.",
+      "cover_headline": "DIRITTO ALL'OBLIO: GOOGLE E I RIFIUTI",
+      "cover_search": "justice courthouse Italy",
+      "sources": [
+        "https://www.ansa.it/canale_tecnologia/notizie/tecnologia/2026/10/06/diritto-alloblio-tribunale-milano-accoglie-azione-inibitoria-contro-google_a3d8d49c-3a30-4059-82d9-db83eb149d64.html"
+      ],
+      "paragraphs": [
+        "Il diritto all'oblio torna al centro del confronto fra cittadini, motori di ricerca e giustizia italiana. Il 6 ottobre 2026 è stata resa nota una decisione del Tribunale di Milano che ha accolto un'azione inibitoria collettiva contro società del gruppo Google. Secondo quanto riportato da ANSA, il provvedimento chiede modifiche alle procedure con cui vengono gestite le domande di deindicizzazione e la motivazione dei rifiuti. Google ha comunicato l'intenzione di presentare appello, per cui la vicenda non deve essere raccontata come una controversia definitivamente conclusa.",
+        "Deindicizzare non significa cancellare una pagina dal sito che l'ha pubblicata. Significa intervenire sulla sua reperibilità attraverso determinate ricerche, quando le condizioni previste dalla normativa e dalla giurisprudenza risultano soddisfatte. È una distinzione essenziale: informazioni ancora presenti sul web possono diventare meno facilmente rintracciabili tramite un motore di ricerca, senza che sia imposto all'editore di rimuoverle dal proprio archivio. Per la persona interessata, tuttavia, la visibilità dei risultati può avere un impatto concreto sulla reputazione e sulla vita privata.",
+        "Il nodo della controversia riguarda anche il modo in cui vengono gestite le richieste. Un diniego privo di spiegazioni comprensibili rende più difficile capire quali elementi siano stati valutati e come contestare la decisione. Il provvedimento milanese, secondo la ricostruzione giornalistica disponibile, richiede dunque che i rifiuti siano motivati. La decisione indica inoltre una scadenza del 15 novembre per adeguare le procedure descritte e prevede conseguenze economiche in caso di mancato rispetto degli obblighi stabiliti.",
+        "La tutela dei dati personali non implica che ogni contenuto sgradito debba sparire dai risultati. In questi casi entrano in gioco diritti diversi: riservatezza, interesse pubblico, libertà d'informazione e correttezza del trattamento dei dati. La valutazione dipende dal contesto e dal contenuto della specifica richiesta. Proprio per questo la trasparenza sulla motivazione assume rilievo: permette di distinguere tra una domanda che non soddisfa i presupposti e una procedura percepita come arbitraria dal richiedente.",
+        "Il caso italiano si inserisce in un problema europeo più ampio: quanto devono essere comprensibili e contestabili le decisioni delle grandi piattaforme quando incidono sulla circolazione delle informazioni? La risposta giudiziaria annunciata a Milano punta sull'effettività delle procedure, mentre il ricorso preannunciato da Google lascia aperta la fase successiva. Per gli utenti il punto da seguire non è soltanto l'esito della causa, ma soprattutto se e come cambieranno le comunicazioni del motore di ricerca per chi esercita il proprio diritto di richiesta."
+      ],
+      "date": "2026-10-11",
+      "editor_approved": true,
+      "featured": false,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "frode-streaming-musica-ia-bot-sentenza-smith-2026",
+      "title": "Streaming musicale e bot IA, negli USA 18 mesi di carcere per una frode sui diritti d'autore",
+      "summary": "La giustizia statunitense ha condannato Michael Smith a 18 mesi di carcere per un sistema di ascolti artificiali collegato a brani generati con IA. Il caso riguarda la manipolazione dei compensi sulle piattaforme, non un divieto generale di produrre musica con intelligenza artificiale.",
+      "cover_headline": "MUSICA IA: FRODE CON I BOT",
+      "cover_search": "music recording studio computer",
+      "sources": [
+        "https://www.justice.gov/usao-sdny/pr/north-carolina-man-sentenced-18-months-prison-super-intelligence-assisted-music",
+        "https://www.justice.gov/usao-sdny/pr/north-carolina-man-pleads-guilty-music-streaming-fraud-aided-artificial-intelligence-0"
+      ],
+      "paragraphs": [
+        "Una condanna negli Stati Uniti mette in evidenza come i sistemi automatici possano alterare l'economia delle piattaforme musicali. Il 6 ottobre 2026 la procura federale del distretto meridionale di New York ha annunciato una pena di 18 mesi di carcere per Michael Smith, cittadino della Carolina del Nord. Il procedimento riguarda un sistema di ascolti artificiali costruito con account e programmi automatizzati, associato a un vasto catalogo di brani generati tramite intelligenza artificiale. L'imputato aveva ammesso la propria responsabilità nel marzo dello stesso anno.",
+        "Secondo il Dipartimento di Giustizia, Smith utilizzava bot per riprodurre in modo continuativo i brani, facendo apparire come normali ascolti dei consumatori attività generate da software. La quantità di contenuti disponibili era un elemento del meccanismo: distribuendo le riproduzioni su numerosissime tracce, il sistema rendeva meno evidente una concentrazione anomala di ascolti. Gli investigatori descrivono così un utilizzo combinato di generazione automatica di musica e manipolazione delle statistiche, finalizzato a ottenere pagamenti non dovuti.",
+        "La condanna comprende due anni di libertà vigilata dopo la detenzione e la confisca di oltre 8 milioni di dollari, con un importo indicato dalle autorità di 8.091.843,64 dollari. La procura ha sostenuto che il denaro ottenuto attraverso riproduzioni fittizie danneggiava il sistema di distribuzione dei compensi e sottraeva risorse destinate agli autori che attirano ascolti reali. L'elemento centrale della frode è la falsificazione dell'attività degli utenti, non l'esistenza di strumenti capaci di produrre un brano musicale.",
+        "Questa distinzione è essenziale nel dibattito sull'IA. Un contenuto generato da un modello e un ascolto falsificato sono fenomeni differenti, con implicazioni giuridiche e commerciali diverse. La disponibilità di strumenti di produzione a basso costo può aumentare rapidamente il numero di opere caricate sui servizi; quando vi si aggiunge una rete di bot, il rischio riguarda l'affidabilità delle metriche e dei pagamenti. Per le piattaforme ciò rende importanti controlli su account, comportamenti anomali e distribuzione delle royalties.",
+        "La vicenda non dimostra che tutti i contenuti musicali prodotti con intelligenza artificiale siano fraudolenti, né costituisce una regola universale per il settore. Mostra piuttosto che un mercato fondato su conteggi digitali deve poter distinguere attività autentiche da comportamenti costruiti ad arte. Il caso giudiziario statunitense offre quindi uno spunto concreto sulle responsabilità di chi sfrutta strumenti automatici e sulle difficoltà delle piattaforme nel proteggere autori, ascoltatori e sistemi di remunerazione."
+      ],
+      "date": "2026-10-11",
+      "editor_approved": true,
+      "featured": false,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "gaming",
+      "slug": "gears-of-war-e-day-the-coalition-licenziamenti-bonus-2026",
+      "title": "Gears of War: E-Day, dopo l'uscita resta aperta la questione lavoro e bonus a The Coalition",
+      "summary": "Un reportage di Eurogamer raccoglie i timori di alcuni sviluppatori di The Coalition sulle possibili conseguenze dei tagli Xbox e sui bonus legati ai risultati del gioco. Non sono stati confermati nuovi licenziamenti successivi al lancio.",
+      "cover_headline": "GEARS E-DAY: ALLARME LAVORO",
+      "cover_search": "video game development studio",
+      "sources": [
+        "https://www.eurogamer.net/the-coalition-gears-of-war-e-day-worried-layoffs-no-bonus",
+        "https://news.xbox.com/en-us/2026/10/01/gears-of-war-e-day-early-access-launch-trailer-xbox/",
+        "https://www.spaziogames.it/notizie/gears-of-war-e-day-dal-traguardo-gold-al-licenziamento"
+      ],
+      "paragraphs": [
+        "L'arrivo di Gears of War: E-Day sul mercato è stato accompagnato da un confronto meno visibile delle discussioni sul gameplay: le condizioni di lavoro nello studio The Coalition. Il titolo è uscito il 6 ottobre 2026, dopo un periodo di accesso anticipato confermato da Xbox. Nei giorni precedenti Eurogamer ha raccolto testimonianze anonime di alcuni sviluppatori preoccupati per nuove riorganizzazioni del comparto gaming di Microsoft. È importante distinguere i timori dei dipendenti da eventuali provvedimenti futuri: non sono state annunciate, nelle fonti consultate, nuove riduzioni collettive successive al lancio.",
+        "Il clima di incertezza si lega alla serie di tagli e cambiamenti organizzativi avviati da Xbox nel corso del 2026. Secondo le ricostruzioni pubblicate, il responsabile narrativo Juan Vaca ha lasciato lo studio nell'ambito di una riduzione del personale prima dell'uscita del gioco. L'episodio ha alimentato dubbi su cosa possa succedere anche dopo il completamento di un progetto importante. Un videogioco può raggiungere una tappa commerciale attesa senza che ciò assicuri automaticamente continuità occupazionale a tutte le persone che lo hanno realizzato.",
+        "Un punto specifico del reportage riguarda i premi economici collegati alla ricezione critica del titolo. Eurogamer riferisce di aver esaminato comunicazioni interne relative a bonus condizionati al raggiungimento di determinati risultati e alla posizione lavorativa al momento del pagamento. Alcuni sviluppatori temono che eventuali licenziamenti nell'intervallo fra lancio e liquidazione dei premi possano complicare l'accesso a queste somme. La possibilità di un taglio successivo, tuttavia, resta una preoccupazione segnalata dalle fonti, non un evento accertato.",
+        "La questione supera il singolo franchise. Negli studi che sviluppano giochi di grandi dimensioni, le fasi conclusive richiedono spesso un'intensa collaborazione fra reparti creativi, programmazione, test e produzione. Se l'organizzazione cambia subito dopo la pubblicazione, possono sorgere interrogativi sulla valorizzazione del lavoro svolto, sulla trasparenza dei criteri retributivi e sulla continuità dei team. Sono problemi industriali che interessano direttamente il settore videoludico, non semplici indiscrezioni sul prossimo aggiornamento di un gioco.",
+        "Microsoft e The Coalition restano i soggetti da cui attendere indicazioni ufficiali su eventuali decisioni future. Il successo commerciale o l'apprezzamento della critica non permettono, da soli, di anticipare quelle scelte. Per i lettori è quindi utile tenere separate tre informazioni: Gears of War: E-Day è stato pubblicato, alcuni tagli precedenti sono stati riportati da fonti giornalistiche e una parte dei dipendenti ha espresso timori sui bonus. Solo nuove comunicazioni verificabili potranno chiarire se a queste preoccupazioni seguiranno ulteriori cambiamenti concreti."
+      ],
+      "date": "2026-10-11",
+      "editor_approved": true,
+      "featured": false,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "gaming",
+      "slug": "ubisoft-massive-entertainment-riorganizzazione-studi-franchise-2026",
+      "title": "Ubisoft riunisce quattro sedi sotto Massive Entertainment: cosa cambia per gli studi e i giochi",
+      "summary": "Ubisoft ha riunito sotto il marchio Massive Entertainment i gruppi che lavorano a The Division, Ghost Recon, Splinter Cell e nuove proprietà intellettuali. La società descrive un cambiamento organizzativo, non la cancellazione dei progetti in corso.",
+      "cover_headline": "UBISOFT RIORGANIZZA MASSIVE",
+      "cover_search": "video game developer workspace",
+      "home_featured": true,
+      "sources": [
+        "https://news.ubisoft.com/en-ca/article/FLHpn759e7w0vtE0TKb47/massive-entertainment-the-next-chapter-begins"
+      ],
+      "paragraphs": [
+        "Ubisoft modifica il modo in cui presenta e coordina una parte delle proprie squadre creative. Con una comunicazione del 30 settembre 2026, l'editore ha annunciato che diversi gruppi di sviluppo opereranno sotto un'unica identità, Massive Entertainment. Il marchio, storicamente legato alla struttura svedese, verrà utilizzato anche dai team che lavorano su alcune delle serie più importanti del catalogo Ubisoft. Non si tratta dell'annuncio di un nuovo videogioco, ma di un passaggio organizzativo che riguarda persone, competenze e gestione delle proprietà intellettuali.",
+        "Il perimetro indicato dall'azienda comprende Montréal, Parigi, la Svezia e Toronto. Sotto questa denominazione convergono attività collegate a The Division, Ghost Recon e Splinter Cell, insieme allo sviluppo di nuove idee, fra cui March of Giants. A guidare Creative House 2 è Christoph Hartmann, già nominato general manager nel corso dell'anno. Nella comunicazione ufficiale Ubisoft presenta l'operazione come un modo per mettere in relazione competenze tecniche e creative distribuite fra sedi differenti.",
+        "Raggruppare più studi sotto un nome comune può semplificare la comunicazione verso giocatori e partner, ma non equivale necessariamente alla fusione fisica degli uffici o allo spostamento dei dipendenti. Le informazioni diffuse riguardano innanzitutto l'identità organizzativa e la collaborazione fra i team. Non emergono dal comunicato piani specifici di chiusura delle sedi citate, né un elenco di licenziamenti collegati a questa decisione. Attribuire all'annuncio conseguenze occupazionali non dichiarate significherebbe andare oltre gli elementi disponibili.",
+        "Dal punto di vista dei videogiochi, la scelta segnala un tentativo di organizzare più franchise attorno a risorse e conoscenze condivise. Serie con esigenze differenti possono trarre vantaggio da infrastrutture comuni, tecnologie interne ed esperienze maturate su produzioni precedenti; resta però da vedere come questa impostazione si tradurrà nel calendario dei giochi e nelle decisioni dei singoli gruppi. Ubisoft precisa che continuerà a pubblicare e distribuire i progetti realizzati sotto Massive Entertainment, senza cambiamenti agli impegni già assunti con giocatori e partner.",
+        "L'aspetto da seguire nei prossimi mesi riguarda la capacità del nuovo assetto di coniugare coordinamento e autonomia creativa. Una struttura più riconoscibile non garantisce automaticamente tempi di sviluppo più rapidi, risultati commerciali migliori o annunci imminenti. Per chi segue The Division, Ghost Recon e Splinter Cell la notizia verificata è quindi l'unificazione dell'identità aziendale di più squadre. Le conseguenze pratiche sui prodotti dovranno essere valutate attraverso futuri aggiornamenti ufficiali, non attraverso aspettative presentate come certezze."
+      ],
+      "date": "2026-10-11",
+      "editor_approved": true,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }

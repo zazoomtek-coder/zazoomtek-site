@@ -186,12 +186,18 @@ def main():
         current=[x for x in old_featured if x.get("section")==sec
                  and (ROOT/x.get("slug","")).is_file()
                  and (ROOT/x.get("image","").lstrip("/")).is_file()]
+        # Explicit editorial curation may promote a fact-checked, source-linked
+        # original article. Automated promotion still requires two sources.
         trending=[x for x in published if x["section"]==sec
-                  and x.get("auto_approved") is True and x.get("trend_verified") is True
-                  and x.get("evidence_review",{}).get("source_count",0)>=2]
-        trending.sort(key=lambda x:(x["date"],
-                                    x.get("evidence_review",{}).get("source_count",0),
-                                    x["filename"]),reverse=True)
+                  and ((x.get("editor_approved") is True
+                        and x.get("home_featured") is True
+                        and bool(x.get("sources")))
+                       or (x.get("auto_approved") is True
+                           and x.get("trend_verified") is True
+                           and x.get("evidence_review",{}).get("source_count",0)>=2))]
+        trending.sort(key=lambda x:(x.get("home_featured") is True,x["date"],
+                                   x.get("evidence_review",{}).get("source_count",0),
+                                   x["filename"]),reverse=True)
         if trending:
             newest=trending[0]
             lead={"section":sec,"slug":newest["filename"],

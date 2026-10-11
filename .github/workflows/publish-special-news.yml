@@ -2,6 +2,10 @@ name: Publish approved Tech Impact and Gaming Inside articles
 # Starts only after verified article approval or manual dispatch.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'approved-special-articles.json'
 permissions:
   contents: write
 concurrency:
