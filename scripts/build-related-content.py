@@ -393,18 +393,42 @@ def domain_for(title, body, topics):
 
 def kind_for(path):
     name = path.name.lower()
-    if name.startswith(("guida-","guide-")):return "Guida"
-    if name.startswith("tech-impact-"):return "Tech Impact"
-    if name.startswith("gaming-inside-"):return "Gaming Inside"
-    return "Recensione" if name.startswith("recensione-") or "recensione" in name else "News"
+    if name.startswith(("guida-", "guide-")):
+        return "Guida"
+    if name.startswith("tech-impact-"):
+        return "Tech Impact"
+    if name.startswith("gaming-inside-"):
+        return "Gaming Inside"
+    if name.startswith(("recensione-", "recensioni-", "review-")) or "-recensione-" in name:
+        return "Recensione"
+    if name.startswith(("test-", "prova-")):
+        return "Test"
+    if name.startswith("unboxing-"):
+        return "Unboxing"
+    if name.startswith(("gaming-", "videogiochi-")):
+        return "Gaming"
+    return "News"
+
 
 def eligible_paths():
+    """All real individual editorial articles, regardless of naming convention.
+
+    A page only qualifies if it uses the actual article detail structure.
+    This avoids polluting the related links with archives, policy/legal pages,
+    navigation pages, or old placeholder pages.
+    """
     found = {}
-    for pattern in ("news-Ugkx*.html", "news-[a-z]*.html", "recensione-Ugkx*.html", "*-recensione-*.html",
-                    "tech-impact-*.html", "gaming-inside-*.html", "guida-*.html", "guide-*.html"):
-        for path in ROOT.glob(pattern):
-            if path.is_file():
-                found[path.name] = path
+    for path in ROOT.glob("*.html"):
+        if not path.is_file():
+            continue
+        with path.open("r", encoding="utf-8", errors="replace") as stream:
+            page = stream.read()
+        is_detail = (
+            re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid', page, re.I)
+            and re.search(r'<article\b[^>]*class=["\'][^"\']*article-main', page, re.I)
+        )
+        if is_detail:
+            found[path.name] = path
     return [found[k] for k in sorted(found)]
 
 def article_record(path):
@@ -681,13 +705,22 @@ def main():
             with_blocks += 1
             continue
         related = related_for(record, records, idf, entity_idf, LIMIT)
-        if not related and record["name"].startswith(("guida-","guide-","tech-impact-","gaming-inside-")):
-            # Prefer a relevant article from the same editorial series.
-            prefix = ("tech-impact-" if record["name"].startswith("tech-impact-") else
-                      "gaming-inside-" if record["name"].startswith("gaming-inside-") else "guida-")
-            pool = [item for item in records if item["name"] != record["name"] and
-                    item["name"].startswith(prefix)]
-            related = sorted(pool,key=lambda item:relevance(record,item,idf,entity_idf),reverse=True)[:2]
+        if not related:
+            # Editorial fallback for a new/unusual subject: start with the
+            # same section AND vertical, never recommend Tech for Gaming or
+            # vice versa. Linking to already published articles only.
+            domain = record["domain"]
+            pool = [
+                item for item in records
+                if item["name"] != record["name"]
+                and (domain == "mixed" or item["domain"] in {domain, "mixed"})
+            ]
+            same_kind = [item for item in pool if item["kind"] == record["kind"]]
+            candidates = same_kind or pool
+            related = sorted(
+                candidates,
+                key=lambda item: (-relevance(record, item, idf, entity_idf), item["name"])
+            )[:2]
         block = render_related(related) if len(related) >= MIN_RELATED else ""
         if not related:
             no_match.append(record["name"])
@@ -710,7 +743,9 @@ def main():
         f"{total_links} links total; {changed} files updated."
     )
     if no_match:
-        print("Pages without a safe related match:", ", ".join(no_match[:20]))
+        raise RuntimeError(
+            "REQUIRED ARTICLE RELATED LINKS MISSING for: " + ", ".join(no_match[:20])
+        )
     if coverage < 70:
         print(
             f"NOTICE: related-content coverage is {coverage:.1f}%; "
