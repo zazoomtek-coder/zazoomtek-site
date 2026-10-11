@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'approved-special-articles.json'
+      - '.github/workflows/publish-special-news.yml'
 permissions:
   contents: write
 concurrency:
@@ -17,6 +18,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build against the latest published homepage
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
       - name: Validate Python syntax before touching pages
         run: |
           python3 -m py_compile scripts/publish-special-news.py scripts/build-special-covers.py scripts/update-youtube-posts.py scripts/discover-special-news.py
