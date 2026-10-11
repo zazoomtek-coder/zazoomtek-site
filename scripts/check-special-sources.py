@@ -120,13 +120,13 @@ def fetch(url):
         final=response.geturl()
         p=urllib.parse.urlsplit(final)
         if not allowed_public_source(final):raise ValueError("Unsafe source redirect")
-        size=response.read(1_600_001)
-        if len(size)>1_600_000:raise ValueError("Source over size limit")
+        size=response.read(2_800_001)
+        if len(size)>2_800_000:raise ValueError("Source over size limit")
         content_type=response.headers.get("Content-Type","").lower()
         if "html" not in content_type:raise ValueError("Not an HTML source")
     parsed=Extractor()
     parsed.feed(size.decode("utf-8","replace"))
-    return {"url":final,"metadata":parsed.metadata,"excerpts":parsed.blocks[:14]}
+    return {"url":final,"metadata":parsed.metadata,"excerpts":parsed.blocks[:22]}
 def main():
     drafts=json.loads(IN.read_text(encoding="utf-8")).get("drafts",[])
     results=[]
@@ -145,5 +145,6 @@ def main():
          "published":False,"note":"Source excerpts are research only; copyrighted text must not be copied into published work.",
          "items":results}
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print("Evidence reports:",len(results),"publication allowed: False")
+    usable=sum(any(x.get("result")=="retrieved" for x in r["sources"]) for r in results)
+    print("Evidence reports:",len(results),"source accessible:",usable,"unavailable:",len(results)-usable,"publication allowed: False")
 if __name__=="__main__":main()
