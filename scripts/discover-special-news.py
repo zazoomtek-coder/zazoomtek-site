@@ -68,6 +68,24 @@ def fetch(url):
         return response.read(1_800_001)
 def clean(s):
     return re.sub(r"\s+"," ",re.sub(r"<[^>]+>"," ",s or "")).strip()
+# Targeted news search can return unrelated items from otherwise respected outlets.
+# Apply minimal topical relevance before sending headlines to the fact checker.
+TECH_RE=re.compile(
+    r"(?i)\b(?:ai|ia|digital\w*|cyber\w*|hack\w*|privacy|cloud|"
+    r"technolog\w*|tecnolog\w*|software|internet|social|smartphone|"
+    r"semiconductor\w*|chip\w*|informatic\w*|algorithm\w*|algoritm\w*|"
+    r"telecom\w*|microchip|nvidia|openai|anthropic|microsoft|google|"
+    r"meta|tiktok|apple|artificial intelligence|intelligenza artificiale|"
+    r"data breach|data center|ai act|digital services act|digital markets act)\b")
+GAMING_RE=re.compile(
+    r"(?i)\b(?:videogioc\w*|videogam\w*|videoludic\w*|gaming|"
+    r"playstation|xbox|nintendo|steam|roblox|fortnite|diablo|"
+    r"call of duty|in.game|loot.box\w*|tetris|esport\w*|"
+    r"game developer\w*|games industry|video games|video game|"
+    r"game studios|gaming platforms|giocator\w*)\b")
+def relevant(section,title):
+    return bool((GAMING_RE if section=="gaming" else TECH_RE).search(title))
+
 def discover():
     now=dt.datetime.now(dt.timezone.utc)
     existing={}
@@ -87,7 +105,7 @@ def discover():
         for index,query in enumerate(queries):
             region=regions[index % len(regions)]
             # Google News is used for discovery only, NOT as factual proof.
-            url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":query+" when:2d",**region})
+            url="https://news.google.com/rss/search?"+urllib.parse.urlencode({"q":query+" when:3d",**region})
             try:
                 root=ET.fromstring(fetch(url))
                 for item in root.findall(".//channel/item")[:12]:
@@ -99,7 +117,8 @@ def discover():
                     try:date=email.utils.parsedate_to_datetime(pub).astimezone(dt.timezone.utc)
                     except (TypeError,ValueError):continue
                     if not title or not link.startswith("https://") or not outlet:continue
-                    if not (dt.timedelta(0)<=now-date<=dt.timedelta(hours=55)):continue
+                    if not (dt.timedelta(0)<=now-date<=dt.timedelta(hours=75)):continue
+                    if not relevant(section,title):continue
                     ident=hashlib.sha256((section+"|"+link).encode()).hexdigest()[:20]
                     fresh[ident]={"id":ident,"section":section,"title":title[:220],"source":outlet[:100],"source_url":link,"published_utc":date.isoformat(),"status":"research_only"}
             except Exception as exc:
