@@ -447,7 +447,7 @@ html,body,body :is(h1,h2,h3,h4,h5,h6,p,a,span,small,b,strong,em,li,ul,ol,button,
 .zt-unified-footer .zt-community-area{background:#fff;padding:12px 0 16px;border:0}
 .zt-unified-footer .zt-community-banner{
   box-sizing:border-box;width:min(1460px,calc(100% - 28px));max-width:1460px;
-  margin:0 auto;min-height:125px;padding:18px 28px 18px 24px;
+  margin:0 auto;min-height:134px;padding:16px 28px 16px 24px;
   display:flex!important;align-items:center;justify-content:space-between;gap:18px;
   background:#050505!important;color:#fff!important;border-left:6px solid #d51232;
   box-shadow:0 10px 21px rgba(0,0,0,.07);
@@ -475,7 +475,7 @@ html,body,body :is(h1,h2,h3,h4,h5,h6,p,a,span,small,b,strong,em,li,ul,ol,button,
 }
 .zt-unified-footer .zt-community-icon{
   box-sizing:border-box;display:flex!important;align-items:center;justify-content:center;
-  flex:0 0 auto;width:58px;height:58px;border-radius:50%;
+  flex:0 0 auto;width:60px;height:60px;border-radius:50%;
   background:linear-gradient(180deg,#171717,#101010)!important;
   border:2px solid #323232!important;
   box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.025);
@@ -485,7 +485,7 @@ html,body,body :is(h1,h2,h3,h4,h5,h6,p,a,span,small,b,strong,em,li,ul,ol,button,
   transform:translateY(-3px);border-color:#d51232!important;
 }
 .zt-unified-footer .zt-community-icon img{
-  display:block;width:31px;height:31px;object-fit:contain;max-width:31px;
+  display:block;width:32px;height:32px;object-fit:contain;max-width:32px;
   border:0;box-shadow:none;background:transparent;
 }
 .zt-unified-footer .zt-footer-content{padding:22px 0}
