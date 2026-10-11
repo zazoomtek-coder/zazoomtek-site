@@ -68,6 +68,9 @@ jobs:
             echo "Could not synchronize generated content safely."
             exit 1
           fi
+      - name: Enforce editorial boxes in the right column
+        if: steps.publish_commit.outputs.published == 'true'
+        run: python3 scripts/apply-site-design.py
       - name: Publish validated new pages to Firebase Hosting
         if: steps.publish_commit.outputs.published == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
