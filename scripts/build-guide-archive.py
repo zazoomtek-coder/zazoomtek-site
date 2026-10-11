@@ -134,9 +134,17 @@ def render_records(records):
 
 def build():
     news = TEMPLATE.read_text(encoding="utf-8")
-    if not re.search(r'<aside class="news-sidebar">[\s\S]*?</aside>', news):
+    # News and Guide archives use the mixed-sidebar class; keep that markup
+    # when rebuilding the Guide index instead of falling back to legacy boxes.
+    aside_pattern = re.compile(r'<aside class="news-sidebar(?: [^"]*)?">.*?</aside>', re.S)
+    news_aside = aside_pattern.search(news)
+    if not news_aside:
         raise RuntimeError("Impossibile leggere il layout della pagina News")
-    side = re.search(r'<aside class="news-sidebar">[\s\S]*?</aside>', news).group()
+    current_guide = DESTINATION.read_text(encoding="utf-8") if DESTINATION.exists() else ""
+    existing_aside = aside_pattern.search(current_guide)
+    side = (existing_aside.group() if existing_aside and
+            "zt-side-mix" in existing_aside.group().split(">", 1)[0]
+            else news_aside.group())
     records = [item for path in ROOT.iterdir()
                if path.is_file() and PAGE_FILE.fullmatch(path.name)
                for item in [guide_record(path)] if item]
