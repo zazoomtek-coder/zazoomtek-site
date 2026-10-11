@@ -10,6 +10,7 @@ on:
     branches: [main]
     paths:
       - '.github/special-editorial-run.trigger'
+      - 'scripts/discover-special-news.py'
 permissions:
   contents: write
   actions: write
@@ -29,6 +30,7 @@ jobs:
           python3 -m py_compile scripts/discover-special-news.py scripts/generate-special-drafts.py scripts/check-special-sources.py scripts/write-special-articles.py scripts/auto-approve-special.py scripts/publish-special-news.py
           python3 scripts/auto-approve-special.py --self-test
           python3 -m json.tool approved-special-articles.json >/dev/null
+          python3 scripts/discover-special-news.py --self-test
       - name: Discover relevant current public news
         id: discover
         run: |

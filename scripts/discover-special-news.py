@@ -12,6 +12,8 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from html.parser import HTMLParser
+from html import unescape
 
 ROOT=Path(__file__).resolve().parent.parent
 OUT=ROOT/"special-candidates.json"
@@ -87,6 +89,81 @@ GAMING_RE=re.compile(
 def relevant(section,title):
     return bool((GAMING_RE if section=="gaming" else TECH_RE).search(title))
 
+
+# Zazoom's topical index supplies leads, NOT independent verification.
+# The original publisher/official record must still substantiate every claim.
+ZAZOOM_TECH_INDEX="https://www.zazoom.it/tecnologia/"
+ZAZOOM_PUBLIC_RE=re.compile(
+    r"(?i)(attacc|cyber|hacker|frode|privacy|oblio|deindicizz|certificat|"
+    r"truff|giudic|tribunale|legge|normativ|regolament|antitrust|"
+    r"licenziament|riorganizz|tutela|diritt|sicurezza|inchiest|"
+    r"process|multa|restructur|protest|accord|sanzion|controll|"
+    r"crisi|copyright|censura|sorveglianz|politic|fondi|"
+    r"union|autorità|autorita|governo|dipendent|amplia)")
+ZAZOOM_GAMING_RE=re.compile(
+    r"(?i)(videogioc|videoludic|gaming|playstation|xbox|nintendo|"
+    r"ubisoft|activision|the coalition|gears of war|massive entertainment|"
+    r"steam|roblox|game studios|games industry|giocator|giochi online)")
+
+class ZazoomHeadlineParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.in_title=False;self.href="";self.parts=[];self.items=[]
+    def handle_starttag(self,tag,attrs):
+        if tag=="h3":
+            self.in_title=True;self.href="";self.parts=[]
+        elif tag=="a" and self.in_title and not self.href:
+            self.href=dict(attrs).get("href","")
+    def handle_data(self,data):
+        if self.in_title:self.parts.append(data)
+    def handle_endtag(self,tag):
+        if tag=="h3" and self.in_title:
+            title=clean("".join(self.parts))
+            if title and self.href:self.items.append((self.href,title))
+            self.in_title=False
+
+def zazoom_leads(now):
+    req=urllib.request.Request(ZAZOOM_TECH_INDEX,headers={
+        "User-Agent":"Mozilla/5.0 (compatible; ZazoomTekEditorialResearch/1.0; +https://zazoomtek.it/contatti.html)",
+        "Accept":"text/html,application/xhtml+xml"})
+    with urllib.request.urlopen(req,timeout=20) as response:
+        doc=response.read(1_600_000).decode("utf-8","replace")
+    reader=ZazoomHeadlineParser();reader.feed(doc)
+    collected={}
+    for link,title in reader.items[:90]:
+        url=urllib.parse.urljoin(ZAZOOM_TECH_INDEX,unescape(link))
+        parsed=urllib.parse.urlsplit(url)
+        if parsed.scheme!="https" or parsed.hostname not in ("www.zazoom.it","zazoom.it"):
+            continue
+        m=re.search(r"/news-notizia/post/\d+/(20\d{2})-(\d{2})-(\d{2})-",parsed.path)
+        if not m or not ZAZOOM_PUBLIC_RE.search(title):
+            continue
+        game=bool(ZAZOOM_GAMING_RE.search(title))
+        tech=bool(TECH_RE.search(title))
+        if not game and not tech:continue
+        section="gaming" if game else "tech"
+        try:
+            when=dt.datetime(int(m.group(1)),int(m.group(2)),int(m.group(3)),12,0,tzinfo=dt.timezone.utc)
+        except ValueError:
+            continue
+        age=now-when
+        # Recent stories only; dates older than three days are never republished
+        # just to fill quotas. Cross-run duplicate checks remain active.
+        if not dt.timedelta(0)<=age<=dt.timedelta(hours=90):continue
+        ident=hashlib.sha256((section+"|"+url).encode()).hexdigest()[:20]
+        collected[ident]={"id":ident,"section":section,"title":title[:220],
+                         "source":"Zazoom.it","source_url":url,
+                         "published_utc":when.isoformat(),"status":"research_only"}
+    return list(collected.values())
+
+def zazoom_parser_self_test():
+    p=ZazoomHeadlineParser()
+    p.feed('<div><h3><a href="/news-notizia/post/1/2026-10-11-attacco-hacker-18-11/">Attacco hacker alle istituzioni</a></h3><h3><a href="/news-notizia/post/2/2026-10-11-ubisoft-licenziamenti-18-10/">Ubisoft: licenziamenti negli studi</a></h3></div>')
+    assert len(p.items)==2 and p.items[0][1]=="Attacco hacker alle istituzioni"
+    assert ZAZOOM_PUBLIC_RE.search(p.items[1][1])
+    assert ZAZOOM_GAMING_RE.search(p.items[1][1])
+    print("ZAZOOM TOPICAL SOURCE PARSER SELF TEST PASSED")
+
 def discover():
     now=dt.datetime.now(dt.timezone.utc)
     existing={}
@@ -145,6 +222,16 @@ def discover():
                 fresh[article["id"]]=article
             if problem:
                 errors.append(problem)
+    # Include primary-topic leads from the Zazoom technology index.
+    # Never promote an index headline directly into published content.
+    try:
+        discovered=zazoom_leads(now)
+        for article in discovered:
+            fresh[article["id"]]=article
+        print("Zazoom.it policy/game-industry research leads:",len(discovered))
+    except Exception as exc:
+        errors.append({"query":ZAZOOM_TECH_INDEX,"error":str(exc)[:160]})
+        print("::warning::Zazoom.it index unavailable; continuing with independent news feeds.")
     # Preserve up to seven days of previously discovered leads and their status.
     for key,item in existing.items():
         try:age=now-dt.datetime.fromisoformat(item["published_utc"])
@@ -159,4 +246,6 @@ def discover():
     output=json.dumps(payload,ensure_ascii=False,indent=2)+"\n"
     if not OUT.exists() or OUT.read_text(encoding="utf-8")!=output:OUT.write_text(output,encoding="utf-8")
     print("Leads:",len(ordered),"feed errors:",len(errors),"published: 0")
-if __name__=="__main__":discover()
+if __name__=="__main__":
+    import sys
+    zazoom_parser_self_test() if "--self-test" in sys.argv else discover()
