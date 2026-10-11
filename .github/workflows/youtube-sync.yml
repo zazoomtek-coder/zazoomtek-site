@@ -57,7 +57,7 @@ jobs:
         id: community_sync
         continue-on-error: true
         env:
-          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
+          ZT_FORCE_SYNC: "false"
         run: |
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
@@ -121,50 +121,53 @@ jobs:
           git reset --hard HEAD
           git clean -fd
 
+      # Publish Community first to protect time-sensitive news from failures in
+      # optional downstream builders. Recompute from fresh main after conflicts.
       - name: Publish Community update immediately
         id: community_push
         if: steps.community_commit.outputs.changed == 'true'
         continue-on-error: true
+        env:
+          ZT_FORCE_SYNC: "false"
         run: |
-          git fetch origin main
-          if ! git rebase origin/main; then
-            git rebase --abort || true
-            echo "Remote branch changed while publishing Community update."
-            exit 1
-          fi
-
           for attempt in 1 2 3; do
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-            echo "Fast Community push attempt $attempt failed; retrying."
             git fetch origin main
             if ! git rebase origin/main; then
               git rebase --abort || true
-              exit 1
+              git reset --hard origin/main
+              python3 scripts/update-youtube-posts.py
+              python3 scripts/validate-sync-output.py community
+              if [ -n "$(git status --porcelain)" ]; then
+                python3 scripts/remove-duplicate-article-images.py
+                python3 scripts/zt_sidebar_mix.py
+              fi
+              git add -A
+              if git diff --cached --quiet; then
+                echo "Community already up to date on main."
+                echo "published=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              git commit -m "Auto-sync Community from current YouTube posts"
             fi
+            if git push origin HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Concurrent main change, retrying Community from latest state."
             sleep $((attempt * 2))
           done
+          echo "::error::Could not safely publish Community update."
           exit 1
 
-      - name: Deploy Community update immediately
-        id: community_deploy
-        if: steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome == 'success'
-        continue-on-error: true
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
-
+      # A single Firebase release will publish Community and video changes
+      # after both have been checked (no redundant early Hosting release).
       - name: Sync and validate YouTube uploads
         id: video_sync
         if: always()
         continue-on-error: true
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
+          ZT_FORCE_SYNC: "false"
         run: |
           python3 scripts/update-youtube.py
           python3 scripts/validate-sync-output.py videos
@@ -284,28 +287,41 @@ jobs:
       # failures must never hold back already-validated Community/video commits.
       - name: Push validated site update
         id: site_push
-        if: always() && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome != 'success'))
+        if: always() && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome == 'failure'))
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_FORCE_SYNC: "false"
         run: |
-          git fetch origin main
-          if ! git rebase origin/main; then
-            git rebase --abort || true
-            echo "Remote branch changed incompatibly; refusing an unsafe automatic merge."
-            exit 1
-          fi
-
           for attempt in 1 2 3; do
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-            echo "Push attempt $attempt failed; refreshing main before retry."
             git fetch origin main
             if ! git rebase origin/main; then
+              # Never auto-merge hundreds of generated article pages. Instead
+              # replay the validated imports onto the latest remote contents.
               git rebase --abort || true
-              exit 1
+              git reset --hard origin/main
+              python3 scripts/update-youtube-posts.py
+              python3 scripts/validate-sync-output.py community
+              python3 scripts/update-youtube.py
+              python3 scripts/validate-sync-output.py videos
+              python3 scripts/build-related-content.py
+              python3 scripts/inject-analytics.py
+              python3 scripts/build-search-index.py
+              git add -A
+              if git diff --cached --quiet; then
+                echo "Latest remote already contains the imported content."
+                echo "published=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              git commit -m "Publish validated YouTube changes on latest main"
             fi
+            if git push origin HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Concurrent update during final push; retrying safely."
             sleep $((attempt * 2))
           done
-          echo "Unable to push after 3 attempts."
+          echo "::error::Unable to safely publish site update."
           exit 1
 
       # Publish validated YouTube changes even if an optional downstream builder
@@ -314,7 +330,7 @@ jobs:
         id: site_deploy
         # Do not store another Firebase release if the fast Community deploy already
         # published the only changes, or if the job generated no new files.
-        if: always() && steps.site_push.outcome == 'success' && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_deploy.outcome != 'success'))
+        if: always() && (steps.site_push.outputs.published == 'true' || steps.community_push.outputs.published == 'true')
         continue-on-error: true
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -330,7 +346,6 @@ jobs:
           videos="${{ steps.video_sync.outcome }}"
           community_commit="${{ steps.community_commit.outcome }}"
           community_push="${{ steps.community_push.outcome }}"
-          community_deploy="${{ steps.community_deploy.outcome }}"
           video_commit="${{ steps.video_commit.outcome }}"
           related="${{ steps.related_sync.outcome }}"
           related_commit="${{ steps.related_commit.outcome }}"
@@ -339,6 +354,7 @@ jobs:
           search="${{ steps.search_sync.outcome }}"
           search_commit="${{ steps.search_commit.outcome }}"
           deploy="${{ steps.site_deploy.outcome }}"
+          site_push="${{ steps.site_push.outcome }}"
           echo "Community result: $community"
           echo "Video result: $videos"
           echo "Related articles result: $related"
@@ -346,14 +362,15 @@ jobs:
           echo "Search index result: $search"
           echo "Community commit: $community_commit"
           echo "Fast Community push: $community_push"
-          echo "Fast Community deploy: $community_deploy"
+          echo "Community published: ${{ steps.community_push.outputs.published }}"
           echo "Video commit: $video_commit"
           echo "Related articles commit: $related_commit"
           echo "GA4 commit: $analytics_commit"
           echo "Search commit: $search_commit"
+          echo "Final push: $site_push"
           echo "Firebase deploy: $deploy"
           if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" = "failure" ] || [ "$analytics" = "failure" ] || [ "$search" = "failure" ] || [ "$deploy" = "failure" ] || \
-             [ "$community_commit" = "failure" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_push" != "success" -a "$deploy" != "success" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_deploy" != "success" -a "$deploy" != "success" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
+             [ "$community_commit" = "failure" ] || [ "$site_push" = "failure" ] || [ "$community_push" = "failure" -a "$site_push" != "success" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
           fi
