@@ -13,3 +13,5 @@ Third source-verified check after raising Gemini output limit; do not publish un
 Retry editorial workflow after resolving Python re name shadowing in model response validation.
 
 Verify topical source filter and international source scan with three-day recency; keep old carousel if no corroborated event.
+
+Validation of no-data safe exit after failure fix: 2026-10-11 11:50 Europe/Rome. Single rerun.
