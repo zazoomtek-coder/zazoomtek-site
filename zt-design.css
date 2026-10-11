@@ -515,6 +515,8 @@ html,body,body :is(h1,h2,h3,h4,h5,h6,p,a,span,small,b,strong,em,li,ul,ol,button,
    inherited template spacing and keeps the three channels visible. */
 .zt-unified-footer .zt-community-area{padding:8px 0 10px!important}
 .zt-unified-footer .zt-community-banner{
+  width:min(1166px,calc(100% - 28px))!important;max-width:1166px!important;
+  margin-left:auto!important;margin-right:auto!important;
   min-height:0!important;height:108px!important;max-height:108px!important;
   padding:12px 22px!important;gap:16px!important;
   align-items:center!important;
