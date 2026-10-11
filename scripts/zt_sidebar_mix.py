@@ -225,17 +225,17 @@ def refresh_sidebars():
     detail_count = 0
     repaired_count = 0
     article_aside = re.compile(
-        r'<aside\\b[^>]*class=["\\'][^"\\']*(?:article-side|news-sidebar)[^"\\']*["\\'][^>]*>[\\s\\S]*?</aside>',
+        r'<aside\b[^>]*class=["\'][^"\']*(?:article-side|news-sidebar)[^"\']*["\'][^>]*>[\s\S]*?</aside>',
         re.I,
     )
-    article_end = re.compile(r'</article>(?=\\s*</div>\\s*</main>)', re.I)
+    article_end = re.compile(r'</article>(?=\s*</div>\s*</main>)', re.I)
     for path in sorted(ROOT.glob("*.html")):
         original = path.read_text(encoding="utf-8")
         # A genuine two-column article (News, Reviews, Tests, Guides, Gaming,
         # Tech Impact, Gaming Inside, and future editorial categories).
-        if not re.search(r'<div\\b[^>]*class=["\\'][^"\\']*detail-grid[^"\\']*["\\']', original, re.I):
+        if not re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid[^"\']*["\']', original, re.I):
             continue
-        if not re.search(r'<article\\b[^>]*class=["\\'][^"\\']*article-main[^"\\']*["\\']', original, re.I):
+        if not re.search(r'<article\b[^>]*class=["\'][^"\']*article-main[^"\']*["\']', original, re.I):
             continue
         if path.name.startswith(("guida-", "guide-")):
             kind = "guides"
