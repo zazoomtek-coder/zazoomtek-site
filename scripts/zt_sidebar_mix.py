@@ -219,7 +219,29 @@ def refresh_sidebars():
         if output != original:
             path.write_text(output,encoding="utf-8")
             changed += 1
+    # Extend the mixed sidebar to every individual Guide article, on every deploy.
+    # Never touch the article body, and only match the known two-column template.
+    detail_sidebar = build_sidebar("guides", news, tech, gaming, videos)
+    detail_count = 0
+    if detail_sidebar:
+        detail_sidebar = detail_sidebar.replace(
+            '<aside class="news-sidebar zt-side-mix">',
+            '<aside class="article-side news-sidebar zt-side-mix">', 1
+        )
+        article_aside = re.compile(r'<aside class="article-side(?: [^"]*)?">.*?</aside>', re.S)
+        for pattern in ("guida-*.html", "guide-*.html"):
+            for guide_path in ROOT.glob(pattern):
+                original = guide_path.read_text(encoding="utf-8")
+                if '<div class="zt-wrap detail-grid">' not in original:
+                    continue
+                if not article_aside.search(original):
+                    continue
+                updated = article_aside.sub(lambda _: detail_sidebar, original, count=1)
+                if updated != original:
+                    guide_path.write_text(updated, encoding="utf-8")
+                    detail_count += 1
     print(f"Mixed archive sidebars refreshed: {changed} pages, {len(news)} current news.")
+    print(f"Mixed individual Guide sidebars refreshed: {detail_count} pages.")
 
 if __name__ == "__main__":
     refresh_sidebars()

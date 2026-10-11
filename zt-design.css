@@ -425,3 +425,12 @@ section.side-box:has(> .amazon-mini) .amazon-mini a:hover{
   .zt-header .zt-brand .zt-wordmark{font-size:20px!important}
   .zt-header .zt-brand .zt-brand-tagline{font-size:9px!important}
 }
+
+/* Guide article sidebars match the full archive editorial modules. */
+.article-side.zt-side-mix .side-box{margin:0 0 18px;border:1px solid #ddd;background:#fff;overflow:hidden}
+.article-side.zt-side-mix .amazon-mini{padding:16px}
+.article-side.zt-side-mix .amazon-mini h3{margin:0 0 8px;font-size:1rem}
+.article-side.zt-side-mix .amazon-mini p{font-size:.78rem;line-height:1.45;margin:0 0 12px}
+.article-side.zt-side-mix .amazon-mini a{display:block;padding:11px 8px;text-align:center;font-weight:900;font-size:.75rem;text-decoration:none}
+@media(max-width:980px){.article-side.zt-side-mix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}.article-side.zt-side-mix .side-box{margin:0}}
+@media(max-width:640px){.article-side.zt-side-mix{grid-template-columns:1fr}}
