@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-11T19:50:04.341220+00:00",
+  "checked_at": "2026-10-11T20:23:21.803378+00:00",
   "source_sites": 10,
   "matches": 6,
   "selected": [
@@ -33,7 +33,7 @@
       "title": "News: The Talos Principle 3 mostra il primo gameplay: l'Anomalia e nuovi enigmi nel capitolo finale della trilogia",
       "section": "gaming",
       "url": "/news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html",
-      "trend_score": 90.55,
+      "trend_score": 81.55,
       "sources": [
         {
           "site": "Gamesurf",
@@ -46,14 +46,14 @@
           "score": 0.5668
         },
         {
-          "site": "SpazioGames",
-          "title": "The Talos Principle 3, il gran finale si avvicina",
-          "score": 0.5648
-        },
-        {
           "site": "IGN Italia",
           "title": "Game The Talos Principle 3",
           "score": 0.5573
+        },
+        {
+          "site": "IGN Italia",
+          "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC (Notizie The Talos Principle 3)",
+          "score": 0.5024
         }
       ]
     },
