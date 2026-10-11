@@ -84,6 +84,8 @@ def classify(title,hint=""):
     # Gaming-branded hardware is still technology, not video-game news.
     device=bool(re.search(r"\b(cuffie|auricolari|headset|microfono|notebook|laptop|smartphone|router|tastiera|mouse|monitor|scheda grafica|videocamera|audio spaziale|tablet|fotocamera|ssd|dash cam)\b",original))
     if device:return "tech"
+    # EA SPORTS FC is a football video game, not a consumer-technology launch.
+    if re.search(r"\b(ea sports fc(?:\s*\d{2})?|ea fc(?:\s*\d{2})?|fifa|efootball|football manager|pro evolution soccer)\b",original):return "gaming"
     return "gaming" if gaming or hint=="gaming" else "tech"
 
 def similarity(a,b):
@@ -455,6 +457,8 @@ def selftest():
     assert classify("Nintendo Switch riceve un gioco Zelda")=="gaming"
     assert classify("ACE COMBAT 8 supera un milione di copie vendute")=="gaming"
     assert classify("The Talos Principle 3 mostra gameplay e trailer")=="gaming"
+    assert classify("EA SPORTS FC 27, tornano le Stelle del Futuro")=="gaming"
+    assert classify("EA SPORTS FC 27 apre i preorder")=="gaming"
     assert classify("Sony ECM-AX10 porta audio spaziale professionale su smartphone")=="tech"
     assert classify("Dragon’s Dogma 2: Dark Arisen disponibile il nuovo aggiornamento")=="gaming"
     assert classify("Beyond the Dark: Nightwatch horror cooperativo in uscita")=="gaming"

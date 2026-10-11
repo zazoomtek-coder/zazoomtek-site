@@ -81,6 +81,32 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/auto-approve-special.py
+      - name: Explain approval outcome in workflow summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('special-auto-report.json')
+          lines = ['### Tech Impact e Gaming Inside: esito del controllo']
+          if p.exists():
+              report = json.loads(p.read_text(encoding='utf-8'))
+              reviewed = report.get('review', [])
+              approved = report.get('approved_count', 0)
+              lines += [f'- Notizie controllate: **{len(reviewed)}**',
+                        f'- Nuovi articoli verificati: **{approved}**',
+                        f'- Scartate: **{sum(x.get("status")=="rejected" for x in reviewed)}**']
+              if not approved:
+                  lines += ['- **Nessuna nuova pubblicazione:** nessuna bozza ha superato tutti i controlli.',
+                            '- Le motivazioni dettagliate sono nell’artefatto privato di audit.']
+              else:
+                  lines += ['- Gli articoli verificati saranno pubblicati soltanto dopo il commit.']
+          else:
+              lines += ['- **Controllo non concluso:** nessun rapporto di approvazione.',
+                        '- Consultare i passaggi precedenti per errori di rete o di ricerca.']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:
+              out.write('\\n'.join(lines)+'\\n')
+          PY
       - name: Preserve private audit logs
         if: always()
         uses: actions/upload-artifact@v4

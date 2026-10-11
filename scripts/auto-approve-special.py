@@ -136,7 +136,20 @@ def main():
             except (ValueError,KeyError,urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as e:
                 why="Verification request failed: "+type(e).__name__
             else:
-                if not verified(x,docs,assessment):why="Factual paragraph verification failed"
+                if not verified(x,docs,assessment):
+                    # Zero approvals need a clear, actionable reason in the
+                    # private 7-day workflow audit; never silently claim success.
+                    if not isinstance(assessment,dict):
+                        why="Factual verification returned an invalid audit"
+                    elif assessment.get("publish") is not True:
+                        verdict=str(assessment.get("reason") or "unsubstantiated statements")
+                        why="Independent fact checker rejected: "+verdict[:230]
+                    else:
+                        supported=assessment.get("supported",[])
+                        supported_count=len(supported) if isinstance(supported,list) else 0
+                        why=("Fact check incomplete: paragraph citations or article "
+                             "structure did not satisfy strict evidence requirements "
+                             f"({supported_count} supporting quotes returned)")
         if why:
             log.append({"topic":x.get("topic",""),"section":sec,"status":"rejected","reason":why})
             continue
@@ -167,6 +180,9 @@ def main():
         existing["articles"]=old+created
         saved.write_text(json.dumps(existing,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Verified automatic approvals:",len(created),"; rejected:",sum(r["status"]=="rejected" for r in log))
+    if not created and log:
+        print("::warning::No new verified Tech Impact/Gaming Inside article passed the editorial gate.")
+        print("Review the private special-auto-audit artifact for individual rejection reasons.")
 def self_test():
     assert primary("digital-strategy.ec.europa.eu")
     assert not primary("example.com")
