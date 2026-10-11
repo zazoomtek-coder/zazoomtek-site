@@ -578,44 +578,44 @@ html,body,body :is(h1,h2,h3,h4,h5,h6,p,a,span,small,b,strong,em,li,ul,ol,button,
 }
 .zt-community-area .zt-community-banner{
   box-sizing:border-box!important;width:100%!important;max-width:100%!important;
-  margin:0!important;min-height:104px!important;height:auto!important;max-height:none!important;
-  padding:14px 18px!important;display:flex!important;flex-direction:row!important;
-  align-items:center!important;justify-content:space-between!important;gap:14px!important;
+  margin:0!important;min-height:128px!important;height:auto!important;max-height:none!important;
+  padding:18px 24px!important;display:flex!important;flex-direction:row!important;
+  align-items:center!important;justify-content:space-between!important;gap:18px!important;
   background:#050505!important;color:#fff!important;
   border:0!important;border-left:5px solid #d51232!important;
-  box-shadow:0 4px 14px rgba(0,0,0,.09)!important;
+  box-shadow:0 8px 18px rgba(0,0,0,.08)!important;
 }
 .zt-community-area .zt-community-copy{min-width:0;flex:1 1 auto}
 .zt-community-area .zt-community-kicker{
-  display:block!important;color:#fb4f72!important;font-size:11px!important;
+  display:block!important;color:#fb4f72!important;font-size:12px!important;
   font-weight:900!important;letter-spacing:.08em!important;
-  margin:0 0 6px!important;padding:0!important;line-height:1.25!important;
+  margin:0 0 9px!important;padding:0!important;line-height:1.25!important;
 }
 .zt-community-area .zt-community-banner h2{
-  color:#fff!important;font-size:19px!important;font-weight:800!important;
+  color:#fff!important;font-size:clamp(19px,1.75vw,26px)!important;font-weight:800!important;
   line-height:1.2!important;letter-spacing:-.01em!important;
   margin:0 0 6px!important;padding:0!important;
   background:transparent!important;border:0!important;
 }
 .zt-community-area .zt-community-banner p{
-  color:#d5d5d5!important;font-size:13px!important;font-weight:400!important;
+  color:#d5d5d5!important;font-size:clamp(13px,1.1vw,16px)!important;font-weight:400!important;
   line-height:1.35!important;margin:0!important;padding:0!important;
 }
 .zt-community-area .zt-community-social{
   flex:0 0 auto!important;display:flex!important;flex-direction:row!important;
-  align-items:center!important;gap:9px!important;justify-content:flex-end!important;
+  align-items:center!important;gap:11px!important;justify-content:flex-end!important;
 }
 .zt-community-area .zt-community-icon{
-  box-sizing:border-box!important;display:flex!important;flex:0 0 48px!important;
+  box-sizing:border-box!important;display:flex!important;flex:0 0 60px!important;
   align-items:center!important;justify-content:center!important;
-  width:48px!important;height:48px!important;min-width:48px!important;
-  min-height:48px!important;padding:0!important;border-radius:50%!important;
+  width:60px!important;height:60px!important;min-width:60px!important;
+  min-height:60px!important;padding:0!important;border-radius:50%!important;
   background:linear-gradient(180deg,#171717,#101010)!important;
   border:2px solid #323232!important;text-decoration:none!important;
 }
 .zt-community-area .zt-community-icon img{
-  display:block!important;width:27px!important;height:27px!important;
-  max-width:27px!important;max-height:27px!important;object-fit:contain!important;
+  display:block!important;width:32px!important;height:32px!important;
+  max-width:32px!important;max-height:32px!important;object-fit:contain!important;
   box-shadow:none!important;border:0!important;
 }
 @media(max-width:680px){
