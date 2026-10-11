@@ -329,6 +329,31 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
  #zt-youtube-follow-box h2{font-size:23px}
 }
 </style>
+<style id="zt-video-stack-approved-css">
+/* Ultimi Video: miniature 16:9 intere, in colonna; badge categoria compatto in basso a sinistra.
+   I sei video, le categorie e le automazioni YouTube esistenti restano invariati. */
+.zt-video-stack .zt-stack-list{display:block!important;padding:3px!important;background:#111!important}
+.zt-video-stack .zt-stack-card{display:block!important;grid-template-columns:none!important;position:relative!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;border-bottom:4px solid #fff!important;background:#090c14!important;overflow:hidden!important}
+.zt-video-stack .zt-stack-card:last-child{border-bottom:0!important}
+.zt-video-stack .zt-stack-card>.video-thumb{display:block!important;position:relative!important;width:100%!important;max-width:none!important;height:auto!important;aspect-ratio:16/9!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:#090c14!important;overflow:hidden!important;cursor:pointer!important}
+.zt-video-stack .zt-stack-card>.video-thumb img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important;filter:none!important;transform:none!important}
+.zt-video-stack .zt-stack-card>.video-thumb:after{content:"▶"!important;position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important;width:49px!important;height:45px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#fff!important;font-size:35px!important;line-height:1!important;text-shadow:0 3px 10px #000a!important;pointer-events:none!important}
+.zt-video-stack .zt-stack-card>.zt-stack-copy{display:none!important}
+.zt-video-stack .zt-stack-card:after{content:attr(data-category);position:absolute!important;bottom:9px!important;left:10px!important;z-index:5!important;display:block!important;width:max-content!important;max-width:calc(100% - 20px)!important;padding:4px 7px!important;color:#fff!important;background:#555!important;border:0!important;border-radius:3px!important;box-shadow:0 2px 6px #0005!important;font-size:10px!important;font-weight:900!important;letter-spacing:.045em!important;line-height:1.2!important;text-transform:uppercase!important;pointer-events:none!important}
+.zt-video-stack .zt-stack-card[data-category="gameplay"]:after{content:"GAMEPLAY";background:#d51232!important}
+.zt-video-stack .zt-stack-card[data-category="recensioni"]:after{content:"RECENSIONE";background:#1677e8!important}
+.zt-video-stack .zt-stack-card[data-category="gaming"]:after{content:"GAMING";background:#16a34a!important}
+.zt-video-stack .zt-stack-card[data-category="gaming"]:has(img[alt*="Primo Sguardo"]):after{content:"PRIMO SGUARDO";background:#e9870a!important}
+.zt-video-stack .zt-stack-card[data-category="unboxing"]:after{content:"UNBOXING";background:#7d35d8!important}
+.zt-video-stack .zt-stack-card[data-category="analogiktek"]:after{content:"ANALOGIKTEK";background:#e9870a!important}
+.zt-video-stack .zt-stack-card[data-category="test"]:after{content:"TEST";background:#0b987a!important}
+.zt-video-stack .zt-stack-card:has(iframe):after{display:none!important}
+@media(max-width:820px){
+ .zt-video-stack .zt-stack-card{grid-template-columns:none!important}
+ .zt-video-stack .zt-stack-card>.video-thumb{width:100%!important}
+ .zt-video-stack .zt-stack-card:after{left:8px!important;bottom:8px!important;padding:4px 6px!important;font-size:9px!important}
+}
+</style>
 </head>
 <body>
 <header>
