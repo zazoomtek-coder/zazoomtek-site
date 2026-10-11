@@ -94,7 +94,8 @@ def validate_videos():
     cats=re.findall(r'data-category="([^"]+)"',m.group(1))
     if len(cats)!=len(set(cats)):
         fail("duplicate categories in latest-video sidebar")
-    if len(cats)>5:
+    # Five main playlists plus the dedicated Gameplay shelf make six valid cards.
+    if len(cats)>6:
         fail(f"too many sidebar category cards ({len(cats)})")
     print(f"Video validation OK: {len(videos)} uploads, sidebar categories: {', '.join(cats) or 'none'}")
 
