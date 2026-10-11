@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-11T15:51:24.485677+00:00",
+  "checked_at": "2026-10-11T16:00:56.968314+00:00",
   "source_sites": 10,
   "matches": 6,
   "selected": [
@@ -58,13 +58,6 @@
       ]
     },
     {
-      "title": "News: Adobe collega Claude Motion a Firefly Video Editor con “Send to Adobe”",
-      "section": "tech",
-      "url": "/news-UgkxRX5kd1mJsuqOfL803oOY1KYdc3cthHbb.html",
-      "trend_score": 0,
-      "sources": []
-    },
-    {
       "title": "News: ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie",
       "section": "gaming",
       "url": "/news-UgkxSAfW_T-tL6dS7sn7syzWrfKVS2hxnK5L.html",
@@ -86,6 +79,13 @@
       "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
       "section": "tech-impact",
       "url": "/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html",
+      "trend_score": 0,
+      "sources": []
+    },
+    {
+      "title": "EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori",
+      "section": "gaming-inside",
+      "url": "/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html",
       "trend_score": 0,
       "sources": []
     }
