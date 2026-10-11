@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-10T23:49:23.472407+00:00",
+  "generated_utc": "2026-10-11T00:33:48.137612+00:00",
   "sites": {
     "hdblog": {
       "headlines": 20,
@@ -18,11 +18,8 @@
       "errors": []
     },
     "hwupgrade": {
-      "headlines": 0,
-      "errors": [
-        "homepage: HTTPError",
-        "rss: HTTPError"
-      ]
+      "headlines": 20,
+      "errors": []
     },
     "multiplayer": {
       "headlines": 20,
@@ -55,7 +52,7 @@
       "rank": 1,
       "homepage": true,
       "first_seen": "2026-10-10T12:27:44.956128+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -66,7 +63,7 @@
       "rank": 2,
       "homepage": true,
       "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -77,7 +74,7 @@
       "rank": 3,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -88,7 +85,7 @@
       "rank": 4,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -99,7 +96,7 @@
       "rank": 5,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -110,7 +107,7 @@
       "rank": 6,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -121,7 +118,7 @@
       "rank": 7,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -132,7 +129,7 @@
       "rank": 8,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -143,7 +140,7 @@
       "rank": 9,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -154,7 +151,7 @@
       "rank": 10,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -165,7 +162,7 @@
       "rank": 11,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -176,7 +173,7 @@
       "rank": 12,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -187,7 +184,7 @@
       "rank": 13,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -198,7 +195,7 @@
       "rank": 14,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -209,7 +206,7 @@
       "rank": 15,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -220,7 +217,7 @@
       "rank": 16,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -231,7 +228,7 @@
       "rank": 17,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -242,7 +239,7 @@
       "rank": 18,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -253,7 +250,7 @@
       "rank": 19,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hdblog",
@@ -264,7 +261,7 @@
       "rank": 20,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -275,7 +272,7 @@
       "rank": 1,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -286,7 +283,7 @@
       "rank": 2,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -297,7 +294,7 @@
       "rank": 3,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -308,7 +305,7 @@
       "rank": 4,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -319,7 +316,7 @@
       "rank": 5,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -330,7 +327,7 @@
       "rank": 6,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -341,7 +338,7 @@
       "rank": 7,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -352,7 +349,7 @@
       "rank": 8,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -363,7 +360,7 @@
       "rank": 9,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -374,7 +371,7 @@
       "rank": 10,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -385,7 +382,7 @@
       "rank": 11,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -396,7 +393,7 @@
       "rank": 12,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -407,7 +404,7 @@
       "rank": 13,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -418,7 +415,7 @@
       "rank": 14,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -429,7 +426,7 @@
       "rank": 15,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -440,7 +437,7 @@
       "rank": 16,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -451,7 +448,7 @@
       "rank": 17,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -462,7 +459,7 @@
       "rank": 18,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -473,7 +470,7 @@
       "rank": 19,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "dday",
@@ -484,7 +481,7 @@
       "rank": 20,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -495,7 +492,7 @@
       "rank": 1,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -506,7 +503,7 @@
       "rank": 2,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -517,7 +514,7 @@
       "rank": 3,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -528,7 +525,7 @@
       "rank": 4,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -539,7 +536,7 @@
       "rank": 5,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -550,7 +547,7 @@
       "rank": 6,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -561,7 +558,7 @@
       "rank": 7,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -572,7 +569,7 @@
       "rank": 8,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -583,7 +580,7 @@
       "rank": 9,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -594,7 +591,7 @@
       "rank": 10,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -605,7 +602,7 @@
       "rank": 11,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -616,7 +613,7 @@
       "rank": 12,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -627,7 +624,7 @@
       "rank": 13,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -638,7 +635,7 @@
       "rank": 14,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -649,7 +646,7 @@
       "rank": 15,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -660,7 +657,7 @@
       "rank": 16,
       "homepage": true,
       "first_seen": "2026-10-10T23:49:23.472407+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -671,7 +668,7 @@
       "rank": 17,
       "homepage": true,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -682,7 +679,7 @@
       "rank": 18,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -693,7 +690,7 @@
       "rank": 19,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "smartworld",
@@ -704,7 +701,7 @@
       "rank": 20,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -715,7 +712,7 @@
       "rank": 1,
       "homepage": true,
       "first_seen": "2026-10-10T18:25:36.138350+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -726,7 +723,7 @@
       "rank": 2,
       "homepage": true,
       "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -737,7 +734,7 @@
       "rank": 3,
       "homepage": true,
       "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -748,7 +745,7 @@
       "rank": 4,
       "homepage": true,
       "first_seen": "2026-10-10T15:22:30.486253+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -759,7 +756,7 @@
       "rank": 5,
       "homepage": true,
       "first_seen": "2026-10-10T15:22:30.486253+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -770,7 +767,7 @@
       "rank": 6,
       "homepage": true,
       "first_seen": "2026-10-10T14:22:42.324485+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -781,7 +778,7 @@
       "rank": 7,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -792,7 +789,7 @@
       "rank": 8,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -803,7 +800,7 @@
       "rank": 9,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -814,7 +811,7 @@
       "rank": 10,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -825,7 +822,7 @@
       "rank": 11,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -836,7 +833,7 @@
       "rank": 12,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -847,7 +844,7 @@
       "rank": 13,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -858,7 +855,7 @@
       "rank": 14,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -869,7 +866,7 @@
       "rank": 15,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -880,7 +877,7 @@
       "rank": 16,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -891,7 +888,7 @@
       "rank": 17,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -902,7 +899,7 @@
       "rank": 18,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -913,7 +910,7 @@
       "rank": 19,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "tomshw",
@@ -924,1118 +921,7 @@
       "rank": 20,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Silver Pines, la recensione: un survival horror metroidvania che guarda a Silent Hill",
-      "url": "https://multiplayer.it/recensioni/silver-pines-recensione.html",
-      "rank": 1,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Clive Barker's Hellraiser: Revival",
-      "url": "https://multiplayer.it/recensioni/clive-barkers-hellraiser-revival-la-recensione-del-ritorno-dei-cenobiti.html",
-      "rank": 2,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Lanterns, la recensione della serie HBO: Lanterna Verde diventa un giallo nel Nebraska",
-      "url": "https://multiplayer.it/recensioni/lanterns-recensione-serie-hbo-lanterna-verde.html",
-      "rank": 3,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Il nuovo leak di GTA 6 mostra 25 minuti di gameplay pieni di nudi integrali ed espliciti",
-      "url": "https://multiplayer.it/notizie/il-nuovo-leak-di-gta-6-mostra-25-minuti-di-gameplay-pieni-di-nudi-integrali-ed-espliciti.html",
-      "rank": 4,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "PS Portal è stato aggiornato con un paio di novità utili",
-      "url": "https://multiplayer.it/notizie/ps-portal-aggiornato-con-un-paio-di-novita-utili.html",
-      "rank": 5,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "La Vice City di GTA 6 è stata mostrata con tre immagini inedite",
-      "url": "https://multiplayer.it/notizie/vice-city-di-gta-6-e-stata-mostrata-con-tre-immagini-inedite.html",
-      "rank": 6,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Avengers: Doomsday, Joe Russo spiega perché Doctor Doom è molto difficile da battere",
-      "url": "https://multiplayer.it/notizie/avengers-doomsday-joe-russo-spiega-perche-doctor-doom-e-molto-difficile-da-battere.html",
-      "rank": 7,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "10 giochi che raccontano una cultura, un popolo o una tradizione",
-      "url": "https://multiplayer.it/articoli/10-videogiochi-che-hanno-reimmaginato-religioni-miti-e-folklore.html",
-      "rank": 8,
-      "homepage": true,
-      "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Un vecchio bastardo nell’utopia perfetta",
-      "url": "https://multiplayer.it/recensioni/future-no-thanks-recensione.html",
-      "rank": 9,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Un survival horror cupo e compatto, con un solido DNA da metroidvania",
-      "url": "https://multiplayer.it/recensioni/silver-pines-recensione.html",
-      "rank": 10,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Pinhead torna, tra piacere e dolore",
-      "url": "https://multiplayer.it/recensioni/clive-barkers-hellraiser-revival-la-recensione-del-ritorno-dei-cenobiti.html",
-      "rank": 11,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Tutti gli annunci: nuovi seguiti, date d'uscita e demo da provare",
-      "url": "https://multiplayer.it/articoli/tutti-i-maggiori-annunci-e-i-giochi-presentati-allevento-triple-i-initiative-showcase-dautunno.html",
-      "rank": 12,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "L'autore di The Hundred Line ritiene che \"Uno studio più grande ci costringerebbe a fare progetti che non vogliamo\"",
-      "url": "https://multiplayer.it/notizie/lautore-di-the-hundred-line-ritiene-che-uno-studio-piu-grande-ci-costringerebbe-a-fare-progetti-che-non-vogliamo.html",
-      "rank": 13,
-      "homepage": true,
-      "first_seen": "2026-10-10T19:22:06.679104+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Il leaker di GTA 6 minaccia di diffondere una build con la storia completa, se Rockstar non cedrà al suo ricatto",
-      "url": "https://multiplayer.it/notizie/il-leaker-di-gta-6-minaccia-di-diffondere-una-build-con-la-storia-completa-se-rockstar-non-cedra-al-suo-ricatto.html",
-      "rank": 14,
-      "homepage": true,
-      "first_seen": "2026-10-10T17:48:49.627345+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Phantom Blade Zero è un tripla A, ma si sente un indie dentro",
-      "url": "https://multiplayer.it/notizie/phantom-blade-zero-e-un-tripla-a-ma-si-sente-un-indie-dentro.html",
-      "rank": 15,
-      "homepage": true,
-      "first_seen": "2026-10-10T17:33:15.542191+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "BlazBlue: Centralfiction arriva su PS5 con rollback netcode e cross-play con PC",
-      "url": "https://multiplayer.it/notizie/blazblue-centralfiction-arriva-su-ps5-con-rollback-netcode-e-cross-play-con-pc.html",
-      "rank": 16,
-      "homepage": true,
-      "first_seen": "2026-10-10T17:02:27.627963+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Shadow of the Road rinviato: il team ha bisogno di più tempo per rifinire combattimenti e progressione",
-      "url": "https://multiplayer.it/notizie/shadow-of-the-road-rinviato-il-team-ha-bisogno-di-piu-tempo-per-rifinire-combattimenti-e-progressione.html",
-      "rank": 17,
-      "homepage": true,
-      "first_seen": "2026-10-10T16:51:13.607618+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Hytale, con il Capitolo 1 in arrivo copie gratuite per chi sceglie la Cursebreaker Edition",
-      "url": "https://multiplayer.it/notizie/hytale-con-il-capitolo-1-in-arrivo-copie-gratuite-per-chi-sceglie-la-cursebreaker-edition.html",
-      "rank": 18,
-      "homepage": true,
-      "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Dopo Slitterhead, lo studio di Keiichiro Toyama starebbe cercando attori per un nuovo gioco horror",
-      "url": "https://multiplayer.it/notizie/dopo-slitterhead-lo-studio-di-keiichiro-toyama-starebbe-cercando-attori-per-un-nuovo-gioco-horror.html",
-      "rank": 19,
-      "homepage": true,
-      "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "multiplayer",
-      "name": "Multiplayer.it",
-      "kind": "gaming",
-      "title": "Aperta la pagina Steam di Squadron 42, con periodo d'uscita e altre informazioni",
-      "url": "https://multiplayer.it/notizie/aperta-la-pagina-steam-di-squadron-42-con-periodo-duscita-e-altre-informazioni.html",
-      "rank": 20,
-      "homepage": true,
-      "first_seen": "2026-10-10T15:50:29.519322+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Dragon Ball Sparking Zero due anni dopo: cosa ha funzionato e cosa invece è andato storto?",
-      "url": "https://www.everyeye.it/articoli/speciale-dragon-ball-sparking-zero-due-anni-dopo-cosa-funzionato-cosa-andato-storto-67709.html",
-      "rank": 1,
-      "homepage": true,
-      "first_seen": "2026-10-10T14:50:12.126723+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Phantom Blade Zero provato in anteprima: ecco cosa ci aspetta!",
-      "url": "https://www.everyeye.it/articoli/provato-phantom-blade-zero-anteprima-cosa-aspetta-67696.html",
-      "rank": 2,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Cinque cose che solo chi ha giocato con la PS1 può ricordare!",
-      "url": "https://www.everyeye.it/notizie/cinque-cose-chi-giocato-ps1-pu-ricordare-904471.html",
-      "rank": 3,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Questo gioco PC è super rilassante e lo puoi riscattare GRATIS su Steam",
-      "url": "https://www.everyeye.it/notizie/gioco-pc-super-rilassante-puoi-riscattare-gratis-steam-905282.html",
-      "rank": 4,
-      "homepage": true,
-      "first_seen": "2026-10-10T14:50:12.126723+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Sonic Racing CrossWorlds cambia marcia: siamo volati a Londra per correre sotto lo sguardo di Godzilla",
-      "url": "https://www.everyeye.it/articoli/provato-sonic-racing-crossworlds-cambia-marcia-volati-londra-correre-sguardo-godzilla-67707.html",
-      "rank": 5,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Come posso capire quanti soldi sto spendendo ogni anno per i videogiochi?",
-      "url": "https://www.everyeye.it/notizie/come-posso-capire-soldi-spendendo-anno-videogiochi-901652.html",
-      "rank": 6,
-      "homepage": true,
-      "first_seen": "2026-10-10T14:22:42.324485+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Silent Hills, Star Wars 1313 e altri sogni infranti: i videogiochi che non giocheremo mai",
-      "url": "https://www.everyeye.it/notizie/silent-hills-star-wars-1313-sogni-infranti-videogiochi-non-giocheremo-mai-903200.html",
-      "rank": 7,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "5 videogiochi che abbiamo giocato (e spesso finito) senza capire una parola d'inglese",
-      "url": "https://www.everyeye.it/notizie/5-videogiochi-giocato-e-finito-capire-parola-inglese-903662.html",
-      "rank": 8,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Un giovane programmatore riporta P.T. su PC: il sogno proibito degli appassionati diventa realtà Un giovane programmatore riporta P.T. su PC: il sogno proibito degli appassionati diventa realtà",
-      "url": "https://www.everyeye.it/notizie/giovane-programmatore-riporta-p-t-pc-sogno-proibito-appassionati-realt-905001.html",
-      "rank": 9,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Volete un poster di GTA 6? Sembra che basti inviare una mail a Rockstar Volete un poster di GTA 6? Sembra che basti inviare una mail a Rockstar",
-      "url": "https://www.everyeye.it/notizie/volete-poster-gta-6-basti-inviare-mail-rockstar-905229.html",
-      "rank": 10,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:50:14.176966+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Cinque cose che solo chi ha giocato con la PS1 può ricordare! Cinque cose che solo chi ha giocato con la PS1 può ricordare!",
-      "url": "https://www.everyeye.it/notizie/cinque-cose-chi-giocato-ps1-pu-ricordare-904471.html",
-      "rank": 11,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Campo Minato con una grafica estrema in Unreal Engine? Qualcuno ci ha pensato, ma...",
-      "url": "https://www.everyeye.it/notizie/campo-minato-grafica-estrema-unreal-engine-pensato-ma-905323.html",
-      "rank": 12,
-      "homepage": true,
-      "first_seen": "2026-10-10T20:50:14.876282+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Xbox Series X|S: FSR 4 o un upscaler simile al QSSR di PS5 in arrivo nel 2027? Il parere di DF",
-      "url": "https://www.everyeye.it/notizie/xbox-series-x-124-s-fsr-4-upscaler-simile-qssr-ps5-arrivo-2027-parere-df-905322.html",
-      "rank": 13,
-      "homepage": true,
-      "first_seen": "2026-10-10T20:22:35.174512+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Scarica subito il nuovo gioco gratis per PS5 che sta spopolando tra i giocatori Scarica subito il nuovo gioco gratis per PS5 che sta spopolando tra i giocatori",
-      "url": "https://www.everyeye.it/notizie/scarica-gioco-gratis-ps5-spopolando-giocatori-903659.html",
-      "rank": 14,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Aggiornamento PS5 di ottobre: ecco le sorprese e i miglioramenti che ti aspettano Aggiornamento PS5 di ottobre: ecco le sorprese e i miglioramenti che ti aspettano",
-      "url": "https://www.everyeye.it/notizie/aggiornamento-ps5-ottobre-sorprese-miglioramenti-aspettano-903686.html",
-      "rank": 15,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "PES 6 torna a farci sognare: la leggenda ora si gioca gratis su PC e smartphone senza installare nulla! PES 6 torna a farci sognare: la leggenda ora si gioca gratis su PC e smartphone senza installare nulla!",
-      "url": "https://www.everyeye.it/notizie/pes-6-torna-farci-sognare-leggenda-gioca-gratis-pc-smartphone-installare-nulla-904313.html",
-      "rank": 16,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Pokemon Gioco di Carte Collezionabili Pokemon Gioco di Carte Collezionabili 2",
-      "url": "https://www.everyeye.it/giochi/pokemon-trading-card-game/",
-      "rank": 17,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "GTA 6 GTA 6 IN ARRIVO IL 19/11/2026 3",
-      "url": "https://www.everyeye.it/giochi/grand-theft-auto-6/",
-      "rank": 18,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "Cyberpunk 2077 Cyberpunk 2077 USCITO 4",
-      "url": "https://www.everyeye.it/giochi/cyberpunk-2077/",
-      "rank": 19,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "everyeye",
-      "name": "Everyeye.it",
-      "kind": "gaming",
-      "title": "The Witcher 3 Wild Hunt The Witcher 3 Wild Hunt USCITO 7",
-      "url": "https://www.everyeye.it/giochi/the-witcher-3-wild-hunt/",
-      "rank": 20,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Xbox Game Pass, i giochi gratis di ottobre includono Battlefield 6",
-      "url": "https://www.spaziogames.it/notizie/xbox-game-pass-i-nuovi-giochi-di-ottobre-includono-battlefield-6",
-      "rank": 1,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Steam, 5 giochi gratis per sempre: c'è un FPS tattico",
-      "url": "https://www.spaziogames.it/notizie/steam-5-giochi-sono-gratis-per-sempre-ce-anche-un-fps-tattico",
-      "rank": 2,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "GTA 6, nuovo leak da 25 minuti con Jason completamente nudo",
-      "url": "https://www.spaziogames.it/notizie/gta-6-nuovo-leak-da-25-minuti-missioni-e-jason-completamente-nudo",
-      "rank": 3,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Epic Games Store, ecco i 2 giochi gratis dell'8 ottobre",
-      "url": "https://www.spaziogames.it/notizie/epic-games-store-ecco-i-2-giochi-gratis-dell8-ottobre",
-      "rank": 4,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Buon compleanno, PlayStation. Meriteresti di stare meglio",
-      "url": "https://www.spaziogames.it/speciali/buon-compleanno-playstation-meriteresti-di-stare-meglio",
-      "rank": 5,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Activision su Halo è la scelta migliore che si potesse fare",
-      "url": "https://www.spaziogames.it/speciali/halo-perche-activision-era-la-scelta-migliore-che-si-potesse-fare",
-      "rank": 6,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Diablo 2 Resurrected cambia visuale e sembra quasi un altro gioco",
-      "url": "https://www.spaziogames.it/notizie/diablo-ii-resurrected-i-fan-cambiano-prospettiva",
-      "rank": 7,
-      "homepage": true,
-      "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "The Legend Of Zelda Twilight Princess ritrova il suo look originale in HD",
-      "url": "https://www.spaziogames.it/notizie/zelda-twilight-princess-i-fan-ritrovano-la-sua-atmosfera",
-      "rank": 8,
-      "homepage": true,
-      "first_seen": "2026-10-10T15:22:30.486253+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Super Mario Sunshine, ora si può giocare in multiplayer fino 8 giocatori",
-      "url": "https://www.spaziogames.it/notizie/super-mario-sunshine-i-fan-cambiano-le-regole-del-gioco",
-      "rank": 9,
-      "homepage": true,
-      "first_seen": "2026-10-10T14:22:42.324485+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Halo, GTA e altri classici gratis su browser grazie all'IA",
-      "url": "https://www.spaziogames.it/notizie/halo-gta-e-altri-classici-girano-nel-browser-grazie-allia",
-      "rank": 10,
-      "homepage": true,
-      "first_seen": "2026-10-10T13:50:14.090656+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Helldivers 2 in prima persona? Su PC ora si può fare davvero",
-      "url": "https://www.spaziogames.it/notizie/helldivers-2-i-fan-cambiano-il-modo-di-vivere-la-guerra",
-      "rank": 11,
-      "homepage": true,
-      "first_seen": "2026-10-10T13:50:14.090656+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "GTA 5, i fan rendono Los Santos ancora più imprevedibile",
-      "url": "https://www.spaziogames.it/notizie/gta-5-i-fan-rendono-los-santos-ancora-piu-imprevedibile",
-      "rank": 12,
-      "homepage": true,
-      "first_seen": "2026-10-10T12:27:44.956128+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Steam, Epic e Prime stanno regalando 20 giochi: riscattateli subito",
-      "url": "https://www.spaziogames.it/notizie/steam-epic-e-prime-stanno-regalando-20-giochi-riscattateli-subito",
-      "rank": 13,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "GTA 6, l'attesa è già un'arma per i truffatori: ecco cosa evitare",
-      "url": "https://www.spaziogames.it/notizie/gta-6-lattesa-e-gia-unarma-per-i-truffatori-ecco-cosa-evitare",
-      "rank": 14,
-      "homepage": true,
-      "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "D&D Deadfall, una campagna di spionaggio magico a soli 24,66€",
-      "url": "https://www.spaziogames.it/articoli/dd-deadfall-una-campagna-di-spionaggio-magico-a-soli-2466eur",
-      "rank": 15,
-      "homepage": true,
-      "first_seen": "2026-10-10T20:50:14.876282+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Sorpresa Wolverine: un terzo delle vendite è su disco",
-      "url": "https://www.spaziogames.it/notizie/marvels-wolverine-sorprende-il-35-delle-vendite-sarebbe-su-disco",
-      "rank": 16,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "L'ex capo PlayStation critica chi insegue il successo",
-      "url": "https://www.spaziogames.it/notizie/lex-capo-playstation-critica-chi-insegue-il-successo",
-      "rank": 17,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Sony punta a NPC che imparano dal vostro stile di gioco",
-      "url": "https://www.spaziogames.it/notizie/sony-un-nuovo-brevetto-punta-a-npc-che-imparano-da-voi",
-      "rank": 18,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Ape Escape potrebbe tornare grazie al team di Sonic Mania",
-      "url": "https://www.spaziogames.it/notizie/ape-escape-potrebbe-tornare-il-nuovo-gioco-sarebbe-affidato-al-team-di-sonic-mania",
-      "rank": 19,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "spaziogames",
-      "name": "SpazioGames",
-      "kind": "gaming",
-      "title": "Il prossimo Gears of War potrebbe arrivare molto prima del previsto",
-      "url": "https://www.spaziogames.it/notizie/il-prossimo-gears-of-war-potrebbe-arrivare-molto-prima-del-previsto",
-      "rank": 20,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "IGN Retro: Galaxy Force IGN Retro: Galaxy Force",
-      "url": "https://it.ign.com/ign-retro/228429/ign-retro-galaxy-force",
-      "rank": 1,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Digger - La recensione Digger - La recensione",
-      "url": "https://it.ign.com/digger/228506/digger-la-recensione",
-      "rank": 2,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Lanterns - La recensione Lanterns - La recensione",
-      "url": "https://it.ign.com/lanterns-1/228487/lanterns-la-recensione",
-      "rank": 3,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Clive Barker's Hellraiser: Revival - La recensione Clive Barker's Hellraiser: Revival - La recensione",
-      "url": "https://it.ign.com/clive-barkers-hellraiser-revival/228430/clive-barkers-hellraiser-revival-la-recensione",
-      "rank": 4,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Dragon's Dogma 2: Dark Arisen è un'espansione che ricorda perché la serie è così speciale",
-      "url": "https://it.ign.com/dragons-dogma-ii-dark-arisen/228456/dragons-dogma-2-dark-arisen-e-unespansione-che-ricorda-perche-la-serie-e-cosi-speciale",
-      "rank": 5,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Trails in the Sky 2nd Chapter - La recensione",
-      "url": "https://it.ign.com/trails-in-the-sky-2nd-chapter/228265/trails-in-the-sky-2nd-chapter-la-recensione",
-      "rank": 6,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Kingdom Hearts Collection [I-III] è il modo perfetto per riscoprire la saga",
-      "url": "https://it.ign.com/kingdom-hearts-collection-iiii/228391/kingdom-hearts-collection-iiii-e-il-modo-perfetto-per-riscoprire-la-saga",
-      "rank": 7,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Frostpunk 2 per PC è quasi regalato: il gestionale survival proposto a circa 5 euro",
-      "url": "https://it.ign.com/offerte-amazon-videogiochi-sconti/228498/frostpunk-2-per-pc-e-quasi-regalato-il-gestionale-survival-proposto-a-circa-5-euro",
-      "rank": 8,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Dredge: su Instant Gaming la versione standard costa solo 5,19 euro",
-      "url": "https://it.ign.com/offerte-amazon-videogiochi-sconti/228480/dredge-su-instant-gaming-la-versione-standard-costa-solo-519-euro",
-      "rank": 9,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Mina the Hollower per PC è disponibile a un ottimo prezzo: circa 15 euro",
-      "url": "https://it.ign.com/offerte-amazon-videogiochi-sconti/228471/mina-the-hollower-per-pc-e-disponibile-a-un-ottimo-prezzo-circa-15-euro",
-      "rank": 10,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC (Notizie The Talos Principle 3)",
-      "url": "https://it.ign.com/the-talos-principle-3/228502/the-talos-principle-3-si-mostra-nel-primo-trailer-del-gameplay-uscira-nel-2027-su-ps5-e-pc",
-      "rank": 11,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC",
-      "url": "https://it.ign.com/the-talos-principle-3/228502/the-talos-principle-3-si-mostra-nel-primo-trailer-del-gameplay-uscira-nel-2027-su-ps5-e-pc",
-      "rank": 12,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Game The Talos Principle 3",
-      "url": "https://it.ign.com/the-talos-principle-3",
-      "rank": 13,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Charlie Cox, attore di Daredevil, sarà in un nuovo gioco di SEGA (Notizie Clair Obscur: Expedition 33)",
-      "url": "https://it.ign.com/expedition-33/228510/charlie-cox-attore-di-daredevil-sara-in-un-nuovo-gioco-di-sega",
-      "rank": 14,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Charlie Cox, attore di Daredevil, sarà in un nuovo gioco di SEGA",
-      "url": "https://it.ign.com/expedition-33/228510/charlie-cox-attore-di-daredevil-sara-in-un-nuovo-gioco-di-sega",
-      "rank": 15,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Sony sembra pronta a chiudere con PlayStation VR: ben 43 brevetti venduti a Meta (Notizie PlayStation VR2)",
-      "url": "https://it.ign.com/playstation-vr-2/228492/sony-sembra-pronta-a-chiudere-con-playstation-vr-ben-43-brevetti-venduti-a-meta",
-      "rank": 16,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Sony sembra pronta a chiudere con PlayStation VR: ben 43 brevetti venduti a Meta",
-      "url": "https://it.ign.com/playstation-vr-2/228492/sony-sembra-pronta-a-chiudere-con-playstation-vr-ben-43-brevetti-venduti-a-meta",
-      "rank": 17,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Silent Hill: Townfall si aggiorna e risolve due dei problemi principali del gioco (Notizie Silent Hill: Townfall)",
-      "url": "https://it.ign.com/silent-hill-townfall/228505/silent-hill-townfall-si-aggiorna-e-risolve-due-dei-problemi-principali-del-gioco",
-      "rank": 18,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Silent Hill: Townfall si aggiorna e risolve due dei problemi principali del gioco",
-      "url": "https://it.ign.com/silent-hill-townfall/228505/silent-hill-townfall-si-aggiorna-e-risolve-due-dei-problemi-principali-del-gioco",
-      "rank": 19,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "ign",
-      "name": "IGN Italia",
-      "kind": "gaming",
-      "title": "Game Silent Hill: Townfall",
-      "url": "https://it.ign.com/silent-hill-townfall",
-      "rank": 20,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Hearthstone: Ritorno all'Impero Nero, gli Dei Antichi tornano a dettare le regole Speciale Hearthstone: Ritorno all'Impero Nero, gli Dei Antichi tornano a dettare le regole",
-      "url": "https://www.gamesurf.it/speciali/gioco/hearthstone-ritorno-impero-nero-dei-antichi",
-      "rank": 1,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Dynasty Warriors 3: Complete Edition Remastered, la recensione Recensione Dynasty Warriors 3: Complete Edition Remastered, la recensione",
-      "url": "https://www.gamesurf.it/recensioni/gioco/dynasty-warriors-3-complete-edition-remastered-la-recensione",
-      "rank": 2,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Immagine di: Nord Sud Ovest Est, recensione della seconda stagione degli 883 Nord Sud Ovest Est, recensione della seconda stagione degli 883",
-      "url": "https://www.gamesurf.it/recensioni/serie-tv/nord-sud-ovest-est-recensione-seconda-stagione-883",
-      "rank": 3,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Immagine di: GTA 6 si potra giocare su PC in streaming con Xbox Cloud Gaming? GTA 6 si potrà giocare su PC in streaming con Xbox Cloud Gaming?",
-      "url": "https://www.gamesurf.it/news/gta-6-pc-streaming-xbox-cloud-gaming",
-      "rank": 4,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "ARC Raiders si espande sui ghiacci con l'update Frozen Trail ARC Raiders si espande sui ghiacci con l'update Frozen Trail",
-      "url": "https://www.gamesurf.it/news/arc-raiders-frozen-trail-aggiornamento-espansione-uscita-trailer-lancio",
-      "rank": 5,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Recensione Forever Ago - Il futuro non si puo programmare Recensione Recensione Forever Ago – Il futuro non si può programmare",
-      "url": "https://www.gamesurf.it/recensioni/gioco/recensione-forever-ago-third-shift-annapurna-indie-game",
-      "rank": 6,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "The Social - Il prezzo della verita: la recensione Recensione The Social - Il prezzo della verità: la recensione",
-      "url": "https://www.gamesurf.it/recensioni/film/the-social-reckoning-recensione-aaron-sorkin-facebook",
-      "rank": 7,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Kingdom Hearts Collection [I~III], la raccolta completa per chi non l'ha mai giocata - Recensione Recensione Kingdom Hearts Collection [I~III], la raccolta completa per chi non l'ha mai giocata - Recensione",
-      "url": "https://www.gamesurf.it/recensioni/gioco/kingdom-hearts-collection-i-iii-recensione",
-      "rank": 8,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Forza Horizon 6 sgomma su PS5 a gennaio, con la prima espansione",
-      "url": "https://www.gamesurf.it/news/forza-horizon-6-playstation-5-data-uscita-preordini-espansione",
-      "rank": 9,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "The Talos Principle 3 mostra il primo trailer gameplay",
-      "url": "https://www.gamesurf.it/news/the-talos-principle-3-primo-trailer-gameplay-puzzle",
-      "rank": 10,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Machinarium 2: l'annuncio della nuova avventura di Amanita Design",
-      "url": "https://www.gamesurf.it/news/machinarium-2-trailer-annuncio-avventura-grafica-amanita-design-dettagli",
-      "rank": 11,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Ace Combat 8 spicca il volo con 1 milione di copie vendute",
-      "url": "https://www.gamesurf.it/news/ace-combat-8-vendite-1-milione-copie-aerei-bandai-namco",
-      "rank": 12,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Dragon's Dogma 2: Ron Perlman introduce l'espansione Dark Arisen",
-      "url": "https://www.gamesurf.it/news/dragon-dogma-2-dark-arisen-espansione-uscita-lancio-trailer-ron-perlman",
-      "rank": 13,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Xbox crea XP, una divisione per portare i giochi oltre lo schermo",
-      "url": "https://www.gamesurf.it/news/xbox-xp-divisione-giochi-multimediale-film-tv-prodotti-eventi-partnership",
-      "rank": 14,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "CORSAIR HS80 v2 MAX Wireless: cuffie gaming fino a 130 ore",
-      "url": "https://www.gamesurf.it/news/corsair-hs80-v2-max-wireless-cuffie-gaming",
-      "rank": 15,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "The Awakening, il trailer ricorda il primo Predator",
-      "url": "https://www.gamesurf.it/news/the-awakening-trailer-horror-predator",
-      "rank": 16,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Charles Melton tra i candidati per Fast Forever",
-      "url": "https://www.gamesurf.it/news/charles-melton-fast-forever-rumor",
-      "rank": 17,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Marvel, da Zodiac a Daredevil: tutti gli annunci NYCC",
-      "url": "https://www.gamesurf.it/news/marvel-zodiac-novita-nycc-2026",
-      "rank": 18,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Forever Ago: la malinconica avventura narrativa esce oggi",
-      "url": "https://www.gamesurf.it/news/forever-ago-uscita-trailer-lancio-avventura-narrativa",
-      "rank": 19,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "gamesurf",
-      "name": "Gamesurf",
-      "kind": "gaming",
-      "title": "Grand Theft Auto VI ci fa ascoltare la sua musica in anteprima",
-      "url": "https://www.gamesurf.it/news/grand-theft-auto-vi-musica-album-stazioni-radio-bad-dunny-lana-rey-keith-richards-travis-scott",
-      "rank": 20,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:49:23.472407+00:00"
-    },
-    {
-      "source": "smartworld",
-      "name": "SmartWorld",
-      "kind": "tech",
-      "title": "Microsoft 365 Family: Copilot sarà condiviso con tutta la famiglia, ma OneDrive passa da 6 TB a 2 TB",
-      "url": "https://www.smartworld.it/news/microsoft-365-family-copilot-condiviso-onedrive-2-tb.html",
-      "rank": 20,
-      "homepage": true,
-      "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2046,7 +932,7 @@
       "rank": 1,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2057,7 +943,7 @@
       "rank": 2,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2068,7 +954,7 @@
       "rank": 3,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2079,7 +965,7 @@
       "rank": 4,
       "homepage": true,
       "first_seen": "2026-10-10T12:27:44.956128+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2090,7 +976,7 @@
       "rank": 5,
       "homepage": true,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2101,7 +987,7 @@
       "rank": 6,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2112,7 +998,7 @@
       "rank": 7,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2123,7 +1009,7 @@
       "rank": 8,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2134,7 +1020,7 @@
       "rank": 9,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2145,7 +1031,7 @@
       "rank": 10,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2156,7 +1042,7 @@
       "rank": 11,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2167,7 +1053,7 @@
       "rank": 12,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2178,7 +1064,7 @@
       "rank": 13,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2189,7 +1075,7 @@
       "rank": 14,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2200,7 +1086,7 @@
       "rank": 15,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2211,7 +1097,7 @@
       "rank": 16,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2222,7 +1108,7 @@
       "rank": 17,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2233,7 +1119,7 @@
       "rank": 18,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2244,7 +1130,7 @@
       "rank": 19,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-10T23:21:48.667872+00:00"
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
     },
     {
       "source": "hwupgrade",
@@ -2252,6 +1138,1117 @@
       "kind": "tech",
       "title": "WhatsApp introduce una nuova navigazione per chat e gruppi su iPhone: arriva un menu rapido con Liquid Glass",
       "url": "https://www.hwupgrade.it/news/telefonia/whatsapp-introduce-una-nuova-navigazione-per-chat-e-gruppi-su-iphone-arriva-un-menu-rapido-con-liquid-glass_160420.html",
+      "rank": 20,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Silver Pines, la recensione: un survival horror metroidvania che guarda a Silent Hill",
+      "url": "https://multiplayer.it/recensioni/silver-pines-recensione.html",
+      "rank": 1,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Clive Barker's Hellraiser: Revival",
+      "url": "https://multiplayer.it/recensioni/clive-barkers-hellraiser-revival-la-recensione-del-ritorno-dei-cenobiti.html",
+      "rank": 2,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Lanterns, la recensione della serie HBO: Lanterna Verde diventa un giallo nel Nebraska",
+      "url": "https://multiplayer.it/recensioni/lanterns-recensione-serie-hbo-lanterna-verde.html",
+      "rank": 3,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Il nuovo leak di GTA 6 mostra 25 minuti di gameplay pieni di nudi integrali ed espliciti",
+      "url": "https://multiplayer.it/notizie/il-nuovo-leak-di-gta-6-mostra-25-minuti-di-gameplay-pieni-di-nudi-integrali-ed-espliciti.html",
+      "rank": 4,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "PS Portal è stato aggiornato con un paio di novità utili",
+      "url": "https://multiplayer.it/notizie/ps-portal-aggiornato-con-un-paio-di-novita-utili.html",
+      "rank": 5,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "La Vice City di GTA 6 è stata mostrata con tre immagini inedite",
+      "url": "https://multiplayer.it/notizie/vice-city-di-gta-6-e-stata-mostrata-con-tre-immagini-inedite.html",
+      "rank": 6,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Avengers: Doomsday, Joe Russo spiega perché Doctor Doom è molto difficile da battere",
+      "url": "https://multiplayer.it/notizie/avengers-doomsday-joe-russo-spiega-perche-doctor-doom-e-molto-difficile-da-battere.html",
+      "rank": 7,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "10 giochi che raccontano una cultura, un popolo o una tradizione",
+      "url": "https://multiplayer.it/articoli/10-videogiochi-che-hanno-reimmaginato-religioni-miti-e-folklore.html",
+      "rank": 8,
+      "homepage": true,
+      "first_seen": "2026-10-10T16:22:47.010131+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Un vecchio bastardo nell’utopia perfetta",
+      "url": "https://multiplayer.it/recensioni/future-no-thanks-recensione.html",
+      "rank": 9,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Un survival horror cupo e compatto, con un solido DNA da metroidvania",
+      "url": "https://multiplayer.it/recensioni/silver-pines-recensione.html",
+      "rank": 10,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Pinhead torna, tra piacere e dolore",
+      "url": "https://multiplayer.it/recensioni/clive-barkers-hellraiser-revival-la-recensione-del-ritorno-dei-cenobiti.html",
+      "rank": 11,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Tutti gli annunci: nuovi seguiti, date d'uscita e demo da provare",
+      "url": "https://multiplayer.it/articoli/tutti-i-maggiori-annunci-e-i-giochi-presentati-allevento-triple-i-initiative-showcase-dautunno.html",
+      "rank": 12,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "L'autore di The Hundred Line ritiene che \"Uno studio più grande ci costringerebbe a fare progetti che non vogliamo\"",
+      "url": "https://multiplayer.it/notizie/lautore-di-the-hundred-line-ritiene-che-uno-studio-piu-grande-ci-costringerebbe-a-fare-progetti-che-non-vogliamo.html",
+      "rank": 13,
+      "homepage": true,
+      "first_seen": "2026-10-10T19:22:06.679104+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Il leaker di GTA 6 minaccia di diffondere una build con la storia completa, se Rockstar non cedrà al suo ricatto",
+      "url": "https://multiplayer.it/notizie/il-leaker-di-gta-6-minaccia-di-diffondere-una-build-con-la-storia-completa-se-rockstar-non-cedra-al-suo-ricatto.html",
+      "rank": 14,
+      "homepage": true,
+      "first_seen": "2026-10-10T17:48:49.627345+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Phantom Blade Zero è un tripla A, ma si sente un indie dentro",
+      "url": "https://multiplayer.it/notizie/phantom-blade-zero-e-un-tripla-a-ma-si-sente-un-indie-dentro.html",
+      "rank": 15,
+      "homepage": true,
+      "first_seen": "2026-10-10T17:33:15.542191+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "BlazBlue: Centralfiction arriva su PS5 con rollback netcode e cross-play con PC",
+      "url": "https://multiplayer.it/notizie/blazblue-centralfiction-arriva-su-ps5-con-rollback-netcode-e-cross-play-con-pc.html",
+      "rank": 16,
+      "homepage": true,
+      "first_seen": "2026-10-10T17:02:27.627963+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Shadow of the Road rinviato: il team ha bisogno di più tempo per rifinire combattimenti e progressione",
+      "url": "https://multiplayer.it/notizie/shadow-of-the-road-rinviato-il-team-ha-bisogno-di-piu-tempo-per-rifinire-combattimenti-e-progressione.html",
+      "rank": 17,
+      "homepage": true,
+      "first_seen": "2026-10-10T16:51:13.607618+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Hytale, con il Capitolo 1 in arrivo copie gratuite per chi sceglie la Cursebreaker Edition",
+      "url": "https://multiplayer.it/notizie/hytale-con-il-capitolo-1-in-arrivo-copie-gratuite-per-chi-sceglie-la-cursebreaker-edition.html",
+      "rank": 18,
+      "homepage": true,
+      "first_seen": "2026-10-10T16:22:47.010131+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Dopo Slitterhead, lo studio di Keiichiro Toyama starebbe cercando attori per un nuovo gioco horror",
+      "url": "https://multiplayer.it/notizie/dopo-slitterhead-lo-studio-di-keiichiro-toyama-starebbe-cercando-attori-per-un-nuovo-gioco-horror.html",
+      "rank": 19,
+      "homepage": true,
+      "first_seen": "2026-10-10T16:22:47.010131+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "multiplayer",
+      "name": "Multiplayer.it",
+      "kind": "gaming",
+      "title": "Aperta la pagina Steam di Squadron 42, con periodo d'uscita e altre informazioni",
+      "url": "https://multiplayer.it/notizie/aperta-la-pagina-steam-di-squadron-42-con-periodo-duscita-e-altre-informazioni.html",
+      "rank": 20,
+      "homepage": true,
+      "first_seen": "2026-10-10T15:50:29.519322+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Dragon Ball Sparking Zero due anni dopo: cosa ha funzionato e cosa invece è andato storto?",
+      "url": "https://www.everyeye.it/articoli/speciale-dragon-ball-sparking-zero-due-anni-dopo-cosa-funzionato-cosa-andato-storto-67709.html",
+      "rank": 1,
+      "homepage": true,
+      "first_seen": "2026-10-10T14:50:12.126723+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Phantom Blade Zero provato in anteprima: ecco cosa ci aspetta!",
+      "url": "https://www.everyeye.it/articoli/provato-phantom-blade-zero-anteprima-cosa-aspetta-67696.html",
+      "rank": 2,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Cinque cose che solo chi ha giocato con la PS1 può ricordare!",
+      "url": "https://www.everyeye.it/notizie/cinque-cose-chi-giocato-ps1-pu-ricordare-904471.html",
+      "rank": 3,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:50:39.084757+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Questo gioco PC è super rilassante e lo puoi riscattare GRATIS su Steam",
+      "url": "https://www.everyeye.it/notizie/gioco-pc-super-rilassante-puoi-riscattare-gratis-steam-905282.html",
+      "rank": 4,
+      "homepage": true,
+      "first_seen": "2026-10-10T14:50:12.126723+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Sonic Racing CrossWorlds cambia marcia: siamo volati a Londra per correre sotto lo sguardo di Godzilla",
+      "url": "https://www.everyeye.it/articoli/provato-sonic-racing-crossworlds-cambia-marcia-volati-londra-correre-sguardo-godzilla-67707.html",
+      "rank": 5,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Come posso capire quanti soldi sto spendendo ogni anno per i videogiochi?",
+      "url": "https://www.everyeye.it/notizie/come-posso-capire-soldi-spendendo-anno-videogiochi-901652.html",
+      "rank": 6,
+      "homepage": true,
+      "first_seen": "2026-10-10T14:22:42.324485+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Silent Hills, Star Wars 1313 e altri sogni infranti: i videogiochi che non giocheremo mai",
+      "url": "https://www.everyeye.it/notizie/silent-hills-star-wars-1313-sogni-infranti-videogiochi-non-giocheremo-mai-903200.html",
+      "rank": 7,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:22:25.615446+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "5 videogiochi che abbiamo giocato (e spesso finito) senza capire una parola d'inglese",
+      "url": "https://www.everyeye.it/notizie/5-videogiochi-giocato-e-finito-capire-parola-inglese-903662.html",
+      "rank": 8,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Un giovane programmatore riporta P.T. su PC: il sogno proibito degli appassionati diventa realtà Un giovane programmatore riporta P.T. su PC: il sogno proibito degli appassionati diventa realtà",
+      "url": "https://www.everyeye.it/notizie/giovane-programmatore-riporta-p-t-pc-sogno-proibito-appassionati-realt-905001.html",
+      "rank": 9,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Volete un poster di GTA 6? Sembra che basti inviare una mail a Rockstar Volete un poster di GTA 6? Sembra che basti inviare una mail a Rockstar",
+      "url": "https://www.everyeye.it/notizie/volete-poster-gta-6-basti-inviare-mail-rockstar-905229.html",
+      "rank": 10,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:50:14.176966+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Cinque cose che solo chi ha giocato con la PS1 può ricordare! Cinque cose che solo chi ha giocato con la PS1 può ricordare!",
+      "url": "https://www.everyeye.it/notizie/cinque-cose-chi-giocato-ps1-pu-ricordare-904471.html",
+      "rank": 11,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:50:39.084757+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Campo Minato con una grafica estrema in Unreal Engine? Qualcuno ci ha pensato, ma...",
+      "url": "https://www.everyeye.it/notizie/campo-minato-grafica-estrema-unreal-engine-pensato-ma-905323.html",
+      "rank": 12,
+      "homepage": true,
+      "first_seen": "2026-10-10T20:50:14.876282+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Xbox Series X|S: FSR 4 o un upscaler simile al QSSR di PS5 in arrivo nel 2027? Il parere di DF",
+      "url": "https://www.everyeye.it/notizie/xbox-series-x-124-s-fsr-4-upscaler-simile-qssr-ps5-arrivo-2027-parere-df-905322.html",
+      "rank": 13,
+      "homepage": true,
+      "first_seen": "2026-10-10T20:22:35.174512+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Scarica subito il nuovo gioco gratis per PS5 che sta spopolando tra i giocatori Scarica subito il nuovo gioco gratis per PS5 che sta spopolando tra i giocatori",
+      "url": "https://www.everyeye.it/notizie/scarica-gioco-gratis-ps5-spopolando-giocatori-903659.html",
+      "rank": 14,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Aggiornamento PS5 di ottobre: ecco le sorprese e i miglioramenti che ti aspettano Aggiornamento PS5 di ottobre: ecco le sorprese e i miglioramenti che ti aspettano",
+      "url": "https://www.everyeye.it/notizie/aggiornamento-ps5-ottobre-sorprese-miglioramenti-aspettano-903686.html",
+      "rank": 15,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "PES 6 torna a farci sognare: la leggenda ora si gioca gratis su PC e smartphone senza installare nulla! PES 6 torna a farci sognare: la leggenda ora si gioca gratis su PC e smartphone senza installare nulla!",
+      "url": "https://www.everyeye.it/notizie/pes-6-torna-farci-sognare-leggenda-gioca-gratis-pc-smartphone-installare-nulla-904313.html",
+      "rank": 16,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "GTA 6 GTA 6 IN ARRIVO IL 19/11/2026 2",
+      "url": "https://www.everyeye.it/giochi/grand-theft-auto-6/",
+      "rank": 17,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:22:25.615446+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Pokemon Gioco di Carte Collezionabili Pokemon Gioco di Carte Collezionabili 3",
+      "url": "https://www.everyeye.it/giochi/pokemon-trading-card-game/",
+      "rank": 18,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:22:25.615446+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "Cyberpunk 2077 Cyberpunk 2077 USCITO 4",
+      "url": "https://www.everyeye.it/giochi/cyberpunk-2077/",
+      "rank": 19,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:50:39.084757+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "everyeye",
+      "name": "Everyeye.it",
+      "kind": "gaming",
+      "title": "The Witcher 3 Wild Hunt The Witcher 3 Wild Hunt USCITO 7",
+      "url": "https://www.everyeye.it/giochi/the-witcher-3-wild-hunt/",
+      "rank": 20,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:50:39.084757+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Xbox Game Pass, i giochi gratis di ottobre includono Battlefield 6",
+      "url": "https://www.spaziogames.it/notizie/xbox-game-pass-i-nuovi-giochi-di-ottobre-includono-battlefield-6",
+      "rank": 1,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Steam, 5 giochi gratis per sempre: c'è un FPS tattico",
+      "url": "https://www.spaziogames.it/notizie/steam-5-giochi-sono-gratis-per-sempre-ce-anche-un-fps-tattico",
+      "rank": 2,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "GTA 6, nuovo leak da 25 minuti con Jason completamente nudo",
+      "url": "https://www.spaziogames.it/notizie/gta-6-nuovo-leak-da-25-minuti-missioni-e-jason-completamente-nudo",
+      "rank": 3,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Epic Games Store, ecco i 2 giochi gratis dell'8 ottobre",
+      "url": "https://www.spaziogames.it/notizie/epic-games-store-ecco-i-2-giochi-gratis-dell8-ottobre",
+      "rank": 4,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Buon compleanno, PlayStation. Meriteresti di stare meglio",
+      "url": "https://www.spaziogames.it/speciali/buon-compleanno-playstation-meriteresti-di-stare-meglio",
+      "rank": 5,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Activision su Halo è la scelta migliore che si potesse fare",
+      "url": "https://www.spaziogames.it/speciali/halo-perche-activision-era-la-scelta-migliore-che-si-potesse-fare",
+      "rank": 6,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Diablo 2 Resurrected cambia visuale e sembra quasi un altro gioco",
+      "url": "https://www.spaziogames.it/notizie/diablo-ii-resurrected-i-fan-cambiano-prospettiva",
+      "rank": 7,
+      "homepage": true,
+      "first_seen": "2026-10-10T16:22:47.010131+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "The Legend Of Zelda Twilight Princess ritrova il suo look originale in HD",
+      "url": "https://www.spaziogames.it/notizie/zelda-twilight-princess-i-fan-ritrovano-la-sua-atmosfera",
+      "rank": 8,
+      "homepage": true,
+      "first_seen": "2026-10-10T15:22:30.486253+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Super Mario Sunshine, ora si può giocare in multiplayer fino 8 giocatori",
+      "url": "https://www.spaziogames.it/notizie/super-mario-sunshine-i-fan-cambiano-le-regole-del-gioco",
+      "rank": 9,
+      "homepage": true,
+      "first_seen": "2026-10-10T14:22:42.324485+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Halo, GTA e altri classici gratis su browser grazie all'IA",
+      "url": "https://www.spaziogames.it/notizie/halo-gta-e-altri-classici-girano-nel-browser-grazie-allia",
+      "rank": 10,
+      "homepage": true,
+      "first_seen": "2026-10-10T13:50:14.090656+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Helldivers 2 in prima persona? Su PC ora si può fare davvero",
+      "url": "https://www.spaziogames.it/notizie/helldivers-2-i-fan-cambiano-il-modo-di-vivere-la-guerra",
+      "rank": 11,
+      "homepage": true,
+      "first_seen": "2026-10-10T13:50:14.090656+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "GTA 5, i fan rendono Los Santos ancora più imprevedibile",
+      "url": "https://www.spaziogames.it/notizie/gta-5-i-fan-rendono-los-santos-ancora-piu-imprevedibile",
+      "rank": 12,
+      "homepage": true,
+      "first_seen": "2026-10-10T12:27:44.956128+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Steam, Epic e Prime stanno regalando 20 giochi: riscattateli subito",
+      "url": "https://www.spaziogames.it/notizie/steam-epic-e-prime-stanno-regalando-20-giochi-riscattateli-subito",
+      "rank": 13,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:50:39.084757+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "GTA 6, l'attesa è già un'arma per i truffatori: ecco cosa evitare",
+      "url": "https://www.spaziogames.it/notizie/gta-6-lattesa-e-gia-unarma-per-i-truffatori-ecco-cosa-evitare",
+      "rank": 14,
+      "homepage": true,
+      "first_seen": "2026-10-10T11:50:39.084757+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "D&D Deadfall, una campagna di spionaggio magico a soli 24,66€",
+      "url": "https://www.spaziogames.it/articoli/dd-deadfall-una-campagna-di-spionaggio-magico-a-soli-2466eur",
+      "rank": 15,
+      "homepage": true,
+      "first_seen": "2026-10-10T20:50:14.876282+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Sorpresa Wolverine: un terzo delle vendite è su disco",
+      "url": "https://www.spaziogames.it/notizie/marvels-wolverine-sorprende-il-35-delle-vendite-sarebbe-su-disco",
+      "rank": 16,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "L'ex capo PlayStation critica chi insegue il successo",
+      "url": "https://www.spaziogames.it/notizie/lex-capo-playstation-critica-chi-insegue-il-successo",
+      "rank": 17,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Sony punta a NPC che imparano dal vostro stile di gioco",
+      "url": "https://www.spaziogames.it/notizie/sony-un-nuovo-brevetto-punta-a-npc-che-imparano-da-voi",
+      "rank": 18,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Ape Escape potrebbe tornare grazie al team di Sonic Mania",
+      "url": "https://www.spaziogames.it/notizie/ape-escape-potrebbe-tornare-il-nuovo-gioco-sarebbe-affidato-al-team-di-sonic-mania",
+      "rank": 19,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "spaziogames",
+      "name": "SpazioGames",
+      "kind": "gaming",
+      "title": "Il prossimo Gears of War potrebbe arrivare molto prima del previsto",
+      "url": "https://www.spaziogames.it/notizie/il-prossimo-gears-of-war-potrebbe-arrivare-molto-prima-del-previsto",
+      "rank": 20,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "IGN Retro: Galaxy Force IGN Retro: Galaxy Force",
+      "url": "https://it.ign.com/ign-retro/228429/ign-retro-galaxy-force",
+      "rank": 1,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Digger - La recensione Digger - La recensione",
+      "url": "https://it.ign.com/digger/228506/digger-la-recensione",
+      "rank": 2,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Lanterns - La recensione Lanterns - La recensione",
+      "url": "https://it.ign.com/lanterns-1/228487/lanterns-la-recensione",
+      "rank": 3,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Clive Barker's Hellraiser: Revival - La recensione Clive Barker's Hellraiser: Revival - La recensione",
+      "url": "https://it.ign.com/clive-barkers-hellraiser-revival/228430/clive-barkers-hellraiser-revival-la-recensione",
+      "rank": 4,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Dragon's Dogma 2: Dark Arisen è un'espansione che ricorda perché la serie è così speciale",
+      "url": "https://it.ign.com/dragons-dogma-ii-dark-arisen/228456/dragons-dogma-2-dark-arisen-e-unespansione-che-ricorda-perche-la-serie-e-cosi-speciale",
+      "rank": 5,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Trails in the Sky 2nd Chapter - La recensione",
+      "url": "https://it.ign.com/trails-in-the-sky-2nd-chapter/228265/trails-in-the-sky-2nd-chapter-la-recensione",
+      "rank": 6,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Kingdom Hearts Collection [I-III] è il modo perfetto per riscoprire la saga",
+      "url": "https://it.ign.com/kingdom-hearts-collection-iiii/228391/kingdom-hearts-collection-iiii-e-il-modo-perfetto-per-riscoprire-la-saga",
+      "rank": 7,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Frostpunk 2 per PC è quasi regalato: il gestionale survival proposto a circa 5 euro",
+      "url": "https://it.ign.com/offerte-amazon-videogiochi-sconti/228498/frostpunk-2-per-pc-e-quasi-regalato-il-gestionale-survival-proposto-a-circa-5-euro",
+      "rank": 8,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Dredge: su Instant Gaming la versione standard costa solo 5,19 euro",
+      "url": "https://it.ign.com/offerte-amazon-videogiochi-sconti/228480/dredge-su-instant-gaming-la-versione-standard-costa-solo-519-euro",
+      "rank": 9,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Mina the Hollower per PC è disponibile a un ottimo prezzo: circa 15 euro",
+      "url": "https://it.ign.com/offerte-amazon-videogiochi-sconti/228471/mina-the-hollower-per-pc-e-disponibile-a-un-ottimo-prezzo-circa-15-euro",
+      "rank": 10,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC (Notizie The Talos Principle 3)",
+      "url": "https://it.ign.com/the-talos-principle-3/228502/the-talos-principle-3-si-mostra-nel-primo-trailer-del-gameplay-uscira-nel-2027-su-ps5-e-pc",
+      "rank": 11,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC",
+      "url": "https://it.ign.com/the-talos-principle-3/228502/the-talos-principle-3-si-mostra-nel-primo-trailer-del-gameplay-uscira-nel-2027-su-ps5-e-pc",
+      "rank": 12,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Game The Talos Principle 3",
+      "url": "https://it.ign.com/the-talos-principle-3",
+      "rank": 13,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Charlie Cox, attore di Daredevil, sarà in un nuovo gioco di SEGA (Notizie Clair Obscur: Expedition 33)",
+      "url": "https://it.ign.com/expedition-33/228510/charlie-cox-attore-di-daredevil-sara-in-un-nuovo-gioco-di-sega",
+      "rank": 14,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Charlie Cox, attore di Daredevil, sarà in un nuovo gioco di SEGA",
+      "url": "https://it.ign.com/expedition-33/228510/charlie-cox-attore-di-daredevil-sara-in-un-nuovo-gioco-di-sega",
+      "rank": 15,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Sony sembra pronta a chiudere con PlayStation VR: ben 43 brevetti venduti a Meta (Notizie PlayStation VR2)",
+      "url": "https://it.ign.com/playstation-vr-2/228492/sony-sembra-pronta-a-chiudere-con-playstation-vr-ben-43-brevetti-venduti-a-meta",
+      "rank": 16,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Sony sembra pronta a chiudere con PlayStation VR: ben 43 brevetti venduti a Meta",
+      "url": "https://it.ign.com/playstation-vr-2/228492/sony-sembra-pronta-a-chiudere-con-playstation-vr-ben-43-brevetti-venduti-a-meta",
+      "rank": 17,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Silent Hill: Townfall si aggiorna e risolve due dei problemi principali del gioco (Notizie Silent Hill: Townfall)",
+      "url": "https://it.ign.com/silent-hill-townfall/228505/silent-hill-townfall-si-aggiorna-e-risolve-due-dei-problemi-principali-del-gioco",
+      "rank": 18,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Silent Hill: Townfall si aggiorna e risolve due dei problemi principali del gioco",
+      "url": "https://it.ign.com/silent-hill-townfall/228505/silent-hill-townfall-si-aggiorna-e-risolve-due-dei-problemi-principali-del-gioco",
+      "rank": 19,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "ign",
+      "name": "IGN Italia",
+      "kind": "gaming",
+      "title": "Game Silent Hill: Townfall",
+      "url": "https://it.ign.com/silent-hill-townfall",
+      "rank": 20,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Hearthstone: Ritorno all'Impero Nero, gli Dei Antichi tornano a dettare le regole Speciale Hearthstone: Ritorno all'Impero Nero, gli Dei Antichi tornano a dettare le regole",
+      "url": "https://www.gamesurf.it/speciali/gioco/hearthstone-ritorno-impero-nero-dei-antichi",
+      "rank": 1,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Dynasty Warriors 3: Complete Edition Remastered, la recensione Recensione Dynasty Warriors 3: Complete Edition Remastered, la recensione",
+      "url": "https://www.gamesurf.it/recensioni/gioco/dynasty-warriors-3-complete-edition-remastered-la-recensione",
+      "rank": 2,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Immagine di: Nord Sud Ovest Est, recensione della seconda stagione degli 883 Nord Sud Ovest Est, recensione della seconda stagione degli 883",
+      "url": "https://www.gamesurf.it/recensioni/serie-tv/nord-sud-ovest-est-recensione-seconda-stagione-883",
+      "rank": 3,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Immagine di: GTA 6 si potra giocare su PC in streaming con Xbox Cloud Gaming? GTA 6 si potrà giocare su PC in streaming con Xbox Cloud Gaming?",
+      "url": "https://www.gamesurf.it/news/gta-6-pc-streaming-xbox-cloud-gaming",
+      "rank": 4,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "ARC Raiders si espande sui ghiacci con l'update Frozen Trail ARC Raiders si espande sui ghiacci con l'update Frozen Trail",
+      "url": "https://www.gamesurf.it/news/arc-raiders-frozen-trail-aggiornamento-espansione-uscita-trailer-lancio",
+      "rank": 5,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Recensione Forever Ago - Il futuro non si puo programmare Recensione Recensione Forever Ago – Il futuro non si può programmare",
+      "url": "https://www.gamesurf.it/recensioni/gioco/recensione-forever-ago-third-shift-annapurna-indie-game",
+      "rank": 6,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "The Social - Il prezzo della verita: la recensione Recensione The Social - Il prezzo della verità: la recensione",
+      "url": "https://www.gamesurf.it/recensioni/film/the-social-reckoning-recensione-aaron-sorkin-facebook",
+      "rank": 7,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Kingdom Hearts Collection [I~III], la raccolta completa per chi non l'ha mai giocata - Recensione Recensione Kingdom Hearts Collection [I~III], la raccolta completa per chi non l'ha mai giocata - Recensione",
+      "url": "https://www.gamesurf.it/recensioni/gioco/kingdom-hearts-collection-i-iii-recensione",
+      "rank": 8,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Forza Horizon 6 sgomma su PS5 a gennaio, con la prima espansione",
+      "url": "https://www.gamesurf.it/news/forza-horizon-6-playstation-5-data-uscita-preordini-espansione",
+      "rank": 9,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "The Talos Principle 3 mostra il primo trailer gameplay",
+      "url": "https://www.gamesurf.it/news/the-talos-principle-3-primo-trailer-gameplay-puzzle",
+      "rank": 10,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Machinarium 2: l'annuncio della nuova avventura di Amanita Design",
+      "url": "https://www.gamesurf.it/news/machinarium-2-trailer-annuncio-avventura-grafica-amanita-design-dettagli",
+      "rank": 11,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Ace Combat 8 spicca il volo con 1 milione di copie vendute",
+      "url": "https://www.gamesurf.it/news/ace-combat-8-vendite-1-milione-copie-aerei-bandai-namco",
+      "rank": 12,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Dragon's Dogma 2: Ron Perlman introduce l'espansione Dark Arisen",
+      "url": "https://www.gamesurf.it/news/dragon-dogma-2-dark-arisen-espansione-uscita-lancio-trailer-ron-perlman",
+      "rank": 13,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Xbox crea XP, una divisione per portare i giochi oltre lo schermo",
+      "url": "https://www.gamesurf.it/news/xbox-xp-divisione-giochi-multimediale-film-tv-prodotti-eventi-partnership",
+      "rank": 14,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "CORSAIR HS80 v2 MAX Wireless: cuffie gaming fino a 130 ore",
+      "url": "https://www.gamesurf.it/news/corsair-hs80-v2-max-wireless-cuffie-gaming",
+      "rank": 15,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "The Awakening, il trailer ricorda il primo Predator",
+      "url": "https://www.gamesurf.it/news/the-awakening-trailer-horror-predator",
+      "rank": 16,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Charles Melton tra i candidati per Fast Forever",
+      "url": "https://www.gamesurf.it/news/charles-melton-fast-forever-rumor",
+      "rank": 17,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Marvel, da Zodiac a Daredevil: tutti gli annunci NYCC",
+      "url": "https://www.gamesurf.it/news/marvel-zodiac-novita-nycc-2026",
+      "rank": 18,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Forever Ago: la malinconica avventura narrativa esce oggi",
+      "url": "https://www.gamesurf.it/news/forever-ago-uscita-trailer-lancio-avventura-narrativa",
+      "rank": 19,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "gamesurf",
+      "name": "Gamesurf",
+      "kind": "gaming",
+      "title": "Grand Theft Auto VI ci fa ascoltare la sua musica in anteprima",
+      "url": "https://www.gamesurf.it/news/grand-theft-auto-vi-musica-album-stazioni-radio-bad-dunny-lana-rey-keith-richards-travis-scott",
+      "rank": 20,
+      "homepage": true,
+      "first_seen": "2026-10-10T10:34:29.408075+00:00",
+      "last_seen": "2026-10-11T00:33:48.137612+00:00"
+    },
+    {
+      "source": "smartworld",
+      "name": "SmartWorld",
+      "kind": "tech",
+      "title": "Microsoft 365 Family: Copilot sarà condiviso con tutta la famiglia, ma OneDrive passa da 6 TB a 2 TB",
+      "url": "https://www.smartworld.it/news/microsoft-365-family-copilot-condiviso-onedrive-2-tb.html",
       "rank": 20,
       "homepage": true,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
