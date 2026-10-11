@@ -139,8 +139,11 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         raise SystemExit(1)
     response_text="".join(p.get("text","") for c in data.get("candidates",[]) for p in c.get("content",{}).get("parts",[]))
     parsed=json.loads(response_text)
-    allowed={x["url"] for x in leads}
     by_url={x["url"]:x for x in leads}
+    for lead in leads:
+        for source in lead.get("possible_corrob",[]):
+            by_url.setdefault(source["url"],source)
+    allowed=set(by_url)
     verified=[]
     for x in parsed.get("drafts",[]):
         if not isinstance(x,dict) or x.get("section") not in ("tech","gaming"):continue
