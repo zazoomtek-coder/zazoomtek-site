@@ -153,7 +153,10 @@ def main():
                "official_source":any(primary(domain(u)) for u in srcs),
                "verified_at":now.isoformat()},
             "source_fingerprints":[hashlib.sha256(u.encode()).hexdigest()[:16] for u in srcs],
-            "featured":True,"cover_mode":"auto"
+            # Two resolved, different original publishers must support the
+            # same event before a new story can displace a carousel headline.
+            "trend_verified":len(srcs)>=2,
+            "featured":len(srcs)>=2,"cover_mode":"auto"
         }
         created.append(new);counts[sec]+=1
         log.append({"topic":x["title"],"section":sec,"status":"source_verified_auto_approved"})
