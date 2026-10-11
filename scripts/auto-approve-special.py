@@ -82,7 +82,7 @@ def verified(article,docs,audit):
         not isinstance(p,str) or len(p.strip())<100 for p in text):return False
     if not isinstance(article.get("title"),str) or not 25<=len(article["title"])<=170:return False
     if not isinstance(article.get("summary"),str) or not 65<=len(article["summary"])<=420:return False
-    if not 300<=len(" ".join([article["title"],article["summary"]]+text).split())<=600:return False
+    if not 400<=len(" ".join(text).split())<=750:return False
     if article.get("status")!="needs_human_fact_check":return False
     if not isinstance(audit,dict) or audit.get("publish") is not True or audit.get("unsupported_indices"):return False
     if audit.get("headline_supported") is not True or audit.get("summary_supported") is not True:return False
@@ -105,10 +105,16 @@ def main():
     if isinstance(selected,str) and re.fullmatch(r"gemini-[a-z0-9.\-]+",selected):MODEL=selected
     by_subject={(x.get("section"),x.get("title")):x for x in evidence}
     created=[];log=[];counts={"tech":0,"gaming":0};now=dt.datetime.now(dt.timezone.utc)
+    # Across scheduled and manual runs, never publish more than 5 new
+    # auto-verified articles on the same date: 3 Tech Impact, 2 Gaming Inside.
+    daily_limit={"tech":3,"gaming":2}
+    today_counts={section:sum(a.get("date")==now.date().isoformat() and
+                              a.get("section")==section and a.get("auto_approved") is True
+                              for a in old) for section in daily_limit}
     for x in drafts:
         if not isinstance(x,dict):continue
         sec=x.get("section")
-        if sec not in counts or counts[sec]>=({"tech":2,"gaming":1}[sec]):continue
+        if sec not in counts or counts[sec]+today_counts[sec]>=daily_limit[sec]:continue
         why=""
         source_record=by_subject.get((sec,x.get("topic")))
         if source_record is None and isinstance(x.get("source_urls"),list):
