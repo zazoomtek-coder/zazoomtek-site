@@ -219,29 +219,70 @@ def refresh_sidebars():
         if output != original:
             path.write_text(output,encoding="utf-8")
             changed += 1
-    # Extend the mixed sidebar to every individual Guide article, on every deploy.
-    # Never touch the article body, and only match the known two-column template.
-    detail_sidebar = build_sidebar("guides", news, tech, gaming, videos)
+    # Publishing rule: EVERY new editorial page, whatever its category or
+    # filename, must carry a populated right-hand sidebar. Do not rewrite
+    # article copy, metadata, images, or healthy existing sidebars.
     detail_count = 0
-    if detail_sidebar:
-        detail_sidebar = detail_sidebar.replace(
+    repaired_count = 0
+    article_aside = re.compile(
+        r'<aside\\b[^>]*class=["\\'][^"\\']*(?:article-side|news-sidebar)[^"\\']*["\\'][^>]*>[\\s\\S]*?</aside>',
+        re.I,
+    )
+    article_end = re.compile(r'</article>(?=\\s*</div>\\s*</main>)', re.I)
+    for path in sorted(ROOT.glob("*.html")):
+        original = path.read_text(encoding="utf-8")
+        # A genuine two-column article (News, Reviews, Tests, Guides, Gaming,
+        # Tech Impact, Gaming Inside, and future editorial categories).
+        if not re.search(r'<div\\b[^>]*class=["\\'][^"\\']*detail-grid[^"\\']*["\\']', original, re.I):
+            continue
+        if not re.search(r'<article\\b[^>]*class=["\\'][^"\\']*article-main[^"\\']*["\\']', original, re.I):
+            continue
+        if path.name.startswith(("guida-", "guide-")):
+            kind = "guides"
+        elif path.name.startswith("tech-impact-"):
+            kind = "tech"
+        elif path.name.startswith("gaming-inside-"):
+            kind = "gaming"
+        elif path.name.startswith(("recensione-", "recensioni-", "test-", "unboxing-")):
+            kind = "reviews"
+        else:
+            kind = "news"
+        sidebar = build_sidebar(kind, news, tech, gaming, videos)
+        if not sidebar:
+            continue  # Never overwrite with an incomplete news cache.
+        sidebar = sidebar.replace(
             '<aside class="news-sidebar zt-side-mix">',
-            '<aside class="article-side news-sidebar zt-side-mix">', 1
+            '<aside class="article-side news-sidebar zt-side-mix" aria-label="Approfondimenti e contenuti correlati">', 1,
         )
-        article_aside = re.compile(r'<aside class="article-side(?: [^"]*)?">.*?</aside>', re.S)
-        for pattern in ("guida-*.html", "guide-*.html"):
-            for guide_path in ROOT.glob(pattern):
-                original = guide_path.read_text(encoding="utf-8")
-                if '<div class="zt-wrap detail-grid">' not in original:
-                    continue
-                if not article_aside.search(original):
-                    continue
-                updated = article_aside.sub(lambda _: detail_sidebar, original, count=1)
-                if updated != original:
-                    guide_path.write_text(updated, encoding="utf-8")
-                    detail_count += 1
+        current = article_aside.search(original)
+        if current:
+            inner = current.group(0)
+            # Preserve already-populated sidebars of old article templates.
+            has_boxes = (inner.count('<section') >= 2
+                         and ('compact-box' in inner or 'side-box' in inner
+                              or 'zt-mix-' in inner))
+            is_guide = kind == "guides"
+            if has_boxes and not is_guide:
+                continue
+            updated = original[:current.start()] + sidebar + original[current.end():]
+        else:
+            # A new article with no right column: inject it immediately after
+            # the article, inside its existing responsive detail grid.
+            updated, inserted = article_end.subn(
+                lambda m: m.group(0) + sidebar, original, count=1,
+            )
+            if not inserted:
+                raise RuntimeError(
+                    f"Editorial page {path.name} has a detail grid but no "
+                    "sidebar insertion point; do not publish an empty column."
+                )
+            repaired_count += 1
+        if updated != original:
+            path.write_text(updated, encoding="utf-8")
+            detail_count += 1
     print(f"Mixed archive sidebars refreshed: {changed} pages, {len(news)} current news.")
-    print(f"Mixed individual Guide sidebars refreshed: {detail_count} pages.")
+    print(f"Editorial sidebars refreshed: {detail_count} pages; {repaired_count} missing sidebars restored.")
+
 
 if __name__ == "__main__":
     refresh_sidebars()
