@@ -287,12 +287,12 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 
 </style>
 <style id="zt-featured-mosaic-css">
-/* Solo News in evidenza: griglia statica 3x2 identica alla preview approvata. */
+/* Solo News in evidenza: cover complete, testo incorporato leggibile, senza tagli e centrato. */
 .zt-featured-module{width:100%;margin-bottom:18px}
 .zt-featured-module .module-head{margin-bottom:9px}
-#ztFeaturedGrid{display:grid!important;width:100%!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:9px!important;height:min(32vw,425px)!important;min-height:330px!important;aspect-ratio:auto!important;background:#fff!important;overflow:visible!important}
+#ztFeaturedGrid{display:grid!important;width:100%!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:9px!important;height:auto!important;min-height:0!important;aspect-ratio:8/3!important;background:#fff!important;overflow:visible!important}
 #ztFeaturedGrid .zt-feature-card{display:block;position:relative;grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important;overflow:hidden;border-radius:8px!important;background:#141923;box-shadow:0 1px 5px rgba(0,0,0,.12);outline-offset:3px}
-#ztFeaturedGrid .zt-feature-card img{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;filter:none!important;opacity:1!important;mix-blend-mode:normal!important}
+#ztFeaturedGrid .zt-feature-card img{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;object-fit:contain!important;object-position:50% 50%!important;filter:none!important;opacity:1!important;mix-blend-mode:normal!important}
 #ztFeaturedGrid .zt-feature-card:before,#ztFeaturedGrid .zt-feature-card:after{content:none!important;display:none!important;background:none!important}
 #ztFeaturedGrid .zt-feature-card:hover{box-shadow:0 0 0 2px #D51232}
 @media(max-width:800px){
