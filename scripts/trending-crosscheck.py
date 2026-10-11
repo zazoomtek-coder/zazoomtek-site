@@ -334,12 +334,17 @@ def pick(articles):
                     and a.get("image", "").startswith("/assets/special/")
                     and (ROOT / a["url"].lstrip("/")).is_file()
                     and (ROOT / a["image"].lstrip("/")).is_file()]
-        eligible.sort(key=lambda a: (a.get("match_count", 0) > 0,
-                                     a.get("match_count", 0), a["trend_score"],
-                                     a["freshness"]), reverse=True)
-        # If no reliable portal match exists, keep the independently approved
-        # editorial priority instead of pretending an article is trending.
-        winner = eligible[0] if eligible and eligible[0]["trend_score"] > 0 else None
+        # SPECIAL CAROUSEL RULE ONLY: an Impact/Inside headline is trending
+        # if at least TWO distinct monitored news outlets cover the same event.
+        # An individual source's repeated headlines count only once. The
+        # standard Tech/Gaming slots above keep their existing selection logic.
+        # YouTube is never an eligible external trend source.
+        eligible.sort(key=lambda a: (a.get("match_count", 0),
+                                     a.get("trend_score", 0),
+                                     a.get("freshness", 0)), reverse=True)
+        # Without independent corroboration keep the already chosen editorial
+        # article in the carousel, without calling it a confirmed trend.
+        winner = next((a for a in eligible if a.get("match_count", 0) >= 2), None)
         if winner is None:
             for item in special_feed:
                 slug = item.get("slug", "")
@@ -502,6 +507,21 @@ def selftest():
     sample = pick(fake)
     assert len(sample) == 6
     assert [x["section"] for x in sample] == ["tech", "tech", "gaming", "gaming", "tech-impact", "gaming-inside"]
+    # Only special slots require two distinct independent publisher matches.
+    same_news = {"items":[
+        {"source":"hdblog","name":"HDblog","kind":"tech",
+         "title":"Commissione europea apre indagine sul nuovo sistema di privacy digitale"},
+        {"source":"dday","name":"DDay","kind":"tech",
+         "title":"Commissione europea apre indagine sul nuovo sistema di privacy digitale"},
+        {"source":"dday","name":"DDay","kind":"tech",
+         "title":"Commissione europea apre indagine sul nuovo sistema di privacy digitale"}]}
+    candidate = {"url":"/tech-impact-test.html",
+                 "title":"Commissione europea apre indagine sul nuovo sistema di privacy digitale",
+                 "section":"tech-impact","freshness":20}
+    scored = matches([candidate],same_news)[0]
+    assert scored["match_count"] == 2, scored
+    same_news["items"] = [same_news["items"][1],same_news["items"][2]]
+    assert matches([dict(candidate)],same_news)[0]["match_count"] == 1
     assert len(SITES)==10 and len({s[0] for s in SITES})==10
     print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
 
