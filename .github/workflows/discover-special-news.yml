@@ -30,8 +30,23 @@ jobs:
           python3 scripts/auto-approve-special.py --self-test
           python3 -m json.tool approved-special-articles.json >/dev/null
       - name: Discover relevant current public news
-        run: python3 scripts/discover-special-news.py
+        id: discover
+        run: |
+          python3 scripts/discover-special-news.py
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=json.loads(Path("special-candidates.json").read_text(encoding="utf-8"))
+          available=bool(report.get("items"))
+          errors=len(report.get("errors",[]))
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as out:
+              out.write(f"has_leads={str(available).lower()}\n")
+          if not available:
+              print(f"::warning::News discovery returned no candidates ({errors} feed errors). No articles generated or published; existing site preserved.")
+          PY
       - name: Research titles without treating RSS headlines as evidence
+        if: steps.discover.outputs.has_leads == 'true'
+        id: research
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
@@ -41,14 +56,27 @@ jobs:
             exit 1
           fi
           python3 scripts/generate-special-drafts.py
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path("special-drafts-review.json")
+          n=len(json.loads(p.read_text(encoding="utf-8")).get("drafts",[])) if p.exists() else 0
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as out:
+              out.write(f"has_drafts={str(n>0).lower()}\n")
+          if n==0:
+              print("::warning::No fact-checkable editorial proposals. Safely keeping current articles and carousel.")
+          PY
       - name: Resolve real publishers and retrieve source material
+        if: steps.research.outputs.has_drafts == 'true'
         run: python3 scripts/check-special-sources.py
       - name: Draft original source-grounded articles
+        if: steps.research.outputs.has_drafts == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/write-special-articles.py
       - name: Audit every paragraph and approve verified stories
+        if: steps.research.outputs.has_drafts == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
@@ -67,6 +95,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Commit verified news to the repository
+        if: steps.research.outputs.has_drafts == 'true'
         id: publish_commit
         run: |
           git config user.name "ZazoomTek Verified Editorial Bot"
