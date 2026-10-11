@@ -2108,8 +2108,11 @@ def render_featured_news(news):
         '        </div>'
     )
 
-def render_article_feed(posts):
+def render_article_feed(posts, home_guide_inset=""):
+    """Render article rows; keep the approved Guides widget on the Home only."""
     rows=[]
+    guide_inserted=False
+    talos_slug="news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html"
     for p in posts:
         kind=post_kind(p)
         title=post_title(p)
@@ -2125,6 +2128,13 @@ def render_article_feed(posts):
             f'<div class="article-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
             f'<p>{excerpt}</p><a class="read-more" href="{slug}">Leggi tutto ›</a></div></article>'
         )
+        if home_guide_inset and slug.lstrip("/") == talos_slug:
+            rows.append(home_guide_inset)
+            guide_inserted=True
+    if home_guide_inset and not guide_inserted and rows:
+        # Once The Talos Principle 3 leaves the latest 15 news, keep Guides
+        # visible at approximately the same reading position on the Home.
+        rows.insert(min(8,len(rows)),home_guide_inset)
     return "\n".join(rows)
 
 def render(posts):
@@ -2400,7 +2410,14 @@ def main():
     featured="<!-- FEATURED_NEWS_START -->\n        "+featured_html+"\n        <!-- FEATURED_NEWS_END -->"
     s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
 
-    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
+    # Preserve the approved Home Guides widget across automatic Community syncs.
+    # Its markup stays in index.html, not in archives or paginated pages.
+    home_guide=re.search(
+        r'<!-- HOME_GUIDES_INSET_START -->[\\s\\S]*?<!-- HOME_GUIDES_INSET_END -->',
+        s,
+    )
+    guide_markup=home_guide.group(0) if home_guide else ""
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE],guide_markup)+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
     pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(1,total_article_pages)+"\n        <!-- ARTICLE_PAGINATION_END -->"
