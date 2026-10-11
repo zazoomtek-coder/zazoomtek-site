@@ -11,3 +11,5 @@ Retry after correcting outlet ranking function shadowing; scan Italian and inter
 Third source-verified check after raising Gemini output limit; do not publish unverified material.
 
 Retry editorial workflow after resolving Python re name shadowing in model response validation.
+
+Verify topical source filter and international source scan with three-day recency; keep old carousel if no corroborated event.
