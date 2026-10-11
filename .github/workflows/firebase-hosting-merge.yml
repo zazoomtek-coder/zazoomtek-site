@@ -19,6 +19,7 @@ on:
       - '*.webp'
       - 'assets/**'
       - 'scripts/zt_sidebar_mix.py'
+      - 'scripts/build-related-content.py'
       - 'scripts/apply-site-design.py'
       - '.github/workflows/firebase-hosting-merge.yml'
       - 'firebase.json'
@@ -39,6 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate shared editorial publishing scripts
+        run: python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py scripts/build-related-content.py
       - name: Apply shared layout to all pages
         run: python3 scripts/apply-site-design.py
       - uses: FirebaseExtended/action-hosting-deploy@v0
