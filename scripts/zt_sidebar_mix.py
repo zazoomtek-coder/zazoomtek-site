@@ -210,14 +210,23 @@ def refresh_sidebars():
         if not kind:
             continue
         original = path.read_text(encoding="utf-8")
-        if not ASIDE.search(original):
-            continue
         sidebar = build_sidebar(kind,news,tech,gaming,videos)
         if not sidebar:
             continue
-        output = ASIDE.sub(lambda _:sidebar,original,count=1)
+        if ASIDE.search(original):
+            output = ASIDE.sub(lambda _: sidebar, original, count=1)
+        else:
+            # New archive pages must never ship without the standard right column.
+            output, inserted = re.subn(
+                r'</section>(?=\s*</div>\s*</main>)',
+                lambda m: m.group(0) + sidebar, original, count=1,
+            )
+            if not inserted:
+                raise RuntimeError(
+                    f"Archive {path.name} has no sidebar and no safe insertion point."
+                )
         if output != original:
-            path.write_text(output,encoding="utf-8")
+            path.write_text(output, encoding="utf-8")
             changed += 1
     # Publishing rule: EVERY new editorial page, whatever its category or
     # filename, must carry a populated right-hand sidebar. Do not rewrite
