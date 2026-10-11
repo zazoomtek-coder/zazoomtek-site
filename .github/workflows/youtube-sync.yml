@@ -2,7 +2,8 @@ name: Sync YouTube to site
 
 on:
   schedule:
-    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+    # Four checks/hour instead of twelve: reduce redundant builds and deployments.
+    - cron: '7,22,37,52 * * * *'
   push:
     branches: [main]
     paths:
@@ -265,6 +266,7 @@ jobs:
           git clean -fd
 
       - name: Push validated site update
+        id: site_push
         if: always() && steps.search_sync.outcome == 'success' && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
         run: |
           git fetch origin main
@@ -291,7 +293,9 @@ jobs:
 
       - name: Deploy validated site to Firebase
         id: site_deploy
-        if: always() && steps.related_sync.outcome == 'success' && steps.analytics_sync.outcome == 'success' && steps.search_sync.outcome == 'success'
+        # Do not store another Firebase release if the fast Community deploy already
+        # published the only changes, or if the job generated no new files.
+        if: always() && steps.site_push.outcome == 'success' && steps.related_sync.outcome == 'success' && steps.analytics_sync.outcome == 'success' && steps.search_sync.outcome == 'success' && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
         continue-on-error: true
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -329,7 +333,7 @@ jobs:
           echo "GA4 commit: $analytics_commit"
           echo "Search commit: $search_commit"
           echo "Firebase deploy: $deploy"
-          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" != "success" ] || \
+          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" = "failure" ] || \
              [ "$community_commit" = "failure" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_push" != "success" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_deploy" != "success" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
