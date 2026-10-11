@@ -70,6 +70,11 @@ def make_page(x,filename,related):
         '<section class="related"><h2>Articoli correlati</h2><ul>'+related_rows+'</ul></section>'
         if related_rows else ""
     )
+    # Credit reporting sources with plain links; do not reuse their article text.
+    sources=x.get("sources",[])[:5]
+    src_links=''.join('<li><a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer nofollow">'+
+                      esc(u.split("/")[2])+'</a></li>' for u in sources if u.startswith("https://"))
+    source_html='<section class="sources"><h2>Fonti</h2><ul>'+src_links+'</ul></section>' if src_links else ""
     hero=x.get("image","")
     art=x.get("_cover_origin") or {}
     credit_html=""
@@ -114,7 +119,7 @@ footer a{{color:#fff}}</style>
 <main><div class="eyebrow">{name}</div><h1>{title}</h1>
 <div class="meta">{esc(x["date"])} · Redazione ZazoomTek</div>
 {hero_html}<p class="lead">{summary}</p>{body}
-{related_html}
+{source_html}{related_html}
 {('<details class="zt-photo-credits"><summary>Crediti fotografici</summary>'+credit_html+'</details>') if credit_html else ''}
 <p><a href="{esc(section_link)}">← Torna a {name}</a></p></main>
 <footer>© ZazoomTek · <a href="/privacy.html">Privacy</a></footer></body></html>'''
