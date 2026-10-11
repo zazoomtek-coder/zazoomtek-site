@@ -105,7 +105,7 @@ jobs:
               lines += ['- **Controllo non concluso:** nessun rapporto di approvazione.',
                         '- Consultare i passaggi precedenti per errori di rete o di ricerca.']
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:
-              out.write('\\n'.join(lines)+'\\n')
+              out.write('\n'.join(lines)+'\n')
           PY
       - name: Preserve private audit logs
         if: always()
