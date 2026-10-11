@@ -2,8 +2,8 @@ name: Sync YouTube to site
 
 on:
   schedule:
-    # Four checks/hour instead of twelve: reduce redundant builds and deployments.
-    - cron: '7,22,37,52 * * * *'
+    # Check YouTube every five minutes; no content change means no site build/deploy.
+    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
   push:
     branches: [main]
     paths:
@@ -56,23 +56,31 @@ jobs:
       - name: Sync and validate YouTube Community
         id: community_sync
         continue-on-error: true
+        env:
+          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
         run: |
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Community unchanged; no pages will be rebuilt or deployed."
+          fi
 
       - name: Remove duplicate images across all existing article pages
-        if: steps.community_sync.outcome == 'success'
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         run: python3 scripts/remove-duplicate-article-images.py
 
       # Post-process the generated HTML only; the YouTube news, video and review
       # importers and their validations remain untouched.
       - name: Keep ten featured NEWS and four approved standard articles visible
-        if: steps.community_sync.outcome == 'success'
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         continue-on-error: true
         run: python3 scripts/apply-standard-news-featured.py
 
       - name: Compare new Community news with cached Italian trends
-        if: steps.community_sync.outcome == 'success'
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         continue-on-error: true
         run: |
           python3 scripts/trending-crosscheck.py --test
@@ -86,16 +94,16 @@ jobs:
           git clean -fd
 
       - name: Build Facebook RSS from approved new general NEWS
-        if: always()
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         run: python3 scripts/build-news-rss.py
 
       - name: Rebuild mixed archive sidebars
-        if: steps.community_sync.outcome == 'success'
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         run: python3 scripts/zt_sidebar_mix.py
 
       - name: Save validated Community changes locally
         id: community_commit
-        if: steps.community_sync.outcome == 'success'
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         continue-on-error: true
         run: |
           git add -A
@@ -156,9 +164,16 @@ jobs:
         continue-on-error: true
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
         run: |
           python3 scripts/update-youtube.py
           python3 scripts/validate-sync-output.py videos
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Videos unchanged; no pages will be rebuilt or deployed."
+          fi
 
       - name: Discard unsafe video changes
         if: always() && steps.video_sync.outcome != 'success'
@@ -169,7 +184,7 @@ jobs:
 
       - name: Save validated video changes locally
         id: video_commit
-        if: steps.video_sync.outcome == 'success'
+        if: steps.video_sync.outcome == 'success' && steps.video_sync.outputs.changed == 'true'
         continue-on-error: true
         run: |
           git add -A
@@ -189,7 +204,7 @@ jobs:
 
       - name: Build automatic related articles
         id: related_sync
-        if: always()
+        if: always() && (steps.community_sync.outputs.changed == 'true' || steps.video_sync.outputs.changed == 'true')
         continue-on-error: true
         run: python3 scripts/build-related-content.py
 
@@ -215,7 +230,7 @@ jobs:
 
       - name: Ensure GA4 on every HTML page
         id: analytics_sync
-        if: always()
+        if: always() && (steps.community_sync.outputs.changed == 'true' || steps.video_sync.outputs.changed == 'true')
         continue-on-error: true
         run: python3 scripts/inject-analytics.py
 
@@ -241,7 +256,7 @@ jobs:
 
       - name: Build global search index
         id: search_sync
-        if: always()
+        if: always() && (steps.community_sync.outputs.changed == 'true' || steps.video_sync.outputs.changed == 'true')
         continue-on-error: true
         run: python3 scripts/build-search-index.py
 
@@ -269,7 +284,7 @@ jobs:
       # failures must never hold back already-validated Community/video commits.
       - name: Push validated site update
         id: site_push
-        if: always() && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
+        if: always() && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome != 'success'))
         run: |
           git fetch origin main
           if ! git rebase origin/main; then
@@ -337,8 +352,8 @@ jobs:
           echo "GA4 commit: $analytics_commit"
           echo "Search commit: $search_commit"
           echo "Firebase deploy: $deploy"
-          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" != "success" ] || [ "$analytics" != "success" ] || [ "$search" != "success" ] || [ "$deploy" = "failure" ] || \
-             [ "$community_commit" = "failure" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_push" != "success" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_deploy" != "success" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
+          if [ "$community" != "success" ] || [ "$videos" != "success" ] || [ "$related" = "failure" ] || [ "$analytics" = "failure" ] || [ "$search" = "failure" ] || [ "$deploy" = "failure" ] || \
+             [ "$community_commit" = "failure" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_push" != "success" -a "$deploy" != "success" ] || [ "${{ steps.community_commit.outputs.changed }}" = "true" -a "$community_deploy" != "success" -a "$deploy" != "success" ] || [ "$video_commit" = "failure" ] || [ "$related_commit" = "failure" ] || [ "$analytics_commit" = "failure" ] || [ "$search_commit" = "failure" ]; then
             echo "At least one protected sync stage failed. Valid stages were preserved independently."
             exit 1
           fi
