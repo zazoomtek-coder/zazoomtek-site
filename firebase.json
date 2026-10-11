@@ -4,7 +4,19 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      ".github/**",
+      "functions/**",
+      "scripts/**",
+      "**/__pycache__/**",
+      "**/*.pyc",
+      "**/*.py",
+      "**/*.md",
+      "**/*.yml",
+      "**/*.yaml",
+      ".gitignore",
+      ".firebaserc",
+      "preview-*.html"
     ],
     "target": "zazoomtek",
     "headers": [
