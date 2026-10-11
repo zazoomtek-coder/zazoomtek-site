@@ -283,13 +283,14 @@ def featured_special_kind(on_date=None):
 
 
 def pick(articles,on_date=None):
-    """2 Tech + 2 Gaming + 1 speciale alternato; solo articoli ZazoomTek."""
+    """3 Tech + 2 Gaming + 1 speciale alternato; solo articoli ZazoomTek."""
     chosen=[];seen=set()
     def add(a):
         if a["url"] in seen:return False
         seen.add(a["url"]);chosen.append(a);return True
     standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
     for kind in ("tech","gaming"):
+        limit=3 if kind=="tech" else 2
         regular=sorted((a for a in articles
                         if a["section"]==kind and a["url"].startswith("/news-")
                         and (ROOT/a["url"].lstrip("/")).is_file()
@@ -299,10 +300,10 @@ def pick(articles,on_date=None):
                        reverse=True)
         count=0
         for a in regular:
-            if count==2:break
+            if count==limit:break
             count+=add(a)
         for x in standard:
-            if count==2:break
+            if count==limit:break
             if x.get("kind")!=kind:continue
             url="/news-"+x["slug"]+".html"
             image="/assets/special/news-"+x["slug"]+".webp"
@@ -310,7 +311,7 @@ def pick(articles,on_date=None):
             count+=add({"url":url,"title":x["title"],"image":image,
                         "section":kind,"trend_score":0,"freshness":0,
                         "matched_sources":[],"summary":""})
-        if count!=2:raise RuntimeError("Missing two original "+kind+" featured news articles")
+        if count!=limit:raise RuntimeError("Missing "+str(limit)+" original "+kind+" featured news articles")
     kind=featured_special_kind(on_date)
     section="tech-impact" if kind=="tech" else "gaming-inside"
     prefix=section+"-"
@@ -345,24 +346,26 @@ def pick(articles,on_date=None):
     if winner is None and eligible:winner=eligible[0]
     if winner is None:raise RuntimeError("No previous verified story for "+section+"; cannot invent one")
     if not add(winner):raise RuntimeError("Duplicate featured item: "+winner["url"])
-    assert len(chosen)==5
-    assert [x["section"] for x in chosen]==["tech","tech","gaming","gaming",section]
+    # Keep the approved preview ordering: Tech, Tech, Gaming / Tech, Gaming, special.
+    chosen=[chosen[0],chosen[1],chosen[3],chosen[2],chosen[4],chosen[5]]
+    assert len(chosen)==6
+    assert [x["section"] for x in chosen]==["tech","tech","gaming","tech","gaming",section]
     return chosen
 
 
 def slide_markup(chosen):
-    """Static five-image editorial mosaic, clickable covers without any overlays."""
+    """Six-image 3x2 editorial mosaic, clickable covers without overlays."""
     cards=[]
     for n,a in enumerate(chosen):
         title=html.escape(re.sub(r"(?i)^news\s*:\s*","",str(a["title"])),quote=True)
         image=html.escape(str(a["image"]),quote=True)
         url=html.escape(str(a["url"]),quote=True)
-        class_name="zt-feature-hero" if n==0 else "zt-feature-small"
+        class_name="zt-feature-small"
         cards.append('<a class="zt-feature-card '+class_name+'" href="'+url+
             '" aria-label="'+title+'" title="'+title+'"><img src="'+image+
             '" alt="'+title+'" loading="'+("eager" if n==0 else "lazy")+
             '" decoding="async"></a>')
-    return '<div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Cinque news ZazoomTek in evidenza">'+"".join(cards)+"</div>"
+    return '<div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Sei news ZazoomTek in evidenza">'+"".join(cards)+"</div>"
 
 
 def set_featured(index,chosen):
@@ -419,8 +422,8 @@ def apply():
     if not matched:
         print("NO RELIABLE TREND MATCHES: using latest own published standard news and the independent special feed")
     chosen=pick(articles)
-    if len(chosen) != 5:
-        raise RuntimeError("Featured mosaic must contain exactly 5 articles")
+    if len(chosen) != 6:
+        raise RuntimeError("Featured mosaic must contain exactly 6 articles")
     index=INDEX.read_text(encoding="utf-8")
     index=set_featured(index,chosen)
     index=omit_from_home_feed(index,chosen)
@@ -437,7 +440,7 @@ def apply():
                         for a in chosen]}
     REPORT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("MATCHED OWN NEWS:",len(matched))
-    print("FEATURED GRID 5:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
+    print("FEATURED GRID 6:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
                                     for a in chosen],ensure_ascii=False))
 
 def selftest():
@@ -458,21 +461,17 @@ def selftest():
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
     assert classify("ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC")=="gaming"
     assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
-    # Verify the 2+2+1 quota without public network requests.
-    fake = []
-    for kind in ("tech", "gaming"):
-        for i in range(3):
-            fake.append({"url": f"/news-selftest-{kind}-{i}.html", "title": f"Test {kind} {i}",
-                         "image": "/ChatGPT.png", "section": kind, "trend_score": 88-i*9,
-                         "freshness": 70-i, "matched_sources": []})
+    # Verify the approved 3+2+1 quota without public network requests.
+    # Read genuine published ZazoomTek cards; no network and no fake files.
+    existing=matches(owned_candidates(),{"items":[]})
     assert featured_special_kind(dt.date(2026,10,11))=="tech"
     assert featured_special_kind(dt.date(2026,10,12))=="gaming"
     assert featured_special_kind(dt.date(2026,10,13))=="tech"
-    sample = pick(fake,on_date=dt.date(2026,10,11))
-    assert len(sample) == 5
-    assert [x["section"] for x in sample] == ["tech", "tech", "gaming", "gaming", "tech-impact"]
-    sample2 = pick(fake,on_date=dt.date(2026,10,12))
-    assert len(sample2)==5 and sample2[-1]["section"]=="gaming-inside"
+    sample=pick(existing,on_date=dt.date(2026,10,11))
+    assert len(sample)==6 and [x["section"] for x in sample]==[
+        "tech","tech","gaming","tech","gaming","tech-impact"]
+    sample2=pick(existing,on_date=dt.date(2026,10,12))
+    assert len(sample2)==6 and sample2[-1]["section"]=="gaming-inside"
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
         {"source":"hdblog","name":"HDblog","kind":"tech",
