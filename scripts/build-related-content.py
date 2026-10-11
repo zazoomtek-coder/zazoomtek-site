@@ -669,8 +669,13 @@ def inject(record, block):
             raise RuntimeError(f"{record['name']}: missing </head>")
         content = content[:pos] + STYLE + "\n" + content[pos:]
 
-    marker = '<section class="zt-subscribe-cta">'
+    # Always place related articles BEFORE the subscription banner inside
+    # the left editorial column, never behind the sidebar or inside the footer.
+    marker = '<!-- ZT_COMMUNITY_BANNER_START -->'
     pos = content.find(marker)
+    if pos < 0:
+        marker = '<section class="zt-subscribe-cta">'
+        pos = content.find(marker)
     if pos >= 0:
         content = content[:pos] + block + content[pos:]
     else:
