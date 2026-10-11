@@ -72,6 +72,12 @@ for path in sorted(root.glob('*.html')):
     article_end = _matching_close(page, match.end(), 'article')
     related = list(_RELATED_SECTION.finditer(page, match.end(), article_end))
     if not related:
+        # Legacy imported stubs sometimes contain no article text at all;
+        # they aren't editorial articles and can't have meaningful related
+        # recommendations. Do not block real articles because of empty stubs.
+        if re.search(r'<div\s+class=["\']article-body["\']\s*>\s*</div>', page, re.I):
+            print(f"Skipped empty import stub (no related articles): {path.name}")
+            continue
         raise RuntimeError(f"{path.name}: missing Articoli correlati; refusing to deploy")
     last_related = related[-1]
     related_end = _matching_close(page, last_related.end(), 'section') + len('</section>')
