@@ -83,6 +83,80 @@
       },
       "search_terms": "children videogame controller",
       "bytes": 33528
+    },
+    "tech/farnesina-cyberattacco-ambasciate-verifiche-ottobre-2026": {
+      "path": "/assets/special/tech-impact-farnesina-cyberattacco-ambasciate-verifiche-ottobre-2026.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "Public domain / CC0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Foro_Italico_-_Olimpico_Stadio_dei_marmi_e_Farnesina_1000708.JPG",
+        "file": "File:Foro Italico - Olimpico Stadio dei marmi e Farnesina 1000708.JPG",
+        "photographer": "Lalupa",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modified": true
+      },
+      "search_terms": "Palazzo Farnesina Rome",
+      "bytes": 143232
+    },
+    "tech/certificati-https-falsi-google-domini-gh-sl-as-2026": {
+      "path": "/assets/special/tech-impact-certificati-https-falsi-google-domini-gh-sl-as-2026.webp",
+      "origin": {
+        "origin": "ZazoomTek original graphic",
+        "license": "Original in-house art"
+      },
+      "search_terms": "internet cybersecurity padlock",
+      "bytes": 47486
+    },
+    "tech/diritto-oblio-google-tribunale-milano-rifiuti-deindicizzazione-2026": {
+      "path": "/assets/special/tech-impact-diritto-oblio-google-tribunale-milano-rifiuti-deindicizzazione-2026.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "CC BY 3.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Tribunale_di_savona.JPG",
+        "file": "File:Tribunale di savona.JPG",
+        "photographer": "Basilico",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "modified": true
+      },
+      "search_terms": "justice courthouse Italy",
+      "bytes": 163184
+    },
+    "tech/frode-streaming-musica-ia-bot-sentenza-smith-2026": {
+      "path": "/assets/special/tech-impact-frode-streaming-musica-ia-bot-sentenza-smith-2026.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "CC BY-SA 2.0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Andrew_Pilling%27s_2011_Recording_Equipment.jpg",
+        "file": "File:Andrew Pilling's 2011 Recording Equipment.jpg",
+        "photographer": "andrew pilling",
+        "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+        "modified": true
+      },
+      "search_terms": "music recording studio computer",
+      "bytes": 119294
+    },
+    "gaming/gears-of-war-e-day-the-coalition-licenziamenti-bonus-2026": {
+      "path": "/assets/special/gaming-inside-gears-of-war-e-day-the-coalition-licenziamenti-bonus-2026.webp",
+      "origin": {
+        "origin": "Wikimedia Commons",
+        "license": "Public domain / CC0",
+        "source_page": "https://commons.wikimedia.org/wiki/File:Gunjinlogo_large.jpg",
+        "file": "File:Gunjinlogo large.jpg",
+        "photographer": "Stebo148",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modified": true
+      },
+      "search_terms": "video game development studio",
+      "bytes": 35390
+    },
+    "gaming/ubisoft-massive-entertainment-riorganizzazione-studi-franchise-2026": {
+      "path": "/assets/special/gaming-inside-ubisoft-massive-entertainment-riorganizzazione-studi-franchise-2026.webp",
+      "origin": {
+        "origin": "ZazoomTek original graphic",
+        "license": "Original in-house art"
+      },
+      "search_terms": "video game developer workspace",
+      "bytes": 46612
     }
   }
 }
