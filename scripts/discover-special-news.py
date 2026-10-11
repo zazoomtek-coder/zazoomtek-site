@@ -25,6 +25,17 @@ QUERIES={
   'attacco hacker ministero istituzioni sicurezza informatica',
   'cyberattack critical infrastructure government Asia Europe',
   'Japan South Korea semiconductor digital policy AI regulation',
+  # Italy, Europe and the wider world: authoritative reporting and policy.
+  'site:ansa.it intelligenza artificiale legge parlamento digitale',
+  'site:ilsole24ore.com digitale tecnologia economia governo legge',
+  'site:reuters.com technology AI regulation government antitrust',
+  'site:apnews.com technology artificial intelligence law regulation',
+  'site:politico.eu european union tech digital regulation privacy',
+  'site:euronews.com digital law EU commission technology',
+  'site:bbc.com/news technology government legal regulation',
+  'site:agcm.it digitale piattaforme consumatori concorrenza',
+  'site:ec.europa.eu digitale intelligenza artificiale piattaforme',
+  'technology semiconductors export controls government tariffs economy',
  ],
  "gaming":[
   'videogame industry legislation political regulation rights',
@@ -38,6 +49,15 @@ QUERIES={
   'online game shutdown access purchased games consumer rights',
   'gaming industry copyright law government investigations',
   'videogiochi legge tutela consumatori chiusura server',
+  'site:ansa.it videogiochi tutela minori legge gaming',
+  'site:reuters.com video games regulation antitrust consumer rights',
+  'site:apnews.com video games law children regulation',
+  'site:eurogamer.net video game consumer rights regulation',
+  'site:gamesindustry.biz games industry acquisition layoffs law',
+  'site:euronews.com online gaming child protection digital policy',
+  'site:ec.europa.eu video games virtual currency consumer protection',
+  'site:agcm.it videogiochi monete virtuali minori acquisti',
+  'video game platform consumer protection antitrust Europe government',
  ]
 }
 def fetch(url):
@@ -89,7 +109,9 @@ def discover():
         try:age=now-dt.datetime.fromisoformat(item["published_utc"])
         except (ValueError,KeyError,TypeError):continue
         if age<=dt.timedelta(days=7) and key not in fresh:fresh[key]=item
-    ordered=sorted(fresh.values(),key=lambda x:x["published_utc"],reverse=True)[:240]
+    # Keep a wider range of independent reports, not just the very last
+    # headlines of a few publishers. Final selection remains evidence-based.
+    ordered=sorted(fresh.values(),key=lambda x:x["published_utc"],reverse=True)[:400]
     payload={"generated_utc":now.isoformat(),"publication_enabled":False,
              "disclaimer":"Discovery only: every story requires independent verification, original writing, rights review and approval before publication.",
              "items":ordered,"errors":errors}
