@@ -18,6 +18,9 @@ on:
       - '*.jpg'
       - '*.webp'
       - 'assets/**'
+      - 'scripts/zt_sidebar_mix.py'
+      - 'scripts/apply-site-design.py'
+      - '.github/workflows/firebase-hosting-merge.yml'
       - 'firebase.json'
 concurrency:
   group: firebase-hosting-live
