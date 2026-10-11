@@ -31,9 +31,8 @@ def valid(item):
     if not isinstance(title,str) or not 25<=len(title)<=170:return False
     if not isinstance(intro,str) or not 65<=len(intro)<=420:return False
     if not isinstance(paragraphs,list) or len(paragraphs)<3 or any(not isinstance(p,str) or len(p.strip())<100 for p in paragraphs):return False
-    # Editorial target: 300–600 words total, including title and summary.
-    word_count=len(" ".join([title,intro]+paragraphs).split())
-    if not 300<=word_count<=600:return False
+    total_words=len(" ".join([title,intro]+paragraphs).split())
+    body_words=len(" ".join(paragraphs).split())
     if not isinstance(sources,list) or not sources or any(not isinstance(u,str) or not u.startswith("https://") for u in sources):return False
     editorial=item.get("editor_approved") is True
     automatic=(item.get("auto_approved") is True and
@@ -43,6 +42,8 @@ def valid(item):
                isinstance(item.get("source_fingerprints"),list) and
                bool(item["source_fingerprints"]))
     if not (editorial or automatic):return False
+    if editorial and not 300<=total_words<=600:return False
+    if not editorial and not 400<=body_words<=750:return False
     try:
         date=dt.date.fromisoformat(item.get("date",""))
         if date>dt.date.today()+dt.timedelta(days=1):return False
