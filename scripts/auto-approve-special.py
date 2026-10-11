@@ -94,6 +94,49 @@ def verified(article,docs,audit):
         if type(i) is int and 0<=i<len(text) and 28<=len(q)<=180 and any(q in c for c in corpus):
             grounded.add(i);quotes.add(q)
     return grounded==set(range(len(text))) and len(quotes)>=3
+def trim_unverified_paragraphs(article,docs,audit):
+    """Delete unsupported AI-written paragraphs; never manufacture corroboration.
+
+    Explicit unsupported paragraph IDs from the model can be removed only
+    when headline and summary are affirmed, the remaining body has at least
+    three substantial paragraphs and every surviving paragraph has an exact
+    source quotation. The public article contains no source quotations.
+    """
+    if not isinstance(audit,dict):
+        return False
+    if audit.get("headline_supported") is not True or audit.get("summary_supported") is not True:
+        return False
+    paragraphs=article.get("paragraphs",[])
+    if not isinstance(paragraphs,list) or not 3<=len(paragraphs)<=10:
+        return False
+    unsupported=audit.get("unsupported_indices",[])
+    if not isinstance(unsupported,list) or any(type(i) is not int or i<0 or i>=len(paragraphs) for i in unsupported):
+        return False
+    if audit.get("publish") is not True and not unsupported:
+        return False
+    corpus=[norm(d["text"]) for d in docs]
+    valid_quotes={}
+    for row in audit.get("supported",[]):
+        if not isinstance(row,dict):continue
+        i=row.get("index");q=norm(row.get("quote",""))
+        if (type(i) is int and 0<=i<len(paragraphs)
+            and 28<=len(q)<=180 and any(q in c for c in corpus)):
+            valid_quotes[i]=q
+    survivors=[i for i,paragraph in enumerate(paragraphs)
+               if i in valid_quotes and i not in unsupported
+               and isinstance(paragraph,str) and len(paragraph.strip())>=100]
+    if (len(survivors)<3 or len({valid_quotes[i] for i in survivors})<3
+        or len(" ".join(paragraphs[i] for i in survivors).split())<300):
+        return False
+    # A meaningful portion must be independently supported. A fragment of
+    # an otherwise invented article is not fit for automatic publication.
+    if len(survivors)*2<len(paragraphs):
+        return False
+    article["paragraphs"]=[paragraphs[i] for i in survivors]
+    article["source_grounded_paragraph_count"]=len(survivors)
+    article["removed_unsupported_paragraph_count"]=len(paragraphs)-len(survivors)
+    return True
+
 def main():
     saved=ROOT/"approved-special-articles.json"
     existing=json.loads(saved.read_text(encoding="utf-8"))
@@ -137,9 +180,13 @@ def main():
                 why="Verification request failed: "+type(e).__name__
             else:
                 if not verified(x,docs,assessment):
+                    if trim_unverified_paragraphs(x,docs,assessment):
+                        # The retained paragraphs, not the rejected prose,
+                        # form the actual published, source-checked article.
+                        why=""
                     # Zero approvals need a clear, actionable reason in the
                     # private 7-day workflow audit; never silently claim success.
-                    if not isinstance(assessment,dict):
+                    elif not isinstance(assessment,dict):
                         why="Factual verification returned an invalid audit"
                     elif assessment.get("publish") is not True:
                         verdict=str(assessment.get("reason") or "unsubstantiated statements")

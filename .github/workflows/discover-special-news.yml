@@ -11,6 +11,7 @@ on:
     paths:
       - '.github/special-editorial-run.trigger'
       - 'scripts/discover-special-news.py'
+      - 'scripts/auto-approve-special.py'
 permissions:
   contents: write
   actions: write

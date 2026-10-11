@@ -43,7 +43,7 @@ def valid(item):
                bool(item["source_fingerprints"]))
     if not (editorial or automatic):return False
     if editorial and not 300<=total_words<=600:return False
-    if not editorial and not 400<=body_words<=750:return False
+    if not editorial and not 300<=body_words<=750:return False
     try:
         date=dt.date.fromisoformat(item.get("date",""))
         if date>dt.date.today()+dt.timedelta(days=1):return False
