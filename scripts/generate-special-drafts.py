@@ -32,11 +32,11 @@ def main():
     if not leads:
         print("No timely leads; no AI request.")
         return
-    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 4 proposte TECH IMPACT e massimo 2 GAMING INSIDE, senza completare la quota con casi dubbi.
+    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 6 proposte TECH IMPACT e massimo 4 GAMING INSIDE, senza completare la quota con casi dubbi.
 TECH IMPACT: politica e tecnologia, cybersicurezza pubblica, sicurezza digitale, diritti, innovazioni con implicazioni documentabili; escludi ordinaria pubblicità e lanci banali.
 GAMING INSIDE: esclusivamente politica e leggi dei VIDEOGIOCHI, proprietà di giochi digitali, chiusura server, consumatori, censura, tutela minori, crisi e acquisizioni di studi videoludici. Un evento su Meta, Hollywood, IA o copyright SENZA un rapporto esplicito con i videogiochi NON è pertinente.
-Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO DI 300-600 PAROLE, NON un articolo pronto: titolo italiano originale, summary neutrale di 80-130 parole, 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo 300-600 parole dovrà essere scritto SOLO DOPO verifica documentale separata.
-Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"titolo originale italiano","summary":"breve descrizione prudente della pista di ricerca, non del fatto confermato","source_urls":["URL presente nell'input"],"verification_needed":["verifica puntuale da effettuare"],"outline":["aspetto da approfondire"],"target_words":450,"editorial_status":"needs_human_review"}]}. Inserisci solo URL forniti nell'input, non riempire posti mancanti. Input:\\n"""+json.dumps(leads,ensure_ascii=False)
+Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO CON 400-750 PAROLE NEL CORPO DEL TESTO, NON un articolo pronto: titolo italiano originale, summary neutrale di 80-130 parole, 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo con almeno 400 parole originali nel corpo dovrà essere scritto SOLO DOPO verifica documentale separata.
+Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"titolo originale italiano","summary":"breve descrizione prudente della pista di ricerca, non del fatto confermato","source_urls":["URL presente nell'input"],"verification_needed":["verifica puntuale da effettuare"],"outline":["aspetto da approfondire"],"target_words":550,"editorial_status":"needs_human_review"}]}. Inserisci solo URL forniti nell'input, non riempire posti mancanti. Input:\\n"""+json.dumps(leads,ensure_ascii=False)
     # Query available models for this key instead of assuming a model exists.
     list_req=urllib.request.Request(
         "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",
@@ -57,7 +57,7 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         raise SystemExit(1)
     print("Gemini model selected:",selected)
     endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+selected+":generateContent"
-    payload={"contents":[{"parts":[{"text":prompt}]}],"generationConfig":{"responseMimeType":"application/json","maxOutputTokens":2800,"temperature":0.2}}
+    payload={"contents":[{"parts":[{"text":prompt}]}],"generationConfig":{"responseMimeType":"application/json","maxOutputTokens":4200,"temperature":0.2}}
     req=urllib.request.Request(endpoint,data=json.dumps(payload).encode("utf-8"),headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
     try:
         with urllib.request.urlopen(req,timeout=65) as response:
@@ -89,8 +89,8 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         if not isinstance(urls,list) or not urls or any(u not in allowed for u in urls):continue
         if not isinstance(x.get("title"),str) or not isinstance(x.get("summary"),str):continue
         if x["section"]=="gaming" and not any(w in ("gaming","game","games","videogame","videogiochi","videogioco","xbox","playstation","nintendo","steam","videoludic","giocatori") for w in __import__("re").findall(r"[a-zA-Z]+",(x["title"]+" "+" ".join(next((lead["title"] for lead in leads if lead["url"]==u),"") for u in urls)).lower())):continue
-        verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":450,"editorial_status":"needs_human_review"})
-    report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:6]}
+        verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":550,"editorial_status":"needs_human_review"})
+    report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:10]}
     OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print("Gemini drafts created for human review:",len(verified[:6]),"; published: 0")
+    print("Gemini drafts created for human review:",len(verified[:10]),"; published: 0")
 if __name__=="__main__":main()
