@@ -2,7 +2,7 @@
 # Global scrollbar refresh marker
 # Structured data refresh marker
 from zt_footer import FOOTER_HTML
-import json,re,html,time,unicodedata,urllib.error,urllib.request,urllib.parse
+import json,re,html,time,unicodedata,urllib.error,urllib.request,urllib.parse,os
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
@@ -2351,6 +2351,24 @@ def main():
                 f"Community safety check failed: parsed {len(posts)} posts, "
                 f"previous valid state had {len(previous)}. Site left unchanged."
             )
+
+    # Polling must not regenerate hundreds of identical HTML pages.
+    # Compare stable source fields only: relative YouTube dates change even
+    # when an article has not been edited.
+    stable_keys=("id","text","image","images")
+    source_unchanged=(
+        bool(previous)
+        and len(posts)==len(previous)
+        and all(
+            isinstance(current,dict) and isinstance(old,dict)
+            and all(current.get(key)==old.get(key) for key in stable_keys)
+            for current,old in zip(posts,previous)
+        )
+    )
+    force_rebuild=os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
+    if source_unchanged and not force_full_scan and not force_rebuild:
+        print("No YouTube Community content changes; skipping HTML regeneration.")
+        return
 
     reviews=[p for p in posts if is_review(p)]
     news=[p for p in posts if not is_review(p)]
