@@ -1,8 +1,15 @@
 name: Automatic verified Tech Impact and Gaming Inside
-# PAUSED by editorial decision: no scheduled runs or push-triggered special articles.
-# The workflow can be manually re-enabled for future editorial maintenance.
+# Verified unattended reporting. Manual dispatch remains available.
+# A one-time marker push triggers the first run; the two daily checks respect
+# the daily five-article maximum and do not manufacture unverified stories.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 7,14 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/special-editorial-run.trigger'
 permissions:
   contents: write
   actions: write
@@ -12,7 +19,7 @@ concurrency:
 jobs:
   verify-and-approve:
     runs-on: ubuntu-latest
-    timeout-minutes: 28
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
