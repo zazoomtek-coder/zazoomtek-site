@@ -65,14 +65,15 @@ def _remove_legacy_ctas(content):
 
 _PATTERN = re.compile(r'<footer\b[^>]*>[\s\S]*?</footer>', re.IGNORECASE)
 
-def unify_footer(html):
-    """Replace only the footer, preserving the page's article, header, scripts and links."""
+def unify_footer(html, *, include_community=True):
+    """Use the shared footer; omit the community banner on the Home only."""
     if not re.search(r'</body\s*>', html, re.IGNORECASE):
         return html
     html = _remove_legacy_ctas(html)
-    updated, count = _PATTERN.subn(lambda _: FOOTER_HTML, html, count=1)
+    footer = FOOTER_HTML if include_community else FOOTER_HTML.replace(COMMUNITY_HTML, "", 1)
+    updated, count = _PATTERN.subn(lambda _: footer, html, count=1)
     if count == 1:
         return updated
-    # Add the approved footer and banner even to future pages missing a footer.
-    return re.sub(r'</body\s*>', lambda m: FOOTER_HTML + '\n' + m.group(0),
+    # Support newly generated pages that do not yet have the legal footer.
+    return re.sub(r'</body\s*>', lambda m: footer + '\n' + m.group(0),
                   updated, count=1, flags=re.I)
