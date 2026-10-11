@@ -363,29 +363,29 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 </style>
 <style id="zt-home-guides-css">
-/* Box Guide approvato: solo nella Home e sempre dopo la notizia The Talos Principle 3 */
-#ztHomeGuide{margin:10px 12px 13px;min-width:0;display:block;background:#fff;border:1px solid #e3e3e3;box-shadow:0 1px 5px #00000010;overflow:hidden}
-#ztHomeGuide .zt-home-guide-heading{display:flex;align-items:center;justify-content:space-between;height:41px;background:#202020;color:#fff}
-#ztHomeGuide .zt-home-guide-heading h2{height:100%;margin:0;padding:0 23px 0 13px;display:flex;align-items:center;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%);background:#d51232;color:#fff;font-size:14px;font-weight:900;letter-spacing:.5px}
-#ztHomeGuide .zt-home-guide-heading a{padding:0 13px;color:#fff;font-size:10px;font-weight:900;letter-spacing:.2px}
+/* GUIDE Home: approved perfectly symmetric two-card layout; preserve the actual published guides. */
+#ztHomeGuide{margin:0 10px 14px;display:block;min-width:0;background:#fff;border:1px solid #dfdfdf;box-shadow:0 2px 8px #0000000b;overflow:hidden}
+#ztHomeGuide .zt-home-guide-heading{height:48px;display:flex;align-items:center;justify-content:space-between;background:#202020;color:#fff}
+#ztHomeGuide .zt-home-guide-heading h2{height:100%;display:flex;align-items:center;margin:0;padding:0 38px 0 21px;background:#d51232;color:#fff;clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%);font-size:17px;font-weight:900;letter-spacing:.25px}
+#ztHomeGuide .zt-home-guide-heading a{font-size:11px;font-weight:900;margin-right:21px;color:#fff;letter-spacing:.3px}
 #ztHomeGuide .zt-home-guide-heading a:hover{text-decoration:underline}
-#ztHomeGuide .zt-home-guide-content{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:12px;padding:12px 12px 10px;background:#fcfcfc}
-#ztHomeGuide .zt-home-guide-primary{min-width:0;display:block;text-decoration:none}
-#ztHomeGuide .zt-home-guide-photo{display:block;width:100%;height:210px;object-fit:cover;object-position:center center;background:#080e20;border-radius:3px}
-#ztHomeGuide .zt-home-guide-primary h3{font-size:15px;line-height:1.2;margin:20px 0 0;color:#222;font-weight:900}
-#ztHomeGuide .zt-home-guide-primary:hover h3{color:#d51232}
-#ztHomeGuide .zt-home-guide-upcoming{display:flex;flex-direction:column;gap:7px}
-#ztHomeGuide .zt-home-guide-next{display:grid;grid-template-columns:80px minmax(0,1fr);gap:9px;align-items:center;min-height:72px;padding-bottom:7px;border-bottom:1px solid #efefef}
-#ztHomeGuide .zt-home-guide-next:last-child{border-bottom:0;padding-bottom:0}
-#ztHomeGuide .zt-home-guide-next strong{display:block;font-size:11px;font-weight:900;line-height:1.25;color:#222}
-#ztHomeGuide .zt-home-guide-next span{display:block;margin-top:5px;font-size:9px;color:#777}
-#ztHomeGuide .zt-home-guide-icon{height:64px;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:21px;font-weight:900}
-#ztHomeGuide .zt-home-guide-icon small{font-size:11px}
-#ztHomeGuide .zt-home-guide-icon-tech{background:linear-gradient(135deg,#1e456c,#101923)}
-#ztHomeGuide .zt-home-guide-icon-gaming{background:linear-gradient(135deg,#5c275b,#151923)}
-#ztHomeGuide .zt-home-guide-icon-4k{background:linear-gradient(135deg,#3e4b83,#111827)}
-@media(max-width:850px){#ztHomeGuide .zt-home-guide-content{grid-template-columns:1fr}}
-@media(max-width:500px){#ztHomeGuide{margin:8px}#ztHomeGuide .zt-home-guide-photo{height:188px}}
+#ztHomeGuide .zt-home-guide-content{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,.87fr);gap:16px;padding:16px;align-items:stretch;height:380px}
+#ztHomeGuide .zt-home-guide-primary{display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;min-height:0;overflow:hidden;text-decoration:none}
+#ztHomeGuide .zt-home-guide-photo{display:block;object-fit:cover;object-position:center center;width:100%;height:100%;min-height:0;border-radius:4px;background:#07152a}
+#ztHomeGuide .zt-home-guide-primary h3{display:flex;align-items:center;min-height:47px;padding:10px 0 0;margin:0;font-weight:900;font-size:18px;line-height:1.2;color:#d51232}
+#ztHomeGuide .zt-home-guide-primary:hover h3{text-decoration:underline}
+#ztHomeGuide .zt-home-guide-upcoming{display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:16px;min-height:0}
+#ztHomeGuide .zt-home-guide-next{display:grid;grid-template-columns:clamp(86px,9.2vw,160px) minmax(0,1fr);align-items:stretch;gap:clamp(9px,1vw,18px);padding:12px;min-width:0;min-height:0;border:1px solid #e5e5e5;border-radius:4px;background:#fafafa;text-decoration:none}
+#ztHomeGuide .zt-home-guide-icon{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:0;height:100%;border-radius:3px;color:#fff;font-size:35px;font-weight:900;background:linear-gradient(142deg,#254969,#0c1b2b)}
+#ztHomeGuide .zt-home-guide-icon small{font-size:16px;margin-top:4px}
+#ztHomeGuide .zt-home-guide-icon-gaming{background:linear-gradient(142deg,#652f63,#201425)}
+#ztHomeGuide .zt-home-guide-next>div:last-child{min-width:0;display:flex;flex-direction:column;justify-content:center}
+#ztHomeGuide .zt-home-guide-next strong{display:block;font-size:clamp(12px,1.1vw,17px);line-height:1.3;font-weight:900;color:#222}
+#ztHomeGuide .zt-home-guide-next span{display:block;margin-top:10px;color:#777;font-size:clamp(10px,.8vw,12px);line-height:1.3}
+#ztHomeGuide a.zt-home-guide-next:hover strong{color:#d51232}
+@media(min-width:1300px){#ztHomeGuide .zt-home-guide-content{height:423px}#ztHomeGuide .zt-home-guide-primary h3{font-size:20px;min-height:51px}}
+@media(max-width:900px){#ztHomeGuide .zt-home-guide-content{height:auto;grid-template-columns:1fr;gap:15px}#ztHomeGuide .zt-home-guide-primary{height:auto;grid-template-rows:auto auto}#ztHomeGuide .zt-home-guide-photo{height:auto;aspect-ratio:16/9;object-fit:cover}#ztHomeGuide .zt-home-guide-upcoming{grid-template-rows:repeat(2,132px);gap:12px}#ztHomeGuide .zt-home-guide-next{grid-template-columns:110px minmax(0,1fr);gap:13px;padding:10px}#ztHomeGuide .zt-home-guide-icon{font-size:28px}}
+@media(max-width:520px){#ztHomeGuide{margin:0 8px 12px}#ztHomeGuide .zt-home-guide-heading{height:43px}#ztHomeGuide .zt-home-guide-heading h2{padding:0 24px 0 14px;font-size:15px}#ztHomeGuide .zt-home-guide-heading a{font-size:10px;margin-right:13px}#ztHomeGuide .zt-home-guide-content{padding:11px}#ztHomeGuide .zt-home-guide-primary h3{font-size:15px;min-height:44px}#ztHomeGuide .zt-home-guide-upcoming{grid-template-rows:repeat(2,115px);gap:10px}#ztHomeGuide .zt-home-guide-next{grid-template-columns:86px minmax(0,1fr);gap:10px;padding:9px}#ztHomeGuide .zt-home-guide-icon{font-size:22px}#ztHomeGuide .zt-home-guide-icon small{font-size:11px}#ztHomeGuide .zt-home-guide-next strong{font-size:13px}#ztHomeGuide .zt-home-guide-next span{font-size:10px;margin-top:6px}}
 </style>
 </head>
 <body>
@@ -544,7 +544,7 @@ con the talos principle 3, croteam si prepara a concludere un percorso narrativo
     <div class="zt-home-guide-upcoming" aria-label="Prossime guide">
       <a class="zt-home-guide-next" href="/guida-come-usare-playstation-2-tv-4k-moderna.html"><div class="zt-home-guide-icon zt-home-guide-icon-tech" aria-hidden="true">4K</div><div><strong>Come collegare PlayStation 2 a una TV 4K</strong><span>Guida già pubblicata</span></div></a>
       <div class="zt-home-guide-next"><div class="zt-home-guide-icon zt-home-guide-icon-gaming" aria-hidden="true">▶</div><div><strong>Spazio per la prossima guida Gaming</strong><span>Nuove guide in arrivo</span></div></div>
-      <div class="zt-home-guide-next"><div class="zt-home-guide-icon zt-home-guide-icon-4k" aria-hidden="true">4K</div><div><strong>Altri tutorial e consigli pratici</strong><span>Nuove guide in arrivo</span></div></div>
+      
     </div>
   </div>
 </section>
