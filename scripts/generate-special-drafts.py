@@ -44,7 +44,7 @@ def event_match(a,b):
     return overlap>=.65 and jaccard>=.42 and SequenceMatcher(None,aa,bb).ratio()>=.62
 def outlet_key(outlet):
     return re.sub(r"[^a-z0-9]+","",clean_title(outlet))
-def preferred(outlet):
+def outlet_priority(outlet):
     t=str(outlet).casefold()
     return 1 if any(k in t for k in TRUSTED) else 0
 
@@ -76,7 +76,7 @@ def main():
         x["independent_outlets"]=len(unique)+1
     # Wider source diversity first, then trustworthy outlet and recency.
     leads.sort(key=lambda x:(x["independent_outlets"]>=2,
-                              x["independent_outlets"], preferred(x["outlet"]),
+                              x["independent_outlets"], outlet_priority(x["outlet"]),
                               x["time"]),reverse=True)
     selected=[x for x in leads if x["section"]=="tech"][:38]+[
              x for x in leads if x["section"]=="gaming"][:27]
