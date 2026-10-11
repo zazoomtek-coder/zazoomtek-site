@@ -6,6 +6,9 @@ those headlines do not verify the underlying events.
 import datetime as dt
 import json
 import os
+import re
+import unicodedata
+from difflib import SequenceMatcher
 from pathlib import Path
 import urllib.error
 import urllib.request
@@ -14,6 +17,37 @@ ROOT=Path(__file__).resolve().parent.parent
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
 MODEL=os.environ.get("GEMINI_MODEL","gemini-3.5-flash-lite")
 OUT=ROOT/"special-drafts-review.json"
+# Prefer direct, accountable reporting from institutions and established
+# newsrooms, but retain other verifiable reporting when it is available.
+TRUSTED=("reuters","associated press","ap news","ansa","il sole 24 ore",
+         "bbc","politico","euronews","financial times","bloomberg",
+         "agcm","european commission","commissione europea","europarl",
+         "eurogamer","gamesindustry","the verge","wired","corriere")
+GENERIC=set("the a and for in on to of with from news technology tech gaming "
+            "ai artificial intelligence government legge laws law europe european "
+            "video games game videogiochi videogame digitale digital world "
+            "new nuovo nuovi news italian italy italia privacy regulation "
+            "regole rules economy economia policy".split())
+def clean_title(title):
+    s=str(title).rsplit(" - ",1)[0]
+    s=unicodedata.normalize("NFKD",s).encode("ascii","ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+"," ",s).strip()
+def event_match(a,b):
+    """Conservative same-event headline match; shared broad topics don't count."""
+    aa,bb=clean_title(a),clean_title(b)
+    left,right=set(aa.split()),set(bb.split())
+    joint=left&right
+    distinctive={t for t in joint if len(t)>3 and t not in GENERIC}
+    if len(joint)<4 or len(distinctive)<2:return False
+    overlap=len(joint)/max(1,min(len(left),len(right)))
+    jaccard=len(joint)/max(1,len(left|right))
+    return overlap>=.65 and jaccard>=.42 and SequenceMatcher(None,aa,bb).ratio()>=.62
+def outlet_key(outlet):
+    return re.sub(r"[^a-z0-9]+","",clean_title(outlet))
+def preferred(outlet):
+    t=str(outlet).casefold()
+    return 1 if any(k in t for k in TRUSTED) else 0
+
 def main():
     if not KEY:
         print("No API key: skipping Gemini draft generation.")
@@ -28,11 +62,35 @@ def main():
         except (KeyError,ValueError):continue
         if dt.timedelta(0)<=now-published<=dt.timedelta(hours=48):
             leads.append({"section":x["section"],"title":x["title"],"outlet":x["source"],"url":x["source_url"],"time":x["published_utc"]})
-    leads=leads[:65]
+    # Match the *same event* across independent publishers, never a generic
+    # subject such as AI regulation. Preserve ordinary recent articles too.
+    for x in leads:
+        related=[o for o in leads
+                 if o["section"]==x["section"] and o["url"]!=x["url"]
+                 and outlet_key(o["outlet"])!=outlet_key(x["outlet"])
+                 and event_match(x["title"],o["title"])]
+        unique={}
+        for other in related:
+            unique.setdefault(outlet_key(other["outlet"]),other)
+        x["related"]=list(unique.values())[:3]
+        x["independent_outlets"]=len(unique)+1
+    # Wider source diversity first, then trustworthy outlet and recency.
+    leads.sort(key=lambda x:(x["independent_outlets"]>=2,
+                              x["independent_outlets"], preferred(x["outlet"]),
+                              x["time"]),reverse=True)
+    selected=[x for x in leads if x["section"]=="tech"][:38]+[
+             x for x in leads if x["section"]=="gaming"][:27]
+    leads=selected
     if not leads:
         print("No timely leads; no AI request.")
         return
-    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 6 proposte TECH IMPACT e massimo 4 GAMING INSIDE, senza completare la quota con casi dubbi.
+    # Only hints for research: both titles and bodies still need verification.
+    for x in leads:
+        x["possible_corrob"]=[{"title":v["title"],"outlet":v["outlet"],"url":v["url"]}
+                              for v in x.pop("related",[])[:3]]
+    print("Research leads:",len(leads),
+          "; same-event corroboration candidates:",sum(x["independent_outlets"]>=2 for x in leads))
+    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 6 proposte TECH IMPACT e massimo 4 GAMING INSIDE, senza completare la quota con casi dubbi. Privilegia Reuters, ANSA, AP, istituzioni e testate autorevoli italiane/internazionali. I temi includono politica nazionale ed estera, norme, economia e tutela dei consumatori purché il nesso con tecnologia o videogiochi sia concreto. I campi possible_corrob sono IPOTESI di corrispondenza tra titoli: includi due URL solo quando si riferiscono alla STESSA notizia e a testate diverse; altrimenti scegli anche una notizia singola solida per le pagine, ma non definirla tendenza.
 TECH IMPACT: politica e tecnologia, cybersicurezza pubblica, sicurezza digitale, diritti, innovazioni con implicazioni documentabili; escludi ordinaria pubblicità e lanci banali.
 GAMING INSIDE: esclusivamente politica e leggi dei VIDEOGIOCHI, proprietà di giochi digitali, chiusura server, consumatori, censura, tutela minori, crisi e acquisizioni di studi videoludici. Un evento su Meta, Hollywood, IA o copyright SENZA un rapporto esplicito con i videogiochi NON è pertinente.
 Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO CON 400-750 PAROLE NEL CORPO DEL TESTO, NON un articolo pronto: titolo italiano originale, summary neutrale di 30-50 parole (non oltre 380 caratteri), 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo con almeno 400 parole originali nel corpo dovrà essere scritto SOLO DOPO verifica documentale separata.
@@ -82,13 +140,23 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
     response_text="".join(p.get("text","") for c in data.get("candidates",[]) for p in c.get("content",{}).get("parts",[]))
     parsed=json.loads(response_text)
     allowed={x["url"] for x in leads}
+    by_url={x["url"]:x for x in leads}
     verified=[]
     for x in parsed.get("drafts",[]):
         if not isinstance(x,dict) or x.get("section") not in ("tech","gaming"):continue
         urls=x.get("source_urls",[])
         if not isinstance(urls,list) or not urls or any(u not in allowed for u in urls):continue
         if not isinstance(x.get("title"),str) or not isinstance(x.get("summary"),str):continue
-        if x["section"]=="gaming" and not any(w in ("gaming","game","games","videogame","videogiochi","videogioco","xbox","playstation","nintendo","steam","videoludic","giocatori") for w in __import__("re").findall(r"[a-zA-Z]+",(x["title"]+" "+" ".join(next((lead["title"] for lead in leads if lead["url"]==u),"") for u in urls)).lower())):continue
+        if x["section"]=="gaming" and not any(w in ("gaming","game","games","videogame","videogiochi","videogioco","xbox","playstation","nintendo","steam","videoludic","giocatori") for w in re.findall(r"[a-zA-Z]+",(x["title"]+" "+" ".join(by_url[u]["title"] for u in urls)).lower())):continue
+        # Add only conservatively matched independent reporting from input.
+        # The subsequent full-source check rejects mismatched events.
+        corroborating=[]
+        for u in urls:
+            lead=by_url.get(u,{})
+            for other in lead.get("possible_corrob",[]):
+                if other["url"] not in urls+corroborating:
+                    corroborating.append(other["url"])
+        urls=(urls+corroborating)[:3]
         verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":550,"editorial_status":"needs_human_review"})
     report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:10]}
     OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
