@@ -634,3 +634,14 @@ html,body,body :is(h1,h2,h3,h4,h5,h6,p,a,span,small,b,strong,em,li,ul,ol,button,
     width:24px!important;height:24px!important;max-width:24px!important;max-height:24px!important;
   }
 }
+
+
+/* Editorial rule 2026-10-11: never display "Chi sono" in site navigation
+   or footers on current OR future pages. The page itself remains accessible
+   by direct URL; this hides only links to it. */
+a[href="/chi-sono.html"],
+a[href="chi-sono.html"],
+a[href="https://zazoomtek.it/chi-sono.html"],
+a[href="https://www.zazoomtek.it/chi-sono.html"] {
+  display:none!important;
+}
