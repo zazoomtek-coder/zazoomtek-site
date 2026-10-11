@@ -243,7 +243,12 @@ def main():
     manifest=old.get("articles",{})
     changed=False
     for item in entries:
-        if not isinstance(item,dict) or not item.get("editor_approved"):continue
+        if not isinstance(item,dict):continue
+        verified_auto=(item.get("auto_approved") is True and
+                       item.get("approval_method")=="strict_source_evidence" and
+                       isinstance(item.get("evidence_review"),dict) and
+                       item["evidence_review"].get("paragraphs_supported") is True)
+        if not (item.get("editor_approved") is True or verified_auto):continue
         if item.get("section") not in ("tech","gaming"):continue
         slug=item.get("slug","")
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):continue
