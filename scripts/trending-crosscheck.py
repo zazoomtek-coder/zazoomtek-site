@@ -327,6 +327,9 @@ def pick(articles):
     # observed news sites; a fresh story outside the small special-featured
     # shortlist is eligible too. Nothing from other publishers is republished.
     special_feed = json.loads((ROOT / "special-featured.json").read_text(encoding="utf-8")).get("items", [])
+    owned_approved=json.loads((ROOT/"approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
+    approved_by_url={"/"+("tech-impact" if v.get("section")=="tech" else "gaming-inside")+"-"+v.get("slug","")+".html":v
+                     for v in owned_approved if v.get("section") in ("tech","gaming")}
     for kind, section, prefix in (("tech", "tech-impact", "tech-impact-"),
                                   ("gaming", "gaming-inside", "gaming-inside-")):
         eligible = [a for a in articles
@@ -339,12 +342,27 @@ def pick(articles):
         # An individual source's repeated headlines count only once. The
         # standard Tech/Gaming slots above keep their existing selection logic.
         # YouTube is never an eligible external trend source.
-        eligible.sort(key=lambda a: (a.get("match_count", 0),
-                                     a.get("trend_score", 0),
-                                     a.get("freshness", 0)), reverse=True)
-        # Without independent corroboration keep the already chosen editorial
-        # article in the carousel, without calling it a confirmed trend.
-        winner = next((a for a in eligible if a.get("match_count", 0) >= 2), None)
+        for article in eligible:
+            approved=approved_by_url.get(article["url"],{})
+            recent=False
+            try:
+                stamp=dt.date.fromisoformat(approved.get("date",""))
+                recent=0 <= (NOW().date()-stamp).days <= 2
+            except ValueError:
+                pass
+            # All independently checked publisher sites count, not video
+            # views or a headline repeated by one outlet.
+            confirmed=(approved.get("evidence_review",{}).get("source_count",0)
+                       if approved.get("trend_verified") is True else 0)
+            article["special_source_count"]=max(article.get("match_count",0),
+                                                confirmed) if recent else 0
+            article["special_is_recent"]=recent
+        eligible.sort(key=lambda a:(a["special_source_count"],
+                                    a.get("trend_score",0),
+                                    a.get("freshness",0)),reverse=True)
+        # If no recent independently corroborated special story exists,
+        # preserve the previous Impact/Inside carousel selection.
+        winner=next((a for a in eligible if a["special_source_count"]>=2),None)
         if winner is None:
             for item in special_feed:
                 slug = item.get("slug", "")
