@@ -42,10 +42,18 @@ jobs:
             echo "No updated trends or placements."
             exit 0
           fi
+          # Only publish a Hosting release when public pages changed. A
+          # trends metadata refresh by itself needs no new release.
+          if git diff --cached --quiet -- index.html tech-today.html gaming-today.html; then
+            hosting_changed=false
+          else
+            hosting_changed=true
+          fi
           git commit -m "trends: refresh Italian highlights and matching own news"
           for attempt in 1 2 3; do
             if git fetch origin main && git rebase origin/main && git push origin HEAD:main; then
               echo "updated=true" >> "$GITHUB_OUTPUT"
+              echo "hosting_changed=$hosting_changed" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             git rebase --abort || true
@@ -54,7 +62,7 @@ jobs:
           echo "::error::Could not sync trending placements"
           exit 1
       - name: Deploy verified existing-news placements
-        if: steps.push_trends.outputs.updated == 'true'
+        if: steps.push_trends.outputs.hosting_changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
