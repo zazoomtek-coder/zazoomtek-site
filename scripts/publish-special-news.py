@@ -176,12 +176,38 @@ def main():
         updated,count=re.subn(pattern,lambda match:replacement,s,count=1,flags=re.S)
         if count!=1:raise RuntimeError("Archive marker missing: "+archive)
         save_if_changed(path,updated)
-    # Prefer explicitly highlighted stories while retaining older ones as fallback.
-    choices=sorted(published,key=lambda x:(bool(x.get("featured",False)),x["date"],x["filename"]),reverse=True)
-    chosen=[p for p in choices if p["section"]=="tech"][:4]+[p for p in choices if p["section"]=="gaming"][:2]
-    if len(chosen)==6:
-        # Only replace when both editorial sections have a complete set.
-        payload={"items":[{"section":x["section"],"slug":x["filename"],"title":x["title"],"image":x.get("image") or "/ChatGPT.png"} for x in chosen]}
-        save_if_changed(ROOT/"special-featured.json",json.dumps(payload,ensure_ascii=False,indent=2)+"\n")
-    print("Approved:",len(published)," / highlighted:",len(chosen) if len(chosen)==6 else "previous selection preserved")
+    # Every verified article stays in its archive. Carousel placements are an
+    # additional promotion: only a NEW article with two independent verified
+    # source domains may replace an existing Impact or Inside highlight.
+    feature_path=ROOT/"special-featured.json"
+    old_featured=json.loads(feature_path.read_text(encoding="utf-8")).get("items",[])
+    chosen=[];new_trend_sections=[]
+    for sec,max_items in (("tech",4),("gaming",2)):
+        current=[x for x in old_featured if x.get("section")==sec
+                 and (ROOT/x.get("slug","")).is_file()
+                 and (ROOT/x.get("image","").lstrip("/")).is_file()]
+        trending=[x for x in published if x["section"]==sec
+                  and x.get("auto_approved") is True and x.get("trend_verified") is True
+                  and x.get("evidence_review",{}).get("source_count",0)>=2]
+        trending.sort(key=lambda x:(x["date"],
+                                    x.get("evidence_review",{}).get("source_count",0),
+                                    x["filename"]),reverse=True)
+        if trending:
+            newest=trending[0]
+            lead={"section":sec,"slug":newest["filename"],
+                  "title":newest["title"],"image":newest["image"]}
+            current=[lead]+[x for x in current if x["slug"]!=lead["slug"]]
+            new_trend_sections.append(sec)
+        # Backfill only missing historical slots; never displace the leading
+        # old special story with an uncorroborated new one.
+        for x in published:
+            if len(current)>=max_items:break
+            if x["section"]!=sec or any(v["slug"]==x["filename"] for v in current):continue
+            current.append({"section":sec,"slug":x["filename"],
+                            "title":x["title"],"image":x["image"]})
+        chosen.extend(current[:max_items])
+    if len(chosen)==6 and new_trend_sections:
+        save_if_changed(feature_path,json.dumps({"items":chosen},ensure_ascii=False,indent=2)+"\n")
+    print("Approved:",len(published),"/ independently corroborated featured sections:",
+          new_trend_sections if new_trend_sections else "previous carousel preserved")
 if __name__=="__main__":main()
