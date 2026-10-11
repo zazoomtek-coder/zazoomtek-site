@@ -32,7 +32,9 @@ for path in root.rglob('*.html'):
     html=html.replace('class="zt-wordmark" aria-label="ZazoomTek.it"','class="zt-wordmark" aria-label="ZazoomTek"')
     html=html.replace(home_old,brand_markup)
     html=re.sub(r'(?<=<img src="/ChatGPT.png" alt="ZazoomTek">)<strong>ZazoomTek</strong>(?=</a>)',brand_markup,html)
-    html=unify_footer(html)
+    # The Home must NOT display the community subscription banner.
+    # All editorial articles and other site pages retain it.
+    html=unify_footer(html, include_community=(path != root / "index.html"))
     if html!=original:
         path.write_text(html,encoding='utf-8')
         changed+=1
