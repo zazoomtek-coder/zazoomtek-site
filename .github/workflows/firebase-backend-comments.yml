@@ -6,7 +6,8 @@ on:
     paths:
       - 'functions/**'
       - 'firestore.rules'
-      - 'firebase.json'
+      # Hosting-only changes do not require rebuilding the Docker image of commentsApi.
+      # Deploy backend manually if its Firebase function configuration changes.
       - '.github/workflows/firebase-backend-comments.yml'
   workflow_dispatch:
 
