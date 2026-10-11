@@ -681,19 +681,28 @@ def main():
             if isinstance(item,dict) and item.get("short") and item.get("id")
         }
         print(f"Using {len(short_ids)} last known-good Short IDs from state.")
+    # Use the verified API/playlist state to determine whether any video,
+    # category, Short, or completed livestream actually changed. Rebuilding
+    # all category pages on an unchanged poll needlessly consumes Hosting quota.
+    new_state=[{
+        "id":v["id"],
+        "title":v["snippet"]["title"],
+        "publishedAt":v["snippet"]["publishedAt"],
+        "category":classify(v),
+        "short": (v["id"] in short_ids) or bool(v.get("_cached_short")),
+        "live": is_live_upload(v),
+        "completedLive": is_completed_broadcast(v)
+    } for v in vids]
+    force_rebuild=os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
+    if previous and new_state==previous and not force_rebuild:
+        print("No YouTube video/playlist changes; skipping HTML regeneration.")
+        return
+
     update_home(vids,short_ids)
     for n in ["recensioni","test","unboxing","gaming","analogiktek"]:
         update_category(n,vids,short_ids)
     state_path.write_text(
-        json.dumps([{
-            "id":v["id"],
-            "title":v["snippet"]["title"],
-            "publishedAt":v["snippet"]["publishedAt"],
-            "category":classify(v),
-            "short": (v["id"] in short_ids) or bool(v.get("_cached_short")),
-            "live": is_live_upload(v),
-            "completedLive": is_completed_broadcast(v)
-        } for v in vids],ensure_ascii=False,indent=2),
+        json.dumps(new_state,ensure_ascii=False,indent=2),
         encoding="utf-8"
     )
 
