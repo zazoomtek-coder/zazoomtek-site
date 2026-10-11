@@ -323,24 +323,45 @@ def pick(articles):
         if count != 2:
             raise RuntimeError("Not enough existing published ZazoomTek " + kind + " NEWS")
 
+    # Rank *all* already-published, original special articles against the ten
+    # observed news sites; a fresh story outside the small special-featured
+    # shortlist is eligible too. Nothing from other publishers is republished.
     special_feed = json.loads((ROOT / "special-featured.json").read_text(encoding="utf-8")).get("items", [])
     for kind, section, prefix in (("tech", "tech-impact", "tech-impact-"),
                                   ("gaming", "gaming-inside", "gaming-inside-")):
-        # Preserve editorial priority set by the independent special-news script.
-        items = [x for x in special_feed if x.get("section") == kind]
-        if not items:
-            raise RuntimeError("Missing " + section + " from independent special feed")
-        item = items[0]
-        slug = item.get("slug", "")
-        image = item.get("image", "")
-        if not slug.startswith(prefix) or not slug.endswith(".html"):
-            raise RuntimeError("Invalid " + section + " slug: " + slug)
-        if not image.startswith("/assets/special/") or not (ROOT / slug).is_file() or not (ROOT / image.lstrip("/")).is_file():
-            raise RuntimeError("Special page/cover unavailable: " + slug)
-        if not add({"url": "/" + slug, "title": item["title"], "image": image,
-                    "section": section, "trend_score": 0, "freshness": 0,
-                    "matched_sources": [], "summary": ""}):
-            raise RuntimeError("Duplicate special URL: " + slug)
+        eligible = [a for a in articles
+                    if a["section"] == section and a["url"].startswith("/" + prefix)
+                    and a.get("image", "").startswith("/assets/special/")
+                    and (ROOT / a["url"].lstrip("/")).is_file()
+                    and (ROOT / a["image"].lstrip("/")).is_file()]
+        eligible.sort(key=lambda a: (a.get("match_count", 0) > 0,
+                                     a.get("match_count", 0), a["trend_score"],
+                                     a["freshness"]), reverse=True)
+        # If no reliable portal match exists, keep the independently approved
+        # editorial priority instead of pretending an article is trending.
+        winner = eligible[0] if eligible and eligible[0]["trend_score"] > 0 else None
+        if winner is None:
+            for item in special_feed:
+                slug = item.get("slug", "")
+                image = item.get("image", "")
+                if (item.get("section") != kind or not slug.startswith(prefix)
+                        or not slug.endswith(".html")
+                        or not image.startswith("/assets/special/")
+                        or not (ROOT / slug).is_file()
+                        or not (ROOT / image.lstrip("/")).is_file()):
+                    continue
+                winner = next((a for a in eligible if a["url"] == "/" + slug), None)
+                if winner is None:
+                    winner = {"url": "/" + slug, "title": item["title"], "image": image,
+                              "section": section, "trend_score": 0, "freshness": 0,
+                              "matched_sources": [], "match_count": 0, "summary": ""}
+                break
+        if winner is None and eligible:
+            winner = eligible[0]
+        if winner is None:
+            raise RuntimeError("No published and approved " + section + " article with a valid cover")
+        if not add(winner):
+            raise RuntimeError("Duplicate special URL: " + winner["url"])
 
     quota = {section: sum(x["section"] == section for x in chosen)
              for section in ("tech", "gaming", "tech-impact", "gaming-inside")}
