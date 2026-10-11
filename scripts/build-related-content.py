@@ -266,6 +266,10 @@ def body_of(content):
     if m:
         return clean_text(m.group(1))
     m = re.search(r"<article\b[^>]*>([\s\S]*?)</article>", content, re.I)
+    if m:
+        return clean_text(m.group(1))
+    # Standalone articles are wrapped in main rather than article.
+    m = re.search(r"<main\b[^>]*>([\s\S]*?)</main>", content, re.I)
     return clean_text(m.group(1)) if m else ""
 
 def image_of(content):
@@ -389,11 +393,15 @@ def domain_for(title, body, topics):
 
 def kind_for(path):
     name = path.name.lower()
+    if name.startswith(("guida-","guide-")):return "Guida"
+    if name.startswith("tech-impact-"):return "Tech Impact"
+    if name.startswith("gaming-inside-"):return "Gaming Inside"
     return "Recensione" if name.startswith("recensione-") or "recensione" in name else "News"
 
 def eligible_paths():
     found = {}
-    for pattern in ("news-Ugkx*.html", "recensione-Ugkx*.html", "*-recensione-*.html"):
+    for pattern in ("news-Ugkx*.html", "news-[a-z]*.html", "recensione-Ugkx*.html", "*-recensione-*.html",
+                    "tech-impact-*.html", "gaming-inside-*.html", "guida-*.html", "guide-*.html"):
         for path in ROOT.glob(pattern):
             if path.is_file():
                 found[path.name] = path
@@ -644,6 +652,8 @@ def inject(record, block):
     else:
         pos = content.lower().rfind("</article>")
         if pos < 0:
+            pos = content.lower().rfind("</main>")
+        if pos < 0:
             raise RuntimeError(f"{record['name']}: missing article insertion point")
         content = content[:pos] + block + content[pos:]
     return content
@@ -665,7 +675,19 @@ def main():
     total_links = 0
     no_match=[]
     for record in records:
+        # Keep any already hand-selected related articles; do not duplicate them.
+        if re.search(r'<section\b[^>]*class="related"[^>]*>\s*<h2[^>]*>\s*Articoli correlati',
+                     record["clean"], re.I):
+            with_blocks += 1
+            continue
         related = related_for(record, records, idf, entity_idf, LIMIT)
+        if not related and record["name"].startswith(("guida-","guide-","tech-impact-","gaming-inside-")):
+            # Prefer a relevant article from the same editorial series.
+            prefix = ("tech-impact-" if record["name"].startswith("tech-impact-") else
+                      "gaming-inside-" if record["name"].startswith("gaming-inside-") else "guida-")
+            pool = [item for item in records if item["name"] != record["name"] and
+                    item["name"].startswith(prefix)]
+            related = sorted(pool,key=lambda item:relevance(record,item,idf,entity_idf),reverse=True)[:2]
         block = render_related(related) if len(related) >= MIN_RELATED else ""
         if not related:
             no_match.append(record["name"])

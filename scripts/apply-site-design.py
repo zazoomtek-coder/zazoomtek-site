@@ -6,7 +6,7 @@ from zt_sidebar_mix import refresh_sidebars
 import re
 
 root=Path(__file__).resolve().parents[1]
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261010amazonorange" data-zt-design="20261010">'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261011uniformtype" data-zt-design="20261010">'
 js_tag='<script src="/zt-visual.js?v=20261010" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
@@ -18,7 +18,7 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261010amazonorange",html,count=1)
+                    "/zt-design.css?v=20261011uniformtype",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' not in html:
@@ -40,3 +40,8 @@ print(f"ZazoomTek: shared design ensured on {changed} HTML pages.")
 
 # Keep archive columns editorially varied after every Firebase build.
 refresh_sidebars()
+
+# Rebuild related links for all real editorial articles, including special
+# features and Guide pages, on every Hosting publication.
+import runpy
+runpy.run_path(str(root / 'scripts' / 'build-related-content.py'), run_name='__main__')
