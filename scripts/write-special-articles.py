@@ -18,7 +18,7 @@ OUT=ROOT/"special-full-articles-review.json"
 def generate(prompt):
     endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent"
     payload={"contents":[{"parts":[{"text":prompt}]}],
-             "generationConfig":{"responseMimeType":"application/json","maxOutputTokens":4600,"temperature":0.15}}
+             "generationConfig":{"responseMimeType":"application/json","maxOutputTokens":7000,"temperature":0.15}}
     req=urllib.request.Request(endpoint,data=json.dumps(payload).encode(),
         headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
     try:
@@ -52,20 +52,25 @@ def main():
             continue
         # Supply short excerpts for understanding, never for copying.
         evidence=[{"url":x["url"],"publication_meta":x.get("metadata",{}),
-                   "research_extracts":x["excerpts"][:9]} for x in sources[:2]]
-        prompt="""Sei un redattore italiano di ZazoomTek. Sono fonti utilizzabili sia testate giornalistiche credibili, sia fonti ufficiali e documenti pubblici: attribuisci ogni informazione sostanziale alla sua provenienza, senza appropriarti di esclusive altrui. Evita toni accusatori quando mancano conferme e distingui ipotesi da decisioni definitive. Prepara UNA BOZZA NON PUBBLICABILE con un corpo di 400-750 parole originali, usando ESCLUSIVAMENTE le informazioni che trovi nei materiali riportati. Sono estratti parziali di pagine web e NON implicano verifica indipendente. Evita ogni fatto non dimostrato, qualifica le incertezze, niente informazioni inventate, citazioni attribuite, accuse o contenuti coperti da copyright copiati letteralmente. Non affermare di aver compiuto un'inchiesta autonoma, un test o una verifica definitiva. Scrivi in modo originale e giornalistico, con paragrafi corposi e sottotitoli pertinenti. Se il materiale non è sufficiente a scrivere almeno 400 parole reali e informative nel corpo, restituisci {"status":"insufficient_evidence"}. NON ALLUNGARE per arrivare a 300 con ripetizioni. Restituisci JSON: {"status":"draft","title":"...","summary":"...","paragraphs":["..."],"evidence_limits":["..."]}. NON includere HTML. Tema: """+str(item.get("title",""))+"\nEstratti per la ricerca:\n"+json.dumps(evidence,ensure_ascii=False)[:13500]
+                   "research_extracts":x["excerpts"][:18]} for x in sources[:2]]
+        prompt="""Sei un redattore italiano di ZazoomTek. Sono fonti utilizzabili sia testate giornalistiche credibili, sia fonti ufficiali e documenti pubblici: attribuisci ogni informazione sostanziale alla sua provenienza, senza appropriarti di esclusive altrui. Evita toni accusatori quando mancano conferme e distingui ipotesi da decisioni definitive. Prepara UNA BOZZA NON PUBBLICABILE con un corpo di 400-750 parole originali, usando ESCLUSIVAMENTE le informazioni che trovi nei materiali riportati. Sono estratti parziali di pagine web e NON implicano verifica indipendente. Evita ogni fatto non dimostrato, qualifica le incertezze, niente informazioni inventate, citazioni attribuite, accuse o contenuti coperti da copyright copiati letteralmente. Non affermare di aver compiuto un'inchiesta autonoma, un test o una verifica definitiva. Scrivi in modo originale e giornalistico, con paragrafi corposi e sottotitoli pertinenti. Approfondisci solo i fatti realmente presenti: contesto, istituzioni e soggetti coinvolti, provvedimenti, stato della decisione, eventuali conseguenze confermate e ciò che resta incerto. Struttura 5-7 paragrafi originali da 400-750 parole complessive, SENZA ripetizioni. Se il materiale non è sufficiente a scrivere almeno 400 parole reali e informative nel corpo, restituisci {"status":"insufficient_evidence"}. Non inventare informazioni per arrivare al minimo. Restituisci JSON: {"status":"draft","title":"...","summary":"...","paragraphs":["..."],"evidence_limits":["..."]}. NON includere HTML. Tema: """+str(item.get("title",""))+"\nEstratti per la ricerca:\n"+json.dumps(evidence,ensure_ascii=False)[:22000]
         raw=generate(prompt)
         if not isinstance(raw,dict) or raw.get("status")!="draft":
+            reason=raw.get("status","invalid_generation") if isinstance(raw,dict) else "invalid_generation"
+            print("No complete draft:",item.get("title","")[:95],"; reason:",reason)
             output.append({"section":item.get("section"),"topic":item.get("title"),
-                "status":"insufficient_evidence_or_model_error","approved":False})
+                "status":reason,"approved":False})
             continue
         title=raw.get("title","");summary=raw.get("summary","");paragraphs=raw.get("paragraphs",[])
         if not isinstance(title,str) or not isinstance(summary,str) or not isinstance(paragraphs,list) or not all(isinstance(p,str) for p in paragraphs):
+            output.append({"section":item.get("section"),"topic":item.get("title"),
+                "status":"invalid_structure","approved":False})
             continue
         count=len(" ".join(paragraphs).split())
         if not 400<=count<=750:
             output.append({"section":item.get("section"),"topic":item.get("title"),
                 "status":"invalid_word_count","words":count,"approved":False})
+            print("Draft rejected for word count:",item.get("title","")[:80],count)
             continue
         output.append({"section":item["section"],"topic":item.get("title"),"status":"needs_human_fact_check",
             "title":title,"summary":summary,"paragraphs":paragraphs,"words":count,
