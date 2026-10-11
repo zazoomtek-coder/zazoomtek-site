@@ -275,152 +275,95 @@ def matches(owned,state):
                                 min(10,article["freshness"]*.06),2) if score else 0
     return owned
 
-def pick(articles):
-    """Match ten large portals, but fill ONLY the four ordinary NEWS slots.
+def featured_special_kind(on_date=None):
+    """Impact oggi (11-10-2026), Inside domani, poi alternanza quotidiana."""
+    from zoneinfo import ZoneInfo
+    today=on_date or dt.datetime.now(ZoneInfo("Europe/Rome")).date()
+    return "tech" if (today-dt.date(2026,10,11)).days % 2 == 0 else "gaming"
 
-    Tech Impact/Gaming Inside have their own publishing and featured selection:
-    import exactly their first approved item from special-featured.json without
-    ranking, rewriting or publishing anything for those special desks.
-    """
-    chosen = []
-    seen = set()
 
-    def add(article):
-        if article["url"] in seen:
-            return False
-        seen.add(article["url"])
-        chosen.append(article)
-        return True
-
-    standard_feed = json.loads((ROOT / "standard-news.json").read_text(encoding="utf-8")).get("articles", [])
-    for kind in ("tech", "gaming"):
-        ordinary = sorted(
-            (a for a in articles if a["section"] == kind and a["url"].startswith("/news-")),
-            key=lambda a: (a["trend_score"] > 0, a["trend_score"], a["freshness"]),
-            reverse=True,
-        )
-        count = 0
-        for article in ordinary:
-            if count == 2:
-                break
-            count += add(article)
-
-        # Keep the quota even if a source temporarily has few matching stories.
-        # Fallback is still an already-published ZazoomTek editorial article.
-        for x in standard_feed:
-            if count == 2:
-                break
-            if x.get("kind") != kind:
-                continue
-            slug = x["slug"]
-            url = "/news-" + slug + ".html"
-            image = "/assets/special/news-" + slug + ".webp"
-            if not (ROOT / url.lstrip("/")).is_file() or not (ROOT / image.lstrip("/")).is_file():
-                continue
-            count += add({"url": url, "title": x["title"], "image": image,
-                          "section": kind, "trend_score": 0, "freshness": 0,
-                          "matched_sources": [], "summary": ""})
-        if count != 2:
-            raise RuntimeError("Not enough existing published ZazoomTek " + kind + " NEWS")
-
-    # Rank *all* already-published, original special articles against the ten
-    # observed news sites; a fresh story outside the small special-featured
-    # shortlist is eligible too. Nothing from other publishers is republished.
-    special_feed = json.loads((ROOT / "special-featured.json").read_text(encoding="utf-8")).get("items", [])
-    owned_approved=json.loads((ROOT/"approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
-    approved_by_url={"/"+("tech-impact" if v.get("section")=="tech" else "gaming-inside")+"-"+v.get("slug","")+".html":v
-                     for v in owned_approved if v.get("section") in ("tech","gaming")}
-    for kind, section, prefix in (("tech", "tech-impact", "tech-impact-"),
-                                  ("gaming", "gaming-inside", "gaming-inside-")):
-        eligible = [a for a in articles
-                    if a["section"] == section and a["url"].startswith("/" + prefix)
-                    and a.get("image", "").startswith("/assets/special/")
-                    and (ROOT / a["url"].lstrip("/")).is_file()
-                    and (ROOT / a["image"].lstrip("/")).is_file()]
-        # SPECIAL CAROUSEL RULE ONLY: an Impact/Inside headline is trending
-        # if at least TWO distinct monitored news outlets cover the same event.
-        # An individual source's repeated headlines count only once. The
-        # standard Tech/Gaming slots above keep their existing selection logic.
-        # YouTube is never an eligible external trend source.
-        for article in eligible:
-            approved=approved_by_url.get(article["url"],{})
-            recent=False
-            try:
-                stamp=dt.date.fromisoformat(approved.get("date",""))
-                recent=0 <= (NOW().date()-stamp).days <= 2
-            except ValueError:
-                pass
-            # All independently checked publisher sites count, not video
-            # views or a headline repeated by one outlet.
-            confirmed=(approved.get("evidence_review",{}).get("source_count",0)
-                       if approved.get("trend_verified") is True else 0)
-            article["special_source_count"]=max(article.get("match_count",0),
-                                                confirmed) if recent else 0
-            article["special_is_recent"]=recent
-        eligible.sort(key=lambda a:(a["special_source_count"],
-                                    a.get("trend_score",0),
-                                    a.get("freshness",0)),reverse=True)
-        # If no recent independently corroborated special story exists,
-        # preserve the previous Impact/Inside carousel selection.
-        winner=next((a for a in eligible if a["special_source_count"]>=2),None)
-        if winner is None:
-            for item in special_feed:
-                slug = item.get("slug", "")
-                image = item.get("image", "")
-                if (item.get("section") != kind or not slug.startswith(prefix)
-                        or not slug.endswith(".html")
-                        or not image.startswith("/assets/special/")
-                        or not (ROOT / slug).is_file()
-                        or not (ROOT / image.lstrip("/")).is_file()):
-                    continue
-                winner = next((a for a in eligible if a["url"] == "/" + slug), None)
-                if winner is None:
-                    winner = {"url": "/" + slug, "title": item["title"], "image": image,
-                              "section": section, "trend_score": 0, "freshness": 0,
-                              "matched_sources": [], "match_count": 0, "summary": ""}
-                break
-        if winner is None and eligible:
-            winner = eligible[0]
-        if winner is None:
-            raise RuntimeError("No published and approved " + section + " article with a valid cover")
-        if not add(winner):
-            raise RuntimeError("Duplicate special URL: " + winner["url"])
-
-    quota = {section: sum(x["section"] == section for x in chosen)
-             for section in ("tech", "gaming", "tech-impact", "gaming-inside")}
-    if len(chosen) != 6 or quota != {"tech": 2, "gaming": 2, "tech-impact": 1, "gaming-inside": 1}:
-        raise RuntimeError("Featured 2+2+1+1 quota violation: " + str(quota))
+def pick(articles,on_date=None):
+    """2 Tech + 2 Gaming + 1 speciale alternato; solo articoli ZazoomTek."""
+    chosen=[];seen=set()
+    def add(a):
+        if a["url"] in seen:return False
+        seen.add(a["url"]);chosen.append(a);return True
+    standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
+    for kind in ("tech","gaming"):
+        regular=sorted((a for a in articles
+                        if a["section"]==kind and a["url"].startswith("/news-")
+                        and (ROOT/a["url"].lstrip("/")).is_file()
+                        and (a["image"].startswith("https://") or
+                             (ROOT/a["image"].lstrip("/")).is_file())),
+                       key=lambda a:(a["trend_score"]>0,a["trend_score"],a["freshness"]),
+                       reverse=True)
+        count=0
+        for a in regular:
+            if count==2:break
+            count+=add(a)
+        for x in standard:
+            if count==2:break
+            if x.get("kind")!=kind:continue
+            url="/news-"+x["slug"]+".html"
+            image="/assets/special/news-"+x["slug"]+".webp"
+            if not (ROOT/url.lstrip("/")).is_file() or not (ROOT/image.lstrip("/")).is_file():continue
+            count+=add({"url":url,"title":x["title"],"image":image,
+                        "section":kind,"trend_score":0,"freshness":0,
+                        "matched_sources":[],"summary":""})
+        if count!=2:raise RuntimeError("Missing two original "+kind+" featured news articles")
+    kind=featured_special_kind(on_date)
+    section="tech-impact" if kind=="tech" else "gaming-inside"
+    prefix=section+"-"
+    special_feed=json.loads((ROOT/"special-featured.json").read_text(encoding="utf-8")).get("items",[])
+    approvals=json.loads((ROOT/"approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
+    by_url={"/"+("tech-impact" if v.get("section")=="tech" else "gaming-inside")+"-"+v.get("slug","")+".html":v
+            for v in approvals if v.get("section") in ("tech","gaming")}
+    eligible=[a for a in articles if a["section"]==section and a["url"].startswith("/"+prefix)
+              and (ROOT/a["url"].lstrip("/")).is_file()
+              and a.get("image","").startswith("/assets/special/")
+              and (ROOT/a["image"].lstrip("/")).is_file()]
+    for a in eligible:
+        approved=by_url.get(a["url"],{})
+        try:age=(NOW().date()-dt.date.fromisoformat(approved.get("date",""))).days
+        except (TypeError,ValueError):age=100
+        confirmed=approved.get("evidence_review",{}).get("source_count",0) if approved.get("trend_verified") is True else 0
+        a["special_source_count"]=max(a.get("match_count",0),confirmed) if 0<=age<=2 else 0
+    eligible.sort(key=lambda a:(a["special_source_count"],a.get("trend_score",0),a.get("freshness",0)),reverse=True)
+    winner=next((a for a in eligible if a["special_source_count"]>=2),None)
+    if winner is None:
+        for item in special_feed:
+            slug=item.get("slug","");img=item.get("image","")
+            if (item.get("section")!=kind or not slug.startswith(prefix) or
+                not slug.endswith(".html") or not img.startswith("/assets/special/") or
+                not (ROOT/slug).is_file() or not (ROOT/img.lstrip("/")).is_file()):continue
+            winner=next((a for a in eligible if a["url"]=="/"+slug),None)
+            if winner is None:
+                winner={"url":"/"+slug,"title":item.get("title",""),"image":img,
+                        "section":section,"trend_score":0,"freshness":0,
+                        "matched_sources":[],"match_count":0,"summary":""}
+            break
+    if winner is None and eligible:winner=eligible[0]
+    if winner is None:raise RuntimeError("No previous verified story for "+section+"; cannot invent one")
+    if not add(winner):raise RuntimeError("Duplicate featured item: "+winner["url"])
+    assert len(chosen)==5
+    assert [x["section"] for x in chosen]==["tech","tech","gaming","gaming",section]
     return chosen
 
 
 def slide_markup(chosen):
-    """Keep six right-hand thumbnails and the original titled covers after every trend scan."""
+    """Static five-image editorial mosaic, clickable covers without any overlays."""
     cards=[]
-    thumbnails=[]
-    for n,x in enumerate(chosen):
-        original_title=str(x["title"])
-        title=re.sub(r"(?i)^news\s*:\s*", "", original_title).strip()
-        safe_title=html.escape(title,quote=True)
-        image=html.escape(x["image"],quote=True)
-        url=html.escape(x["url"],quote=True)
-        # Featured cover art has its lettering embedded already. Explicit exceptions
-        # can opt in to a small white title without any dark image gradient.
-        has_text=x.get("cover_has_text",True) is not False
-        cover_class=" zt-cover-with-text" if has_text else " zt-cover-needs-title"
-        cards.append('<article class="news-slide'+(' active' if n==0 else '')+
-           cover_class+'" data-cover-text="'+str(has_text).lower()+
-           '" data-slide="'+str(n)+'" data-trend-category="'+x["section"]+
-           '" data-trend-matched="'+str(bool(x["trend_score"])).lower()+'"><a href="'+
-           url+'"><img src="'+image+'" alt="'+safe_title+
-           '" loading="lazy"></a></article>')
-        thumbnails.append(
-           '<button type="button" class="zt-editorial-item" data-featured-index="'+str(n)+
-           '" aria-label="Seleziona: '+safe_title+'"><img src="'+image+
-           '" alt="" loading="lazy"><span class="zt-editorial-info"><span class="zt-editorial-headline">'+
-           safe_title+'</span></span></button>')
-    return ('<div class="news-slider" id="newsSlider"><div class="news-slides">'+
-            ("\n".join(cards))+'</div><div class="zt-editorial-side" aria-label="Altre notizie in evidenza">'+
-            "".join(thumbnails)+'</div></div>')
+    for n,a in enumerate(chosen):
+        title=html.escape(re.sub(r"(?i)^news\s*:\s*","",str(a["title"])),quote=True)
+        image=html.escape(str(a["image"]),quote=True)
+        url=html.escape(str(a["url"]),quote=True)
+        class_name="zt-feature-hero" if n==0 else "zt-feature-small"
+        cards.append('<a class="zt-feature-card '+class_name+'" href="'+url+
+            '" aria-label="'+title+'" title="'+title+'"><img src="'+image+
+            '" alt="'+title+'" loading="'+("eager" if n==0 else "lazy")+
+            '" decoding="async"></a>')
+    return '<div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Cinque news ZazoomTek in evidenza">'+"".join(cards)+"</div>"
+
 
 def set_featured(index,chosen):
     start,end="<!-- FEATURED_NEWS_START -->","<!-- FEATURED_NEWS_END -->"
@@ -476,8 +419,8 @@ def apply():
     if not matched:
         print("NO RELIABLE TREND MATCHES: using latest own published standard news and the independent special feed")
     chosen=pick(articles)
-    if len(chosen) != 6:
-        raise RuntimeError("Carousel must contain exactly 6 articles")
+    if len(chosen) != 5:
+        raise RuntimeError("Featured mosaic must contain exactly 5 articles")
     index=INDEX.read_text(encoding="utf-8")
     index=set_featured(index,chosen)
     index=omit_from_home_feed(index,chosen)
@@ -494,7 +437,7 @@ def apply():
                         for a in chosen]}
     REPORT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("MATCHED OWN NEWS:",len(matched))
-    print("CAROUSEL 6:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
+    print("FEATURED GRID 5:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
                                     for a in chosen],ensure_ascii=False))
 
 def selftest():
@@ -515,16 +458,21 @@ def selftest():
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
     assert classify("ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC")=="gaming"
     assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
-    # Verify the 2+2+1+1 quota without public network requests.
+    # Verify the 2+2+1 quota without public network requests.
     fake = []
     for kind in ("tech", "gaming"):
         for i in range(3):
             fake.append({"url": f"/news-selftest-{kind}-{i}.html", "title": f"Test {kind} {i}",
                          "image": "/ChatGPT.png", "section": kind, "trend_score": 88-i*9,
                          "freshness": 70-i, "matched_sources": []})
-    sample = pick(fake)
-    assert len(sample) == 6
-    assert [x["section"] for x in sample] == ["tech", "tech", "gaming", "gaming", "tech-impact", "gaming-inside"]
+    assert featured_special_kind(dt.date(2026,10,11))=="tech"
+    assert featured_special_kind(dt.date(2026,10,12))=="gaming"
+    assert featured_special_kind(dt.date(2026,10,13))=="tech"
+    sample = pick(fake,on_date=dt.date(2026,10,11))
+    assert len(sample) == 5
+    assert [x["section"] for x in sample] == ["tech", "tech", "gaming", "gaming", "tech-impact"]
+    sample2 = pick(fake,on_date=dt.date(2026,10,12))
+    assert len(sample2)==5 and sample2[-1]["section"]=="gaming-inside"
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
         {"source":"hdblog","name":"HDblog","kind":"tech",
