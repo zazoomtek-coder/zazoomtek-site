@@ -131,7 +131,6 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         except (ValueError,AttributeError,TypeError):
             status="unknown"
             message="No structured API error returned"
-        import re
         message=re.sub(r"AIza[A-Za-z0-9_-]+","[REDACTED_KEY]",message)
         message=re.sub(r"projects/[0-9]+","projects/[REDACTED]",message)
         print("Gemini HTTP error:",exc.code,"status:",status,"message:",message[:380])
