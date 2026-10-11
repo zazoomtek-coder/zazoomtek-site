@@ -60,7 +60,7 @@ def main():
             continue
         try:published=dt.datetime.fromisoformat(x["published_utc"])
         except (KeyError,ValueError):continue
-        if dt.timedelta(0)<=now-published<=dt.timedelta(hours=48):
+        if dt.timedelta(0)<=now-published<=dt.timedelta(hours=72):
             leads.append({"section":x["section"],"title":x["title"],"outlet":x["source"],"url":x["source_url"],"time":x["published_utc"]})
     # Match the *same event* across independent publishers, never a generic
     # subject such as AI regulation. Preserve ordinary recent articles too.
