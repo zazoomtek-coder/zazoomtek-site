@@ -371,12 +371,7 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 #ztHomeGuide .zt-home-guide-heading a:hover{text-decoration:underline}
 #ztHomeGuide .zt-home-guide-content{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:12px;padding:12px 12px 10px;background:#fcfcfc}
 #ztHomeGuide .zt-home-guide-primary{min-width:0;display:block;text-decoration:none}
-#ztHomeGuide .zt-home-guide-ps2-cover{height:190px;border-radius:3px;position:relative;overflow:hidden;color:#fff;background:radial-gradient(circle at 70% 20%,#244c96 0%,#0e1b42 36%,#070d1b 72%)}
-#ztHomeGuide .zt-home-guide-ps2-cover:before{content:"";position:absolute;top:46px;right:24px;width:175px;height:78px;border:10px solid #4b628a;border-bottom-width:20px;border-radius:10px;transform:perspective(420px) rotateY(-12deg);box-shadow:0 8px 18px #0008,inset 0 0 22px #0f67c1}
-#ztHomeGuide .zt-home-guide-ps2-logo{position:absolute;top:15px;left:18px;color:#cee6ff;font-size:11px;letter-spacing:3px;white-space:nowrap}
-#ztHomeGuide .zt-home-guide-ps2-logo b{font-size:24px;color:#fff;letter-spacing:0}
-#ztHomeGuide .zt-home-guide-ps2-4k{position:absolute;top:72px;right:53px;color:#fff;font-size:40px;font-weight:900;line-height:1}
-#ztHomeGuide .zt-home-guide-ps2-footer{position:absolute;bottom:18px;left:16px;color:#fff;font-size:24px;font-weight:900;letter-spacing:-.6px;text-shadow:0 3px 15px #000}
+#ztHomeGuide .zt-home-guide-photo{display:block;width:100%;height:190px;object-fit:contain;object-position:center center;background:#f7f7f7;border-radius:3px}
 #ztHomeGuide .zt-home-guide-primary h3{font-size:15px;line-height:1.2;margin:5px 0 0;color:#222;font-weight:900}
 #ztHomeGuide .zt-home-guide-primary:hover h3{color:#d51232}
 #ztHomeGuide .zt-home-guide-upcoming{display:flex;flex-direction:column;gap:7px}
@@ -390,7 +385,7 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 #ztHomeGuide .zt-home-guide-icon-gaming{background:linear-gradient(135deg,#5c275b,#151923)}
 #ztHomeGuide .zt-home-guide-icon-4k{background:linear-gradient(135deg,#3e4b83,#111827)}
 @media(max-width:850px){#ztHomeGuide .zt-home-guide-content{grid-template-columns:1fr}}
-@media(max-width:500px){#ztHomeGuide{margin:8px}#ztHomeGuide .zt-home-guide-ps2-cover{height:170px}#ztHomeGuide .zt-home-guide-ps2-footer{font-size:21px}#ztHomeGuide .zt-home-guide-ps2-cover:before{right:18px;width:135px}#ztHomeGuide .zt-home-guide-ps2-4k{right:42px;font-size:34px}}
+@media(max-width:500px){#ztHomeGuide{margin:8px}#ztHomeGuide .zt-home-guide-photo{height:170px}}
 </style>
 </head>
 <body>
@@ -543,7 +538,7 @@ con the talos principle 3, croteam si prepara a concludere un percorso narrativo
   <div class="zt-home-guide-heading"><h2 id="ztHomeGuideTitle">GUIDE</h2><a href="/guide.html">VEDI TUTTE →</a></div>
   <div class="zt-home-guide-content">
     <a class="zt-home-guide-primary" href="/guida-come-usare-playstation-2-tv-4k-moderna.html">
-      <div class="zt-home-guide-ps2-cover" aria-hidden="true"><span class="zt-home-guide-ps2-logo">PLAYSTATION <b>2</b></span><span class="zt-home-guide-ps2-4k">4K</span><span class="zt-home-guide-ps2-footer">PS2 SU TV 4K</span></div>
+      <img class="zt-home-guide-photo" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/PS2-Fat-Console-Set.jpg/960px-PS2-Fat-Console-Set.jpg" alt="Console PlayStation 2 con controller DualShock 2" loading="lazy" decoding="async">
       <h3>Come usare PlayStation 2 su una TV 4K moderna</h3>
     </a>
     <div class="zt-home-guide-upcoming" aria-label="Prossime guide">
