@@ -265,9 +265,11 @@ jobs:
           git reset --hard HEAD
           git clean -fd
 
+      # YouTube imports are primary: auxiliary related links, analytics or search
+      # failures must never hold back already-validated Community/video commits.
       - name: Push validated site update
         id: site_push
-        if: always() && steps.search_sync.outcome == 'success' && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
+        if: always() && (steps.community_commit.outputs.changed == 'true' || steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
         run: |
           git fetch origin main
           if ! git rebase origin/main; then
@@ -291,11 +293,13 @@ jobs:
           echo "Unable to push after 3 attempts."
           exit 1
 
+      # Publish validated YouTube changes even if an optional downstream builder
+      # failed. Also retry a Community deploy that failed after a successful push.
       - name: Deploy validated site to Firebase
         id: site_deploy
         # Do not store another Firebase release if the fast Community deploy already
         # published the only changes, or if the job generated no new files.
-        if: always() && steps.site_push.outcome == 'success' && steps.related_sync.outcome == 'success' && steps.analytics_sync.outcome == 'success' && steps.search_sync.outcome == 'success' && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true')
+        if: always() && steps.site_push.outcome == 'success' && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_deploy.outcome != 'success'))
         continue-on-error: true
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
