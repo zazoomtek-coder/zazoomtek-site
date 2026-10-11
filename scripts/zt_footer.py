@@ -87,12 +87,31 @@ def _matching_close(content, start, tag):
     raise RuntimeError("Unbalanced " + tag + " in community banner target")
 
 
+# Identify both automatically generated and manually curated related blocks.
+# Match the <section> itself (not its nested cards), so insertion is immediately
+# after the closing </section>, never after photo credits, other article links,
+# or the right-hand editorial sidebar.
+_RELATED_SECTION = re.compile(
+    r'<section\b[^>]*class=["\'][^"\']*(?:\bzt-related-section\b|\brelated\b)'
+    r'[^"\']*["\'][^>]*>', re.I
+)
+
+
 def _place_community_inside_left_column(content):
     for pattern in _LEFT_CONTENT:
         match = pattern.search(content)
         if not match:
             continue
-        insertion = _matching_close(content, match.end(), match.group(1).lower())
+        ending = _matching_close(content, match.end(), match.group(1).lower())
+        insertion = ending
+        # Only search inside the matched left content element.
+        related = list(_RELATED_SECTION.finditer(content, match.end(), ending))
+        if related:
+            section = related[-1]
+            # Insert after the complete related block, before any photo credits.
+            insertion = _matching_close(content, section.end(), "section") + len("</section>")
+            if insertion > ending:
+                raise RuntimeError("Related articles are outside the content column")
         banner = COMMUNITY_START + '\n' + COMMUNITY_HTML + '\n' + COMMUNITY_END
         return content[:insertion] + '\n' + banner + '\n' + content[insertion:]
     return content  # Technical auxiliary HTML; no visible page container.
