@@ -233,7 +233,15 @@ def main():
     layout=module("featured_article_layout.py","zt_layout")
     state=json.loads(SOURCES.read_text(encoding="utf-8"))
     old=old_cache()
-    stories=[x for x in state.get("items",[]) if valid_story(x)]
+    stories=[]
+    for raw in state.get("items",[]):
+        # Zazoom.it publishes Tech and Gaming on the same page: classify
+        # each headline instead of dropping its mixed source type.
+        item=dict(raw)
+        if item.get("kind")=="mixed":
+            item["kind"]=trends.classify(item.get("title",""))
+        if valid_story(item):
+            stories.append(item)
     prefer={"igncom":0,"gamespot":0,"eurogamer":0,"polygon":0,"pcgamer":0,"zazoom":0}
     stories.sort(key=lambda x:(prefer.get(x.get("source"),1),x["rank"]))
     stories=stories[:90]
@@ -288,6 +296,28 @@ def main():
         used.add(filename)
     doc["items"]=items
     manual.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    # Publish verified NEWS to the News archive immediately; the Community
+    # synchronizer also preserves articles through manual-news.json.
+    news_path=ROOT/"news.html"
+    page=news_path.read_text(encoding="utf-8")
+    anchor='<div class="news-list" id="newsList">'
+    if page.count(anchor)!=1:
+        raise RuntimeError("NEWS archive insertion point missing or ambiguous")
+    for article in reversed(list(published.values())):
+        if 'href="'+article["url"]+'"' in page:
+            continue
+        esc=lambda value:html.escape(str(value),quote=True)
+        row=('<article class="news-row" data-trend-original="true">'
+             '<a href="'+esc(article["url"])+'"><img loading="lazy" src="'+esc(article["image"])+
+             '" alt="'+esc(article["title"])+'"></a><div class="news-copy"><h2><a href="'+
+             esc(article["url"])+'">'+esc(article["title"])+'</a></h2>'+
+             '<div class="news-meta">ZazoomTek · '+esc(article["date"])+
+             '</div><p>'+esc(article.get("summary",""))+'</p>'+
+             '<a class="news-read" href="'+esc(article["url"])+'">Leggi tutto</a>'+
+             '</div></article>')
+        page=page.replace(anchor,anchor+row,1)
+    if page!=news_path.read_text(encoding="utf-8"):
+        news_path.write_text(page,encoding="utf-8")
     CACHE.write_text(json.dumps({"generated_utc":NOW().isoformat(),
        "published":list(published.values()),"selected":selected},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     update_news_archive(published)
