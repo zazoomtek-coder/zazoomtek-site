@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-12T15:09:24.988701+00:00",
+  "checked_at": "2026-10-12T15:27:18.468511+00:00",
   "source_sites": 16,
-  "matches": 10,
+  "matches": 9,
   "selected": [
     {
       "title": "News: NVIDIA protagonista alla finale dell’Italian Hackathon League con DGX Spark e i talenti dell’AI",
@@ -20,9 +20,9 @@
       ]
     },
     {
-      "title": "News: Nilox amplia gli Smart Eyewear con Lapaz e After Collection tra sport, lifestyle e controllo vocale",
+      "title": "News: Microsoft lancia Maia 300, il nuovo chip AI per Azure punta a diventare il cuore dell’inferenza di Copilot e Teams",
       "section": "tech",
-      "url": "/news-UgkxpNjlKte75njZ2upYxawcYu9oj6qranj2.html",
+      "url": "/news-Ugkxo1WmD7nGUUwvBRTmjw8WQ7lnTe2ObkhK.html",
       "trend_score": 0,
       "published_date": "2026-10-12",
       "freshness_bonus": 72,
