@@ -7,6 +7,7 @@ on:
     - cron: '48 * * * *'
 permissions:
   contents: read
+  actions: write
 concurrency:
   group: youtube-firebase-recovery
   cancel-in-progress: false
@@ -34,10 +35,7 @@ jobs:
           assert '<!-- HOME_LATEST_REVIEWS_MAIN_START -->' in index
           print("Latest good import passes publication checks; redeploying untouched site.")
           PY
-      - name: Redeploy last valid committed YouTube site to Firebase
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+      - name: Queue recovery via the single live deployment pipeline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
