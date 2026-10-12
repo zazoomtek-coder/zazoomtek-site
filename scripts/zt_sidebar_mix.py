@@ -33,11 +33,17 @@ def news_rows(filename, max_count=10):
         link, name = unescape(title.group(1)), unescape(CLEAN.sub("", title.group(2))).strip()
         image = IMG.search(body)
         meta = META.search(body)
-        if not link.startswith("/") or not name:
+        # Do not substitute the site's brand logo for missing news covers.
+        # A card with no real cover is omitted; the next published item fills
+        # its position without modifying the underlying article or import.
+        source=unescape(image.group(1)) if image else ""
+        if not link.startswith("/") or not name or not source:
+            continue
+        if "ChatGPT.png" in source or "icons8.com" in source:
             continue
         result.append(dict(
             url=link, title=name,
-            image=unescape(image.group(1)) if image else "/ChatGPT.png",
+            image=source,
             date=unescape(CLEAN.sub("", meta.group(1))).strip() if meta else ""
         ))
         if len(result) >= max_count:
