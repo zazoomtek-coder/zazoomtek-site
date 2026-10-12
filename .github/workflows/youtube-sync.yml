@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 # Never kill a healthy sync just because the next 5-minute check has arrived.
 # At most one sync runs at a time; later checks wait for the current one.
@@ -124,21 +125,14 @@ jobs:
           exit 1
 
       # Primary content deploy: optional builders cannot block the Community.
-      - name: Refresh latest committed site before Community deploy
-        if: steps.community_push.outputs.published == 'true'
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
-      - name: Deploy published Community immediately
+      # Dispatch the single deployment queue; this never touches carousel data.
+      - name: Queue Community publication
         id: community_deploy
         if: steps.community_push.outputs.published == 'true'
         continue-on-error: true
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
 
       # The independent uploads channel is checked after the Community release.
       # after both have been checked (no redundant early Hosting release).
@@ -216,21 +210,13 @@ jobs:
           done
           echo "::error::Could not publish videos; recovery workflow will retry."
           exit 1
-      - name: Refresh latest committed site before video deploy
-        if: steps.video_push.outputs.published == 'true'
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
-      - name: Deploy published YouTube uploads immediately
+      - name: Queue YouTube video publication
         id: video_deploy
         if: steps.video_push.outputs.published == 'true'
         continue-on-error: true
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
 
       # Only after BOTH import channels are independently committed:
       - name: Remove duplicate images across all existing article pages
@@ -367,27 +353,15 @@ jobs:
           echo "::error::Unable to safely publish site update."
           exit 1
 
-      # Publish validated YouTube changes even if an optional downstream builder
-      # failed. Also retry a Community deploy that failed after a successful push.
-      - name: Apply the shared community banner before Firebase deploy
-        id: site_layout
-        if: always() && (steps.site_push.outputs.published == 'true' || steps.community_push.outputs.published == 'true' || github.event_name != 'schedule')
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
-          python3 scripts/apply-site-design.py
-      - name: Deploy validated site to Firebase
+      # Supplemental changes are committed independently and only queue deploy.
+      # No design/carousel script may gate YouTube imports or Firebase releases.
+      - name: Queue optional site improvements
         id: site_deploy
-        # Do not store another Firebase release if the fast Community deploy already
-        # published the only changes, or if the job generated no new files.
-        if: always() && steps.site_layout.outcome == 'success' && (steps.site_push.outputs.published == 'true' || steps.community_push.outputs.published == 'true' || github.event_name != 'schedule')
+        if: always() && (steps.site_push.outputs.published == 'true' || github.event_name == 'workflow_dispatch')
         continue-on-error: true
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
 
       - name: Report partial source failures
         if: always()
