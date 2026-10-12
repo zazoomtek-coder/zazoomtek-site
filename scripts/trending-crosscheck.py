@@ -213,6 +213,66 @@ def scan_sources():
     print("CURRENT HEADLINES:",sum(v["headlines"] for v in status.values()),"; cached:",len(collected))
     return report
 
+# Date-only publication metadata is preferable to guessed upload times or archive order.
+ITALIAN_MONTHS = {
+    "gennaio": 1, "febbraio": 2, "marzo": 3, "aprile": 4,
+    "maggio": 5, "giugno": 6, "luglio": 7, "agosto": 8,
+    "settembre": 9, "ottobre": 10, "novembre": 11, "dicembre": 12,
+}
+
+def published_date(value):
+    """Parse verified ZazoomTek calendar dates (ISO or Italian archive metadata)."""
+    value = html.unescape(str(value or "")).strip().lower()
+    match = re.search(r"\b(\d{4})-(\d{2})-(\d{2})\b", value)
+    if match:
+        try:
+            return dt.date(*(int(x) for x in match.groups()))
+        except ValueError:
+            return None
+    match = re.search(r"\b(\d{1,2})\s+([a-zà]+)\s+(\d{4})\b", value)
+    if match and match.group(2) in ITALIAN_MONTHS:
+        try:
+            return dt.date(int(match.group(3)), ITALIAN_MONTHS[match.group(2)], int(match.group(1)))
+        except ValueError:
+            return None
+    return None
+
+def recency_bonus(article, on_date=None):
+    """Prioritize publication in the last 48 h; never invent an unknown date.
+
+    Up to 72 points for a story posted today; drops noticeably after day 2.
+    The score from the ten independent publishers is still considered separately.
+    """
+    reference = on_date or NOW().date()
+    if isinstance(reference, dt.datetime):
+        reference = reference.date()
+    published = published_date(article.get("published_at") or article.get("published_date"))
+    if not published:
+        return 0
+    age = (reference - published).days
+    if age < 0:
+        return 0
+    if age == 0:
+        return 72
+    if age == 1:
+        return 62
+    if age == 2:
+        return 40
+    if age == 3:
+        return 23
+    if age <= 5:
+        return 12
+    if age <= 7:
+        return 5
+    return 0
+
+def ordinary_priority(article, on_date=None):
+    """Trade off date and relevance: recent article + credible portal matches wins."""
+    relevance = max(0.0, min(120.0, float(article.get("trend_score") or 0)))
+    recent = recency_bonus(article, on_date)
+    score = round(.65 * relevance + recent, 2)
+    return (score, recent, relevance, article.get("freshness", 0))
+
 def extract_cards(page,selector="news-row"):
     # Work only with published cards, never parse or recreate article body.
     rows=re.findall(r'<article\b[^>]*class="'+re.escape(selector)+r'[^"]*"[^>]*>.*?</article>',page,re.S)
@@ -230,8 +290,11 @@ def extract_cards(page,selector="news-row"):
         if link in seen:continue
         seen.add(link)
         summary=re.search(r'<p\b[^>]*>(.*?)</p>',row,re.S)
+        metadata=re.search(r'<div\b[^>]*class="[^"]*news-meta[^"]*"[^>]*>(.*?)</div>',row,re.S)
+        verified_date=published_date(re.sub(r"<[^>]*>"," ",metadata.group(1))) if metadata else None
         cards.append({"url":link,"title":title,"image":image,
                       "summary":html.unescape(re.sub(r"<[^>]*>","",summary.group(1))).strip() if summary else "",
+                      "published_date":verified_date.isoformat() if verified_date else None,
                       "row":row})
     return cards
 
@@ -273,8 +336,8 @@ def matches(owned,state):
         article["matched_sources"]=[{"site":item["name"],"title":item["title"],"score":score}
                                     for score,item in matched[:4]]
         score=max((q for q,_ in matched),default=0)
-        article["trend_score"]=round(score*100+max(0,independent-1)*9+
-                                min(10,article["freshness"]*.06),2) if score else 0
+        # Portal relevance is kept separate from publication recency.
+        article["trend_score"]=round(score*100+max(0,independent-1)*9,2) if score else 0
     return owned
 
 def pick(articles,on_date=None):
@@ -292,7 +355,7 @@ def pick(articles,on_date=None):
                         and (ROOT/a["url"].lstrip("/")).is_file()
                         and (a["image"].startswith("https://") or
                              (ROOT/a["image"].lstrip("/")).is_file())),
-                       key=lambda a:(a["trend_score"]>0,a["trend_score"],a["freshness"]),
+                       key=lambda a:ordinary_priority(a,on_date),
                        reverse=True)
         count=0
         for article in regular:
@@ -422,6 +485,10 @@ def apply():
     if not matched:
         print("NO RELIABLE TREND MATCHES: using latest own published standard news and the independent special feed")
     chosen=pick(articles)
+    for item in chosen:
+        if item["section"] in ("tech","gaming"):
+            item["freshness_bonus"]=recency_bonus(item)
+            item["selection_score"]=ordinary_priority(item)[0]
     if len(chosen) != 6:
         raise RuntimeError("Featured mosaic must contain exactly 6 articles")
     index=INDEX.read_text(encoding="utf-8")
@@ -436,7 +503,9 @@ def apply():
             "source_sites":len({x["source"] for x in state.get("items",[])}),
             "matches":len(matched),
             "selected":[{"title":a["title"],"section":a["section"],"url":a["url"],
-                         "trend_score":a["trend_score"],"sources":a["matched_sources"]}
+                         "trend_score":a["trend_score"],"published_date":a.get("published_date"),
+                         "freshness_bonus":a.get("freshness_bonus"),"selection_score":a.get("selection_score"),
+                         "sources":a["matched_sources"]}
                         for a in chosen]}
     REPORT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("MATCHED OWN NEWS:",len(matched))
@@ -463,6 +532,19 @@ def selftest():
     assert classify("Amazon annuncia Alexa Tablet e Google Play Store")=="tech"
     assert classify("ONE PIECE: Grand Gourmet arriva su Android, iOS, Switch e PC")=="gaming"
     assert classify("CORSAIR HS80 v2 MAX cuffie wireless per il gaming competitivo")=="tech"
+    # Calendar dates, not row positions, now drive the freshness bonus.
+    assert published_date("ZazoomTek · 11 ottobre 2026") == dt.date(2026,10,11)
+    assert published_date("ZazoomTek · 2026-10-09") == dt.date(2026,10,9)
+    assert published_date("no publication date") is None
+    assert recency_bonus({"published_date":"2026-10-12"},dt.date(2026,10,12)) == 72
+    assert recency_bonus({"published_date":"2026-10-11"},dt.date(2026,10,12)) == 62
+    assert recency_bonus({"published_date":"2026-10-09"},dt.date(2026,10,12)) == 23
+    assert recency_bonus({"published_date":"2026-10-13"},dt.date(2026,10,12)) == 0
+    fresh={"published_date":"2026-10-11","trend_score":55,"freshness":10}
+    stale={"published_date":"2026-10-07","trend_score":92,"freshness":80}
+    assert ordinary_priority(fresh,dt.date(2026,10,12)) > ordinary_priority(stale,dt.date(2026,10,12))
+    missing={"published_date":None,"trend_score":0,"freshness":80}
+    assert recency_bonus(missing,dt.date(2026,10,12))==0
     # Two curated editorial highlights alongside four standard NEWS.
     existing=matches(owned_candidates(),{"items":[]})
     sample=pick(existing,on_date=dt.date(2026,10,11))
