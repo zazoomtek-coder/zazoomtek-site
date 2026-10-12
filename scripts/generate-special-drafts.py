@@ -167,7 +167,8 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
                 if other["url"] not in urls+corroborating:
                     corroborating.append(other["url"])
         urls=(urls+corroborating)[:3]
-        verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":550,"editorial_status":"needs_human_review"})
+        verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":450,"featured_priority":max((by_url[u].get("featured_priority",0) for u in urls),default=0),
+                         "editorial_status":"needs_human_review"})
     report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:10]}
     OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Gemini research proposals:",len(verified[:10]),"; publication occurs only after full-text verification")
