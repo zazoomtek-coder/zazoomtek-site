@@ -1,24 +1,8 @@
 {
-  "checked_at": "2026-10-12T22:02:03.021088+00:00",
+  "checked_at": "2026-10-12T22:24:30.485298+00:00",
   "source_sites": 16,
-  "matches": 9,
+  "matches": 8,
   "selected": [
-    {
-      "title": "News: NVIDIA protagonista alla finale dell’Italian Hackathon League con DGX Spark e i talenti dell’AI",
-      "section": "tech",
-      "url": "/news-UgkxVx1yJ8C2gvc88TneX7746ZQ0UoNp0NEi.html",
-      "trend_score": 60.92,
-      "published_date": "2026-10-12",
-      "freshness_bonus": 72,
-      "selection_score": 111.6,
-      "sources": [
-        {
-          "site": "Tom's Hardware Italia",
-          "title": "Italian Hackathon League: alla finale il giudice è un NVIDIA DGX Spark",
-          "score": 0.6092
-        }
-      ]
-    },
     {
       "title": "News: TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",
       "section": "tech",
@@ -34,6 +18,16 @@
           "score": 0.4981
         }
       ]
+    },
+    {
+      "title": "News: Microsoft lancia Maia 300, il nuovo chip AI per Azure punta a diventare il cuore dell’inferenza di Copilot e Teams",
+      "section": "tech",
+      "url": "/news-Ugkxo1WmD7nGUUwvBRTmjw8WQ7lnTe2ObkhK.html",
+      "trend_score": 0,
+      "published_date": "2026-10-12",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
     },
     {
       "title": "News: Ted Lasso e l’AFC Richmond Women arrivano in EA SPORTS FC 27",
