@@ -1,0 +1,42 @@
+name: Validate news recency weighting
+on:
+  push:
+    branches:
+      - feature-news-more-recency-20261012
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax, matching and date weighting tests
+        run: |
+          python3 -m py_compile scripts/trending-crosscheck.py
+          python3 scripts/trending-crosscheck.py --test
+      - name: Simulate using cached Italian portals without publishing
+        run: python3 scripts/trending-crosscheck.py --apply
+      - name: Validate six distinct news, date scores and unchanged independent special choices
+        run: |
+          python3 - <<'PY'
+          import json,re
+          from collections import Counter
+          from pathlib import Path
+          report=json.loads(Path('trending-match-report.json').read_text())
+          selected=report['selected']
+          quotas=dict(Counter(x['section'] for x in selected))
+          assert quotas=={'tech':2,'gaming':2,'tech-impact':1,'gaming-inside':1},quotas
+          assert len(set(x['url'] for x in selected))==6
+          for x in selected[:4]:
+              assert x['published_date'] is not None,x
+              assert isinstance(x['freshness_bonus'],int),x
+              assert x['selection_score']>=0,x
+          feed=json.loads(Path('special-featured.json').read_text())['items']
+          assert selected[4]['url']=='/'+next(x['slug'] for x in feed if x['section']=='tech')
+          assert selected[5]['url']=='/'+next(x['slug'] for x in feed if x['section']=='gaming')
+          html=Path('index.html').read_text()
+          featured=html.split('<!-- FEATURED_NEWS_START -->',1)[1].split('<!-- FEATURED_NEWS_END -->',1)[0]
+          assert featured.count('zt-feature-card')==6,featured[:200]
+          print('PASS: 2+2+1+1, article publication dates, separate specials, 6-grid')
+          PY
