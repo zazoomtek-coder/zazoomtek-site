@@ -362,8 +362,36 @@ def pick(articles,on_date=None):
             return False
         seen.add(article["url"]);chosen.append(article)
         return True
+    # Automatically verified stories and existing Community imports are promoted
+    # before older fallback headlines, but only while their selection is fresh.
+    auto_selected=[]
+    auto_path=ROOT/"featured-auto-news.json"
+    if auto_path.exists():
+        try:
+            state=json.loads(auto_path.read_text(encoding="utf-8"))
+            age=NOW()-dt.datetime.fromisoformat(state["generated_utc"])
+            if dt.timedelta(0)<=age<=dt.timedelta(hours=8):
+                auto_selected=state.get("selected",[])
+        except (OSError,ValueError,KeyError,TypeError):
+            auto_selected=[]
     standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
     for kind in ("tech","gaming"):
+        # Reuse already-published ZazoomTek pages whenever the same lead was
+        # imported from YouTube; never create or display duplicate stories.
+        count=0
+        for x in auto_selected:
+            if count==2:break
+            if x.get("section")!=kind:continue
+            url=x.get("url","");image=x.get("image","")
+            if not (url.startswith("/news-") and (ROOT/url.lstrip("/")).is_file()
+                    and (image.startswith("https://") or
+                         (image.startswith("/") and (ROOT/image.lstrip("/")).is_file()))):
+                continue
+            item={"url":url,"image":image,"title":x.get("title",""),
+                  "section":kind,"trend_score":120,"freshness":100,
+                  "published_date":x.get("date"),
+                  "matched_sources":[],"summary":x.get("summary","")}
+            count+=add(item)
         regular=sorted((a for a in articles
                         if a["section"]==kind and a["url"].startswith("/news-")
                         and (ROOT/a["url"].lstrip("/")).is_file()
@@ -371,7 +399,6 @@ def pick(articles,on_date=None):
                              (ROOT/a["image"].lstrip("/")).is_file())),
                        key=lambda a:ordinary_priority(a,on_date),
                        reverse=True)
-        count=0
         for article in regular:
             if count==2:break
             count+=add(article)
