@@ -905,3 +905,67 @@ aside :is([data-zt-auto="related"],.zt-sidebar-related){display:none!important}
     overflow:visible!important;
   }
 }
+
+/* ZT 20261012 NO CLIPPED EDITORIAL BOXES / SMART STICKY */
+/* The previous 100dvh max-height + overflow:auto was cutting editorial
+   modules at the viewport boundary and trapping their lower content inside
+   a second scrollbar. Let every sidebar render to its FULL natural height.
+   On desktop a smart sticky offset, calculated from the complete sidebar
+   height, progressively reveals every module with NORMAL page scrolling. */
+@media(min-width:1001px){
+  :is(.layout,.detail-grid,.news-layout) > aside.zt-side-mix,
+  aside.article-side.zt-side-mix,
+  aside.news-sidebar.zt-side-mix{
+    position:sticky!important;
+    top:var(--zt-side-smart-top,16px)!important;
+    align-self:start!important;
+    height:max-content!important;
+    max-height:none!important;
+    min-height:0!important;
+    overflow:visible!important;
+    overflow-x:visible!important;
+    overflow-y:visible!important;
+    overscroll-behavior:auto!important;
+    scroll-snap-type:none!important;
+    scrollbar-gutter:auto!important;
+    padding-right:0!important;
+    clip-path:none!important;
+  }
+  .zt-side-mix > .side-box{
+    position:relative!important;
+    display:block;
+    width:100%!important;
+    height:auto!important;
+    min-height:0;
+    max-height:none!important;
+    overflow:visible!important;
+    scroll-snap-align:none!important;
+    margin-bottom:16px!important;
+  }
+  .zt-side-mix > .side-box:last-child{margin-bottom:0!important}
+  .zt-side-mix .zt-mix-recent-list{
+    max-height:none!important;
+    overflow:visible!important;
+  }
+}
+@media(max-width:1000px){
+  :is(.layout,.detail-grid,.news-layout) > aside.zt-side-mix,
+  aside.article-side.zt-side-mix,
+  aside.news-sidebar.zt-side-mix{
+    position:static!important;
+    top:auto!important;
+    max-height:none!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding-right:0!important;
+  }
+  .zt-side-mix > .side-box,
+  .zt-side-mix .zt-mix-recent-list{
+    max-height:none!important;
+    overflow:visible!important;
+  }
+}
+/* No fixed-height, clipped module on any screen size. */
+.zt-side-mix > .side-box :is(.zt-mix-editorial-row,.zt-mix-recent-row,.zt-mix-video-row){
+  min-height:0;height:auto!important;max-height:none!important;
+}
