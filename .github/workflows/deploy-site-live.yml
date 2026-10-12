@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'zt-design.css'
       - 'pagina-[2-5].html'
       - 'featured-carousel.json'
       - 'scripts/zt_sidebar_mix.py'
