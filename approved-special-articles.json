@@ -314,6 +314,37 @@
       "trend_verified": false,
       "featured": false,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "attacco-informatico-ai-sistemi-di-refrigerazione-dei-supermercati-in-francia",
+      "title": "Attacco informatico ai sistemi di refrigerazione dei supermercati in Francia",
+      "summary": "Un cyberattacco ha colpito i sistemi di refrigerazione di centinaia di supermercati in Francia, forzando lo sbrinamento a distanza di frigoriferi e congelatori. La procura di Parigi ha aperto un'inchiesta.",
+      "paragraphs": [
+        "Secondo quanto riportato dalla testata DDay.it, che cita conferme ufficiali raccolte dall'agenzia AFP, nella notte tra domenica e lunedì un attacco informatico ha preso di mira i sistemi di refrigerazione di diverse catene della grande distribuzione francese. Gli autori dell'intrusione sono riusciti ad avviare a distanza lo sbrinamento, portando le temperature fino a 50 °C nei frigoriferi e nei congelatori di numerosi punti vendita. L'incidente ha coinvolto direttamente tra i 150 e i 200 negozi Intermarché e quasi un centinaio di punti vendita della Coopérative U.",
+        "Le conseguenze materiali dell'attacco hanno comportato la perdita totale delle scorte alimentari di prodotti freschi e surgelati nei negozi colpiti, come spiegato da Intermarché, la quale ha inoltre evidenziato l'incertezza legata alla copertura assicurativa per un evento di questa natura. La procura di Parigi ha confermato ufficialmente l'accaduto aprendo un'inchiesta, il cui compito sarà identificare con precisione tutte le vittime e collegare l'intrusione informatica ai danni denunciati, tra cui figurano anche alcuni principi d'incendio segnalati dalle autorità giudiziarie.",
+        "L'emittente BFM TV ha indicato come obiettivo materiale dell'attacco la Danfoss, azienda danese produttrice di impianti di refrigerazione e fornitrice delle catene coinvolte. La stessa emittente ha aggiunto alla lista delle vittime anche la catena E.Leclerc, mentre il sito specializzato Je bosse en grande distribution ha menzionato tra i supermercati interessati pure Carrefour Market e Monoprix. Secondo quanto emerso, già nel mese di agosto alcuni ricercatori della società di cybersicurezza Claroty avevano rilevato una vulnerabilità nei sistemi informatici della Danfoss, poi risolta tramite l'installazione di un nuovo firmware.",
+        "L'amministratore delegato di Coopérative U, Dominique Schelcher, ha espresso forte preoccupazione attraverso un messaggio pubblicato sulla piattaforma X, definendo l'episodio inedito, di estrema gravità e inaccettabile per l'impatto sulla catena di approvvigionamento alimentare. Il contesto si inserisce in un periodo di crescente allerta in Europa per la sicurezza delle infrastrutture critiche; in Francia, il mese scorso, il presidente Emmanuel Macron aveva disposto misure di protezione contro i cosiddetti attacchi ibridi russi. Al momento, tuttavia, né le autorità giudiziarie né le aziende coinvolte hanno formulato ipotesi ufficiali o indicato i responsabili dell'accaduto."
+      ],
+      "date": "2026-10-12",
+      "sources": [
+        "https://www.dday.it/redazione/59068/un-attacco-informatico-ha-sbrinato-a-distanza-i-frigoriferi-di-centinaia-di-supermercati-francesi"
+      ],
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-12T14:39:37.079135+00:00"
+      },
+      "source_fingerprints": [
+        "ac3ddfbe054ef259"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
