@@ -60,7 +60,7 @@ checked = 0
 corrected = 0
 witcher_checked = False
 for path in sorted(root.glob('*.html')):
-    if path.name == 'index.html':
+    if path.name == 'index.html' or path.name.startswith('preview-'):
         continue
     page = path.read_text(encoding='utf-8')
     match = article_tag.search(page)
@@ -93,6 +93,23 @@ for path in sorted(root.glob('*.html')):
     # aborts Firebase deployment instead of silently publishing incomplete.
     if page.count('data-zt-auto="editorial"') != 1 or page.count('data-zt-auto="related"') != 1:
         raise RuntimeError(f"{path.name}: missing right-column Dalla redazione / Articoli correlati; refusing to deploy")
+    # No editorial article can ship with only two minimal right-column boxes.
+    # Require the fully populated shared sidebar as well as recommendations.
+    aside = re.search(
+        r'<aside\b[^>]*class=["\'][^"\']*(?:article-side|news-sidebar)[^"\']*["\'][^>]*>[\s\S]*?</aside>',
+        page, re.I,
+    )
+    if not aside:
+        raise RuntimeError(f"{path.name}: missing right editorial column")
+    widgets = aside.group(0)
+    required = ('zt-mix-feature', 'zt-amazon-partner',
+                'zt-mix-recent', 'data-zt-auto="editorial"',
+                'data-zt-auto="related"')
+    if any(token not in widgets for token in required):
+        raise RuntimeError(f"{path.name}: incomplete right editorial column")
+    if '<section class="zt-community-banner"' not in page[related_end:banner_end]:
+        raise RuntimeError(f"{path.name}: missing black Community banner below related articles")
+
     if page != original:
         path.write_text(page, encoding='utf-8')
         corrected += 1
