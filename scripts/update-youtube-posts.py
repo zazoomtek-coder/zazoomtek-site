@@ -2601,7 +2601,8 @@ def main():
     for p in news: write_news_page(p,news)
     write_news_archive(news,reviews)
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
-    total_article_pages=write_article_pages(news)
+    # Calculate pagination now; generate pages only AFTER Home is finalized.
+    total_article_pages=min(5,max(1,(len(news)+PAGE_SIZE-1)//PAGE_SIZE))
     # Rebuild canonical sitemap after every content sync so Search Console always sees current URLs.
     update_sitemap()
     s=INDEX.read_text(encoding="utf-8")
@@ -2640,6 +2641,10 @@ def main():
                       '</div>\n        '+pagination+'\n      </section>\n    </div>\n\n    <aside class="sidebar">',1)
 
     if s2!=s:INDEX.write_text(s2,encoding="utf-8")
+    # Always use the FINAL updated Home as the pagination template. This keeps
+    # pages 2-5 identical in layout, featured six-card grid and independent
+    # carousel loader, rather than cloning a stale pre-import Home snapshot.
+    write_article_pages(news)
     if force_full_scan and complete:
         FULL_COMMUNITY_SCAN_FLAG.unlink(missing_ok=True)
         print("Full Community history scan completed; one-time flag removed.")
