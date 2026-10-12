@@ -24,6 +24,9 @@ on:
       - 'scripts/zt_footer.py'
       - '.github/workflows/firebase-hosting-merge.yml'
       - 'firebase.json'
+permissions:
+  contents: read
+  actions: write
 concurrency:
   group: firebase-hosting-live
   cancel-in-progress: false
@@ -40,15 +43,10 @@ jobs:
        github.event.head_commit.author.name != 'ZazoomTek Editorial Publisher' &&
        github.event.head_commit.author.name != 'ZazoomTek Editorial Layout')
     runs-on: ubuntu-latest
+    # Never perform a second independent Firebase release from an old checkout.
+    # The canonical latest-main publisher normalizes and verifies all headers.
     steps:
-      - uses: actions/checkout@v4
-      - name: Validate shared editorial publishing scripts
-        run: python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py scripts/build-related-content.py scripts/zt_footer.py
-      - name: Apply shared layout to all pages
-        run: python3 scripts/apply-site-design.py
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+      - name: Queue the single validated, serialized live publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
