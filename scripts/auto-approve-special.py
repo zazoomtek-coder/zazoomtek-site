@@ -4,6 +4,7 @@ import datetime as dt
 from difflib import SequenceMatcher
 import hashlib,json,os,re,unicodedata,urllib.parse,urllib.request,urllib.error
 from pathlib import Path
+from html import unescape
 
 ROOT=Path(__file__).resolve().parents[1]
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
@@ -48,6 +49,33 @@ def duplicate(article,existing):
         if SequenceMatcher(None,x,norm(a.get("title",""))).ratio()>=.73:return True
         if urls.intersection(set(a.get("sources",[]))):return True
     return False
+def already_on_zazoomtek(article):
+    """Reuse existing Community/manual news instead of duplicating its topic."""
+    candidate_titles=[norm(article.get("title","")),norm(article.get("topic",""))]
+    known=[]
+    page=ROOT/"news.html"
+    if page.is_file():
+        body=page.read_text(encoding="utf-8")
+        rows=re.findall(r'<article\\b[^>]*class="[^"]*news-row[^"]*"[^>]*>.*?</article>',body,re.S)
+        for row in rows:
+            match=re.search(r'<h[23][^>]*>\\s*<a\\b[^>]*>(.*?)</a>',row,re.S)
+            if match:known.append(unescape(re.sub(r"<[^>]+>","",match.group(1))).strip())
+    manual=ROOT/"manual-news.json"
+    if manual.is_file():
+        try:
+            known.extend(x.get("title","") for x in
+                json.loads(manual.read_text(encoding="utf-8")).get("items",[])
+                if isinstance(x,dict))
+        except (ValueError,OSError,TypeError):
+            pass
+    for title in known:
+        existing=norm(title)
+        if not existing:continue
+        if any(candidate and SequenceMatcher(None,candidate,existing).ratio()>=.73
+               for candidate in candidate_titles):
+            return True
+    return False
+
 def review(article,docs):
     if not KEY:raise RuntimeError("GEMINI_API_KEY missing")
     prompt=("""Sei un verificatore indipendente di ZazoomTek. Esamina ogni paragrafo della
@@ -171,7 +199,7 @@ def main():
         if x.get("status")!="needs_human_fact_check" or not x.get("title"):
             why="Incomplete article draft; skip without stopping other news"
         elif not docs:why="Insufficient original reporting or primary-source evidence"
-        elif duplicate(x,old+created):why="Topic or original source already published"
+        elif duplicate(x,old+created) or already_on_zazoomtek(x):why="Topic or original source already published on ZazoomTek"
         elif sec=="gaming" and not re.search(r"(?i)videogioc|videoludic|gaming|giocator|game|playstation|xbox|nintendo|steam|diablo|call.of.duty",(x.get("topic") or "")+" "+x.get("title","")):why="Not a gaming policy topic"
         elif x.get("status")!="needs_human_fact_check":why="Not a complete draft"
         else:
