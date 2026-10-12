@@ -182,7 +182,10 @@ def main():
     feature_path=ROOT/"special-featured.json"
     old_featured=json.loads(feature_path.read_text(encoding="utf-8")).get("items",[])
     chosen=[];new_trend_sections=[]
-    for sec,max_items in (("tech",4),("gaming",2)):
+    # Only ONE Impact and ONE Inside article are nominated for the global
+    # six-card Home carousel. All other verified reports are published above
+    # to their complete category archives; never discard them.
+    for sec,max_items in (("tech",1),("gaming",1)):
         current=[x for x in old_featured if x.get("section")==sec
                  and (ROOT/x.get("slug","")).is_file()
                  and (ROOT/x.get("image","").lstrip("/")).is_file()]
@@ -216,8 +219,10 @@ def main():
             current.append({"section":sec,"slug":x["filename"],
                             "title":x["title"],"image":x["image"]})
         chosen.extend(current[:max_items])
-    if len(chosen)==6 and new_trend_sections:
+    if len(chosen)==2 and new_trend_sections:
         save_if_changed(feature_path,json.dumps({"items":chosen},ensure_ascii=False,indent=2)+"\n")
-    print("Approved:",len(published),"/ recently verified featured sections:",
+    print("Approved:",len(published),"/ category-archive totals:",
+          {sec:sum(x["section"]==sec for x in published) for sec in ("tech","gaming")},
+          "/ newest featured sections:"
           new_trend_sections if new_trend_sections else "previous carousel preserved")
 if __name__=="__main__":main()
