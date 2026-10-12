@@ -82,6 +82,8 @@ for path in sorted(root.glob('*.html')):
             print(f"Skipped empty import stub (no related articles): {path.name}")
             continue
         raise RuntimeError(f"{path.name}: missing Articoli correlati; refusing to deploy")
+    if len(related) != 1:
+        raise RuntimeError(f"{path.name}: expected exactly one Articoli correlati section at the bottom of the article")
     last_related = related[-1]
     related_end = _matching_close(page, last_related.end(), 'section') + len('</section>')
     banner_at = page.find(COMMUNITY_START, match.end(), article_end)
@@ -92,10 +94,14 @@ for path in sorted(root.glob('*.html')):
         raise RuntimeError(f"{path.name}: Community banner not IMMEDIATELY below related cards")
     if page.count(COMMUNITY_START) != 1 or page.count(COMMUNITY_END) != 1:
         raise RuntimeError(f"{path.name}: duplicate or missing Community banner")
-    # Mandatory right-hand widgets. Any new article without these boxes
+    # Mandatory editorial sidebar, without Articoli correlati (which belong
+    # exclusively at the bottom of the article).
+    # Any new article without these boxes
     # aborts Firebase deployment instead of silently publishing incomplete.
-    if page.count('data-zt-auto="editorial"') != 1 or page.count('data-zt-auto="related"') != 1:
-        raise RuntimeError(f"{path.name}: missing right-column Dalla redazione / Articoli correlati; refusing to deploy")
+    if page.count('data-zt-auto="editorial"') != 1:
+        raise RuntimeError(f"{path.name}: missing right-column Dalla redazione; refusing to deploy")
+    if 'data-zt-auto="related"' in page:
+        raise RuntimeError(f"{path.name}: related articles found outside the bottom article section")
     # No editorial article can ship with only two minimal right-column boxes.
     # Require the fully populated shared sidebar as well as recommendations.
     aside = re.search(
@@ -106,10 +112,11 @@ for path in sorted(root.glob('*.html')):
         raise RuntimeError(f"{path.name}: missing right editorial column")
     widgets = aside.group(0)
     required = ('zt-mix-feature', 'zt-amazon-partner',
-                'zt-mix-recent', 'data-zt-auto="editorial"',
-                'data-zt-auto="related"')
+                'zt-mix-recent', 'data-zt-auto="editorial"')
     if any(token not in widgets for token in required):
         raise RuntimeError(f"{path.name}: incomplete right editorial column")
+    if re.search(r'>\s*Articoli correlati\s*<', widgets, re.I):
+        raise RuntimeError(f"{path.name}: Articoli correlati cannot appear in the right sidebar")
     if '<section class="zt-community-banner"' not in page[related_end:banner_end]:
         raise RuntimeError(f"{path.name}: missing black Community banner below related articles")
 
