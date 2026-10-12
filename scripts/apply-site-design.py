@@ -309,7 +309,7 @@ def unify_site_navigation(page, filename):
     canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
     return page[:first.start()]+canonical+page[first.end():]
 
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012globalScroll1" data-zt-design="20261010">'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012canonicalNav2" data-zt-design="20261010">'
 js_tag='<script src="/zt-visual.js?v=20261012titleSubtitle" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
@@ -321,7 +321,7 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261012globalScroll1",html,count=1)
+                    "/zt-design.css?v=20261012canonicalNav2",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
