@@ -61,6 +61,9 @@ jobs:
           done
           echo "::error::Could not sync trending placements"
           exit 1
+      - name: Apply all shared article sidebars, related links and Community banners
+        if: steps.push_trends.outputs.hosting_changed == 'true'
+        run: python3 scripts/apply-site-design.py
       - name: Deploy verified existing-news placements
         if: steps.push_trends.outputs.hosting_changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
