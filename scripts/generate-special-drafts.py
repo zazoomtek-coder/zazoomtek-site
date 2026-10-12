@@ -61,7 +61,8 @@ def main():
         try:published=dt.datetime.fromisoformat(x["published_utc"])
         except (KeyError,ValueError):continue
         if dt.timedelta(0)<=now-published<=dt.timedelta(hours=72):
-            leads.append({"section":x["section"],"title":x["title"],"outlet":x["source"],"url":x["source_url"],"time":x["published_utc"]})
+            leads.append({"section":x["section"],"title":x["title"],"outlet":x["source"],"url":x["source_url"],"time":x["published_utc"],
+                          "featured_priority":x.get("featured_priority",0)})
     # Match the *same event* across independent publishers, never a generic
     # subject such as AI regulation. Preserve ordinary recent articles too.
     for x in leads:
@@ -74,8 +75,11 @@ def main():
             unique.setdefault(outlet_key(other["outlet"]),other)
         x["related"]=list(unique.values())[:3]
         x["independent_outlets"]=len(unique)+1
-    # Wider source diversity first, then trustworthy outlet and recency.
-    leads.sort(key=lambda x:(x["independent_outlets"]>=2,
+    # Virality proxy: top homepage placement, then multiple publishers, recency.
+    # These signals estimate interest; never claim actual visits or shares.
+    leads.sort(key=lambda x:(x.get("featured_priority",0)>0,
+                              x.get("featured_priority",0),
+                              x["independent_outlets"]>=2,
                               x["independent_outlets"], outlet_priority(x["outlet"]),
                               x["time"]),reverse=True)
     selected=[x for x in leads if x["section"]=="tech"][:38]+[
@@ -90,10 +94,10 @@ def main():
                               for v in x.pop("related",[])[:3]]
     print("Research leads:",len(leads),
           "; same-event corroboration candidates:",sum(x["independent_outlets"]>=2 for x in leads))
-    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 3 proposte TECH IMPACT e massimo 2 GAMING INSIDE, senza completare la quota con casi dubbi. Privilegia Reuters, ANSA, AP, istituzioni e testate autorevoli italiane/internazionali. I temi includono politica nazionale ed estera, norme, economia e tutela dei consumatori purché il nesso con tecnologia o videogiochi sia concreto. I campi possible_corrob sono IPOTESI di corrispondenza tra titoli: includi due URL solo quando si riferiscono alla STESSA notizia e a testate diverse; altrimenti scegli anche una notizia singola solida per le pagine, ma non definirla tendenza.
+    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 3 proposte TECH IMPACT e massimo 2 GAMING INSIDE, preferendo notizie forti, in primo piano nelle homepage, freschissime e con alto potenziale virale. Il campo featured_priority indica prominenza, NON il numero reale di lettori o condivisioni. Non inventare metriche e non riempire la quota con casi privi di fatti verificabili. Privilegia Reuters, ANSA, AP, istituzioni e testate autorevoli italiane/internazionali. I temi includono politica nazionale ed estera, norme, economia e tutela dei consumatori purché il nesso con tecnologia o videogiochi sia concreto. I campi possible_corrob sono IPOTESI di corrispondenza tra titoli: includi due URL solo quando si riferiscono alla STESSA notizia e a testate diverse; altrimenti scegli anche una notizia singola solida per le pagine, ma non definirla tendenza.
 TECH IMPACT: politica e tecnologia, cybersicurezza pubblica, sicurezza digitale, diritti, innovazioni con implicazioni documentabili; escludi ordinaria pubblicità e lanci banali.
 GAMING INSIDE: esclusivamente politica e leggi dei VIDEOGIOCHI, proprietà di giochi digitali, chiusura server, consumatori, censura, tutela minori, crisi e acquisizioni di studi videoludici. Un evento su Meta, Hollywood, IA o copyright SENZA un rapporto esplicito con i videogiochi NON è pertinente.
-Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO CON 400-750 PAROLE NEL CORPO DEL TESTO, NON un articolo pronto: titolo italiano originale, summary neutrale di 30-50 parole (non oltre 380 caratteri), 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo con almeno 400 parole originali nel corpo dovrà essere scritto SOLO DOPO verifica documentale separata.
+Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO CON 300-750 PAROLE NEL CORPO DEL TESTO, NON un articolo pronto: titolo italiano originale, summary neutrale di 30-50 parole (non oltre 380 caratteri), 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo con almeno 300 parole originali nel corpo dovrà essere scritto SOLO DOPO verifica documentale separata.
 Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"titolo originale italiano","summary":"breve descrizione prudente della pista di ricerca, non del fatto confermato","source_urls":["URL presente nell'input"],"verification_needed":["verifica puntuale da effettuare"],"outline":["aspetto da approfondire"],"target_words":550,"editorial_status":"needs_human_review"}]}. Inserisci solo URL forniti nell'input, non riempire posti mancanti. Input:\\n"""+json.dumps(leads,ensure_ascii=False)
     # Query available models for this key instead of assuming a model exists.
     list_req=urllib.request.Request(
