@@ -44,3 +44,13 @@ jobs:
             echo "Could not push safely after retries."
             exit 1
           fi
+
+      - name: Apply mandatory editorial article layout
+        run: python3 scripts/apply-site-design.py
+      - name: Deploy validated standard news and all editorial layouts
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
