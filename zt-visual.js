@@ -147,3 +147,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshSpecials,{once:true});
   else refreshSpecials();
 })();
+
+/* ZT editorial sidebar keyboard scroll: the CSS keeps desktop right-hand modules independently scrollable.
+   Make the region keyboard-focusable without changing any article content. */
+(function(){
+  'use strict';
+  function enable(){
+    document.querySelectorAll(
+      ':is(.detail-grid,.news-layout,.layout) > aside.zt-side-mix'
+    ).forEach(function(sidebar){
+      if(!sidebar.hasAttribute('tabindex'))sidebar.tabIndex=0;
+      if(!sidebar.hasAttribute('aria-label')){
+        sidebar.setAttribute('aria-label','Approfondimenti e articoli correlati, colonna scorrevole');
+      }
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',enable,{once:true});
+  }else{enable();}
+})();
