@@ -56,9 +56,9 @@ def already_on_zazoomtek(article):
     page=ROOT/"news.html"
     if page.is_file():
         body=page.read_text(encoding="utf-8")
-        rows=re.findall(r'<article\\b[^>]*class="[^"]*news-row[^"]*"[^>]*>.*?</article>',body,re.S)
+        rows=re.findall(r'<article\b[^>]*class="[^"]*news-row[^"]*"[^>]*>.*?</article>',body,re.S)
         for row in rows:
-            match=re.search(r'<h[23][^>]*>\\s*<a\\b[^>]*>(.*?)</a>',row,re.S)
+            match=re.search(r'<h[23][^>]*>\s*<a\b[^>]*>(.*?)</a>',row,re.S)
             if match:known.append(unescape(re.sub(r"<[^>]+>","",match.group(1))).strip())
     manual=ROOT/"manual-news.json"
     if manual.is_file():
