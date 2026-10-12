@@ -174,8 +174,8 @@ def main():
         if count!=1:raise RuntimeError("Archive marker missing: "+archive)
         save_if_changed(path,updated)
     # Every verified article stays in its archive. Carousel placements are an
-    # additional promotion: only a NEW article with two independent verified
-    # source domains may replace an existing Impact or Inside highlight.
+    # additional promotion: one independently fact-checked original report is
+    # enough for a strong feature; corroboration remains a relevance signal.
     feature_path=ROOT/"special-featured.json"
     old_featured=json.loads(feature_path.read_text(encoding="utf-8")).get("items",[])
     chosen=[];new_trend_sections=[]
@@ -183,16 +183,18 @@ def main():
         current=[x for x in old_featured if x.get("section")==sec
                  and (ROOT/x.get("slug","")).is_file()
                  and (ROOT/x.get("image","").lstrip("/")).is_file()]
-        # Explicit editorial curation may promote a fact-checked, source-linked
-        # original article. Automated promotion still requires two sources.
+        # Editorial and automated original reporting may be promoted with
+        # one documented source; prefer prominent headlines for a given day.
         trending=[x for x in published if x["section"]==sec
                   and ((x.get("editor_approved") is True
                         and x.get("home_featured") is True
                         and bool(x.get("sources")))
                        or (x.get("auto_approved") is True
-                           and x.get("trend_verified") is True
-                           and x.get("evidence_review",{}).get("source_count",0)>=2))]
+                           and x.get("featured") is True
+                           and x.get("evidence_review",{}).get("source_count",0)>=1))]
         trending.sort(key=lambda x:(x.get("home_featured") is True,x["date"],
+                                   int(x.get("featured_priority") or 0),
+                                   x.get("evidence_review",{}).get("verified_at",""),
                                    x.get("evidence_review",{}).get("source_count",0),
                                    x["filename"]),reverse=True)
         if trending:
@@ -211,6 +213,6 @@ def main():
         chosen.extend(current[:max_items])
     if len(chosen)==6 and new_trend_sections:
         save_if_changed(feature_path,json.dumps({"items":chosen},ensure_ascii=False,indent=2)+"\n")
-    print("Approved:",len(published),"/ independently corroborated featured sections:",
+    print("Approved:",len(published),"/ recently verified featured sections:",
           new_trend_sections if new_trend_sections else "previous carousel preserved")
 if __name__=="__main__":main()
