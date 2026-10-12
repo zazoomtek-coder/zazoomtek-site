@@ -173,7 +173,7 @@ def standard_home_rows(standard):
 
 
 def chronological_home_feed(original_feed, standard):
-    """Merge the 15 imported Community articles with approved NEWS.
+    """Merge Community NEWS only with approved editorial NEWS.
 
     Preserve the existing article HTML, but interleave by actual publication
     timestamp, instead of permanently pinning the four editorial articles.
@@ -214,7 +214,11 @@ def chronological_home_feed(original_feed, standard):
         # Remove already-injected manual entries before recombining; idempotent.
         if 'data-standard-news="true"' in row or 'data-manual-news="true"' in row:
             continue
-        ref = re.search(r'href="/?(?:news|recensione)-(Ugkx[A-Za-z0-9_-]+)\.html"', row)
+        # Reviews never belong to the Home's latest NEWS, even when the
+        # Community importer or an older cached feed still contains them.
+        if re.search(r'href="/?recensione-[^"]+\.html"', row):
+            continue
+        ref = re.search(r'href="/?news-(Ugkx[A-Za-z0-9_-]+)\.html"', row)
         if not ref:
             raise RuntimeError("Unable to identify a Community article in the home feed")
         post = by_id.get(ref.group(1))
