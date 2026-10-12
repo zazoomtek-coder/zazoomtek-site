@@ -229,6 +229,8 @@ def main():
     trends=module("trending-crosscheck.py","zt_trend")
     evidence_tool=module("check-special-sources.py","zt_evidence")
     auditor=module("auto-approve-special.py","zt_audit")
+    # Keep drafting and independent verification on the same available model.
+    auditor.MODEL=MODEL
     cover=module("build-special-covers.py","zt_cover")
     layout=module("featured_article_layout.py","zt_layout")
     state=json.loads(SOURCES.read_text(encoding="utf-8"))
