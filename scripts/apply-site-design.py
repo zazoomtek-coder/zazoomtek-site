@@ -85,8 +85,8 @@ def unify_site_navigation(page, filename):
     canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
     return page[:first.start()]+canonical+page[first.end():]
 
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012allpagecanonical" data-zt-design="20261010">'
-js_tag='<script src="/zt-visual.js?v=20261012allpagecanonical" defer></script>'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarfullscroll" data-zt-design="20261010">'
+js_tag='<script src="/zt-visual.js?v=20261012sidebarfullscroll" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
     if any(p in {'.git','node_modules','functions'} for p in path.relative_to(root).parts):
@@ -97,12 +97,12 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261012allpagecanonical",html,count=1)
+                    "/zt-design.css?v=20261012sidebarfullscroll",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
         html=re.sub(r'(?<=src=")/zt-visual[.]js(?:[?][^"]*)?',
-                    "/zt-visual.js?v=20261012allpagecanonical",html,count=1)
+                    "/zt-visual.js?v=20261012sidebarfullscroll",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     html=unify_site_navigation(html,path.name)
