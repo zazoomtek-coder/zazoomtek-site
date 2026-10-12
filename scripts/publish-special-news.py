@@ -30,7 +30,7 @@ def valid(item):
     if not isinstance(slug,str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug) or len(slug)>95:return False
     if not isinstance(title,str) or not 25<=len(title)<=170:return False
     if not isinstance(intro,str) or not 65<=len(intro)<=420:return False
-    if not isinstance(paragraphs,list) or len(paragraphs)<3 or any(not isinstance(p,str) or len(p.strip())<100 for p in paragraphs):return False
+    if not isinstance(paragraphs,list) or len(paragraphs)<3 or any(not isinstance(p,str) or len(p.strip())<65 for p in paragraphs):return False
     total_words=len(" ".join([title,intro]+paragraphs).split())
     body_words=len(" ".join(paragraphs).split())
     if not isinstance(sources,list) or not sources or any(not isinstance(u,str) or not u.startswith("https://") for u in sources):return False
