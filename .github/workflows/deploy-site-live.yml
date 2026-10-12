@@ -3,6 +3,12 @@ name: Serialized live site publishing
 # Neither news import nor trend discovery runs here: deploy a validated snapshot.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'pagina-[2-5].html'
+      - 'featured-carousel.json'
+      - '.github/workflows/deploy-site-live.yml'
 permissions:
   contents: read
 concurrency:
