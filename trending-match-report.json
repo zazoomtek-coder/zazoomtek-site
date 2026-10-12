@@ -1,39 +1,33 @@
 {
-  "checked_at": "2026-10-12T15:07:11.393395+00:00",
+  "checked_at": "2026-10-12T15:09:24.988701+00:00",
   "source_sites": 16,
   "matches": 10,
   "selected": [
     {
-      "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
+      "title": "News: NVIDIA protagonista alla finale dell’Italian Hackathon League con DGX Spark e i talenti dell’AI",
       "section": "tech",
-      "url": "/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.html",
-      "trend_score": 61.87,
-      "published_date": "2026-10-09",
-      "freshness_bonus": 23,
-      "selection_score": 63.22,
+      "url": "/news-UgkxVx1yJ8C2gvc88TneX7746ZQ0UoNp0NEi.html",
+      "trend_score": 60.92,
+      "published_date": "2026-10-12",
+      "freshness_bonus": 72,
+      "selection_score": 111.6,
       "sources": [
         {
-          "site": "HDblog",
-          "title": "Apple annuncia l'evento \"Welcome home\" per il 13 ottobre: cosa ci aspettiamo",
-          "score": 0.6187
+          "site": "Tom's Hardware Italia",
+          "title": "Italian Hackathon League: alla finale il giudice è un NVIDIA DGX Spark",
+          "score": 0.6092
         }
       ]
     },
     {
-      "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
+      "title": "News: Nilox amplia gli Smart Eyewear con Lapaz e After Collection tra sport, lifestyle e controllo vocale",
       "section": "tech",
-      "url": "/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
-      "trend_score": 56.64,
-      "published_date": "2026-10-09",
-      "freshness_bonus": 23,
-      "selection_score": 59.82,
-      "sources": [
-        {
-          "site": "Tom's Hardware Italia",
-          "title": "Surface Laptop Ultra con RTX Spark: l'IA torna sul PC, ma a che prezzo?",
-          "score": 0.5664
-        }
-      ]
+      "url": "/news-UgkxpNjlKte75njZ2upYxawcYu9oj6qranj2.html",
+      "trend_score": 0,
+      "published_date": "2026-10-12",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
     },
     {
       "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
