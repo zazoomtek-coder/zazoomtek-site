@@ -524,13 +524,24 @@ for check_path in sorted(root.glob('*.html')):
             checked_page[right.end():], re.I,
         ):
             raise RuntimeError(f"{check_path.name}: first right widget must be News in evidenza")
-    if check_path.name == "index.html" or re.fullmatch(r'pagina-\d+\.html', check_path.name):
+    if check_path.name == "index.html":
+        # HOME ONLY: Ultimi Video must be first in the right-hand column.
+        # The main six-cover carousel is already the featured-news section.
+        home_right = re.search(r'<aside\s+class="sidebar"[^>]*>', checked_page, re.I)
+        if not home_right or not re.match(
+            r'\s*<div\b[^>]*class=["\'][^"\']*\bzt-video-stack\b',
+            checked_page[home_right.end():], re.I,
+        ):
+            raise RuntimeError("Home right column must start with Ultimi Video")
+        if "ZT_HOME_SIDEBAR_FEATURE_START" in checked_page:
+            raise RuntimeError("Duplicate News in evidenza sidebar box on Home")
+    elif re.fullmatch(r'pagina-\d+\.html', check_path.name):
         home_right = re.search(r'<aside\s+class="sidebar"[^>]*>', checked_page, re.I)
         if not home_right or not re.match(
             r'\s*<!-- ZT_HOME_SIDEBAR_FEATURE_START -->\s*<section\b[^>]*class=["\'][^"\']*\bzt-mix-feature\b[^"\']*["\'][^>]*>',
             checked_page[home_right.end():], re.I,
         ):
-            raise RuntimeError(f"{check_path.name}: News in evidenza must be first on the Home")
+            raise RuntimeError(f"{check_path.name}: featured news missing on paginated page")
 
 if checked < 20:
     raise RuntimeError(f"Only {checked} editorial articles checked; expected all article pages")
