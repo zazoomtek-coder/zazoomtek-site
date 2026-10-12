@@ -2616,8 +2616,23 @@ def main():
     ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
-    specials=selected_special_featured()
-    featured_html=render_special_featured(specials) if specials else render_featured_news(selected_featured_news(news))
+    # IMPORTER ISOLATION: the two-hour editorial workflow exclusively owns the
+    # six-card featured carousel. Never erase/rebuild it during YouTube import.
+    # The importer still updates News, reviews, ticker and the 15 newest articles.
+    existing_carousel=re.search(
+        r'<!-- FEATURED_NEWS_START -->(.*?)<!-- FEATURED_NEWS_END -->',s,re.S)
+    featured_html=None
+    if existing_carousel:
+        current=existing_carousel.group(1).strip()
+        cards=re.findall(r'<a\\b[^>]*class="zt-feature-card[^"]*"[^>]*href="([^"]+)"',
+                         current,flags=re.I)
+        if ('id="ztFeaturedGrid"' in current and len(cards)==6
+            and len(set(cards))==6 and all(url.startswith("/") for url in cards)):
+            featured_html=current
+            print("Protected existing six-news carousel from Community import.")
+    if featured_html is None:
+        specials=selected_special_featured()
+        featured_html=render_special_featured(specials) if specials else render_featured_news(selected_featured_news(news))
     featured="<!-- FEATURED_NEWS_START -->\n        "+featured_html+"\n        <!-- FEATURED_NEWS_END -->"
     s2=re.sub(r'<!-- FEATURED_NEWS_START -->.*?<!-- FEATURED_NEWS_END -->',featured,s2,flags=re.S)
 
