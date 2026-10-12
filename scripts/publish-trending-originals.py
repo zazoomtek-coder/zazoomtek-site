@@ -226,38 +226,6 @@ def write_original(item,document,cover_mod,layout):
     return {"url":"/"+rel,"title":document["title"],"image":picture,
             "section":kind,"source_url":url,"date":date,"summary":document["summary"]}
 
-def update_news_archive(published):
-    # Independent stories become visible in NEWS immediately, not only after a
-    # later Community import. The sync's manual-news.json remains authoritative.
-    target=ROOT/"news.html"
-    if not target.is_file():return
-    source=target.read_text(encoding="utf-8")
-    begin="<!-- ZT_ORIGINAL_TRENDS_START -->"
-    end="<!-- ZT_ORIGINAL_TRENDS_END -->"
-    source=re.sub(re.escape(begin)+r".*?"+re.escape(end),"",source,flags=re.S)
-    where='<div class="news-list" id="newsList">'
-    if where not in source:return
-    rows=[]
-    escaped=lambda x:html.escape(str(x),quote=True)
-    for x in sorted(published.values(),key=lambda t:t.get("date",""),reverse=True):
-        u=x.get("url","")
-        if not u.startswith("/news-") or u in source:continue
-        if not (ROOT/u.lstrip("/")).is_file():continue
-        name=escaped(x["title"])
-        img=escaped(x["image"])
-        summary=escaped(x.get("summary",""))
-        rows.append('<article class="news-row" data-auto-original="true">'
-                    '<a href="'+escaped(u)+'"><img src="'+img+'" alt="'+name+'" loading="lazy"></a>'
-                    '<div class="news-copy"><h2><a href="'+escaped(u)+'">'+name+'</a></h2>'
-                    '<div class="news-meta">ZazoomTek · '+escaped(x["date"])+'</div>'
-                    '<p>'+summary+'</p><a class="news-read" href="'+escaped(u)+'">Leggi tutto</a>'
-                    '</div></article>')
-    if rows:
-        updated=source.replace(where,where+"\n"+begin+"\n"+"\n".join(rows)+"\n"+end+"\n",1)
-    else:updated=source
-    if updated!=target.read_text(encoding="utf-8"):
-        target.write_text(updated,encoding="utf-8")
-
 def main():
     if not SOURCES.is_file() or not KEY or not find_model():
         print("No fresh sources or no configured text model: preserve published news.");return
@@ -402,31 +370,10 @@ def main():
         used.add(filename)
     doc["items"]=items
     manual.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    # Publish verified NEWS to the News archive immediately; the Community
-    # synchronizer also preserves articles through manual-news.json.
-    news_path=ROOT/"news.html"
-    page=news_path.read_text(encoding="utf-8")
-    anchor='<div class="news-list" id="newsList">'
-    if page.count(anchor)!=1:
-        raise RuntimeError("NEWS archive insertion point missing or ambiguous")
-    for article in reversed(list(published.values())):
-        if 'href="'+article["url"]+'"' in page:
-            continue
-        esc=lambda value:html.escape(str(value),quote=True)
-        row=('<article class="news-row" data-trend-original="true">'
-             '<a href="'+esc(article["url"])+'"><img loading="lazy" src="'+esc(article["image"])+
-             '" alt="'+esc(article["title"])+'"></a><div class="news-copy"><h2><a href="'+
-             esc(article["url"])+'">'+esc(article["title"])+'</a></h2>'+
-             '<div class="news-meta">ZazoomTek · '+esc(article["date"])+
-             '</div><p>'+esc(article.get("summary",""))+'</p>'+
-             '<a class="news-read" href="'+esc(article["url"])+'">Leggi tutto</a>'+
-             '</div></article>')
-        page=page.replace(anchor,anchor+row,1)
-    if page!=news_path.read_text(encoding="utf-8"):
-        news_path.write_text(page,encoding="utf-8")
+    # The five-minute YouTube importer owns news.html, and reads manual-news.json
+    # to index independent originals without duplicate repository writes.
     CACHE.write_text(json.dumps({"generated_utc":NOW().isoformat(),
        "published":list(published.values()),"selected":selected},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    update_news_archive(published)
     print("Verified carousel priority links:",len(selected),"out of four possible.")
 
 def selftest():
