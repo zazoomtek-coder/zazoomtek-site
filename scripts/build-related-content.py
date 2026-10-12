@@ -273,11 +273,54 @@ def body_of(content):
     return clean_text(m.group(1)) if m else ""
 
 def image_of(content):
-    image = meta(content, prop="og:image")
-    if image:
-        return image
-    m = re.search(r'<img\s+class=["\']article-hero["\'][^>]+src=["\']([^"\']+)', content, re.I)
-    return html.unescape(m.group(1)).strip() if m else "/ChatGPT.png"
+    """Find the REAL article/guide/review cover, never the ZT logo or socials.
+
+    Special editorials use <figure class="hero"><img ...>, while older
+    Community articles use <img class="article-hero"> and reviews use
+    <img class="hero">. Restrict fallback scanning to the main article;
+    never grab sidebar thumbnails from an unrelated story.
+    """
+    def usable(source):
+        source=html.unescape(source or "").strip()
+        if not source or source.startswith(("data:", "javascript:")):
+            return ""
+        raw=source.split("?",1)[0].lower()
+        if any(x in raw for x in (
+            "chatgpt.png","favicon","default-cover","placeholder",
+            "youtube-play.png","tiktok","whatsapp","icons8.com"
+        )):
+            return ""
+        if source.startswith("/"):
+            if not (ROOT/source.lstrip("/")).is_file():
+                return ""
+        elif not source.startswith(("https://","http://")):
+            if not (ROOT/source).is_file():
+                return ""
+        return source
+
+    direct=usable(meta(content, prop="og:image"))
+    if direct:
+        return direct
+
+    # Prefer the image inside the article body over all shared chrome.
+    detail=re.search(r'<article\b[^>]*class=["\'][^"\']*\barticle-main\b[^>]*>'
+                     r'([\s\S]*?)</article>',content,re.I)
+    if detail:
+        region=detail.group(1)
+    else:
+        main=re.search(r'<main\b[^>]*>([\s\S]*?)</main>',content,re.I)
+        region=main.group(1) if main else content
+
+    # First source is normally the actual cover, especially for Tech Impact
+    # and Gaming Inside where social og:image metadata can be absent.
+    for m in re.finditer(r'<img\b[^>]*>',region,re.I):
+        tag=m.group(0)
+        src=re.search(r'\bsrc=["\']([^"\']+)["\']',tag,re.I)
+        if src:
+            candidate=usable(src.group(1))
+            if candidate:
+                return candidate
+    return ""
 
 def normalized_words(text):
     text = unicodedata.normalize("NFKD", text.lower())
