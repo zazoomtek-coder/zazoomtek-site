@@ -80,7 +80,8 @@ def is_review_page(filename, page):
     if not named:
         return False
     # Do not misrepresent short, noindex archival placeholders as full reviews.
-    return ('class="detail-grid"' in page or 'class="wrap layout"' in page)
+    return bool(re.search(r'<div\b[^>]*class=["\'][^"\']*\bdetail-grid\b', page, re.I)
+                or re.search(r'<div\b[^>]*class=["\'][^"\']*\blayout\b', page, re.I))
 
 def unify_review_layout(page, filename):
     if not is_review_page(filename,page):
