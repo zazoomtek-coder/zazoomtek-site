@@ -20,9 +20,8 @@ def _reference():
     # Its classes change from "article-side" to e.g. "article-side
     # news-sidebar zt-side-mix". Match the stable CLASS TOKEN instead of
     # requiring one fixed class attribute (which blocked the special publisher).
-    sidebar=re.search(
-        r'(<aside\\b[^>]*class=["\\\'][^"\\\']*\\barticle-side\\b[^"\\\']*["\\\'][^>]*>.*?</aside>)',
-        page,re.S|re.I)
+    sidebar=re.search(r'(<aside[^>]*class="[^"]*article-side[^"]*"[^>]*>.*?</aside>)',
+                      page,re.S|re.I)
     footer=re.search(r'(<footer[^>]*class="[^"]*legal-footer[^"]*"[^>]*>.*?</footer>)',page,re.S)
     if not (css and header and sidebar and footer):
         raise RuntimeError("Community NEWS reference layout incomplete")
