@@ -156,6 +156,45 @@ def zazoom_leads(now):
                          "published_utc":when.isoformat(),"status":"research_only"}
     return list(collected.values())
 
+# The same six highlighted international/Zazoom outlets are examined for
+# Tech Impact and Gaming Inside, in addition to the independent RSS searches.
+# Headline caches are only research leads, never evidence for publication.
+FEATURED_OUTLETS={"igncom","gamespot","eurogamer","polygon","pcgamer","zazoom"}
+SPECIAL_TOPIC_RE=re.compile(
+    r"(?i)(legge|leggi|normativ|regolament|politic|govern|parlament|"
+    r"antitrust|indagin|sanzion|privacy|censur|copyright|diritt|"
+    r"consumator|propriet|proprietà|licenziament|chiusur|server|"
+    r"acquisizion|cyberattacc|hacker|violazion|sicurezza|"
+    r"controvers|denunc|tutela|minori|rimbors|ai.act|gdpr|dsa|dma)")
+def featured_policy_leads(now):
+    path=ROOT/"trending-sources.json"
+    if not path.is_file():return []
+    try:
+        rows=json.loads(path.read_text(encoding="utf-8")).get("items",[])
+    except (ValueError,OSError):return []
+    out={}
+    for x in rows:
+        if (x.get("source") not in FEATURED_OUTLETS
+            or x.get("kind") not in ("tech","gaming")
+            or not x.get("homepage") or int(x.get("rank",99))>12):continue
+        title=x.get("title","")
+        if not SPECIAL_TOPIC_RE.search(title):continue
+        if x["kind"]=="gaming" and not GAMING_RE.search(title):continue
+        section=x["kind"];url=x.get("url","")
+        if not url.startswith("https://"):continue
+        try:
+            seen=dt.datetime.fromisoformat(x["last_seen"])
+            first=dt.datetime.fromisoformat(x["first_seen"])
+        except (KeyError,ValueError,TypeError):continue
+        if not (dt.timedelta(0)<=now-seen<=dt.timedelta(hours=4)
+                and dt.timedelta(0)<=now-first<=dt.timedelta(hours=72)):continue
+        ident=hashlib.sha256((section+"|"+url).encode()).hexdigest()[:20]
+        out[ident]={"id":ident,"section":section,"title":title[:220],
+                    "source":x.get("name","")[:100],"source_url":url,
+                    "published_utc":first.isoformat(),"status":"research_only",
+                    "date_is_first_seen":True}
+    return list(out.values())
+
 def zazoom_parser_self_test():
     p=ZazoomHeadlineParser()
     p.feed('<div><h3><a href="/news-notizia/post/1/2026-10-11-attacco-hacker-18-11/">Attacco hacker alle istituzioni</a></h3><h3><a href="/news-notizia/post/2/2026-10-11-ubisoft-licenziamenti-18-10/">Ubisoft: licenziamenti negli studi</a></h3></div>')
@@ -267,6 +306,12 @@ def discover():
         print("Tech Impact / Gaming Inside featured research leads:",n)
     except Exception as exc:
         errors.append({"query":"trending-sources.json","error":type(exc).__name__})
+    # Prioritize genuine homepage highlights from the six requested outlets.
+    for article in featured_policy_leads(now):
+        fresh[article["id"]]=article
+    print("Highlighted international/Zazoom policy leads:",
+          sum(x.get("source_url","").startswith("https://") and x["id"] in fresh
+              for x in featured_policy_leads(now)))
     # Preserve up to seven days of previously discovered leads and their status.
     for key,item in existing.items():
         try:age=now-dt.datetime.fromisoformat(item["published_utc"])
