@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Promote only existing ZazoomTek news by comparison with ten Italian publishers.
+"""Compare ZazoomTek with its own Community and sixteen international/Italian news sources.
 
 --sources: read public homepage headlines and RSS fallbacks (no article bodies).
 --apply: use cached trend headlines to select 2 Tech + 2 Gaming regular NEWS;
@@ -40,6 +40,12 @@ SITES=[
  ("spaziogames","SpazioGames","gaming","https://www.spaziogames.it/","https://www.spaziogames.it/feed/"),
  ("ign","IGN Italia","gaming","https://it.ign.com/","https://it.ign.com/feed.xml"),
  ("gamesurf","Gamesurf","gaming","https://www.gamesurf.it/","https://www.gamesurf.it/feed"),
+ ("igncom","IGN.com","gaming","https://www.ign.com/news","https://www.ign.com/rss/articles/feed"),
+ ("gamespot","GameSpot.com","gaming","https://www.gamespot.com/news/","https://www.gamespot.com/feeds/news/"),
+ ("eurogamer","Eurogamer.net","gaming","https://www.eurogamer.net/","https://www.eurogamer.net/feed/news"),
+ ("polygon","Polygon.com","gaming","https://www.polygon.com/","https://www.polygon.com/rss/index.xml"),
+ ("pcgamer","PCGamer.com","gaming","https://www.pcgamer.com/","https://www.pcgamer.com/feeds.xml"),
+ ("zazoom","Zazoom.it","mixed","https://www.zazoom.it/tecnologia/","https://www.zazoom.it/rss/"),
 ]
 STOP=set("""la il lo gli le l un uno una i del della delle degli dei di da a ad al allo alla alle agli ai
 in su per tra fra e ed o che con come non nel nella nelle negli nei sulla sulle sul sui è sono era
@@ -171,13 +177,21 @@ def scan_one(site):
         parser=Anchors(url);parser.feed(download(url))
         items=parser.found[:20]
     except Exception as e:errors.append("homepage: "+type(e).__name__)
+    from_home=len(items)
     if len(items)<8:
         try:
             for title,link in feed_entries(download(rss),url):
                 if not any(norm(title)==norm(p[0]) for p in items):items.append((title,link))
         except Exception as e:errors.append("rss: "+type(e).__name__)
-    return sid,name,kind,[{"source":sid,"name":name,"kind":kind,"title":t,"url":u,
-                         "rank":i+1,"homepage":i<20 and len(items)>0} for i,(t,u) in enumerate(items[:25])],errors
+    # Priority: actual featured/front-page links before an RSS fallback.
+    # Zazoom's technology index is mixed; distinguish games from technology.
+    rows=[]
+    for i,(t,u) in enumerate(items[:25]):
+        section=classify(t) if kind=="mixed" else kind
+        rows.append({"source":sid,"name":name,"kind":section,"title":t,"url":u,
+                     "rank":i+1,"homepage":i<from_home,
+                     "featured_priority":max(0,20-i) if i<from_home else 0})
+    return sid,name,kind,rows,errors
 
 def scan_sources():
     now=NOW().isoformat()
@@ -206,7 +220,7 @@ def scan_sources():
         except ValueError:continue
         if stamp>=threshold:collected.append(x)
     collected.sort(key=lambda x:x.get("last_seen",""),reverse=True)
-    collected=collected[:360]
+    collected=collected[:550]
     report={"generated_utc":now,"sites":status,"items":collected}
     STATE.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("SCANNED PORTALS: ",json.dumps(status,ensure_ascii=False))
@@ -566,8 +580,9 @@ def selftest():
     assert scored["match_count"] == 2, scored
     same_news["items"] = [same_news["items"][1],same_news["items"][2]]
     assert matches([dict(candidate)],same_news)[0]["match_count"] == 1
-    assert len(SITES)==10 and len({s[0] for s in SITES})==10
-    print("TREND MATCHER SELF TEST PASSED: 10 sources, exact-event guards and categories")
+    assert len(SITES)==16 and len({s[0] for s in SITES})==16
+    assert {s[0] for s in SITES}.issuperset({"igncom","gamespot","eurogamer","polygon","pcgamer","zazoom"})
+    print("TREND MATCHER SELF TEST PASSED: 16 sources, exact-event guards and categories")
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
