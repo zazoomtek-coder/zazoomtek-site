@@ -1,0 +1,9 @@
+# Protected YouTube import path: review changes to core readers, validators
+# and publishing workflows before merging them through a protected PR.
+# CODEOWNERS is enforced only if branch protection/rulesets require code-owner review.
+/scripts/update-youtube-posts.py @zazoomtek-coder
+/scripts/update-youtube.py @zazoomtek-coder
+/scripts/validate-sync-output.py @zazoomtek-coder
+/scripts/test_review_dedup.py @zazoomtek-coder
+/.github/workflows/youtube-sync.yml @zazoomtek-coder
+/.github/workflows/youtube-publishing-safety-net.yml @zazoomtek-coder
