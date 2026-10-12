@@ -175,33 +175,56 @@ def feed_entries(content,site):
 
 def scan_one(site):
     sid,name,kind,url,rss=site
-    items=[];errors=[]
+    errors=[];front=[]
     try:
-        parser=Anchors(url);parser.feed(download(url))
-        items=parser.found[:20]
-    except Exception as e:errors.append("homepage: "+type(e).__name__)
-    from_home=len(items)
-    if len(items)<8:
+        parser=Anchors(url)
+        parser.feed(download(url))
+        front=parser.found
+    except Exception as e:
+        errors.append("homepage: "+type(e).__name__)
+
+    # Prominent editorial links only: exclude navigation, reviews, guides,
+    # affiliate content, sponsored stories and picture descriptions.
+    def editorial(title,link):
+        clean=norm(title)
+        path=urlsplit(link).path.lower()
+        if sid=="igncom" and not path.startswith("/articles/"):
+            return False
+        if sid=="gamespot" and not path.startswith("/articles/"):
+            return False
+        if sid=="eurogamer" and re.search(r"\b(locations?|walkthrough|guide|codes?|solutions?|how to|get the|tips and tricks)\b",clean):
+            return False
+        if sid=="polygon" and re.search(r"^(a picture of|an image of|a photo of|key art|a docked|a screenshot of)\b",clean):
+            return False
+        if re.search(r"\b(sponsored|advertisement|advertorial|promo code|coupon|affiliate|buy now|deal of the day)\b",clean):
+            return False
+        if re.search(r"\b(naked|fully nude|explicit scene)\b",clean):
+            return False
+        return True
+
+    homepage=[];seen=set()
+    for title,link in front:
+        if link in seen or not editorial(title,link):
+            continue
+        seen.add(link);homepage.append((title,link))
+        if len(homepage)>=20:break
+    items=list(homepage)
+    if len(items)<9:
         try:
             for title,link in feed_entries(download(rss),url):
-                if not any(norm(title)==norm(p[0]) for p in items):items.append((title,link))
-        except Exception as e:errors.append("rss: "+type(e).__name__)
-    # Priority: actual featured/front-page links before an RSS fallback.
-    # Zazoom's technology index is mixed; distinguish games from technology.
+                if link not in seen and editorial(title,link):
+                    seen.add(link);items.append((title,link))
+                if len(items)>=25:break
+        except Exception as e:
+            errors.append("rss: "+type(e).__name__)
+
     rows=[]
-    seen_urls=set()
-    for i,(t,u) in enumerate(items[:30]):
-        if u in seen_urls:continue
-        seen_urls.add(u)
-        if kind=="mixed":
-            if sid=="pcgamer" and any(q in urlsplit(u).path for q in ("/hardware/","/software/","/tech/")):
-                section="tech"
-            else:section=classify(t)
-        else:section=kind
-        rows.append({"source":sid,"name":name,"kind":section,"title":t,"url":u,
-                     "rank":i+1,"homepage":i<from_home,
-                     "rss_fallback":i>=from_home,
-                     "featured_priority":max(0,20-i) if i<from_home else max(0,7-i+from_home)})
+    for i,(title,link) in enumerate(items[:25]):
+        section=classify(title) if kind=="mixed" else kind
+        from_home=i<len(homepage)
+        rows.append({"source":sid,"name":name,"kind":section,"title":title,
+                     "url":link,"rank":i+1,"homepage":from_home,
+                     "featured_priority":max(0,20-i) if from_home else 0})
     return sid,name,kind,rows,errors
 
 def scan_sources():
