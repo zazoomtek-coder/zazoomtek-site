@@ -1383,3 +1383,75 @@ body {overflow-y:visible;overscroll-behavior-y:auto}
 :is(header .topbar nav.nav,.zt-header nav.zt-nav)>a:last-child{
   border-right:0!important;
 }
+
+/* ZT EDITORIAL RIGHT-RAIL FINAL CONTRACT 20261012
+   Applies to EVERY archive/article/review/guide sidebar, regardless of
+   whether its legacy markup has .zt-side-mix. Prevent 30px giant news titles,
+   oversized logos, and mismatched thumbnails for editorial recommendations. */
+:is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial{
+  display:block!important;
+  box-sizing:border-box!important;
+  min-width:0!important;max-width:100%!important;width:100%!important;
+  margin:0 0 16px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid #dedede!important;
+  background:#fff!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+}
+:is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > .module-title{
+  display:flex!important;align-items:center!important;
+  width:100%!important;height:44px!important;min-height:44px!important;
+  box-sizing:border-box!important;
+  padding:0 13px!important;margin:0!important;
+  border:0!important;border-left:5px solid #d51232!important;
+  border-radius:0!important;
+  background:#202020!important;color:#fff!important;
+  font:800 14px/1.2 Arial,Helvetica,sans-serif!important;
+  text-transform:uppercase!important;letter-spacing:.025em!important;
+  text-decoration:none!important;
+}
+:is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > a.zt-mix-editorial-row{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:clamp(84px,31%,126px) minmax(0,1fr)!important;
+  align-items:center!important;gap:11px!important;
+  width:100%!important;min-width:0!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:10px 11px!important;
+  border:0!important;border-bottom:1px solid #ececec!important;
+  background:#fff!important;
+  color:#222!important;
+  font:400 13px/1.35 Arial,Helvetica,sans-serif!important;
+  text-align:left!important;white-space:normal!important;
+  text-decoration:none!important;
+}
+:is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > a.zt-mix-editorial-row > span{
+  display:block!important;
+  min-width:0!important;max-width:100%!important;
+  margin:0!important;padding:0!important;
+  font:400 13px/1.35 Arial,Helvetica,sans-serif!important;
+  color:#222!important;letter-spacing:0!important;
+  text-transform:none!important;
+  overflow-wrap:break-word!important;word-break:normal!important;
+}
+:is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > a.zt-mix-editorial-row > img{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;min-width:0!important;
+  max-width:100%!important;height:auto!important;
+  aspect-ratio:16/9!important;object-fit:cover!important;
+  border-radius:2px!important;margin:0!important;padding:0!important;
+}
+:is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > a.zt-mix-editorial-row:last-child{
+  border-bottom:0!important;
+}
+@media(max-width:640px){
+  :is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > a.zt-mix-editorial-row{
+    grid-template-columns:clamp(74px,31%,105px) minmax(0,1fr)!important;
+    gap:9px!important;padding:9px!important;
+  }
+  :is(aside.article-side,aside.news-sidebar,aside.sidebar,aside.zt-side-mix) .zt-sidebar-editorial > a.zt-mix-editorial-row > span{
+    font-size:12px!important;
+  }
+}
