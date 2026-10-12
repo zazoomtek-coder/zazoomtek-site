@@ -259,6 +259,40 @@ def unify_review_layout(page, filename):
     result=page[:match.start()]+newtag+page[match.end():]
     return result
 
+# ZT EDITORIAL TITLE/SUBTITLE RULE 2026-10-12:
+# In visible headings only, a real descriptive subtitle after "|" is always
+# a separate, normal-weight line. Preserve the primary title verbatim.
+# Titles/SEO metadata remain unchanged; a category label is NOT a subtitle.
+def split_editorial_title_h1(page, filename):
+    if filename.startswith("preview-"):
+        return page
+    if not re.search(r'<(?:main|article)\b',page,re.I):
+        return page
+
+    def replace_title(match):
+        start,original,end=match.groups()
+        # Only plain-text H1 text; do not restructure headings with child links.
+        if '<' in original or '>' in original or ' | ' not in original:
+            return match.group(0)
+        first,sub=original.split(' | ',1)
+        if not first.strip() or not sub.strip():
+            return match.group(0)
+        word_count=len(sub.strip().split())
+        # "Game Name | Recensione PS5" or "News | Tech" = no subtitle.
+        if word_count < 4 or re.fullmatch(
+            r'(?:Recensione|Review|Test|News|Unboxing|Gameplay|Guide)'
+            r'(?:\s+(?:PS5|PS4|PC|Xbox|Switch|Nintendo|202[0-9]))*',
+            html_utils.unescape(sub.strip()),re.I,
+        ):
+            return match.group(0)
+        # No text of the principal title/subtitle is rewritten.
+        return (start+'<span class="zt-title-main">'+first.rstrip()+'</span>'
+                +'<span class="zt-title-subtitle">'+sub.lstrip()+'</span>'+end)
+
+    return re.sub(r'(<h1\b[^>]*>)([^<]*?)(</h1>)',
+                  replace_title,page,count=1,flags=re.I|re.S)
+
+
 def unify_site_navigation(page, filename):
     # Keep the original Home and its pagination masthead untouched.
     if filename=="index.html" or re.fullmatch(r'pagina-\d+\.html',filename):
@@ -275,8 +309,8 @@ def unify_site_navigation(page, filename):
     canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
     return page[:first.start()]+canonical+page[first.end():]
 
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sesamereviewfinish" data-zt-design="20261010">'
-js_tag='<script src="/zt-visual.js?v=20261012sesamereviewfinish" defer></script>'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012titleSubtitle" data-zt-design="20261010">'
+js_tag='<script src="/zt-visual.js?v=20261012titleSubtitle" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
     if any(p in {'.git','node_modules','functions'} for p in path.relative_to(root).parts):
@@ -287,17 +321,18 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261012sesamereviewfinish",html,count=1)
+                    "/zt-design.css?v=20261012titleSubtitle",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
         html=re.sub(r'(?<=src=")/zt-visual[.]js(?:[?][^"]*)?',
-                    "/zt-visual.js?v=20261012sesamereviewfinish",html,count=1)
+                    "/zt-visual.js?v=20261012titleSubtitle",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     html=unify_site_navigation(html,path.name)
     html=unify_review_layout(html,path.name)
     html=unify_review_final_panel(html,path.name)
+    html=split_editorial_title_h1(html,path.name)
     # Ensure the official ZazoomTek.it masthead is applied to every generated
     # article and static page, including pages rebuilt by YouTube sync.
     home_old='<span class="brand-copy"><strong>ZazoomTek</strong><small>TECH · GAMING · COMMUNITY</small></span>'
@@ -314,6 +349,20 @@ for path in root.rglob('*.html'):
         path.write_text(html,encoding='utf-8')
         changed+=1
 print(f"ZazoomTek: shared design ensured on {changed} HTML pages.")
+
+# The explicitly approved Sesame Street title must never render the subtitle
+# in the main title's bold type or on the same line.
+sesame = (root / "sesame-street-amici-e-risate-recensione-ps5.html").read_text(encoding="utf-8")
+if not re.search(
+    r'<h1[^>]*><span class="zt-title-main">'
+    r'Sesame Street: Amici e risate Recensione PS5</span>'
+    r'<span class="zt-title-subtitle">'
+    r'Un quartiere colorato tra amicizia, giochi e avventure in famiglia</span></h1>',
+    sesame,
+):
+    raise RuntimeError("Sesame Street: main title/subtitle must render separately")
+print("Approved main title preserved; subtitles on separate normal-weight line")
+
 
 # Never publish a partial/legacy five-button navigation again.
 nav_checked=0

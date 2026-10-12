@@ -1234,6 +1234,19 @@ def latest_reviews_sidebar_box(reviews, current_id="", limit=5):
         return ""
     return '<section class="compact-box"><div class="module-title">Ultime recensioni</div><div class="compact-list">'+items+'</div></section>'
 
+def editorial_display_h1(title):
+    """Same visible title/subtitle treatment as the site's common renderer.
+    Keep SEO headline/title unchanged; don't split 'Game | Recensione PS5'.
+    """
+    if ' | ' not in title:
+        return '<h1>'+html.escape(title)+'</h1>'
+    main,sub=title.split(' | ',1)
+    if len(sub.strip().split())<4 or not main.strip() or not sub.strip():
+        return '<h1>'+html.escape(title)+'</h1>'
+    return ('<h1><span class="zt-title-main">'+html.escape(main.rstrip())+'</span>'
+            '<span class="zt-title-subtitle">'+html.escape(sub.lstrip())+'</span></h1>')
+
+
 def write_review_page(p, all_reviews=None):
     all_reviews=all_reviews or []
     title=review_title(p)
@@ -1256,7 +1269,7 @@ def write_review_page(p, all_reviews=None):
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
-        +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
+        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
         +img+f'<div class="article-body">{review_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)
@@ -1719,7 +1732,7 @@ def write_review_page(p, all_reviews=None):
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
-        +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
+        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
         +img+f'<div class="article-body">{review_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)
@@ -1975,7 +1988,7 @@ def write_news_page(p, all_news=None):
         +rich_editorial_header("news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
-        +f'<h1>{html.escape(title)}</h1><div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 News</span></div>'
+        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 News</span></div>'
         +img+f'<div class="article-body">{news_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a></div></section>'

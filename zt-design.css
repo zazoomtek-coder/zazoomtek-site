@@ -1140,3 +1140,31 @@ body.zt-review-sesame-layout .proscons.zt-review-proscons li{
   }
   body.zt-review-sesame-layout .rating.zt-review-rating strong{font-size:44px}
 }
+
+/* ZT EDITORIAL TITLE/SUBTITLE — separate normal-weight line */
+:is(.content,.article-main) h1 > .zt-title-main {
+  display:block;
+  font:inherit;
+  font-weight:inherit;
+  color:inherit;
+  letter-spacing:inherit;
+}
+:is(.content,.article-main) h1 > .zt-title-subtitle {
+  display:block!important;
+  margin-top:7px!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(18px,1.55vw,23px)!important;
+  line-height:1.4!important;
+  font-style:normal!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+  color:#3c3c3c!important;
+  text-transform:none!important;
+}
+@media(max-width:680px) {
+  :is(.content,.article-main) h1 > .zt-title-subtitle {
+    margin-top:6px!important;
+    font-size:18px!important;
+    line-height:1.35!important;
+  }
+}
