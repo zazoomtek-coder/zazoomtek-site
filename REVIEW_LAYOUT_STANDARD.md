@@ -20,3 +20,12 @@ Applicare lo stesso impaginato a TUTTE le recensioni presenti sul sito e a ogni 
 2. Controllare che ogni recensione sia elencata nell'archivio Recensioni e che link e miniature funzionino.
 3. Su approvazione dell'utente applicare lo standard alle recensioni esistenti e al percorso di pubblicazione futura; verificare che l'import da YouTube non sovrascriva il layout personalizzato.
 4. Niente deploy automatici o pubblicazioni che bypassino la revisione editoriale approvata.
+
+
+## Regola fissa anti-doppioni — importazione Community YouTube
+- Prima di importare una recensione scritta, confrontare gioco/prodotto (titolo normalizzato, indipendente da maiuscole, simboli, diciture Review/Recensione e sottotitoli) e piattaforma con le recensioni già pubblicate.
+- Se è già presente, non creare una nuova pagina, una seconda scheda archivio o duplicati in Home/pagine paginate. Dare priorità alla recensione editoriale pubblicata manualmente.
+- Anche due post Community distinti (ID YouTube diversi) sul medesimo prodotto/piattaforma devono produrre un solo articolo.
+- Distinguere le recensioni di piattaforme diverse quando specificate; non confondere le News con le Recensioni.
+- Preservare le recensioni editoriali manuali nel catalogo durante il successivo aggiornamento automatico.
+- Il controllo è nello script scripts/update-youtube-posts.py con test offline scripts/test_review_dedup.py eseguiti dal workflow youtube-sync.yml.
