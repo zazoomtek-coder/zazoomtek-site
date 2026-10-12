@@ -192,7 +192,8 @@ def featured_policy_leads(now):
         out[ident]={"id":ident,"section":section,"title":title[:220],
                     "source":x.get("name","")[:100],"source_url":url,
                     "published_utc":first.isoformat(),"status":"research_only",
-                    "date_is_first_seen":True}
+                    "date_is_first_seen":True,
+                    "featured_priority":max(0,13-int(x.get("rank",12)))}
     return list(out.values())
 
 def zazoom_parser_self_test():
