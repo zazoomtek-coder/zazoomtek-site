@@ -12,6 +12,7 @@ on:
     paths:
       - 'approved-special-articles.json'
       - 'scripts/publish-special-news.py'
+      - 'scripts/featured_article_layout.py'
       - 'scripts/build-special-covers.py'
       - '.github/workflows/publish-special-news.yml'
 permissions:
@@ -52,6 +53,12 @@ jobs:
           from importlib.util import module_from_spec, spec_from_file_location
           import sys
           sys.path.insert(0,str(Path('scripts').resolve()))
+          from featured_article_layout import _reference
+          css, header, sidebar, footer=_reference()
+          assert 'class="zt-header"' in header
+          assert 'class="article-side' in sidebar
+          assert 'class="legal-footer' in footer
+          print("Community article layout verified against current multi-class sidebar.")
           spec=spec_from_file_location("special_publisher","scripts/publish-special-news.py")
           publisher=module_from_spec(spec);spec.loader.exec_module(publisher)
           approved=json.loads(Path("approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
