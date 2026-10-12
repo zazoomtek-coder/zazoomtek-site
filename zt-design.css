@@ -715,3 +715,26 @@ a[href="https://www.zazoomtek.it/chi-sono.html"] {
    Defensive rendering guard for older HTML, including pages restored by bots.
    Do not hide the bottom .zt-related-section or the Community banner. */
 aside :is([data-zt-auto="related"],.zt-sidebar-related){display:none!important}
+
+/* The featured NEWS box always heads the Home right column; every article and
+   archive uses the same editorial featured card with its own native styling. */
+.sidebar > .zt-mix-feature{
+  display:block;
+  margin:0 0 18px;
+  overflow:hidden;
+  border:1px solid #dedede;
+  background:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.07);
+}
+.sidebar > .zt-mix-feature > .module-title{
+  display:block;min-height:44px;padding:12px 14px;
+  background:#202020;color:#fff!important;
+  font-size:14px;font-weight:800;text-decoration:none;
+  border-left:5px solid #d51232;
+}
+.sidebar > .zt-mix-feature .zt-mix-feature-image{display:block;margin:11px 11px 0}
+.sidebar > .zt-mix-feature .zt-mix-feature-image img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.sidebar > .zt-mix-feature .zt-mix-feature-copy{padding:11px 13px 14px}
+.sidebar > .zt-mix-feature h3{margin:0 0 11px;font-size:15px;line-height:1.35}
+.sidebar > .zt-mix-feature h3 a{color:#191919;text-decoration:none}
+.sidebar > .zt-mix-feature .zt-mix-read{display:block;text-align:center;padding:10px 8px;background:#d51232;color:#fff;font-weight:800;font-size:11px;text-decoration:none}
