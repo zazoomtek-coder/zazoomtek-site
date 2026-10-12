@@ -44,7 +44,7 @@ SITES=[
  ("gamespot","GameSpot.com","gaming","https://www.gamespot.com/news/","https://www.gamespot.com/feeds/news/"),
  ("eurogamer","Eurogamer.net","gaming","https://www.eurogamer.net/","https://www.eurogamer.net/feed/news"),
  ("polygon","Polygon.com","gaming","https://www.polygon.com/","https://www.polygon.com/rss/index.xml"),
- ("pcgamer","PCGamer.com","gaming","https://www.pcgamer.com/","https://www.pcgamer.com/feeds.xml"),
+ ("pcgamer","PCGamer.com","mixed","https://www.pcgamer.com/","https://www.pcgamer.com/feeds.xml"),
  ("zazoom","Zazoom.it","mixed","https://www.zazoom.it/tecnologia/","https://www.zazoom.it/rss/"),
 ]
 STOP=set("""la il lo gli le l un uno una i del della delle degli dei di da a ad al allo alla alle agli ai
@@ -119,7 +119,10 @@ def safe_url(url,site):
     if domain!=official:return False
     path=p.path.lower()
     if len(path)<20 or path in ("/notizie/","/news/","/feed/"):return False
-    if re.search(r"/(tag|category|categoria|autore|author|search|page|forum|feed|offerte|promo|coupon|shop)/",path):return False
+    if re.search(r"/(tag|category|categoria|autore|author|search|page|forum|feed|offerte|promo|coupon|shop|wikis|wiki|special|guides|guide|videos|video|reviews|review|walkthroughs)/",path):return False
+    # Reject evergreen walkthroughs and cheat sheets. They are not current news.
+    if re.search(r"(?:-locations|-location|-puzzle|-solutions|-walkthrough|-how-to|-cheats|-tips|-quest-guide|-collectibles|-ending-explained)(?:/|$)",path):return False
+    if domain=="ign.com" and not ("/articles/" in path or path.startswith("/news/")):return False
     if len(path.split("/"))<3 and "-" not in path:return False
     return True
 
@@ -186,11 +189,19 @@ def scan_one(site):
     # Priority: actual featured/front-page links before an RSS fallback.
     # Zazoom's technology index is mixed; distinguish games from technology.
     rows=[]
-    for i,(t,u) in enumerate(items[:25]):
-        section=classify(t) if kind=="mixed" else kind
+    seen_urls=set()
+    for i,(t,u) in enumerate(items[:30]):
+        if u in seen_urls:continue
+        seen_urls.add(u)
+        if kind=="mixed":
+            if sid=="pcgamer" and any(q in urlsplit(u).path for q in ("/hardware/","/software/","/tech/")):
+                section="tech"
+            else:section=classify(t)
+        else:section=kind
         rows.append({"source":sid,"name":name,"kind":section,"title":t,"url":u,
                      "rank":i+1,"homepage":i<from_home,
-                     "featured_priority":max(0,20-i) if i<from_home else 0})
+                     "rss_fallback":i>=from_home,
+                     "featured_priority":max(0,20-i) if i<from_home else max(0,7-i+from_home)})
     return sid,name,kind,rows,errors
 
 def scan_sources():
