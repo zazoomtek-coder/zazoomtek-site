@@ -710,3 +710,8 @@ a[href="https://www.zazoomtek.it/chi-sono.html"] {
     padding-right:0;
   }
 }
+
+/* EDITORIAL RULE 2026-10-12: related articles are ONLY below the article text.
+   Defensive rendering guard for older HTML, including pages restored by bots.
+   Do not hide the bottom .zt-related-section or the Community banner. */
+aside :is([data-zt-auto="related"],.zt-sidebar-related){display:none!important}
