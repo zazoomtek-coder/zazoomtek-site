@@ -1,0 +1,43 @@
+name: YouTube publishing safety net
+# Independent Firebase recovery: runs even when trend/related/analytics fail.
+# Does not import, rewrite, approve, or commit YouTube content.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '48 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: youtube-firebase-recovery
+  cancel-in-progress: false
+jobs:
+  deploy-last-good:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Read newest committed site without running editorial builders
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+      - name: Verify Community and video state before Firebase deployment
+        run: |
+          python3 scripts/validate-sync-output.py community
+          python3 scripts/validate-sync-output.py videos
+          python3 - <<'PY'
+          from pathlib import Path
+          index=Path("index.html").read_text(encoding="utf-8")
+          assert '<!-- FEATURED_NEWS_START -->' in index
+          assert '<!-- ARTICLE_FEED_START -->' in index
+          assert '<!-- HOME_LATEST_REVIEWS_MAIN_START -->' in index
+          print("Latest good import passes publication checks; redeploying untouched site.")
+          PY
+      - name: Redeploy last valid committed YouTube site to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
