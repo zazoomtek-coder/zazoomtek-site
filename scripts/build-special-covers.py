@@ -202,7 +202,7 @@ def render(item,photo=None):
     d.rectangle((0,0,1280,9),fill=accent)
     d.rounded_rectangle((48,48,280,94),radius=12,fill=(13,20,28))
     d.text((63,57),"ZazoomTek.it",font=font(28),fill=(255,255,255))
-    d.text((52,126),"TECH IMPACT" if item["section"]=="tech" else "GAMING INSIDE",
+    d.text((52,126),{"tech":"TECH IMPACT","gaming":"GAMING INSIDE","standard-tech":"TECNOLOGIA","standard-gaming":"GAMING"}.get(item["section"],"NEWS"),
             font=font(23),fill=accent,stroke_width=0)
     headline=cover_text(item)
     f=None;lines=None
