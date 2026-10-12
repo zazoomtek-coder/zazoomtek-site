@@ -917,7 +917,7 @@ aside :is([data-zt-auto="related"],.zt-sidebar-related){display:none!important}
   aside.article-side.zt-side-mix,
   aside.news-sidebar.zt-side-mix{
     position:sticky!important;
-    top:var(--zt-side-smart-top,16px)!important;
+    top:var(--zt-smart-sticky-top,16px)!important;
     align-self:start!important;
     height:max-content!important;
     max-height:none!important;
