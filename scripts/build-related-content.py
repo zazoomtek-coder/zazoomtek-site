@@ -696,8 +696,9 @@ def inject(record, block):
 
 
 def add_required_sidebar_boxes(records, idf, entity_idf):
-    """Fixed publication rule: every editorial detail page has live editorial
-    suggestions and related articles IN THE RIGHT COLUMN, using real pages.
+    """The right column has ONLY editorial suggestions, never Articoli correlati.
+    Related articles appear once, after the article text and before the
+    black Community banner in the left/main article column.
 
     Editorial suggestions are pseudo-random but stable for each article,
     avoiding constant reshuffling and links to the page itself.
@@ -785,20 +786,18 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
         opener_end = sidebar.find(">") + 1
         if not opener_end:
             raise RuntimeError(f"{path.name}: invalid right sidebar")
-        additions = (
-            box("Articoli correlati", related, "related", "/recensioni-scritte.html" if record["kind"] == "Recensione" else "/news.html")
-            + box("Dalla redazione", picks, "editorial", "/news.html")
-        )
-        # Keep the standard mixed boxes, but give contextually related links
-        # the first visible position rather than hiding them below Amazon.
+        # Related recommendations belong ONLY at the end of the main article.
+        # Legacy right-column related blocks are stripped by auto_block.
+        additions = box("Dalla redazione", picks, "editorial", "/news.html")
+        # Preserve the diverse existing editorial modules in the sidebar.
         sidebar = sidebar[:opener_end] + additions + sidebar[opener_end:]
         output = content[:match.start()] + sidebar + content[match.end():]
-        if output.count('data-zt-auto="related"') != 1 or output.count('data-zt-auto="editorial"') != 1:
-            raise RuntimeError(f"{path.name}: sidebar box validation failed")
+        if output.count('data-zt-auto="editorial"') != 1 or 'data-zt-auto="related"' in output:
+            raise RuntimeError(f"{path.name}: right-column recommendations must be editorial-only")
         if output != content:
             path.write_text(output, encoding="utf-8")
             changed += 1
-    print(f"Required right editorial/related sidebars: {changed} article pages updated.")
+    print(f"Editorial-only right sidebars (no related links): {changed} article pages updated.")
 
 def main():
     records = []
@@ -854,8 +853,8 @@ def main():
             record["path"].write_text(output, encoding="utf-8")
             changed += 1
 
-    # Right-column rule applies to all full editorial pages, including those
-    # with manually curated left-column related articles.
+    # Keep the right column editorial-only and leave related content at the
+    # end of the article, including pages with manually curated related links.
     add_required_sidebar_boxes(records, idf, entity_idf)
 
     coverage=(with_blocks/len(records))*100 if records else 0
