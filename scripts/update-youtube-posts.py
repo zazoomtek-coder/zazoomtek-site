@@ -844,6 +844,8 @@ def review_body_html(p):
         paragraph.append(line)
 
     flush_paragraph()
+    # Standard ZazoomTek: keep the opening paragraph, without the heading "Introduzione".
+    out=[block for block in out if block != '<h2><strong>Introduzione</strong></h2>']
     out=distribute_inline_images(out,p,title)
     return "\n".join(out)
 
