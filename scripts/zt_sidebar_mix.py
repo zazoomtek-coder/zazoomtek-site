@@ -234,7 +234,7 @@ def refresh_sidebars():
     detail_count = 0
     repaired_count = 0
     article_aside = re.compile(
-        r'<aside\b[^>]*class=["\'][^"\']*(?:article-side|news-sidebar)[^"\']*["\'][^>]*>[\s\S]*?</aside>',
+        r'<aside\b[^>]*class=["\'][^"\']*(?:article-side|news-sidebar|\baside\b)[^"\']*["\'][^>]*>[\s\S]*?</aside>',
         re.I,
     )
     article_end = re.compile(r'</article>(?=\s*</div>\s*</main>)', re.I)
@@ -242,9 +242,18 @@ def refresh_sidebars():
         original = path.read_text(encoding="utf-8")
         # A genuine two-column article (News, Reviews, Tests, Guides, Gaming,
         # Tech Impact, Gaming Inside, and future editorial categories).
-        if not re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid[^"\']*["\']', original, re.I):
-            continue
-        if not re.search(r'<article\b[^>]*class=["\'][^"\']*article-main[^"\']*["\']', original, re.I):
+        standard_detail = (
+            re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid[^"\']*["\']', original, re.I)
+            and re.search(r'<article\b[^>]*class=["\'][^"\']*article-main[^"\']*["\']', original, re.I)
+        )
+        # Some approved review layouts (e.g. Sesame Street) use
+        # .wrap.layout > main.content + aside instead of .detail-grid.
+        special_detail = (
+            re.search(r'<div\b[^>]*class=["\'][^"\']*\blayout\b[^"\']*["\']', original, re.I)
+            and re.search(r'<main\b[^>]*class=["\'][^"\']*\bcontent\b[^"\']*["\']', original, re.I)
+            and re.search(r'<article\b[^>]*class=["\'][^"\']*\barticle-main\b[^"\']*["\']', original, re.I)
+        )
+        if not (standard_detail or special_detail):
             continue
         if path.name.startswith(("guida-", "guide-")):
             kind = "guides"
@@ -252,7 +261,7 @@ def refresh_sidebars():
             kind = "tech"
         elif path.name.startswith("gaming-inside-"):
             kind = "gaming"
-        elif path.name.startswith(("recensione-", "recensioni-", "test-", "unboxing-")):
+        elif path.name.startswith(("recensione-", "recensioni-", "test-", "unboxing-", "review-")) or "-recensione-" in path.name:
             kind = "reviews"
         else:
             kind = "news"
@@ -277,9 +286,15 @@ def refresh_sidebars():
         else:
             # A new article with no right column: inject it immediately after
             # the article, inside its existing responsive detail grid.
-            updated, inserted = article_end.subn(
-                lambda m: m.group(0) + sidebar, original, count=1,
-            )
+            if special_detail:
+                updated, inserted = re.subn(
+                    r'</main>(?=\s*</div>)',
+                    lambda m: m.group(0) + sidebar, original, count=1, flags=re.I,
+                )
+            else:
+                updated, inserted = article_end.subn(
+                    lambda m: m.group(0) + sidebar, original, count=1,
+                )
             if not inserted:
                 raise RuntimeError(
                     f"Editorial page {path.name} has a detail grid but no "

@@ -89,6 +89,10 @@ for path in sorted(root.glob('*.html')):
         raise RuntimeError(f"{path.name}: Community banner not IMMEDIATELY below related cards")
     if page.count(COMMUNITY_START) != 1 or page.count(COMMUNITY_END) != 1:
         raise RuntimeError(f"{path.name}: duplicate or missing Community banner")
+    # Mandatory right-hand widgets. Any new article without these boxes
+    # aborts Firebase deployment instead of silently publishing incomplete.
+    if page.count('data-zt-auto="editorial"') != 1 or page.count('data-zt-auto="related"') != 1:
+        raise RuntimeError(f"{path.name}: missing right-column Dalla redazione / Articoli correlati; refusing to deploy")
     if page != original:
         path.write_text(page, encoding='utf-8')
         corrected += 1

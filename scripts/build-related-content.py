@@ -427,7 +427,14 @@ def eligible_paths():
             re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid', page, re.I)
             and re.search(r'<article\b[^>]*class=["\'][^"\']*article-main', page, re.I)
         )
-        if is_detail:
+        # Support alternate two-column editorial layouts, including the approved
+        # Sesame Street PS5 review (main.content / article.article-main).
+        is_review_layout = (
+            re.search(r'<div\b[^>]*class=["\'][^"\']*\blayout\b', page, re.I)
+            and re.search(r'<main\b[^>]*class=["\'][^"\']*\bcontent\b', page, re.I)
+            and re.search(r'<article\b[^>]*class=["\'][^"\']*\barticle-main\b', page, re.I)
+        )
+        if (is_detail or is_review_layout) and not path.name.startswith("preview-"):
             found[path.name] = path
     return [found[k] for k in sorted(found)]
 
@@ -687,6 +694,112 @@ def inject(record, block):
         content = content[:pos] + block + content[pos:]
     return content
 
+
+def add_required_sidebar_boxes(records, idf, entity_idf):
+    """Fixed publication rule: every editorial detail page has live editorial
+    suggestions and related articles IN THE RIGHT COLUMN, using real pages.
+
+    Editorial suggestions are pseudo-random but stable for each article,
+    avoiding constant reshuffling and links to the page itself.
+    """
+    import random
+
+    aside_pattern = re.compile(
+        r'<aside\b[^>]*class=["\'][^"\']*(?:article-side|news-sidebar)[^"\']*["\'][^>]*>[\s\S]*?</aside>',
+        re.I,
+    )
+    auto_block = re.compile(
+        r'<section\b[^>]*data-zt-auto="(?:editorial|related)"[^>]*>[\s\S]*?</section>',
+        re.I,
+    )
+
+    def rows(items):
+        parts = []
+        for item in items:
+            link = "/" + html.escape(item["name"], quote=True)
+            title = html.escape(item["title"])
+            img = html.escape(item["image"] or "/ChatGPT.png", quote=True)
+            parts.append(
+                f'<a class="zt-mix-editorial-row" href="{link}">'
+                f'<img src="{img}" loading="lazy" alt="">'
+                f'<span>{title}</span></a>'
+            )
+        return "".join(parts)
+
+    def box(label, items, key, href):
+        return (
+            f'<section class="side-box zt-mix-editorial zt-sidebar-{key}" data-zt-auto="{key}">'
+            f'<a class="module-title" href="{href}">{html.escape(label)}</a>'
+            + rows(items) + '</section>'
+        )
+
+    changed = 0
+    for record in records:
+        path = record["path"]
+        content = path.read_text(encoding="utf-8")
+        match = aside_pattern.search(content)
+        if not match:
+            raise RuntimeError(f"{path.name}: missing right editorial sidebar; refusing to publish")
+
+        related = related_for(record, records, idf, entity_idf, LIMIT)
+        if not related:
+            domain = record["domain"]
+            pool = [
+                item for item in records
+                if item["name"] != record["name"]
+                and (domain == "mixed" or item["domain"] in {domain, "mixed"})
+            ]
+            matching_kind = [item for item in pool if item["kind"] == record["kind"]]
+            related = sorted(
+                matching_kind or pool,
+                key=lambda item: (-relevance(record, item, idf, entity_idf), item["name"])
+            )[:2]
+        if not related:
+            raise RuntimeError(f"{path.name}: no verified related articles; refusing to publish")
+
+        exclude = {record["name"]} | {item["name"] for item in related}
+        pool = [
+            item for item in records if item["name"] not in exclude
+            and 'content="noindex' not in item["raw"].lower()
+        ]
+        rng = random.Random(record["name"])
+        pool.sort(key=lambda item: item["name"])
+        rng.shuffle(pool)
+        picks = []
+        seen_kinds = set()
+        for item in pool:
+            if item["kind"] not in seen_kinds:
+                picks.append(item)
+                seen_kinds.add(item["kind"])
+            if len(picks) >= 3:
+                break
+        for item in pool:
+            if len(picks) >= 3:
+                break
+            if item not in picks:
+                picks.append(item)
+        if len(picks) < 2:
+            raise RuntimeError(f"{path.name}: insufficient published editorial suggestions")
+
+        sidebar = auto_block.sub("", match.group(0))
+        opener_end = sidebar.find(">") + 1
+        if not opener_end:
+            raise RuntimeError(f"{path.name}: invalid right sidebar")
+        additions = (
+            box("Articoli correlati", related, "related", "/recensioni-scritte.html" if record["kind"] == "Recensione" else "/news.html")
+            + box("Dalla redazione", picks, "editorial", "/news.html")
+        )
+        # Keep the standard mixed boxes, but give contextually related links
+        # the first visible position rather than hiding them below Amazon.
+        sidebar = sidebar[:opener_end] + additions + sidebar[opener_end:]
+        output = content[:match.start()] + sidebar + content[match.end():]
+        if output.count('data-zt-auto="related"') != 1 or output.count('data-zt-auto="editorial"') != 1:
+            raise RuntimeError(f"{path.name}: sidebar box validation failed")
+        if output != content:
+            path.write_text(output, encoding="utf-8")
+            changed += 1
+    print(f"Required right editorial/related sidebars: {changed} article pages updated.")
+
 def main():
     records = []
     for path in eligible_paths():
@@ -740,6 +853,10 @@ def main():
         if output != record["raw"]:
             record["path"].write_text(output, encoding="utf-8")
             changed += 1
+
+    # Right-column rule applies to all full editorial pages, including those
+    # with manually curated left-column related articles.
+    add_required_sidebar_boxes(records, idf, entity_idf)
 
     coverage=(with_blocks/len(records))*100 if records else 0
     print(
