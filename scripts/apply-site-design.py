@@ -6,8 +6,8 @@ from zt_sidebar_mix import refresh_sidebars
 import re
 
 root=Path(__file__).resolve().parents[1]
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012relatedbottom" data-zt-design="20261010">'
-js_tag='<script src="/zt-visual.js?v=20261012relatedbottom" defer></script>'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012newsfirst" data-zt-design="20261010">'
+js_tag='<script src="/zt-visual.js?v=20261012newsfirst" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
     if any(p in {'.git','node_modules','functions'} for p in path.relative_to(root).parts):
@@ -18,12 +18,12 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261012relatedbottom",html,count=1)
+                    "/zt-design.css?v=20261012newsfirst",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
         html=re.sub(r'(?<=src=")/zt-visual[.]js(?:[?][^"]*)?',
-                    "/zt-visual.js?v=20261012relatedbottom",html,count=1)
+                    "/zt-visual.js?v=20261012newsfirst",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     # Ensure the official ZazoomTek.it masthead is applied to every generated
