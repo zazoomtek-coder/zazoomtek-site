@@ -811,3 +811,97 @@ aside :is([data-zt-auto="related"],.zt-sidebar-related){display:none!important}
   background:#131921!important;border-left:7px solid #ff9900!important;
   border-bottom:2px solid #ff9900!important;
 }
+
+/* ZT 20261012 CANONICAL HEADER AND ARTICLE SCROLL */
+/* Inner pages, including legacy custom reviews and 404, share the eight-button
+   Home navigation, search box and social toolbar. A shared baseline is necessary
+   because legacy pages contain CSS only for their old five-button headers. */
+:root{--zt-global-accent:#d51232}
+.zt-header{
+  box-sizing:border-box;
+  background:#171717;
+  color:#fff;
+  border-top:3px solid #d51232;
+  width:100%;
+}
+.zt-header .zt-wrap{
+  box-sizing:border-box;
+  width:min(1460px,calc(100% - 28px));
+  margin-left:auto;margin-right:auto;
+}
+.zt-header .zt-headrow{
+  display:grid;grid-template-columns:auto minmax(0,1fr) minmax(190px,270px);
+  align-items:stretch;min-height:78px;
+}
+.zt-header .zt-brand{
+  display:flex;align-items:center;gap:10px;min-width:0;
+  padding:10px 18px 10px 0;text-decoration:none;color:#fff;
+}
+.zt-header .zt-brand > img{
+  width:52px;height:52px;object-fit:cover;flex:0 0 52px;border-radius:7px;
+}
+.zt-header .zt-brand-copy{display:flex;flex-direction:column;gap:5px;white-space:nowrap}
+.zt-header .zt-wordmark{font-size:clamp(19px,1.6vw,24px);font-weight:900;line-height:1;letter-spacing:-.04em}
+.zt-header .zt-mark-blue{color:#45ade6}
+.zt-header .zt-mark-red{color:#e31b43}
+.zt-header .zt-brand-tagline{color:#e9e9e9;font-size:10px;letter-spacing:.09em;font-weight:600}
+.zt-header nav.zt-nav{
+  display:flex!important;align-items:stretch;min-width:0;
+  flex-wrap:nowrap!important;white-space:nowrap;
+  overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;scrollbar-color:#555 #171717;
+}
+.zt-header nav.zt-nav a{
+  display:flex;align-items:center;flex:0 0 auto;
+  padding:0 clamp(7px,.55vw,12px);
+  font:800 clamp(10px,.67vw,12px)/1.2 Arial,Helvetica,sans-serif!important;
+  color:#fff;text-decoration:none;text-transform:uppercase;
+  white-space:nowrap;letter-spacing:0;
+}
+.zt-header nav.zt-nav a:is(.active,:hover,[aria-current="page"]){
+  background:#d51232;color:#fff;
+}
+.zt-header .zt-tools{
+  display:flex;flex-direction:column;justify-content:center;
+  gap:7px;min-width:0;padding:8px 0 8px 12px;
+}
+.zt-header .zt-search{display:flex;background:#303030;border:1px solid #444;min-width:0}
+.zt-header .zt-search input{
+  display:block;flex:1 1 auto;width:100%;min-width:0;
+  border:0;background:transparent;color:#fff;padding:10px 12px;
+  font:400 12px/1.3 Arial,Helvetica,sans-serif;outline:none;
+}
+.zt-header .zt-search button{border:0;background:#d51232;color:#fff;min-width:38px;cursor:pointer}
+.zt-header .zt-socials{display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.zt-header .zt-socials a{display:grid;place-items:center;width:29px;height:29px;flex:0 0 29px;border-radius:50%;background:#202020}
+.zt-header .zt-socials img{display:block;width:22px;height:22px;object-fit:contain}
+@media(max-width:1260px){
+  .zt-header .zt-headrow{grid-template-columns:auto minmax(0,1fr)}
+  .zt-header .zt-tools{grid-column:1/-1;padding:8px 0}
+}
+@media(max-width:720px){
+  .zt-header .zt-headrow{display:flex;flex-direction:column;align-items:stretch}
+  .zt-header .zt-brand{justify-content:center;padding:10px 0}
+  .zt-header nav.zt-nav{justify-content:flex-start;width:100%;max-width:100%;overflow-x:auto}
+  .zt-header nav.zt-nav a{padding:12px 11px;font-size:11px!important}
+  .zt-header .zt-tools{padding:8px 0 10px}
+}
+/* Every article/section sidebar behaves like the Home: page scroll is natural,
+   the right column is independently scrollable while reading long content. */
+@media(min-width:1001px){
+  aside.zt-side-mix{
+    position:sticky!important;
+    top:16px!important;align-self:start!important;
+    height:auto!important;min-height:0!important;
+    max-height:calc(100dvh - 32px)!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+    scrollbar-width:thin;overscroll-behavior-y:contain;
+  }
+}
+@media(max-width:1000px){
+  aside.zt-side-mix{
+    position:static!important;top:auto!important;
+    max-height:none!important;height:auto!important;
+    overflow:visible!important;
+  }
+}
