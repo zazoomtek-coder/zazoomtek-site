@@ -1214,3 +1214,58 @@ body.zt-review-sesame-layout .proscons.zt-review-proscons li{
     font-size:11px!important;
   }
 }
+
+/* ZAZOOMTEK GLOBAL SCROLL CONTRACT 20261012 */
+/* Home and every editorial archive, article, review, guide, Impact and Inside
+   use one native page scroller. No independent sidebar wheel, snap or clipping.
+   All page sidebars share the Home smart-sticky offset from their existing JS. */
+html {scroll-behavior:smooth}
+body {overflow-y:visible;overscroll-behavior-y:auto}
+:is(.shell.page,.news-page,.news-layout,.detail-grid,.layout,.wrap.layout,.zt-wrap.news-layout){
+  overflow:visible!important;
+}
+:is(.sidebar,aside.news-sidebar,aside.article-side,aside.zt-side-mix){
+  overflow-x:visible!important;
+  overflow-y:visible!important;
+  max-height:none!important;
+  min-height:0!important;
+  height:max-content!important;
+  scrollbar-gutter:auto!important;
+  overscroll-behavior-y:auto!important;
+  scroll-snap-type:none!important;
+  padding-right:0!important;
+}
+.zt-side-mix :is(.zt-mix-recent-list,.zt-mix-editorial-list,.zt-mix-video-list){
+  max-height:none!important;
+  overflow-y:visible!important;
+  overflow-x:visible!important;
+  overscroll-behavior-y:auto!important;
+  scroll-snap-type:none!important;
+}
+:is(.sidebar,aside.news-sidebar,aside.article-side,aside.zt-side-mix) > .side-box{
+  max-height:none!important;
+  scroll-snap-align:none!important;
+}
+@media(min-width:1001px){
+  :is(.sidebar,aside.news-sidebar,aside.article-side,aside.zt-side-mix){
+    position:sticky!important;
+    top:var(--zt-smart-sticky-top,16px)!important;
+    align-self:start!important;
+  }
+}
+@media(min-width:821px) and (max-width:1000px){
+  .sidebar{
+    position:sticky!important;
+    top:var(--zt-smart-sticky-top,16px)!important;
+    align-self:start!important;
+  }
+  :is(aside.news-sidebar,aside.article-side,aside.zt-side-mix){
+    position:static!important;top:auto!important;
+  }
+}
+@media(max-width:820px){
+  :is(.sidebar,aside.news-sidebar,aside.article-side,aside.zt-side-mix){
+    position:static!important;
+    top:auto!important;
+  }
+}
