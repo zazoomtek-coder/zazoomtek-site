@@ -232,6 +232,41 @@ def discover():
     except Exception as exc:
         errors.append({"query":ZAZOOM_TECH_INDEX,"error":str(exc)[:160]})
         print("::warning::Zazoom.it index unavailable; continuing with independent news feeds.")
+    # Sixteen current editorial front pages also supply Tech Impact/Gaming
+    # Inside research leads. Headlines alone NEVER qualify for publication.
+    try:
+        trend_path=ROOT/"trending-sources.json"
+        trend=json.loads(trend_path.read_text(encoding="utf-8")) if trend_path.exists() else {}
+        n=0
+        for row in trend.get("items",[]):
+            title=clean(row.get("title",""))
+            url=row.get("url","")
+            if not row.get("homepage") or row.get("rank",99)>14:
+                continue
+            if not isinstance(url,str) or not url.startswith("https://"):
+                continue
+            if not ZAZOOM_PUBLIC_RE.search(title):
+                continue
+            game=bool(ZAZOOM_GAMING_RE.search(title))
+            is_game_policy=game and bool(re.search(
+                r"(?i)(diritt|legge|licenziament|chiusur|acquisizi|"
+                r"sindac|studio|protezi|regolament|antitrust|"
+                r"copyright|censur|server|giocator|privacy|lavorator)",title))
+            section="gaming" if is_game_policy else "tech" if not game and relevant("tech",title) else None
+            if not section:continue
+            try:
+                when=dt.datetime.fromisoformat(row["first_seen"])
+            except (ValueError,KeyError,TypeError):
+                continue
+            if not dt.timedelta(0)<=now-when<=dt.timedelta(hours=90):continue
+            ident=hashlib.sha256((section+"|"+url).encode()).hexdigest()[:20]
+            fresh[ident]={"id":ident,"section":section,"title":title[:220],
+                "source":row.get("name","")[:100],"source_url":url,
+                "published_utc":when.isoformat(),"status":"research_only"}
+            n+=1
+        print("Tech Impact / Gaming Inside featured research leads:",n)
+    except Exception as exc:
+        errors.append({"query":"trending-sources.json","error":type(exc).__name__})
     # Preserve up to seven days of previously discovered leads and their status.
     for key,item in existing.items():
         try:age=now-dt.datetime.fromisoformat(item["published_utc"])
