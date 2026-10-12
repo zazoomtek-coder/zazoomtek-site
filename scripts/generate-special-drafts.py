@@ -94,7 +94,7 @@ def main():
                               for v in x.pop("related",[])[:3]]
     print("Research leads:",len(leads),
           "; same-event corroboration candidates:",sum(x["independent_outlets"]>=2 for x in leads))
-    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona massimo 3 proposte TECH IMPACT e massimo 2 GAMING INSIDE, preferendo notizie forti, in primo piano nelle homepage, freschissime e con alto potenziale virale. Il campo featured_priority indica prominenza, NON il numero reale di lettori o condivisioni. Non inventare metriche e non riempire la quota con casi privi di fatti verificabili. Privilegia Reuters, ANSA, AP, istituzioni e testate autorevoli italiane/internazionali. I temi includono politica nazionale ed estera, norme, economia e tutela dei consumatori purché il nesso con tecnologia o videogiochi sia concreto. I campi possible_corrob sono IPOTESI di corrispondenza tra titoli: includi due URL solo quando si riferiscono alla STESSA notizia e a testate diverse; altrimenti scegli anche una notizia singola solida per le pagine, ma non definirla tendenza.
+    prompt="""Sei un ricercatore editoriale di ZazoomTek. Disponi di SOLI TITOLI RSS: queste informazioni NON BASTANO a verificare gli articoli. Seleziona fino a 6 proposte TECH IMPACT e fino a 6 GAMING INSIDE per scansione (solo se supportate da fonti), preferendo notizie forti, in primo piano nelle homepage, freschissime e con alto potenziale virale. Il campo featured_priority indica prominenza, NON il numero reale di lettori o condivisioni. Non inventare metriche e non riempire la quota con casi privi di fatti verificabili. Privilegia Reuters, ANSA, AP, istituzioni e testate autorevoli italiane/internazionali. I temi includono politica nazionale ed estera, norme, economia e tutela dei consumatori purché il nesso con tecnologia o videogiochi sia concreto. I campi possible_corrob sono IPOTESI di corrispondenza tra titoli: includi due URL solo quando si riferiscono alla STESSA notizia e a testate diverse; altrimenti scegli anche una notizia singola solida per le pagine, ma non definirla tendenza.
 TECH IMPACT: politica e tecnologia, cybersicurezza pubblica, sicurezza digitale, diritti, innovazioni con implicazioni documentabili; escludi ordinaria pubblicità e lanci banali.
 GAMING INSIDE: esclusivamente politica e leggi dei VIDEOGIOCHI, proprietà di giochi digitali, chiusura server, consumatori, censura, tutela minori, crisi e acquisizioni di studi videoludici. Un evento su Meta, Hollywood, IA o copyright SENZA un rapporto esplicito con i videogiochi NON è pertinente.
 Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO CON 300-750 PAROLE NEL CORPO DEL TESTO, NON un articolo pronto: titolo italiano originale, summary neutrale di 30-50 parole (non oltre 380 caratteri), 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo con almeno 300 parole originali nel corpo dovrà essere scritto SOLO DOPO verifica documentale separata.
@@ -119,7 +119,7 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         raise SystemExit(1)
     print("Gemini model selected:",selected)
     endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+selected+":generateContent"
-    payload={"contents":[{"parts":[{"text":prompt}]}],"generationConfig":{"responseMimeType":"application/json","maxOutputTokens":6500,"temperature":0.2}}
+    payload={"contents":[{"parts":[{"text":prompt}]}],"generationConfig":{"responseMimeType":"application/json","maxOutputTokens":10000,"temperature":0.2}}
     req=urllib.request.Request(endpoint,data=json.dumps(payload).encode("utf-8"),headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
     try:
         with urllib.request.urlopen(req,timeout=65) as response:
@@ -169,7 +169,7 @@ Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"
         urls=(urls+corroborating)[:3]
         verified.append({"section":x["section"],"title":x["title"][:180],"summary":x["summary"][:1500],"source_urls":urls,"verification_needed":x.get("verification_needed",[]),"outline":x.get("outline",[])[:6] if isinstance(x.get("outline"),list) else [],"target_words":450,"featured_priority":max((by_url[u].get("featured_priority",0) for u in urls),default=0),
                          "editorial_status":"needs_human_review"})
-    report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:10]}
+    report={"generated_utc":now.isoformat(),"published":False,"gemini_model":selected,"note":"Research drafts only; titles from RSS are not factual verification.","drafts":verified[:12]}
     OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print("Gemini research proposals:",len(verified[:10]),"; publication occurs only after full-text verification")
+    print("Gemini research proposals:",len(verified[:12]),"; publication occurs only after full-text verification")
 if __name__=="__main__":main()
