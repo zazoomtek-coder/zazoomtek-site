@@ -79,7 +79,7 @@ def existing_articles(trends,old):
             for item in json.loads(manual.read_text(encoding="utf-8")).get("items",[]):
                 slug=item.get("slug","")
                 url="/"+slug.lstrip("/")
-                if (re.fullmatch(r"/news-[a-zA-Z0-9_-]+\\.html",url)
+                if (re.fullmatch(r"/news-[a-zA-Z0-9_-]+\.html",url)
                     and url not in known and (ROOT/slug).is_file()
                     and item.get("title") and item.get("image")):
                     known[url]={"url":url,"title":item["title"],
