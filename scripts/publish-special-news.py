@@ -169,7 +169,10 @@ def main():
             cover=esc(x.get("image") or "/ChatGPT.png")
             rows.append('<article class="news-row"><a href="'+esc(url)+'"><img src="'+cover+'" alt="'+title+'" loading="lazy"></a><div class="news-copy"><h2><a href="'+esc(url)+'">'+title+'</a></h2><div class="news-meta">ZazoomTek · '+esc(x["date"])+'</div><p>'+summary+'</p><a class="news-read" href="'+esc(url)+'">Leggi tutto</a></div></article>')
         replacement='<div class="news-list" id="newsList" data-auto-articles="'+section+'">'+"\n".join(rows)+'</div>'
-        pattern=r'<div class="news-list" id="newsList" data-auto-articles="'+section+r'">.*?</div>(?=</section>)'
+        # Community banner is inserted AFTER the closing news-list DIV.
+        # Preserve the banner while replacing only the published articles.
+        pattern=(r'<div class="news-list" id="newsList" data-auto-articles="'
+                 +section+r'">.*?</div>(?=\s*(?:<!-- ZT_COMMUNITY_BANNER_START -->|</section>))')
         updated,count=re.subn(pattern,lambda match:replacement,s,count=1,flags=re.S)
         if count!=1:raise RuntimeError("Archive marker missing: "+archive)
         save_if_changed(path,updated)
@@ -192,8 +195,10 @@ def main():
                        or (x.get("auto_approved") is True
                            and x.get("featured") is True
                            and x.get("evidence_review",{}).get("source_count",0)>=1))]
-        trending.sort(key=lambda x:(x.get("home_featured") is True,x["date"],
+        # New verified reports take precedence over old manual selections.
+        trending.sort(key=lambda x:(x["date"],
                                    int(x.get("featured_priority") or 0),
+                                   x.get("home_featured") is True,
                                    x.get("evidence_review",{}).get("verified_at",""),
                                    x.get("evidence_review",{}).get("source_count",0),
                                    x["filename"]),reverse=True)
