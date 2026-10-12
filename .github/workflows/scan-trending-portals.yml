@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: zazoomtek-trending-scan
@@ -49,7 +50,7 @@ jobs:
         run: |
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -- trending-sources.json trending-match-report.json index.html news.html tech-today.html gaming-today.html manual-news.json
+          git add -- trending-sources.json trending-match-report.json featured-carousel.json manual-news.json
           if test -f featured-auto-news.json; then git add -- featured-auto-news.json; fi
           shopt -s nullglob
           article_files=(news-trend-*.html)
@@ -63,7 +64,7 @@ jobs:
           fi
           # Only publish a Hosting release when public pages changed. A
           # trends metadata refresh by itself needs no new release.
-          if git diff --cached --quiet -- index.html news.html tech-today.html gaming-today.html manual-news.json 'news-trend-*.html' 'assets/special/news-trend-*.webp'; then
+          if git diff --cached --quiet -- featured-carousel.json manual-news.json 'news-trend-*.html' 'assets/special/news-trend-*.webp'; then
             hosting_changed=false
           else
             hosting_changed=true
@@ -96,18 +97,10 @@ jobs:
           done
           echo "::error::Could not safely sync generated trend placements"
           exit 1
-      - name: Apply all shared article sidebars, related links and Community banners
+      # Only carousel data, trend metadata, new ORIGINAL pages and covers are
+      # written by this job. Imported YouTube files remain untouched.
+      - name: Request serialized Firebase publication
         if: steps.push_trends.outputs.hosting_changed == 'true'
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
-          python3 scripts/apply-site-design.py
-      - name: Deploy verified two-hour featured articles and covers
-        if: steps.push_trends.outputs.hosting_changed == 'true'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
-# Manual editorial refresh requested on 2026-10-12: scan sources, verify originals, rebuild all six featured slots.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
