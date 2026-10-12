@@ -2624,7 +2624,7 @@ def main():
     featured_html=None
     if existing_carousel:
         current=existing_carousel.group(1).strip()
-        cards=re.findall(r'<a\\b[^>]*class="zt-feature-card[^"]*"[^>]*href="([^"]+)"',
+        cards=re.findall(r'<a\b[^>]*class="zt-feature-card[^"]*"[^>]*href="([^"]+)"',
                          current,flags=re.I)
         if ('id="ztFeaturedGrid"' in current and len(cards)==6
             and len(set(cards))==6 and all(url.startswith("/") for url in cards)):
