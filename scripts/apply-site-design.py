@@ -4,8 +4,87 @@ from pathlib import Path
 from zt_footer import unify_footer
 from zt_sidebar_mix import refresh_sidebars
 import re
+import html as html_utils
 
 root=Path(__file__).resolve().parents[1]
+
+# SITE_NAV_CANONICAL_20261012 - Mandatory navigation on ALL HTML pages.
+# Home is the source of truth: any change to its menu is inherited by all
+# existing and newly generated editorial pages at every deployment.
+home_source=(root / "index.html").read_text(encoding="utf-8")
+home_match=re.search(r'<nav\s+class=["\']nav["\'][^>]*>([\s\S]*?)</nav>',home_source,re.I)
+if not home_match:
+    raise RuntimeError("Home main navigation missing; deployment blocked")
+home_items=[]
+for anchor in re.finditer(r'<a\b([^>]*)>([\s\S]*?)</a>',home_match.group(1),re.I):
+    href_match=re.search(r'\bhref=["\']([^"\']+)["\']',anchor.group(1),re.I)
+    if not href_match:
+        continue
+    label=html_utils.unescape(re.sub(r'<[^>]*>',"",anchor.group(2))).strip()
+    if not label:
+        continue
+    href=href_match.group(1)
+    if not href.startswith(("http://","https://","/","#","mailto:")):
+        href="/"+href.lstrip("./")
+    home_items.append((label,href))
+required_nav=("Home","News","Recensioni","Guide","Tech Impact",
+              "Gaming Inside","Community","Video")
+if tuple(label for label,_ in home_items)!=required_nav:
+    raise RuntimeError("Home main navigation must contain all eight approved buttons in order")
+
+reference_source=(root / "news.html").read_text(encoding="utf-8")
+header_pattern=re.compile(r'<header\b[^>]*>[\s\S]*?</header>',re.I)
+reference_header=header_pattern.search(reference_source)
+if not reference_header or 'class="zt-header"' not in reference_header.group():
+    raise RuntimeError("Approved shared ZazoomTek header unavailable")
+header_template=reference_header.group()
+nav_pattern=re.compile(r'<nav\b[^>]*class=["\']zt-nav["\'][^>]*>[\s\S]*?</nav>',re.I)
+if not nav_pattern.search(header_template):
+    raise RuntimeError("Approved header is missing its navigation")
+
+def active_nav_key(filename):
+    name=filename.lower()
+    if name.startswith(("news-","news.")) or name in ("news.html",):
+        return "News"
+    if (name.startswith(("recensione-","recensioni-","review-")) or
+        "-recensione-" in name or name=="recensioni-scritte.html"):
+        return "Recensioni"
+    if name.startswith(("guida-","guide-")) or name=="guide.html":
+        return "Guide"
+    if name.startswith("tech-impact-") or name=="tech-today.html":
+        return "Tech Impact"
+    if name.startswith("gaming-inside-") or name=="gaming-today.html":
+        return "Gaming Inside"
+    if name.startswith(("test-","unboxing-","gaming-")) or name in (
+        "recensioni.html","test.html","unboxing.html","gaming.html"):
+        return "Video"
+    return None
+
+def nav_markup(filename):
+    active=active_nav_key(filename)
+    output=[]
+    for label,href in home_items:
+        css=' class="active" aria-current="page"' if label==active else ""
+        extra=' target="_blank" rel="noopener"' if href.startswith("https://") else ""
+        output.append(f'<a{css} href="{html_utils.escape(href,quote=True)}"{extra}>{html_utils.escape(label)}</a>')
+    return '<nav class="zt-nav" aria-label="Navigazione principale">'+"".join(output)+'</nav>'
+
+def unify_site_navigation(page, filename):
+    # Keep the original Home and its pagination masthead untouched.
+    if filename=="index.html" or re.fullmatch(r'pagina-\d+\.html',filename):
+        return page
+    first=header_pattern.search(page)
+    if not first:
+        return page
+    old=first.group()
+    if not re.search(r'<nav\b',old,re.I):
+        return page
+    if not ("/ChatGPT.png" in old or "ChatGPT.png" in old or
+            "ZAZOOM" in old.upper()):
+        return page
+    canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
+    return page[:first.start()]+canonical+page[first.end():]
+
 css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012compactboxes" data-zt-design="20261010">'
 js_tag='<script src="/zt-visual.js?v=20261012compactboxes" defer></script>'
 changed=0
@@ -26,6 +105,7 @@ for path in root.rglob('*.html'):
                     "/zt-visual.js?v=20261012compactboxes",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
+    html=unify_site_navigation(html,path.name)
     # Ensure the official ZazoomTek.it masthead is applied to every generated
     # article and static page, including pages rebuilt by YouTube sync.
     home_old='<span class="brand-copy"><strong>ZazoomTek</strong><small>TECH · GAMING · COMMUNITY</small></span>'
@@ -42,6 +122,34 @@ for path in root.rglob('*.html'):
         path.write_text(html,encoding='utf-8')
         changed+=1
 print(f"ZazoomTek: shared design ensured on {changed} HTML pages.")
+
+# Never publish a partial/legacy five-button navigation again.
+nav_checked=0
+for nav_path in sorted(root.glob('*.html')):
+    if nav_path.name.startswith("preview-"):
+        continue
+    nav_content=nav_path.read_text(encoding="utf-8")
+    first=header_pattern.search(nav_content)
+    if not first:
+        continue
+    header=first.group()
+    if nav_path.name=="index.html" or re.fullmatch(r'pagina-\d+\.html',nav_path.name):
+        match=re.search(r'<nav\s+class=["\']nav["\'][^>]*>([\s\S]*?)</nav>',header,re.I)
+    else:
+        match=nav_pattern.search(header)
+    if not match:
+        if "ZAZOOM" in header.upper() or "ChatGPT.png" in header:
+            raise RuntimeError(f"{nav_path.name}: missing full navigation header")
+        continue
+    actual=html_utils.unescape(re.sub(r'<[^>]+>',' ',match.group()))
+    missing=[item for item in required_nav if not re.search(r'\b'+re.escape(item)+r'\b',actual,re.I)]
+    if missing:
+        raise RuntimeError(f"{nav_path.name}: missing navigation buttons: {missing}")
+    nav_checked+=1
+if nav_checked<20:
+    raise RuntimeError(f"Only {nav_checked} pages with full site navigation verified")
+print(f"Verified all eight Home navigation buttons on {nav_checked} site pages")
+
 
 # Keep archive columns editorially varied after every Firebase build.
 refresh_sidebars()
