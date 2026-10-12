@@ -1,11 +1,11 @@
 name: Automatic verified Tech Impact and Gaming Inside
 # Verified unattended reporting. Manual dispatch remains available.
-# Hourly front-page research; daily safety limits and independent source checks
+# Two-hour front-page research; daily safety limits and independent source checks
 # remain in force. No fabricated news or unsupported automatic publication.
 on:
   workflow_dispatch:
   schedule:
-    - cron: '37 * * * *'
+    - cron: '37 */2 * * *'
   push:
     branches: [main]
     paths:
