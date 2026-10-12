@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-12T15:35:51.985241+00:00",
+  "checked_at": "2026-10-12T16:26:45.666074+00:00",
   "source_sites": 16,
-  "matches": 9,
+  "matches": 10,
   "selected": [
     {
       "title": "News: NVIDIA protagonista alla finale dell’Italian Hackathon League con DGX Spark e i talenti dell’AI",
@@ -30,6 +30,22 @@
       "sources": []
     },
     {
+      "title": "News: Ted Lasso e l’AFC Richmond Women arrivano in EA SPORTS FC 27",
+      "section": "gaming",
+      "url": "/news-UgkxdT-9UEJaasE5Qg2L6lJa-Z51_YU94Kkz.html",
+      "trend_score": 83.36,
+      "published_date": "2026-10-12",
+      "freshness_bonus": 72,
+      "selection_score": 126.18,
+      "sources": [
+        {
+          "site": "Multiplayer.it",
+          "title": "EA Sports FC 27: arrivano Ted Lasso e l’AFC Richmond Women con nuove sfide e ricompense",
+          "score": 0.8336
+        }
+      ]
+    },
+    {
       "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
       "section": "gaming",
       "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
@@ -47,27 +63,6 @@
           "site": "Everyeye.it",
           "title": "Castlevania compie 40 anni e Michiru Yamane arriva a Bolzano ospite di Game Ground 2026",
           "score": 0.6477
-        }
-      ]
-    },
-    {
-      "title": "News: TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",
-      "section": "gaming",
-      "url": "/news-Ugkxjafwnrw9O14Zgh1LkgQ-Qz61uHxbVzsr.html",
-      "trend_score": 58.44,
-      "published_date": "2026-10-12",
-      "freshness_bonus": 72,
-      "selection_score": 109.99,
-      "sources": [
-        {
-          "site": "Multiplayer.it",
-          "title": "Tekken 8, Roger Jr. arriva a novembre: ecco le date di uscita del nuovo personaggio",
-          "score": 0.5844
-        },
-        {
-          "site": "Gamesurf",
-          "title": "Tekken 8 mostra il gameplay di Roger Jr. nel nuovo trailer",
-          "score": 0.4981
         }
       ]
     },
