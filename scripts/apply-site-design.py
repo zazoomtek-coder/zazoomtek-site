@@ -382,21 +382,17 @@ for nav_path in sorted(root.glob('*.html')):
         if "ZAZOOM" in header.upper() or "ChatGPT.png" in header:
             raise RuntimeError(f"{nav_path.name}: missing full navigation header")
         continue
-    # Verify the EXACT Home navigation, not merely the presence of words in
-    # a possibly broken 5-button legacy review header.
+    # Exactly the eight Home links, in the correct order, on EVERY page.
     labels=[
-        html_utils.unescape(re.sub(r'<[^>]+>', '', group)).strip()
-        for group in re.findall(r'<a\\b[^>]*>(.*?)</a>',match.group(),re.I|re.S)
+        html_utils.unescape(re.sub('<[^>]+>', '', group)).strip()
+        for group in re.findall('<a[^>]*>(.*?)</a>',match.group(),re.I|re.S)
     ]
     if tuple(labels)!=required_nav:
         raise RuntimeError(
-            f"{nav_path.name}: expected exactly 8 Home buttons in order; got {labels}")
-    if not re.search(
-        r'<link\\b[^>]*href=["\\\']/zt-design\\.css\\?v=20261012canonicalNav2',
-        nav_content,re.I,
-    ):
+            f"{nav_path.name}: expected eight Home buttons in order; got {labels}")
+    if 'href="/zt-design.css?v=20261012canonicalNav2"' not in nav_content:
         raise RuntimeError(
-            f"{nav_path.name}: shared style missing or outdated; refuse deployment")
+            f"{nav_path.name}: shared stylesheet absent or outdated")
     nav_checked+=1
 if nav_checked<20:
     raise RuntimeError(f"Only {nav_checked} pages with full site navigation verified")
