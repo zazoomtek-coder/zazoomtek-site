@@ -1,5 +1,6 @@
 name: Publish approved Tech Impact and Gaming Inside articles
-# Starts only after verified article approval or manual dispatch.
+# Starts after verified article approval or manual dispatch.
+# Recovery 2026-10-12: rebuild already-approved Tech Impact and Gaming Inside stories, then refresh Home.
 on:
   workflow_dispatch:
   push:
