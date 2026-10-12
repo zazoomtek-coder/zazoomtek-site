@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-12T10:28:15.068226+00:00",
+  "checked_at": "2026-10-12T10:55:18.688880+00:00",
   "source_sites": 10,
   "matches": 6,
   "selected": [
@@ -7,7 +7,10 @@
       "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
       "section": "tech",
       "url": "/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html",
-      "trend_score": 77.01,
+      "trend_score": 73.23,
+      "published_date": "2026-10-10",
+      "freshness_bonus": 40,
+      "selection_score": 87.6,
       "sources": [
         {
           "site": "Gamesurf",
@@ -20,7 +23,10 @@
       "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
       "section": "tech",
       "url": "/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.html",
-      "trend_score": 65.71,
+      "trend_score": 61.87,
+      "published_date": "2026-10-09",
+      "freshness_bonus": 23,
+      "selection_score": 63.22,
       "sources": [
         {
           "site": "HDblog",
@@ -30,10 +36,29 @@
       ]
     },
     {
+      "title": "News: Crazy Taxi: World Tour corre in Brasile, SEGA svela la quarta mappa della campagna",
+      "section": "gaming",
+      "url": "/news-UgkxHwO-OKR3z-qEkJL0MBsZS_tMU0R5Q0fi.html",
+      "trend_score": 64.78,
+      "published_date": "2026-10-11",
+      "freshness_bonus": 62,
+      "selection_score": 104.11,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "Crazy Taxi: World Tour ci da il benvenuto in Brasile",
+          "score": 0.6478
+        }
+      ]
+    },
+    {
       "title": "News: The Talos Principle 3 mostra il primo gameplay: l'Anomalia e nuovi enigmi nel capitolo finale della trilogia",
       "section": "gaming",
       "url": "/news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html",
-      "trend_score": 81.55,
+      "trend_score": 77.17,
+      "published_date": "2026-10-10",
+      "freshness_bonus": 40,
+      "selection_score": 90.16,
       "sources": [
         {
           "site": "Gamesurf",
@@ -53,28 +78,13 @@
       ]
     },
     {
-      "title": "News: ACE COMBAT 8: WINGS OF THEVE supera 1 milione di copie e firma il record di vendite più veloce della serie",
-      "section": "gaming",
-      "url": "/news-UgkxSAfW_T-tL6dS7sn7syzWrfKVS2hxnK5L.html",
-      "trend_score": 71.59,
-      "sources": [
-        {
-          "site": "SmartWorld",
-          "title": "Ace Combat 8: Wings of Theve",
-          "score": 0.6727
-        },
-        {
-          "site": "Gamesurf",
-          "title": "Ace Combat 8 spicca il volo con 1 milione di copie vendute",
-          "score": 0.5292
-        }
-      ]
-    },
-    {
       "title": "Cyberattacco alla Farnesina: sistemi protetti e verifiche estese alle sedi diplomatiche",
       "section": "tech-impact",
       "url": "/tech-impact-farnesina-cyberattacco-ambasciate-verifiche-ottobre-2026.html",
       "trend_score": 0,
+      "published_date": "2026-10-11",
+      "freshness_bonus": null,
+      "selection_score": null,
       "sources": []
     },
     {
@@ -82,6 +92,9 @@
       "section": "gaming-inside",
       "url": "/gaming-inside-ubisoft-massive-entertainment-riorganizzazione-studi-franchise-2026.html",
       "trend_score": 0,
+      "published_date": "2026-10-11",
+      "freshness_bonus": null,
+      "selection_score": null,
       "sources": []
     }
   ]
