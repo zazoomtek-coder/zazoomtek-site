@@ -1028,5 +1028,56 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
   update();
 })();
 </script>
+<script id="zt-autonomous-carousel-loader">
+/* The two-hour carousel is data-only. YouTube's 5-minute importer owns the
+   HTML, and cannot be interrupted by an editorial carousel refresh. */
+(function () {
+  'use strict';
+  var expected=['tech','tech','gaming','gaming','tech-impact','gaming-inside'];
+  var grid=document.getElementById('ztFeaturedGrid');
+  if (!grid) return;
+  function validLocal(value) {
+    return typeof value === 'string' &&
+      /^\/(?:[a-zA-Z0-9_.-]+\/)*[a-zA-Z0-9_.-]+$/.test(value) &&
+      !value.includes('..');
+  }
+  function validImage(value) {
+    return validLocal(value) ||
+      (typeof value === 'string' && /^https:\/\/yt3\.(?:ggpht|googleusercontent)\.com\/[A-Za-z0-9_./=?&%-]+$/i.test(value));
+  }
+  function valid(items) {
+    return Array.isArray(items) && items.length === 6 &&
+      items.every(function (a, i) {
+        return a && a.section === expected[i] &&
+          validLocal(a.url) && validImage(a.image) &&
+          typeof a.title === 'string' && a.title.length >= 12;
+      }) && new Set(items.map(function (a) { return a.url; })).size === 6;
+  }
+  fetch('/featured-carousel.json', {cache:'no-store'}).then(function (response) {
+    if (!response.ok) throw Error('Carousel file not ready');
+    return response.json();
+  }).then(function (data) {
+    if (!data || !valid(data.items)) throw Error('Invalid carousel data');
+    var cards=document.createDocumentFragment();
+    data.items.forEach(function (item, i) {
+      var a=document.createElement('a');
+      a.className='zt-feature-card zt-feature-small';
+      a.href=item.url;
+      a.title=item.title.replace(/^News:\s*/i,'');
+      a.setAttribute('aria-label',a.title);
+      var img=document.createElement('img');
+      img.src=item.image;
+      img.alt=a.title;
+      img.loading=i===0?'eager':'lazy';
+      img.decoding='async';
+      a.appendChild(img);
+      cards.appendChild(a);
+    });
+    grid.replaceChildren(cards);
+  }).catch(function (err) {
+    console.info('Preserved last valid featured cards:',err.message);
+  });
+}());
+</script>
 </body>
 </html>
