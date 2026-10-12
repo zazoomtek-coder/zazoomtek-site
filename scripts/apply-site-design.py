@@ -69,6 +69,39 @@ def nav_markup(filename):
         output.append(f'<a{css} href="{html_utils.escape(href,quote=True)}"{extra}>{html_utils.escape(label)}</a>')
     return '<nav class="zt-nav" aria-label="Navigazione principale">'+"".join(output)+'</nav>'
 
+# REVIEW_LAYOUT_SESAME_20261012: every completed review adopts the approved
+# 1460px/350px two-column layout during ALL publishing workflows.
+def is_review_page(filename, page):
+    name=filename.lower()
+    if name.startswith("preview-") or name in ("recensioni-scritte.html","recensioni.html"):
+        return False
+    named=(name.startswith(("recensione-","review-"))
+           or "-recensione-" in name)
+    if not named:
+        return False
+    # Do not misrepresent short, noindex archival placeholders as full reviews.
+    return ('class="detail-grid"' in page or 'class="wrap layout"' in page)
+
+def unify_review_layout(page, filename):
+    if not is_review_page(filename,page):
+        return page
+    match=re.search(r'<body\b([^>]*)>',page,re.I)
+    if not match:
+        raise RuntimeError(f"{filename}: review has no <body> tag")
+    body_tag=match.group()
+    cls=re.search(r'\bclass=(["\'])(.*?)\1',body_tag,re.I|re.S)
+    if cls:
+        classes=cls.group(2).split()
+        if 'zt-review-sesame-layout' not in classes:
+            classes.append('zt-review-sesame-layout')
+            newtag=body_tag[:cls.start(2)]+" ".join(classes)+body_tag[cls.end(2):]
+        else:
+            newtag=body_tag
+    else:
+        newtag=body_tag[:-1]+' class="zt-review-sesame-layout">'
+    result=page[:match.start()]+newtag+page[match.end():]
+    return result
+
 def unify_site_navigation(page, filename):
     # Keep the original Home and its pagination masthead untouched.
     if filename=="index.html" or re.fullmatch(r'pagina-\d+\.html',filename):
@@ -85,8 +118,8 @@ def unify_site_navigation(page, filename):
     canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
     return page[:first.start()]+canonical+page[first.end():]
 
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarfullscroll" data-zt-design="20261010">'
-js_tag='<script src="/zt-visual.js?v=20261012sidebarfullscroll" defer></script>'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sesamereviews" data-zt-design="20261010">'
+js_tag='<script src="/zt-visual.js?v=20261012sesamereviews" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
     if any(p in {'.git','node_modules','functions'} for p in path.relative_to(root).parts):
@@ -97,15 +130,16 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261012sidebarfullscroll",html,count=1)
+                    "/zt-design.css?v=20261012sesamereviews",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
         html=re.sub(r'(?<=src=")/zt-visual[.]js(?:[?][^"]*)?',
-                    "/zt-visual.js?v=20261012sidebarfullscroll",html,count=1)
+                    "/zt-visual.js?v=20261012sesamereviews",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     html=unify_site_navigation(html,path.name)
+    html=unify_review_layout(html,path.name)
     # Ensure the official ZazoomTek.it masthead is applied to every generated
     # article and static page, including pages rebuilt by YouTube sync.
     home_old='<span class="brand-copy"><strong>ZazoomTek</strong><small>TECH · GAMING · COMMUNITY</small></span>'
@@ -149,6 +183,22 @@ for nav_path in sorted(root.glob('*.html')):
 if nav_checked<20:
     raise RuntimeError(f"Only {nav_checked} pages with full site navigation verified")
 print(f"Verified all eight Home navigation buttons on {nav_checked} site pages")
+
+# Make it impossible to deploy a new complete review in the old narrow layout.
+reviews_checked=0
+for review_path in sorted(root.glob("*.html")):
+    review_doc=review_path.read_text(encoding="utf-8")
+    if not is_review_page(review_path.name,review_doc):
+        continue
+    if not re.search(r'<body\b[^>]*class=["\'][^"\']*\bzt-review-sesame-layout\b',review_doc,re.I):
+        raise RuntimeError(f"{review_path.name}: missing approved Sesame Street review layout")
+    if not re.search(r'class=["\'][^"\']*(?:detail-grid|\blayout\b)',review_doc,re.I):
+        raise RuntimeError(f"{review_path.name}: missing two-column review grid")
+    reviews_checked+=1
+if reviews_checked < 8:
+    raise RuntimeError(f"Expected at least 8 completed reviews, found {reviews_checked}")
+print(f"Approved Sesame Street layout verified on {reviews_checked} complete reviews")
+
 
 
 # Keep archive columns editorially varied after every Firebase build.

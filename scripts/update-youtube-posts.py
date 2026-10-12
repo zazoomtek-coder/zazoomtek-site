@@ -1252,7 +1252,7 @@ def write_review_page(p, all_reviews=None):
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        +article_head_metadata(p,title,slug,"Recensioni")+NEWS_DETAIL_STYLE+'</head><body>'
+        +article_head_metadata(p,title,slug,"Recensioni")+NEWS_DETAIL_STYLE+'</head><body class="zt-review-sesame-layout">'
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
