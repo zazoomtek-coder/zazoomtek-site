@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-12T11:27:33.590135+00:00",
+  "checked_at": "2026-10-12T11:30:04.366797+00:00",
   "source_sites": 10,
-  "matches": 6,
+  "matches": 7,
   "selected": [
     {
       "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
@@ -36,6 +36,27 @@
       ]
     },
     {
+      "title": "News: TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",
+      "section": "gaming",
+      "url": "/news-Ugkxjafwnrw9O14Zgh1LkgQ-Qz61uHxbVzsr.html",
+      "trend_score": 58.44,
+      "published_date": "2026-10-12",
+      "freshness_bonus": 72,
+      "selection_score": 109.99,
+      "sources": [
+        {
+          "site": "Multiplayer.it",
+          "title": "Tekken 8, Roger Jr. arriva a novembre: ecco le date di uscita del nuovo personaggio",
+          "score": 0.5844
+        },
+        {
+          "site": "Gamesurf",
+          "title": "Tekken 8 mostra il gameplay di Roger Jr. nel nuovo trailer",
+          "score": 0.4981
+        }
+      ]
+    },
+    {
       "title": "News: Crazy Taxi: World Tour corre in Brasile, SEGA svela la quarta mappa della campagna",
       "section": "gaming",
       "url": "/news-UgkxHwO-OKR3z-qEkJL0MBsZS_tMU0R5Q0fi.html",
@@ -48,32 +69,6 @@
           "site": "Gamesurf",
           "title": "Crazy Taxi: World Tour ci da il benvenuto in Brasile",
           "score": 0.6478
-        }
-      ]
-    },
-    {
-      "title": "News: The Talos Principle 3 mostra il primo gameplay: l'Anomalia e nuovi enigmi nel capitolo finale della trilogia",
-      "section": "gaming",
-      "url": "/news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html",
-      "trend_score": 77.17,
-      "published_date": "2026-10-10",
-      "freshness_bonus": 40,
-      "selection_score": 90.16,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "The Talos Principle 3 mostra il primo trailer gameplay",
-          "score": 0.6817
-        },
-        {
-          "site": "IGN Italia",
-          "title": "Game The Talos Principle 3",
-          "score": 0.5573
-        },
-        {
-          "site": "IGN Italia",
-          "title": "The Talos Principle 3 si mostra nel primo trailer del gameplay, uscirà nel 2027 su PS5 e PC (Notizie The Talos Principle 3)",
-          "score": 0.5024
         }
       ]
     },
