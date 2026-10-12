@@ -71,7 +71,7 @@ jobs:
                   continue
               if '/ChatGPT.png' not in html and 'ChatGPT.png' not in html:
                   continue
-              if not re.search(r'<link\b[^>]*href=["\']/zt-design\.css\?v=20261012canonicalNav2',html,re.I):
+              if not re.search(r'<link\b[^>]*href=["\']/zt-design\.css\?v=20261012uniformNav3',html,re.I):
                   raise RuntimeError(f'{path.name}: missing common CSS link')
               header=re.search(r'<header\b[^>]*>[\s\S]*?</header>',html,re.I)
               if not header:
@@ -89,7 +89,10 @@ jobs:
               raise RuntimeError(f'Only {checked} styled pages; expected the whole site')
           css=(root/'zt-design.css').read_text(encoding='utf-8')
           assert 'ZAZOOMTEK CANONICAL MASTHEAD 20261012' in css
-          assert 'flex-flow:row nowrap!important' in css
+          assert 'ZAZOOMTEK UNIFIED HEADER v3' in css
+          assert 'header .topbar nav.nav,.zt-header nav.zt-nav' in css
+          assert 'flex-wrap:nowrap!important' in css
+          assert 'font:800 13px/1.1 Arial,Helvetica,sans-serif!important' in css
           print('PASS:',checked,'Home-consistent headers; 8 buttons per page')
           PY
       - name: Deploy latest validated GitHub snapshot to Firebase
