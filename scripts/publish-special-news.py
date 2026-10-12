@@ -222,6 +222,6 @@ def main():
         save_if_changed(feature_path,json.dumps({"items":chosen},ensure_ascii=False,indent=2)+"\n")
     print("Approved:",len(published),"/ category-archive totals:",
           {sec:sum(x["section"]==sec for x in published) for sec in ("tech","gaming")},
-          "/ newest featured sections:"
+          "/ newest featured sections:",
           new_trend_sections if new_trend_sections else "previous carousel preserved")
 if __name__=="__main__":main()
