@@ -66,6 +66,25 @@ jobs:
         run: python3 scripts/build-special-covers.py
       - name: Build approved articles and separate archives
         run: python3 scripts/publish-special-news.py
+      - name: Verify every Impact/Inside article is archived and just 1+1 nominated
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          approved=json.loads(Path("approved-special-articles.json").read_text(encoding="utf-8"))["articles"]
+          featured=json.loads(Path("special-featured.json").read_text(encoding="utf-8"))["items"]
+          assert len(featured)==2, f"Exactly 2 special nominees expected, found {len(featured)}"
+          assert {x["section"] for x in featured}=={"tech","gaming"}, "Missing category nomination"
+          for sec,archive,prefix in (("tech","tech-today.html","tech-impact"),
+                                     ("gaming","gaming-today.html","gaming-inside")):
+              page=Path(archive).read_text(encoding="utf-8")
+              section_articles=[x for x in approved if x["section"]==sec]
+              for article in section_articles:
+                  href="/"+prefix+"-"+article["slug"]+".html"
+                  assert href in page, f"Archive excluded approved article: {href}"
+              print(sec, "published to category:",len(section_articles),
+                    "; nominated to Home:",sum(x["section"]==sec for x in featured))
+          PY
       - name: Refresh homepage with previously scanned independent sources
         run: |
           if [ -s trending-sources.json ]; then
