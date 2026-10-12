@@ -322,6 +322,61 @@ def main():
             print("Original sourced story approved:",result["title"])
         except Exception as exc:
             print("Source/publishing check did not pass:",type(exc).__name__,choice["source_url"])
+    # If top selections fail HTTP, evidence or JSON checks, continue with the
+    # next fresh lead instead of silently leaving all four news slots stale.
+    attempted={x.get("source_url") for x in selections}
+    for category in ("tech","gaming"):
+        still_needed=2-sum(x.get("section")==category for x in selected)
+        if still_needed<=0:continue
+        candidates=[x for x in stories if x.get("kind")==category
+                    and x.get("url") not in attempted and x.get("rank",99)<=11
+                    and x.get("source") in ("igncom","gamespot","eurogamer",
+                       "polygon","pcgamer","zazoom","hdblog","dday","smartworld",
+                       "tomshw","hwupgrade","multiplayer","everyeye","spaziogames",
+                       "ign","gamesurf")]
+        candidates.sort(key=lambda x:(not x.get("homepage",False),x.get("rank",99)))
+        trials=0
+        for lead in candidates:
+            if still_needed==0 or trials>=3:break
+            if re.search(r"(?i)leak|rumou?r|possibly|allegedly|speculation|sponsored|"
+                         r"coupon|review|guide|preorder|pre-order",lead.get("title","")):
+                continue
+            attempted.add(lead["url"]);trials+=1
+            # Single-event guard: an old Community article takes precedence.
+            match=sorted([(trends.similarity(lead["title"],x["title"]),x)
+                          for x in old_articles],key=lambda x:x[0],reverse=True)
+            if match and match[0][0]>=.63:
+                existing=match[0][1]
+                if existing["url"] not in {y["url"] for y in selected}:
+                    selected.append({"url":existing["url"],"title":existing["title"],
+                        "image":existing["image"],"section":category,"source_url":lead["url"],
+                        "date":existing.get("published_date","")})
+                    still_needed-=1
+                continue
+            previous=published.get(lead["url"])
+            if previous and (ROOT/previous["url"].lstrip("/")).exists():
+                if previous["url"] not in {y["url"] for y in selected}:
+                    selected.append(previous);still_needed-=1
+                continue
+            choice={"source_url":lead["url"],"source_title":lead["title"],
+                    "source_name":lead["name"],"section":category}
+            try:
+                evidence=evidence_tool.fetch(lead["url"])
+                original=original_draft(choice,evidence,model_call)
+                if not original:
+                    continue
+                proof={"url":evidence["url"],"text":" ".join(evidence["excerpts"]),
+                       "metadata":evidence["metadata"],"excerpts":evidence["excerpts"]}
+                verified_audit=auditor.review(original,[proof])
+                if not auditor.verified(original,[proof],verified_audit):
+                    continue
+                result=write_original(choice,original,cover,layout)
+                published[lead["url"]]=result
+                selected.append(result);still_needed-=1
+                print("Verified alternative news article:",result["url"])
+            except Exception as exc:
+                print("Alternative source rejected:",type(exc).__name__,
+                      lead["url"][:130])
     if not selected:
         print("No verified new or existing matches; keeping carousel unchanged.");return
     # The standard news archive is maintained by the Community sync. Preserve its data,
