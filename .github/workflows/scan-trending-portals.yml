@@ -69,8 +69,36 @@ jobs:
             hosting_changed=true
           fi
           git commit -m "trends: publish verified original featured stories or reuse imported news"
-          for attempt in 1 2 3; do
-            if git fetch origin main && git rebase origin/main && git push origin HEAD:main; then
+          for attempt in 1 2 3 4; do
+            git fetch origin main || { sleep $((attempt * 4)); continue; }
+            if ! git rebase origin/main; then
+              # Only automatically resolve competing bot-generated trend JSON.
+              # During a rebase --ours means the remote branch. Never
+              # auto-resolve Home, article, image, or archive conflicts.
+              conflicts="$(git diff --name-only --diff-filter=U)"
+              unsafe="$(printf '%s\n' "$conflicts" | grep -Ev '^(trending-sources\.json|trending-match-report\.json)
+      - name: Apply all shared article sidebars, related links and Community banners
+        if: steps.push_trends.outputs.hosting_changed == 'true'
+        run: python3 scripts/apply-site-design.py
+      - name: Deploy verified hourly featured articles and covers
+        if: steps.push_trends.outputs.hosting_changed == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
+ || true)"
+              if [ -n "$conflicts" ] && [ -z "$unsafe" ]; then
+                echo "Another scan updated trend metadata; preserving current remote version."
+                git checkout --ours -- $conflicts
+                git add -- $conflicts
+                GIT_EDITOR=: git rebase --continue || true
+              fi
+            fi
+            if [ -z "$(git ls-files -u)" ] && [ -z "$(git status --porcelain | grep '^AA\|^UU\|^DU\|^UD' || true)" ] &&
+               ! test -d .git/rebase-merge && ! test -d .git/rebase-apply &&
+               git push origin HEAD:main; then
               echo "updated=true" >> "$GITHUB_OUTPUT"
               echo "hosting_changed=$hosting_changed" >> "$GITHUB_OUTPUT"
               exit 0
@@ -78,7 +106,7 @@ jobs:
             git rebase --abort || true
             sleep $((attempt * 4))
           done
-          echo "::error::Could not sync trending placements"
+          echo "::error::Could not safely sync generated trend placements"
           exit 1
       - name: Apply all shared article sidebars, related links and Community banners
         if: steps.push_trends.outputs.hosting_changed == 'true'
