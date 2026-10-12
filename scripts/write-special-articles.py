@@ -74,7 +74,9 @@ def main():
             continue
         output.append({"section":item["section"],"topic":item.get("title"),"status":"needs_human_fact_check",
             "title":title,"summary":summary,"paragraphs":paragraphs,"words":count,
-            "source_urls":[x["url"] for x in sources],"evidence_limits":raw.get("evidence_limits",[]),
+            "source_urls":[x["url"] for x in sources],
+            "featured_priority":item.get("featured_priority",0),
+            "evidence_limits":raw.get("evidence_limits",[]),
             "approved":False,"publication_allowed":False})
     OUT.write_text(json.dumps({"generated_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
         "published":False,"articles":output},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
