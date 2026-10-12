@@ -345,6 +345,70 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "agcom-multa-retelit-digital-services-e-tekmind-per-822-500-euro-a-causa-dello-spoofin",
+      "title": "Agcom multa Retelit Digital Services e Tekmind per 822.500 euro a causa dello spoofing",
+      "summary": "L'Autorità per le Garanzie nelle Comunicazioni ha sanzionato Retelit Digital Services e Tekmind per un totale di 822.500 euro per il mancato controllo sull'uso delle numerazioni telefoniche impiegate dai call center, legate al fenomeno dello spoofing.",
+      "paragraphs": [
+        "Secondo quanto riportato da Il Sole 24 Ore, l'Agcom ha emesso sanzioni nei confronti di due società nell'ambito della lotta alle chiamate commerciali irregolari e alla pratica dello spoofing. A Retelit Digital Services è stata inflitta una multa di 700mila euro, mentre a Tekmind è stata comminata una sanzione di 122.500 euro, per un totale complessivo di 822.500 euro. I provvedimenti, adottati il 23 settembre, traggono origine da un'attività di vigilanza avviata dall'Autorità nel novembre 2025 a seguito di numerose segnalazioni ricevute.",
+        "Al centro delle contestazioni mosse dall'Agcom ci sono gli obblighi gravanti sui soggetti assegnatari delle numerazioni telefoniche, tenuti a verificare la correttezza dei numeri utilizzati dai call center ed evitare fenomeni di spoofing, tecnica che altera il numero del chiamante mostrato sul display per simulare una provenienza nazionale da chiamate originate all'estero. In base a quanto reso noto, i provvedimenti sanzionatori mirano a colpire la mancata attuazione delle misure di controllo lungo la filiera.",
+        "Per fronteggiare il fenomeno, l'Agcom ha introdotto filtri specifici sulle chiamate internazionali con numerazione italiana. Secondo i dati diffusi dall'Autorità e citati dalla fonte, nei primi otto mesi del 2026 sono state bloccate circa 191 milioni di chiamate provenienti dall'estero con numeri italiani contraffatti o non conformi, di cui 148 milioni relative a cellulari e 38 milioni a numerazioni fisse. Inoltre, l'estensione del blocco ai numeri mobili italiani, avvenuta il 19 novembre 2025, ha generato una diminuzione del 95% di tali chiamate giornaliere.",
+        "In merito al provvedimento, Retelit ha diffuso una nota in cui definisce la sanzione inattesa nell'esito e nell'entità, precisando di riservarsi le opportune valutazioni. La società ha inoltre dichiarato di non svolgere né commissionare attività di telemarketing tramite call center per la vendita dei propri servizi, specificando che il proprio ruolo di operatore di telecomunicazioni si limita unicamente alla cessione in uso di numerazioni ad altri operatori autorizzati."
+      ],
+      "date": "2026-10-12",
+      "sources": [
+        "https://www.ilsole24ore.com/art/telefonate-numeri-falsificati-agcom-multa-due-societa-822500-euro-AJdBdRhB"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-12T14:46:32.284720+00:00"
+      },
+      "source_fingerprints": [
+        "703547fc4ed324e3"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "gaming",
+      "slug": "playstation-accordo-antitrust-da-7-85-milioni-di-dollari-cosa-comporta-per-i-consumat",
+      "title": "PlayStation, accordo antitrust da 7,85 milioni di dollari: cosa comporta per i consumatori",
+      "summary": "Secondo quanto riportato da CNET, è in corso la fase finale per l'accordo transattivo da 7,85 milioni di dollari legato a un'azione legale antitrust contro Sony, accusata di aver limitato la vendita di giochi digitali esclusivamente al proprio PlayStation Store.",
+      "paragraphs": [
+        "Un'azione legale collettiva, nota come Caccuri v. Sony Interactive Entertainment e documentata da CNET, ha visto Sony concordare un pagamento di 7,85 milioni di dollari per risolvere le accuse relative a presunte violazioni delle leggi antitrust. Secondo l'impostazione della causa, l'azienda avrebbe illecitamente bloccato i proprietari di console PlayStation dall'acquistare giochi digitali al di fuori del proprio negozio ufficiale, interrompendo la distribuzione di voucher specifici tramite rivenditori di terze parti e riducendo di conseguenza la concorrenza di mercato.",
+        "Tra i titoli menzionati nei documenti della controversia figurano sia produzioni esclusive come The Last of Us, sia giochi di terze parti tra cui la trilogia di Mass Effect e Resident Evil 4. La testata CNET specifica che l'accordo era stato inizialmente raggiunto nel 2024, ma la proposta aveva subito due rifiuti nel corso del successivo iter di approvazione giudiziaria, l'ultimo dei quali nel luglio 2025, poiché il giudice competente aveva rilevato la mancanza di una stima precisa sul recupero economico previsto per i membri della class action.",
+        "Sony ha respinto qualsiasi accusa di illecito e ha negato che i membri della classe siano stati danneggiati dalle proprie politiche commerciali, mentre il tribunale non si è ancora espresso in via definitiva sull'effettiva violazione delle norme. Nonostante la posizione dell'azienda, il giudice ha concesso un'approvazione preliminare all'intesa economica. L'iter prevede ora un'udienza finale fissata per il 15 ottobre, finalizzata a confermare l'ammontare complessivo, stabilire l'assegnazione fino al 25% dei fondi per le spese legali e definire il piano di distribuzione della somma residua.",
+        "Per quanto riguarda le modalità di risarcimento, i clienti statunitensi che soddisfano i requisiti e che hanno acquistato giochi digitali nel periodo idoneo rientrano automaticamente tra i beneficiari. Come riferito da CNET, la compensazione verrà erogata sotto forma di accredito diretto nel portafoglio del PlayStation Network (PSN) una volta completata l'approvazione finale. Gli utenti che possiedono un account disattivato possono invece presentare domanda inviando i dati di acquisto a un indirizzo email dedicato, ricevendo in questo caso un pagamento in contanti anziché fondi sul profilo di gioco. L'importo individuale esatto per ciascun partecipante non è ancora noto con certezza, ma le stime indicano una distribuzione uniforme della quota rimanente dei fondi."
+      ],
+      "date": "2026-10-12",
+      "sources": [
+        "https://www.cnet.com/tech/gaming/sony-pay-out-millions-playstation-store-credit-claim-settlement-2/"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-12T14:46:32.284720+00:00"
+      },
+      "source_fingerprints": [
+        "15e57769f4905070"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
