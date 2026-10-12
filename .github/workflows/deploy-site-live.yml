@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
       - 'pagina-[2-5].html'
       - 'featured-carousel.json'
       - 'scripts/zt_sidebar_mix.py'
