@@ -100,7 +100,7 @@ def all_published_news():
     return results
 
 
-def recent_list(items, kind="news"):
+def recent_list(items, kind="news", max_items=6):
     """Six latest real news or reviews, with image left and normal-weight title right."""
     if not items:
         return ""
@@ -119,7 +119,7 @@ def recent_list(items, kind="news"):
             f'<img loading="lazy" src="{e(item["image"])}" alt="">'
             f'<span>{e(item["title"])}</span></a>'
         )
-        if len(rows) == 6:
+        if len(rows) == max_items:
             break
     return ('<section class="side-box zt-mix-recent">'
             '<div class="zt-mix-news-heading">'
@@ -165,7 +165,7 @@ def amazon():
             '<p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p>'
             '<a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section>')
 
-def build_sidebar(kind, news, tech, gaming, videos):
+def build_sidebar(kind, news, tech, gaming, videos, article_count=None):
     if not news:
         return None  # Never wipe the sidebar after a partial import.
     featured = feature("News in evidenza", featured_article(news), "/news.html")
@@ -184,7 +184,19 @@ def build_sidebar(kind, news, tech, gaming, videos):
         "gaming": [tech_module, gaming_video, all_news, reviews],
         "guides": [all_news, tech_module, unboxing, gaming_module, reviews],
     }
-    # Feature always on top, Amazon immediately below, then diversified blocks.
+    # A short archive (for example Guide with only three articles) cannot
+    # carry a taller seven-widget sidebar: its height creates a huge empty
+    # white area below the last article. Keep the right column proportional
+    # to the real amount of left-column content. This does NOT hide articles:
+    # the archive/category links stay available within the remaining widgets.
+    if article_count is not None and 0 < article_count <= 4:
+        choices[kind] = [recent_list(news, max_items=3)]
+    elif article_count is not None and 4 < article_count <= 7:
+        primary = {"tech": gaming_module, "gaming": tech_module,
+                   "news": last_reviews, "reviews": tests,
+                   "guides": tech_module}[kind]
+        choices[kind] = [primary, recent_list(news, max_items=3)]
+    # Feature always on top, Amazon immediately below, then proportional boxes.
     return ('<aside class="news-sidebar zt-side-mix">'
             + featured + amazon() + "".join(x for x in choices[kind] if x)
             + '</aside>')
@@ -210,7 +222,11 @@ def refresh_sidebars():
         if not kind:
             continue
         original = path.read_text(encoding="utf-8")
-        sidebar = build_sidebar(kind,news,tech,gaming,videos)
+        # Detect the real archive length before choosing the sidebar modules.
+        # Never edit video imports, Community pages or the independent carousel.
+        article_count=len(re.findall(r'<article\\b[^>]*class=["\\\'][^"\\\']*\\bnews-row\\b',
+                                     original, re.I))
+        sidebar = build_sidebar(kind,news,tech,gaming,videos,article_count)
         if not sidebar:
             continue
         if ASIDE.search(original):
