@@ -3,7 +3,7 @@ name: Sync YouTube to site
 on:
   schedule:
     # Check YouTube every five minutes; no content change means no site build/deploy.
-    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+    - cron: '*/5 * * * *'
   push:
     branches: [main]
     paths:
@@ -237,20 +237,6 @@ jobs:
         continue-on-error: true
         if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
         run: python3 scripts/remove-duplicate-article-images.py
-
-      # Post-process the generated HTML only; the YouTube news, video and review
-      # importers and their validations remain untouched.
-      - name: Keep ten featured NEWS and four approved standard articles visible
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        continue-on-error: true
-        run: python3 scripts/apply-standard-news-featured.py
-
-      - name: Compare new Community news with cached Italian trends
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        continue-on-error: true
-        run: |
-          python3 scripts/trending-crosscheck.py --test
-          python3 scripts/trending-crosscheck.py --apply
 
       - name: Build Facebook RSS from approved new general NEWS
         continue-on-error: true
