@@ -228,10 +228,10 @@ def refresh_sidebars():
         if output != original:
             path.write_text(output, encoding="utf-8")
             changed += 1
-    # Site-wide rule: News in evidenza is FIRST on the Home and each paginated
-    # Home view as well as on all article and archive sidebars.
-    # Insert it in the existing Home sidebar without touching Ultimi Video,
-    # the Home news carousel, the Shorts modules or editorial article copy.
+    # Paginated article pages may show the editorial featured NEWS sidebar.
+    # The PRIMARY Home is different: its right column MUST start with
+    # Ultimi Video, without a duplicate "News in evidenza" box.
+    # Never inject this widget into index.html.
     home_feature = feature("News in evidenza", featured_article(news), "/news.html") if news else ""
     if home_feature:
         home_marked = re.compile(
@@ -240,7 +240,7 @@ def refresh_sidebars():
         )
         home_tag = re.compile(r'<aside\s+class="sidebar"[^>]*>', re.I)
         home_updated = 0
-        for home in [ROOT / "index.html", *sorted(ROOT.glob("pagina-[0-9]*.html"))]:
+        for home in sorted(ROOT.glob("pagina-[0-9]*.html")):
             if not home.exists():
                 continue
             src = home.read_text(encoding="utf-8")
@@ -256,7 +256,7 @@ def refresh_sidebars():
             if updated != src:
                 home.write_text(updated, encoding="utf-8")
                 home_updated += 1
-        print(f"News in evidenza first in {home_updated} Home / paginated Home columns.")
+        print(f"News in evidenza first in {home_updated} paginated article sidebars; main Home untouched.")
     # Publishing rule: EVERY new editorial page, whatever its category or
     # filename, must carry a populated right-hand sidebar. Do not rewrite
     # article copy, metadata, images, or healthy existing sidebars.
