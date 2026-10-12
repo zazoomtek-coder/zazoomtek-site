@@ -740,6 +740,139 @@ def review_title(p):
 def review_slug(p):
     return "recensione-"+p["id"]+".html"
 
+def review_identity(title):
+    """Stable product/game identity despite Review labels, subtitles and punctuation."""
+    cleaned=html.unescape(strip_site_emojis(title or "")).replace("’", "'")
+    parts=[p.strip() for p in cleaned.split("|")]
+    primary=next((p for p in parts if p and not re.fullmatch(
+        r"(?:review|recensione)(?:\s+(?:ps5|ps4|pc|xbox|switch))?",p,re.I
+    )), cleaned)
+    primary=re.sub(r"^\s*(?:review|recensione)\s*[:\-]?\s*","",primary,flags=re.I)
+    primary=re.split(r"\b(?:recensione|review)\b",primary,maxsplit=1,flags=re.I)[0]
+    primary=unicodedata.normalize("NFKD",primary).lower()
+    primary="".join(c for c in primary if not unicodedata.combining(c))
+    primary=re.sub(r"['’]", "", primary)
+    primary=re.sub(r"[^\w]+", " ", primary,flags=re.U)
+    return " ".join(primary.split())
+
+
+def review_platform(title):
+    """Keep genuinely distinct platform-specific reviews separate."""
+    title=(title or "").lower()
+    platforms=(
+        ("ps5",r"\b(?:ps5|playstation\s*5)\b"),
+        ("ps4",r"\b(?:ps4|playstation\s*4)\b"),
+        ("pc",r"\bpc\b"),
+        ("xbox",r"\b(?:xbox|series\s*[xs])\b"),
+        ("switch",r"\b(?:switch|nintendo)\b"),
+    )
+    return next((name for name,pattern in platforms if re.search(pattern,title)), "")
+
+
+def same_review(a,b):
+    return bool(a["key"] and a["key"]==b["key"] and
+                (not a["platform"] or not b["platform"] or a["platform"]==b["platform"]))
+
+
+def existing_review_pages():
+    """Read actual indexed review pages, not preview files or SEO noindex aliases."""
+    archive=Path("recensioni-scritte.html")
+    archived=archive.read_text(encoding="utf-8",errors="replace") if archive.exists() else ""
+    names={p.name for p in Path(".").glob("*.html")
+           if not p.name.startswith("preview-") and
+           ("recensione" in p.name.lower() or "review" in p.name.lower()) and
+           not p.name.startswith("recensioni-scritte")}
+    names.update(re.findall(r'<h2>\s*<a\s+href="/([^"/]+\.html)"', archived,re.I))
+    pages=[]
+    for name in sorted(names):
+        path=Path(name)
+        if not path.is_file() or name.startswith("preview-"):
+            continue
+        source=path.read_text(encoding="utf-8",errors="replace")
+        if re.search(r'<meta\b[^>]*name=["\x27]robots["\x27][^>]*content=["\x27][^"\x27]*noindex',
+                     source,re.I):
+            continue
+        m=re.search(r"<h1\b[^>]*>(.*?)</h1>",source,re.I|re.S)
+        if not m:
+            continue
+        title=html.unescape(re.sub(r"<[^>]+>","",m.group(1))).strip()
+        key=review_identity(title)
+        if not key:
+            continue
+        pages.append({"key":key,"platform":review_platform(title),
+                      "slug":name,"title":title,
+                      "manual":not bool(re.fullmatch(r"recensione-Ugkx[^/]+\.html",name))})
+    return pages,archived
+
+
+def manual_review_rows(pages, archived):
+    """Preserve manually approved review cards across the next automatic archive rebuild."""
+    manual=[p for p in pages if p["manual"]]
+    existing={}
+    for match in re.finditer(r'<article\b[^>]*class="news-row"[^>]*>.*?</article>',
+                             archived,re.I|re.S):
+        block=match.group(0)
+        link=re.search(r'<h2>\s*<a\s+href="/([^"]+\.html)"',block,re.I)
+        if link and link.group(1) not in existing:
+            existing[link.group(1)]=block
+    rows=[]
+    seen=[]
+    for p in manual:
+        if any(same_review(p,old) for old in seen):
+            continue
+        seen.append(p)
+        if p["slug"] in existing:
+            rows.append(existing[p["slug"]])
+            continue
+        # An approved review can exist as an indexable page even if the
+        # previous archive did not list it. Never silently lose it.
+        page=Path(p["slug"]).read_text(encoding="utf-8",errors="replace")
+        image=re.search(r'<img\b[^>]*class=["\x27](?:hero|article-hero)["\x27][^>]*src=["\x27]([^"\x27]+)',
+                        page,re.I)
+        if not image:
+            image=re.search(r'<img\b[^>]*src=["\x27]([^"\x27]+)[^>]*class=["\x27](?:hero|article-hero)',
+                            page,re.I)
+        description=re.search(r'<meta\b[^>]*name=["\x27]description["\x27][^>]*content=["\x27]([^"\x27]*)',
+                              page,re.I)
+        title=html.escape(p["title"],quote=True)
+        slug=html.escape(p["slug"],quote=True)
+        src=html.escape(html.unescape(image.group(1)) if image else "/ChatGPT.png",quote=True)
+        excerpt=html.escape(html.unescape(description.group(1)) if description else "",quote=True)
+        rows.append(f'<article class="news-row" data-news-search="{title.lower()}">'
+                    f'<a href="/{slug}"><img src="{src}" alt="{title}" loading="lazy"></a>'
+                    f'<div class="news-copy"><h2><a href="/{slug}">{title}</a></h2>'
+                    f'<div class="news-meta">ZazoomTek · Recensione</div>'
+                    f'<p>{excerpt}</p><a class="news-read" href="/{slug}">'
+                    'Leggi la recensione ›</a></div></article>')
+    return rows
+
+
+def select_unique_reviews(posts, pages):
+    """Prefer published editorial reviews, then existing Community URLs, then one new post."""
+    candidates=[p for p in posts if is_review(p)]
+    accepted=[]
+    for p in reversed(candidates):  # Oldest post first if YouTube repeats a review
+        item={"key":review_identity(review_title(p)),
+              "platform":review_platform(review_title(p)),
+              "slug":review_slug(p)}
+        if not item["key"]:
+            print(f"Skipping review with unrecognizable identity: {item['slug']}")
+            continue
+        matches=[site for site in pages if same_review(item,site)]
+        manual=next((site for site in matches if site["manual"]),None)
+        if manual:
+            print(f"Review already published as /{manual['slug']}; skipping YouTube duplicate {item['slug']}")
+            continue
+        if matches and not any(site["slug"]==item["slug"] for site in matches):
+            print(f"Review already imported as /{matches[0]['slug']}; skipping duplicate {item['slug']}")
+            continue
+        if any(same_review(item,other) for other,_ in accepted):
+            print(f"Duplicate review in Community scan: {item['slug']}; skipping")
+            continue
+        accepted.append((item,p))
+    return [p for _,p in reversed(accepted)]
+
+
 def review_body_html(p):
     # Build review content line-by-line so the Community title is never merged
     # with "Introduzione" or with the first paragraph.
@@ -1185,8 +1318,11 @@ def build_review_archive_page(review_chunk,page_num,total_pages,reviews):
         +'</body></html>'
     )
 
-def write_review_archive(reviews):
-    total_pages=max(1,(len(reviews)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
+def write_review_archive(reviews, curated_rows=None):
+    # Merge approved editorial reviews with the YouTube-imported review list.
+    # This also preserves handcrafted cards when Community sync runs.
+    entries=list(curated_rows or [])+[render_review_rows([p]) for p in reviews]
+    total_pages=max(1,(len(entries)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
 
     # Remove obsolete numbered archive pages before rebuilding the complete set.
     for old in Path(".").glob("recensioni-scritte-[0-9]*.html"):
@@ -1196,8 +1332,10 @@ def write_review_archive(reviews):
             pass
 
     for page_num in range(1,total_pages+1):
-        chunk=reviews[(page_num-1)*REVIEW_PAGE_SIZE:page_num*REVIEW_PAGE_SIZE]
-        page=build_review_archive_page(chunk,page_num,total_pages,reviews)
+        chunk=entries[(page_num-1)*REVIEW_PAGE_SIZE:page_num*REVIEW_PAGE_SIZE]
+        page=build_review_archive_page([],page_num,total_pages,reviews)
+        page=page.replace('<div class="news-list" id="reviewList"></div>',
+                          '<div class="news-list" id="reviewList">'+"".join(chunk)+'</div>',1)
         filename="recensioni-scritte.html" if page_num==1 else f"recensioni-scritte-{page_num}.html"
         Path(filename).write_text(page,encoding="utf-8")
 
@@ -1643,8 +1781,11 @@ def build_review_archive_page(review_chunk,page_num,total_pages,reviews):
         +'</body></html>'
     )
 
-def write_review_archive(reviews):
-    total_pages=max(1,(len(reviews)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
+def write_review_archive(reviews, curated_rows=None):
+    # Merge approved editorial reviews with the YouTube-imported review list.
+    # This also preserves handcrafted cards when Community sync runs.
+    entries=list(curated_rows or [])+[render_review_rows([p]) for p in reviews]
+    total_pages=max(1,(len(entries)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
 
     # Remove obsolete numbered archive pages before rebuilding the complete set.
     for old in Path(".").glob("recensioni-scritte-[0-9]*.html"):
@@ -1654,8 +1795,10 @@ def write_review_archive(reviews):
             pass
 
     for page_num in range(1,total_pages+1):
-        chunk=reviews[(page_num-1)*REVIEW_PAGE_SIZE:page_num*REVIEW_PAGE_SIZE]
-        page=build_review_archive_page(chunk,page_num,total_pages,reviews)
+        chunk=entries[(page_num-1)*REVIEW_PAGE_SIZE:page_num*REVIEW_PAGE_SIZE]
+        page=build_review_archive_page([],page_num,total_pages,reviews)
+        page=page.replace('<div class="news-list" id="reviewList"></div>',
+                          '<div class="news-list" id="reviewList">'+"".join(chunk)+'</div>',1)
         filename="recensioni-scritte.html" if page_num==1 else f"recensioni-scritte-{page_num}.html"
         Path(filename).write_text(page,encoding="utf-8")
 
@@ -2382,17 +2525,22 @@ def main():
         print("No YouTube Community content changes; skipping HTML regeneration.")
         return
 
-    reviews=[p for p in posts if is_review(p)]
+    published_reviews,old_archive=existing_review_pages()
+    reviews=select_unique_reviews(posts,published_reviews)
+    approved_ids={p["id"] for p in reviews}
+    # Keep raw YouTube state intact; only suppress duplicate reviews on the site.
+    visible_posts=[p for p in posts if not is_review(p) or p.get("id") in approved_ids]
     news=[p for p in posts if not is_review(p)]
     if not news:
         raise RuntimeError("Community safety check failed: zero news parsed.")
+    editorial_rows=manual_review_rows(published_reviews,old_archive)
 
     STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     for p in reviews: write_review_page(p,reviews)
-    write_review_archive(reviews)
+    write_review_archive(reviews,editorial_rows)
     for p in news: write_news_page(p,news)
     write_news_archive(news,reviews)
-    total_article_pages=write_article_pages(posts)
+    total_article_pages=write_article_pages(visible_posts)
     # Rebuild canonical sitemap after every content sync so Search Console always sees current URLs.
     update_sitemap()
     s=INDEX.read_text(encoding="utf-8")
