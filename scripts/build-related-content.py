@@ -685,10 +685,11 @@ def related_for(current, records, idf, entity_idf, limit=LIMIT):
     return [item[3] for item in ranked[:limit]]
 
 def render_related(items):
+    # Only show real published cover images, never the global brand logo.
     cards = []
-    for item in items:
+    for item in (candidate for candidate in items if candidate.get("image")):
         title = html.escape(item["title"])
-        image = html.escape(item["image"] or "/ChatGPT.png", quote=True)
+        image = html.escape(item["image"], quote=True)
         href = "/" + html.escape(item["name"], quote=True)
         kind = html.escape(item["kind"])
         cards.append(
@@ -762,7 +763,9 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
         for item in items:
             link = "/" + html.escape(item["name"], quote=True)
             title = html.escape(item["title"])
-            img = html.escape(item["image"] or "/ChatGPT.png", quote=True)
+            if not item.get("image"):
+                continue
+            img = html.escape(item["image"], quote=True)
             parts.append(
                 f'<a class="zt-mix-editorial-row" href="{link}">'
                 f'<img src="{img}" loading="lazy" alt="">'
@@ -804,6 +807,7 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
         exclude = {record["name"]} | {item["name"] for item in related}
         pool = [
             item for item in records if item["name"] not in exclude
+            and item.get("image")  # no branded placeholders in Dalla redazione
             and 'content="noindex' not in item["raw"].lower()
         ]
         rng = random.Random(record["name"])
