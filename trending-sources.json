@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-12T14:19:22.829967+00:00",
+  "generated_utc": "2026-10-12T14:20:56.733493+00:00",
   "sites": {
     "hdblog": {
       "headlines": 20,
@@ -81,7 +81,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -93,7 +93,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -105,7 +105,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -117,7 +117,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -129,7 +129,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -141,7 +141,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -153,7 +153,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -165,7 +165,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T09:29:26.815799+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -177,7 +177,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -189,7 +189,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -201,7 +201,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -213,7 +213,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -225,7 +225,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -237,7 +237,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -249,7 +249,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -261,7 +261,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -273,7 +273,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -285,7 +285,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -297,7 +297,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T11:56:12.578373+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hdblog",
@@ -309,7 +309,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T11:56:12.578373+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -321,7 +321,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T06:35:18.027137+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -333,7 +333,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-11T12:29:02.878692+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -345,7 +345,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T07:57:28.503648+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -357,7 +357,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-11T11:50:44.390094+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -369,7 +369,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -381,7 +381,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -393,7 +393,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T06:35:18.027137+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -405,7 +405,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -417,7 +417,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T09:57:13.254676+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -429,7 +429,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -441,7 +441,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-11T12:29:02.878692+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -453,7 +453,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -465,7 +465,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -477,7 +477,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -489,7 +489,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -501,7 +501,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -513,7 +513,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -525,7 +525,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -537,7 +537,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "dday",
@@ -549,7 +549,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -561,7 +561,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T10:28:11.320330+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -573,7 +573,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-11T20:51:02.707540+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -585,7 +585,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T09:29:26.815799+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -597,7 +597,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-11T05:51:24.146140+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -609,7 +609,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -621,7 +621,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -633,7 +633,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -645,7 +645,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -657,7 +657,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -669,7 +669,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -681,7 +681,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -693,7 +693,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -705,7 +705,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T10:28:11.320330+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -717,7 +717,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -729,7 +729,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -741,7 +741,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -753,7 +753,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -765,7 +765,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -777,7 +777,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "smartworld",
@@ -789,7 +789,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -801,7 +801,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:19:22.829967+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -813,7 +813,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -825,7 +825,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -837,7 +837,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -849,7 +849,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -861,7 +861,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -873,7 +873,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -885,7 +885,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -897,7 +897,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -909,7 +909,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -921,7 +921,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -933,7 +933,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -945,7 +945,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -957,7 +957,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -969,7 +969,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -981,7 +981,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -993,7 +993,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -1005,7 +1005,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -1017,7 +1017,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "tomshw",
@@ -1029,7 +1029,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1041,7 +1041,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1053,7 +1053,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1065,7 +1065,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1077,7 +1077,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1089,7 +1089,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1101,7 +1101,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1113,7 +1113,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1125,7 +1125,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1137,7 +1137,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1149,7 +1149,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1161,7 +1161,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-12T11:56:12.578373+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1173,7 +1173,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1185,7 +1185,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1197,7 +1197,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T10:55:16.281256+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1209,7 +1209,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T10:28:11.320330+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1221,7 +1221,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T09:57:13.254676+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1233,7 +1233,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T09:57:13.254676+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1245,7 +1245,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T09:57:13.254676+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1257,7 +1257,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T09:29:26.815799+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1269,7 +1269,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1281,7 +1281,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-11T16:00:54.500033+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1293,7 +1293,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1305,7 +1305,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1317,7 +1317,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1329,7 +1329,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-11T06:29:17.216067+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1341,7 +1341,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-10T17:48:49.627345+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1353,7 +1353,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-11T10:51:19.046599+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1365,7 +1365,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-10T15:22:30.486253+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1377,7 +1377,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-11T14:23:45.195238+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1389,7 +1389,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1401,7 +1401,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-12T07:30:23.755779+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1413,7 +1413,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-11T16:00:54.500033+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1425,7 +1425,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-11T07:51:16.817121+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1437,7 +1437,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-10T16:22:47.010131+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1449,7 +1449,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1461,7 +1461,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1473,7 +1473,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1485,7 +1485,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1497,7 +1497,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "multiplayer",
@@ -1509,7 +1509,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1521,7 +1521,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1533,7 +1533,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1545,7 +1545,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T08:32:36.197208+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1557,7 +1557,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1569,7 +1569,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1581,7 +1581,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1593,7 +1593,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1605,7 +1605,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1617,7 +1617,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T09:57:13.254676+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1629,7 +1629,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1641,7 +1641,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-11T16:23:57.824391+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1653,7 +1653,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-11T14:51:28.203989+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1665,7 +1665,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-11T20:23:18.520705+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1677,7 +1677,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1689,7 +1689,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1701,7 +1701,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1713,7 +1713,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1725,7 +1725,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-10T18:25:36.138350+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1737,7 +1737,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-11T06:29:17.216067+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "everyeye",
@@ -1749,7 +1749,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1761,7 +1761,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1773,7 +1773,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1785,7 +1785,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1797,7 +1797,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1809,7 +1809,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1821,7 +1821,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1833,7 +1833,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1845,7 +1845,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1857,7 +1857,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1869,7 +1869,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1881,7 +1881,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1893,7 +1893,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-12T11:27:31.162984+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1905,7 +1905,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T10:55:16.281256+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1917,7 +1917,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1929,7 +1929,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T07:30:23.755779+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1941,7 +1941,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1953,7 +1953,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1965,7 +1965,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T10:55:16.281256+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1977,7 +1977,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T07:30:23.755779+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "spaziogames",
@@ -1989,7 +1989,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-11T14:23:45.195238+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2001,7 +2001,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2013,7 +2013,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-11T05:51:24.146140+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2025,7 +2025,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2037,7 +2037,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2049,7 +2049,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2061,7 +2061,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2073,7 +2073,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2085,7 +2085,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2097,7 +2097,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2109,7 +2109,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2121,7 +2121,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2133,7 +2133,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2145,7 +2145,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T14:04:46.083782+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2157,7 +2157,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2169,7 +2169,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2181,7 +2181,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2193,7 +2193,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2205,7 +2205,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T13:39:10.471117+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2217,7 +2217,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "ign",
@@ -2229,7 +2229,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T12:44:07.996746+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2241,7 +2241,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2253,7 +2253,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2265,7 +2265,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2277,7 +2277,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2289,7 +2289,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2301,7 +2301,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2313,7 +2313,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2325,7 +2325,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2337,7 +2337,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T10:55:16.281256+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2349,7 +2349,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T10:28:11.320330+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2361,7 +2361,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-12T09:57:13.254676+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2373,7 +2373,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-12T09:29:26.815799+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2385,7 +2385,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2397,7 +2397,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T08:32:36.197208+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2409,7 +2409,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T07:05:12.130168+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2421,7 +2421,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T06:35:18.027137+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2433,7 +2433,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-11T17:22:43.874909+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2445,7 +2445,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-11T14:51:28.203989+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2457,7 +2457,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamesurf",
@@ -2469,7 +2469,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2481,7 +2481,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2493,7 +2493,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2505,7 +2505,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2517,7 +2517,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2529,7 +2529,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2541,7 +2541,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2553,7 +2553,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2565,7 +2565,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2577,7 +2577,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "igncom",
@@ -2589,7 +2589,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2601,7 +2601,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2613,7 +2613,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2625,7 +2625,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2637,7 +2637,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2649,7 +2649,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2661,7 +2661,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2673,7 +2673,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2685,7 +2685,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2697,7 +2697,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2709,7 +2709,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2721,7 +2721,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2733,7 +2733,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2745,7 +2745,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2757,7 +2757,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2769,7 +2769,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2781,7 +2781,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2793,7 +2793,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2805,7 +2805,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2817,7 +2817,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "gamespot",
@@ -2829,7 +2829,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2841,7 +2841,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2853,7 +2853,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2865,7 +2865,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2877,7 +2877,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2889,7 +2889,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2901,7 +2901,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2913,7 +2913,19 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "name": "Eurogamer.net",
+      "kind": "gaming",
+      "title": "Arc Raiders player-numbers rebound with the launch of Frozen Trail and the game's 2.0 release, but they might be deceptively high",
+      "url": "https://www.eurogamer.net/arc-raiders-frozen-trail-2-0-update-steam-player-numbers",
+      "rank": 8,
+      "homepage": true,
+      "featured_priority": 13,
+      "first_seen": "2026-10-12T14:20:56.733493+00:00",
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2921,23 +2933,11 @@
       "kind": "gaming",
       "title": "GTA 6 leaker CyberLeek is back with another video and this time, Lucia's naked",
       "url": "https://www.eurogamer.net/gta-6-leaker-cyberleek-naked-lucia-parachute-video",
-      "rank": 8,
-      "homepage": true,
-      "featured_priority": 13,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "name": "Eurogamer.net",
-      "kind": "gaming",
-      "title": "Starfield seamless planetary landings are finally nearly a thing, thanks to one modder's tireless work",
-      "url": "https://www.eurogamer.net/starfield-mod-seamless-planetary-landings",
       "rank": 9,
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2949,7 +2949,19 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "name": "Eurogamer.net",
+      "kind": "gaming",
+      "title": "Starfield seamless planetary landings are finally nearly a thing, thanks to one modder's tireless work",
+      "url": "https://www.eurogamer.net/starfield-mod-seamless-planetary-landings",
+      "rank": 11,
+      "homepage": true,
+      "featured_priority": 10,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2957,11 +2969,11 @@
       "kind": "gaming",
       "title": "Nintendo executive confirms company has \"no plans to ditch physical games\"",
       "url": "https://www.eurogamer.net/nintendo-executive-confirms-company-has-no-plans-to-ditch-physical-games",
-      "rank": 11,
+      "rank": 12,
       "homepage": true,
-      "featured_priority": 10,
+      "featured_priority": 9,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2969,11 +2981,11 @@
       "kind": "gaming",
       "title": "For the second time this year, Steam has set a major new concurrent user record",
       "url": "https://www.eurogamer.net/steam-new-user-concurrent-record-october-2026",
-      "rank": 12,
+      "rank": 13,
       "homepage": true,
-      "featured_priority": 9,
+      "featured_priority": 8,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2981,11 +2993,11 @@
       "kind": "gaming",
       "title": "The Blood of Dawnwalker's lead actor reminds us why AI will always struggle to replicate a human performance",
       "url": "https://www.eurogamer.net/the-blood-of-dawnwalker-lead-actor-will-de-renzy-martin-ai-voiceover",
-      "rank": 13,
+      "rank": 14,
       "homepage": true,
-      "featured_priority": 8,
+      "featured_priority": 7,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -2993,23 +3005,11 @@
       "kind": "gaming",
       "title": "Stardew Valley creator's new game, Haunted Chocolatier, is \"more of an action RPG\" than farming sim",
       "url": "https://www.eurogamer.net/the-haunted-chocolatier-action-rpg-stardew-valley",
-      "rank": 14,
-      "homepage": true,
-      "featured_priority": 7,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "name": "Eurogamer.net",
-      "kind": "gaming",
-      "title": "DMZ for Call of Duty: Modern Warfare 4 being released early, but Infinity Ward shoots down PvE hopes",
-      "url": "https://www.eurogamer.net/call-of-duty-modern-warfare-4-dmz-early-access-no-pve",
       "rank": 15,
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -3021,7 +3021,19 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "name": "Eurogamer.net",
+      "kind": "gaming",
+      "title": "DMZ for Call of Duty: Modern Warfare 4 being released early, but Infinity Ward shoots down PvE hopes",
+      "url": "https://www.eurogamer.net/call-of-duty-modern-warfare-4-dmz-early-access-no-pve",
+      "rank": 17,
+      "homepage": true,
+      "featured_priority": 4,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -3029,11 +3041,11 @@
       "kind": "gaming",
       "title": "Marvel Tōkon: Fighting Souls reveals its Year 1 DLC roster, starting with Phoenix Cyclops on 2nd November",
       "url": "https://www.eurogamer.net/marvel-tokon-fighting-souls-year-1-dlc-roster-phoenix-cyclops",
-      "rank": 17,
+      "rank": 18,
       "homepage": true,
-      "featured_priority": 4,
+      "featured_priority": 3,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -3041,23 +3053,11 @@
       "kind": "gaming",
       "title": "Escape the Backrooms is throwing an After Party with three new levels this December",
       "url": "https://www.eurogamer.net/escape-the-backrooms-after-party-update-new-levels-december",
-      "rank": 18,
-      "homepage": true,
-      "featured_priority": 3,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "name": "Eurogamer.net",
-      "kind": "gaming",
-      "title": "Phasmophobia confirms 30 million sales as its Crimson Eye Halloween event returns",
-      "url": "https://www.eurogamer.net/phasmophobia-30-million-sales-crimson-eye-event",
       "rank": 19,
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "eurogamer",
@@ -3069,7 +3069,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3081,7 +3081,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3093,7 +3093,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3105,7 +3105,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3117,7 +3117,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3129,7 +3129,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3141,7 +3141,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3153,7 +3153,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3165,7 +3165,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3177,7 +3177,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3189,7 +3189,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3201,7 +3201,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3213,7 +3213,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3225,7 +3225,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3237,7 +3237,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3249,7 +3249,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3261,7 +3261,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3273,7 +3273,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3285,7 +3285,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3297,7 +3297,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "polygon",
@@ -3309,7 +3309,7 @@
       "homepage": true,
       "featured_priority": 1,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3321,7 +3321,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3333,7 +3333,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3345,7 +3345,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3357,7 +3357,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3369,7 +3369,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3381,7 +3381,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3393,7 +3393,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3405,7 +3405,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3417,7 +3417,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3429,7 +3429,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3441,7 +3441,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3453,7 +3453,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3465,7 +3465,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3477,7 +3477,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3489,7 +3489,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3501,7 +3501,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3513,7 +3513,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3525,7 +3525,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3537,7 +3537,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "pcgamer",
@@ -3549,7 +3549,7 @@
       "homepage": false,
       "featured_priority": 0,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3561,7 +3561,7 @@
       "homepage": true,
       "featured_priority": 20,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3573,7 +3573,7 @@
       "homepage": true,
       "featured_priority": 19,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3585,7 +3585,7 @@
       "homepage": true,
       "featured_priority": 18,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3597,7 +3597,7 @@
       "homepage": true,
       "featured_priority": 17,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3609,7 +3609,7 @@
       "homepage": true,
       "featured_priority": 16,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3621,7 +3621,7 @@
       "homepage": true,
       "featured_priority": 15,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3633,7 +3633,7 @@
       "homepage": true,
       "featured_priority": 14,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3645,7 +3645,7 @@
       "homepage": true,
       "featured_priority": 13,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3657,7 +3657,7 @@
       "homepage": true,
       "featured_priority": 12,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3669,7 +3669,7 @@
       "homepage": true,
       "featured_priority": 11,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3681,7 +3681,7 @@
       "homepage": true,
       "featured_priority": 10,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3693,7 +3693,7 @@
       "homepage": true,
       "featured_priority": 9,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3705,7 +3705,7 @@
       "homepage": true,
       "featured_priority": 8,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3717,7 +3717,7 @@
       "homepage": true,
       "featured_priority": 7,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3729,7 +3729,7 @@
       "homepage": true,
       "featured_priority": 6,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3741,7 +3741,7 @@
       "homepage": true,
       "featured_priority": 5,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3753,7 +3753,7 @@
       "homepage": true,
       "featured_priority": 4,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3765,7 +3765,7 @@
       "homepage": true,
       "featured_priority": 3,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3777,7 +3777,7 @@
       "homepage": true,
       "featured_priority": 2,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-12T14:19:22.829967+00:00"
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
     },
     {
       "source": "zazoom",
@@ -3788,6 +3788,18 @@
       "rank": 20,
       "homepage": true,
       "featured_priority": 1,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-12T14:20:56.733493+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "name": "Eurogamer.net",
+      "kind": "gaming",
+      "title": "Phasmophobia confirms 30 million sales as its Crimson Eye Halloween event returns",
+      "url": "https://www.eurogamer.net/phasmophobia-30-million-sales-crimson-eye-event",
+      "rank": 19,
+      "homepage": true,
+      "featured_priority": 2,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
       "last_seen": "2026-10-12T14:19:22.829967+00:00"
     },
