@@ -2315,7 +2315,8 @@ def render_article_feed(posts, home_guide_inset=""):
     """Render NEWS ONLY; reviews belong exclusively in the Reviews module/archive."""
     rows=[]
     guide_inserted=False
-    talos_slug="news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html"
+    # HOME ONLY: show the Guides module immediately after the tenth NEWS card.
+    # Paginated pages pass no guide inset and are not affected.
     for p in posts:
         if is_review(p):
             continue  # Defensive guard against reviews reappearing in the Home or pagination.
@@ -2333,13 +2334,12 @@ def render_article_feed(posts, home_guide_inset=""):
             f'<div class="article-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
             f'<p>{excerpt}</p><a class="read-more" href="{slug}">Leggi tutto ›</a></div></article>'
         )
-        if home_guide_inset and slug.lstrip("/") == talos_slug:
+        if home_guide_inset and len(rows)==10:
             rows.append(home_guide_inset)
             guide_inserted=True
     if home_guide_inset and not guide_inserted and rows:
-        # Once The Talos Principle 3 leaves the latest 15 news, keep Guides
-        # visible at approximately the same reading position on the Home.
-        rows.insert(min(8,len(rows)),home_guide_inset)
+        # Fallback only if there are fewer than ten news items available.
+        rows.append(home_guide_inset)
     return "\n".join(rows)
 
 def render(posts):
