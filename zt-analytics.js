@@ -106,5 +106,17 @@
     init();
   }
 
+  // Banners for review articles are navigation links, not video embeds.
+  // Load them independently of analytics consent and only on review pages.
+  (function loadReviewVideoLinks(){
+    var filename=(window.location.pathname.split('/').pop()||'');
+    if(!/(?:^|[-_])(?:recensione|review)(?:[-_.]|$)/i.test(filename)) return;
+    var bannerScript=document.createElement('script');
+    bannerScript.src='/zt-review-video.js?v=20261012';
+    bannerScript.defer=true;
+    bannerScript.setAttribute('data-zt-review-video','1');
+    document.head.appendChild(bannerScript);
+  })();
+
   window.ZazoomTekCookieSettings=function(){showBanner();};
 })();
