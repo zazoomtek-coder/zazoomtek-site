@@ -10,17 +10,8 @@ on:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
       - 'scripts/test_review_dedup.py'
-      - 'scripts/zt_sidebar_mix.py'
-      - 'scripts/remove-duplicate-article-images.py'
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
-      - 'scripts/build-search-index.py'
-      - 'scripts/build-related-content.py'
-      - 'scripts/inject-analytics.py'
-      - 'zt-analytics.js'
-      - 'cerca.html'
-      - 'featured-news.json'
-      - 'scripts/trending-crosscheck.py'
   workflow_dispatch:
 
 permissions:
@@ -41,12 +32,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install image comparison dependency
+      - name: Install optional image comparison dependency
+        continue-on-error: true
         run: python3 -m pip install --quiet pillow
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/zt_sidebar_mix.py scripts/update-youtube.py scripts/update-youtube-posts.py scripts/remove-duplicate-article-images.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_review_dedup.py
           python3 scripts/test_review_dedup.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
@@ -59,7 +51,7 @@ jobs:
         id: community_sync
         continue-on-error: true
         env:
-          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
+          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
@@ -70,38 +62,12 @@ jobs:
             echo "Community unchanged; no pages will be rebuilt or deployed."
           fi
 
-      - name: Remove duplicate images across all existing article pages
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        run: python3 scripts/remove-duplicate-article-images.py
-
-      # Post-process the generated HTML only; the YouTube news, video and review
-      # importers and their validations remain untouched.
-      - name: Keep ten featured NEWS and four approved standard articles visible
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        continue-on-error: true
-        run: python3 scripts/apply-standard-news-featured.py
-
-      - name: Compare new Community news with cached Italian trends
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        continue-on-error: true
-        run: |
-          python3 scripts/trending-crosscheck.py --test
-          python3 scripts/trending-crosscheck.py --apply
-
       - name: Discard unsafe Community changes
         if: steps.community_sync.outcome != 'success'
         run: |
           echo "Community sync failed validation; restoring last known-good repository state."
           git reset --hard HEAD
           git clean -fd
-
-      - name: Build Facebook RSS from approved new general NEWS
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        run: python3 scripts/build-news-rss.py
-
-      - name: Rebuild mixed archive sidebars
-        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
-        run: python3 scripts/zt_sidebar_mix.py
 
       - name: Save validated Community changes locally
         id: community_commit
@@ -130,7 +96,7 @@ jobs:
         if: steps.community_commit.outputs.changed == 'true'
         continue-on-error: true
         env:
-          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
+          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           for attempt in 1 2 3; do
             git fetch origin main
@@ -139,10 +105,6 @@ jobs:
               git reset --hard origin/main
               python3 scripts/update-youtube-posts.py
               python3 scripts/validate-sync-output.py community
-              if [ -n "$(git status --porcelain)" ]; then
-                python3 scripts/remove-duplicate-article-images.py
-                python3 scripts/zt_sidebar_mix.py
-              fi
               git add -A
               if git diff --cached --quiet; then
                 echo "Community already up to date on main."
@@ -161,7 +123,19 @@ jobs:
           echo "::error::Could not safely publish Community update."
           exit 1
 
-      # A single Firebase release will publish Community and video changes
+      # Primary content deploy: optional builders cannot block the Community.
+      - name: Deploy published Community immediately
+        id: community_deploy
+        if: steps.community_push.outputs.published == 'true'
+        continue-on-error: true
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
+
+      # The independent uploads channel is checked after the Community release.
       # after both have been checked (no redundant early Hosting release).
       - name: Sync and validate YouTube uploads
         id: video_sync
@@ -169,7 +143,7 @@ jobs:
         continue-on-error: true
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
+          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           python3 scripts/update-youtube.py
           python3 scripts/validate-sync-output.py videos
@@ -206,6 +180,77 @@ jobs:
           echo "Video commit failed; discarding uncommitted video output."
           git reset --hard HEAD
           git clean -fd
+
+      # Independent uploads release, before any nonessential site scripts.
+      - name: Publish validated YouTube uploads directly
+        id: video_push
+        if: steps.video_commit.outputs.changed == 'true'
+        continue-on-error: true
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          for attempt in 1 2 3; do
+            git fetch origin main || { sleep "$((attempt * 2))"; continue; }
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              git reset --hard origin/main
+              python3 scripts/update-youtube.py
+              python3 scripts/validate-sync-output.py videos
+              git add -A
+              if git diff --cached --quiet; then
+                echo "published=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              git commit -m "Auto-sync videos on latest main"
+            fi
+            if git push origin HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep "$((attempt * 3))"
+          done
+          echo "::error::Could not publish videos; recovery workflow will retry."
+          exit 1
+      - name: Deploy published YouTube uploads immediately
+        id: video_deploy
+        if: steps.video_push.outputs.published == 'true'
+        continue-on-error: true
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
+
+      # Only after BOTH import channels are independently committed:
+      - name: Remove duplicate images across all existing article pages
+        continue-on-error: true
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
+        run: python3 scripts/remove-duplicate-article-images.py
+
+      # Post-process the generated HTML only; the YouTube news, video and review
+      # importers and their validations remain untouched.
+      - name: Keep ten featured NEWS and four approved standard articles visible
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
+        continue-on-error: true
+        run: python3 scripts/apply-standard-news-featured.py
+
+      - name: Compare new Community news with cached Italian trends
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          python3 scripts/trending-crosscheck.py --test
+          python3 scripts/trending-crosscheck.py --apply
+
+      - name: Build Facebook RSS from approved new general NEWS
+        continue-on-error: true
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
+        run: python3 scripts/build-news-rss.py
+
+      - name: Rebuild mixed archive sidebars
+        continue-on-error: true
+        if: steps.community_sync.outcome == 'success' && steps.community_sync.outputs.changed == 'true'
+        run: python3 scripts/zt_sidebar_mix.py
 
       - name: Build automatic related articles
         id: related_sync
@@ -289,10 +334,10 @@ jobs:
       # failures must never hold back already-validated Community/video commits.
       - name: Push validated site update
         id: site_push
-        if: always() && (steps.video_commit.outputs.changed == 'true' || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome == 'failure'))
+        if: always() && ((steps.video_commit.outputs.changed == 'true' && steps.video_push.outputs.published != 'true') || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome == 'failure'))
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_FORCE_SYNC: ${{ github.event_name != 'schedule' }}
+          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           for attempt in 1 2 3; do
             git fetch origin main
