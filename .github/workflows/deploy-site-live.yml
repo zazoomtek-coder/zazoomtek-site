@@ -1,0 +1,47 @@
+name: Serialized live site publishing
+# This is the ONLY Firebase publisher for YouTube imports and editorial carousel.
+# Neither news import nor trend discovery runs here: deploy a validated snapshot.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: zazoomtek-firebase-live-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Load newest committed source once
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+      - name: Validate existing YouTube news, reviews and video pages
+        run: |
+          python3 scripts/validate-sync-output.py community
+          python3 scripts/validate-sync-output.py videos
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          index=Path('index.html').read_text(encoding='utf-8')
+          assert '<!-- FEATURED_NEWS_START -->' in index
+          assert '<!-- FEATURED_NEWS_END -->' in index
+          assert '<!-- ARTICLE_FEED_START -->' in index
+          carousel=Path('featured-carousel.json')
+          if carousel.is_file():
+              items=json.loads(carousel.read_text(encoding='utf-8')).get('items',[])
+              assert len(items)==6 and len({x['url'] for x in items})==6
+              assert [x['section'] for x in items]==['tech','tech','gaming','gaming','tech-impact','gaming-inside']
+          print('YouTube content validated, carousel independent and safe.')
+          PY
+      - name: Deploy latest validated GitHub snapshot to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
+          channelId: live
+          projectId: zazomtek
