@@ -130,7 +130,7 @@ def fetch(url):
 def main():
     drafts=json.loads(IN.read_text(encoding="utf-8")).get("drafts",[])
     results=[]
-    for draft in drafts[:10]:
+    for draft in drafts[:12]:
         evidence=[]
         for url in draft.get("source_urls",[])[:3]:
             try:evidence.append({"input_url":url,"result":"retrieved","data":fetch(url)})
