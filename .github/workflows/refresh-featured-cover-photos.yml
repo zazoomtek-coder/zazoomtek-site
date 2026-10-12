@@ -52,6 +52,8 @@ jobs:
             sleep "$((attempt * 3))"
           done
           exit 1
+      - name: Validate full editorial layout before publishing images
+        run: python3 scripts/apply-site-design.py
       - name: Deploy restored images to Firebase Hosting live
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
