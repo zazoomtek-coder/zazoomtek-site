@@ -163,7 +163,7 @@ FEATURED_OUTLETS={"igncom","gamespot","eurogamer","polygon","pcgamer","zazoom"}
 SPECIAL_TOPIC_RE=re.compile(
     r"(?i)(legge|leggi|normativ|regolament|politic|govern|parlament|"
     r"antitrust|indagin|sanzion|privacy|censur|copyright|diritt|"
-    r"consumator|propriet|proprietà|licenziament|chiusur|server|"
+    r"consumator|propriet|proprietà|licenziament|riorganizz|ristruttur|chiusur|server|"
     r"acquisizion|cyberattacc|hacker|violazion|sicurezza|"
     r"controvers|denunc|tutela|minori|rimbors|ai.act|gdpr|dsa|dma)")
 def featured_policy_leads(now):
@@ -179,7 +179,7 @@ def featured_policy_leads(now):
             or not x.get("homepage") or int(x.get("rank",99))>12):continue
         title=x.get("title","")
         if not SPECIAL_TOPIC_RE.search(title):continue
-        if x["kind"]=="gaming" and not GAMING_RE.search(title):continue
+        if x["kind"]=="gaming" and not (GAMING_RE.search(title) or ZAZOOM_GAMING_RE.search(title)):continue
         section=x["kind"];url=x.get("url","")
         if not url.startswith("https://"):continue
         try:
