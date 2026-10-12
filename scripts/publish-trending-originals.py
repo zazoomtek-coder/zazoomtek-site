@@ -109,7 +109,7 @@ def choose(stories,existing):
             "Preferisci notizie forti, molto fresche, con alto potenziale virale, rilevanza per il pubblico e capacita di generare interesse e commenti. Dai grande peso al rango homepage, alla notizia recente "
             "e ai portali IGN.com, GameSpot.com, Eurogamer.net, Polygon.com, PCGamer.com, "
             "Zazoom.it, senza escludere le testate italiane. La presenza dello stesso evento su più portali rafforza il potenziale virale; non inventare dati di traffico o condivisioni. Se la homepage non è accessibile, il feed RSS è un ripiego. Evita guide, recensioni e offerte; le indiscrezioni interessanti sono accettabili quando dichiarate come tali, ma escludi quelle "
-            "non confermate, gossip, articoli generici o duplicati dello stesso evento. "
+            "prive di elementi verificabili, gossip, articoli generici o duplicati dello stesso evento. "
             "PER OGNI TEMA cerca PRIMA nelle notizie gia pubblicate su ZazoomTek "
             "la stessa identica vicenda: considera protagonisti, evento, prodotto e data, "
             "anche quando i titoli sono in lingue diverse. Se la stessa storia e presente, "
@@ -377,7 +377,8 @@ def main():
                        "metadata":evidence["metadata"],"excerpts":evidence["excerpts"]}
                 verified_audit=auditor.review(original,[proof])
                 if not auditor.verified(original,[proof],verified_audit):
-                    continue
+                    if not auditor.trim_unverified_paragraphs(original,[proof],verified_audit):
+                        continue
                 result=write_original(choice,original,cover,layout)
                 published[lead["url"]]=result
                 selected.append(result);still_needed-=1
