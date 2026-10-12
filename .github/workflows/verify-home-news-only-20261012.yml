@@ -1,0 +1,41 @@
+name: Verify News Only Home and Pagination
+on:
+  push:
+    branches: [fix-home-latest-news-only-20261012]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python source
+        run: python3 -m py_compile scripts/update-youtube-posts.py scripts/apply-standard-news-featured.py
+      - name: Test only News in Home articles and pages 2-5
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          names=['index.html']+[f'pagina-{n}.html' for n in range(2,6)]
+          urls=[]
+          for i,name in enumerate(names):
+              s=Path(name).read_text(encoding='utf-8')
+              section=s.split('<!-- ARTICLE_FEED_START -->',1)[1].split('<!-- ARTICLE_FEED_END -->',1)[0]
+              rows=re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>',section)
+              expected=10 if i==4 else 15
+              assert len(rows)==expected,(name,len(rows),expected)
+              for row in rows:
+                  m=re.search(r'<h3><a href="([^"]+)"',row)
+                  assert m and re.fullmatch(r'/?news-[A-Za-z0-9_-]+\.html',m[1]),(name,m.group(1) if m else 'missing')
+                  urls.append(m[1].lstrip('/'))
+              if i==0:
+                  assert section.count('HOME_GUIDES_INSET_START')==1
+                  assert 'HOME_LATEST_REVIEWS_MAIN_START' in s
+          assert len(urls)==len(set(urls))==70
+          u=Path('scripts/update-youtube-posts.py').read_text()
+          assert 'write_article_pages(news)' in u
+          assert 'render_article_feed(news[:PAGE_SIZE],guide_markup)' in u
+          assert 'if is_review(p):' in u
+          print('PASS: home has 15 NEWS + Guides; paginated archives are news only; review archive preserved')
+          PY
