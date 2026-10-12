@@ -136,6 +136,36 @@ def choose(stories,existing):
         accepted.append({"section":kind,"source_url":u,"source_title":story["title"],
                          "source_name":story["name"],"existing_url":existing_url})
         counts[kind]+=1
+    print("AI-selected source leads:", len(raw.get("selected", [])), "validated:", len(accepted))
+    if not accepted:
+        # A model may be overly conservative with headline-only evidence.
+        # Its empty selection must not prevent the *research* stage: fetch
+        # top actual article URLs, but publish ONLY after independent audits.
+        used_sources=set()
+        trends=module("trending-crosscheck.py","zt_trending_fallback")
+        for category in ("tech","gaming"):
+            preferred=sorted((x for x in stories if x.get("kind")==category
+                              and x.get("rank",99)<=10),
+                             key=lambda x:(not x.get("homepage",False),
+                                           0 if x.get("source") in
+                                           ("igncom","gamespot","eurogamer","polygon","pcgamer","zazoom") else 1,
+                                           x.get("rank",99)))
+            while counts[category]<2:
+                story=next((x for x in preferred if x["url"] not in taken
+                            and x["source"] not in used_sources),None)
+                if story is None:break
+                taken.add(story["url"])
+                used_sources.add(story["source"])
+                # Reuse only a truly matching existing article; avoid loosely
+                # equating separate events with the same game or brand name.
+                same=sorted([(trends.similarity(story["title"],x["title"]),x)
+                             for x in existing],key=lambda pair:pair[0],reverse=True)
+                matched=same[0][1]["url"] if same and same[0][0]>=.63 else ""
+                accepted.append({"section":category,"source_url":story["url"],
+                                 "source_title":story["title"],"source_name":story["name"],
+                                 "existing_url":matched})
+                counts[category]+=1
+        print("Research-only conservative fallback leads:",len(accepted))
     return accepted
 
 def original_draft(selection,evidence,writer):
