@@ -1,4 +1,4 @@
-name: Scan Italian tech and gaming trends
+name: Hourly Tech Gaming international featured stories
 on:
   schedule:
     - cron: '11 * * * *'
@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/trending-crosscheck.py'
+      - 'scripts/publish-trending-originals.py'
       - '.github/workflows/scan-trending-portals.yml'
   workflow_dispatch:
 
@@ -19,7 +20,7 @@ concurrency:
 jobs:
   compare:
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 48
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,26 +31,44 @@ jobs:
           python3 scripts/trending-crosscheck.py --test
       - name: Scan sixteen Italian and international technology and gaming portals
         run: python3 scripts/trending-crosscheck.py --sources
-      - name: Match previously published ZazoomTek articles
+      - name: Validate automated original reporting and safe cover generator
+        run: |
+          python3 -m py_compile scripts/publish-trending-originals.py scripts/build-special-covers.py scripts/check-special-sources.py scripts/auto-approve-special.py
+          python3 scripts/publish-trending-originals.py --self-test
+      - name: Install original cover renderer
+        run: python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Prefer imported Community coverage or draft and fact-check missing stories
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.5-flash-lite
+        run: python3 scripts/publish-trending-originals.py
+      - name: Rebuild six-slot carousel using original or existing ZazoomTek articles
         run: python3 scripts/trending-crosscheck.py --apply
       - name: Commit only trend metadata and placements
         id: push_trends
         run: |
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -- trending-sources.json trending-match-report.json index.html tech-today.html gaming-today.html
+          git add -- trending-sources.json trending-match-report.json index.html tech-today.html gaming-today.html manual-news.json
+          if test -f featured-auto-news.json; then git add -- featured-auto-news.json; fi
+          shopt -s nullglob
+          article_files=(news-trend-*.html)
+          if [ ${#article_files[@]} -gt 0 ]; then git add -- "${article_files[@]}"; fi
+          cover_files=(assets/special/news-trend-*.webp)
+          if [ ${#cover_files[@]} -gt 0 ]; then git add -- "${cover_files[@]}"; fi
+          shopt -u nullglob
           if git diff --cached --quiet; then
             echo "No updated trends or placements."
             exit 0
           fi
           # Only publish a Hosting release when public pages changed. A
           # trends metadata refresh by itself needs no new release.
-          if git diff --cached --quiet -- index.html tech-today.html gaming-today.html; then
+          if git diff --cached --quiet -- index.html tech-today.html gaming-today.html manual-news.json 'news-trend-*.html' 'assets/special/news-trend-*.webp'; then
             hosting_changed=false
           else
             hosting_changed=true
           fi
-          git commit -m "trends: refresh Italian highlights and matching own news"
+          git commit -m "trends: publish verified original featured stories or reuse imported news"
           for attempt in 1 2 3; do
             if git fetch origin main && git rebase origin/main && git push origin HEAD:main; then
               echo "updated=true" >> "$GITHUB_OUTPUT"
@@ -64,7 +83,7 @@ jobs:
       - name: Apply all shared article sidebars, related links and Community banners
         if: steps.push_trends.outputs.hosting_changed == 'true'
         run: python3 scripts/apply-site-design.py
-      - name: Deploy verified existing-news placements
+      - name: Deploy verified hourly featured articles and covers
         if: steps.push_trends.outputs.hosting_changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
