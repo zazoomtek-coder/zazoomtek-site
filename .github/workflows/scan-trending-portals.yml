@@ -76,19 +76,7 @@ jobs:
               # During a rebase --ours means the remote branch. Never
               # auto-resolve Home, article, image, or archive conflicts.
               conflicts="$(git diff --name-only --diff-filter=U)"
-              unsafe="$(printf '%s\n' "$conflicts" | grep -Ev '^(trending-sources\.json|trending-match-report\.json)
-      - name: Apply all shared article sidebars, related links and Community banners
-        if: steps.push_trends.outputs.hosting_changed == 'true'
-        run: python3 scripts/apply-site-design.py
-      - name: Deploy verified two-hour featured articles and covers
-        if: steps.push_trends.outputs.hosting_changed == 'true'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
- || true)"
+               unsafe="$(printf '%s\n' "$conflicts" | grep -Ev '^(trending-sources\.json|trending-match-report\.json)$' || true)"
               if [ -n "$conflicts" ] && [ -z "$unsafe" ]; then
                 echo "Another scan updated trend metadata; preserving current remote version."
                 git checkout --ours -- $conflicts
@@ -111,7 +99,7 @@ jobs:
       - name: Apply all shared article sidebars, related links and Community banners
         if: steps.push_trends.outputs.hosting_changed == 'true'
         run: python3 scripts/apply-site-design.py
-      - name: Deploy verified hourly featured articles and covers
+      - name: Deploy verified two-hour featured articles and covers
         if: steps.push_trends.outputs.hosting_changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
