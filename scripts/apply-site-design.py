@@ -111,6 +111,13 @@ for path in sorted(root.glob('*.html')):
     if not aside:
         raise RuntimeError(f"{path.name}: missing right editorial column")
     widgets = aside.group(0)
+    # Mandatory visual order: featured news is first, not Dalla redazione.
+    first_widget = re.match(
+        r'\s*<section\b[^>]*class=["\'][^"\']*\bzt-mix-feature\b[^"\']*["\'][^>]*>',
+        widgets[widgets.index(">") + 1:], re.I,
+    )
+    if not first_widget or "News in evidenza" not in widgets[:1300]:
+        raise RuntimeError(f"{path.name}: News in evidenza must be FIRST in the right column")
     required = ('zt-mix-feature', 'zt-amazon-partner',
                 'zt-mix-recent', 'data-zt-auto="editorial"')
     if any(token not in widgets for token in required):
@@ -129,6 +136,28 @@ for path in sorted(root.glob('*.html')):
         print('Verified The Witcher 3: related articles followed immediately by Community banner in article column')
 if not witcher_checked:
     raise RuntimeError('Witcher 3 guide not checked for related articles and Community banner')
+# Validate all archives and Home pages too; generated pages cannot bypass the rule.
+for check_path in sorted(root.glob('*.html')):
+    if check_path.name.startswith("preview-"):
+        continue
+    checked_page = check_path.read_text(encoding='utf-8')
+    for right in re.finditer(
+        r'<aside\b[^>]*class=["\'][^"\']*\bzt-side-mix\b[^"\']*["\'][^>]*>',
+        checked_page, re.I,
+    ):
+        if not re.match(
+            r'\s*<section\b[^>]*class=["\'][^"\']*\bzt-mix-feature\b[^"\']*["\'][^>]*>',
+            checked_page[right.end():], re.I,
+        ):
+            raise RuntimeError(f"{check_path.name}: first right widget must be News in evidenza")
+    if check_path.name == "index.html" or re.fullmatch(r'pagina-\d+\.html', check_path.name):
+        home_right = re.search(r'<aside\s+class="sidebar"[^>]*>', checked_page, re.I)
+        if not home_right or not re.match(
+            r'\s*<!-- ZT_HOME_SIDEBAR_FEATURE_START -->\s*<section\b[^>]*class=["\'][^"\']*\bzt-mix-feature\b[^"\']*["\'][^>]*>',
+            checked_page[home_right.end():], re.I,
+        ):
+            raise RuntimeError(f"{check_path.name}: News in evidenza must be first on the Home")
+
 if checked < 20:
     raise RuntimeError(f"Only {checked} editorial articles checked; expected all article pages")
 print(f"Verified Community AFTER related articles: {checked} pages; reordered: {corrected}; Home excluded")
