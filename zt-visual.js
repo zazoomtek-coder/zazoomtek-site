@@ -148,21 +148,53 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   else refreshSpecials();
 })();
 
-/* ZT editorial sidebar keyboard scroll: the CSS keeps desktop right-hand modules independently scrollable.
-   Make the region keyboard-focusable without changing any article content. */
+/* ZT editorial SMART STICKY: page-linked scroll with every box 100% visible.
+   The previous nested scroll cut modules at the viewport boundary. Each right
+   column now has natural height; a negative sticky top keeps the LAST card
+   reachable as the user scrolls the main article. ResizeObserver handles
+   lazy-loaded pictures and any new editorial cards. */
 (function(){
   'use strict';
-  function enable(){
-    document.querySelectorAll(
-      ':is(.detail-grid,.news-layout,.layout) > aside.zt-side-mix'
-    ).forEach(function(sidebar){
-      if(!sidebar.hasAttribute('tabindex'))sidebar.tabIndex=0;
-      if(!sidebar.hasAttribute('aria-label')){
-        sidebar.setAttribute('aria-label','Approfondimenti e articoli correlati, colonna scorrevole');
-      }
-    });
+  function init(){
+    var sides=document.querySelectorAll('aside.zt-side-mix');
+    if(!sides.length)return;
+    var query=window.matchMedia('(min-width:1001px)');
+    var frame=0;
+    function refresh(){
+      frame=0;
+      sides.forEach(function(side){
+        // Mobile/tablet: the sidebar is simply part of the document.
+        if(!query.matches){
+          side.style.removeProperty('--zt-side-smart-top');
+          return;
+        }
+        // getBoundingClientRect observes the natural height, never a clipped
+        // scrolling window; large modules remain whole in the DOM.
+        var fullHeight=side.getBoundingClientRect().height;
+        var viewport=window.visualViewport
+          ?window.visualViewport.height:window.innerHeight;
+        var top=Math.min(16,Math.floor(viewport-fullHeight-16));
+        var old=side.style.getPropertyValue('--zt-side-smart-top');
+        var next=top+'px';
+        if(old!==next)side.style.setProperty('--zt-side-smart-top',next);
+      });
+    }
+    function schedule(){
+      if(frame)return;
+      frame=window.requestAnimationFrame(refresh);
+    }
+    if(typeof ResizeObserver==='function'){
+      var observer=new ResizeObserver(schedule);
+      sides.forEach(function(side){observer.observe(side)});
+    }
+    window.addEventListener('resize',schedule,{passive:true});
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize',schedule,{passive:true});
+    }
+    window.addEventListener('load',schedule,{once:true});
+    schedule();
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',enable,{once:true});
-  }else{enable();}
+  if(document.readyState==='loading')
+    document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 })();
