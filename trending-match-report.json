@@ -1,24 +1,8 @@
 {
-  "checked_at": "2026-10-12T13:39:13.241561+00:00",
+  "checked_at": "2026-10-12T14:04:48.764325+00:00",
   "source_sites": 10,
-  "matches": 8,
+  "matches": 7,
   "selected": [
-    {
-      "title": "News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia",
-      "section": "tech",
-      "url": "/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html",
-      "trend_score": 73.23,
-      "published_date": "2026-10-10",
-      "freshness_bonus": 40,
-      "selection_score": 87.6,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "CORSAIR HS80 v2 MAX Wireless: cuffie gaming fino a 130 ore",
-          "score": 0.7323
-        }
-      ]
-    },
     {
       "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
       "section": "tech",
@@ -32,6 +16,22 @@
           "site": "HDblog",
           "title": "Apple annuncia l'evento \"Welcome home\" per il 13 ottobre: cosa ci aspettiamo",
           "score": 0.6187
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
+      "section": "tech",
+      "url": "/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
+      "trend_score": 56.64,
+      "published_date": "2026-10-09",
+      "freshness_bonus": 23,
+      "selection_score": 59.82,
+      "sources": [
+        {
+          "site": "Tom's Hardware Italia",
+          "title": "Surface Laptop Ultra con RTX Spark: l'IA torna sul PC, ma a che prezzo?",
+          "score": 0.5664
         }
       ]
     },
