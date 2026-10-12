@@ -106,7 +106,7 @@ def recent_list(items, kind="news"):
         return ""
     is_review = kind == "reviews"
     link = "/recensioni-scritte.html" if is_review else "/news.html"
-    heading = "Ultime Recensioni" if is_review else "Ultime News"
+    heading = "Ultime Recensioni" if is_review else "Ultimi articoli"
     cta = "Tutte le recensioni →" if is_review else "Tutte le notizie →"
     rows = []
     seen = set()
@@ -279,9 +279,8 @@ def refresh_sidebars():
             has_boxes = (inner.count('<section') >= 2
                          and ('compact-box' in inner or 'side-box' in inner
                               or 'zt-mix-' in inner))
-            is_guide = kind == "guides" or special_detail
-            if has_boxes and not is_guide:
-                continue
+            # Require the complete shared editorial sidebar, even on older
+            # articles with two minimal widgets already present.
             updated = original[:current.start()] + sidebar + original[current.end():]
         else:
             # A new article with no right column: inject it immediately after
