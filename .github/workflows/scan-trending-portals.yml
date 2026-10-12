@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -- trending-sources.json trending-match-report.json index.html tech-today.html gaming-today.html manual-news.json
+          git add -- trending-sources.json trending-match-report.json index.html news.html tech-today.html gaming-today.html manual-news.json
           if test -f featured-auto-news.json; then git add -- featured-auto-news.json; fi
           shopt -s nullglob
           article_files=(news-trend-*.html)
@@ -63,7 +63,7 @@ jobs:
           fi
           # Only publish a Hosting release when public pages changed. A
           # trends metadata refresh by itself needs no new release.
-          if git diff --cached --quiet -- index.html tech-today.html gaming-today.html manual-news.json 'news-trend-*.html' 'assets/special/news-trend-*.webp'; then
+          if git diff --cached --quiet -- index.html news.html tech-today.html gaming-today.html manual-news.json 'news-trend-*.html' 'assets/special/news-trend-*.webp'; then
             hosting_changed=false
           else
             hosting_changed=true
