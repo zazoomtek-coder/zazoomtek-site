@@ -2,39 +2,15 @@
   "items": [
     {
       "section": "tech",
-      "slug": "tech-impact-farnesina-cyberattacco-ambasciate-verifiche-ottobre-2026.html",
-      "title": "Cyberattacco alla Farnesina: sistemi protetti e verifiche estese alle sedi diplomatiche",
-      "image": "/assets/special/tech-impact-farnesina-cyberattacco-ambasciate-verifiche-ottobre-2026.webp"
-    },
-    {
-      "section": "tech",
-      "slug": "tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html",
-      "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
-      "image": "/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp"
-    },
-    {
-      "section": "tech",
-      "slug": "tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html",
-      "title": "Occhiali con IA, la Norvegia propone restrizioni temporanee: privacy e riprese al centro del dibattito",
-      "image": "/assets/special/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.webp"
-    },
-    {
-      "section": "tech",
-      "slug": "tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.html",
-      "title": "Cyberattacchi, FBI e Dipartimento di Giustizia sequestrano strumenti attribuiti a Flax Typhoon",
-      "image": "/assets/special/tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.webp"
+      "slug": "tech-impact-agcom-multa-retelit-digital-services-e-tekmind-per-822-500-euro-a-causa-dello-spoofin.html",
+      "title": "Agcom multa Retelit Digital Services e Tekmind per 822.500 euro a causa dello spoofing",
+      "image": "/assets/special/tech-impact-agcom-multa-retelit-digital-services-e-tekmind-per-822-500-euro-a-causa-dello-spoofin.webp"
     },
     {
       "section": "gaming",
-      "slug": "gaming-inside-ubisoft-massive-entertainment-riorganizzazione-studi-franchise-2026.html",
-      "title": "Ubisoft riunisce quattro sedi sotto Massive Entertainment: cosa cambia per gli studi e i giochi",
-      "image": "/assets/special/gaming-inside-ubisoft-massive-entertainment-riorganizzazione-studi-franchise-2026.webp"
-    },
-    {
-      "section": "gaming",
-      "slug": "gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.html",
-      "title": "EU KIDS ACT, anche i videogiochi online nella proposta europea per la tutela dei minori",
-      "image": "/assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp"
+      "slug": "gaming-inside-playstation-accordo-antitrust-da-7-85-milioni-di-dollari-cosa-comporta-per-i-consumat.html",
+      "title": "PlayStation, accordo antitrust da 7,85 milioni di dollari: cosa comporta per i consumatori",
+      "image": "/assets/special/gaming-inside-playstation-accordo-antitrust-da-7-85-milioni-di-dollari-cosa-comporta-per-i-consumat.webp"
     }
   ]
 }
