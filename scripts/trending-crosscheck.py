@@ -224,7 +224,8 @@ def scan_one(site):
         from_home=i<len(homepage)
         rows.append({"source":sid,"name":name,"kind":section,"title":title,
                      "url":link,"rank":i+1,"homepage":from_home,
-                     "featured_priority":max(0,20-i) if from_home else 0})
+                     "featured_priority":max(0,20-i) if from_home else 0,
+                     "rss_fallback":not from_home})
     return sid,name,kind,rows,errors
 
 def scan_sources():
