@@ -54,7 +54,7 @@ jobs:
       # committing any editorial changes.
       - name: Apply canonical site header and shared CSS to every HTML page
         run: |
-          python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py
+          python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py scripts/build-related-content.py
           python3 scripts/apply-site-design.py
       - name: Verify no unstyled or wrapping navigation reaches Firebase
         run: |
@@ -71,7 +71,7 @@ jobs:
                   continue
               if '/ChatGPT.png' not in html and 'ChatGPT.png' not in html:
                   continue
-              if not re.search(r'<link\b[^>]*href=["\']/zt-design\.css\?v=20261012uniformNav3',html,re.I):
+              if not re.search(r'<link\b[^>]*href=["\']/zt-design\.css\?v=20261012sidebarFix5',html,re.I):
                   raise RuntimeError(f'{path.name}: missing common CSS link')
               header=re.search(r'<header\b[^>]*>[\s\S]*?</header>',html,re.I)
               if not header:
@@ -93,6 +93,44 @@ jobs:
           assert 'flex-wrap:nowrap!important' in css
           assert 'font:800 13px/1.1 Arial,Helvetica,sans-serif!important' in css
           print('PASS:',checked,'Home-consistent headers; 8 buttons per page')
+          PY
+      - name: Verify editorial box thumbnails and typography on all article pages
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          from importlib.util import spec_from_file_location, module_from_spec
+          css=Path("zt-design.css").read_text(encoding="utf-8")
+          assert "ZT EDITORIAL RIGHT-RAIL FINAL CONTRACT 20261012" in css
+          assert "font:400 13px/1.35 Arial,Helvetica,sans-serif!important" in css
+          spec=spec_from_file_location("related","scripts/build-related-content.py")
+          mod=module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          for name in (
+              "tech-impact-flock-safety-270-uscite-privacy-2026.html",
+              "gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html",
+              "tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html",
+          ):
+              image=mod.image_of(Path(name).read_text(encoding="utf-8"))
+              assert image and "ChatGPT.png" not in image,(name,image)
+              print("Real news cover:",name, "=>",image[:95])
+          count=0
+          for page in Path(".").glob("*.html"):
+              if page.name.startswith("preview-"):
+                  continue
+              html=page.read_text(encoding="utf-8")
+              for match in re.finditer(r'<section\b[^>]*data-zt-auto="editorial"[^>]*>[\s\S]*?</section>',
+                                       html,re.I):
+                  box=match.group()
+                  rows=re.findall(r'<a\s+class="zt-mix-editorial-row"[^>]*>[\s\S]*?</a>',box,re.I)
+                  assert len(rows)>=2,(page.name,"Too few editorial suggestions",len(rows))
+                  for row in rows:
+                      img=re.search(r'<img\b[^>]*src="([^"]+)"',row,re.I)
+                      assert img and img.group(1) and "ChatGPT.png" not in img.group(1),(
+                          page.name,"Invalid editorial thumbnail")
+                  count+=1
+          assert count>=20, f"Only {count} verified editorial boxes"
+          print("PASS:",count,"real-image editorial boxes, consistent compact typography")
           PY
       - name: Deploy latest validated GitHub snapshot to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
