@@ -2312,11 +2312,13 @@ def render_featured_news(news):
     )
 
 def render_article_feed(posts, home_guide_inset=""):
-    """Render article rows; keep the approved Guides widget on the Home only."""
+    """Render NEWS ONLY; reviews belong exclusively in the Reviews module/archive."""
     rows=[]
     guide_inserted=False
     talos_slug="news-UgkxMfJRp-TjYXmdrt2qXU5RVA1pbFYf1H16.html"
     for p in posts:
+        if is_review(p):
+            continue  # Defensive guard against reviews reappearing in the Home or pagination.
         kind=post_kind(p)
         title=post_title(p)
         slug=post_slug(p)
@@ -2446,7 +2448,7 @@ def write_article_pages(posts):
                     f'<title>Articoli - Pagina {page_num} | ZazoomTek</title>',
                     page,count=1,flags=re.S)
         page=re.sub(r'<meta name="description" content="[^"]*">',
-                    f'<meta name="description" content="Archivio ZazoomTek, pagina {page_num}: news e recensioni meno recenti.">',
+                    f'<meta name="description" content="Archivio ZazoomTek, pagina {page_num}: ultime news di tecnologia e gaming.">',
                     page,count=1)
         page=re.sub(r'<link rel="canonical" href="[^"]+">',
                     f'<link rel="canonical" href="https://zazoomtek.it/pagina-{page_num}.html">',
@@ -2598,7 +2600,8 @@ def main():
     write_review_archive(reviews,editorial_rows)
     for p in news: write_news_page(p,news)
     write_news_archive(news,reviews)
-    total_article_pages=write_article_pages(visible_posts)
+    # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
+    total_article_pages=write_article_pages(news)
     # Rebuild canonical sitemap after every content sync so Search Console always sees current URLs.
     update_sitemap()
     s=INDEX.read_text(encoding="utf-8")
@@ -2625,7 +2628,7 @@ def main():
         s,flags=re.S,
     )
     guide_markup=home_guide.group(0) if home_guide else ""
-    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(posts[:PAGE_SIZE],guide_markup)+"\n          <!-- ARTICLE_FEED_END -->"
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(news[:PAGE_SIZE],guide_markup)+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
     pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(1,total_article_pages)+"\n        <!-- ARTICLE_PAGINATION_END -->"
