@@ -1168,3 +1168,49 @@ body.zt-review-sesame-layout .proscons.zt-review-proscons li{
     line-height:1.35!important;
   }
 }
+
+/* ZT HOME: unified boxed-heading typography, 12 October 2026. */
+/* Consistent Arial, 16px bold titles across Home modules and right sidebar.
+   Editorial cards, video thumbnails and article body copy are not changed. */
+.page .module-head h2,
+.page .side-head-title,
+.page .zt-special-head h2,
+.page .zt-games-title,
+#ztHomeGuide .zt-home-guide-heading h2,
+#zt-popular-box .zt-popular-head h2 {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  letter-spacing:.025em!important;
+  text-transform:uppercase!important;
+}
+/* Uniform secondary labels (review count, "TUTTI", "VEDI TUTTE"). */
+.page .module-head > div > span,
+.page .side-head-more,
+.page .zt-special-head a,
+#ztHomeGuide .zt-home-guide-heading a,
+#zt-popular-box .zt-popular-all {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  letter-spacing:.02em!important;
+}
+@media(max-width:580px) {
+  .page .module-head h2,
+  .page .side-head-title,
+  .page .zt-special-head h2,
+  .page .zt-games-title,
+  #ztHomeGuide .zt-home-guide-heading h2,
+  #zt-popular-box .zt-popular-head h2 {
+    font-size:14px!important;
+  }
+  .page .module-head > div > span,
+  .page .side-head-more,
+  .page .zt-special-head a,
+  #ztHomeGuide .zt-home-guide-heading a,
+  #zt-popular-box .zt-popular-all {
+    font-size:11px!important;
+  }
+}
