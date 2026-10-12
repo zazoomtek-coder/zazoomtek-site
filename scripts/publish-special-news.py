@@ -191,13 +191,12 @@ def main():
                  and (ROOT/x.get("image","").lstrip("/")).is_file()]
         # Editorial and automated original reporting may be promoted with
         # one documented source; prefer prominent headlines for a given day.
+        # All approved, published, source-checked articles are eligible for
+        # the one category slot. A "featured" flag is not a publication
+        # condition, nor a reason to hide other articles from the archives.
         trending=[x for x in published if x["section"]==sec
-                  and ((x.get("editor_approved") is True
-                        and x.get("home_featured") is True
-                        and bool(x.get("sources")))
-                       or (x.get("auto_approved") is True
-                           and x.get("featured") is True
-                           and x.get("evidence_review",{}).get("source_count",0)>=1))]
+                  and (x.get("editor_approved") is True
+                       or x.get("auto_approved") is True)]
         # New verified reports take precedence over old manual selections.
         trending.sort(key=lambda x:(x["date"],
                                    int(x.get("featured_priority") or 0),
