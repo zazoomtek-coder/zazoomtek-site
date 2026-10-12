@@ -98,7 +98,10 @@ jobs:
           exit 1
       - name: Apply all shared article sidebars, related links and Community banners
         if: steps.push_trends.outputs.hosting_changed == 'true'
-        run: python3 scripts/apply-site-design.py
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+          python3 scripts/apply-site-design.py
       - name: Deploy verified two-hour featured articles and covers
         if: steps.push_trends.outputs.hosting_changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
