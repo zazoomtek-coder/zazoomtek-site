@@ -139,6 +139,7 @@ def main():
         # Never label an article as factually verified just because a web page
         # was retrieved. Independent corroboration and human approval required.
         results.append({"section":draft.get("section"),"title":draft.get("title"),
+            "featured_priority":draft.get("featured_priority",0),
             "sources":evidence,"verified":False,"approved":False,
             "publication_allowed":False})
     out={"generated_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
