@@ -21,6 +21,19 @@
     "target": "zazoomtek",
     "headers": [
       {
+        "source": "/featured-carousel.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json; charset=utf-8"
+          }
+        ]
+      },
+      {
         "source": "/sitemap.xml",
         "headers": [
           {
