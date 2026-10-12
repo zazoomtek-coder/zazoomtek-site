@@ -458,7 +458,20 @@ def pick(articles,on_date=None):
                   and a.get("image","").startswith("/assets/special/")
                   and (ROOT/a["image"].lstrip("/")).is_file()]
         selected=None
-        for item in special_feed:
+        # A matching policy/rights article already imported from Community or
+        # written manually is the preferred feature. Its existing URL and
+        # original ZazoomTek cover are kept instead of making a duplicate.
+        reuse=[a for a in articles
+               if a["section"]==section and a["url"].startswith("/news-")
+               and a["url"] not in seen and a.get("trend_score",0)>=54
+               and (ROOT/a["url"].lstrip("/")).is_file()
+               and (a.get("image","").startswith("https://") or
+                    (ROOT/a.get("image","").lstrip("/")).is_file())]
+        if reuse:
+            selected=dict(sorted(reuse,key=lambda a:ordinary_priority(a,on_date),
+                                 reverse=True)[0])
+            selected["section"]=section
+        for item in (special_feed if selected is None else []):
             slug=item.get("slug","");img=item.get("image","")
             if (item.get("section")!=kind or not slug.startswith(section+"-")
                 or not slug.endswith(".html") or not img.startswith("/assets/special/")
