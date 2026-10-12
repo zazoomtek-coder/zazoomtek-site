@@ -580,14 +580,17 @@ def apply():
             item["selection_score"]=ordinary_priority(item)[0]
     if len(chosen) != 6:
         raise RuntimeError("Featured mosaic must contain exactly 6 articles")
-    index=INDEX.read_text(encoding="utf-8")
-    index=set_featured(index,chosen)
-    index=omit_from_home_feed(index,chosen)
-    INDEX.write_text(index,encoding="utf-8")
-    for section,path in (("tech-impact","tech-today.html"),("gaming-inside","gaming-today.html")):
-        relevant=[a for a in articles if a["section"]==section and a["trend_score"]>=55
-                  and a["url"].startswith("/news-")]
-        inject_archive(path,sorted(relevant,key=lambda a:a["trend_score"],reverse=True))
+    # STRICT OWNERSHIP: the carousel updates its own JSON only.
+    # index.html, the Community News archive and YouTube review/video pages are
+    # exclusively owned by YouTube sync. Never modify or commit them here.
+    carousel={"generated_utc":NOW().isoformat(),"items":[
+        {"section":a["section"],"url":a["url"],"title":a["title"],"image":a["image"]}
+        for a in chosen]}
+    target=ROOT/"featured-carousel.json"
+    rendered=json.dumps(carousel,ensure_ascii=False,indent=2)+"\n"
+    if not target.exists() or target.read_text(encoding="utf-8")!=rendered:
+        target.write_text(rendered,encoding="utf-8")
+        print("Updated isolated featured-carousel.json (not index.html).")
     report={"checked_at":NOW().isoformat(),
             "source_sites":len({x["source"] for x in state.get("items",[])}),
             "matches":len(matched),
