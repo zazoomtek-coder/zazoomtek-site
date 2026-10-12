@@ -789,8 +789,15 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
         # Related recommendations belong ONLY at the end of the main article.
         # Legacy right-column related blocks are stripped by auto_block.
         additions = box("Dalla redazione", picks, "editorial", "/news.html")
-        # Preserve the diverse existing editorial modules in the sidebar.
-        sidebar = sidebar[:opener_end] + additions + sidebar[opener_end:]
+        # IMPORTANT: "News in evidenza" MUST be the first box.
+        # Appending Dalla redazione at the end avoids placing it above the
+        # featured story or Amazon in any generated article, old or new.
+        if "zt-mix-feature" not in sidebar:
+            raise RuntimeError(f"{path.name}: missing top News in evidenza box")
+        sidebar = sidebar.rsplit("</aside>", 1)[0] + additions + "</aside>"
+        first_box = re.search(r'<section\b[^>]*class=["\'][^"\']*["\'][^>]*>', sidebar[opener_end:], re.I)
+        if not first_box or "zt-mix-feature" not in first_box.group(0):
+            raise RuntimeError(f"{path.name}: News in evidenza must be the FIRST right-column box")
         output = content[:match.start()] + sidebar + content[match.end():]
         if output.count('data-zt-auto="editorial"') != 1 or 'data-zt-auto="related"' in output:
             raise RuntimeError(f"{path.name}: right-column recommendations must be editorial-only")
