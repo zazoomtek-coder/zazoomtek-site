@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
+      - 'scripts/test_review_dedup.py'
       - 'scripts/zt_sidebar_mix.py'
       - 'scripts/remove-duplicate-article-images.py'
       - 'scripts/update-youtube.py'
@@ -46,6 +47,7 @@ jobs:
       - name: Validate sync programs
         run: |
           python3 -m py_compile scripts/zt_sidebar_mix.py scripts/update-youtube.py scripts/update-youtube-posts.py scripts/remove-duplicate-article-images.py scripts/validate-sync-output.py scripts/build-search-index.py scripts/build-related-content.py scripts/inject-analytics.py
+          python3 scripts/test_review_dedup.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
