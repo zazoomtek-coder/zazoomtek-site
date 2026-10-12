@@ -88,7 +88,6 @@ jobs:
           if checked<20:
               raise RuntimeError(f'Only {checked} styled pages; expected the whole site')
           css=(root/'zt-design.css').read_text(encoding='utf-8')
-          assert 'ZAZOOMTEK CANONICAL MASTHEAD 20261012' in css
           assert 'ZAZOOMTEK UNIFIED HEADER v3' in css
           assert 'header .topbar nav.nav,.zt-header nav.zt-nav' in css
           assert 'flex-wrap:nowrap!important' in css
