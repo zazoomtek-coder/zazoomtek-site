@@ -45,6 +45,24 @@ jobs:
         run: python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py scripts/build-related-content.py scripts/zt_footer.py
       - name: Apply shared layout to all pages
         run: python3 scripts/apply-site-design.py
+      - name: Save generated editorial layout in source files
+        run: |
+          git config user.name "ZazoomTek Editorial Layout"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u -- '*.html'
+          if ! git diff --cached --quiet; then
+            git commit -m "layout: preserve canonical sidebars, related articles and Community banners"
+            for attempt in 1 2 3; do
+              if git fetch origin main && git rebase origin/main && git push origin HEAD:main; then
+                break
+              fi
+              git rebase --abort || true
+              if [ "$attempt" -eq 3 ]; then
+                echo "::warning::Could not save layout changes to GitHub; validated Firebase deployment continues."
+              fi
+              sleep "$((attempt * 3))"
+            done
+          fi
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
