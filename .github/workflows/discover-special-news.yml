@@ -1,16 +1,17 @@
 name: Automatic verified Tech Impact and Gaming Inside
 # Verified unattended reporting. Manual dispatch remains available.
-# A one-time marker push triggers the first run; the two daily checks respect
-# the daily five-article maximum and do not manufacture unverified stories.
+# Hourly front-page research; daily safety limits and independent source checks
+# remain in force. No fabricated news or unsupported automatic publication.
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 7,14 * * *'
+    - cron: '37 * * * *'
   push:
     branches: [main]
     paths:
       - '.github/special-editorial-run.trigger'
       - 'scripts/discover-special-news.py'
+      - 'scripts/trending-crosscheck.py'
       - 'scripts/auto-approve-special.py'
 permissions:
   contents: write
