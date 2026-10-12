@@ -28,7 +28,12 @@ def module(filename, name):
 
 def valid_story(item):
     if not isinstance(item,dict) or item.get("kind") not in ("tech","gaming"):return False
-    if not item.get("homepage") or item.get("rank",99)>12:return False
+    # Homepage highlights rank first; when a publisher blocks its public
+    # homepage, treat only the top seven RSS news as a lower-priority fallback.
+    if item.get("homepage"):
+        if item.get("rank",99)>12:return False
+    elif not item.get("rss_fallback") or item.get("rank",99)>7:
+        return False
     if not str(item.get("url","")).startswith("https://"):return False
     try:last=dt.datetime.fromisoformat(item["last_seen"])
     except (TypeError,ValueError,KeyError):return False
@@ -103,7 +108,7 @@ def choose(stories,existing):
             "non prove dei fatti. Scegli al massimo DUE notizie TECNOLOGIA e DUE GAMING in "
             "evidenza sui siti. Dai grande peso al rango homepage, alla notizia recente "
             "e ai portali IGN.com, GameSpot.com, Eurogamer.net, Polygon.com, PCGamer.com, "
-            "Zazoom.it, senza escludere le testate italiane. Evita offerte, indiscrezioni "
+            "Zazoom.it, senza escludere le testate italiane. Quando una homepage non è accessibile, il feed RSS è un ripiego meno autorevole per stabilire la rilevanza. Evita guide, recensioni, offerte e indiscrezioni "
             "non confermate, gossip, articoli generici o duplicati dello stesso evento. "
             "PER OGNI TEMA cerca PRIMA nelle notizie gia pubblicate su ZazoomTek "
             "la stessa identica vicenda: considera protagonisti, evento, prodotto e data, "
@@ -245,8 +250,13 @@ def main():
         if valid_story(item):
             stories.append(item)
     prefer={"igncom":0,"gamespot":0,"eurogamer":0,"polygon":0,"pcgamer":0,"zazoom":0}
-    stories.sort(key=lambda x:(prefer.get(x.get("source"),1),x["rank"]))
-    stories=stories[:90]
+    stories.sort(key=lambda x:(not x.get("homepage",False),
+        prefer.get(x.get("source"),1),x["rank"]))
+    # Preserve representation for both desks; an all-gaming source list must
+    # not push technology stories out of the model's allowed input window.
+    tech=[x for x in stories if x["kind"]=="tech"][:36]
+    games=[x for x in stories if x["kind"]=="gaming"][:42]
+    stories=tech+games
     old_articles=existing_articles(trends,old)
     if not stories:
         print("No recent valid front-page titles: keep current featured articles.");return
@@ -331,6 +341,8 @@ def selftest():
         "last_seen":now}
     assert valid_story(ok)
     assert not valid_story({**ok,"homepage":False})
+    assert valid_story({**ok,"homepage":False,"rss_fallback":True})
+    assert not valid_story({**ok,"homepage":False,"rss_fallback":True,"rank":9})
     assert not valid_story({**ok,"rank":17})
     assert not valid_story({**ok,"url":"http://localhost/a"})
     print("AUTO ORIGINAL FEATURED SELFTEST PASSED")
