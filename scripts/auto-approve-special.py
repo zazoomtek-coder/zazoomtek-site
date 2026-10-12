@@ -199,9 +199,8 @@ def main():
                     else:
                         supported=assessment.get("supported",[])
                         supported_count=len(supported) if isinstance(supported,list) else 0
-                        why=("Fact check incomplete: paragraph citations or article "
-                             "structure did not satisfy strict evidence requirements "
-                             f"({supported_count} supporting quotes returned)")
+                        why=("Essential factual check or article structure did not pass "
+                             f"({supported_count} extra source quotes supplied; no literal citations required)")
         if why:
             log.append({"topic":x.get("topic",""),"section":sec,"status":"rejected","reason":why})
             continue
@@ -212,6 +211,7 @@ def main():
             "section":sec,"slug":sl,"title":x["title"].strip(),
             "summary":x["summary"].strip(),"paragraphs":[p.strip() for p in x["paragraphs"]],
             "date":now.date().isoformat(),"sources":srcs,
+            "featured_priority":x.get("featured_priority",0),
             "editor_approved":False,"auto_approved":True,
             "approval_method":"strict_source_evidence",
             "evidence_review":{"paragraphs_supported":True,"source_count":len(srcs),
