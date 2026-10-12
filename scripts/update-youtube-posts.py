@@ -2134,11 +2134,56 @@ def post_excerpt(p, limit=220):
     text=re.sub(r"\s+"," ",text).strip()
     return text if len(text)<=limit else text[:limit].rsplit(" ",1)[0]+"…"
 
+def editorial_review_pages():
+    """Discover independently published review articles from HTML (not only Community)."""
+    result=[]
+    for file in sorted(Path(".").glob("*.html")):
+        name=file.name
+        if name.startswith(("recensione-Ugkx", "recensioni-scritte", "preview-")):
+            continue
+        if "recensione" not in name.lower():
+            continue
+        try:
+            page=file.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if not re.search(r'"@type"\s*:\s*"Review"',page):
+            continue
+        if re.search(r'<meta\s+name="robots"\s+content="[^"]*noindex',page,re.I):
+            continue
+        headline=re.search(r'<meta\s+property="og:title"\s+content="([^"]+)"',page,re.I)
+        cover=re.search(r'<meta\s+property="og:image"\s+content="([^"]+)"',page,re.I)
+        published=re.search(r'<meta\s+property="article:published_time"\s+content="([^"]+)"',page,re.I)
+        if not (headline and cover and published):
+            continue
+        result.append({
+            "_editorial":True,
+            "title":html.unescape(headline.group(1)).split(" | ")[0].split(" - ZazoomTek")[0],
+            "slug":name, "image":html.unescape(cover.group(1)),
+            "published_iso":published.group(1),
+            "published":published.group(1)[:10],
+        })
+    return result
+
+
+def combined_published_reviews(reviews):
+    """Interleave real site-written reviews and Community imports by publication date."""
+    merged=list(reviews)+editorial_review_pages()
+    unique={}
+    for p in merged:
+        slug=p.get("slug") if p.get("_editorial") else review_slug(p)
+        if slug:
+            unique.setdefault(slug,p)
+    return sorted(unique.values(),
+                  key=lambda p: p.get("published_iso") or "",
+                  reverse=True)
+
+
 def render_home_latest_reviews(reviews, limit=5):
     cards=[]
-    for p in reviews[:limit]:
-        title=html.escape(review_title(p))
-        slug=review_slug(p)
+    for p in combined_published_reviews(reviews)[:limit]:
+        title=html.escape(p["title"] if p.get("_editorial") else review_title(p))
+        slug=p["slug"] if p.get("_editorial") else review_slug(p)
         img=html.escape(p.get("image") or "/ChatGPT.png")
         when=html.escape(p.get("published") or "")
         cards.append(

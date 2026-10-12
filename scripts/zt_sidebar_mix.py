@@ -279,7 +279,7 @@ def refresh_sidebars():
             has_boxes = (inner.count('<section') >= 2
                          and ('compact-box' in inner or 'side-box' in inner
                               or 'zt-mix-' in inner))
-            is_guide = kind == "guides"
+            is_guide = kind == "guides" or special_detail
             if has_boxes and not is_guide:
                 continue
             updated = original[:current.start()] + sidebar + original[current.end():]
