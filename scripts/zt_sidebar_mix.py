@@ -224,7 +224,7 @@ def refresh_sidebars():
         original = path.read_text(encoding="utf-8")
         # Detect the real archive length before choosing the sidebar modules.
         # Never edit video imports, Community pages or the independent carousel.
-        article_count=len(re.findall(r'<article\\b[^>]*class=["\\\'][^"\\\']*\\bnews-row\\b',
+        article_count=len(re.findall(r'<article\b[^>]*class="[^"]*\bnews-row\b',
                                      original, re.I))
         sidebar = build_sidebar(kind,news,tech,gaming,videos,article_count)
         if not sidebar:
