@@ -1,7 +1,7 @@
-name: Hourly Tech Gaming international featured stories
+name: Every two hours Tech Gaming international featured stories
 on:
   schedule:
-    - cron: '11 * * * *'
+    - cron: '11 */2 * * *'
   push:
     branches: [main]
     paths:
@@ -83,7 +83,7 @@ jobs:
       - name: Apply all shared article sidebars, related links and Community banners
         if: steps.push_trends.outputs.hosting_changed == 'true'
         run: python3 scripts/apply-site-design.py
-      - name: Deploy verified hourly featured articles and covers
+      - name: Deploy verified two-hour featured articles and covers
         if: steps.push_trends.outputs.hosting_changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
