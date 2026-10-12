@@ -124,6 +124,11 @@ jobs:
           exit 1
 
       # Primary content deploy: optional builders cannot block the Community.
+      - name: Refresh latest committed site before Community deploy
+        if: steps.community_push.outputs.published == 'true'
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Deploy published Community immediately
         id: community_deploy
         if: steps.community_push.outputs.published == 'true'
@@ -211,6 +216,11 @@ jobs:
           done
           echo "::error::Could not publish videos; recovery workflow will retry."
           exit 1
+      - name: Refresh latest committed site before video deploy
+        if: steps.video_push.outputs.published == 'true'
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Deploy published YouTube uploads immediately
         id: video_deploy
         if: steps.video_push.outputs.published == 'true'
@@ -376,7 +386,10 @@ jobs:
       - name: Apply the shared community banner before Firebase deploy
         id: site_layout
         if: always() && (steps.site_push.outputs.published == 'true' || steps.community_push.outputs.published == 'true' || github.event_name != 'schedule')
-        run: python3 scripts/apply-site-design.py
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+          python3 scripts/apply-site-design.py
       - name: Deploy validated site to Firebase
         id: site_deploy
         # Do not store another Firebase release if the fast Community deploy already
