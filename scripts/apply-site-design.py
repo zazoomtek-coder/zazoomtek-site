@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ensure the site-wide CSS before Firebase deploy, including generated pages."""
 from pathlib import Path
-from zt_footer import unify_footer
+from zt_footer import unify_footer, _matching_close
 from zt_sidebar_mix import refresh_sidebars
 import re
 import html as html_utils
@@ -83,6 +83,162 @@ def is_review_page(filename, page):
     return bool(re.search(r'<div\b[^>]*class=["\'][^"\']*\bdetail-grid\b', page, re.I)
                 or re.search(r'<div\b[^>]*class=["\'][^"\']*\blayout\b', page, re.I))
 
+
+# Content-backed, editorially reviewed descriptions of the eight imported
+# reviews. These are drawn from their existing texts; no gameplay, benchmark,
+# opinion, rating or test result is invented by the formatting process.
+REVIEW_PROS_CONS = {
+    "recensione-Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1.html": (
+        "Boss rush impegnativo in cui schivata e attacco sono strettamente collegati.",
+        ["Combattimenti che premiano precisione e riflessi",
+         "Boss dalle fasi differenti e un sistema di schivata e attacco integrato",
+         "Requisiti hardware molto contenuti"],
+        ["Elevata difficoltà e necessità di ripetere spesso gli scontri",
+         "Assenza della lingua italiana",
+         "Utilizzo dichiarato dell'IA generativa per buona parte della grafica"],
+    ),
+    "recensione-UgkxHri44VrpYrRtskxdyK_msdY_oNiaK4aj.html": (
+        "Un'avventura rilassante tra volo, esplorazione e costruzione.",
+        ["Arcipelago colorato da esplorare anche in idrovolante",
+         "Crafting, costruzione e raccolta di risorse",
+         "Libertà di seguire la storia o esplorare senza fretta"],
+        ["Ritmo poco adatto a chi cerca azione frenetica",
+         "Meccaniche survival volutamente poco complesse"],
+    ),
+    "recensione-UgkxPQVLBegGEPWvHmDjVq-rA5b8EwFeFrtk.html": (
+        "Dogfight velocissimi e una formula di volo ricca di nuove possibilità.",
+        ["Controlli di volo reattivi e combattimenti aerei rapidi",
+         "Missioni varie, Joker Flight e nuove possibilità tattiche",
+         "Comparto audiovisivo spettacolare e storia più presente"],
+        ["Qualche texture secondaria poco definita",
+         "Sporadiche flessioni del frame rate",
+         "Sistema stagionale online dalla struttura più commerciale"],
+    ),
+    "recensione-UgkxUyzI3zn3urxvkpRPcd349swqkNqHFXEK.html": (
+        "Basket profondo e divertente, con ProPLAY e molte modalità.",
+        ["ProPLAY e migliore equilibrio tra attacco e difesa",
+         "MyCAREER Eras e MyNBA Legacy ampliano i contenuti",
+         "Partite coinvolgenti e gameplay ricco di possibilità"],
+        ["Badge, progressioni e valute possono disorientare all'inizio",
+         "Aspetti economici di MyTEAM ancora controversi"],
+    ),
+    "recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html": (
+        "Smart glasses leggeri e ricchi di funzioni, con alcuni compromessi.",
+        ["Montatura relativamente leggera e discreta",
+         "Fotocamera da 13 MP, audio open-ear e controlli touch",
+         "Funzioni AI e traduzione in tempo reale"],
+        ["Registrazione Full HD a 30 fps limitata in condizioni di luce difficili",
+         "Autonomia ridotta con uso intensivo della fotocamera",
+         "Funzioni AI dipendenti dall'applicazione e dalla connessione"],
+    ),
+    "recensione-Ugkxq4wPsbAKxSo1aB0OptleaGIR5iyfIuyz.html": (
+        "Un'avventura di Logan intensa, aggressiva e cinematografica.",
+        ["Combattimento aggressivo con Furia e fattore rigenerante",
+         "Storia più concentrata e cinematografica",
+         "Buon impatto tecnico su PS5"],
+        ["Alcune attività opzionali meno memorabili",
+         "Qualche situazione meno intensa del resto dell'avventura"],
+    ),
+    "recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html": (
+        "Una dash cam dual-channel completa con doppio 4K e HDR.",
+        ["Registrazione 4K sia anteriore sia posteriore e doppio HDR",
+         "GPS, ADAS, Wi-Fi 6 e registrazione di emergenza",
+         "Supercondensatore adatto all'installazione in automobile"],
+        ["Sorveglianza completa in parcheggio con Hardwire Kit separato",
+         "Controllo vocale non disponibile in italiano",
+         "Alcune funzioni 4G Cloud+ 2.0 legate ad aggiornamenti OTA"],
+    ),
+    "recensione-Ugkxvpi4bKV_hiuDy7XJQb0-qw7CTJc5Is33.html": (
+        "Una simulazione dei trasporti profonda e gratificante su PS5.",
+        ["Oltre 275 veicoli e numerose possibilità di collegamento",
+         "Catene produttive e logistica più profonde",
+         "Mod multipiattaforma e grande libertà di progettazione",
+         "Formula gestionale capace di assorbire molte ore"],
+        ["Curva di apprendimento impegnativa",
+         "Menu meno comodi con molte linee da gestire su PS5",
+         "Margini di miglioramento delle prestazioni"],
+    ),
+}
+
+def _review_source_points(body):
+    """Fallback for FUTURE Community reviews: reuse real source sentences.
+    Do not make up Pro/Contro or ratings in new automatically imported posts.
+    """
+    visible=html_utils.unescape(re.sub(r'<[^>]+>', ' ', body))
+    visible=re.sub(r'\s+', ' ', visible).strip()
+    sentences=re.split(r'(?<=[.!?])\s+(?=[A-ZÀÈÉÌÒÙ])', visible)
+    pro_re=re.compile(r'\b(?:riesce|offre|permette|migliora|convincente|divertente|qualità|varietà|profondità|completo|interessante|ottimo|reattiv[oi])\b',re.I)
+    con_re=re.compile(r'\b(?:limiti|compromessi|problemi|difficolt[àa]|meno comodo|carenz[ae]|assenza|manca|peccato|miglioramento|difetti|non supporta|richiede)\b',re.I)
+    def collect(pattern):
+        selected=[]
+        for sentence in sentences:
+            sentence=sentence.strip()
+            if 35<=len(sentence)<=190 and pattern.search(sentence) and sentence not in selected:
+                selected.append(sentence)
+            if len(selected)>=3:
+                break
+        return selected
+    return collect(pro_re),collect(con_re)
+
+def unify_review_final_panel(page, filename):
+    """Render the SAME end-of-review components as the approved Sesame Street
+    template: question, rating panel, Pro/Contro, related links, Community banner.
+    Score is copied from the original review verbatim, never guessed.
+    """
+    if not is_review_page(filename,page):
+        return page
+    start=re.search(r'<div\b[^>]*class=["\'][^"\']*\barticle-body\b[^"\']*["\'][^>]*>',page,re.I)
+    if not start:
+        return page  # The independently designed Sesame Street review.
+    end=_matching_close(page,start.end(),'div')
+    if end < start.end():
+        raise RuntimeError(f"{filename}: invalid review article-body markup")
+    content=page[start.end():end]
+    # All published pages will be reprocessed on future builds.
+    if 'data-zt-review-end="sesame-v1"' in content:
+        return page
+
+    score_pattern=re.compile(
+        r'<p\b[^>]*>\s*(?:⭐\s*)?Voto\s+finale\s*:\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*/\s*10\s*</p>'
+        r'|<div\b[^>]*class=["\']review-score["\'][^>]*>\s*<strong>'
+        r'\s*(?:⭐\s*)?Voto\s+finale\s*:\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*/\s*10\s*</strong>\s*</div>',
+        re.I,
+    )
+    found=score_pattern.search(content)
+    if not found:
+        return page  # Reviews without a published score must not gain one.
+    score=(found.group(1) or found.group(2)).replace(',','.')
+    if not (0<=float(score)<=10):
+        raise RuntimeError(f"{filename}: invalid original review score")
+    content=content[:found.start()]+content[found.end():]
+    # Remove generic label only; the original introduction paragraphs remain.
+    content=re.sub(r'<h2>\s*(?:<strong>)?\s*Introduzione\s*(?:</strong>)?\s*</h2>\s*','',content,flags=re.I)
+    # No fabricated lists. Curated items are explicitly backed by the original
+    # review; future pages can extract only actual sentences from their own text.
+    description,pros,cons=REVIEW_PROS_CONS.get(filename,("",[],[]))
+    if not description:
+        pros,cons=_review_source_points(content)
+    esc=html_utils.escape
+    rating_html=(
+        '<div class="rating zt-review-rating" data-zt-review-end="sesame-v1">'
+        '<div><small>VOTO FINALE</small>'
+        f'<strong>{esc(score)}<span>/10</span></strong></div>'
+        + (f'<p>{esc(description)}</p>' if description else '')
+        + '</div>'
+    )
+    def category(name,cls,points):
+        if not points:
+            # No invented evaluative claims when a future review lacks data.
+            return ('<section class="'+cls+'"><h2>'+name+'</h2>'
+                    '<p>Non specificati nel testo originale.</p></section>')
+        return ('<section class="'+cls+'"><h2>'+name+'</h2><ul>'
+                +''.join('<li>'+esc(point)+'</li>' for point in points)
+                +'</ul></section>')
+    procons='<div class="proscons zt-review-proscons">'+category("Pro","pros",pros)+category("Contro","cons",cons)+'</div>'
+    # Original reader question is left where it was, now BEFORE the vote box.
+    content=content.rstrip()+rating_html+procons
+    return page[:start.end()]+content+page[end:]
+
 def unify_review_layout(page, filename):
     if not is_review_page(filename,page):
         return page
@@ -119,8 +275,8 @@ def unify_site_navigation(page, filename):
     canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
     return page[:first.start()]+canonical+page[first.end():]
 
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sesamereviews" data-zt-design="20261010">'
-js_tag='<script src="/zt-visual.js?v=20261012sesamereviews" defer></script>'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sesamereviewfinish" data-zt-design="20261010">'
+js_tag='<script src="/zt-visual.js?v=20261012sesamereviewfinish" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
     if any(p in {'.git','node_modules','functions'} for p in path.relative_to(root).parts):
@@ -131,16 +287,17 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261012sesamereviews",html,count=1)
+                    "/zt-design.css?v=20261012sesamereviewfinish",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
         html=re.sub(r'(?<=src=")/zt-visual[.]js(?:[?][^"]*)?',
-                    "/zt-visual.js?v=20261012sesamereviews",html,count=1)
+                    "/zt-visual.js?v=20261012sesamereviewfinish",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     html=unify_site_navigation(html,path.name)
     html=unify_review_layout(html,path.name)
+    html=unify_review_final_panel(html,path.name)
     # Ensure the official ZazoomTek.it masthead is applied to every generated
     # article and static page, including pages rebuilt by YouTube sync.
     home_old='<span class="brand-copy"><strong>ZazoomTek</strong><small>TECH · GAMING · COMMUNITY</small></span>'
@@ -195,6 +352,15 @@ for review_path in sorted(root.glob("*.html")):
         raise RuntimeError(f"{review_path.name}: missing approved Sesame Street review layout")
     if not re.search(r'class=["\'][^"\']*(?:detail-grid|\blayout\b)',review_doc,re.I):
         raise RuntimeError(f"{review_path.name}: missing two-column review grid")
+    if '<div class="article-body"' in review_doc and (
+        re.search(r'<p\b[^>]*>\s*(?:⭐\s*)?Voto finale\s*:',review_doc,re.I)
+        or '<div class="review-score">' in review_doc):
+        raise RuntimeError(f"{review_path.name}: legacy unformatted review score still visible")
+    if review_path.name.startswith("recensione-Ugkx"):
+        if review_doc.count('data-zt-review-end="sesame-v1"') != 1:
+            raise RuntimeError(f"{review_path.name}: missing final rating panel in Sesame format")
+        if '<div class="proscons zt-review-proscons">' not in review_doc:
+            raise RuntimeError(f"{review_path.name}: missing two-column Pro/Contro block")
     reviews_checked+=1
 if reviews_checked < 8:
     raise RuntimeError(f"Expected at least 8 completed reviews, found {reviews_checked}")
