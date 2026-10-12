@@ -39,7 +39,7 @@ def main():
         return
     items=json.loads(SOURCE.read_text(encoding="utf-8")).get("items",[])
     output=[]
-    for item in items[:10]:
+    for item in items[:12]:
         # Google News RSS redirects and page titles are NOT sufficient evidence.
         # Newsrooms are legitimate sources too. A substantive original article
         # or official statement can be enough to draft; only publication requires
