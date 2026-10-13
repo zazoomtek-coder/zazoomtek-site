@@ -46,6 +46,30 @@ with patch.object(yt,"get",side_effect=fake_get), \
     assert ids[30] in {v["id"] for v in result}
     assert "FOREIGN0001" not in {v["id"] for v in result}
 
+# Permanent editorial rule for Esplora video / category feeds: title beats playlist.
+# Existing GAMING playlists must split into GAMEPLAY and GAMING by word in title.
+with patch.object(yt,"GAMING_VIDEO_IDS",{ids[0],ids[1],ids[2]}), \
+     patch.object(yt,"TEST_VIDEO_IDS",set()), \
+     patch.object(yt,"UNBOXING_VIDEO_IDS",set()), \
+     patch.object(yt,"REVIEWS_VIDEO_IDS",set()), \
+     patch.object(yt,"ANALOGIKTEK_VIDEO_IDS",set()):
+    gameplay=item(ids[0],0)
+    gameplay["snippet"]["title"]="ACE COMBAT 8 PS5 GamePlay ITA"
+    gaming=item(ids[1],1)
+    gaming["snippet"]["title"]="Dead Spin PS5 - Primo sguardo"
+    typo=item(ids[2],2)
+    typo["snippet"]["title"]="Sesame Street PS5 gamepaly"
+    unlisted=item(ids[3],3)
+    unlisted["snippet"]["title"]="Battlefield 6 Gameplay"
+    other=item(ids[4],4)
+    other["snippet"]["title"]="Video sul gaming senza dimostrazioni"
+    assert yt.classify(gameplay)=="gameplay"
+    assert yt.classify(gaming)=="gaming"
+    assert yt.classify(typo)=="gameplay"
+    assert yt.classify(unlisted)=="gameplay"
+    assert yt.classify(other) is None
+    assert not yt.has_gameplay_in_title({"snippet":{"title":"GameplayS e altre parole"}})
+
 # A failed category playlist never prevents discovery of an otherwise unclassified upload.
 old=[{"id":ids[0],"category":"gaming"}]
 with patch.object(yt,"playlist_video_ids",side_effect=RuntimeError("HTTP 503")):

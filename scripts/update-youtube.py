@@ -242,7 +242,17 @@ def playlist_video_ids(playlist_id):
         if not token: break
     return ids
 
+def has_gameplay_in_title(v):
+    """Editorial rule: titles containing the word Gameplay (or typo Gamepaly)
+    belong to GAMEPLAY, regardless of capitalization or gaming playlist status.
+    """
+    title=(v.get("snippet",{}).get("title") or "")
+    return re.search(r"\b(?:gameplay|gamepaly)\b",title,re.IGNORECASE) is not None
+
 def classify(v):
+    # Gameplay title wins over Gaming playlist labels and generic uploads.
+    # All other curated playlist categories retain their existing rules.
+    if has_gameplay_in_title(v): return "gameplay"
     if v["id"] in TEST_VIDEO_IDS: return "test"
     if v["id"] in GAMING_VIDEO_IDS: return "gaming"
     if v["id"] in UNBOXING_VIDEO_IDS: return "unboxing"
@@ -585,10 +595,10 @@ def update_home(vids, short_ids):
             block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
             h=h[:a]+block+h[b+6:]
 
-    # "Ultimi Video" is one latest 16:9 upload per editorial playlist,
-    # plus one latest completed stream archive labelled GAMEPLAY.
-    # The six distinct selections are then ordered by YouTube publish date.
-    # "Esplora Video" remains independent and retains channel playlist order.
+    # "Ultimi Video": latest 16:9 upload for each editorial category,
+    # plus one distinct video whose TITLE contains Gameplay (not just a Live).
+    # Gaming therefore never shows videos containing the word Gameplay.
+    # "Esplora Video" shares the permanent title-based category rule.
     selected={}
     for category in ("recensioni","test","unboxing","gaming","analogiktek"):
         selected[category]=next((
@@ -598,11 +608,12 @@ def update_home(vids, short_ids):
             and is_true_landscape(v)
         ),None)
 
-    # GAMEPLAY never duplicates a Gaming/other playlist tile and is shown once.
+    # GAMEPLAY is selected by title, regardless of Live/archive status.
+    # Exclude Shorts and prevent duplicates with the other category cards.
     used={v["id"] for v in selected.values() if v}
     gameplay=next((
         v for v in ordered
-        if is_completed_broadcast(v)
+        if classify(v)=="gameplay"
         and not is_live_upload(v)
         and v["id"] not in short_ids
         and not bool(v.get("_cached_short"))
