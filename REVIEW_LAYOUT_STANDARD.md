@@ -29,3 +29,14 @@ Applicare lo stesso impaginato a TUTTE le recensioni presenti sul sito e a ogni 
 - Distinguere le recensioni di piattaforme diverse quando specificate; non confondere le News con le Recensioni.
 - Preservare le recensioni editoriali manuali nel catalogo durante il successivo aggiornamento automatico.
 - Il controllo è nello script scripts/update-youtube-posts.py con test offline scripts/test_review_dedup.py eseguiti dal workflow youtube-sync.yml.
+
+## Regola permanente — video nelle recensioni (13 ottobre 2026)
+- Priorità assoluta ai video pertinenti, già pubblicati sul canale YouTube `@ZazoomTek` (ID `UCJs0ZT10hUiPRD0UZtUpI1Q`). Verificare sempre titolo, gioco/prodotto, piattaforma e ID YouTube; non scegliere un video generico, una notizia su un titolo omonimo o un video non pubblicato.
+- Se il video corretto non è disponibile sul canale ZazoomTek, usare esclusivamente un trailer o video ufficiale del relativo gioco/prodotto disponibile su YouTube, caricato dal publisher/sviluppatore o da fonte autorizzata, con incorporamento consentito. Non trattare la mera presenza su YouTube come prova assoluta dei diritti.
+- Player unico a fine recensione, **dopo Voto finale e Pro e Contro**, preceduto da intestazione descrittiva (per il video del canale: `Video recensione ZazoomTek`; per l'esterno: `Trailer ufficiale di [titolo]`). Non duplicare il video in altri punti dell'articolo.
+- Il filmato rimane interamente ospitato sul servizio video esterno: NON caricare file MP4/MKV/HLS su Firebase Hosting, GitHub, né copiare video Steam o usare `video.fastly.steamstatic.com` come sorgente del player.
+- Incorporamento ufficiale YouTube tramite `https://www.youtube-nocookie.com/embed/VIDEO_ID`. Su apertura pagina visualizzare un poster leggero e un pulsante Play; **non caricare l'iframe fino al clic consapevole del lettore**. Includere spiegazione sui contenuti terzi/link YouTube ed eventuale informativa privacy; non introdurre cookie non necessari senza le opportune verifiche/consenso.
+- Player responsive 16:9, `title` accessibile, pulsanti video standard, link diretto alla fonte in caso di indisponibilità; verificare che l'incorporamento sia abilitato e riproducibile. Se non esiste alcun video appropriato e incorporabile, mostrare soltanto un link alla pagina ufficiale, senza player rotto.
+- Applicare questo criterio a TUTTE le nuove recensioni, importate o incollate, **senza modificare automaticamente le recensioni esistenti non approvate** e senza sovrascrivere sezioni, menu, CSS condiviso, struttura, SEO o layout del sito.
+- Per Poly Fighter del 13 ottobre 2026, l'anteprima approvata con questa logica è `anteprima-poly-fighter-trailer-youtube-20261013.html`; la pagina finale programmata è `poly-fighter-recensione-pc.html`. Se prima della pubblicazione compare una video recensione ZazoomTek verificata e incorporabile, usarla in via preferenziale; altrimenti mantenere il trailer ufficiale YouTube già approvato (`cYkb8Z7JyqQ`).
+
