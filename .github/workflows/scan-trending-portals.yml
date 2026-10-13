@@ -42,6 +42,32 @@ jobs:
       # It can always choose among existing verified ZazoomTek articles.
       - name: Refresh News in evidenza from already published articles first
         run: python3 scripts/trending-crosscheck.py --apply
+      - name: Publish existing verified highlights without waiting for AI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "zazoomtek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- trending-sources.json trending-match-report.json featured-carousel.json
+          if ! git diff --cached --quiet; then
+            git commit -m "News in evidenza: update static six-card grid independently of external AI"
+            published=false
+            for attempt in 1 2 3 4; do
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                published=true
+                break
+              fi
+              git rebase --abort || true
+              sleep "$((attempt * 4))"
+            done
+            if [ "$published" != true ]; then
+              echo "::error::Unable to safely publish fresh static highlights"
+              exit 1
+            fi
+            gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+            echo "Updated static News in evidenza before optional AI generation."
+          fi
       - name: Research additional original articles when the model is available
         id: new_stories
         continue-on-error: true
