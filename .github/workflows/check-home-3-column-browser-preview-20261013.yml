@@ -28,7 +28,7 @@ jobs:
            try{
             const chrome=process.env.CHROME_PATH||"/usr/bin/google-chrome";
             browser=await chromium.launch({headless:true,executablePath:chrome,args:["--no-sandbox","--disable-dev-shm-usage"]});
-            const url="https://zazoomtek.it/anteprima-home-45-tech-35-gaming-20-editoriali-20261013.html?browsercheck=45-35-20";
+            const url="https://zazoomtek.it/anteprima-home-45-35-20-simmetrica-20261013.html?browsercheck=symmetric";
             for(const size of [{width:1600,height:1000,label:"desktop"},{width:1100,height:900,label:"tablet"},{width:390,height:844,label:"mobile"}]){
              const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
              const messages=[];
@@ -56,7 +56,8 @@ jobs:
               }
              });
              console.log(size.label,JSON.stringify(v));
-             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||!v.impactMoved||!v.editorialHeading||v.gamingLabels!==7||v.articleCount!==15||!v.top||!v.guide||!v.news)throw Error("Missing real sections on "+size.label);
+             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||!v.impactMoved||!v.editorialHeading||v.gamingLabels!==7||v.articleCount!==15||v.videos!==4||!v.top||!v.guide||!v.news)throw Error("Missing sections or four real channel videos on "+size.label);
+             if(size.label!=="mobile" && Math.abs(v.top.bottom-v.leftVideo.bottom)>5)throw Error("Whitespace below latest videos: "+(v.top.bottom-v.leftVideo.bottom)+"px");
              if(v.news.y < v.guide.y)throw Error("News rendered above Guide on "+size.label);
              const precedingBottom=size.label==="desktop"?v.guide.bottom:v.top.bottom;
              if(v.news.y-precedingBottom > 100)throw Error("Empty gap before news: "+(v.news.y-precedingBottom)+"px on "+size.label);
@@ -67,6 +68,7 @@ jobs:
               const expected=[.45,.35,.20];
               if(actual.some((x,i)=>Math.abs(x-expected[i])>.012))throw Error("Wrong desktop ratios "+JSON.stringify(actual));
               if(v.cardImages[0].w<v.tech.w*.8)throw Error("Featured Tech image is not large enough");
+              if(v.leftVideo.h<v.guide.bottom-v.top.y-6)throw Error("Video column does not align with Guide");
              }else if(size.label==="tablet"){
               if(!(v.tech.x<v.gaming.x&&v.rail.y>v.tech.y))throw Error("Tablet must use two columns with editorial boxes below");
              }else{
