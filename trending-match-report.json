@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-13T14:09:24.268832+00:00",
+  "checked_at": "2026-10-13T14:42:10.266097+00:00",
   "source_sites": 16,
-  "matches": 4,
+  "matches": 2,
   "selected": [
     {
       "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
@@ -20,46 +20,24 @@
       ]
     },
     {
-      "title": "News: TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",
+      "title": "News: Sharp presenta BP-80C70 e BP-80C80, nuove multifunzione ad alta velocità per uffici con grandi volumi di stampa",
       "section": "tech",
-      "url": "/news-Ugkxjafwnrw9O14Zgh1LkgQ-Qz61uHxbVzsr.html",
-      "trend_score": 49.81,
-      "published_date": "2026-10-12",
-      "freshness_bonus": 62,
-      "selection_score": 94.38,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "Tekken 8 mostra il gameplay di Roger Jr. nel nuovo trailer",
-          "score": 0.4981
-        }
-      ]
+      "url": "/news-UgkxLSwFUxBv8xB4u634aVOFIoHDDr3mZpqM.html",
+      "trend_score": 0,
+      "published_date": "2026-10-13",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
     },
     {
-      "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
+      "title": "News: Lucca Comics & Games lancia LC&G Card Collection, il nuovo gioco di carte digitali tra app, missioni e pixel game",
       "section": "gaming",
-      "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
-      "trend_score": 90.91,
-      "published_date": "2026-10-12",
-      "freshness_bonus": 62,
-      "selection_score": 121.09,
-      "sources": [
-        {
-          "site": "SpazioGames",
-          "title": "Michiru Yamane in Italia per i 40 anni di Castlevania",
-          "score": 0.7291
-        },
-        {
-          "site": "Gamesurf",
-          "title": "40 anni di Castlevania: Michiru Yamane guest star di Game Ground",
-          "score": 0.6748
-        },
-        {
-          "site": "IGN Italia",
-          "title": "Game Ground 2026 festeggia i quarant'anni di Castlevania con l'ospite d'onore Michiru Yamane (Notizie Castlevania)",
-          "score": 0.6435
-        }
-      ]
+      "url": "/news-UgkxxBGDVUmXC_KwnHVesFAYKWDvtcIlB_nw.html",
+      "trend_score": 0,
+      "published_date": "2026-10-13",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
     },
     {
       "title": "News: PLAYERS al M9 di Venezia Mestre racconta 80 anni di videogiochi tra cultura, società e creatività",
