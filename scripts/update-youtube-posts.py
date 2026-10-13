@@ -2472,8 +2472,12 @@ def render_article_feed(posts, home_guide_inset=""):
         img=html.escape(p.get("image") or "/ChatGPT.png")
         excerpt=html.escape(post_excerpt(p,230))
         search=html.escape((title+" "+kind+" "+(p.get("text") or ""))[:1200],quote=True)
+        published_iso=html.escape(
+            p.get("published_iso") or published_iso_from_label(p.get("published") or ""),
+            quote=True
+        )
         rows.append(
-            f'          <article class="article-row" data-search="{search.lower()}">'
+            f'          <article class="article-row" data-published-at="{published_iso}" data-search="{search.lower()}">'
             f'<a href="{slug}"><img class="article-image" src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
             f'<div class="article-copy">'
             f'<h3><a href="{slug}">{html.escape(title)}</a></h3>'
