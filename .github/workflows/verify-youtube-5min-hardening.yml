@@ -1,0 +1,61 @@
+name: Verify five-minute YouTube importer robustness
+on:
+  push:
+    branches: [harden-youtube-5min-sync-20261013]
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python source and test both channel types
+        run: |
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_video_sync_reliability.py
+          python3 scripts/test_video_sync_reliability.py
+          python3 scripts/test_community_freshness.py
+          python3 scripts/test_review_dedup.py
+      - name: Verify current static content and watchdog
+        run: |
+          python3 scripts/validate-sync-output.py community
+          python3 scripts/validate-sync-output.py videos
+          python3 - <<'PY'
+          from pathlib import Path
+          y=(Path('.github/workflows/youtube-sync.yml').read_text())
+          watchdog=Path('.github/workflows/youtube-publishing-safety-net.yml').read_text()
+          assert "cron: '*/5 * * * *'" in y
+          assert "2,7,12,17,22,27,32,37,42,47,52,57" in watchdog
+          assert "conclusion=='success'" in watchdog
+          assert "No YouTube Community content changes" in Path('scripts/update-youtube-posts.py').read_text()
+          assert "No YouTube video/playlist changes" in Path('scripts/update-youtube.py').read_text()
+          print('PASS: five-minute cron, independent watchdog, no-op importer and validated old state')
+          PY
+      - name: Smoke test real public Community and official channel upload API
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import importlib.util,os,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          def mod(filename,name):
+              spec=importlib.util.spec_from_file_location(name,Path('scripts')/filename)
+              v=importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(v)
+              return v
+          a=mod('update-youtube-posts.py','community')
+          posts,complete=a.parse(a.fetch(),set())
+          assert len(posts)>=5, f'YouTube Community unexpectedly returned {len(posts)} posts'
+          print('Community:',len(posts),'visible posts; latest:',posts[0]['id'])
+          if os.environ.get('YOUTUBE_API_KEY'):
+              v=mod('update-youtube.py','videos')
+              response=v.get('channels',part='contentDetails',id=v.CHANNEL_ID)
+              assert response.get('items'), 'YouTube Data API channel unavailable'
+              pl=response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+              r=v.get('playlistItems',part='snippet,contentDetails',playlistId=pl,maxResults=5)
+              assert r.get('items'), 'Official channel uploads API returned no videos'
+              print('Uploads:',len(r['items']),'recent IDs available')
+          else:
+              print('YouTube API key not available in branch test; primary API smoke skipped')
+          PY
