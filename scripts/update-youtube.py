@@ -18,6 +18,28 @@ GAMING_VIDEO_IDS=set()
 UNBOXING_VIDEO_IDS=set()
 REVIEWS_VIDEO_IDS=set()
 ANALOGIKTEK_VIDEO_IDS=set()
+# Only creator-confirmed complete, original sessions belong in GAMEPLAY.
+# These exact IDs can be curated without guessing from titles.
+GAMEPLAY_ORIGINAL_IDS=set()
+GAMEPLAY_EDITORIAL_IDS=set()
+GAMEPLAY_CONFIG=Path(__file__).resolve().parent.parent/"gameplay-video-rules.json"
+
+def load_gameplay_rules():
+    rules=json.loads(GAMEPLAY_CONFIG.read_text(encoding="utf-8"))
+    if not isinstance(rules,dict):
+        raise RuntimeError("Gameplay rules must be a JSON object")
+    keys=("original_gameplay_ids","edited_gaming_ids")
+    for key in keys:
+        if not isinstance(rules.get(key),list) or not all(
+            isinstance(x,str) and re.fullmatch(r"[A-Za-z0-9_-]{11}",x)
+            for x in rules[key]
+        ):
+            raise RuntimeError("Invalid Gameplay video rule list: "+key)
+    original=set(rules["original_gameplay_ids"])
+    editorial=set(rules["edited_gaming_ids"])
+    if original & editorial:
+        raise RuntimeError("Video cannot be both original GAMEPLAY and edited GAMING")
+    return original,editorial
 
 def get(endpoint, **params):
     """YouTube API request with retries for temporary network/server errors."""
@@ -84,7 +106,8 @@ def official_rss_recent_ids(previous_ids, playlist_ids):
 def safe_playlist_ids(playlist_id, category, previous):
     """One broken/empty editorial playlist must never block new channel uploads."""
     backup={v["id"] for v in previous if isinstance(v,dict)
-            and v.get("id") and v.get("category")==category}
+            and v.get("id") and (v.get("category")==category
+            or (category=="gaming" and v.get("category")=="gameplay"))}
     try:
         found=playlist_video_ids(playlist_id)
         if not found and backup:
@@ -110,6 +133,7 @@ def cached_video(item):
         "_cached_short":bool(item.get("short")),
         "_cached_live":live,
         "_cached_completed_live":bool(item.get("completedLive")),
+        "_cached_original_gameplay":bool(item.get("gameplayOriginal")),
     }
 
 def uploads(previous=None, recent_limit=100):
@@ -243,21 +267,53 @@ def playlist_video_ids(playlist_id):
     return ids
 
 def has_gameplay_in_title(v):
-    """Editorial rule: titles containing the word Gameplay (or typo Gamepaly)
-    belong to GAMEPLAY, regardless of capitalization or gaming playlist status.
-    """
-    title=(v.get("snippet",{}).get("title") or "")
+    title=v.get("snippet",{}).get("title") or ""
     return re.search(r"\b(?:gameplay|gamepaly)\b",title,re.IGNORECASE) is not None
 
+def original_gameplay_description_marker(v):
+    """A marker deliberately placed by the channel owner, not a guess."""
+    return bool(v.get("_cached_original_gameplay")) or (
+        "#ZTGameplayOriginale" in (v.get("snippet",{}).get("description") or "")
+    )
+
+def is_original_gameplay(v):
+    """GAMEPLAY only for creator-marked original, continuous gameplay sessions.
+
+    Do not infer authorship, completeness or lack of editing from the word
+    'gameplay' alone. Editorial, trailer and montage uploads remain GAMING.
+    """
+    vid=v.get("id")
+    title=v.get("snippet",{}).get("title") or ""
+    if vid in GAMEPLAY_EDITORIAL_IDS:
+        return False
+    if vid in GAMEPLAY_ORIGINAL_IDS:
+        return True  # Explicitly verified by site editor.
+    if not has_gameplay_in_title(v):
+        return False
+    # Exclude clear signs of third-party footage or editorial montages.
+    if re.search(r"\b(trailer|teaser|reveal|anteprima|recensione|reaction|"
+                 r"commento|commenti|commentato|montaggio|montato|spezzoni|"
+                 r"spezzettato|analisi|highlights?|news)\b",title,re.I):
+        return False
+    if original_gameplay_description_marker(v):
+        return True
+    # Explicit self-descriptions of an uninterrupted session, not just "Gameplay".
+    return re.search(
+        r"\b(?:lungo|full|long|uncut)\s+(?:gameplay|gamepaly)\b|"
+        r"\b(?:gameplay|gamepaly)\s+(?:completo|integrale|senza\s+tagli)\b",
+        title,re.I
+    ) is not None
+
 def classify(v):
-    # Gameplay title wins over Gaming playlist labels and generic uploads.
-    # All other curated playlist categories retain their existing rules.
-    if has_gameplay_in_title(v): return "gameplay"
-    if v["id"] in TEST_VIDEO_IDS: return "test"
-    if v["id"] in GAMING_VIDEO_IDS: return "gaming"
-    if v["id"] in UNBOXING_VIDEO_IDS: return "unboxing"
+    # Reviews/tests/unboxings keep their editorial playlist categories.
     if v["id"] in REVIEWS_VIDEO_IDS: return "recensioni"
+    if v["id"] in UNBOXING_VIDEO_IDS: return "unboxing"
+    if v["id"] in TEST_VIDEO_IDS: return "test"
     if v["id"] in ANALOGIKTEK_VIDEO_IDS: return "analogiktek"
+    # Self-recorded complete sessions are distinct from gameplay news/montages.
+    if is_original_gameplay(v): return "gameplay"
+    if v["id"] in GAMING_VIDEO_IDS or has_gameplay_in_title(v):
+        return "gaming"
     return None
 
 def esc(s): return html.escape(s,quote=True)
@@ -595,10 +651,10 @@ def update_home(vids, short_ids):
             block='<div class="analogic-grid">\n'+"\n".join(analogic_card(v) for v in analog)+'\n    </div>'
             h=h[:a]+block+h[b+6:]
 
-    # "Ultimi Video": latest 16:9 upload for each editorial category,
-    # plus one distinct video whose TITLE contains Gameplay (not just a Live).
-    # Gaming therefore never shows videos containing the word Gameplay.
-    # "Esplora Video" shares the permanent title-based category rule.
+    # "Ultimi Video": latest 16:9 video per actual editorial category.
+    # Only confirmed original full sessions qualify for GAMEPLAY; any edited,
+    # commented or trailer material with "Gameplay" belongs in GAMING.
+    # "Esplora video" uses these same authoritative category labels.
     selected={}
     for category in ("recensioni","test","unboxing","gaming","analogiktek"):
         selected[category]=next((
@@ -608,7 +664,7 @@ def update_home(vids, short_ids):
             and is_true_landscape(v)
         ),None)
 
-    # GAMEPLAY is selected by title, regardless of Live/archive status.
+    # GAMEPLAY requires creator confirmation / explicit full-session marker.
     # Exclude Shorts and prevent duplicates with the other category cards.
     used={v["id"] for v in selected.values() if v}
     gameplay=next((
@@ -692,6 +748,7 @@ def update_home(vids, short_ids):
 
 def main():
     global TEST_VIDEO_IDS, GAMING_VIDEO_IDS, UNBOXING_VIDEO_IDS, REVIEWS_VIDEO_IDS, ANALOGIKTEK_VIDEO_IDS
+    global GAMEPLAY_ORIGINAL_IDS, GAMEPLAY_EDITORIAL_IDS
 
     state_path=Path(".youtube-latest.json")
     previous=[]
@@ -716,6 +773,7 @@ def main():
                 f"previous valid state had {len(previous)}. Site left unchanged."
             )
 
+    GAMEPLAY_ORIGINAL_IDS,GAMEPLAY_EDITORIAL_IDS=load_gameplay_rules()
     TEST_VIDEO_IDS=safe_playlist_ids(TEST_PLAYLIST_ID,"test",previous)
     GAMING_VIDEO_IDS=safe_playlist_ids(GAMING_PLAYLIST_ID,"gaming",previous)
     UNBOXING_VIDEO_IDS=safe_playlist_ids(UNBOXING_PLAYLIST_ID,"unboxing",previous)
@@ -740,6 +798,7 @@ def main():
         "title":v["snippet"]["title"],
         "publishedAt":v["snippet"]["publishedAt"],
         "category":classify(v),
+        "gameplayOriginal":original_gameplay_description_marker(v),
         "short": (v["id"] in short_ids) or bool(v.get("_cached_short")),
         "live": is_live_upload(v),
         "completedLive": is_completed_broadcast(v)

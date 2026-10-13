@@ -46,28 +46,42 @@ with patch.object(yt,"get",side_effect=fake_get), \
     assert ids[30] in {v["id"] for v in result}
     assert "FOREIGN0001" not in {v["id"] for v in result}
 
-# Permanent editorial rule for Esplora video / category feeds: title beats playlist.
-# Existing GAMING playlists must split into GAMEPLAY and GAMING by word in title.
-with patch.object(yt,"GAMING_VIDEO_IDS",{ids[0],ids[1],ids[2]}), \
+# GAMEPLAY means actual uncut sessions recorded by the channel owner.
+# A video with commentary, edited clips or a trailer is GAMING even when
+# its title contains the word "gameplay". Only exact owner-approved IDs
+# or explicit full-session creator markers may override this.
+with patch.object(yt,"GAMING_VIDEO_IDS",{ids[0],ids[1],ids[2],ids[4]}), \
      patch.object(yt,"TEST_VIDEO_IDS",set()), \
      patch.object(yt,"UNBOXING_VIDEO_IDS",set()), \
      patch.object(yt,"REVIEWS_VIDEO_IDS",set()), \
-     patch.object(yt,"ANALOGIKTEK_VIDEO_IDS",set()):
-    gameplay=item(ids[0],0)
-    gameplay["snippet"]["title"]="ACE COMBAT 8 PS5 GamePlay ITA"
-    gaming=item(ids[1],1)
-    gaming["snippet"]["title"]="Dead Spin PS5 - Primo sguardo"
-    typo=item(ids[2],2)
-    typo["snippet"]["title"]="Sesame Street PS5 gamepaly"
-    unlisted=item(ids[3],3)
-    unlisted["snippet"]["title"]="Battlefield 6 Gameplay"
-    other=item(ids[4],4)
-    other["snippet"]["title"]="Video sul gaming senza dimostrazioni"
-    assert yt.classify(gameplay)=="gameplay"
-    assert yt.classify(gaming)=="gaming"
-    assert yt.classify(typo)=="gameplay"
-    assert yt.classify(unlisted)=="gameplay"
-    assert yt.classify(other) is None
+     patch.object(yt,"ANALOGIKTEK_VIDEO_IDS",set()), \
+     patch.object(yt,"GAMEPLAY_ORIGINAL_IDS",{ids[5]}), \
+     patch.object(yt,"GAMEPLAY_EDITORIAL_IDS",{ids[6]}):
+    edited=item(ids[0],0)
+    edited["snippet"]["title"]="ACE COMBAT 8 Gameplay commentato a spezzoni"
+    trailer=item(ids[1],1)
+    trailer["snippet"]["title"]="Battlefield 6 Trailer del gameplay"
+    normal=item(ids[2],2)
+    normal["snippet"]["title"]="Fortnite Gameplay PS5"
+    full=item(ids[3],3)
+    full["snippet"]["title"]="Sesame Street PS5 - lungo GamePlay"
+    explicitly_marked=item(ids[4],4)
+    explicitly_marked["snippet"]["title"]="UFC Gameplay PS5"
+    explicitly_marked["snippet"]["description"]="#ZTGameplayOriginale"
+    whitelisted=item(ids[5],5)
+    whitelisted["snippet"]["title"]="PS5 sessione di gioco registrata"
+    editorial_override=item(ids[6],6)
+    editorial_override["snippet"]["title"]="Lungo gameplay a spezzoni"
+    gaming_no_word=item(ids[7],7)
+    gaming_no_word["snippet"]["title"]="Dead Spin - Primo sguardo"
+    assert yt.classify(edited)=="gaming"
+    assert yt.classify(trailer)=="gaming"
+    assert yt.classify(normal)=="gaming"
+    assert yt.classify(full)=="gameplay"
+    assert yt.classify(explicitly_marked)=="gameplay"
+    assert yt.classify(whitelisted)=="gameplay"
+    assert yt.classify(editorial_override)=="gaming"
+    assert yt.classify(gaming_no_word) is None
     assert not yt.has_gameplay_in_title({"snippet":{"title":"GameplayS e altre parole"}})
 
 # A failed category playlist never prevents discovery of an otherwise unclassified upload.
