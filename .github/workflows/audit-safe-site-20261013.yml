@@ -1,0 +1,20 @@
+name: Read-only ZazoomTek whole-site audit
+on:
+  push:
+    branches: [audit-safe-site-20261013]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run whole-site read-only audit
+        run: python3 scripts/site-audit-safe.py
+      - name: Test existing importers without publishing
+        run: |
+          python3 -m py_compile scripts/*.py
+          python3 scripts/test_review_dedup.py
+          python3 scripts/test_video_sync_reliability.py
+          python3 scripts/test_community_freshness.py
