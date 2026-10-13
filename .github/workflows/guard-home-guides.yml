@@ -1,0 +1,23 @@
+name: Guard Home Guides after ten NEWS
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'includes/home-guides-inset.html'
+      - 'scripts/apply-standard-news-featured.py'
+      - 'scripts/update-youtube-posts.py'
+      - 'scripts/test_home_guides_inset.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Home Guides placement and importers
+        run: |
+          python3 -m py_compile scripts/apply-standard-news-featured.py scripts/update-youtube-posts.py scripts/test_home_guides_inset.py
+          python3 scripts/test_home_guides_inset.py

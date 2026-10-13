@@ -274,7 +274,18 @@ def chronological_home_feed(original_feed, standard):
         new_manual += 1
 
     combined.sort(key=lambda pair: pair[0], reverse=True)
-    merged = "\n".join(row for _, row in combined[:15])
+    # Guides is independent editorial content. Never drop it when sorting NEWS.
+    # Read its canonical template instead of depending on markup in Home,
+    # because other publishers may have regenerated the feed.
+    guides_template = ROOT / "includes" / "home-guides-inset.html"
+    guides_markup = guides_template.read_text(encoding="utf-8").strip()
+    if (guides_markup.count("<!-- HOME_GUIDES_INSET_START -->") != 1
+            or guides_markup.count("<!-- HOME_GUIDES_INSET_END -->") != 1
+            or 'id="ztHomeGuide"' not in guides_markup):
+        raise RuntimeError("Canonical Home Guides template invalid; refusing to rewrite the Home")
+    merged_rows = [row for _, row in combined[:15]]
+    merged_rows.insert(10, guides_markup)
+    merged = "\n".join(merged_rows)
     if merged.count('class="article-row"') != 15:
         raise RuntimeError("Home must contain exactly 15 latest articles")
     print(f"Latest Articles chronological: {community_count} Community + 4 standard + {new_manual} independent NEWS.")
@@ -334,6 +345,14 @@ def main():
         raise RuntimeError("Home must preserve exactly 15 Latest Articles")
     if re.search(r'href="/?recensione-[^"]+\.html"',home_feed):
         raise RuntimeError("Reviews cannot enter the Home NEWS stream")
+    if (home_feed.count("<!-- HOME_GUIDES_INSET_START -->") != 1
+            or home_feed.count("<!-- HOME_GUIDES_INSET_END -->") != 1
+            or not (0 <= home_feed.find('id="ztHomeGuide"'))):
+        raise RuntimeError("Home Guides must occur exactly once")
+    row_matches = list(re.finditer(r'<article\\b[^>]*class="article-row"', home_feed))
+    guide_offset = home_feed.index("<!-- HOME_GUIDES_INSET_START -->")
+    if sum(m.start() < guide_offset for m in row_matches) != 10:
+        raise RuntimeError("Home Guides must follow exactly the tenth NEWS")
 
     news = NEWS.read_text(encoding="utf-8")
     special_urls = ["/" + x["slug"] for x in special]

@@ -2728,11 +2728,17 @@ def main():
 
     # Preserve the approved Home Guides widget across automatic Community syncs.
     # Its markup stays in index.html, not in archives or paginated pages.
+    canonical_guide = Path("includes/home-guides-inset.html").read_text(encoding="utf-8").strip()
+    if (canonical_guide.count("<!-- HOME_GUIDES_INSET_START -->") != 1
+            or canonical_guide.count("<!-- HOME_GUIDES_INSET_END -->") != 1
+            or 'id="ztHomeGuide"' not in canonical_guide):
+        raise RuntimeError("Canonical Home Guides template is invalid; keeping the previous Home")
     home_guide=re.search(
         r'<!-- HOME_GUIDES_INSET_START -->.*?<!-- HOME_GUIDES_INSET_END -->',
         s,flags=re.S,
     )
-    guide_markup=home_guide.group(0) if home_guide else ""
+    # A deleted/incomplete Home block must never become a permanent deletion.
+    guide_markup=home_guide.group(0) if home_guide else canonical_guide
     feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(news[:PAGE_SIZE],guide_markup)+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
