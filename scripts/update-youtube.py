@@ -88,7 +88,7 @@ def safe_playlist_ids(playlist_id, category, previous):
         if not found and backup:
             print(f"Playlist {category} was unexpectedly empty; preserving {len(backup)} known associations.")
             return backup
-        return found|backup
+        return found
     except Exception as err:
         print(f"Playlist {category} temporarily unavailable; retaining {len(backup)} associations: {err}")
         return backup
