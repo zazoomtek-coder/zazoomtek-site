@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/refresh-static-news-in-evidenza.yml'
+      - 'scripts/trending-crosscheck.py'
 permissions:
   contents: write
   actions: write
