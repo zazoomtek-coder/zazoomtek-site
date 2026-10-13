@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/workflows/audit-production-home-layout-20261013.yml'
       - 'zt-home-live.js'
+      - 'index.html'
+      - 'scripts/update-youtube-posts.py'
+      - 'firebase.json'
 permissions:
   contents: read
 jobs:
@@ -25,7 +28,9 @@ jobs:
               assert html.count("<!-- HOME_GUIDES_INSET_START -->")==1
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
-          assert 'zt-home-live.js?v=20261013approved45-35-20' in stage
+          assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
+          assert 'zt-home-live.js?v=20261013approved45-35-20b' in src
+          assert '<style id="ztp-live-editorial-fill">' in src
           assert 'noindex,nofollow' in stage
           assert 'noindex,nofollow' not in src
           print("PASS: 15 canonical news, stable import markers, public Home unchanged")
@@ -45,7 +50,7 @@ jobs:
           async function main(){
            const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
            try{
-            const url="https://zazoomtek.it/anteprima-home-produzione-validazione-20261013.html";
+            const url="https://zazoomtek.it/";
             for(const v of [{label:"desktop",width:1600,height:900},{label:"tablet",width:1100,height:900},{label:"mobile",width:390,height:844}]){
              const page=await browser.newPage({viewport:{width:v.width,height:v.height}});
              let errors=[];page.on("pageerror",e=>errors.push(e.message));
