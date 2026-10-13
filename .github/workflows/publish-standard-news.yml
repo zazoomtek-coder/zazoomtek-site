@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: publish-standard-news
   cancel-in-progress: false
