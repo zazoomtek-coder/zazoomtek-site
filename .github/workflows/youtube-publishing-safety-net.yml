@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '48 * * * *'
-    # Independent 10-minute backstop for GitHub's sometimes-delayed */5 timer.
-    - cron: '7,17,27,37,47,57 * * * *'
+    # Independent 5-minute watchdog, offset two minutes from the primary */5 schedule.
+    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
 permissions:
   contents: read
   actions: write
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   check-import-freshness:
     # Avoid unnecessary runs of the importer if its own timer worked recently.
-    if: github.event_name == 'schedule' && github.event.schedule == '7,17,27,37,47,57 * * * *'
+    if: github.event_name == 'schedule' && github.event.schedule == '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -37,13 +37,19 @@ jobs:
           recent=False
           for entry in runs:
               stamp=datetime.datetime.fromisoformat(entry['createdAt'].replace('Z','+00:00'))
-              if stamp>=now-datetime.timedelta(minutes=9):
-                  recent=True
+              age=(now-stamp).total_seconds()/60
+              status=entry.get('status')
+              conclusion=entry.get('conclusion')
+              if age<20 and status in ('in_progress','queued','pending','requested','waiting'):
+                  recent=True  # Avoid stacking jobs while the primary sync is still running.
+                  break
+              if age<7 and status=='completed' and conclusion=='success':
+                  recent=True  # The actual source check has just succeeded.
                   break
           if recent:
-              print('Primary 5-minute YouTube import recently started: no duplicate dispatch.')
+              print('Healthy recent YouTube sync already exists; no extra dispatch.')
           else:
-              print('YouTube import overdue: dispatching independent recovery sync now.')
+              print('No recent healthy YouTube sync (missing, failed or cancelled); retrying now.')
               subprocess.run(
                   ['gh','workflow','run','youtube-sync.yml','--repo',repo,'--ref','main'],check=True)
           PY
