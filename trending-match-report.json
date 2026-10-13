@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-13T06:04:48.144833+00:00",
+  "checked_at": "2026-10-13T06:34:01.587032+00:00",
   "source_sites": 16,
   "matches": 8,
   "selected": [
@@ -49,20 +49,15 @@
       "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
       "section": "gaming",
       "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
-      "trend_score": 81.91,
+      "trend_score": 72.91,
       "published_date": "2026-10-12",
       "freshness_bonus": 62,
-      "selection_score": 115.24,
+      "selection_score": 109.39,
       "sources": [
         {
           "site": "SpazioGames",
           "title": "Michiru Yamane in Italia per i 40 anni di Castlevania",
           "score": 0.7291
-        },
-        {
-          "site": "Everyeye.it",
-          "title": "Castlevania compie 40 anni e Michiru Yamane arriva a Bolzano ospite di Game Ground 2026",
-          "score": 0.6477
         }
       ]
     },
