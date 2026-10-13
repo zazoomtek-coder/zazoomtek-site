@@ -38,7 +38,7 @@ jobs:
              for(const entry of pages){
               let verified=false;let report=null;
               const p=await browser.newPage({viewport:{width:view.width,height:view.height}});
-              for(let attempt=0;attempt<22;attempt++){
+              for(let attempt=0;attempt<7;attempt++){
                const response=await p.goto("https://zazoomtek.it"+entry.path+"?thumbcentercheck="+attempt,{waitUntil:"domcontentloaded",timeout:45000});
                await p.waitForTimeout(500);
                report=await p.evaluate(selector=>{
@@ -56,8 +56,8 @@ jobs:
                  homeCSSPresent:!!document.querySelector("#ztp-final-balanced-live-20261013"),
                 };
                },entry.selector);
-               if(response.status()===200 && report.stylesheet?.includes("20261013showFullArt2") && report.images>0 && report.positions.every(x=>x==="50% 50%") && report.fit.every(x=>x==="contain") && report.overflow<=8){verified=true;break;}
-               if(attempt<21)await p.waitForTimeout(3500);
+               if(response.status()===200 && report.stylesheet?.includes("20261013uncroppedAllSections4") && report.images>0 && report.positions.every(x=>x==="50% 50%") && report.fit.every(x=>x==="contain") && report.overflow<=8){verified=true;break;}
+               if(attempt<6)await p.waitForTimeout(1800);
               }
               console.log("THUMBNAIL",view.label,entry.label,JSON.stringify(report));
               if(!verified)throw Error("Thumbnail alignment failed for "+entry.label+" "+view.label);
