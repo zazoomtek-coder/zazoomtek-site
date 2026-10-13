@@ -115,13 +115,18 @@ def choose(items: list[dict], count: int, today: dt.date, keep_latest: int = 2) 
 def esc(value: str) -> str:
     return html.escape(value, quote=True)
 
+
+def editorial_category(item: dict) -> str:
+    """Classify public editorials by the article's actual topic, not opaque video IDs."""
+    title = item["title"].casefold()
+    gaming_terms = ['ea sports fc','tower tactics','talos principle','ace combat','dragon’s dogma','dragon's dogma','call of duty','gta ','tekken','street fighter','nintendo','playstation','xbox','steam','gameplay','videogioc','gaming','sonic racing','fc 27','battlefield','ps5','ps4','wolverine','the witcher','chivalware','monster hunter','dead spin','forza horizon']
+    return "GAMING" if any(word in title for word in gaming_terms) else "TECNOLOGIA"
+
 def popular_cards(items: list[dict]) -> str:
     out = []
     for item in items:
         title = esc(item["title"])
-        prefix = item["url"].lower()
-        category = ("GAMING" if any(x in prefix for x in ("gaming", "game", "ps5", "xbox", "nintendo"))
-                    else "TECNOLOGIA")
+        category = editorial_category(item)
         out.append(
             f'<a class="zt-popular-article" href="{esc(item["url"])}" title="{title}">\n'
             f'  <img src="{esc(item["image"])}" alt="{title}" loading="lazy" decoding="async">\n'
@@ -207,6 +212,10 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         raise RuntimeError("Editorial boxes missing")
     if homepage.count('<h2 id="zt-popular-title">DA NON PERDERE</h2>') != 1:
         raise RuntimeError("DA NON PERDERE: expected one proper H2 label")
+    if editorial_category({"title": "EA SPORTS FC 27", "url": "/test.html"}) != "GAMING":
+        raise RuntimeError("Gaming category classification failed")
+    if editorial_category({"title": "Microsoft Maia AI", "url": "/test.html"}) != "TECNOLOGIA":
+        raise RuntimeError("Tech category classification failed")
     if re.search(r'\\g<[12]>', homepage):
         raise RuntimeError("Found literal regex back-reference in published HTML")
     report = {"date_italy": today.isoformat(), "suggested": [x["url"] for x in suggested],
