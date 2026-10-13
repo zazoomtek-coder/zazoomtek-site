@@ -610,8 +610,8 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 .ztp-final-three .ztp-more-gaming{padding:0;margin:0}
 .ztp-final-three .ztp-more-label{background:#f6f6f6;border-top:2px solid #d51232;
  padding:10px 8px;color:#c8102b;font:900 11px Arial,Helvetica,sans-serif;letter-spacing:.05em}
-.ztp-final-three .ztp-gaming-extra{display:none!important}
-.ztp-final-three .ztp-gaming-extra.ztp-extra-visible{display:grid!important;grid-template-columns:minmax(96px,35%) minmax(0,1fr)!important;gap:11px!important}
+.ztp-final-three .ztp-news-gaming .article-row.ztp-gaming-extra:not(.ztp-extra-visible){display:none!important}
+.ztp-final-three .ztp-news-gaming .article-row.ztp-gaming-extra.ztp-extra-visible{display:grid!important;grid-template-columns:minmax(96px,35%) minmax(0,1fr)!important;gap:11px!important}
 .ztp-final-three .ztp-gaming-extra .article-image{height:auto!important;width:100%!important;aspect-ratio:4/3!important;object-fit:cover!important}
 .ztp-final-three .ztp-gaming-extra .article-copy h3{font-size:14px!important;line-height:1.3!important}
 .ztp-final-three .ztp-gaming-extra .article-copy p{display:none!important}
@@ -1514,8 +1514,14 @@ function balanceGaming(){
  if(window.innerWidth<=820)return;
  const target=tech.getBoundingClientRect().height-120;
  for(const item of extras){
-   if(gaming.getBoundingClientRect().height >= target)break;
+   const before=gaming.getBoundingClientRect().height;
+   if(before>=target)break;
    item.classList.add("ztp-extra-visible");
+   const after=gaming.getBoundingClientRect().height;
+   // Never add a card that creates a larger mismatch than it repairs.
+   if(Math.abs(after-tech.getBoundingClientRect().height)>Math.abs(before-tech.getBoundingClientRect().height)){
+     item.classList.remove("ztp-extra-visible");break;
+   }
  }
 }
 balanceGaming();
