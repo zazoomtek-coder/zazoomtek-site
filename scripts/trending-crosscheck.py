@@ -389,6 +389,24 @@ def matches(owned,state):
         article["trend_score"]=round(score*100+max(0,independent-1)*9,2) if score else 0
     return owned
 
+def prefer_latest_verified_special(selected,eligible):
+    """Never let an old pinned Impact/Inside nominee hide a NEWER published item.
+
+    The archive contains approved ZazoomTek special articles. We prefer a
+    strictly newer real publication date, never a guessed discovery timestamp.
+    If nothing newer exists, preserve the editor's current selection.
+    """
+    dated=[x for x in eligible if published_date(x.get("published_date"))]
+    if not dated:
+        return selected
+    newest=max(dated,key=lambda x:(published_date(x.get("published_date")),
+                                    x.get("trend_score",0),
+                                    x.get("freshness",0)))
+    previous=published_date((selected or {}).get("published_date"))
+    fresh=published_date(newest.get("published_date"))
+    return newest if selected is None or (fresh and (previous is None or fresh>previous)) else selected
+
+
 def pick(articles,on_date=None):
     """Homepage: two Tech NEWS, two Gaming NEWS, one Impact and one Inside."""
     chosen=[];seen=set()
@@ -495,6 +513,10 @@ def pick(articles,on_date=None):
         if selected is None and eligible:
             selected=sorted(eligible,key=lambda a:(a.get("trend_score",0),
                 a.get("freshness",0)),reverse=True)[0]
+        # A curator's old nominee is a fallback, not a permanent pin.
+        # The section refreshes as soon as a NEWER source-checked article
+        # actually exists in the published archive, even if nomination lagged.
+        selected=prefer_latest_verified_special(selected,eligible)
         if selected is None:
             raise RuntimeError("No published special article for "+section)
         if not add(selected):
@@ -637,6 +659,11 @@ def selftest():
     assert ordinary_priority(fresh,dt.date(2026,10,12)) > ordinary_priority(stale,dt.date(2026,10,12))
     missing={"published_date":None,"trend_score":0,"freshness":80}
     assert recency_bonus(missing,dt.date(2026,10,12))==0
+    old={"url":"/tech-impact-old.html","section":"tech-impact","published_date":"2026-10-11"}
+    newer={"url":"/tech-impact-new.html","section":"tech-impact","published_date":"2026-10-13"}
+    assert prefer_latest_verified_special(old,[old,newer])["url"]==newer["url"]
+    assert prefer_latest_verified_special(newer,[old])["url"]==newer["url"]
+    assert prefer_latest_verified_special(old,[])["url"]==old["url"]
     # Two curated editorial highlights alongside four standard NEWS.
     existing=matches(owned_candidates(),{"items":[]})
     sample=pick(existing,on_date=dt.date(2026,10,11))
