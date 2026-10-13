@@ -89,8 +89,12 @@ function ztHomeGallery(){
     // GAMEPLAY always occupies the last tile, but selects the most recent
     // real, creator-approved gameplay session. A completed livestream alone
     // does NOT make a video gameplay; edited/commented clips remain GAMING.
-    let gameplay=clean.find(x=>x.category==='gameplay' && !x.short && !x.live && !used.has(x.id));
-    if(!gameplay)gameplay=ztHomeVideoFallback.find(x=>x.category==='gameplay' && !x.short && !used.has(x.id));
+    // Compare fresh verified videos and the last verified original backup.
+    // A stale feed must never replace a newer, verified full session with
+    // an old completed live recording; choose by actual upload timestamp.
+    const authenticGameplay=clean.filter(x=>x.category==='gameplay' && !x.short && !x.live && !used.has(x.id));
+    const backupGameplay=ztHomeVideoFallback.filter(x=>x.category==='gameplay' && !x.short && !used.has(x.id));
+    const gameplay=[...authenticGameplay,...backupGameplay].sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||''))[0];
     if(gameplay){used.add(gameplay.id);selected.push(Object.assign({},gameplay,{category:'gameplay'}))}
     const shorts=clean.filter(x=>x.short&&!x.live).slice(0,6);
     if(shorts.length<6){for(const item of ztHomeShortFallback){if(shorts.length>=6)break;if(!shorts.some(s=>s.id===item.id))shorts.push(item)}}
