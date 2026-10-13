@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-13T08:05:43.177737+00:00",
+  "checked_at": "2026-10-13T08:30:09.015996+00:00",
   "source_sites": 16,
-  "matches": 8,
+  "matches": 7,
   "selected": [
     {
       "title": "News: TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",
@@ -49,15 +49,20 @@
       "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
       "section": "gaming",
       "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
-      "trend_score": 72.91,
+      "trend_score": 81.91,
       "published_date": "2026-10-12",
       "freshness_bonus": 62,
-      "selection_score": 109.39,
+      "selection_score": 115.24,
       "sources": [
         {
           "site": "SpazioGames",
           "title": "Michiru Yamane in Italia per i 40 anni di Castlevania",
           "score": 0.7291
+        },
+        {
+          "site": "IGN Italia",
+          "title": "Game Ground 2026 festeggia i quarant'anni di Castlevania con l'ospite d'onore Michiru Yamane (Notizie Castlevania)",
+          "score": 0.6435
         }
       ]
     },
