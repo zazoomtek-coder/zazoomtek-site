@@ -33,6 +33,21 @@ for(const [title,expected,lead] of samples){
  const value=classify(title,lead||"");
  assert.equal(value,expected,title+": expected "+expected+" but got "+value);
 }
+const chronological=source.split("// HOME_PUBLICATION_ORDER_START")[1]?.split("// HOME_PUBLICATION_ORDER_END")[0];
+assert(chronological&&chronological.includes("homePublicationTime"),"Home publication date parser missing");
+const order=vm.runInNewContext(chronological+"\nhomePublicationTime",{},{timeout:1600});
+for(const [newer,older] of [
+ ["13 ottobre 2026","12 ottobre 2026"],
+ ["12 ottobre 2026","11 ottobre 2026"],
+ ["2026-10-13T12:30:00Z","2026-10-13T08:00:00Z"],
+ ["13/10/2026","11/10/2026"],
+ ["2026-10-14","2026-10-13"]
+]) assert(order(newer)>order(older),newer+" must appear above "+older);
+assert(source.includes("oldArchive.remove()"),"Legacy Gaming archive wrapper must not be above current news");
+assert(source.includes("orderHomeColumn(tech)")&&source.includes("orderHomeColumn(gaming)"),
+ "Both Tech and Gaming must be ordered by publication");
+assert(source.includes('oldArchive.querySelectorAll("article.ztp-gaming-extra")'),
+ "Archive cards must participate in chronological ordering");
 const index=fs.readFileSync("index.html","utf8");
 const feed=index.split("<!-- ARTICLE_FEED_START -->")[1]?.split("<!-- ARTICLE_FEED_END -->")[0];
 assert(feed,"canonical Home feed missing");
