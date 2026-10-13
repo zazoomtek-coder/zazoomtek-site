@@ -441,6 +441,71 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "attacco-informatico-ai-supermercati-frigoriferi-manomessi-e-cibo-da-buttare",
+      "title": "Attacco informatico ai supermercati: frigoriferi manomessi e cibo da buttare",
+      "summary": "Un cyberattacco ha colpito i sistemi di refrigerazione Danfoss in centinaia di supermercati francesi, alterando la temperatura dei banchi frigo fino a 50 gradi e causando ingenti danni economici.",
+      "paragraphs": [
+        "Secondo quanto riportato da Tom's Hardware, nella notte tra domenica 11 e lunedì 12 ottobre centinaia di supermercati francesi hanno subito un grave attacco informatico che ha preso di mira i sistemi di regolazione del freddo del produttore danese Danfoss. Gli aggressori sono riusciti a intervenire da remoto sui controllori frigoriferi impiegati dalle insegne per gestire celle, vetrine refrigerate e centrali frigorifere, alterando le impostazioni di temperatura fino a spingerle a 50 gradi. Al momento della riapertura, il personale si è trovato costretto a smaltire tonnellate di prodotti freschi e surgelati, registrando perdite ingenti per l'intera filiera.",
+        "Tra i gruppi maggiormente coinvolti figurano Les Mousquetaires, che secondo i dati riportati ha contato 300 punti vendita tra Intermarché e Netto colpiti, e la Coopérative U, la cui situazione è stata confermata sui social dallo stesso amministratore delegato Dominique Schelcher. Risultano inoltre ripercussioni segnalate da E.Leclerc, Carrefour Market e Monoprix. Le stime economiche preliminari parlano di perdite per diversi milioni di euro a livello nazionale, con casi specifici come quello di un punto vendita Intermarché a Haguenau che avrebbe perso l'intero stock di surgelati per un valore di circa 50.000 euro, e di un Leclerc a Wasselonne con merce smaltita per circa 220.000 euro.",
+        "Le analisi tecniche evidenziano che il meccanismo sfruttato dagli attaccanti ha fatto leva su un ciclo di sbrinamento forzato. Di norma utilizzato per pochi minuti allo scopo di sciogliere il ghiaccio accumulato sull'evaporatore, il ciclo è stato impostato in modalità continua con un setpoint di 50 gradi, riscaldando gli impianti per ore e sprigionando un'ondata di calore all'apertura dei banchi. La procura di Parigi ha aperto un'inchiesta ufficiale affidata alla sezione anti-cybercriminalità, con l'obiettivo di censire tutte le vittime, quantificare i danni e fare luce su eventuali principi d'incendio registrati negli impianti.",
+        "Sul fronte della sicurezza informatica, Tom's Hardware ricorda che l'esposizione di questi apparati era già stata segnalata il 9 agosto dal Team82 di Claroty, che aveva individuato tre vulnerabilità nell'interfaccia web integrata del system manager AK-SM 800A. Sebbene Danfoss avesse rilasciato il firmware di correzione R4.3.1, l'azienda ha evidenziato che molti dispositivi coinvolti erano modelli fuori supporto, come gli AK-SM800 e AK-SC355, oppure versioni obsolete. L'ANSSI, l'agenzia francese per la cybersicurezza, ha avviato accertamenti e preso contatti con le controparti europee per verificare il coinvolgimento di altri Paesi, mentre la grande distribuzione è chiamata a rimuovere le interfacce dall'esposizione pubblica e a rafforzare la segmentazione delle reti."
+      ],
+      "date": "2026-10-13",
+      "sources": [
+        "https://www.tomshw.it/altro/attacco-informatico-ai-supermercati-europei-gli-hacker-attivano-lo-sbrinamento-e-bloccano-i-frigoriferi"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-13T21:02:20.691861+00:00"
+      },
+      "source_fingerprints": [
+        "54a932689aa96605"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
+    },
+    {
+      "section": "gaming",
+      "slug": "xbox-e-the-coalition-tra-ristrutturazioni-nuove-strategie-e-incertezze-occupazionali",
+      "title": "Xbox e The Coalition tra ristrutturazioni, nuove strategie e incertezze occupazionali",
+      "summary": "Analisi delle recenti strategie di Xbox e dello studio The Coalition tra riorganizzazioni aziendali, riduzione dei tempi di sviluppo per i franchise storici, nuove proprietà intellettuali e i timori legati alla stabilità occupazionale dei dipendenti.",
+      "paragraphs": [
+        "Secondo quanto riportato da Everyeye e basato su trascrizioni condivise da fonti ritenute affidabili da Windows Central, la divisione Xbox sta affrontando una profonda ristrutturazione e riorganizzazione accompagnata da migliaia di licenziamenti e cessioni. Nel corso di un recente incontro con i dipendenti, la CEO Asha Sharman ha ribadito l'importanza delle produzioni consolidate come Fallout, Call of Duty, Candy Crush e World of Warcraft, sottolineando al contempo i rischi di affidarsi esclusivamente ai successi del passato. La dirigente avrebbe evidenziato l'obiettivo di trasformare i grandi giochi in franchise globali da un miliardo di dollari, continuando però a creare nuove proprietà intellettuali capaci di durare nel tempo e di raggiungere un pubblico diverso. Questa fase di cambiamento ha coinvolto diversi studi creativi, tra cui Ninja Theory, Double Fine e Compulsion Games, interessati da ristrutturazioni, cessioni o chiusure.",
+        "Nel panorama delle strategie targate Xbox si inserisce anche The Coalition, lo studio canadese responsabile della serie Gears of War. Come evidenziato da Zazoom, il lancio di Gears of War: E-Day ha aperto una nuova fase per il team. In un'intervista rilasciata alla BBC, il responsabile Mike Crump ha spiegato che l'esperienza maturata permetterà di ridurre sensibilmente i tempi di produzione per un eventuale prossimo episodio, evitando di attendere i sette anni trascorsi tra Gears 5 e il nuovo capitolo. Al momento lo studio non ha tuttavia annunciato ufficialmente altri progetti futuri, confermando una prospettiva di continuità per il franchise senza precisare le tempistiche di pubblicazione.",
+        "Nonostante l'accoglienza generalmente positiva ricevuta da Gears of War: E-Day, che ha fatto registrare su Steam i migliori risultati della serie e si è confermato come esclusiva console Xbox oltre che su PC, all'interno dello studio permangono elementi di incertezza. Secondo quanto riportato da Eurogamer, diversi dipendenti nutrono timori per possibili licenziamenti e per la potenziale perdita di bonus economici legati ai risultati del gioco in caso di allontanamento prima della distribuzione degli incentivi. Interpellato dalla BBC sull'eventualità di ulteriori tagli al personale, Crump non ha confermato né escluso interventi sulla forza lavoro, dichiarando che la priorità del team resta quella di concentrarsi sugli aspetti controllabili, a partire dalla qualità del prodotto, lasciando tuttavia senza chiarimenti definitivi le questioni relative al futuro occupazionale."
+      ],
+      "date": "2026-10-13",
+      "sources": [
+        "https://www.everyeye.it/notizie/nuove-strategie-xbox-nostalgia-innovazione-ristrutturazioni-licenziamenti-905783.html",
+        "https://www.zazoom.it/news-notizia/post/984864/2026-10-08-gears-of-war-prossimo-capitolo-arrivera-prima-the-coalition-evita-tema-licenziamenti-13-20/"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 2,
+        "official_source": false,
+        "verified_at": "2026-10-13T21:02:20.691861+00:00"
+      },
+      "source_fingerprints": [
+        "000a244eee827a17",
+        "e98639625e9796b4"
+      ],
+      "trend_verified": true,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
