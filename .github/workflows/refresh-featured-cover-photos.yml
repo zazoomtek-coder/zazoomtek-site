@@ -1,11 +1,7 @@
 name: Restore bright featured cover photos
+# The six-cover restoration is a manual maintenance operation.
+# Do not overwrite photos automatically when this workflow or generator changes.
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/refresh-featured-cover-photos.yml
-      - scripts/refresh-featured-covers.py
-      - scripts/build-special-covers.py
   workflow_dispatch:
 permissions:
   contents: write
@@ -30,6 +26,7 @@ jobs:
       - name: Remove baked-in black curtain from the six existing licensed cover photos
         run: python3 scripts/refresh-featured-covers.py
       - name: Commit only restored WebP assets
+        id: saved
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -42,11 +39,13 @@ jobs:
             assets/special/gaming-inside-eu-kids-act-giochi-online-minori-proposta-europea.webp
           if git diff --cached --quiet; then
             echo "Already bright; no files need changes."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "Restore bright featured photographs without baked-in dark gradient"
           for attempt in 1 2 3 4; do
             if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             git rebase --abort || true
@@ -55,6 +54,7 @@ jobs:
           exit 1
       # The latest-main publisher alone validates design and deploys Firebase.
       - name: Queue canonical site deployment
+        if: steps.saved.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
