@@ -14,9 +14,11 @@ permissions:
   contents: write
   actions: write
 
+# A newer scan supersedes a still-busy optional AI research run.
+# The static grid is committed before optional research, so cancellation is safe.
 concurrency:
   group: zazoomtek-trending-scan
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   compare:
