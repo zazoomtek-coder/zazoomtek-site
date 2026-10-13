@@ -1,0 +1,79 @@
+name: News in evidenza - aggiornamento statico indipendente
+# This is the independent, provider-free six-slot updater. Existing
+# AI research remains a separate, optional production flow.
+on:
+  schedule:
+    - cron: '19 */2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refresh-static-news-in-evidenza.yml'
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: zazoomtek-static-featured-six-slots
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update six static highlights from published verified ZazoomTek articles
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "zazoomtek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 -m py_compile scripts/trending-crosscheck.py
+            python3 scripts/trending-crosscheck.py --test
+            python3 scripts/trending-crosscheck.py --sources
+            python3 scripts/trending-crosscheck.py --apply
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          state=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))
+          articles=state.get('items',[])
+          assert len(articles)==6
+          assert [a['section'] for a in articles]==[
+              'tech','tech','gaming','gaming','tech-impact','gaming-inside']
+          assert len({x['url'] for x in articles})==6
+          for article in articles:
+              local=Path(article['url'].lstrip('/'))
+              assert local.is_file(),article['url']
+              if article['image'].startswith('/'):
+                  assert Path(article['image'].lstrip('/')).is_file(),article['image']
+          print('STATIC FEATURED PASS: 2 Tech, 2 Gaming, 1 Impact, 1 Inside; valid article destinations')
+          PY
+            git add -- featured-carousel.json trending-sources.json trending-match-report.json
+            if git diff --cached --quiet; then
+              echo "No change to six verified static stories or portal research."
+              exit 0
+            fi
+            if git diff --cached --quiet -- featured-carousel.json; then
+              grid_changed=false
+            else
+              grid_changed=true
+            fi
+            git commit -m "News in evidenza: independently update six verified static highlights"
+            if git push origin HEAD:main; then
+              if [ "$grid_changed" = true ]; then
+                gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+              fi
+              echo "Static grid updated; AI availability does not block this workflow."
+              exit 0
+            fi
+            echo "Concurrent editorial change: retry against fresh published main"
+            sleep "$((attempt * 4))"
+          done
+          echo "::error::Could not safely update static News in evidenza"
+          exit 1
