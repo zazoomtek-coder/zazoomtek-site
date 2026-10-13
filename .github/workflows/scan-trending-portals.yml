@@ -40,36 +40,9 @@ jobs:
           python3 scripts/publish-trending-originals.py --self-test
       - name: Install original cover renderer
         run: python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13'
-      # The published six-card static grid never waits for an AI provider.
-      # It can always choose among existing verified ZazoomTek articles.
-      - name: Refresh News in evidenza from already published articles first
-        run: python3 scripts/trending-crosscheck.py --apply
-      - name: Publish existing verified highlights without waiting for AI
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          git config user.name "zazoomtek-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add -- trending-sources.json trending-match-report.json featured-carousel.json
-          if ! git diff --cached --quiet; then
-            git commit -m "News in evidenza: update static six-card grid independently of external AI"
-            published=false
-            for attempt in 1 2 3 4; do
-              if git pull --rebase origin main && git push origin HEAD:main; then
-                published=true
-                break
-              fi
-              git rebase --abort || true
-              sleep "$((attempt * 4))"
-            done
-            if [ "$published" != true ]; then
-              echo "::error::Unable to safely publish fresh static highlights"
-              exit 1
-            fi
-            gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
-            echo "Updated static News in evidenza before optional AI generation."
-          fi
+      # News in evidenza is refreshed and committed exclusively by the independent
+      # refresh-static-news-in-evidenza.yml job. This optional AI job MUST NOT
+      # race against that job for featured-carousel.json or trend metadata.
       - name: Research additional original articles when the model is available
         id: new_stories
         continue-on-error: true
@@ -83,64 +56,41 @@ jobs:
           echo "::warning::Original article generation unavailable. Existing verified articles will continue updating News in evidenza."
           echo "### News in evidenza" >> "$GITHUB_STEP_SUMMARY"
           echo "The external article-generation provider failed; static news refresh remains operational." >> "$GITHUB_STEP_SUMMARY"
-      - name: Reconcile the final six positions including any newly verified originals
-        run: python3 scripts/trending-crosscheck.py --apply
-      - name: Commit only trend metadata and placements
-        id: push_trends
+      # Unlike the independent static updater, this job may write ORIGINAL
+      # independently verified article pages (not just rerender timestamps).
+      # Staging only actual article/cover changes prevents a second, conflicting
+      # commit to featured-carousel.json and trending-match-report.json.
+      - name: Commit verified original articles only (no duplicate grid ownership)
+        id: push_originals
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           git config user.name "zazoomtek-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -- trending-sources.json trending-match-report.json featured-carousel.json manual-news.json
-          if test -f featured-auto-news.json; then git add -- featured-auto-news.json; fi
           shopt -s nullglob
           article_files=(news-trend-*.html)
-          if [ ${#article_files[@]} -gt 0 ]; then git add -- "${article_files[@]}"; fi
           cover_files=(assets/special/news-trend-*.webp)
-          if [ ${#cover_files[@]} -gt 0 ]; then git add -- "${cover_files[@]}"; fi
+          if (( ${#article_files[@]} > 0 )); then git add -- "${article_files[@]}"; fi
+          if (( ${#cover_files[@]} > 0 )); then git add -- "${cover_files[@]}"; fi
           shopt -u nullglob
           if git diff --cached --quiet; then
-            echo "No updated trends or placements."
+            echo "No new verified original news pages or covers: static highlights are managed independently."
             exit 0
           fi
-          # Only publish a Hosting release when public pages changed. A
-          # trends metadata refresh by itself needs no new release.
-          if git diff --cached --quiet -- featured-carousel.json manual-news.json 'news-trend-*.html' 'assets/special/news-trend-*.webp'; then
-            hosting_changed=false
-          else
-            hosting_changed=true
-          fi
-          git commit -m "trends: publish verified original featured stories or reuse imported news"
+          git add -- manual-news.json
+          if test -f featured-auto-news.json; then git add -- featured-auto-news.json; fi
+          git commit -m "trends: publish only source-checked original ZazoomTek news"
           for attempt in 1 2 3 4; do
-            git fetch origin main || { sleep $((attempt * 4)); continue; }
-            if ! git rebase origin/main; then
-              # Only automatically resolve competing bot-generated trend JSON.
-              # During a rebase --ours means the remote branch. Never
-              # auto-resolve Home, article, image, or archive conflicts.
-              conflicts="$(git diff --name-only --diff-filter=U)"
-               unsafe="$(printf '%s\n' "$conflicts" | grep -Ev '^(trending-sources\.json|trending-match-report\.json)$' || true)"
-              if [ -n "$conflicts" ] && [ -z "$unsafe" ]; then
-                echo "Another scan updated trend metadata; preserving current remote version."
-                git checkout --ours -- $conflicts
-                git add -- $conflicts
-                GIT_EDITOR=: git rebase --continue || true
-              fi
-            fi
-            if [ -z "$(git ls-files -u)" ] && [ -z "$(git status --porcelain | grep '^AA\|^UU\|^DU\|^UD' || true)" ] &&
-               ! test -d .git/rebase-merge && ! test -d .git/rebase-apply &&
-               git push origin HEAD:main; then
-              echo "updated=true" >> "$GITHUB_OUTPUT"
-              echo "hosting_changed=$hosting_changed" >> "$GITHUB_OUTPUT"
+            git fetch origin main || { sleep "$((attempt*4))"; continue; }
+            if git rebase origin/main && git push origin HEAD:main; then
+              gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+              gh workflow run refresh-static-news-in-evidenza.yml --ref main --repo "$GITHUB_REPOSITORY"
+              echo "Verified originals committed; independent static grid refresh queued."
               exit 0
             fi
             git rebase --abort || true
-            sleep $((attempt * 4))
+            sleep "$((attempt*4))"
           done
-          echo "::error::Could not safely sync generated trend placements"
+          echo "::error::A concurrent edit prevented safe original-article synchronization. No existing site files overwritten."
           exit 1
-      # Only featured grid data, trend metadata, new ORIGINAL pages and covers are
-      # written by this job. Imported YouTube files remain untouched.
-      - name: Request serialized Firebase publication
-        if: steps.push_trends.outputs.hosting_changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-site-live.yml --ref main
