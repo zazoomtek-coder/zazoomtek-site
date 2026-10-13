@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: refresh-bright-featured-photos
   cancel-in-progress: false
@@ -52,12 +53,8 @@ jobs:
             sleep "$((attempt * 3))"
           done
           exit 1
-      - name: Validate full editorial layout before publishing images
-        run: python3 scripts/apply-site-design.py
-      - name: Deploy restored images to Firebase Hosting live
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+      # The latest-main publisher alone validates design and deploys Firebase.
+      - name: Queue canonical site deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"

@@ -1,9 +1,7 @@
 name: One-time Firebase news preview cleanup
+# Destructive channel cleanup is ALWAYS explicit, never triggered by a code push.
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/prune-firebase-news-previews-once.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -84,10 +82,3 @@ jobs:
               print("Only EXPIRED versions targeted; live FINALIZED versions untouched.",flush=True)
           PY
 
-      - name: Deploy restored photos after expired-version cleanup
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek

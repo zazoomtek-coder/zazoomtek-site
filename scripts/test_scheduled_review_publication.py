@@ -68,6 +68,15 @@ class PublishTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.run_at("2026-10-25T14:00:00+00:00")
 
+    def test_old_review_is_not_reinserted_into_latest_five(self):
+        self.run_at("2026-10-25T14:00:00+00:00")
+        newer=p.HOME_A+(
+            '<article class="video-card zt-review-card"><h3>NEWER</h3></article>'*5
+            )+p.HOME_B
+        (self.root/"index.html").write_text(newer)
+        self.assertEqual(self.run_at("2026-10-27T14:00:00+00:00"),[])
+        self.assertEqual((self.root/"index.html").read_text(),newer)
+
 
 if __name__=="__main__":
     unittest.main(verbosity=2)

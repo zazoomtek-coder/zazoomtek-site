@@ -88,7 +88,8 @@ def publish(root=ROOT, now=None, dry_run=False):
         src=root/item["source"]
         if not src.is_file():
             raise ValueError("Approved preview not found: "+item["source"])
-        if not (root/target).is_file():
+        new_public = not (root/target).is_file()
+        if new_public:
             changes[target]=release_html(src.read_text(encoding="utf-8"),target)
         elif re.search(r'<meta[^>]+name="robots"[^>]+noindex',read(target),re.I):
             raise ValueError("Published file incorrectly marked noindex: "+target)
@@ -102,7 +103,9 @@ def publish(root=ROOT, now=None, dry_run=False):
             raise ValueError("Home review markers missing")
         start,end=home.index(HOME_A)+len(HOME_A),home.index(HOME_B)
         block=home[start:end]
-        if f'href="/{target}"' not in block:
+        # Never re-pin an older review after newer reviews replace it in Home.
+        # Newly released reviews alone are eligible for a Home insertion.
+        if new_public and f'href="/{target}"' not in block:
             cards=re.findall(r'<article class="video-card zt-review-card">[\s\S]*?</article>',block)
             if len(cards)!=5:
                 raise ValueError("Home review count changed; safe stop")

@@ -23,6 +23,7 @@ on:
       - 'scripts/apply-site-design.py'
       - 'scripts/zt_footer.py'
       - '.github/workflows/firebase-hosting-merge.yml'
+      - '.github/workflows/deploy-site-live.yml'
       - 'firebase.json'
 permissions:
   contents: read

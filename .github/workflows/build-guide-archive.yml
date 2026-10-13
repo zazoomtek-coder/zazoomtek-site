@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: guide-archive
@@ -55,14 +56,9 @@ jobs:
             sleep $((attempt * 2))
           done
           exit 1
-      - name: Apply the unified community banner to all pages
-        if: steps.save.outputs.changed == 'true' && steps.publish.outcome == 'success'
-        run: python3 scripts/apply-site-design.py
-      - name: Deploy Guide to Firebase
-        if: steps.save.outputs.changed == 'true' && steps.publish.outcome == 'success'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+      # Never release a stale checkout to Firebase; use the canonical main publisher.
+      - name: Queue verified latest-main Firebase publication
+        if: github.event_name == 'push' || steps.publish.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"

@@ -3,18 +3,11 @@ name: Serialized live site publishing
 # Neither news import nor trend discovery runs here: deploy a validated snapshot.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'zt-design.css'
-      - 'pagina-[2-5].html'
-      - 'featured-carousel.json'
-      - 'scripts/zt_sidebar_mix.py'
-      - 'scripts/apply-site-design.py'
-      - '.github/workflows/deploy-site-live.yml'
+# Manual/queued dispatch ONLY. Pushes are routed through firebase-hosting-merge.yml.
+# Eliminates double deploys of index.html from two independent triggers.
 permissions:
   contents: read
+  actions: write
 concurrency:
   group: zazoomtek-firebase-live-publishing
   cancel-in-progress: false
@@ -132,7 +125,24 @@ jobs:
           assert count>=20, f"Only {count} verified editorial boxes"
           print("PASS:",count,"real-image editorial boxes, consistent compact typography")
           PY
+      # Prevent a queued job with an older checkout from overwriting a newer
+      # successful release. Requeue a fresh validation instead of deploying stale HTML.
+      - name: Refuse stale main snapshot just before deployment
+        id: freshness
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+            echo "::notice::Newer main commit detected after validation; queueing a fresh build."
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+          else
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Deploy latest validated GitHub snapshot to Firebase
+        if: steps.freshness.outputs.current == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

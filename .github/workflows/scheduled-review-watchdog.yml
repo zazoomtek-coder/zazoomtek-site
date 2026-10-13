@@ -31,10 +31,16 @@ jobs:
           missing=[i for i in due if not Path(i['target']).is_file()]
           home=Path('index.html').read_text(encoding='utf-8')
           archive=Path('recensioni-scritte.html').read_text(encoding='utf-8')
-          unlisted=[i for i in due if ('href="/'+i['target']+'"') not in home or
-                    ('href="/'+i['target']+'"') not in archive]
+          # The Home is intentionally limited to five. An older published review
+          # MUST NOT be treated as missing when newer reviews have replaced it.
+          unlisted=[i for i in due if ('href="/'+i['target']+'"') not in archive]
+          for name in ('sitemap.xml','google-sitemap.xml'):
+              sitemap=Path(name).read_text(encoding='utf-8')
+              unlisted.extend(i for i in due if
+                              '<loc>https://zazoomtek.it/'+i['target']+'</loc>' not in sitemap)
+          unlisted=list({i['target']:i for i in unlisted}.values())
           if unlisted:
-              print('Reviews missing from Home or archive:',[i['target'] for i in unlisted])
+              print('Reviews missing from archive or sitemaps:',[i['target'] for i in unlisted])
           if missing or unlisted:
               print('Overdue or unlisted reviews:',[i['target'] for i in missing+unlisted])
               subprocess.run(['gh','workflow','run','publish-approved-reviews.yml',
@@ -69,7 +75,7 @@ jobs:
           if missing or unlisted:
               if any(now-datetime.fromisoformat(i['publish_at'])>timedelta(minutes=25)
                      for i in missing+unlisted):
-                  raise SystemExit('::error::Approved article missing from GitHub/Home/archive >25 minutes')
+                  raise SystemExit('::error::Approved article missing from GitHub/archive/sitemap >25 minutes')
           if not missing and not invisible and not unlisted:
               print('Approved review queue and live publication are healthy.')
           PY
