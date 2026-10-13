@@ -349,7 +349,7 @@ def main():
             or home_feed.count("<!-- HOME_GUIDES_INSET_END -->") != 1
             or not (0 <= home_feed.find('id="ztHomeGuide"'))):
         raise RuntimeError("Home Guides must occur exactly once")
-    row_matches = list(re.finditer(r'<article\\b[^>]*class="article-row"', home_feed))
+    row_matches = list(re.finditer(r'<article\b[^>]*class="article-row"', home_feed))
     guide_offset = home_feed.index("<!-- HOME_GUIDES_INSET_START -->")
     if sum(m.start() < guide_offset for m in row_matches) != 10:
         raise RuntimeError("Home Guides must follow exactly the tenth NEWS")
