@@ -474,7 +474,10 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 }
 @media(max-width:540px){
  .ztp-banner-inner{padding:8px 12px}
- .ztp-top-videos .ztp-video-items{grid-template-columns:1fr}
+ .ztp-top-videos .ztp-video-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ztp-top-videos .zt-stack-copy{padding:7px 8px!important}
+ .ztp-top-videos .zt-stack-copy h3{font-size:11px!important;line-height:1.28!important}
+ .ztp-top-videos .zt-stack-copy small{font-size:10px!important}
  .ztp-news-tech .article-row{grid-template-columns:120px minmax(0,1fr)!important}
  .ztp-news-tech .article-copy h3{font-size:15px!important}
  .ztp-news-tech .article-copy p{display:none!important}

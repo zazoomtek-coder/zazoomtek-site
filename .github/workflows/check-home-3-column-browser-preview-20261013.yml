@@ -53,7 +53,9 @@ jobs:
              console.log(size.label,JSON.stringify(v));
              if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||v.articleCount!==15||!v.top||!v.guide||!v.news)throw Error("Missing real sections on "+size.label);
              if(v.news.y < v.guide.y)throw Error("News rendered above Guide on "+size.label);
-             if(v.news.y-v.guide.bottom > 100)throw Error("Empty gap after Guide: "+(v.news.y-v.guide.bottom)+"px on "+size.label);
+             const precedingBottom=size.label==="desktop"?v.guide.bottom:v.top.bottom;
+             if(v.news.y-precedingBottom > 100)throw Error("Empty gap before news: "+(v.news.y-precedingBottom)+"px on "+size.label);
+             if(size.label==="mobile" && Math.abs(v.leftVideo.y-v.guide.bottom)>40)throw Error("Video section leaves blank gap after Guide");
              if(size.label==="desktop"){
               if(!(v.tech.x<v.gaming.x && v.gaming.x<v.rail.x && Math.abs(v.tech.y-v.rail.y)<4))throw Error("Not three side-by-side columns");
              }else{
