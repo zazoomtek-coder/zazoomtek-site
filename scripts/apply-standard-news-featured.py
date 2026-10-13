@@ -30,12 +30,12 @@ def esc(v):
 def load():
     standard = json.loads(STANDARD.read_text(encoding="utf-8")).get("articles", [])
     special = json.loads(SPECIAL.read_text(encoding="utf-8")).get("items", [])
-    if len(standard) < 4 or len(special) != 6:
-        raise ValueError("Expected four approved standard NEWS and six existing specials.")
+    if len(standard) < 4 or len(special) != 2:
+        raise ValueError("Expected four approved standard NEWS and one article per special desk.")
     if sum(x.get("kind") == "tech" for x in standard) < 2 or sum(x.get("kind") == "gaming" for x in standard) < 2:
-        raise ValueError("Standard NEWS must contain precisely 2 tech + 2 gaming.")
-    if sum(x.get("section") == "tech" for x in special) != 4 or sum(x.get("section") == "gaming" for x in special) != 2:
-        raise ValueError("The original 4+2 special selection has changed.")
+        raise ValueError("Standard NEWS must contain 2 tech and 2 gaming.")
+    if sum(x.get("section") == "tech" for x in special) != 1 or sum(x.get("section") == "gaming" for x in special) != 1:
+        raise ValueError("The independently managed special NEWS must contain 1 Tech Impact and 1 Gaming Inside.")
     for x in standard:
         slug = x.get("slug", "")
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
@@ -166,7 +166,7 @@ def standard_home_rows(standard):
             '<article class="article-row" data-standard-news="true" data-search="' + search + '">'
             '<a href="' + esc(slug) + '"><img class="article-image" src="' + esc(cover) + '" alt="' + esc(x["title"]) + '" loading="lazy"></a>'
             '<div class="article-copy"><h3><a href="' + esc(slug) + '">' + esc(x["title"]) + '</a></h3>'
-            '<div class="article-meta">ZazoomTek · 9 ottobre 2026</div><p>' + esc(x["summary"])
+            '<div class="article-meta">ZazoomTek · ' + esc(x.get("date") or str(x.get("published_at") or "")[:10]) + '</div><p>' + esc(x["summary"])
             + '</p><a class="read-more" href="' + esc(slug) + '">Leggi tutto ›</a></div></article>'
         )
     return "\n".join(rows)
@@ -290,7 +290,7 @@ def standard_news_rows(standard):
             '<article class="news-row" data-standard-news="true" data-news-search="' + esc(x["title"].lower()) + '">'
             '<a href="' + esc(slug) + '"><img src="' + esc(cover) + '" alt="' + esc(x["title"]) + '" loading="lazy"></a>'
             '<div class="news-copy"><h2><a href="' + esc(slug) + '">' + esc(x["title"]) + '</a></h2>'
-            '<div class="news-meta">ZazoomTek · 9 ottobre 2026</div><p>' + esc(x["summary"])
+            '<div class="news-meta">ZazoomTek · ' + esc(x.get("date") or str(x.get("published_at") or "")[:10]) + '</div><p>' + esc(x["summary"])
             + '</p><a class="news-read" href="' + esc(slug) + '">Leggi tutto ›</a></div></article>'
         )
     return "".join(rows)
@@ -299,65 +299,53 @@ def standard_news_rows(standard):
 def main():
     standard, special = load()
     s = INDEX.read_text(encoding="utf-8")
-    s = replace_between(s, PAGE_START, PAGE_END, slide_block(standard, special))
-    # The importer rewrites HTML, so enforce the full-width photo layout on every sync.
-    # Preserve existing responsive layout and the approved right-hand news column.
-    s, slider_changes = re.subn(
-        r"\.news-slider\{[^}]*\}",
-        ".news-slider{display:block;width:100%;background:#111}", s, count=1
-    )
-    # Preserve the approved compact hero height after Community refreshes.
-    s, hero_changes = re.subn(
-        r"\.news-slides\{[^}]*\}",
-        ".news-slides{position:relative;aspect-ratio:2.08/1;min-height:0;overflow:hidden;background:#111}", s, count=1
-    )
-    if hero_changes != 1:
-        raise RuntimeError("Featured NEWS slide dimensions missing")
-    s = s.replace(".news-slides{min-height:0;aspect-ratio:16/9}", ".news-slides{min-height:0;aspect-ratio:2.08/1}")
-    if ".latest-reviews-module .video-card{flex-basis:" not in s:
-        s = s.replace("</style>", """
-.latest-reviews-module .video-card{flex-basis:calc((100% - 16px)/2)}
-.latest-reviews-module .video-card h3{font-size:1.12rem;line-height:1.35;padding:16px 16px 20px}
-@media(max-width:580px){.latest-reviews-module .video-card{flex-basis:88%}.news-slides{aspect-ratio:16/9}}
-</style>""", 1)
-    s, tabs_changes = re.subn(
-        r"\.news-tabs\{[^}]*\}",
-        ".news-tabs{display:none!important}", s, count=1
-    )
-    s, image_changes = re.subn(
-        r"\.news-slide img\{[^}]*\}",
-        ".news-slide img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;filter:none}",
-        s, count=1
-    )
-    if slider_changes != 1 or tabs_changes != 1 or image_changes != 1:
-        raise RuntimeError("Unable to enforce photo-only full-width NEWS carousel")
-    # Reorder the actual existing articles; never pin manual news at the top.
-    feed = s[s.index(FEED_START) + len(FEED_START):s.index(FEED_END)]
-    feed = chronological_home_feed(feed, standard)
-    s = replace_between(s, FEED_START, FEED_END, feed)
-    feature = s[s.index(PAGE_START):s.index(PAGE_END)]
-    slide_count = len(re.findall(r'data-slide="\d+"', feature))
-    if slide_count != 6 or 'class="news-tab' in feature:
-        raise RuntimeError("Full-width photo-only carousel validation failed")
-    home_feed=s[s.index(FEED_START)+len(FEED_START):s.index(FEED_END)]
-    if len(re.findall(r'<article\b[^>]*class="article-row"',home_feed)) != 15:
-        raise RuntimeError("Home must show exactly 15 article rows")
+    if s.count(PAGE_START) != 1 or s.count(PAGE_END) != 1:
+        raise RuntimeError("Featured NEWS markers missing; existing Home left untouched")
 
-    # Special/oversight stories belong only to their dedicated archives.
-    # The four ordinary news (two tech and two gaming) belong in NEWS.
+    # CRITICAL: the active site uses a modern six-card grid that is authored by
+    # the trending and special-news workflows. This standard-NEWS job is NOT its
+    # owner and must never replace it with the retired rotating slider.
+    featured = s.split(PAGE_START,1)[1].split(PAGE_END,1)[0]
+    if 'class="zt-featured-grid"' not in featured:
+        raise RuntimeError("Unexpected featured-grid layout; refusing a destructive replacement")
+    cards = re.findall(r'<a\b[^>]*class="[^"]*zt-feature-card[^"]*"[^>]*href="([^"]+)"', featured)
+    if len(cards) != 6 or len(set(cards)) != 6:
+        raise RuntimeError("Home featured grid must contain exactly six unique cards")
+
+    manifest = json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))
+    items = manifest.get("items",[])
+    expected = ["tech","tech","gaming","gaming","tech-impact","gaming-inside"]
+    if len(items) != 6 or [x.get("section") for x in items] != expected:
+        raise RuntimeError("Featured manifest violates the 2+2+1+1 contract")
+
+    # This job owns only the ordinary-news chronological Home stream.
+    # The independent featured publisher retains all six editorial positions.
+    if s.count(FEED_START) != 1 or s.count(FEED_END) != 1:
+        raise RuntimeError("Latest Articles markers missing; Home left unchanged")
+    old_feed = s.split(FEED_START,1)[1].split(FEED_END,1)[0]
+    new_feed = chronological_home_feed(old_feed, standard)
+    out = replace_between(s, FEED_START, FEED_END, new_feed)
+    new_featured = out.split(PAGE_START,1)[1].split(PAGE_END,1)[0]
+    if new_featured != featured:
+        raise RuntimeError("Unexpected featured grid modification; Home left unchanged")
+
+    home_feed = out.split(FEED_START,1)[1].split(FEED_END,1)[0]
+    if len(re.findall(r'<article\b[^>]*class="article-row"', home_feed)) != 15:
+        raise RuntimeError("Home must preserve exactly 15 Latest Articles")
+    if re.search(r'href="/?recensione-[^"]+\.html"',home_feed):
+        raise RuntimeError("Reviews cannot enter the Home NEWS stream")
+
     news = NEWS.read_text(encoding="utf-8")
     special_urls = ["/" + x["slug"] for x in special]
     if any('href="' + url + '"' in news for url in special_urls):
-        raise RuntimeError("Political Tech Impact/Gaming Inside story leaked into NEWS")
-    # The Community importer builds the chronological News archive from
-    # manual-news.json. Do not prepend rows here, which would break dates.
-    if INDEX.read_text(encoding="utf-8") != s:
-        INDEX.write_text(s, encoding="utf-8")
-        print("Updated chronological featured NEWS carousel and latest approved articles.")
-    if NEWS.read_text(encoding="utf-8") != news:
-        NEWS.write_text(news, encoding="utf-8")
-        print("Updated standard NEWS archive.")
-    print(f"VALIDATED: {slide_count} NEWS (2 tech, 2 gaming, 1 Tech Impact, 1 Gaming Inside); independent special publisher unchanged.")
+        raise RuntimeError("Political special articles leaked into ordinary NEWS archive")
+
+    if out != s:
+        INDEX.write_text(out, encoding="utf-8")
+        print("Refreshed ordinary NEWS chronological feed; existing featured grid unchanged.")
+    else:
+        print("No NEWS chronology changes; skipping Home regeneration.")
+    print("VALIDATED: 15 latest NEWS; six-card featured grid preserved; 2 Tech + 2 Gaming + 1 Impact + 1 Inside.")
 
 
 if __name__ == "__main__":
