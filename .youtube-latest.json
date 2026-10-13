@@ -1,5 +1,14 @@
 [
   {
+    "id": "yFaamUx3h-Q",
+    "title": "Sesame Street: Amici e risate PS5 Gameplay",
+    "publishedAt": "2026-10-13T08:15:04Z",
+    "category": "gaming",
+    "short": true,
+    "live": false,
+    "completedLive": false
+  },
+  {
     "id": "WwGAaKGfoGY",
     "title": "Sesame Street: Friends & Fun PS5 Review",
     "publishedAt": "2026-10-12T10:45:27Z",
@@ -814,7 +823,7 @@
     "title": "The Grinch 2: Saving Christmas",
     "publishedAt": "2026-06-18T15:31:19Z",
     "category": null,
-    "short": true,
+    "short": false,
     "live": false,
     "completedLive": false
   },
