@@ -1,0 +1,78 @@
+name: Browser audit of Home Tech and Gaming news split
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-home-tech-gaming-categories.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser audit tool
+        run: |
+          command -v google-chrome
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Verify two separate categories on the live Home
+        run: |
+          cat > /tmp/check-home-categories.js <<'JS'
+          const {chromium}=require(process.cwd()+"/node_modules/playwright-core");
+          const assert=require("node:assert/strict");
+          const expected=[
+            [/pubg mobile/i,"gaming"],
+            [/hasbro games junior/i,"gaming"],
+            [/battlefield 6/i,"gaming"],
+            [/spongebob.*titans of the tide/i,"gaming"],
+            [/lucca comics.*card collection/i,"gaming"],
+            [/players.*80 anni.*videogiochi/i,"gaming"],
+            [/be comics.*be games/i,"gaming"],
+            [/sharp.*bp-80c/i,"tech"],
+            [/trust.*benessere digitale/i,"tech"],
+            [/hisense.*speed oven/i,"tech"],
+            [/realme.*coloros/i,"tech"],
+            [/huawei.*watch 6/i,"tech"]
+          ];
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
+            try{
+              for(const view of [{label:"desktop",width:1500,height:940},{label:"mobile",width:390,height:820}]){
+                const page=await browser.newPage({viewport:{width:view.width,height:view.height}});
+                await page.goto("https://zazoomtek.it/?audit-category="+Date.now(),{waitUntil:"domcontentloaded",timeout:45000});
+                await page.waitForSelector("html.ztp-home-live-ready .ztp-news-tech .ztp-news-items > article.article-row",{timeout:25000});
+                const result=await page.evaluate(()=>{
+                  function read(section){return [...document.querySelectorAll(".ztp-news-"+section+" .ztp-news-items > article.article-row")].map(row=>({
+                    title:row.querySelector("h3")?.innerText||"",
+                    url:row.querySelector("h3 a")?.getAttribute("href")||""
+                  }));}
+                  return {tech:read("tech"),gaming:read("gaming"),scrollWidth:document.documentElement.scrollWidth,width:innerWidth};
+                });
+                const all=[...result.tech.map(x=>({...x,section:"tech"})),...result.gaming.map(x=>({...x,section:"gaming"}))];
+                assert(all.length>=10,"Expected at least 10 imported current Home articles");
+                assert(result.tech.length>0&&result.gaming.length>0,"Both columns must have news");
+                assert.equal(new Set(all.map(x=>x.url)).size,all.length,"Repeated articles across columns");
+                let verified=0;
+                for(const [pattern,section] of expected){
+                  const match=all.find(x=>pattern.test(x.title));
+                  if(match){assert.equal(match.section,section,match.title+" must be in "+section);verified++;}
+                }
+                assert(verified>=5,"Too few known current article classifications could be checked");
+                assert(result.scrollWidth-result.width<=8,"Horizontal page overflow");
+                await page.screenshot({path:"/tmp/zt-home-topic-"+view.label+".png",fullPage:false});
+                console.log("PASS LIVE HOME",view.label,"Tech:",result.tech.length,"Gaming:",result.gaming.length,"Checked topics:",verified);
+                await page.close();
+              }
+            }finally{await browser.close();}
+          })().catch(err=>{console.error(err);process.exit(1);});
+          JS
+          node /tmp/check-home-categories.js
+      - name: Store visual verification screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tech-gaming-home-verified-screenshots
+          path: /tmp/zt-home-topic-*.png
+          if-no-files-found: ignore
