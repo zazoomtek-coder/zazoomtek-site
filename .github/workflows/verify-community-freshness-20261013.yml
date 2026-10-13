@@ -1,0 +1,34 @@
+name: Verify reliable YouTube Community import
+on:
+  push:
+    branches: [fix-youtube-community-latest-reliability-20261013]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax and no-network regressions
+        run: |
+          python3 -m py_compile scripts/update-youtube-posts.py scripts/test_community_freshness.py
+          python3 scripts/test_community_freshness.py
+          python3 scripts/test_review_dedup.py
+      - name: Live public Community smoke test without writing files
+        run: |
+          python3 - <<'PY'
+          import importlib.util,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          spec=importlib.util.spec_from_file_location('community',Path('scripts/update-youtube-posts.py'))
+          m=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(m)
+          page=m.fetch()
+          posts,done=m.parse(page,set())
+          assert len(posts)>=5, f'Public YouTube Community returned only {len(posts)}'
+          print('LIVE PRIMARY POSTS:',len(posts),'complete:',done)
+          print('FIRST VISIBLE POST ID:',posts[0]['id'])
+          print('FIRST VISIBLE POST DATE:',posts[0]['published'])
+          print('FIRST VISIBLE POST TITLE:',posts[0]['text'][:160].replace('\\n',' '))
+          PY
