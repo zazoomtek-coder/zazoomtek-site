@@ -1,0 +1,95 @@
+name: Browser audit Home Shorts sidebar preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/check-final-shorts-preview-20261013.yml'
+permissions:
+  contents: read
+jobs:
+  chrome-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Install Chrome driver
+        run: |
+          command -v google-chrome
+          mkdir -p /tmp/zt-shorts-audit
+          cd /tmp/zt-shorts-audit
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Audit public preview in Chrome desktop tablet mobile
+        env:
+          NODE_PATH: /tmp/zt-shorts-audit/node_modules
+        run: |
+          cat > /tmp/zt-shorts-audit/audit.js <<'JS'
+          const {chromium}=require("playwright-core");
+          async function main(){
+           const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
+           try{
+            const target="https://zazoomtek.it/anteprima-home-esplora-ultimi-video-e-shorts-20261013.html";
+            for(const spec of [{name:"desktop",width:1600,height:900},{name:"tablet",width:1100,height:900},{name:"mobile",width:390,height:844}]){
+             const page=await browser.newPage({viewport:{width:spec.width,height:spec.height}});
+             let live=false;
+             for(let attempt=0;attempt<25;attempt++){
+               await page.goto(target+"?audit="+attempt,{waitUntil:"domcontentloaded",timeout:45000});
+               await page.waitForTimeout(350);
+               live=await page.locator("#ztpVideosAnchor .zt-shelf:not(:has(.zt-shelf-shorts)) h2").count()===1
+                 && await page.locator(".ztp-news-rail .ztp-rail-shorts").count()===1;
+               if(live)break;
+               if(attempt!==24)await page.waitForTimeout(4000);
+             }
+             if(!live)throw Error("Preview not published correctly");
+             const x=await page.evaluate(()=>{
+               const r=q=>{const e=document.querySelector(q);if(!e)return null;const b=e.getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height,b:b.bottom};};
+               const rail=document.querySelector(".ztp-news-rail");
+               const main=document.querySelector(".ztp-primary-feed");
+               const video=document.querySelector("#ztpVideosAnchor .zt-shelf");
+               const shorts=rail?.querySelector(".ztp-rail-shorts");
+               const titles=[...document.querySelectorAll("#ztpVideosAnchor .zt-shelf h2")].map(n=>n.textContent.trim());
+               const nav=[...document.querySelectorAll(".ztp-rail-shorts .zt-shelf-card button")];
+               return {
+                 tech:r(".ztp-news-tech"),gaming:r(".ztp-news-gaming"),rail:r(".ztp-news-rail"),main:r(".ztp-primary-feed"),
+                 video:r("#ztpVideosAnchor .zt-shelf"),shorts:r(".ztp-news-rail .ztp-rail-shorts"),
+                 titles,shortCount:shorts?.querySelectorAll(".zt-shelf-card").length,
+                 videoCount:video?.querySelectorAll(".zt-shelf-card").length,
+                 previewReviewCount:document.querySelectorAll(".ztp-review-card a[href*='watch?v=']").length,
+                 oldVideos:rail?.querySelectorAll(".zt-video-stack").length,
+                 oldShortSlider:rail?.querySelectorAll(".zt-shorts-box").length,
+                 olderShortVisible:!![...(rail?.querySelectorAll(".zt-shorts-box")||[])].find(e=>getComputedStyle(e).display!=="none"),
+                 shortsGridCols:shorts?getComputedStyle(shorts.querySelector(".zt-shelf-shorts")).gridTemplateColumns:"",
+                 originalFirstShort:nav[0]?.querySelector("img")?.getAttribute("src"),
+                 insideOrder:(()=>{const a=rail?.querySelector('.zt-special-box[data-special-section="gaming"]');return !!a&&!!shorts&&!!(a.compareDocumentPosition(shorts)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
+                 categories:document.querySelectorAll(".ztp-news-item").length,
+                 bodyOverflow:document.documentElement.scrollWidth-window.innerWidth,
+                 menu:!!document.querySelector("header nav"),guides:!!document.querySelector("#ztHomeGuide"),
+                 pagination:!!document.querySelector(".ztp-news-pagination-internal a[href='/pagina-2.html']"),
+                 links:nav.every(b=>b.tagName==="BUTTON"),
+               };
+             });
+             console.log("AUDIT "+spec.name+" "+JSON.stringify(x));
+             if(!x.tech||!x.gaming||!x.rail||!x.main||!x.video||!x.shorts)throw Error("Missing layout sections");
+             if(x.titles.length!==1||x.titles[0]!=="ESPLORA ULTIMI VIDEO")throw Error("Wrong bottom title or duplicated Shorts");
+             if(x.shortCount!==6||x.videoCount!==6||x.previewReviewCount!==3)throw Error("Missing real videos or Shorts");
+             if(x.oldVideos!==0||x.olderShortVisible||!x.insideOrder)throw Error("Old sidebar widgets overlapping Shorts");
+             if(x.categories<20||!x.menu||!x.guides||!x.pagination||x.bodyOverflow>8)throw Error("Broken real Home links or mobile overflow");
+             if(spec.name==="desktop"){
+               const widths=[x.tech.w,x.gaming.w,x.rail.w],sum=widths.reduce((a,b)=>a+b,0);
+               if(widths.some((w,i)=>Math.abs(w/sum-[.45,.35,.20][i])>.015))throw Error("Wrong column ratio");
+               console.log("DESKTOP BOTTOM GAP primary - editorial "+Math.round(x.main.b-x.rail.b)+" px");
+             }
+             await page.screenshot({path:"/tmp/zt-shorts-audit/"+spec.name+".png",fullPage:false});
+             console.log("PASS "+spec.name);
+             await page.close();
+            }
+           }finally{await browser.close()}
+          }
+          main().catch(e=>{console.error("FAIL",e);process.exit(1)});
+          JS
+          node /tmp/zt-shorts-audit/audit.js
+      - name: Keep screenshot artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zt-preview-shorts-right-screenshots
+          path: /tmp/zt-shorts-audit/*.png
+          if-no-files-found: ignore
