@@ -2414,11 +2414,9 @@ def render_featured_news(news):
     )
 
 def render_article_feed(posts, home_guide_inset=""):
-    """Render NEWS ONLY; reviews belong exclusively in the Reviews module/archive."""
+    """Render NEWS ONLY; Guides is a separate module after Latest Reviews."""
     rows=[]
-    guide_inserted=False
-    # HOME ONLY: show the Guides module immediately after the tenth NEWS card.
-    # Paginated pages pass no guide inset and are not affected.
+    # Backward-compatible optional parameter deliberately does not insert Guides.
     for p in posts:
         if is_review(p):
             continue  # Defensive guard against reviews reappearing in the Home or pagination.
@@ -2436,12 +2434,6 @@ def render_article_feed(posts, home_guide_inset=""):
             f'<div class="article-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
             f'<p>{excerpt}</p><a class="read-more" href="{slug}">Leggi tutto ›</a></div></article>'
         )
-        if home_guide_inset and len(rows)==10:
-            rows.append(home_guide_inset)
-            guide_inserted=True
-    if home_guide_inset and not guide_inserted and rows:
-        # Fallback only if there are fewer than ten news items available.
-        rows.append(home_guide_inset)
     return "\n".join(rows)
 
 def render(posts):
@@ -2726,20 +2718,14 @@ def main():
     if s2.count("<!-- FEATURED_NEWS_START -->")!=1 or s2.count("<!-- FEATURED_NEWS_END -->")!=1:
         raise RuntimeError("Missing protected carousel container; abort unsafe import")
 
-    # Preserve the approved Home Guides widget across automatic Community syncs.
-    # Its markup stays in index.html, not in archives or paginated pages.
+    # Keep Guides directly below Latest Reviews. Never insert them in NEWS.
     canonical_guide = Path("includes/home-guides-inset.html").read_text(encoding="utf-8").strip()
-    if (canonical_guide.count("<!-- HOME_GUIDES_INSET_START -->") != 1
-            or canonical_guide.count("<!-- HOME_GUIDES_INSET_END -->") != 1
-            or 'id="ztHomeGuide"' not in canonical_guide):
-        raise RuntimeError("Canonical Home Guides template is invalid; keeping the previous Home")
-    home_guide=re.search(
-        r'<!-- HOME_GUIDES_INSET_START -->.*?<!-- HOME_GUIDES_INSET_END -->',
-        s,flags=re.S,
-    )
-    # A deleted/incomplete Home block must never become a permanent deletion.
-    guide_markup=home_guide.group(0) if home_guide else canonical_guide
-    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(news[:PAGE_SIZE],guide_markup)+"\n          <!-- ARTICLE_FEED_END -->"
+    if (s2.count(canonical_guide) != 1
+            or not s2.index("<!-- HOME_LATEST_REVIEWS_MAIN_END -->")
+                < s2.index("<!-- HOME_GUIDES_INSET_START -->")
+                < s2.index('id="articoli"')):
+        raise RuntimeError("Approved Home Guides position invalid; abort Community sync")
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(news[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
     pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(1,total_article_pages)+"\n        <!-- ARTICLE_PAGINATION_END -->"

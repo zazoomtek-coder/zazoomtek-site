@@ -1,4 +1,4 @@
-name: Guard Home Guides after ten NEWS
+name: Guard Home Guides under Latest Reviews
 on:
   push:
     branches: [main]
@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
-      - name: Validate Home Guides placement and importers
+      - name: Validate Guide immediately under reviews and both importers
         run: |
           python3 -m py_compile scripts/apply-standard-news-featured.py scripts/update-youtube-posts.py scripts/test_home_guides_inset.py
           python3 scripts/test_home_guides_inset.py
