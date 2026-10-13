@@ -76,3 +76,58 @@ img.article-image:not([data-zt-focus]) {
 :is(.zt-shelf-card, .zt-stack-card, .ztp-review-card, .video-card, .short-card) img {
   background-color: #101010;
 }
+
+/* ZAZOOMTEK NON-CROPPING MEDIA FRAMES 20261013
+   Aligning the focus point alone does NOT prevent cover-cropping.
+   Keep the existing responsive card dimensions and show the entire
+   editorial/video thumbnail within each frame across all pages.
+   #ztFeaturedGrid and #newsSlider in :is deliberately make this
+   late-loaded contract stronger than older inline !important rules.
+   Full-size article photos, logos and body illustrations are excluded. */
+html body :is(
+  #ztFeaturedGrid .zt-feature-card img,
+  #newsSlider .zt-editorial-item img,
+  .article-row > a img.article-image,
+  .news-row > a img,
+  .ztp-news-area .article-image,
+  .zt-review-thumb img,
+  .video-card .video-thumb img,
+  .zt-stack-card .video-thumb img,
+  .side-video .video-thumb img,
+  .zt-shelf-thumbnail img,
+  .zt-home-guide img,
+  .zt-feature-card img,
+  .zt-special-thumb img,
+  .zt-popular-article img,
+  .zt-mix-feature-image img,
+  .zt-mix-recent-row img,
+  .zt-mix-editorial-row img,
+  .zt-mix-video-thumb img,
+  .ztp-editorial-story img,
+  .zt-sidebar-editorial img,
+  .zt-related-card img,
+  .zt-related-item img,
+  .zt-related-thumb img,
+  .news-card img,
+  .gaming-card img,
+  .review-card img,
+  .guide-card img,
+  .article-card img,
+  .post-card img,
+  .short-card img,
+  .ztp-rail-shorts img
+):not([data-zt-focus]) {
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  display:block;
+  max-width:100%;
+}
+html body :is(
+  .news-thumb,.article-thumb,.video-thumb,.short-thumb,
+  .zt-shelf-thumbnail,.zt-special-thumb,.zt-home-guide-photo,
+  .zt-home-guide-side-photo,.zt-related-thumb,.zt-editorial-image
+) {
+  background-position:50% 50%!important;
+  background-size:contain!important;
+  background-repeat:no-repeat;
+}
