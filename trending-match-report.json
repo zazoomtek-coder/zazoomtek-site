@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-13T10:05:02.048552+00:00",
+  "checked_at": "2026-10-13T10:28:14.929709+00:00",
   "source_sites": 16,
   "matches": 7,
   "selected": [
@@ -20,14 +20,40 @@
       ]
     },
     {
-      "title": "News: Sonic Racing: CrossWorlds, Exponso campione mondiale e Anno 2 ricchissimo di novità",
+      "title": "News: Street Fighter 6, Arjun è disponibile da oggi: potenza, Yoga Breathing e nuove trappole nell’Anno 4",
       "section": "tech",
-      "url": "/news-Ugkxi-JLntnVeff9hYO0L1UTscTuSEVSgl3a.html",
+      "url": "/news-UgkxoPvqPweD4Q959Hlr2MgIasRETc4ISSua.html",
       "trend_score": 0,
       "published_date": "2026-10-13",
       "freshness_bonus": 72,
       "selection_score": 72.0,
       "sources": []
+    },
+    {
+      "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
+      "section": "gaming",
+      "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
+      "trend_score": 90.91,
+      "published_date": "2026-10-12",
+      "freshness_bonus": 62,
+      "selection_score": 121.09,
+      "sources": [
+        {
+          "site": "SpazioGames",
+          "title": "Michiru Yamane in Italia per i 40 anni di Castlevania",
+          "score": 0.7291
+        },
+        {
+          "site": "Gamesurf",
+          "title": "40 anni di Castlevania: Michiru Yamane guest star di Game Ground",
+          "score": 0.6748
+        },
+        {
+          "site": "IGN Italia",
+          "title": "Game Ground 2026 festeggia i quarant'anni di Castlevania con l'ospite d'onore Michiru Yamane (Notizie Castlevania)",
+          "score": 0.6435
+        }
+      ]
     },
     {
       "title": "News: Ted Lasso e l’AFC Richmond Women arrivano in EA SPORTS FC 27",
@@ -42,27 +68,6 @@
           "site": "Multiplayer.it",
           "title": "EA Sports FC 27: arrivano Ted Lasso e l’AFC Richmond Women con nuove sfide e ricompense",
           "score": 0.8336
-        }
-      ]
-    },
-    {
-      "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
-      "section": "gaming",
-      "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
-      "trend_score": 81.91,
-      "published_date": "2026-10-12",
-      "freshness_bonus": 62,
-      "selection_score": 115.24,
-      "sources": [
-        {
-          "site": "SpazioGames",
-          "title": "Michiru Yamane in Italia per i 40 anni di Castlevania",
-          "score": 0.7291
-        },
-        {
-          "site": "IGN Italia",
-          "title": "Game Ground 2026 festeggia i quarant'anni di Castlevania con l'ospite d'onore Michiru Yamane (Notizie Castlevania)",
-          "score": 0.6435
         }
       ]
     },
