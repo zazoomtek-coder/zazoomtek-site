@@ -1,0 +1,78 @@
+name: Inspect Home editorial thumbnail text crops
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-home-editorial-crops.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Prepare Chrome
+        run: |
+          command -v google-chrome
+          mkdir -p /tmp/zt-cover-inspect
+          cd /tmp/zt-cover-inspect
+          npm install --silent --no-save playwright-core@1.56.0
+      - name: Capture all currently rendered editorial cover images
+        env:
+          NODE_PATH: /tmp/zt-cover-inspect/node_modules
+        run: |
+          cat > /tmp/zt-cover-inspect/sheet.js <<'JS'
+          const {chromium}=require("playwright-core");
+          const fs=require("fs");
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
+            try {
+              const page=await browser.newPage({viewport:{width:1580,height:1060}});
+              await page.goto("https://zazoomtek.it/?cover-inspection="+Date.now(),{waitUntil:"domcontentloaded",timeout:55000});
+              await page.waitForSelector("html.ztp-home-live-ready .ztp-news-rail",{timeout:30000});
+              await page.waitForTimeout(1300);
+              const data=await page.evaluate(()=>{
+                 const groups=[
+                   [".ztp-news-rail #zt-popular-box .zt-popular-article","Da non perdere"],
+                   [".ztp-news-rail .zt-special-box[data-special-section=tech] .zt-special-item","Tech Impact"],
+                   [".ztp-news-rail .zt-special-box[data-special-section=gaming] .zt-special-item","Gaming Inside"],
+                   [".ztp-news-rail .ztp-editorial-archive .ztp-editorial-story","Dalla redazione"],
+                 ];
+                 const rows=[];
+                 for(const [selector,group] of groups){
+                   const cards=[...document.querySelectorAll(selector)];
+                   for(const card of cards){
+                     const img=card.querySelector("img");
+                     if(!img)continue;
+                     const style=getComputedStyle(img);
+                     rows.push({group,title:card.getAttribute("title")||card.querySelector("h3, strong")?.textContent?.trim()||img.alt,src:img.src,
+                       objectPosition:style.objectPosition,fit:style.objectFit,w:img.naturalWidth,h:img.naturalHeight,
+                       display:getComputedStyle(card).display,visible:card.getBoundingClientRect().width>0});
+                   }
+                 }
+                 return rows;
+              });
+              console.log("INSPECT_COVERS_DATA_START"+JSON.stringify(data)+"INSPECT_COVERS_DATA_END");
+              const sheet=await browser.newPage({viewport:{width:1060,height:1000},deviceScaleFactor:1});
+              let markup=`<html><head><style>*{box-sizing:border-box}body{margin:0;background:#e9e9e9;font-family:Arial}h1{text-align:center;margin:12px;font-size:24px}.grid{display:grid;grid-template-columns:repeat(4,260px);gap:6px;padding:6px}.card{background:white;padding:6px;height:240px;overflow:hidden}.group{font-weight:bold;color:#bd1235;font-size:14px}.title{height:35px;font-size:12px;font-weight:bold;overflow:hidden}.frame{position:relative;width:248px;height:165px;overflow:hidden;background:#ddd}.frame img{height:100%;width:100%;object-fit:cover;display:block}.meta{font-size:10px;color:#666}</style></head><body><h1>Miniature editoriali Home: testo ritagliato</h1><div class="grid">`;
+              data.forEach((x,i)=>{
+                const safe=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+                markup+=`<div class="card"><div class="group">${safe(x.group)} #${i+1}</div><div class="title">${safe(x.title)}</div><div class="frame"><img src="${safe(x.src)}" style="object-position:${safe(x.objectPosition)}" /></div><div class="meta">focus ${safe(x.objectPosition)} · ${x.w}x${x.h}</div></div>`;
+              });
+              markup+="</div></body></html>";
+              await sheet.setContent(markup,{waitUntil:"domcontentloaded"});
+              await sheet.waitForTimeout(3300);
+              await sheet.setViewportSize({width:1060,height:Math.ceil(data.length/4)*246+80});
+              const buf=await sheet.screenshot({type:"jpeg",quality:67,fullPage:true});
+              fs.writeFileSync("/tmp/zt-cover-inspect/current.jpg",buf);
+              console.log("INSPECT_COVER_JPEG_BASE64_START"+buf.toString("base64")+"INSPECT_COVER_JPEG_BASE64_END");
+              await sheet.close();await page.close();
+            }finally{await browser.close();}
+          })().catch(err=>{console.error(err);process.exit(1)});
+          JS
+          node /tmp/zt-cover-inspect/sheet.js
+      - name: Preserve screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cover-inspection-home
+          path: /tmp/zt-cover-inspect/current.jpg
+          if-no-files-found: ignore
