@@ -68,7 +68,7 @@ jobs:
                overflow:document.documentElement.scrollWidth-window.innerWidth,
               };
              });
-             console.log(size.label,JSON.stringify(result));
+             console.log("Balanced columns, CSS validation r2",size.label,JSON.stringify(result));
              if(!result.tech||!result.gaming||!result.rail||!result.primary||!result.shelves)throw Error("Missing sections "+size.label);
              if(result.liveNews<15||result.duplicates||result.reviews!==3||result.shelvesCount!==2||result.videoCards!==6||result.shortsCards!==6)throw Error("Broken real news/video content "+size.label);
              if(!result.popular||!result.impact||!result.inside||!result.nav||!result.guides||!result.page2||result.fullVideoSidebar<5)throw Error("Real live navigation or sidebar missing "+size.label);
