@@ -1,0 +1,45 @@
+"use strict";
+const fs=require("fs");
+const vm=require("vm");
+const assert=require("assert").strict;
+const source=fs.readFileSync("zt-home-live.js","utf8");
+const part=source.split("// HOME_TOPIC_CLASSIFIER_START")[1]?.split("// HOME_TOPIC_CLASSIFIER_END")[0];
+assert(part&&part.includes("function categorizeHomeArticle"),"topic classifier must exist");
+const classify=vm.runInNewContext(part+"\ncategorizeHomeArticle",{},{timeout:1500});
+const samples=[
+ ["Battlefield 6 Stagione 5 parte oggi con Las Vegas, Area 51, Rapid Royale e crossover Dead Space","gaming"],
+ ["PUBG Mobile Global Open 2026 Season 2, nuovo formato e montepremi da 500.000 dollari","gaming"],
+ ["Hasbro Games Junior Collection riunisce Monopoly, Cluedo e Il Gioco della Vita in una raccolta per tutta la famiglia","gaming"],
+ ["Trust punta sul benessere digitale, dalla postura alle periferiche ergonomiche per lavoro e gaming","tech"],
+ ["SpongeBob SquarePants: Titans of the Tide arriva su Nintendo Switch","gaming"],
+ ["Lucca Comics & Games lancia LC&G Card Collection, il nuovo gioco di carte digitali","gaming"],
+ ["Sharp presenta BP-80C70 e BP-80C80, nuove multifunzione","tech"],
+ ["PLAYERS al M9 di Venezia Mestre racconta 80 anni di videogiochi","gaming"],
+ ["Totem arriva nei negozi Città del Sole, 160 giochi senza schermo né connessione","tech"],
+ ["realme passa a ColorOS 17 basato su Android 17","tech"],
+ ["Hisense presenta Speed Oven, il forno 7-in-1","tech"],
+ ["AI e governance, per Veeam senza visibilità non può esistere un vero controllo","tech"],
+ ["Huawei lancia WATCH 6 Series e MatePad Pro 12","tech"],
+ ["Be Comics! Be Games! Be XMAS! arriva a Torino con gaming e cosplay","gaming"],
+ ["Oltre il Black Friday, SMS e WhatsApp per le aziende","tech"],
+ ["Crazy Taxi: World Tour, la quarta mappa in Brasile","gaming"],
+ ["ROCKBEASTS arriverà a gennaio, demo gratuita su Steam","gaming"],
+ ["Tower Tactics II arriva su Steam con 190 carte","gaming"],
+ ["CORSAIR HS80 cuffie per il gaming competitivo","tech"],
+ ["Nuovo gioco fantasy di uno studio indipendente","gaming","Il videogioco è un RPG narrativo sviluppato per PC."],
+ ["Sharp introduce nuove stampanti per il settore gaming","tech"]
+];
+for(const [title,expected,lead] of samples){
+ const value=classify(title,lead||"");
+ assert.equal(value,expected,title+": expected "+expected+" but got "+value);
+}
+const index=fs.readFileSync("index.html","utf8");
+const feed=index.split("<!-- ARTICLE_FEED_START -->")[1]?.split("<!-- ARTICLE_FEED_END -->")[0];
+assert(feed,"canonical Home feed missing");
+const rows=[...feed.matchAll(/<article\b[^>]*class="article-row"[\s\S]*?<h3><a[^>]*>(.*?)<\/a><\/h3>/g)];
+assert(rows.length>=10,"Home must contain at least 10 current articles");
+const categories=rows.map(x=>classify(x[1].replace(/&amp;/g,"&").replace(/&quot;/g,'"')));
+const gaming=categories.filter(x=>x==="gaming").length;
+const tech=categories.filter(x=>x==="tech").length;
+assert(gaming>=3&&tech>=3,"Both categories must receive actual news");
+console.log("PASS topic split on "+samples.length+" fixtures and "+rows.length+" current Home stories: "+tech+" Tech, "+gaming+" Gaming");

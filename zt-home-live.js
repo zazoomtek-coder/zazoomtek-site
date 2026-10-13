@@ -5,6 +5,37 @@
  "use strict";
  const path=window.location.pathname;
  if(!["/","/index.html","/anteprima-home-produzione-validazione-20261013.html"].includes(path)) return;
+ // HOME_TOPIC_CLASSIFIER_START
+ // The canonical feed uses generic "News" for both categories. Classify the
+ // article subject, not the YouTube post type and not the closing subscribe CTA.
+ // Distinguish actual VIDEO GAMES from gaming-branded hardware and physical toys.
+ function categorizeHomeArticle(title, excerpt="", imageAlt="", imageUrl="") {
+   const normalize=s=>String(s||"").normalize("NFKD")
+     .replace(/[\u0300-\u036f]/g,"").replace(/[’‘]/g,"'").toLowerCase();
+   const heading=normalize(title);
+   const body=normalize(excerpt).slice(0,550);
+   const artwork=normalize(imageAlt+" "+imageUrl);
+   const physicalNonDigital=/\b(senza schermo|senza connessione|giocattol|giochi educativi fisici|giocattoli in legno|giochi da tavolo tradizionali)\b/;
+   const technologyProduct=/\b(smartphone|tablet|smartwatch|notebook|laptop|mini pc|stampant|multifunzion|router|modem|wifi|wi-fi|processore|chip ai|gpu|scheda video|periferiche|mouse|tastier|cuffie|auricolari|monitor|televis|videoproiett|forno|smart home|domotica|fotocamer|videocamer|firmware|sistema operativo|coloros|wear os|fotovoltaic|server|cloud|cybersecurity|sicurezza informatica|governance ai)\b/;
+   const namedVideogame=/\b(pubg|fortnite|minecraft|roblox|battlefield|call of duty|dead space|ace combat|spongebob|titans of the tide|dragon'?s dogma|the talos principle|ea sports fc|fc 2[5-9]|fifa|gta|grand theft auto|crazy taxi|rockbeasts|tower tactics|witcher|zelda|monster hunter|assassin'?s creed|tekken|street fighter|gran turismo|tomb raider|poly fighter|walto|chivalware|skate\.|mario kart|elden ring|diablo|halo|god of war|forza horizon|final fantasy)\b/;
+   const gamingIndustry=/\b(videogioch|videogame|video game|gaming|esport|e-sport|cosplay|gameplay|steam|epic games|playstation|ps5|ps4|xbox|nintendo|switch 2|unity|unreal engine|ps store|steam next fest|demo gratuita|action rpg|roguelike|deckbuilding|gdr|game show|gioco digitale|giochi digitali|gioco di carte digitale|giochi di carte digitali|giocatori|videoludic)\b/;
+   const explicitGamingCollection=/\b(hasbro games junior collection|monopoly junior|cluedo junior|lucca comics.*card collection|lc&g card collection|be comics|be games|players al m9)\b/;
+   // A product stays in Tech even when its use case mentions gaming.
+   if(technologyProduct.test(heading) && !namedVideogame.test(heading) && !explicitGamingCollection.test(heading))return "tech";
+   if(physicalNonDigital.test(heading) && !/digitale|digitali|videogiochi/.test(heading))return "tech";
+   if(namedVideogame.test(heading)||explicitGamingCollection.test(heading))return "gaming";
+   if(/\b(esport|e-sport|videogioch|videogame|videoludic|gameplay|playstation|ps5|xbox|nintendo|steam|gaming|cosplay)\b/.test(heading))return "gaming";
+   if(/\b(gioco di carte digital|giochi di carte digital|gioco digitale|giochi digitali|videogioco|demo di gioco|gioco per pc|titolo in accesso anticipato)\b/.test(heading))return "gaming";
+   // The real article lead is a secondary signal for new and unfamiliar games.
+   // Avoid using the full data-search field: it contains generic sign-off tags.
+   if(/\b(videogioco|videogiochi|video game|gioco per pc|gioco per ps5|gioco per xbox|gioco per switch|titolo videoludico|gioco sviluppato|gioco pubblicato|demo su steam|rpg narrativo|gioco multiplayer|studio di sviluppo videoludico)\b/.test(body))return "gaming";
+   if(gamingIndustry.test(body) && /\b(gioco|titolo|videogioco|videogiochi|avventura|giocatori|campagna|sviluppato|lancio)\b/.test(body) && !technologyProduct.test(heading))return "gaming";
+   // Image filename or genuinely independent alt text can help when available.
+   // There is no claim of visual recognition from opaque CDN image identifiers.
+   if(!technologyProduct.test(heading) && /(?:^|[/._\s-])(gaming|videogame|gameplay|esports|video-game)(?:[/._\s-]|$)/.test(artwork))return "gaming";
+   return "tech";
+ }
+ // HOME_TOPIC_CLASSIFIER_END
  function setup(){
   const layout=document.querySelector('main.page .layout');
   const main=layout&&layout.querySelector(':scope > .maincol');
@@ -33,11 +64,13 @@
   if(!tech||!gaming||!rail)return;
   // Build directly from the fifteen canonical, auto-updated Community news.
   // Nothing is retyped or guessed; same image, excerpt, title and actual link.
-  const gamingTerms=/\b(be comics|be games|cosplay|street fighter|sonic racing|crossworlds|chivalware|ea sports fc|fc 27|tekken|game ground|castlevania|videogiochi|videogioch|gaming|gameplay|playstation|xbox|nintendo|ps5|ps4|steam|dragon.s dogma|battlefield|monster hunter|assassin.s creed|gta|gran turismo|wolverine|tomb raider)\b/i;
+  // Classify from the headline plus actual article lead and artwork metadata.
   let techCount=0,gamingCount=0;
   for(const row of rows){
    const title=row.querySelector('h3 a')?.textContent||"";
-   const isGaming=gamingTerms.test(title);
+   const lead=row.querySelector(".article-copy p")?.textContent||"";
+   const image=row.querySelector("img.article-image");
+   const isGaming=categorizeHomeArticle(title,lead,image?.alt||"",image?.getAttribute("src")||"")==="gaming";
    row.classList.add("ztp-news-item");
    if(isGaming){
     const i=gamingCount++;

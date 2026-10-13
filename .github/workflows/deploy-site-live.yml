@@ -23,7 +23,7 @@ jobs:
         run: |
           git fetch origin main
           git reset --hard origin/main
-      - name: Validate existing YouTube news, reviews and video pages
+      - name: Verify Tech and Gaming Home news classification\n        run: node scripts/test-home-news-categories.cjs\n      - name: Validate existing YouTube news, reviews and video pages
         run: |
           python3 scripts/validate-sync-output.py community
           python3 scripts/validate-sync-output.py videos
