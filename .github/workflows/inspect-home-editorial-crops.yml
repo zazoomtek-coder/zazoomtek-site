@@ -70,7 +70,7 @@ jobs:
                 "ACE COMBAT 8":"0% 50%",
                 "Dragon’s Dogma 2":"0% 50%",
                 "Beyond the Dark":"0% 50%",
-                "skate. aggiornamento":"50% 50%"
+                "skate. aggiornamento":"0% 50%"
               };
               const checked=new Set();
               for(const row of data){
