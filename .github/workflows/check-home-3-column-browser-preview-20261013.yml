@@ -1,0 +1,77 @@
+name: Check corrected 3-column Home preview in browser
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/check-home-3-column-browser-preview-20261013.yml'
+permissions:
+  contents: read
+jobs:
+  chrome-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Install browser test helper
+        run: |
+          command -v google-chrome || command -v chromium || command -v chromium-browser
+          mkdir -p /tmp/zt-verify
+          cd /tmp/zt-verify
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Check public preview desktop and mobile after JS renders
+        env:
+          NODE_PATH: /tmp/zt-verify/node_modules
+        run: |
+          cat > /tmp/zt-verify/test.js <<'JS'
+          const {chromium}=require("playwright-core");
+          (async()=>{
+           let browser;
+           try{
+            const chrome=process.env.CHROME_PATH||"/usr/bin/google-chrome";
+            browser=await chromium.launch({headless:true,executablePath:chrome,args:["--no-sandbox","--disable-dev-shm-usage"]});
+            const url="https://zazoomtek.it/anteprima-home-3-colonne-tech-gaming-corretta-20261013.html?browsercheck=1";
+            for(const size of [{width:1600,height:1000,label:"desktop"},{width:390,height:844,label:"mobile"}]){
+             const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
+             const messages=[];
+             page.on("pageerror",e=>messages.push(e.message));
+             await page.goto(url,{waitUntil:"domcontentloaded",timeout:45000});
+             await page.locator(".ztp-news-rail #zt-popular-box").waitFor({timeout:20000});
+             const v=await page.evaluate(()=>{
+              const box=sel=>{let el=document.querySelector(sel);if(!el)return null;let r=el.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
+              return {
+               title:document.title,
+               tech:box(".ztp-news-tech"),gaming:box(".ztp-news-gaming"),rail:box(".ztp-news-rail"),
+               top:box(".ztp-top"),guide:box("#ztHomeGuide"),news:box(".ztp-news-area"),
+               leftVideo:box(".ztp-top-videos"),
+               popularMoved:!!document.querySelector(".ztp-news-rail #zt-popular-box"),
+               gamingInsideMoved:!!document.querySelector(".ztp-news-rail .zt-special-box[data-special-section='gaming']"),
+               articleCount:document.querySelectorAll(".ztp-news-item").length,
+               videos:document.querySelectorAll(".ztp-top-video .zt-stack-card,.ztp-top-videos .zt-stack-card").length,
+               scrollWidth:document.documentElement.scrollWidth,viewportWidth:window.innerWidth,
+               gridCols:getComputedStyle(document.querySelector(".ztp-three-columns")).gridTemplateColumns,
+              }
+             });
+             console.log(size.label,JSON.stringify(v));
+             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||v.articleCount!==15||!v.top||!v.guide||!v.news)throw Error("Missing real sections on "+size.label);
+             if(v.news.y < v.guide.y)throw Error("News rendered above Guide on "+size.label);
+             if(v.news.y-v.guide.bottom > 100)throw Error("Empty gap after Guide: "+(v.news.y-v.guide.bottom)+"px on "+size.label);
+             if(size.label==="desktop"){
+              if(!(v.tech.x<v.gaming.x && v.gaming.x<v.rail.x && Math.abs(v.tech.y-v.rail.y)<4))throw Error("Not three side-by-side columns");
+             }else{
+              if(!(v.tech.y<v.gaming.y && v.gaming.y<v.rail.y))throw Error("Mobile cards not stacked");
+              if(v.scrollWidth>v.viewportWidth+8)throw Error("Horizontal mobile overflow "+v.scrollWidth+"px");
+             }
+             await page.screenshot({path:"/tmp/zt-verify/"+size.label+".png",fullPage:false});
+             console.log("PASS "+size.label+": 3-column responsive structure and real Home widgets intact");
+             await page.close();
+            }
+           }finally{if(browser)await browser.close()}
+          })().catch(e=>{console.error("FAIL",e);process.exit(1)})
+          JS
+          node /tmp/zt-verify/test.js
+      - name: Upload preview screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zazoomtek-3col-preview-desktop-mobile-20261013
+          path: /tmp/zt-verify/*.png
+          if-no-files-found: ignore
