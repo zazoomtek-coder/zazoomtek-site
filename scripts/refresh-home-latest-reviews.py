@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 import runpy
+import sys
 
 ROOT=Path(__file__).resolve().parent.parent
 SOURCE=ROOT/"scripts"/"update-youtube-posts.py"
@@ -27,6 +28,7 @@ def main():
     args=parser.parse_args()
     if not ARCHIVE.is_file() or not STATE.is_file() or not SOURCE.is_file():
         raise SystemExit("Required published review archive, Community state or updater missing")
+    sys.path.insert(0,str(SOURCE.parent))
     engine=runpy.run_path(str(SOURCE),run_name="_zt_refresh_review_engine")
     posts=json.loads(STATE.read_text(encoding="utf-8"))
     if not isinstance(posts,list) or not posts:
