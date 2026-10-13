@@ -64,7 +64,10 @@ for p in PAGES:
         if not canonical.startswith("https://zazoomtek.it/"):bad_canonical.append((name,canonical))
         duplicate_canonical[canonical].append(name)
     if obj.missing_alt:missing_alt.append((name,obj.missing_alt))
-    if obj.figcaption:image_captions.append((name,obj.figcaption))
+    if obj.figcaption:
+        captions = re.findall(r'<figcaption\\b[^>]*>(.*?)</figcaption>', markup, re.I | re.S)
+        phrases = [re.sub(r'\\s+', ' ', re.sub(r'<[^>]+>', '', x)).strip()[:180] for x in captions]
+        image_captions.append((name,obj.figcaption,phrases))
     for value in obj.media:
         path=local_path(value)
         if path and path not in FILES:
@@ -100,7 +103,7 @@ report={
     "bad_canonical":{"count":len(bad_canonical),"samples":bad_canonical[:10]},
     "pages_without_title":empty_titles[:12],
     "missing_image_alt":{"pages":len(missing_alt),"samples":missing_alt[:14]},
-    "image_captions":{"pages":len(image_captions),"total":sum(x[1] for x in image_captions),"samples":image_captions[:14]}
+    "image_captions":{"pages":len(image_captions),"total":sum(x[1] for x in image_captions),"samples":image_captions[:30]}
 }
 print("SITE_AUDIT_JSON_BEGIN")
 print(json.dumps(report,ensure_ascii=False,indent=2))
