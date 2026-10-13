@@ -28,8 +28,8 @@ jobs:
            try{
             const chrome=process.env.CHROME_PATH||"/usr/bin/google-chrome";
             browser=await chromium.launch({headless:true,executablePath:chrome,args:["--no-sandbox","--disable-dev-shm-usage"]});
-            const url="https://zazoomtek.it/anteprima-home-3-colonne-tech-gaming-corretta-20261013.html?browsercheck=1";
-            for(const size of [{width:1600,height:1000,label:"desktop"},{width:390,height:844,label:"mobile"}]){
+            const url="https://zazoomtek.it/anteprima-home-45-tech-35-gaming-20-editoriali-20261013.html?browsercheck=45-35-20";
+            for(const size of [{width:1600,height:1000,label:"desktop"},{width:1100,height:900,label:"tablet"},{width:390,height:844,label:"mobile"}]){
              const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
              const messages=[];
              page.on("pageerror",e=>messages.push(e.message));
@@ -48,16 +48,27 @@ jobs:
                videos:document.querySelectorAll(".ztp-top-video .zt-stack-card,.ztp-top-videos .zt-stack-card").length,
                scrollWidth:document.documentElement.scrollWidth,viewportWidth:window.innerWidth,
                gridCols:getComputedStyle(document.querySelector(".ztp-three-columns")).gridTemplateColumns,
+               availableGridWidth:document.querySelector(".ztp-three-columns").getBoundingClientRect().width-32,
+               cardImages:[...document.querySelectorAll(".ztp-news-tech .article-image")].slice(0,3).map(img=>({w:img.getBoundingClientRect().width,h:img.getBoundingClientRect().height})),
+               editorialHeading:!!document.querySelector(".ztp-news-rail .ztp-editorial-heading"),
+               impactMoved:!!document.querySelector(".ztp-news-rail .zt-special-box[data-special-section='tech']"),
+               gamingLabels:document.querySelectorAll(".ztp-news-gaming .ztp-gaming-kind").length,
               }
              });
              console.log(size.label,JSON.stringify(v));
-             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||v.articleCount!==15||!v.top||!v.guide||!v.news)throw Error("Missing real sections on "+size.label);
+             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||!v.impactMoved||!v.editorialHeading||v.gamingLabels!==7||v.articleCount!==15||!v.top||!v.guide||!v.news)throw Error("Missing real sections on "+size.label);
              if(v.news.y < v.guide.y)throw Error("News rendered above Guide on "+size.label);
              const precedingBottom=size.label==="desktop"?v.guide.bottom:v.top.bottom;
              if(v.news.y-precedingBottom > 100)throw Error("Empty gap before news: "+(v.news.y-precedingBottom)+"px on "+size.label);
              if(size.label==="mobile" && Math.abs(v.leftVideo.y-v.guide.bottom)>40)throw Error("Video section leaves blank gap after Guide");
              if(size.label==="desktop"){
               if(!(v.tech.x<v.gaming.x && v.gaming.x<v.rail.x && Math.abs(v.tech.y-v.rail.y)<4))throw Error("Not three side-by-side columns");
+              const actual=[v.tech.w,v.gaming.w,v.rail.w].map(w=>w/v.availableGridWidth);
+              const expected=[.45,.35,.20];
+              if(actual.some((x,i)=>Math.abs(x-expected[i])>.012))throw Error("Wrong desktop ratios "+JSON.stringify(actual));
+              if(v.cardImages[0].w<v.tech.w*.8)throw Error("Featured Tech image is not large enough");
+             }else if(size.label==="tablet"){
+              if(!(v.tech.x<v.gaming.x&&v.rail.y>v.tech.y))throw Error("Tablet must use two columns with editorial boxes below");
              }else{
               if(!(v.tech.y<v.gaming.y && v.gaming.y<v.rail.y))throw Error("Mobile cards not stacked");
               if(v.scrollWidth>v.viewportWidth+8)throw Error("Horizontal mobile overflow "+v.scrollWidth+"px");
