@@ -337,8 +337,11 @@ def main():
 
     news = NEWS.read_text(encoding="utf-8")
     special_urls = ["/" + x["slug"] for x in special]
-    if any('href="' + url + '"' in news for url in special_urls):
-        raise RuntimeError("Political special articles leaked into ordinary NEWS archive")
+    # Ordinary NEWS rows are separated from the "related articles" sidebar.
+    # Linking to a Tech Impact/Inside article in a sidebar is legitimate.
+    ordinary_rows = re.findall(r'<article\b[^>]*class="news-row[^"]*"[^>]*>[\s\S]*?</article>',news)
+    if any('href="' + url + '"' in row for row in ordinary_rows for url in special_urls):
+        raise RuntimeError("Special article incorrectly placed in ordinary NEWS listing")
 
     if out != s:
         INDEX.write_text(out, encoding="utf-8")
