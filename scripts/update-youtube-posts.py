@@ -2278,6 +2278,52 @@ def editorial_review_pages():
             "published_iso":published.group(1),
             "published":published.group(1)[:10],
         })
+    # Include manually approved reviews from the OFFICIAL indexed review archive.
+    # Some genuine pages (e.g. Poly Fighter) do not have Review JSON-LD or
+    # article:published_time metadata. Requiring them incorrectly hides new reviews
+    # from the Home carousel even though the archive already lists them.
+    archived=Path("recensioni-scritte.html")
+    if archived.is_file():
+        archive_html=archived.read_text(encoding="utf-8",errors="replace")
+        by_slug={p["slug"]:p for p in result}
+        for block in re.findall(
+            r'<article\b[^>]*class="news-row"[^>]*>.*?</article>',
+            archive_html,re.I|re.S
+        ):
+            link=re.search(r'<h2>\s*<a\s+href="/([^"/]+\.html)"[^>]*>(.*?)</a>\s*</h2>',
+                           block,re.I|re.S)
+            cover=re.search(r'<img\b[^>]*src="([^"]+)"',block,re.I)
+            meta=re.search(r'<div class="news-meta">([^<]+)</div>',block,re.I)
+            if not link or not cover or not meta:
+                continue
+            slug=link.group(1)
+            if slug.startswith("recensione-Ugkx") or slug.startswith("recensioni-scritte"):
+                continue  # Community reviews are handled separately by their ID.
+            source_file=Path(slug)
+            if not source_file.is_file():
+                continue
+            original=source_file.read_text(encoding="utf-8",errors="replace")
+            if re.search(r'<meta\b[^>]*name=["\x27]robots["\x27][^>]*content=["\x27][^"\x27]*noindex',
+                         original,re.I):
+                continue
+            date_match=re.search(
+                r'(\d{1,2}\s+(?:gennaio|febbraio|marzo|aprile|maggio|giugno|'
+                r'luglio|agosto|settembre|ottobre|novembre|dicembre)\s+\d{4})',
+                html.unescape(meta.group(1)),re.I
+            )
+            when=date_match.group(1) if date_match else ""
+            published=published_iso_from_label(when)
+            if not published:
+                continue  # Never invent dates for articles without publication metadata.
+            by_slug[slug]={
+                "_editorial":True,
+                "title":html.unescape(re.sub(r'<[^>]+>', '',link.group(2))).strip(),
+                "slug":slug,
+                "image":html.unescape(cover.group(1)),
+                "published_iso":published,
+                "published":when,
+            }
+        result=list(by_slug.values())
     return result
 
 
