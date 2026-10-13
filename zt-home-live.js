@@ -122,8 +122,10 @@
      if(prev&&prev!==shorts)prev.replaceWith(shorts);
      else if(!prev){if(inside)inside.insertAdjacentElement("afterend",shorts);else rail.appendChild(shorts);}
      if(inside&&shorts.previousElementSibling!==inside)inside.insertAdjacentElement("afterend",shorts);
+     requestAnimationFrame(reconcileRight);
    };
    sync();
+   requestAnimationFrame(reconcileRight);
    if(!shelves.dataset.ztpShortsObserved){
      shelves.dataset.ztpShortsObserved="yes";
      new MutationObserver(sync).observe(shelves,{childList:true});
@@ -159,9 +161,48 @@
      }
    }
   }
+
+  // Fill remaining vertical space with published articles, never blank padding.
+  // Entries come from real, distinct archived news URLs on ZazoomTek.
+  const sidebarEditorials=[{"title":"News: CORSAIR HS80 v2 MAX WIRELESS punta al gaming competitivo con nuovi driver e fino a 130 ore di autonomia","url":"/news-UgkxUq-6ZzV_TpBbXosV6TqjxCeXjAweSh_f.html","image":"https://yt3.ggpht.com/ArbM4BX2xFi4ZsqJM7XLsND3HLKtAyeEtu2zDa9nsJCYPXV0ymGw5DBbTpHU6dJgNLPf5cxDeUTrpw=s1600-rw-nd-v1"},{"title":"News: Sony ECM-AX10 porta l’audio spaziale professionale sugli smartphone","url":"/news-UgkxSLVy8d-ZS0VYmC3f4aXFW7LCaKQ2q5AO.html","image":"https://yt3.ggpht.com/m3w7-1MuuEWjopola9rPaKwr2bZvqbgtSbWz-Vqd78y0Az_uXemE6R82tefaQsgGDV8yp5ae6mv-csg=s1600-rw-nd-v1"},{"title":"News: Mafia III compie 10 anni e torna su PS5 e Xbox Series X|S a 60 FPS","url":"/news-Ugkxf6xEfOtGRND0MR4yD5bssD8t7TnNbJts.html","image":"https://yt3.ggpht.com/j_HGJQBU_w00Pa86pgXpKr7_9zMgwyQJioJExL31rYjruB-wfYEPN2gfsXjASLh8TmStfDelZYEkaf4=s1600-rw-nd-v1"},{"title":"News: Amazon cambia rotta con Alexa Tablet: addio Fire OS, arriva il Google Play Store da 229,99 euro","url":"/news-UgkxVUH1K5Vf0YQoOtHwtjbdAkYKlh7_cSD9.html","image":"https://yt3.ggpht.com/_adl_tjIaVQ7zBjXJJn1sTrOs-tKwIIo-TF9gzynkLk-Yp5jA-zbonoqERauYpmoeCK0Irf7QUw3Ag=s1600-rw-nd-v1"},{"title":"News: Hello Kitty Party Land mostra Amicopoli, oltre 45 minigiochi e tante attività","url":"/news-UgkxwG8FrUHZnUa2S2uA6SNM4tK48-NRuTiU.html","image":"https://yt3.ggpht.com/FFMD2-NqXP0XduWCRvomYfpXVpd5aIlj4GWBd6hxBxfHKIhOj3lCBGHnJ9ojRTcb4Fq8D_cPjctR=s1600-rw-nd-v1"},{"title":"News: eFootball Championship 2027 cresce ancora: 24 posti alle Finali Mondiali e montepremi triplicato","url":"/news-Ugkxwm1E0W5lWZth4TGxTMJkIZrrbI91swvf.html","image":"https://yt3.ggpht.com/eDR07ZS96G5MXCYka951iz3kX77sJyAKpK3p5n_5Ra3rPytBo6wDI8tkMrzvsBJMglhaWKrVefW4WQ=s1600-rw-nd-v1"}];
+  const editorialBox=document.createElement("section");
+  editorialBox.className="ztp-editorial-archive";
+  const editorialHead=document.createElement("h2");editorialHead.textContent="DALLA REDAZIONE";
+  editorialBox.append(editorialHead);
+  const editorialCards=[];
+  for(const item of sidebarEditorials){
+    const article=document.createElement("a");article.className="ztp-editorial-story";
+    article.href=item.url;article.hidden=true;
+    const pic=document.createElement("img");pic.src=item.image;pic.alt=item.title;pic.loading="lazy";
+    const title=document.createElement("strong");title.textContent=item.title;
+    article.append(pic,title);editorialBox.append(article);editorialCards.push(article);
+  }
+  const ytFollow=rail.querySelector(".zt-youtube-follow");
+  if(ytFollow)ytFollow.insertAdjacentElement("afterend",editorialBox);
+  else rail.appendChild(editorialBox);
+  function reconcileRight(){
+    if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
+    editorialCards.forEach(card=>card.hidden=true);
+    editorialBox.style.display="none";
+    if(window.innerWidth<=1380)return;
+    const primary=area.querySelector(".ztp-primary-feed");
+    if(!primary)return;
+    if(primary.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom<90)return;
+    const alreadyLinked=new Set([...area.querySelectorAll(".ztp-news-item h3 a")].map(a=>a.getAttribute("href")));
+    editorialBox.style.display="block";
+    for(const card of editorialCards){
+      if(alreadyLinked.has(card.getAttribute("href")))continue;
+      const before=Math.abs(primary.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom);
+      card.hidden=false;
+      const after=Math.abs(primary.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom);
+      if(after>=before){card.hidden=true;break;}
+    }
+    if(!editorialCards.some(card=>!card.hidden))editorialBox.style.display="none";
+  }
+
   balance();
-  window.addEventListener("load",balance,{once:true});
-  window.addEventListener("resize",()=>requestAnimationFrame(balance),{passive:true});
+  window.addEventListener("load",()=>{balance();requestAnimationFrame(reconcileRight)},{once:true});
+  window.addEventListener("resize",()=>requestAnimationFrame(()=>{balance();reconcileRight()}),{passive:true});
   // Channel JSON is authoritative and refreshes all three video review cards.
   fetch("/home-video-feed.json",{cache:"no-store"}).then(r=>{
     if(!r.ok)throw Error("video catalog unavailable");return r.json();
@@ -171,6 +212,7 @@
     renderReviews(v);
   }).catch(()=>{});
   document.documentElement.classList.add("ztp-home-live-ready");
+  requestAnimationFrame(reconcileRight);
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup,{once:true});
  else setup();

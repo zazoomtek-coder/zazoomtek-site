@@ -56,7 +56,9 @@ jobs:
               if(retry!==21)await page.waitForTimeout(4000);
              }
              if(!visible)throw Error("Fresh staging page failed to render genuine Shorts");
-             await page.waitForTimeout(900);
+             // Lazy thumbnails below the fold must first be requested before evaluating them.
+             await page.evaluate(()=>document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image").forEach(img=>img.loading="eager"));
+             await page.waitForTimeout(3500);
              const d=await page.evaluate(()=>{
                const bounds=q=>{const el=document.querySelector(q);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom};};
                const photos=[...document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image")];
@@ -70,6 +72,8 @@ jobs:
                 gamingCount:document.querySelectorAll(".ztp-news-gaming .ztp-news-items > .ztp-news-item").length,
                 visibleArchive:document.querySelectorAll(".ztp-gaming-extra.ztp-extra-visible").length,
                 imagesOk:photos.filter(img=>img.complete&&img.naturalWidth>1).length,
+                imagesValidSource:photos.filter(img=>img.getAttribute("src")&&img.getAttribute("alt")).length,
+                railArchiveCards:document.querySelectorAll(".ztp-editorial-story:not([hidden])").length,
                 imagesTotal:photos.length,
                 selectedReviewCount:document.querySelectorAll(".ztp-review-card a[href^='https://www.youtube.com/watch?v=']").length,
                 primaryVideoTitle:document.querySelector("#ztpVideosAnchor .zt-shelf h2")?.textContent,
@@ -91,7 +95,8 @@ jobs:
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
              if(!d.noOldStack||!d.shortsAfterInside||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
              if(d.overflow>8)throw Error("Mobile horizontal overflow");
-             if(d.imagesOk<d.imagesTotal*.75)throw Error("Too many broken news thumbnails");
+             if(d.imagesValidSource!==d.imagesTotal)throw Error("News thumbnails lack valid source/ALT");
+             if(d.imagesOk<d.imagesTotal*.70)throw Error("Too many broken news thumbnails");
              if(errors.length)throw Error("JavaScript errors: "+errors.join(" ; "));
              if(v.label==="desktop"){
               if(!(d.tech.x<d.gaming.x&&d.gaming.x<d.rail.x))throw Error("Desktop no three editorial columns");

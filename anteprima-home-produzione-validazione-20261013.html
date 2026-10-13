@@ -721,7 +721,19 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 <style id="ztp-live-source-safety">
 html.ztp-home-live-ready #ztCanonicalNews{display:none!important}
 </style>
-</head>
+
+<style id="ztp-live-editorial-fill">
+/* True archived articles with actual links, not decorative empty filler. */
+.ztp-news-rail .ztp-editorial-archive{display:none;min-width:0;width:100%;max-width:100%;margin:0;background:#fff;border:1px solid #dedede;overflow:hidden}
+.ztp-news-rail .ztp-editorial-archive h2{background:#202020;color:white;margin:0;min-height:48px;padding:15px 12px;border-left:6px solid #d51232;font:900 13px/1.25 Arial,Helvetica,sans-serif}
+.ztp-news-rail .ztp-editorial-story{display:grid;grid-template-columns:73px minmax(0,1fr);gap:9px;align-items:center;padding:9px 8px;border-bottom:1px solid #eee;text-decoration:none;color:#181818;min-height:89px}
+.ztp-news-rail .ztp-editorial-story[hidden]{display:none!important}
+.ztp-news-rail .ztp-editorial-story:last-child{border-bottom:0}
+.ztp-news-rail .ztp-editorial-story img{width:73px;height:64px;object-fit:cover;border-radius:2px}
+.ztp-news-rail .ztp-editorial-story strong{font:850 11px/1.33 Arial,Helvetica,sans-serif;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.ztp-news-rail .ztp-editorial-story:hover strong{color:#cc1030}
+@media(max-width:1380px){.ztp-news-rail .ztp-editorial-archive{display:none!important}}
+</style></head>
 <body>
 <header>
   <div class="shell topbar">
@@ -1427,7 +1439,7 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
   });
 }());
 </script>
-<script defer src="/zt-home-live.js?v=20261013approved45-35-20"></script>
+<script defer src="/zt-home-live.js?v=20261013approved45-35-20b"></script>
 </body>
 </html>
 <!-- ZT_POLY_FIGHTER_PREVIEW_DEPLOY_20261013 (anteprima-poly-fighter-recensione-pc-20261013.html noindex; archive untouched) -->
