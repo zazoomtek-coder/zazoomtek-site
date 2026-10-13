@@ -155,15 +155,17 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     ordinary = distinct(ordinary, published_home)
     if len(ordinary) < 12:
         raise RuntimeError("Too few independent published news for editorial freshness")
+    # Prioritize each source's freshest published, category-correct stories.
+    # Cross-section exclusion must happen BEFORE selection, not after it.
+    tech = choose(distinct(extract("tech-today.html"), published_home), 4, today)
+    special_urls = {item["url"] for item in tech}
+    gaming = choose(distinct(extract("gaming-today.html"), published_home | special_urls), 4, today)
+    special_urls.update(item["url"] for item in gaming)
+    ordinary = distinct(ordinary, published_home | special_urls)
     suggested = choose(ordinary, 6, today)
     selected = {item["url"] for item in suggested}
-    left = distinct(ordinary, published_home | selected)
+    left = distinct(ordinary, published_home | special_urls | selected)
     editorial = choose(left, 6, today, keep_latest=2)
-    impacts, inside = {}, {}
-    impacts["news"] = distinct(extract("tech-today.html"), set())
-    inside["news"] = distinct(extract("gaming-today.html"), set())
-    tech = choose(impacts["news"], 4, today)
-    gaming = choose(inside["news"], 4, today)
     if len(set(item["url"] for item in tech + gaming + suggested + editorial)) != 20:
         raise RuntimeError("Editorial box duplicate detected")
 
