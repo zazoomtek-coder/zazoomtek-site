@@ -1633,6 +1633,10 @@ const inside=side.querySelector('.zt-special-box[data-special-section="gaming"]'
 if(pop)rail.appendChild(pop);
 if(impact)rail.appendChild(impact);
 if(inside)rail.appendChild(inside);
+// The Shorts shelf may have been generated before the editorial widgets were
+// moved; explicitly position it AFTER Gaming Inside on every initial render.
+const shortModule=rail.querySelector(".ztp-rail-shorts");
+if(inside&&shortModule)inside.insertAdjacentElement("afterend",shortModule);
 // Remove only the redundant old ULTIMI VIDEO sidebar widget in preview.
 if(videoStack)videoStack.remove();
 // All other existing Home widgets remain active, linked and accessible.
