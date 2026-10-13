@@ -1,0 +1,53 @@
+name: Check navigable 3-column Home preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-three-col-preview-20261013.yml'
+permissions:
+  contents: read
+jobs:
+  public-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate public preview, real article links and responsive layout
+        run: |
+          python3 - <<'PY'
+          import re,time,urllib.request
+          host="https://zazoomtek.it"
+          target="/anteprima-home-tech-gaming-tre-colonne-20261013.html"
+          def get(path):
+              req=urllib.request.Request(host+path,headers={"User-Agent":"Mozilla/5.0 (ZazoomTek live homepage preview audit)","Cache-Control":"no-cache"})
+              with urllib.request.urlopen(req,timeout=20) as resp:
+                  return resp.status,resp.read().decode("utf-8"),dict(resp.headers)
+          for attempt in range(18):
+              try:
+                  status,page,headers=get(target+"?v=preview20261013")
+                  assert status==200
+                  assert "ZAZOOMTEK_3COL_PREVIEW_START" in page
+                  assert 'id="ztp-title-tech"' in page
+                  assert 'id="ztp-title-gaming"' in page
+                  assert 'ztp-preview-three-col-runtime' in page
+                  assert 'noindex,nofollow' in page
+                  assert 'grid-template-columns:minmax(0,1.65fr)' in page
+                  assert '@media(max-width:1310px)' in page
+                  assert '@media(max-width:800px)' in page
+                  assert len(re.findall(r'<article class="article-row ztp-news-item"',page))==15
+                  assert page.count('class="ztp-column-feed"')==2
+                  assert 'id="ztHomeGuide"' in page
+                  assert 'id="ztStackList"' in page
+                  assert 'id="ztFeaturedGrid"' in page
+                  assert 'id="zt-popular-box"' in page
+                  assert 'href="/pagina-2.html"' in page
+                  assert 'href="/sesame-street-amici-e-risate-recensione-ps5.html"' in page
+                  for href in ("/","/news.html","/recensioni.html","/guide.html","/sesame-street-amici-e-risate-recensione-ps5.html"):
+                      code,_,_=get(href)
+                      assert code==200,(href,code)
+                  print("PUBLIC PREVIEW PASS: HTTP 200, 15 real news, 3 columns, PC/tablet/mobile CSS, original Home widgets and 5 working links")
+                  break
+              except Exception as err:
+                  print("Attempt",attempt+1,"failed:",repr(err),flush=True)
+                  if attempt==17: raise
+                  time.sleep(10)
+          PY
