@@ -506,6 +506,38 @@
       "trend_verified": true,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "gaming",
+      "slug": "steam-nuovo-record-storico-di-traffico-e-utenti-simultanei-nel-2026",
+      "title": "Steam: nuovo record storico di traffico e utenti simultanei nel 2026",
+      "summary": "Analisi dei dati di traffico di Steam, piattaforma di distribuzione digitale di Valve, che ha raggiunto un nuovo primato con oltre 43,5 milioni di utenti connessi contemporaneamente e più di 14 milioni di giocatori attivi in partita.",
+      "paragraphs": [
+        "La piattaforma di distribuzione digitale per PC Steam ha registrato un nuovo primato storico nei suoi ventitré anni di attività. Secondo i dati raccolti da SteamDB e riportati da ZazoomTek, la giornata di domenica 11 ottobre ha segnato il picco massimo di utenti connessi contemporaneamente, raggiungendo quota 43.505.724. Il conteggio complessivo include sia gli utenti impegnati nell'utilizzo dei videogiochi sia coloro che si trovavano sulla piattaforma per usufruire degli altri servizi offerti dal sistema gestito da Valve. Si tratta del secondo aggiornamento del massimo storico dall'inizio del 2026, dopo il precedente risultato registrato nel mese di gennaio, quando la piattaforma aveva superato la soglia dei 42 milioni di collegamenti simultanei.",
+        "Un ulteriore primato è stato stabilito dal numero di utenti effettivamente in partita nello stesso momento, che ha superato quota 14 milioni. Questo traguardo si inserisce in un contesto temporale particolare, arrivando a breve distanza dalla conclusione dei saldi autunnali di Steam e non durante il periodo promozionale. La crescita del traffico e della partecipazione è stata sostenuta dall'arrivo di nuove produzioni nel catalogo, capaci di attrarre centinaia di migliaia di giocatori sulla piattaforma di distribuzione digitale per PC.",
+        "Tra i titoli che hanno contribuito maggiormente a questi volumi di traffico figurano alcune recenti novità. Il MMORPG free-to-play Aion 2, pubblicato a livello mondiale il 5 ottobre, ha fatto registrare al lancio 397.905 utenti contemporanei, posizionandosi rapidamente tra i prodotti di maggior rilievo nelle classifiche di Steam. Numeri rilevanti sono stati evidenziati anche per Deadlock, progetto multiplayer di Valve che unisce elementi da sparatutto in terza persona e meccaniche MOBA: a seguito di un importante aggiornamento, il titolo ha raggiunto un massimo di 262.145 giocatori simultanei, pur in assenza di un annuncio di presentazione ufficiale da parte dello sviluppatore. Nelle restanti posizioni della graduatoria dei dieci videogiochi più utilizzati, la situazione non ha mostrato cambiamenti di rilievo, con la presenza costante dei titoli multiplayer già affermati.",
+        "L'ampliamento della comunità di utenti si accompagna anche a stime relative alla crescita economica delle attività di Valve. Secondo valutazioni non ufficiali riportate dalle fonti, i ricavi generati attraverso la piattaforma avrebbero raggiunto i 15 miliardi di dollari entro il mese di settembre 2026, pari a circa 11,1 miliardi di sterline. Tra le pubblicazioni dell'anno, Forza Horizon 6 risulterebbe il titolo capace di generare i maggiori ricavi su Steam, confermando il ruolo centrale della piattaforma nel mercato dei videogiochi per computer sia in termini di affluenza sia di risultati commerciali."
+      ],
+      "date": "2026-10-13",
+      "sources": [
+        "https://www.zazoom.it/news-notizia/post/985717/2026-10-12-steam-nuovo-record-con-43-5-milioni-utenti-simultanei-oltre-14-milioni-gioco-15-03/"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-13T22:57:41.326109+00:00"
+      },
+      "source_fingerprints": [
+        "1bd2527bd1998300"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
