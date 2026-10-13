@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-13T22:47:00.355613+00:00",
+  "checked_at": "2026-10-13T22:58:04.379370+00:00",
   "source_sites": 16,
-  "matches": 3,
+  "matches": 4,
   "selected": [
     {
       "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
@@ -66,14 +66,20 @@
       "sources": []
     },
     {
-      "title": "Xbox e The Coalition tra ristrutturazioni, nuove strategie e incertezze occupazionali",
+      "title": "Steam: nuovo record storico di traffico e utenti simultanei nel 2026",
       "section": "gaming-inside",
-      "url": "/gaming-inside-xbox-e-the-coalition-tra-ristrutturazioni-nuove-strategie-e-incertezze-occupazionali.html",
-      "trend_score": 0,
+      "url": "/gaming-inside-steam-nuovo-record-storico-di-traffico-e-utenti-simultanei-nel-2026.html",
+      "trend_score": 54.32,
       "published_date": "2026-10-13",
       "freshness_bonus": null,
       "selection_score": null,
-      "sources": []
+      "sources": [
+        {
+          "site": "Zazoom.it",
+          "title": "Steam, nuovo record con 43,5 milioni di utenti simultanei e oltre 14 milioni in gioco",
+          "score": 0.5432
+        }
+      ]
     }
   ]
 }
