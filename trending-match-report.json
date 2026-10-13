@@ -1,8 +1,24 @@
 {
-  "checked_at": "2026-10-13T13:13:14.030146+00:00",
+  "checked_at": "2026-10-13T14:09:24.268832+00:00",
   "source_sites": 16,
   "matches": 4,
   "selected": [
+    {
+      "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
+      "section": "tech",
+      "url": "/news-UgkxJtnjr69lRe_UU0p4peoueh64NfWSi1zF.html",
+      "trend_score": 60.38,
+      "published_date": "2026-10-13",
+      "freshness_bonus": 72,
+      "selection_score": 111.25,
+      "sources": [
+        {
+          "site": "Hardware Upgrade",
+          "title": "realme passa a ColorOS 17 con Android 17, aggiornamenti da ottobre per quattro modelli",
+          "score": 0.6038
+        }
+      ]
+    },
     {
       "title": "News: TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",
       "section": "tech",
@@ -18,16 +34,6 @@
           "score": 0.4981
         }
       ]
-    },
-    {
-      "title": "News: Hisense presenta Speed Oven, il forno 7-in-1 che raggiunge 230 °C in soli 60 secondi",
-      "section": "tech",
-      "url": "/news-UgkxkZg10OhFGxe-d-bQ_gj4zino-VF-ER5K.html",
-      "trend_score": 0,
-      "published_date": "2026-10-13",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
     },
     {
       "title": "News: Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore",
@@ -56,20 +62,14 @@
       ]
     },
     {
-      "title": "News: Crazy Taxi: World Tour corre in Brasile, SEGA svela la quarta mappa della campagna",
+      "title": "News: PLAYERS al M9 di Venezia Mestre racconta 80 anni di videogiochi tra cultura, società e creatività",
       "section": "gaming",
-      "url": "/news-UgkxHwO-OKR3z-qEkJL0MBsZS_tMU0R5Q0fi.html",
-      "trend_score": 64.78,
-      "published_date": "2026-10-11",
-      "freshness_bonus": 40,
-      "selection_score": 82.11,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "Crazy Taxi: World Tour ci da il benvenuto in Brasile",
-          "score": 0.6478
-        }
-      ]
+      "url": "/news-UgkxZjaKkzlUnVnkLWOxij-vAO-KwMJ8Mde9.html",
+      "trend_score": 0,
+      "published_date": "2026-10-13",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
     },
     {
       "title": "Grecia verso il divieto di social media per i minori di 15 anni: i dettagli della riforma",
