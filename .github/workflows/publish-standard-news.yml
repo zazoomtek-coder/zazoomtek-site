@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: '43 7 * * *'
   push:
+    branches: [main]
     paths:
       - standard-news.json
       - scripts/build-standard-news.py
@@ -25,9 +26,10 @@ jobs:
         run: python3 -m pip install 'Pillow>=10,<13'
       - name: Publish standalone NEWS and free WebP covers
         run: python3 scripts/build-standard-news.py
-      - name: Merge four standard NEWS into 10-slide featured, NEWS archive and latest articles
+      - name: Refresh ordinary NEWS without touching the six-card featured grid
         run: python3 scripts/apply-standard-news-featured.py
       - name: Commit new article pages and images only
+        id: standard_push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -36,6 +38,7 @@ jobs:
             git commit -m "content: publish four approved standard NEWS and optimized covers"
             for attempt in 1 2 3; do
               if git pull --rebase origin main && git push origin HEAD:main; then
+                echo "published=true" >> "$GITHUB_OUTPUT"
                 exit 0
               fi
               git rebase --abort || true
@@ -45,12 +48,10 @@ jobs:
             exit 1
           fi
 
-      - name: Apply mandatory editorial article layout
-        run: python3 scripts/apply-site-design.py
-      - name: Deploy validated standard news and all editorial layouts
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
-          channelId: live
-          projectId: zazomtek
+      # The serialized publisher is the ONLY live Firebase deployer.
+      # Never deploy an isolated workflow checkout or a staging branch.
+      - name: Queue centralized live deployment after a real content change
+        if: steps.standard_push.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site-live.yml --ref main
