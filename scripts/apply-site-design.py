@@ -342,7 +342,7 @@ for path in root.rglob('*.html'):
     html=re.sub(r'</head>',lambda m:thumb_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     # Approved per-image crop focal points are scoped to the three-column Home.
     # Keep this stylesheet AFTER shared CSS, never apply to two-column pages.
-    if path.name == 'index.html':
+    if path == root / 'index.html':
         focus_tag = "<link rel=\"stylesheet\" href=\"/zt-home-cover-focus.css?v=20261013approved1\" data-zt-home-cover-focus=\"only-home\">"
         html=re.sub(r'<link[^>]*zt-home-cover-focus[.]css[^>]*>\s*',
                     '',html,flags=re.I)
