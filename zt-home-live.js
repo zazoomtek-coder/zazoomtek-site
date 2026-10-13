@@ -36,6 +36,41 @@
    return "tech";
  }
  // HOME_TOPIC_CLASSIFIER_END
+
+ // HOME_PUBLICATION_ORDER_START
+ // Publication date is authoritative. This parser is independent from fetch
+ // order, article category, homepage rebuild time, and image upload time.
+ function homePublicationTime(rawValue){
+  const raw=String(rawValue||"").toLowerCase().trim();
+  if(!raw)return -Infinity;
+  const iso=raw.match(/\b20\d\d-(?:0?[1-9]|1[0-2])-(?:[0-2]?\d|3[01])(?:[t\s]\d\d:\d\d(?::\d\d)?(?:z|[+-]\d\d:?\d\d)?)?/i);
+  if(iso){const ms=Date.parse(iso[0]);if(Number.isFinite(ms))return ms;}
+  const months={gennaio:0,febbraio:1,marzo:2,aprile:3,maggio:4,giugno:5,luglio:6,agosto:7,settembre:8,ottobre:9,novembre:10,dicembre:11};
+  const date=raw.match(/\b([0-3]?\d)\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(20\d{2})\b/);
+  if(date)return Date.UTC(+date[3],months[date[2]],+date[1]);
+  const slash=raw.match(/\b([0-3]?\d)[\/-](0?\d|1[0-2])[\/-](20\d{2})\b/);
+  if(slash)return Date.UTC(+slash[3],+slash[2]-1,+slash[1]);
+  // Legacy imports can contain Italian relative labels.
+  const todayParts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+  const value=k=>Number(todayParts.find(p=>p.type===k)?.value||0);
+  const today=Date.UTC(value("year"),value("month")-1,value("day"));
+  if(/\boggi\b/.test(raw))return today;
+  if(/\bieri\b/.test(raw))return today-86400000;
+  const ago=raw.match(/\b(\d{1,3})\s+giorni?\s+fa\b/);
+  if(ago)return today-(+ago[1])*86400000;
+  return -Infinity;
+ }
+ function orderHomeColumn(column){
+  const cards=[...column.children].filter(node=>node.matches("article.article-row"));
+  const ranked=cards.map((node,index)=>({node,index,
+    date:homePublicationTime(node.getAttribute("data-published-at")||
+       node.querySelector(".article-meta")?.textContent||"")}));
+  ranked.sort((a,b)=>b.date-a.date || a.index-b.index);
+  for(const entry of ranked)column.appendChild(entry.node);
+  return ranked.map(x=>x.node);
+ }
+ // HOME_PUBLICATION_ORDER_END
+
  function setup(){
   const layout=document.querySelector('main.page .layout');
   const main=layout&&layout.querySelector(':scope > .maincol');
@@ -87,6 +122,24 @@
     }
     gaming.appendChild(row);
    }else{techCount++;tech.appendChild(row);}
+  }
+
+  // Older editorial cards were encoded before the live Community feed.
+  // Extract them and sort every card together by its ORIGINAL publication date.
+  const oldArchive=gaming.querySelector("#ztpMoreGaming");
+  if(oldArchive){
+   for(const item of oldArchive.querySelectorAll("article.ztp-gaming-extra")){
+    gaming.appendChild(item);
+   }
+   oldArchive.remove();
+  }
+  orderHomeColumn(tech);
+  const orderedGaming=orderHomeColumn(gaming);
+  let currentOrder=0;
+  for(const item of orderedGaming){
+   const extra=item.classList.contains("ztp-gaming-extra");
+   item.classList.toggle("ztp-gaming-feature",!extra&&(currentOrder===0||currentOrder===3));
+   if(!extra)currentOrder++;
   }
   const previewCounter=area.querySelector('.ztp-count');
   if(previewCounter)previewCounter.textContent=rows.length+' news · Tech e Gaming';
