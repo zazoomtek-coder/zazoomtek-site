@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "timezone": "Europe/Rome",
+  "items": [
+    {
+      "id": "poly-fighter-pc-20261013",
+      "status": "approved",
+      "publish_at": "2026-10-13T15:00:00+02:00",
+      "source": "anteprima-poly-fighter-trailer-youtube-20261013.html",
+      "target": "poly-fighter-recensione-pc.html",
+      "title": "Poly Fighter Recensione PC",
+      "platform": "PC",
+      "date_label": "13 ottobre 2026",
+      "description": "Un picchiaduro roguelike che trasforma le vittorie in nuove mosse, combo e strategie. Recensione PC con voto finale 8/10.",
+      "image": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3977340/472302f24d5fcb52f0a111fd532d0ec1dd429810/capsule_616x353.jpg"
+    }
+  ]
+}

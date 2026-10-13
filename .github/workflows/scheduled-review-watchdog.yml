@@ -1,0 +1,60 @@
+name: Scheduled review publication watchdog
+on:
+  schedule:
+    - cron: '3,13,23,33,43,53 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify overdue approved article and Firebase release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess,urllib.request,os
+          from datetime import datetime,timedelta,timezone
+          from pathlib import Path
+          now=datetime.now(timezone.utc)
+          items=json.loads(Path('editorial/review-publication-queue.json').read_text())['items']
+          due=[i for i in items if i['status']=='approved' and datetime.fromisoformat(i['publish_at'])<=now]
+          missing=[i for i in due if not Path(i['target']).is_file()]
+          if missing:
+              print('Overdue review missing from repository:',[i['target'] for i in missing])
+              subprocess.run(['gh','workflow','run','publish-approved-reviews.yml',
+                              '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main'],check=True)
+          invisible=[]
+          for i in due:
+              age=now-datetime.fromisoformat(i['publish_at'])
+              if not Path(i['target']).is_file() or age<timedelta(minutes=8) or age>timedelta(days=2):
+                  continue
+              url='https://zazoomtek.it/'+i['target']
+              try:
+                  request=urllib.request.Request(url,headers={'Cache-Control':'no-cache','User-Agent':'ZazoomTek-review-watchdog'})
+                  with urllib.request.urlopen(request,timeout=18) as response:
+                      body=response.read().decode('utf-8','replace')
+                      if response.status!=200 or i['title'] not in body or '<article' not in body:
+                          invisible.append(url)
+              except Exception as exc:
+                  print(url,exc)
+                  invisible.append(url)
+          if invisible:
+              print('Public page not reachable:',invisible)
+              runs=json.loads(subprocess.run(['gh','run','list','--workflow','deploy-site-live.yml',
+                  '--limit','5','--json','createdAt,status,conclusion'],
+                  check=True,capture_output=True,text=True).stdout)
+              recently_started=any(now-datetime.fromisoformat(r['createdAt'].replace('Z','+00:00'))<
+                  timedelta(minutes=12) for r in runs if r['status']!='completed')
+              if not recently_started:
+                  subprocess.run(['gh','workflow','run','deploy-site-live.yml','--ref','main'],check=True)
+              if any(now-datetime.fromisoformat(i['publish_at'])>timedelta(minutes=25)
+                     for i in due if 'https://zazoomtek.it/'+i['target'] in invisible):
+                  raise SystemExit('::error::Scheduled review has remained offline >25 minutes')
+          if not missing and not invisible:
+              print('Approved review queue and live publication are healthy.')
+          PY

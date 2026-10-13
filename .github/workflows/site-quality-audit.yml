@@ -8,6 +8,9 @@ on:
     paths:
       - 'scripts/site-audit-safe.py'
       - '.github/workflows/site-quality-audit.yml'
+      - 'scripts/publish-approved-reviews.py'
+      - 'scripts/test_scheduled_review_publication.py'
+      - 'editorial/review-publication-queue.json'
 permissions:
   contents: read
 jobs:
@@ -24,3 +27,5 @@ jobs:
           python3 scripts/test_review_dedup.py
           python3 scripts/test_video_sync_reliability.py
           python3 scripts/test_community_freshness.py
+          python3 scripts/test_scheduled_review_publication.py
+          python3 scripts/publish-approved-reviews.py --dry-run
