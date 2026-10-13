@@ -2539,8 +2539,8 @@ def write_article_pages(posts):
         # All archive pages keep their original layout. The new interactive
         # 45/35/20 structure is exclusively for / and /index.html, never
         # inherited by pagina-2..5 when this file is cloned from Home.
-        page=re.sub(r'<style id="ztp-[^"]+">[\\s\\S]*?</style>\\s*', "", page)
-        page=re.sub(r'<script\\b[^>]*src="/zt-home-live\\.js[^"]*"[^>]*></script>\\s*', "", page)
+        page=re.sub(r'<style id="ztp-[^"]+">.*?</style>\s*', "", page,flags=re.S)
+        page=re.sub(r'<script\b[^>]*src="/zt-home-live\.js[^"]*"[^>]*></script>\s*', "", page)
 
         # Page-specific SEO.
         page=re.sub(r'<title>.*?</title>',
