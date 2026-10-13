@@ -72,7 +72,7 @@ jobs:
                     const iso=Date.parse(entry.publishedAt);
                     if(Number.isFinite(iso))return iso;
                   }
-                  const found=entry.publicationText.toLowerCase().match(/([0-3]?\\d)\\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\\s+(20\\d{2})/);
+                  const found=entry.publicationText.toLowerCase().match(/([0-3]?\d)\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(20\d{2})/);
                   return found?Date.UTC(+found[3],months[found[2]],+found[1]):NaN;
                 }
                 for(const category of ["tech","gaming"]){
