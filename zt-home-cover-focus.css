@@ -24,3 +24,19 @@ html body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="cVqr61yg
 html body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="tech-impact-grecia-verso"]{--zt-text-focal-point:10% 50%!important;object-position:10% 50%!important;} 
 html body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="tech-impact-frode-streaming"]{--zt-text-focal-point:10% 50%!important;object-position:10% 50%!important;} 
 html body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="gaming-inside-gears-of-war"]{--zt-text-focal-point:8% 50%!important;object-position:8% 50%!important;} 
+
+/* HOME 3-COLUMN EDITORIAL FIX — individually inspected actual covers.
+   Text-priority ONLY for these named items in the Home's right-hand rail.
+   No global thumbnail, internal page, box size or grid changes. */
+html body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="BzFru3ywllw"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Da non perdere: LG Human Beat: text aligned to left */
+html body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="En_bo_SxmwM82"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Da non perdere: Sonic Racing: lettering at left edge */
+html body .ztp-final-three .ztp-news-rail .zt-special-box[data-special-section="tech"] .zt-special-item img[src*="tech-impact-california-nuova-legge"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Tech Impact: California: leading letters of title are cropped */
+html body .ztp-final-three .ztp-news-rail .zt-special-box[data-special-section="tech"] .zt-special-item img[src*="tech-impact-farnesina-cyberattacco"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Tech Impact: Farnesina: preserve complete title at left */
+html body .ztp-final-three .ztp-news-rail .zt-special-box[data-special-section="gaming"] .zt-special-item img[src*="gaming-inside-playstation-accordo-antitrust"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Gaming Inside: PlayStation: missing first characters */
+html body .ztp-final-three .ztp-news-rail .zt-special-box[data-special-section="gaming"] .zt-special-item img[src*="gaming-inside-ubisoft-massive-entertainment"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Gaming Inside: Ubisoft: missing first letter */
+html body .ztp-final-three .ztp-news-rail .zt-special-box[data-special-section="gaming"] .zt-special-item img[src*="gaming-inside-eu-kids-act"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Gaming Inside: EU Kids Act: missing first letter */
+html body .ztp-final-three .ztp-news-rail .ztp-editorial-archive .ztp-editorial-story img[src*="s7w4-wrQ1IKd"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Dalla redazione: Cisco: full left-side wording */
+html body .ztp-final-three .ztp-news-rail .ztp-editorial-archive .ztp-editorial-story img[src*="AhZN49_Z1SvI"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Dalla redazione: Chivalware: left-aligned title */
+html body .ztp-final-three .ztp-news-rail .ztp-editorial-archive .ztp-editorial-story img[src*="soZXps2f6_Lk"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Dalla redazione: Ace Combat 8: left-aligned lettering */
+html body .ztp-final-three .ztp-news-rail .ztp-editorial-archive .ztp-editorial-story img[src*="EGII2lGpaVxn"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Dalla redazione: Dragon's Dogma 2: keep starting letters */
+html body .ztp-final-three .ztp-news-rail .ztp-editorial-archive .ztp-editorial-story img[src*="R9MGkWK8c5Py"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;} /* Dalla redazione: Beyond the Dark: full wording at left */
