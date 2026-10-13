@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: '3,13,23,33,43,53 * * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scheduled-review-watchdog.yml'
+      - 'editorial/review-publication-queue.json'
 permissions:
   contents: read
   actions: write
@@ -24,8 +29,14 @@ jobs:
           items=json.loads(Path('editorial/review-publication-queue.json').read_text())['items']
           due=[i for i in items if i['status']=='approved' and datetime.fromisoformat(i['publish_at'])<=now]
           missing=[i for i in due if not Path(i['target']).is_file()]
-          if missing:
-              print('Overdue review missing from repository:',[i['target'] for i in missing])
+          home=Path('index.html').read_text(encoding='utf-8')
+          archive=Path('recensioni-scritte.html').read_text(encoding='utf-8')
+          unlisted=[i for i in due if ('href="/'+i['target']+'"') not in home or
+                    ('href="/'+i['target']+'"') not in archive]
+          if unlisted:
+              print('Reviews missing from Home or archive:',[i['target'] for i in unlisted])
+          if missing or unlisted:
+              print('Overdue or unlisted reviews:',[i['target'] for i in missing+unlisted])
               subprocess.run(['gh','workflow','run','publish-approved-reviews.yml',
                               '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main'],check=True)
           invisible=[]
@@ -55,6 +66,10 @@ jobs:
               if any(now-datetime.fromisoformat(i['publish_at'])>timedelta(minutes=25)
                      for i in due if 'https://zazoomtek.it/'+i['target'] in invisible):
                   raise SystemExit('::error::Scheduled review has remained offline >25 minutes')
-          if not missing and not invisible:
+          if missing or unlisted:
+              if any(now-datetime.fromisoformat(i['publish_at'])>timedelta(minutes=25)
+                     for i in missing+unlisted):
+                  raise SystemExit('::error::Approved article missing from GitHub/Home/archive >25 minutes')
+          if not missing and not invisible and not unlisted:
               print('Approved review queue and live publication are healthy.')
           PY
