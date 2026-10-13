@@ -28,7 +28,7 @@ jobs:
                   js,js_headers=get(suffix)
                   raw,feed_headers=get("/home-video-feed.json")
                   feed=json.loads(raw)
-                  assert suffix in page, "Home still references the old JS version"
+                  assert suffix in page, "Home Javascript reference is still stale: "+str(__import__("re").findall(r'zt-visual[.]js[^" ]*',page)[:3])
                   assert 'const authenticGameplay=clean.filter' in js, "Public JS has old GAMEPLAY selector"
                   assert 'let archive=clean.find(x=>x.completedLive' not in js, "Old completed Live selector persists"
                   assert 'id":"tEkXOj7XOwA"' in js, "Public JS fallback lacks newest Sesame gameplay"

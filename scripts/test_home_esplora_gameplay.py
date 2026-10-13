@@ -18,6 +18,10 @@ assert "const authenticGameplay=clean.filter(x=>x.category==='gameplay' && !x.sh
 assert "const backupGameplay=ztHomeVideoFallback.filter(x=>x.category==='gameplay'" in js, "Stale-feed protection missing"
 assert "let archive=clean.find(x=>x.completedLive" not in js, "Obsolete live-only selection is still present"
 assert 'zt-visual.js?v=20261013gameplayCacheFix2' in home, "Homepage cache bust missing"
+deploy_design=(root/"scripts/apply-site-design.py").read_text(encoding="utf-8")
+assert "js_path=home_js_ref.group(1)" in deploy_design, "Deploy must preserve Home Javascript version"
+assert "20261012titleSubtitle" not in deploy_design, "Obsolete Javascript version still forced by deploy"
+assert "js_path,html,count=1" in deploy_design, "Deploy Javascript rewrite not using Home source of truth"
 valid=[x for x in feed if x.get("category")=="gameplay" and not x.get("short") and not x.get("live")]
 valid.sort(key=lambda x:x.get("publishedAt") or "",reverse=True)
 assert valid and valid[0]["id"]=="tEkXOj7XOwA", "Newest approved long gameplay must be Sesame Street"
