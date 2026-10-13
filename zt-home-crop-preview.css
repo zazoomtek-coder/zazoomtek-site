@@ -1,0 +1,53 @@
+/*
+ ANTEPRIMA APPROVAZIONE ZAZOOMTEK — 13/10/2026
+ ESCLUSIVAMENTE HOME A TRE COLONNE: TECH, GAMING, EDITORIALI DESTRA
+ No dimensioni, aspect-ratio, markup, posizione dei box o CSS delle altre pagine.
+ Ogni regolazione è una decisione indipendente sulla singola copertina.
+ Le cover con testo già centrato restano originali.
+ */
+html:not(.zt-preview-before) body .ztp-final-three :is(.ztp-news-tech,.ztp-news-gaming,.ztp-news-rail) img {
+  /* NON impostare object-fit o object-position globalmente. */
+}
+
+/* TECH — correggi soltanto le cover le cui scritte sono vicine al bordo sinistro. */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="wTV9oR-jX2J2C"]{object-position:3% 50%!important;}  /* Totem */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="3c5f_5ssRd3cd"]{object-position:22% 50%!important;} /* ColorOS 17 */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="OIMvcjBOepuv"]{object-position:0% 50%!important;}   /* Hisense Speed Oven */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="caAAYlybmsmVm"]{object-position:0% 50%!important;} /* Veeam Governance */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="2PV-epMqjxmt"]{object-position:2% 50%!important;}   /* Huawei WATCH */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="QfnQWrsNOYL6"]{object-position:2% 50%!important;}   /* Black Friday */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-tech img[src*="A820KkDIt94"]{object-position:8% 50%!important;}   /* Sharp */
+
+/* GAMING — lascia intatte Battlefield 6, Hasbro, SpongeBob e PLAYERS:
+   i loro titoli sono già sufficientemente leggibili/centrati. */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="IOzMp-WICqUI"]{object-position:88% 50%!important;} /* PUBG, scritte sulla destra */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="IlkiJdRTJ3Zw"]{object-position:7% 50%!important;}  /* Lucca card */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="eE-6hFhgCW3"]{object-position:7% 50%!important;}  /* Be Comics */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="PdcP0LGfc9LC"]{object-position:4% 50%!important;} /* Crazy Taxi */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="8k--O-qWG2k7"]{object-position:12% 50%!important;} /* ROCKBEASTS */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="1vAiDd2TyG8"]{object-position:9% 50%!important;}   /* Tower Tactics II */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="ahl8LogGQOG"]{object-position:8% 50%!important;}  /* Talos Principle */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="soZXps2f6_Lk"]{object-position:18% 50%!important;} /* Ace Combat */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-gaming img[src*="pY0m2L6tOuY"]{object-position:22% 50%!important;} /* FC 27 */
+
+/* BOX EDITORIALI — limitati alla terza colonna della Home. */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="PdcP0LGfc9LC"]{object-position:0% 50%!important;} /* Crazy Taxi */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="8k--O-qWG2k7"]{object-position:8% 50%!important;} /* ROCKBEASTS */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="cVqr61yghwTF"]{object-position:5% 50%!important;} /* Adobe */
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="tech-impact-grecia-verso"]{object-position:10% 50%!important;}
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="tech-impact-frode-streaming"]{object-position:10% 50%!important;}
+html:not(.zt-preview-before) body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="gaming-inside-gears-of-war"]{object-position:8% 50%!important;}
+
+/* Only the PR preview has the comparison toolbar. */
+#zt-home-crop-preview-panel{
+position:fixed;z-index:999999;bottom:12px;left:50%;transform:translateX(-50%);
+display:flex;align-items:center;gap:10px;padding:8px 10px;
+border:1px solid #ccc;border-radius:8px;background:#fff;color:#171717;
+box-shadow:0 4px 25px #0004;font:700 12px/1.2 Arial,sans-serif;white-space:nowrap;
+}
+#zt-home-crop-preview-panel button{padding:9px 12px;background:#d51232;color:white;border:0;border-radius:5px;font-weight:800;cursor:pointer}
+#zt-home-crop-preview-panel button:focus-visible{outline:3px solid #116bea;outline-offset:2px}
+@media(max-width:570px){
+#zt-home-crop-preview-panel{bottom:5px;max-width:97vw;gap:5px;font-size:10px}
+#zt-home-crop-preview-panel button{padding:7px;font-size:10px}
+}
