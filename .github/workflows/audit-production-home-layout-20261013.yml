@@ -8,6 +8,7 @@ on:
       - 'index.html'
       - 'scripts/update-youtube-posts.py'
       - 'firebase.json'
+      - 'scripts/refresh-home-editorial-boxes.py'
 permissions:
   contents: read
 jobs:
@@ -29,11 +30,25 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert 'zt-home-live.js?v=20261013approved45-35-20b' in src
+          assert 'zt-home-live.js?v=20261013cleanEditorial20261013' in src
+          assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
+          assert r'\g<1>' not in src and r'\g<2>' not in src
+          live_js=pathlib.Path("zt-home-live.js").read_text()
+          assert 'BOX EDITORIALI</h2>' not in live_js
           assert '<style id="ztp-live-editorial-fill">' in src
           assert 'noindex,nofollow' in stage
           assert 'noindex,nofollow' not in src
-          print("PASS: 15 canonical news, stable import markers, public Home unchanged")
+          print("PASS: canonical news and import markers, clean editorial heading, no preview-only side bar")
+          PY
+      - name: Ensure scheduled refresh preserves valid markup
+        run: |
+          python3 -m py_compile scripts/refresh-home-editorial-boxes.py
+          python3 scripts/refresh-home-editorial-boxes.py --self-test
+          python3 - <<'PY'
+          import pathlib
+          code=pathlib.Path("scripts/refresh-home-editorial-boxes.py").read_text()
+          assert "DA NON PERDERE</h2>" in code
+          assert r"\g<1>" not in code
           PY
       - name: Browser prerequisites
         run: |
@@ -97,12 +112,18 @@ jobs:
                 navCount:document.querySelectorAll('header nav a').length,
                 pagesLink:!!document.querySelector("#ztpNewsPager a[href='/pagina-2.html']"),
                 canonicalFeedMarker:document.documentElement.innerHTML.includes("<!-- ARTICLE_FEED_START -->"),
+                editorialPreviewHeaderCount:document.querySelectorAll(".ztp-editorial-heading").length,
+                popularTitle:document.querySelector("#zt-popular-title")?.textContent.trim(),
+                popularHtml:document.querySelector(".zt-popular-head")?.innerHTML,
+                hasLeakedBackrefs:/\\g<[12]>/.test(document.querySelector(".zt-popular-head")?.textContent||""),
                 overflow:document.documentElement.scrollWidth-window.innerWidth,
                };
              });
              console.log(v.label,JSON.stringify(d),errors);
              if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
              if(d.newsCount!==15||d.distinctLinks!==15||d.selectedReviewCount!==3)throw Error("Original news and reviews are broken");
+             if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
+               throw Error("Editorial bar or invalid headings were found on public Home");
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
              if(!d.noOldStack||!d.shortsAfterInside||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
              if(d.overflow>8)throw Error("Mobile horizontal overflow");
