@@ -56,6 +56,20 @@ jobs:
               r=v.get('playlistItems',part='snippet,contentDetails',playlistId=pl,maxResults=5)
               assert r.get('items'), 'Official channel uploads API returned no videos'
               print('Uploads:',len(r['items']),'recent IDs available')
+              import urllib.request
+              import xml.etree.ElementTree as ET
+              url='https://www.youtube.com/feeds/videos.xml?channel_id='+v.CHANNEL_ID
+              request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
+              try:
+                  with urllib.request.urlopen(request,timeout=12) as response:
+                      root=ET.fromstring(response.read(350000))
+                  ns={'atom':'http://www.w3.org/2005/Atom','yt':'http://www.youtube.com/xml/schemas/2015'}
+                  print('ATOM ROOT TAG:',root.tag)
+                  print('ATOM CHANNEL ID:',repr(root.findtext('yt:channelId',default='',namespaces=ns)))
+                  print('ATOM FEED ID:',repr(root.findtext('atom:id',default='',namespaces=ns)))
+                  print('ATOM ENTRIES:',len(root.findall('atom:entry',ns)))
+              except Exception as err:
+                  print('ATOM DIAGNOSTIC:',type(err).__name__,str(err)[:150])
           else:
               print('YouTube API key not available in branch test; primary API smoke skipped')
           PY
