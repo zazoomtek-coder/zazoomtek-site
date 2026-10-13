@@ -63,7 +63,9 @@ def official_rss_recent_ids(previous_ids, playlist_ids):
         namespace={"atom":"http://www.w3.org/2005/Atom",
                    "yt":"http://www.youtube.com/xml/schemas/2015"}
         channel=root.findtext("yt:channelId",default="",namespaces=namespace)
-        if channel != CHANNEL_ID:
+        # Atom feeds expose the channel ID without YouTube's "UC" prefix.
+        # The videos.list verification below still checks the full channel ID.
+        if channel not in (CHANNEL_ID,CHANNEL_ID[2:]):
             raise RuntimeError("Channel ID mismatch on official RSS")
         ids=[]
         for entry in root.findall("atom:entry",namespace):

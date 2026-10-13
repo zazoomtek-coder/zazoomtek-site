@@ -19,7 +19,7 @@ def item(vid,n,channel_id=channel):
 
 # The official Atom feed catches a brand-new video missing from uploads playlist.
 atom=f"""<feed xmlns="http://www.w3.org/2005/Atom" xmlns:yt="http://www.youtube.com/xml/schemas/2015">
-<yt:channelId>{channel}</yt:channelId>
+<yt:channelId>{channel[2:]}</yt:channelId>
 <entry><yt:videoId>{ids[30]}</yt:videoId></entry>
 <entry><yt:videoId>{ids[29]}</yt:videoId></entry>
 </feed>""".encode()
