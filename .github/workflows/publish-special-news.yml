@@ -125,7 +125,7 @@ jobs:
           fi
       # Publication always uses the same serialized latest-main deployment queue.
       # The special desk never writes the YouTube-owned index.html or news.html.
-      - name: Queue special-news and carousel publication
+      - name: Queue verified Impact and Inside for News in evidenza
         if: steps.publish_commit.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}

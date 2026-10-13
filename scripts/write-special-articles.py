@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import urllib.error
 import urllib.request
+from special_gemini_client import call_json, GeminiRequestError
 
 ROOT=Path(__file__).resolve().parent.parent
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
@@ -16,20 +17,14 @@ MODEL=os.environ.get("GEMINI_MODEL","gemini-3.5-flash-lite")
 SOURCE=ROOT/"special-source-evidence.json"
 OUT=ROOT/"special-full-articles-review.json"
 def generate(prompt):
-    endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent"
-    payload={"contents":[{"parts":[{"text":prompt}]}],
-             "generationConfig":{"responseMimeType":"application/json","maxOutputTokens":7000,"temperature":0.15}}
-    req=urllib.request.Request(endpoint,data=json.dumps(payload).encode(),
-        headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
     try:
-        with urllib.request.urlopen(req,timeout=80) as response:data=json.load(response)
-    except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as exc:
-        print("Gemini unavailable for full article draft:",type(exc).__name__,"no article published")
+        draft,used=call_json(prompt,KEY,MODEL,
+            {"responseMimeType":"application/json","maxOutputTokens":7000,"temperature":0.15},timeout=80)
+        return draft
+    except GeminiRequestError as exc:
+        print("Article drafting unavailable:",str(exc))
         return None
-    text="".join(p.get("text","") for c in data.get("candidates",[])
-                 for p in c.get("content",{}).get("parts",[]))
-    try:return json.loads(text)
-    except (TypeError,ValueError):return None
+
 def main():
     global MODEL
     selected=json.loads((ROOT/"special-drafts-review.json").read_text(encoding="utf-8")).get("gemini_model","")

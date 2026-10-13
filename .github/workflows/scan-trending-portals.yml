@@ -1,4 +1,4 @@
-name: Every two hours Tech Gaming international featured stories
+name: News in evidenza - griglia statica ogni due ore
 on:
   schedule:
     - cron: '11 */2 * * *'
@@ -43,7 +43,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/publish-trending-originals.py
-      - name: Rebuild six-slot carousel using original or existing ZazoomTek articles
+      - name: Update static six-slot News in evidenza from verified published articles
         run: python3 scripts/trending-crosscheck.py --apply
       - name: Commit only trend metadata and placements
         id: push_trends
@@ -97,7 +97,7 @@ jobs:
           done
           echo "::error::Could not safely sync generated trend placements"
           exit 1
-      # Only carousel data, trend metadata, new ORIGINAL pages and covers are
+      # Only featured grid data, trend metadata, new ORIGINAL pages and covers are
       # written by this job. Imported YouTube files remain untouched.
       - name: Request serialized Firebase publication
         if: steps.push_trends.outputs.hosting_changed == 'true'

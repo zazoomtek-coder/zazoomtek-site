@@ -12,6 +12,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 import urllib.error
 import urllib.request
+from special_gemini_client import call_json, GeminiRequestError
 
 ROOT=Path(__file__).resolve().parent.parent
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
@@ -99,53 +100,13 @@ TECH IMPACT: politica e tecnologia, cybersicurezza pubblica, sicurezza digitale,
 GAMING INSIDE: esclusivamente politica e leggi dei VIDEOGIOCHI, proprietà di giochi digitali, chiusura server, consumatori, censura, tutela minori, crisi e acquisizioni di studi videoludici. Un evento su Meta, Hollywood, IA o copyright SENZA un rapporto esplicito con i videogiochi NON è pertinente.
 Requisiti: niente affermazioni definitive tratte da titoli; non inventare fonti, cifre, nomi, dichiarazioni, test, accuse o contenuti. Per ciascun tema proponi UN PIANO PER ARTICOLO CON 300-750 PAROLE NEL CORPO DEL TESTO, NON un articolo pronto: titolo italiano originale, summary neutrale di 30-50 parole (non oltre 380 caratteri), 3-5 sezioni di ricerca, controllo delle fonti primarie e verifica di data/esito/circostanze, attenzione legale. Ogni eventuale articolo con almeno 300 parole originali nel corpo dovrà essere scritto SOLO DOPO verifica documentale separata.
 Emetti esclusivamente JSON: {"drafts":[{"section":"tech oppure gaming","title":"titolo originale italiano","summary":"breve descrizione prudente della pista di ricerca, non del fatto confermato","source_urls":["URL presente nell'input"],"verification_needed":["verifica puntuale da effettuare"],"outline":["aspetto da approfondire"],"target_words":550,"editorial_status":"needs_human_review"}]}. Inserisci solo URL forniti nell'input, non riempire posti mancanti. Input:\\n"""+json.dumps(leads,ensure_ascii=False)
-    # Query available models for this key instead of assuming a model exists.
-    list_req=urllib.request.Request(
-        "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",
-        headers={"x-goog-api-key":KEY})
     try:
-        with urllib.request.urlopen(list_req,timeout=25) as response:
-            catalog=json.load(response).get("models",[])
-    except urllib.error.HTTPError as exc:
-        print("Gemini model discovery HTTP error:",exc.code,"(key hidden)")
+        parsed,selected=call_json(prompt,KEY,MODEL,
+            {"responseMimeType":"application/json","maxOutputTokens":10000,"temperature":0.2},timeout=65)
+    except GeminiRequestError as exc:
+        print("Research failed safely after bounded retries:",str(exc))
         raise SystemExit(1)
-    available={m.get("name","").removeprefix("models/") for m in catalog
-               if "generateContent" in m.get("supportedGenerationMethods",[])}
-    preferred=[MODEL,"gemini-3.5-flash-lite","gemini-3.5-flash"]
-    selected=next((name for name in preferred if name in available),None)
-    if not selected:
-        # Never guess a paid-only model or silently enable billing.
-        print("No configured Gemini text model available. Supported names:",", ".join(sorted(available)[:15]))
-        raise SystemExit(1)
-    print("Gemini model selected:",selected)
-    endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+selected+":generateContent"
-    payload={"contents":[{"parts":[{"text":prompt}]}],"generationConfig":{"responseMimeType":"application/json","maxOutputTokens":10000,"temperature":0.2}}
-    req=urllib.request.Request(endpoint,data=json.dumps(payload).encode("utf-8"),headers={"Content-Type":"application/json","x-goog-api-key":KEY},method="POST")
-    try:
-        with urllib.request.urlopen(req,timeout=65) as response:
-            data=json.load(response)
-    except urllib.error.HTTPError as exc:
-        # Google error text may contain project-specific information; display only
-        # the public API's safe structured status and a short redacted message.
-        raw=exc.read(3000).decode("utf-8","replace")
-        try:
-            err=json.loads(raw).get("error",{})
-            status=str(err.get("status","unknown"))[:60]
-            message=str(err.get("message","unknown"))
-        except (ValueError,AttributeError,TypeError):
-            status="unknown"
-            message="No structured API error returned"
-        message=re.sub(r"AIza[A-Za-z0-9_-]+","[REDACTED_KEY]",message)
-        message=re.sub(r"projects/[0-9]+","projects/[REDACTED]",message)
-        print("Gemini HTTP error:",exc.code,"status:",status,"message:",message[:380])
-        print("No article was published. Check model access and billing tier in Google AI Studio.")
-        raise SystemExit(1)
-    response_text="".join(p.get("text","") for c in data.get("candidates",[]) for p in c.get("content",{}).get("parts",[]))
-    try:
-        parsed=json.loads(response_text)
-    except (ValueError,TypeError):
-        print("Gemini returned incomplete research JSON; no unsafe publication. Characters:",len(response_text))
-        parsed={"drafts":[]}
+    print("Gemini research model used:",selected)
     by_url={x["url"]:x for x in leads}
     for lead in leads:
         for source in lead.get("possible_corrob",[]):

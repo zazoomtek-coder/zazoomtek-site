@@ -5,6 +5,7 @@ from difflib import SequenceMatcher
 import hashlib,json,os,re,unicodedata,urllib.parse,urllib.request,urllib.error
 from pathlib import Path
 from html import unescape
+from special_gemini_client import call_json, GeminiRequestError
 
 ROOT=Path(__file__).resolve().parents[1]
 KEY=os.environ.get("GEMINI_API_KEY","").strip()
@@ -97,16 +98,9 @@ SEZIONE: """+article["section"]+"\nARTICOLO: "+json.dumps(
         {k:article[k] for k in ("title","summary","paragraphs")},ensure_ascii=False)+
         "\nFONTI: "+json.dumps([{"url":d["url"],"metadata":d["metadata"],"excerpts":d["excerpts"]}
                              for d in docs],ensure_ascii=False)[:19000])
-    request=urllib.request.Request(
-        "https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",
-        method="POST",headers={"Content-Type":"application/json","x-goog-api-key":KEY},
-        data=json.dumps({"contents":[{"parts":[{"text":prompt}]}],
-            "generationConfig":{"responseMimeType":"application/json","temperature":0,
-                                "maxOutputTokens":1850}}).encode("utf-8"))
-    with urllib.request.urlopen(request,timeout=75) as res:out=json.load(res)
-    answer="".join(part.get("text","") for c in out.get("candidates",[])
-                   for part in c.get("content",{}).get("parts",[]))
-    return json.loads(answer)
+    audit,used=call_json(prompt,KEY,MODEL,
+        {"responseMimeType":"application/json","temperature":0,"maxOutputTokens":1850},timeout=75)
+    return audit
 def verified(article,docs,audit):
     """Fast review: check facts without demanding literal paragraph quotations."""
     paragraphs=article.get("paragraphs")
@@ -181,7 +175,7 @@ def main():
         elif x.get("status")!="needs_human_fact_check":why="Not a complete draft"
         else:
             try:assessment=review(x,docs)
-            except (ValueError,KeyError,urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as e:
+            except (GeminiRequestError,ValueError,KeyError,urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as e:
                 why="Verification request failed: "+type(e).__name__
             else:
                 if not verified(x,docs,assessment):
