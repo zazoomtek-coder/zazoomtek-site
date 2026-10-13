@@ -176,8 +176,12 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         "fresh selected-articles block",
     )
     # A section based on real editorial choice is NOT a measured page-view leaderboard.
-    homepage = replace_once(homepage, r'(<h2 id="zt-popular-title">).*?(</h2>)',
-                            r'\g<1>DA NON PERDERE\g<2>', "honest sidebar heading")
+    homepage = replace_once(
+        homepage,
+        r'<div class="zt-popular-head">.*?</div>',
+        '<div class="zt-popular-head"><h2 id="zt-popular-title">DA NON PERDERE</h2></div>',
+        "honest sidebar heading",
+    )
     for section, chosen in (("tech", tech), ("gaming", gaming)):
         homepage = replace_once(
             homepage,
@@ -201,6 +205,10 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         raise RuntimeError("Reviews/guides/featured layout markers changed")
     if homepage.count('id="zt-special-tech"') != 1 or homepage.count('id="zt-special-gaming"') != 1:
         raise RuntimeError("Editorial boxes missing")
+    if homepage.count('<h2 id="zt-popular-title">DA NON PERDERE</h2>') != 1:
+        raise RuntimeError("DA NON PERDERE: expected one proper H2 label")
+    if re.search(r'\\g<[12]>', homepage):
+        raise RuntimeError("Found literal regex back-reference in published HTML")
     report = {"date_italy": today.isoformat(), "suggested": [x["url"] for x in suggested],
               "tech_impact": [x["url"] for x in tech],
               "gaming_inside": [x["url"] for x in gaming],
