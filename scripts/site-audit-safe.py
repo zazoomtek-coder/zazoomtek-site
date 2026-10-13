@@ -64,7 +64,10 @@ for p in PAGES:
         if not canonical.startswith("https://zazoomtek.it/"):bad_canonical.append((name,canonical))
         duplicate_canonical[canonical].append(name)
     if obj.missing_alt:missing_alt.append((name,obj.missing_alt))
-    if obj.figcaption:image_captions.append((name,obj.figcaption))
+    if obj.figcaption:
+        captions = re.findall(r'<figcaption\b[^>]*>(.*?)</figcaption>', markup, re.I | re.S)
+        phrases = [re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', x)).strip()[:180] for x in captions]
+        image_captions.append((name,obj.figcaption,phrases))
     for value in obj.media:
         path=local_path(value)
         if path and path not in FILES:
@@ -85,11 +88,16 @@ features=json.loads((ROOT/"featured-carousel.json").read_text(encoding="utf-8"))
 specials=json.loads((ROOT/"special-featured.json").read_text(encoding="utf-8")).get("items",[])
 standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
 urls=[x.get("url","") for x in features]
+home_markup=(ROOT/"index.html").read_text(encoding="utf-8")
+feature_fragment=home_markup.split("<!-- FEATURED_NEWS_START -->",1)[1].split("<!-- FEATURED_NEWS_END -->",1)[0]
+live_featured_urls=re.findall(r'<a class="zt-feature-card[^"]*" href="([^"]+)"',feature_fragment)
 counts=collections.Counter(x.get("section") for x in features)
 report={
     "pages":len(PAGES),"file_total":len(FILES),
     "categories":dict(pages_by_category),
     "featured":{"total":len(features),"counts":dict(counts),"unique_urls":len(set(urls)),
+                "visible_cards":len(live_featured_urls),
+                "matches_visible_home":urls == live_featured_urls,
                 "broken_urls":[u for u in urls if (local_path(u) or "") not in FILES]},
     "standard_news_count":len(standard),"special_selected_count":len(specials),
     "news_feed_has_reviews":feed_reviews,
@@ -100,8 +108,19 @@ report={
     "bad_canonical":{"count":len(bad_canonical),"samples":bad_canonical[:10]},
     "pages_without_title":empty_titles[:12],
     "missing_image_alt":{"pages":len(missing_alt),"samples":missing_alt[:14]},
-    "image_captions":{"pages":len(image_captions),"total":sum(x[1] for x in image_captions),"samples":image_captions[:14]}
+    "image_captions":{"pages":len(image_captions),"total":sum(x[1] for x in image_captions),"samples":image_captions[:30]}
 }
 print("SITE_AUDIT_JSON_BEGIN")
 print(json.dumps(report,ensure_ascii=False,indent=2))
 print("SITE_AUDIT_JSON_END")
+
+# Fail only on unequivocally broken site infrastructure. Editorial choices,
+# captions and descriptive accessibility improvements are review-only.
+if broken_media or broken_links or feed_reviews:
+    raise SystemExit("SITE QUALITY CHECK FAILED: local assets, links or NEWS/Reviews separation")
+if len(features)!=6 or len(set(urls))!=6 or len(live_featured_urls)!=6:
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured mosaic must contain 6 distinct cards")
+if counts != collections.Counter({"tech":2,"gaming":2,"tech-impact":1,"gaming-inside":1}):
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured 2+2+1+1 mix is incorrect")
+if urls != live_featured_urls:
+    print("NOTICE: featured-carousel.json selections differ from currently displayed Home; no unsafe rewrite performed.")

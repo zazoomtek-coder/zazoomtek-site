@@ -1,0 +1,26 @@
+name: ZazoomTek whole-site quality audit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '27 4 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/site-audit-safe.py'
+      - '.github/workflows/site-quality-audit.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all internal links, local images, article streams and carousel
+        run: python3 scripts/site-audit-safe.py
+      - name: Verify importer safeguards without publishing
+        run: |
+          python3 -m py_compile scripts/*.py
+          python3 scripts/test_review_dedup.py
+          python3 scripts/test_video_sync_reliability.py
+          python3 scripts/test_community_freshness.py
