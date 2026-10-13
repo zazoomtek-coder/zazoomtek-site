@@ -28,13 +28,18 @@ jobs:
            try{
             const chrome=process.env.CHROME_PATH||"/usr/bin/google-chrome";
             browser=await chromium.launch({headless:true,executablePath:chrome,args:["--no-sandbox","--disable-dev-shm-usage"]});
-            const url="https://zazoomtek.it/anteprima-home-45-35-20-simmetrica-20261013.html?browsercheck=symmetric";
+            const url="https://zazoomtek.it/anteprima-home-video-recensioni-45-35-20-20261013.html?browsercheck=three-reviews";
             for(const size of [{width:1600,height:1000,label:"desktop"},{width:1100,height:900,label:"tablet"},{width:390,height:844,label:"mobile"}]){
              const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
              const messages=[];
              page.on("pageerror",e=>messages.push(e.message));
-             await page.goto(url,{waitUntil:"domcontentloaded",timeout:45000});
-             await page.locator(".ztp-news-rail #zt-popular-box").waitFor({timeout:20000});
+             for(let attempt=0;attempt<24;attempt++){
+               await page.goto(url+"&check="+attempt,{waitUntil:"domcontentloaded",timeout:45000});
+               if(await page.locator(".ztp-news-rail #zt-popular-box").count())break;
+               if(attempt===23)throw Error("New preview not yet served from public site");
+               await page.waitForTimeout(4000);
+             }
+             await page.locator(".ztp-review-videos .ztp-review-card").first().waitFor({timeout:12000});
              const v=await page.evaluate(()=>{
               const box=sel=>{let el=document.querySelector(sel);if(!el)return null;let r=el.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
               return {
@@ -45,7 +50,13 @@ jobs:
                popularMoved:!!document.querySelector(".ztp-news-rail #zt-popular-box"),
                gamingInsideMoved:!!document.querySelector(".ztp-news-rail .zt-special-box[data-special-section='gaming']"),
                articleCount:document.querySelectorAll(".ztp-news-item").length,
-               videos:document.querySelectorAll(".ztp-top-video .zt-stack-card,.ztp-top-videos .zt-stack-card").length,
+               videos:document.querySelectorAll(".ztp-review-videos .ztp-review-card").length,
+               reviewTitle:document.querySelector(".ztp-review-videos>h2")?.textContent.trim(),
+               reviewVideoIds:[...document.querySelectorAll(".ztp-review-videos .ztp-review-card a")].map(a=>new URL(a.href).searchParams.get("v")),
+               reviewYoutubeLinks:[...document.querySelectorAll(".ztp-review-videos .ztp-review-card a")].every(a=>a.href.startsWith("https://www.youtube.com/watch?v=")),
+               completeVideos:!!document.querySelector(".ztp-news-rail .zt-video-stack #ztStackList"),
+               fullVideoCards:document.querySelectorAll(".ztp-news-rail .zt-video-stack #ztStackList .zt-stack-card").length,
+               videoAfterInside:(()=>{const a=document.querySelector(".ztp-news-rail .zt-special-box[data-special-section='gaming']");const b=document.querySelector(".ztp-news-rail .zt-video-stack");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
                scrollWidth:document.documentElement.scrollWidth,viewportWidth:window.innerWidth,
                gridCols:getComputedStyle(document.querySelector(".ztp-three-columns")).gridTemplateColumns,
                availableGridWidth:document.querySelector(".ztp-three-columns").getBoundingClientRect().width-32,
@@ -56,7 +67,10 @@ jobs:
               }
              });
              console.log(size.label,JSON.stringify(v));
-             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||!v.impactMoved||!v.editorialHeading||v.gamingLabels!==7||v.articleCount!==15||v.videos!==4||!v.top||!v.guide||!v.news)throw Error("Missing sections or four real channel videos on "+size.label);
+             if(!v.tech||!v.gaming||!v.rail||!v.popularMoved||!v.gamingInsideMoved||!v.impactMoved||!v.editorialHeading||v.gamingLabels!==7||v.articleCount!==15||v.videos!==3||!v.top||!v.guide||!v.news)throw Error("Missing sections or three latest video reviews on "+size.label);
+             if(v.reviewTitle!=="ULTIME VIDEO RECENSIONI"||!v.reviewYoutubeLinks)throw Error("Video reviews must have correct title and direct YouTube links");
+             if(!v.completeVideos||v.fullVideoCards<5||!v.videoAfterInside)throw Error("ULTIMI VIDEO module must remain whole, after Gaming Inside");
+             if(v.reviewVideoIds[0]!=="WwGAaKGfoGY")throw Error("Most recent review should be Sesame Street");
              if(size.label!=="mobile" && Math.abs(v.top.bottom-v.leftVideo.bottom)>5)throw Error("Whitespace below latest videos: "+(v.top.bottom-v.leftVideo.bottom)+"px");
              if(v.news.y < v.guide.y)throw Error("News rendered above Guide on "+size.label);
              const precedingBottom=size.label==="desktop"?v.guide.bottom:v.top.bottom;
@@ -68,7 +82,7 @@ jobs:
               const expected=[.45,.35,.20];
               if(actual.some((x,i)=>Math.abs(x-expected[i])>.012))throw Error("Wrong desktop ratios "+JSON.stringify(actual));
               if(v.cardImages[0].w<v.tech.w*.8)throw Error("Featured Tech image is not large enough");
-              if(v.leftVideo.h<v.guide.bottom-v.top.y-6)throw Error("Video column does not align with Guide");
+              if(v.leftVideo.h<v.guide.bottom-v.top.y-6)throw Error("Review video column does not align with Guide");
              }else if(size.label==="tablet"){
               if(!(v.tech.x<v.gaming.x&&v.rail.y>v.tech.y))throw Error("Tablet must use two columns with editorial boxes below");
              }else{
