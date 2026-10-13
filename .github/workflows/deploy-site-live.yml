@@ -45,6 +45,10 @@ jobs:
       # Never serve an unstyled legacy article or mixed five/eight-button menu.
       # This runs after repository sync, without touching YouTube data or
       # committing any editorial changes.
+      - name: Refresh five latest review cards from published site archive and Community
+        run: |
+          python3 -m py_compile scripts/refresh-home-latest-reviews.py scripts/update-youtube-posts.py
+          python3 scripts/refresh-home-latest-reviews.py
       - name: Apply canonical site header and shared CSS to every HTML page
         run: |
           python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py scripts/build-related-content.py
