@@ -735,6 +735,8 @@ html.ztp-home-live-ready #ztCanonicalNews{display:none!important}
 @media(max-width:1380px){.ztp-news-rail .ztp-editorial-archive{display:none!important}}
 </style>
 <link rel="stylesheet" href="/zt-thumbnails.css?v=20261013showFullArt2" data-zt-thumbnails="center">
+<link rel="stylesheet" href="/zt-home-crop-preview.css?v=preview20261013a" data-zt-home-crop-preview="true">
+<!-- BEGIN HOME COVER COMPARISON: preview channel ONLY -->
 </head>
 <body>
 <header>
@@ -1436,6 +1438,24 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
 </script>
 
 <script defer src="/zt-home-live.js?v=20261013cleanEditorial20261013"></script>
+<!-- HOME COVER APPROVAL PREVIEW. NOT PART OF PRODUCTION. -->
+<div id="zt-home-crop-preview-panel" role="group" aria-label="Confronta ritagli miniature Home">
+  <span id="zt-home-crop-preview-status" aria-live="polite">Anteprima: ritagli corretti</span>
+  <button type="button" id="zt-home-crop-preview-toggle">Confronta con prima</button>
+</div>
+<script>
+(function(){
+  var toggle=document.getElementById("zt-home-crop-preview-toggle");
+  var status=document.getElementById("zt-home-crop-preview-status");
+  if(!toggle||!status)return;
+  toggle.addEventListener("click",function(){
+    var before=document.documentElement.classList.toggle("zt-preview-before");
+    status.textContent=before?"Originale (prima)":"Anteprima: ritagli corretti";
+    toggle.textContent=before?"Mostra correzioni":"Confronta con prima";
+    toggle.setAttribute("aria-pressed",before?"true":"false");
+  });
+}());
+</script>
 </body>
 </html>
 <!-- ZT_POLY_FIGHTER_PREVIEW_DEPLOY_20261013 (anteprima-poly-fighter-recensione-pc-20261013.html noindex; archive untouched) -->
