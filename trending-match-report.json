@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-13T15:08:03.793487+00:00",
+  "checked_at": "2026-10-13T16:06:26.690947+00:00",
   "source_sites": 16,
-  "matches": 2,
+  "matches": 3,
   "selected": [
     {
       "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
@@ -20,29 +20,35 @@
       ]
     },
     {
-      "title": "News: Trust punta sul benessere digitale, dalla postura alle periferiche ergonomiche per lavoro e gaming",
+      "title": "News: PUBG Mobile Global Open 2026 Season 2, nuovo formato e montepremi da 500.000 dollari",
       "section": "tech",
-      "url": "/news-Ugkxka6JuXiolB2wKRFgTtZc1o91E8yqNdTC.html",
+      "url": "/news-UgkxIr1ovTsXpg6l496osuO5FluCv2lu6j84.html",
       "trend_score": 0,
       "published_date": "2026-10-13",
       "freshness_bonus": 72,
       "selection_score": 72.0,
       "sources": []
+    },
+    {
+      "title": "News: Battlefield 6 Stagione 5 parte oggi con Las Vegas, Area 51, Rapid Royale e crossover Dead Space",
+      "section": "gaming",
+      "url": "/news-UgkxpDZIazqC27JoPRdG2K77ILgLd-SO7YjZ.html",
+      "trend_score": 59.02,
+      "published_date": "2026-10-13",
+      "freshness_bonus": 72,
+      "selection_score": 110.36,
+      "sources": [
+        {
+          "site": "Everyeye.it",
+          "title": "Battlefield 6 ci porta a Las Vegas: tutte le novità della Stagione 5, c'è anche Dead Space",
+          "score": 0.5902
+        }
+      ]
     },
     {
       "title": "News: Hasbro Games Junior Collection riunisce Monopoly, Cluedo e Il Gioco della Vita in una raccolta per tutta la famiglia",
       "section": "gaming",
       "url": "/news-UgkxMTZQbn8_4sBm7wYsDr05JQw2QlkETTRk.html",
-      "trend_score": 0,
-      "published_date": "2026-10-13",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
-    },
-    {
-      "title": "News: SpongeBob SquarePants: Titans of the Tide arriva su Nintendo Switch con una nuova avventura soprannaturale",
-      "section": "gaming",
-      "url": "/news-Ugkxl17bPN19FULJSV8eSqGMxWmeBJe-GV4X.html",
       "trend_score": 0,
       "published_date": "2026-10-13",
       "freshness_bonus": 72,
