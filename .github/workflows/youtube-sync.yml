@@ -10,9 +10,16 @@ on:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
       - 'scripts/test_review_dedup.py'
+      - 'scripts/test_community_freshness.py'
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
   workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Rebuild all Community and video HTML even if YouTube content is unchanged'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -39,8 +46,9 @@ jobs:
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_review_dedup.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_review_dedup.py scripts/test_community_freshness.py
           python3 scripts/test_review_dedup.py
+          python3 scripts/test_community_freshness.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
@@ -52,7 +60,7 @@ jobs:
         id: community_sync
         continue-on-error: true
         env:
-          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
+          ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
@@ -97,7 +105,7 @@ jobs:
         if: steps.community_commit.outputs.changed == 'true'
         continue-on-error: true
         env:
-          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
+          ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
           for attempt in 1 2 3; do
             git fetch origin main
@@ -142,7 +150,7 @@ jobs:
         continue-on-error: true
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
+          ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
           python3 scripts/update-youtube.py
           python3 scripts/validate-sync-output.py videos
@@ -319,7 +327,7 @@ jobs:
         if: always() && ((steps.video_commit.outputs.changed == 'true' && steps.video_push.outputs.published != 'true') || steps.related_commit.outputs.changed == 'true' || steps.analytics_commit.outputs.changed == 'true' || steps.search_commit.outputs.changed == 'true' || (steps.community_commit.outputs.changed == 'true' && steps.community_push.outcome == 'failure'))
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_FORCE_SYNC: ${{ github.event_name == 'workflow_dispatch' }}
+          ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
           for attempt in 1 2 3; do
             git fetch origin main
