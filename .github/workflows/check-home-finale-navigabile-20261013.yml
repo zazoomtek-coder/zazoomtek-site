@@ -1,0 +1,98 @@
+name: Validate navigable final ZazoomTek Home preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/check-home-finale-navigabile-20261013.yml'
+permissions:
+  contents: read
+jobs:
+  browser-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Prepare real Chrome preview checks
+        run: |
+          command -v google-chrome
+          mkdir -p /tmp/zt-final
+          cd /tmp/zt-final
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Check responsive layout, actual news, YouTube links and spaces
+        env:
+          NODE_PATH: /tmp/zt-final/node_modules
+        run: |
+          cat > /tmp/zt-final/check.js <<'JS'
+          const {chromium}=require("playwright-core");
+          async function inspect(){
+           const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
+           try{
+            const url="https://zazoomtek.it/anteprima-home-finale-navigabile-20261013.html";
+            const sizes=[{label:"desktop",width:1600,height:900},{label:"tablet",width:1100,height:900},{label:"mobile",width:390,height:844}];
+            for(const size of sizes){
+             const p=await browser.newPage({viewport:{width:size.width,height:size.height}});
+             let valid=false;
+             for(let attempt=0;attempt<28;attempt++){
+               await p.goto(url+"?livecheck="+attempt,{waitUntil:"domcontentloaded",timeout:45000});
+               if(await p.locator(".ztp-final-three .ztp-news-rail #zt-popular-box").count() &&
+                  await p.locator("#ztpVideosAnchor .zt-home-shelves .zt-shelf").count()===2){valid=true;break;}
+               if(attempt!==27)await p.waitForTimeout(5000);
+             }
+             if(!valid)throw Error("New preview not live after polling");
+             await p.waitForTimeout(900);
+             const result=await p.evaluate(()=>{
+              const rect=q=>{const el=document.querySelector(q);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom};};
+              const tech=rect(".ztp-news-tech"),gaming=rect(".ztp-news-gaming"),rail=rect(".ztp-news-rail");
+              const storyLinks=[...document.querySelectorAll(".ztp-news-item h3 a")].map(x=>x.getAttribute("href"));
+              return {
+               tech,gaming,rail,
+               area:rect(".ztp-news-area"),primary:rect(".ztp-primary-feed"),
+               shelves:rect("#ztpVideosAnchor .zt-home-shelves"),
+               title:document.title,
+               actualRatios:tech&&gaming&&rail?
+                 [tech.w,gaming.w,rail.w].map(w=>w/(tech.w+gaming.w+rail.w)) : [],
+               liveNews:document.querySelectorAll(".ztp-news-item").length,
+               duplicates:storyLinks.length-new Set(storyLinks).size,
+               archivesVisible:document.querySelectorAll(".ztp-gaming-extra.ztp-extra-visible").length,
+               reviews:document.querySelectorAll(".ztp-review-card a[href^='https://www.youtube.com/watch?v=']").length,
+               shelvesCount:document.querySelectorAll("#ztpVideosAnchor .zt-shelf").length,
+               videoCards:document.querySelectorAll("#ztpVideosAnchor .zt-shelf:not(:has(.zt-shelf-shorts)) .zt-shelf-card").length,
+               shortsCards:document.querySelectorAll("#ztpVideosAnchor .zt-shelf-shorts .zt-shelf-card").length,
+               fullVideoSidebar:document.querySelectorAll(".ztp-news-rail #ztStackList .zt-stack-card").length,
+               popular:!!document.querySelector(".ztp-news-rail #zt-popular-box"),
+               impact:!!document.querySelector(".ztp-news-rail .zt-special-box[data-special-section='tech']"),
+               inside:!!document.querySelector(".ztp-news-rail .zt-special-box[data-special-section='gaming']"),
+               nav:!!document.querySelector('header nav'),
+               guides:!!document.querySelector("#ztHomeGuide"),
+               newsLink:!!document.querySelector('a[href="/news.html"]'),
+               page2:!!document.querySelector('.ztp-news-pagination-internal a[href="/pagina-2.html"]'),
+               overflow:document.documentElement.scrollWidth-window.innerWidth,
+              };
+             });
+             console.log(size.label,JSON.stringify(result));
+             if(!result.tech||!result.gaming||!result.rail||!result.primary||!result.shelves)throw Error("Missing sections "+size.label);
+             if(result.liveNews<15||result.duplicates||result.reviews!==3||result.shelvesCount!==2||result.videoCards!==6||result.shortsCards!==6)throw Error("Broken real news/video content "+size.label);
+             if(!result.popular||!result.impact||!result.inside||!result.nav||!result.guides||!result.page2||result.fullVideoSidebar<5)throw Error("Real live navigation or sidebar missing "+size.label);
+             if(result.overflow>8)throw Error("Unexpected horizontal scrolling "+size.label+" "+result.overflow);
+             if(size.label==="desktop"){
+               if(!(result.tech.x<result.gaming.x&&result.gaming.x<result.rail.x))throw Error("Not three aligned columns");
+               if(result.actualRatios.some((v,i)=>Math.abs(v-[.45,.35,.20][i])>.015))throw Error("Wrong widths "+JSON.stringify(result.actualRatios));
+               if(Math.abs(result.tech.b-result.gaming.b)>190)throw Error("Visible empty hole below Gaming: "+Math.abs(result.tech.b-result.gaming.b));
+             }else if(size.label==="tablet"){
+               if(!(result.tech.x<result.gaming.x&&result.rail.y>result.tech.y))throw Error("Tablet 2col failed");
+             }else if(!(result.tech.y<result.gaming.y&&result.gaming.y<result.rail.y))throw Error("Mobile stack failed");
+             await p.screenshot({path:"/tmp/zt-final/"+size.label+".png",fullPage:false});
+             console.log("PASS "+size.label);
+             await p.close();
+            }
+           }finally{await browser.close();}
+          }
+          inspect().catch(e=>{console.error("FAIL",e);process.exit(1)})
+          JS
+          node /tmp/zt-final/check.js
+      - name: Save desktop tablet mobile screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zt-final-live-home-desktop-tablet-mobile
+          path: /tmp/zt-final/*.png
+          if-no-files-found: ignore
