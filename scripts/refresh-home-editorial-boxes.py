@@ -119,7 +119,7 @@ def esc(value: str) -> str:
 def editorial_category(item: dict) -> str:
     """Classify public editorials by the article's actual topic, not opaque video IDs."""
     title = item["title"].casefold()
-    gaming_terms = ['ea sports fc','tower tactics','talos principle','ace combat','dragon’s dogma','dragon's dogma','call of duty','gta ','tekken','street fighter','nintendo','playstation','xbox','steam','gameplay','videogioc','gaming','sonic racing','fc 27','battlefield','ps5','ps4','wolverine','the witcher','chivalware','monster hunter','dead spin','forza horizon']
+    gaming_terms = ["ea sports fc","tower tactics","talos principle","ace combat","dragon’s dogma","dragon's dogma","call of duty","gta ","tekken","street fighter","nintendo","playstation","xbox","steam","gameplay","videogioc","gaming","sonic racing","fc 27","battlefield","ps5","ps4","wolverine","the witcher","chivalware","monster hunter","dead spin","forza horizon"]
     return "GAMING" if any(word in title for word in gaming_terms) else "TECNOLOGIA"
 
 def popular_cards(items: list[dict]) -> str:
