@@ -80,9 +80,18 @@ def validate_videos():
     ids=[v.get("id") for v in videos if isinstance(v,dict)]
     if len(ids)!=len(videos) or len(set(ids))!=len(ids):
         fail("video state has missing or duplicate IDs")
-    newest=ids[0]
-    if newest not in index:
-        fail("newest YouTube upload is not referenced by index build state")
+    # All public videos must be imported even if they have no editorial playlist.
+    # The Home's curated six tiles are not a complete catalogue of the channel.
+    feed=load_json_list("home-video-feed.json",1)
+    feed_ids=[v.get("id") for v in feed if isinstance(v,dict)]
+    if len(feed_ids)!=len(set(feed_ids)):
+        fail("duplicate video IDs in the public all-channel feed")
+    public_ids=[
+        v["id"] for v in videos
+        if isinstance(v,dict) and v.get("id") and not v.get("live")
+    ]
+    if public_ids and public_ids[0] not in feed_ids:
+        fail("newest public YouTube upload is missing from the all-channel site feed")
     for page in ("gaming.html","recensioni.html","test.html","unboxing.html"):
         validate_html_file(page,2500)
     m=re.search(

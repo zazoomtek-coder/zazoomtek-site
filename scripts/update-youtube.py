@@ -2,6 +2,7 @@
 import html, json, os, re, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 from datetime import datetime
+from xml.etree import ElementTree as ET
 
 CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
 HANDLE="@ZazoomTek"
@@ -45,6 +46,53 @@ def get(endpoint, **params):
             time.sleep(wait)
 
     raise last_error
+
+def official_rss_recent_ids(previous_ids, playlist_ids):
+    """Cross-check the official channel Atom feed if the uploads playlist is stale.
+
+    IDs are later verified through videos.list to belong to this exact channel.
+    An unreachable RSS endpoint never prevents ordinary Data API imports.
+    """
+    endpoint="https://www.youtube.com/feeds/videos.xml?channel_id="+CHANNEL_ID
+    try:
+        req=urllib.request.Request(endpoint,headers={
+            "User-Agent":"Mozilla/5.0","Accept":"application/atom+xml","Cache-Control":"no-cache"})
+        with urllib.request.urlopen(req,timeout=10) as response:
+            payload=response.read(350000)
+        root=ET.fromstring(payload)
+        namespace={"atom":"http://www.w3.org/2005/Atom",
+                   "yt":"http://www.youtube.com/xml/schemas/2015"}
+        channel=root.findtext("yt:channelId",default="",namespaces=namespace)
+        if channel != CHANNEL_ID:
+            raise RuntimeError("Channel ID mismatch on official RSS")
+        ids=[]
+        for entry in root.findall("atom:entry",namespace):
+            pid=(entry.findtext("yt:videoId",default="",namespaces=namespace) or "").strip()
+            if re.fullmatch(r"[A-Za-z0-9_-]{11}",pid) and pid not in ids:
+                ids.append(pid)
+        missing=[pid for pid in ids if pid not in previous_ids and pid not in playlist_ids]
+        if missing:
+            print(f"Official YouTube Atom feed lists {len(missing)} new upload(s) missing from the first playlist scan.")
+        return missing
+    except Exception as err:
+        print(f"Official Atom feed temporarily unavailable; verified API scan continues: {err}")
+        return []
+
+
+def safe_playlist_ids(playlist_id, category, previous):
+    """One broken/empty editorial playlist must never block new channel uploads."""
+    backup={v["id"] for v in previous if isinstance(v,dict)
+            and v.get("id") and v.get("category")==category}
+    try:
+        found=playlist_video_ids(playlist_id)
+        if not found and backup:
+            print(f"Playlist {category} was unexpectedly empty; preserving {len(backup)} known associations.")
+            return backup
+        return found
+    except Exception as err:
+        print(f"Playlist {category} temporarily unavailable; retaining {len(backup)} associations: {err}")
+        return backup
+
 
 def cached_video(item):
     """Rebuild the small API-like shape needed by the renderer from saved state."""
@@ -99,6 +147,12 @@ def uploads(previous=None, recent_limit=100):
     if previous and not ids:
         raise RuntimeError("YouTube recent uploads response was empty.")
 
+    # A second official channel source reduces the chance of a late-upload gap.
+    previous_ids={v.get("id") for v in previous if isinstance(v,dict) and v.get("id")}
+    missing=official_rss_recent_ids(previous_ids,set(ids))
+    if missing:
+        ids=list(dict.fromkeys(missing+ids))
+
     fresh=[]
     for i in range(0,len(ids),50):
         fresh.extend(
@@ -108,6 +162,8 @@ def uploads(previous=None, recent_limit=100):
                 id=",".join(ids[i:i+50])
             ).get("items",[])
         )
+    # Only import videos that YouTube confirms were published by this channel.
+    fresh=[v for v in fresh if v.get("snippet",{}).get("channelId",CHANNEL_ID)==CHANNEL_ID]
     fresh=sorted(fresh,key=lambda x:x["snippet"]["publishedAt"],reverse=True)
 
     if not previous:
@@ -647,32 +703,14 @@ def main():
                 f"previous valid state had {len(previous)}. Site left unchanged."
             )
 
-    TEST_VIDEO_IDS=playlist_video_ids(TEST_PLAYLIST_ID)
-    GAMING_VIDEO_IDS=playlist_video_ids(GAMING_PLAYLIST_ID)
-    UNBOXING_VIDEO_IDS=playlist_video_ids(UNBOXING_PLAYLIST_ID)
-    REVIEWS_VIDEO_IDS=playlist_video_ids(REVIEWS_PLAYLIST_ID)
-    ANALOGIKTEK_VIDEO_IDS=playlist_video_ids(ANALOGIKTEK_PLAYLIST_ID)
+    TEST_VIDEO_IDS=safe_playlist_ids(TEST_PLAYLIST_ID,"test",previous)
+    GAMING_VIDEO_IDS=safe_playlist_ids(GAMING_PLAYLIST_ID,"gaming",previous)
+    UNBOXING_VIDEO_IDS=safe_playlist_ids(UNBOXING_PLAYLIST_ID,"unboxing",previous)
+    REVIEWS_VIDEO_IDS=safe_playlist_ids(REVIEWS_PLAYLIST_ID,"recensioni",previous)
+    ANALOGIKTEK_VIDEO_IDS=safe_playlist_ids(ANALOGIKTEK_PLAYLIST_ID,"analogiktek",previous)
 
-    # If a category that previously had videos suddenly comes back empty,
-    # treat it as a bad API read rather than wiping that category from the site.
-    previous_categories={}
-    for item in previous:
-        cat=item.get("category") if isinstance(item,dict) else None
-        if cat:
-            previous_categories[cat]=previous_categories.get(cat,0)+1
-    current_playlists={
-        "test":TEST_VIDEO_IDS,
-        "gaming":GAMING_VIDEO_IDS,
-        "unboxing":UNBOXING_VIDEO_IDS,
-        "recensioni":REVIEWS_VIDEO_IDS,
-        "analogiktek":ANALOGIKTEK_VIDEO_IDS,
-    }
-    for category,ids in current_playlists.items():
-        if previous_categories.get(category,0)>0 and not ids:
-            raise RuntimeError(
-                f"YouTube safety check failed: playlist {category} unexpectedly empty. "
-                "Site left unchanged."
-            )
+    # Previously approved playlist classifications are preserved by safe_playlist_ids.
+    # The main uploader still sees all public channel videos when a playlist fails.
 
     short_ids=youtube_short_ids()
     if short_ids is None:
@@ -713,15 +751,13 @@ def main():
             "id":v["id"],
             "title":v["snippet"]["title"],
             "publishedAt":v["snippet"]["publishedAt"],
-            "category":classify(v),
+            "category":classify(v) or "video",
             "short":(v["id"] in short_ids) or bool(v.get("_cached_short")),
             "live":is_live_upload(v),
             "completedLive":is_completed_broadcast(v)
         }
         for v in vids
-        if classify(v) in ("gaming","recensioni","unboxing","test","analogiktek")
-        or (v["id"] in short_ids) or bool(v.get("_cached_short"))
-        or is_completed_broadcast(v)
+        if not is_live_upload(v)
     ][:200]
     Path("home-video-feed.json").write_text(
         json.dumps(visible_items,ensure_ascii=False,indent=2)+"\n",

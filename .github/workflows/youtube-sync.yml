@@ -11,6 +11,7 @@ on:
       - 'scripts/update-youtube-posts.py'
       - 'scripts/test_review_dedup.py'
       - 'scripts/test_community_freshness.py'
+      - 'scripts/test_video_sync_reliability.py'
       - 'scripts/update-youtube.py'
       - 'scripts/validate-sync-output.py'
   workflow_dispatch:
@@ -46,9 +47,10 @@ jobs:
 
       - name: Validate sync programs
         run: |
-          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_review_dedup.py scripts/test_community_freshness.py
+          python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_review_dedup.py scripts/test_community_freshness.py scripts/test_video_sync_reliability.py
           python3 scripts/test_review_dedup.py
           python3 scripts/test_community_freshness.py
+          python3 scripts/test_video_sync_reliability.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
@@ -339,10 +341,9 @@ jobs:
               # replay the validated imports onto the latest remote contents.
               git rebase --abort || true
               git reset --hard origin/main
-              python3 scripts/update-youtube-posts.py
-              python3 scripts/validate-sync-output.py community
-              python3 scripts/update-youtube.py
-              python3 scripts/validate-sync-output.py videos
+              # Primary Community and video imports were already published
+              # independently. Replay ONLY these optional builders after a conflict.
+              # Never re-scan all of YouTube just to rebuild related links.
               # Never block published Community news on optional sidebars/search.
               python3 scripts/build-related-content.py || echo 'Related links postponed.'
               python3 scripts/inject-analytics.py || echo 'Analytics refresh postponed.'
