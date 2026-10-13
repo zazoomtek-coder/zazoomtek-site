@@ -9,7 +9,7 @@ RETRY={408,429,500,502,503,504}
 class GeminiRequestError(RuntimeError):pass
 
 def choose(configured,available,extra=""):
-    names=[configured,extra,"gemini-2.5-flash-lite","gemini-3.5-flash-lite"]
+    names=[configured,extra,"gemini-2.5-flash-lite","gemini-3.5-flash-lite","gemini-3.5-flash","gemini-2.5-flash"]
     return [m for m in dict.fromkeys(names) if m in available
             and re.fullmatch(r"gemini-[a-z0-9.-]+",str(m or ""))]
 
@@ -46,6 +46,11 @@ def recover(models,send,sleep=time.sleep):
         for attempt in range(2):
             try:return send(model),model
             except urllib.error.HTTPError as exc:
+                if exc.code in (404,410):
+                    # A listed API model can still lack generateContent on the
+                    # active endpoint. Skip it, do not abort the whole pipeline.
+                    issues.append(f"{model}: model endpoint unavailable ({exc.code})")
+                    break
                 if exc.code not in RETRY:
                     raise GeminiRequestError(f"Gemini {model} HTTP {exc.code} (not retryable)") from None
                 issues.append(f"{model}: HTTP {exc.code}")
@@ -74,6 +79,14 @@ def self_test():
         return {"drafts":[]}
     value,model=recover(["gemini-3.5-flash-lite","gemini-2.5-flash-lite"],fake,lambda _:None)
     assert model=="gemini-2.5-flash-lite" and value=={"drafts":[]} and len(events)==3
+    checks=[]
+    def missing(m):
+        checks.append(m)
+        if m=="gemini-2.5-flash-lite":
+            raise urllib.error.HTTPError("https://invalid.example",404,"missing",{},None)
+        return {"drafts":[]}
+    value,model=recover(["gemini-2.5-flash-lite","gemini-3.5-flash"],missing,lambda _:None)
+    assert model=="gemini-3.5-flash" and len(checks)==2
     try:
         recover(["gemini-2.5-flash-lite"],lambda m:
             (_ for _ in ()).throw(urllib.error.HTTPError("https://invalid.example",403,"forbidden",{},None)),lambda _:None)
