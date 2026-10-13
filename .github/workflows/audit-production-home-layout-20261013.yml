@@ -1,0 +1,120 @@
+name: Audit production-safe approved Home layout
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-production-home-layout-20261013.yml'
+      - 'zt-home-live.js'
+permissions:
+  contents: read
+jobs:
+  browser-and-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source contracts before actual Home replacement
+        run: |
+          python3 - <<'PY'
+          import pathlib,re
+          src=pathlib.Path("index.html").read_text()
+          stage=pathlib.Path("anteprima-home-produzione-validazione-20261013.html").read_text()
+          for html in [src,stage]:
+              assert html.count("<!-- ARTICLE_FEED_START -->")==1
+              assert html.count("<!-- ARTICLE_FEED_END -->")==1
+              assert html.count("<!-- HOME_GUIDES_INSET_START -->")==1
+              assert html.count("<!-- FEATURED_NEWS_START -->")==1
+          assert len(re.findall(r'<article class="article-row"',stage))==15
+          assert 'zt-home-live.js?v=20261013approved45-35-20' in stage
+          assert 'noindex,nofollow' in stage
+          assert 'noindex,nofollow' not in src
+          print("PASS: 15 canonical news, stable import markers, public Home unchanged")
+          PY
+      - name: Browser prerequisites
+        run: |
+          command -v google-chrome
+          mkdir -p /tmp/zt-prod-audit
+          cd /tmp/zt-prod-audit
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Verify actual rendered page and links, images, videos across viewports
+        env:
+          NODE_PATH: /tmp/zt-prod-audit/node_modules
+        run: |
+          cat > /tmp/zt-prod-audit/check.cjs <<'JS'
+          const {chromium}=require("playwright-core");
+          async function main(){
+           const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
+           try{
+            const url="https://zazoomtek.it/anteprima-home-produzione-validazione-20261013.html";
+            for(const v of [{label:"desktop",width:1600,height:900},{label:"tablet",width:1100,height:900},{label:"mobile",width:390,height:844}]){
+             const page=await browser.newPage({viewport:{width:v.width,height:v.height}});
+             let errors=[];page.on("pageerror",e=>errors.push(e.message));
+             let visible=false;
+             for(let retry=0;retry<22;retry++){
+              await page.goto(url+"?qa="+retry,{waitUntil:"domcontentloaded",timeout:45000});
+              if(await page.locator(".ztp-final-three .ztp-news-rail .ztp-rail-shorts .zt-shelf-card").count()===6){visible=true;break;}
+              if(retry!==21)await page.waitForTimeout(4000);
+             }
+             if(!visible)throw Error("Fresh staging page failed to render genuine Shorts");
+             await page.waitForTimeout(900);
+             const d=await page.evaluate(()=>{
+               const bounds=q=>{const el=document.querySelector(q);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom};};
+               const photos=[...document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image")];
+               const links=[...document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) h3 a")].map(a=>a.getAttribute("href"));
+               const newsTech=bounds(".ztp-news-tech"),newsGaming=bounds(".ztp-news-gaming"),newsRail=bounds(".ztp-news-rail");
+               return {
+                tech:newsTech,gaming:newsGaming,rail:newsRail,
+                primary:bounds(".ztp-primary-feed"),video:bounds("#ztpVideosAnchor .zt-shelf"),
+                newsCount:links.length,distinctLinks:new Set(links).size,
+                techCount:document.querySelectorAll(".ztp-news-tech .ztp-news-items > .ztp-news-item").length,
+                gamingCount:document.querySelectorAll(".ztp-news-gaming .ztp-news-items > .ztp-news-item").length,
+                visibleArchive:document.querySelectorAll(".ztp-gaming-extra.ztp-extra-visible").length,
+                imagesOk:photos.filter(img=>img.complete&&img.naturalWidth>1).length,
+                imagesTotal:photos.length,
+                selectedReviewCount:document.querySelectorAll(".ztp-review-card a[href^='https://www.youtube.com/watch?v=']").length,
+                primaryVideoTitle:document.querySelector("#ztpVideosAnchor .zt-shelf h2")?.textContent,
+                primaryVideoCount:document.querySelectorAll("#ztpVideosAnchor .zt-shelf-card").length,
+                railShortCount:document.querySelectorAll(".ztp-news-rail .ztp-rail-shorts .zt-shelf-card").length,
+                shortsTitle:document.querySelector(".ztp-news-rail .ztp-rail-shorts h2")?.textContent,
+                noOldStack:document.querySelectorAll(".ztp-news-rail .zt-video-stack").length===0,
+                shortsAfterInside:(()=>{const a=document.querySelector('.ztp-news-rail .zt-special-box[data-special-section="gaming"]'),b=document.querySelector(".ztp-news-rail .ztp-rail-shorts");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
+                guides:!!document.querySelector("#ztHomeGuide"),reviews:!!document.querySelector(".latest-reviews-module"),
+                navCount:document.querySelectorAll('header nav a').length,
+                pagesLink:!!document.querySelector("#ztpNewsPager a[href='/pagina-2.html']"),
+                canonicalFeedMarker:document.documentElement.innerHTML.includes("<!-- ARTICLE_FEED_START -->"),
+                overflow:document.documentElement.scrollWidth-window.innerWidth,
+               };
+             });
+             console.log(v.label,JSON.stringify(d),errors);
+             if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
+             if(d.newsCount!==15||d.distinctLinks!==15||d.selectedReviewCount!==3)throw Error("Original news and reviews are broken");
+             if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
+             if(!d.noOldStack||!d.shortsAfterInside||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
+             if(d.overflow>8)throw Error("Mobile horizontal overflow");
+             if(d.imagesOk<d.imagesTotal*.75)throw Error("Too many broken news thumbnails");
+             if(errors.length)throw Error("JavaScript errors: "+errors.join(" ; "));
+             if(v.label==="desktop"){
+              if(!(d.tech.x<d.gaming.x&&d.gaming.x<d.rail.x))throw Error("Desktop no three editorial columns");
+              const r=[d.tech.w,d.gaming.w,d.rail.w],sum=r.reduce((a,b)=>a+b,0);
+              if(r.some((w,i)=>Math.abs(w/sum-[.45,.35,.20][i])>.015))throw Error("Wrong 45/35/20 ratio");
+              if(Math.abs(d.tech.b-d.gaming.b)>180)throw Error("Unbalanced news column heights");
+              if(Math.abs(d.primary.b-d.rail.b)>200)throw Error("Empty white gap at bottom of columns");
+             }else if(v.label==="tablet"){
+              if(!(d.tech.x<d.gaming.x&&d.rail.y>d.tech.y))throw Error("Tablet two-column layout broken");
+             }else if(!(d.tech.y<d.gaming.y&&d.gaming.y<d.rail.y))throw Error("Mobile stacked layout broken");
+             await page.screenshot({path:"/tmp/zt-prod-audit/"+v.label+".png",fullPage:false});
+             console.log("PASS "+v.label);
+             await page.close();
+            }
+           }finally{await browser.close()}
+          }
+          main().catch(e=>{console.error("FAIL",e);process.exit(1)});
+          JS
+          node /tmp/zt-prod-audit/check.cjs
+      - name: Retain screenshot evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validated-production-home-preview
+          path: /tmp/zt-prod-audit/*.png
+          if-no-files-found: ignore
