@@ -23,7 +23,7 @@
 
 /* Homepage video and Shorts collections. Uses only videos actually published by ZazoomTek.
    Safely falls back to the last verified six videos/shorts if the feed is unavailable. */
-const ztHomeVideoFallback=[{"id":"O6VxSf8cYt0","title":"Dead Spin PC - Primo Sguardo","publishedAt":"2026-10-04T10:22:15Z","category":"gaming","short":false,"completedLive":false},{"id":"fKiuvUW5eKI","title":"🐰 WALTO | Recensione PC - Boss rush oscuro tra schivate e attacchi","publishedAt":"2026-10-05T12:28:27Z","category":"recensioni","short":false,"completedLive":false},{"id":"lmOGs9M_vhw","title":"IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?","publishedAt":"2026-09-12T12:54:11Z","category":"unboxing","short":false,"completedLive":false},{"id":"An2RZr9_Cxs","title":"Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming","publishedAt":"2026-09-08T09:32:22Z","category":"analogiktek","short":false,"completedLive":false},{"id":"WmIXQGZYhTc","title":"realme C100 5G Test Gaming","publishedAt":"2026-05-21T08:00:24Z","category":"test","short":false,"completedLive":false},{"id":"nQ26PED9Rgc","title":"ACE COMBAT 8 PS5 – Missione 2 NOMAD | Difendiamo la Flotta! Gameplay ITA","publishedAt":"2026-10-08T05:38:42Z","category":"gameplay","short":false,"completedLive":true}];
+const ztHomeVideoFallback=[{"id":"O6VxSf8cYt0","title":"Dead Spin PC - Primo Sguardo","publishedAt":"2026-10-04T10:22:15Z","category":"gaming","short":false,"completedLive":false},{"id":"fKiuvUW5eKI","title":"🐰 WALTO | Recensione PC - Boss rush oscuro tra schivate e attacchi","publishedAt":"2026-10-05T12:28:27Z","category":"recensioni","short":false,"completedLive":false},{"id":"lmOGs9M_vhw","title":"IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?","publishedAt":"2026-09-12T12:54:11Z","category":"unboxing","short":false,"completedLive":false},{"id":"An2RZr9_Cxs","title":"Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming","publishedAt":"2026-09-08T09:32:22Z","category":"analogiktek","short":false,"completedLive":false},{"id":"WmIXQGZYhTc","title":"realme C100 5G Test Gaming","publishedAt":"2026-05-21T08:00:24Z","category":"test","short":false,"completedLive":false},{"id":"tEkXOj7XOwA","title":"Sesame Street: Amici e risate PS5 - lungo gameplay","publishedAt":"2026-10-13T08:39:35Z","category":"gameplay","short":false,"completedLive":false}];
 const ztHomeShortFallback=[{"id":"Mf8B30PKjqY","title":"Princess of the Water Lilies gameplay on PS5","publishedAt":"2026-10-02T12:29:00Z","short":true},{"id":"EaLvvrd6ysI","title":"Tomb Raider: Legacy of Atlantis – Everything changes in Egypt: mummies and supernatural creatures","publishedAt":"2026-09-29T11:05:07Z","short":true},{"id":"FOy-9dAvFMM","title":"70mai A900 Unboxing: cosa c’è nella confezione della Dash Cam 4K","publishedAt":"2026-09-28T13:07:58Z","short":true},{"id":"PV6JenVnwTo","title":"realme Buds T500 Pro Harry Potter Edition – UNBOXING 🪄🎧","publishedAt":"2026-09-22T17:30:19Z","short":true},{"id":"R2AFPqQpHaE","title":"🎮 Marvel’s Wolverine – Gameplay PS5","publishedAt":"2026-09-17T09:58:17Z","short":true},{"id":"DdzW7c0uLN0","title":"Battlefield 6 Season 4: Furious Tide is here with a FREE TRIAL","publishedAt":"2026-09-16T12:58:04Z","short":true}];
 function ztHomeGallery(){
   const main=document.querySelector('main.page');
@@ -86,10 +86,12 @@ function ztHomeGallery(){
         || ztHomeVideoFallback.find(x=>x.category===type && !used.has(x.id));
       if(item){used.add(item.id);selected.push(Object.assign({},item,{category:type}))}
     }
-    // GAMEPLAY always occupies the last tile, reserved for the latest completed livestream.
-    let archive=clean.find(x=>x.completedLive && !x.short && !x.live && !used.has(x.id));
-    if(!archive)archive=ztHomeVideoFallback.find(x=>x.category==='gameplay' && !used.has(x.id));
-    if(archive){used.add(archive.id);selected.push(Object.assign({},archive,{category:'gameplay'}))}
+    // GAMEPLAY always occupies the last tile, but selects the most recent
+    // real, creator-approved gameplay session. A completed livestream alone
+    // does NOT make a video gameplay; edited/commented clips remain GAMING.
+    let gameplay=clean.find(x=>x.category==='gameplay' && !x.short && !x.live && !used.has(x.id));
+    if(!gameplay)gameplay=ztHomeVideoFallback.find(x=>x.category==='gameplay' && !x.short && !used.has(x.id));
+    if(gameplay){used.add(gameplay.id);selected.push(Object.assign({},gameplay,{category:'gameplay'}))}
     const shorts=clean.filter(x=>x.short&&!x.live).slice(0,6);
     if(shorts.length<6){for(const item of ztHomeShortFallback){if(shorts.length>=6)break;if(!shorts.some(s=>s.id===item.id))shorts.push(item)}}
     shelves.replaceChildren(group('ESPLORA VIDEO','https://www.youtube.com/@ZazoomTek/videos',selected.slice(0,6),false),group('ULTIMI SHORTS','https://www.youtube.com/@ZazoomTek/shorts',shorts.slice(0,6),true));

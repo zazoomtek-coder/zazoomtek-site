@@ -13,6 +13,9 @@ on:
       - 'scripts/test_community_freshness.py'
       - 'scripts/test_video_sync_reliability.py'
       - 'scripts/update-youtube.py'
+      - 'zt-visual.js'
+      - 'gameplay-video-rules.json'
+      - 'scripts/test_home_esplora_gameplay.py'
       - 'scripts/validate-sync-output.py'
   workflow_dispatch:
     inputs:
@@ -51,6 +54,7 @@ jobs:
           python3 scripts/test_review_dedup.py
           python3 scripts/test_community_freshness.py
           python3 scripts/test_video_sync_reliability.py
+          python3 scripts/test_home_esplora_gameplay.py
           find scripts -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Configure Git
