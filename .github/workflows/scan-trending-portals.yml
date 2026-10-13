@@ -38,12 +38,24 @@ jobs:
           python3 scripts/publish-trending-originals.py --self-test
       - name: Install original cover renderer
         run: python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13'
-      - name: Prefer imported Community coverage or draft and fact-check missing stories
+      # The published six-card static grid never waits for an AI provider.
+      # It can always choose among existing verified ZazoomTek articles.
+      - name: Refresh News in evidenza from already published articles first
+        run: python3 scripts/trending-crosscheck.py --apply
+      - name: Research additional original articles when the model is available
+        id: new_stories
+        continue-on-error: true
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash-lite
         run: python3 scripts/publish-trending-originals.py
-      - name: Update static six-slot News in evidenza from verified published articles
+      - name: Record independent AI interruption without blocking the static news grid
+        if: steps.new_stories.outcome == 'failure'
+        run: |
+          echo "::warning::Original article generation unavailable. Existing verified articles will continue updating News in evidenza."
+          echo "### News in evidenza" >> "$GITHUB_STEP_SUMMARY"
+          echo "The external article-generation provider failed; static news refresh remains operational." >> "$GITHUB_STEP_SUMMARY"
+      - name: Reconcile the final six positions including any newly verified originals
         run: python3 scripts/trending-crosscheck.py --apply
       - name: Commit only trend metadata and placements
         id: push_trends
