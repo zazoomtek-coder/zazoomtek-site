@@ -49,12 +49,14 @@ jobs:
                  stylesheet:link?.getAttribute("href")||null,
                  images:arr.length,
                  positions:relevant.map(img=>getComputedStyle(img).objectPosition),
+                 fit:relevant.map(img=>getComputedStyle(img).objectFit),
+                 srcDimensions:relevant.map(img=>({nw:img.naturalWidth,nh:img.naturalHeight,w:img.getBoundingClientRect().width,h:img.getBoundingClientRect().height})),
                  dimensions:relevant.map(img=>({width:img.getBoundingClientRect().width,height:img.getBoundingClientRect().height})),
                  overflow:document.documentElement.scrollWidth-window.innerWidth,
                  homeCSSPresent:!!document.querySelector("#ztp-final-balanced-live-20261013"),
                 };
                },entry.selector);
-               if(response.status()===200 && report.stylesheet?.includes("20261013centerThumbsAll") && report.images>0 && report.positions.every(x=>x==="50% 50%") && report.overflow<=8){verified=true;break;}
+               if(response.status()===200 && report.stylesheet?.includes("20261013showFullArt2") && report.images>0 && report.positions.every(x=>x==="50% 50%") && report.fit.every(x=>x==="contain") && report.overflow<=8){verified=true;break;}
                if(attempt<21)await p.waitForTimeout(3500);
               }
               console.log("THUMBNAIL",view.label,entry.label,JSON.stringify(report));

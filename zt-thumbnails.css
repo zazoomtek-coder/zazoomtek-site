@@ -29,3 +29,50 @@
 ) {
   background-position: 50% 50% !important;
 }
+
+
+/*
+ * ZAZOOMTEK FULL IMAGE THUMBNAIL FIX — NO CROPPING, 2026-10-13
+ * Previous fix modified only the focal point, while object-fit:cover
+ * continued cutting off logos and headlines on the left.
+ * This replaces cover with CONTAIN on cards/thumbnails site-wide.
+ * Preserve grid sizes and ratios; fill spare area with neutral background.
+ */
+:is(
+  .article-row, .news-row, .news-slide, .zt-feature-card,
+  .zt-editorial-item, .zt-home-guide, .zt-review-card,
+  .zt-special-item, .zt-popular-article, .zt-shelf-card,
+  .zt-stack-card, .ztp-news-item, .ztp-review-card,
+  .ztp-rail-shorts, .ztp-editorial-story,
+  .zt-sidebar-editorial, .zt-mix-editorial-row, .zt-related-card,
+  .zt-related-item, .related-content, .related-articles,
+  .news-card, .gaming-card, .game-card, .video-card, .short-card,
+  .review-card, .guide-card, .article-card, .post-card,
+  .featured-card, .article-side, .news-sidebar, .sidebar
+) img:not([data-zt-focus]),
+#newsSlider img:not([data-zt-focus]),
+#ztFeaturedGrid img:not([data-zt-focus]),
+#ztHomeGuide img:not([data-zt-focus]),
+#ztStackList img:not([data-zt-focus]),
+#zt-home-shelves img:not([data-zt-focus]),
+.ztp-three-columns img:not([data-zt-focus]),
+img.article-image:not([data-zt-focus]) {
+  object-fit: contain !important;
+  object-position: 50% 50% !important;
+  background-color: #f3f3f3;
+}
+/* Specifically override Home's later and stronger 4:3 Gaming rules,
+   including dynamically added older stories and Tech feed. */
+.ztp-final-three .ztp-news-tech .article-row .article-image,
+.ztp-final-three .ztp-news-gaming .article-row .article-image,
+.ztp-final-three .ztp-gaming-extra .article-image {
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #f3f3f3 !important;
+  max-width:100% !important;
+  min-width:0 !important;
+}
+/* Video/Short thumbnails live in dark panels. */
+:is(.zt-shelf-card, .zt-stack-card, .ztp-review-card, .video-card, .short-card) img {
+  background-color: #101010;
+}
