@@ -1,95 +1,27 @@
-/* ZAZOOMTEK GLOBAL CENTERED THUMBNAILS — 2026-10-13
-   Center images site-wide without altering object-fit, natural proportions
-   or changing review, news, guide and gaming layouts. Opt-out data-zt-focus
-   is available for exceptional intentionally framed photographs. */
-:is(
-  .article-row,.news-row,.news-slide,.news-slider,.zt-feature-card,
-  .zt-editorial-item,.zt-home-guide,.zt-review-card,.zt-special-item,
-  .zt-popular-article,.zt-shelf-card,.zt-stack-card,.ztp-news-item,
-  .ztp-review-card,.ztp-rail-shorts,.ztp-editorial-story,
-  .zt-sidebar-editorial,.zt-mix-editorial-row,.zt-related-card,
-  .zt-related-item,.zt-review-page,.related-content,.related-articles,
-  .news-card,.gaming-card,.game-card,.video-card,.short-card,
-  .review-card,.guide-card,.article-card,.post-card,.featured-card,
-  .article-side,.news-sidebar,.sidebar
-) img:not([data-zt-focus]),
-#newsSlider img:not([data-zt-focus]),
-#ztFeaturedGrid img:not([data-zt-focus]),
-#ztHomeGuide img:not([data-zt-focus]),
-#ztStackList img:not([data-zt-focus]),
-#zt-home-shelves img:not([data-zt-focus]),
-.ztp-three-columns img:not([data-zt-focus]) {
-  object-position: 50% 50% !important;
-}
-:is(
-  .news-thumb,.article-thumb,.article-image,.video-thumb,.short-thumb,
-  .zt-shelf-thumbnail,.zt-review-thumb,.zt-special-thumb,
-  .zt-home-guide-photo,.zt-home-guide-side-photo,.zt-feature-card,
-  .zt-related-thumb,.zt-editorial-image,.gaming-thumb,.card-thumb
-) {
-  background-position: 50% 50% !important;
-}
-
-
 /*
- * ZAZOOMTEK FULL IMAGE THUMBNAIL FIX — NO CROPPING, 2026-10-13
- * Previous fix modified only the focal point, while object-fit:cover
- * continued cutting off logos and headlines on the left.
- * This replaces cover with CONTAIN on cards/thumbnails site-wide.
- * Preserve grid sizes and ratios; fill spare area with neutral background.
- */
-:is(
-  .article-row, .news-row, .news-slide, .zt-feature-card,
-  .zt-editorial-item, .zt-home-guide, .zt-review-card,
-  .zt-special-item, .zt-popular-article, .zt-shelf-card,
-  .zt-stack-card, .ztp-news-item, .ztp-review-card,
-  .ztp-rail-shorts, .ztp-editorial-story,
-  .zt-sidebar-editorial, .zt-mix-editorial-row, .zt-related-card,
-  .zt-related-item, .related-content, .related-articles,
-  .news-card, .gaming-card, .game-card, .video-card, .short-card,
-  .review-card, .guide-card, .article-card, .post-card,
-  .featured-card, .article-side, .news-sidebar, .sidebar
-) img:not([data-zt-focus]),
-#newsSlider img:not([data-zt-focus]),
-#ztFeaturedGrid img:not([data-zt-focus]),
-#ztHomeGuide img:not([data-zt-focus]),
-#ztStackList img:not([data-zt-focus]),
-#zt-home-shelves img:not([data-zt-focus]),
-.ztp-three-columns img:not([data-zt-focus]),
-img.article-image:not([data-zt-focus]) {
-  object-fit: contain !important;
-  object-position: 50% 50% !important;
-  background-color: #f3f3f3;
-}
-/* Specifically override Home's later and stronger 4:3 Gaming rules,
-   including dynamically added older stories and Tech feed. */
-.ztp-final-three .ztp-news-tech .article-row .article-image,
-.ztp-final-three .ztp-news-gaming .article-row .article-image,
-.ztp-final-three .ztp-gaming-extra .article-image {
-  object-fit: contain !important;
-  object-position: center center !important;
-  background: #f3f3f3 !important;
-  max-width:100% !important;
-  min-width:0 !important;
-}
-/* Video/Short thumbnails live in dark panels. */
-:is(.zt-shelf-card, .zt-stack-card, .ztp-review-card, .video-card, .short-card) img {
-  background-color: #101010;
-}
+ ZAZOOMTEK EDITORIAL THUMBNAILS — TEXT-PRIORITY COVER 20261013
+ 1. Keep the existing card/frame size and aspect ratio (16:9 where specified).
+ 2. A correctly framed 16:9 source is displayed at its original composition.
+ 3. Any non-16:9 source is automatically magnified to fill that same frame,
+    rather than shrinking with empty sidebars (object-fit: cover).
+ 4. Default text focal point is central, with per-artwork adjustments below.
+ 5. Only thumbnails are targeted: full article figures, logos, social icons,
+    article body media, and video players are not changed.
+ 6. data-zt-focus or data-zt-no-zoom opt out for intentional full-art exceptions.
+*/
 
-/* ZAZOOMTEK NON-CROPPING MEDIA FRAMES 20261013
-   Aligning the focus point alone does NOT prevent cover-cropping.
-   Keep the existing responsive card dimensions and show the entire
-   editorial/video thumbnail within each frame across all pages.
-   #ztFeaturedGrid and #newsSlider in :is deliberately make this
-   late-loaded contract stronger than older inline !important rules.
-   Full-size article photos, logos and body illustrations are excluded. */
 html body :is(
   #ztFeaturedGrid .zt-feature-card img,
+  #newsSlider .news-slide img,
   #newsSlider .zt-editorial-item img,
+  #ztHomeGuide .zt-home-guide-photo,
+  #ztHomeGuide .zt-home-guide-side-photo,
   .article-row > a img.article-image,
   .news-row > a img,
   .ztp-news-area .article-image,
+  .ztp-final-three .ztp-news-tech .article-row .article-image,
+  .ztp-final-three .ztp-news-gaming .article-row .article-image,
+  .ztp-final-three .ztp-gaming-extra .article-image,
   .zt-review-thumb img,
   .video-card .video-thumb img,
   .video-grid .video-card > button img,
@@ -98,8 +30,6 @@ html body :is(
   .zt-stack-card .video-thumb img,
   .side-video .video-thumb img,
   .zt-shelf-thumbnail img,
-  .zt-home-guide img,
-  .zt-feature-card img,
   .zt-special-thumb img,
   .zt-popular-article img,
   .zt-mix-feature-image img,
@@ -119,18 +49,27 @@ html body :is(
   .post-card img,
   .short-card img,
   .ztp-rail-shorts img
-):not([data-zt-focus]) {
-  object-fit:contain!important;
-  object-position:50% 50%!important;
+):not([data-zt-focus]):not([data-zt-no-zoom]){
+  object-fit:cover!important;
+  object-position:var(--zt-text-focal-point,50% 50%)!important;
   display:block;
   max-width:100%;
 }
+
+/* Art-directed exceptions favor readable wording over scenery.
+   Selectors are stable on published video IDs and file paths. */
+html body img[src*="/vi/WwGAaKGfoGY/"]{--zt-text-focal-point:50% 34%;}
+html body img[src*="/vi/fKiuvUW5eKI/"]{--zt-text-focal-point:50% 50%;}
+html body img[src*="/vi/RtHYQ7o5Gws/"]{--zt-text-focal-point:50% 56%;}
+html body img[src*="/assets/guides/x2-pro/cover.svg"]{--zt-text-focal-point:50% 38%;}
+
+/* Background-based thumbnails must fill their frame, too. */
 html body :is(
   .news-thumb,.article-thumb,.video-thumb,.short-thumb,
-  .zt-shelf-thumbnail,.zt-special-thumb,.zt-home-guide-photo,
-  .zt-home-guide-side-photo,.zt-related-thumb,.zt-editorial-image
-) {
+  .zt-shelf-thumbnail,.zt-special-thumb,.zt-home-guide-icon,
+  .zt-related-thumb,.zt-editorial-image,.gaming-thumb,.card-thumb
+){
   background-position:50% 50%!important;
-  background-size:contain!important;
+  background-size:cover!important;
   background-repeat:no-repeat;
 }

@@ -336,7 +336,7 @@ for path in root.rglob('*.html'):
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     # Apply LAST in the head to every existing and newly generated page.
-    thumb_tag='<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013uncroppedAllSections4" data-zt-thumbnails="center">'
+    thumb_tag='<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013textPriorityCover5" data-zt-thumbnails="center">'
     html=re.sub(r'<link[^>]*zt-thumbnails[.]css[^>]*>\s*',
                 '',html,flags=re.I)
     html=re.sub(r'</head>',lambda m:thumb_tag+"\n"+m.group(0),html,count=1,flags=re.I)

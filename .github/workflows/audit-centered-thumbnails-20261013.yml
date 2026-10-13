@@ -1,4 +1,4 @@
-name: Browser-check centered thumbnails on every site section
+name: Browser-check filled readable thumbnails on every site section
 on:
   push:
     branches: [main]
@@ -56,7 +56,7 @@ jobs:
                  homeCSSPresent:!!document.querySelector("#ztp-final-balanced-live-20261013"),
                 };
                },entry.selector);
-               if(response.status()===200 && report.stylesheet?.includes("20261013uncroppedAllSections4") && report.images>0 && report.positions.every(x=>x==="50% 50%") && report.fit.every(x=>x==="contain") && report.overflow<=8){verified=true;break;}
+               if(response.status()===200 && report.stylesheet?.includes("20261013textPriorityCover5") && report.images>0 && report.positions.every(x=>/^50% (?:50|34|56|38)%$/.test(x)) && report.fit.every(x=>x==="cover") && report.overflow<=8){verified=true;break;}
                if(attempt<6)await p.waitForTimeout(1800);
               }
               console.log("THUMBNAIL",view.label,entry.label,JSON.stringify(report));
@@ -67,7 +67,7 @@ jobs:
               await p.close();
              }
             }
-            console.log("PASS: all 6 site categories, desktop/mobile, centered thumbnail focal points and no overflow");
+            console.log("PASS: all 6 site categories, desktop/mobile, text-priority filled thumbnail frames and no overflow");
            }finally{await browser.close();}
           }
           run().catch(e=>{console.error("FAIL",e);process.exit(1)});

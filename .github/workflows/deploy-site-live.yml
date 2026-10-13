@@ -89,15 +89,15 @@ jobs:
           assert 'header .topbar nav.nav,.zt-header nav.zt-nav' in css
           assert 'flex-wrap:nowrap!important' in css
           thumbs=(root/'zt-thumbnails.css').read_text(encoding='utf-8')
-          assert 'ZAZOOMTEK GLOBAL CENTERED THUMBNAILS' in thumbs
-          assert 'object-position: 50% 50% !important' in thumbs
-          assert 'ZAZOOMTEK NON-CROPPING MEDIA FRAMES 20261013' in thumbs
-          assert 'object-fit:contain!important' in thumbs
+          assert 'ZAZOOMTEK EDITORIAL THUMBNAILS — TEXT-PRIORITY COVER' in thumbs
+          assert 'object-position:var(--zt-text-focal-point,50% 50%)!important' in thumbs
+          assert 'TEXT-PRIORITY COVER 20261013' in thumbs
+          assert 'object-fit:cover!important' in thumbs
           assert '.video-card > button img' in thumbs
           for page in pages:
               page_html=page.read_text(encoding='utf-8')
               if '</head>' in page_html.lower():
-                  assert page_html.count('/zt-thumbnails.css?v=20261013uncroppedAllSections4')==1,(page.name,'center thumbnail CSS missing')
+                  assert page_html.count('/zt-thumbnails.css?v=20261013textPriorityCover5')==1,(page.name,'center thumbnail CSS missing')
 
           assert 'font:800 13px/1.1 Arial,Helvetica,sans-serif!important' in css
           print('PASS:',checked,'Home-consistent headers; 8 buttons per page')
