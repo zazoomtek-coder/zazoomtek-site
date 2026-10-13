@@ -1,0 +1,31 @@
+/* ZAZOOMTEK GLOBAL CENTERED THUMBNAILS — 2026-10-13
+   Center images site-wide without altering object-fit, natural proportions
+   or changing review, news, guide and gaming layouts. Opt-out data-zt-focus
+   is available for exceptional intentionally framed photographs. */
+:is(
+  .article-row,.news-row,.news-slide,.news-slider,.zt-feature-card,
+  .zt-editorial-item,.zt-home-guide,.zt-review-card,.zt-special-item,
+  .zt-popular-article,.zt-shelf-card,.zt-stack-card,.ztp-news-item,
+  .ztp-review-card,.ztp-rail-shorts,.ztp-editorial-story,
+  .zt-sidebar-editorial,.zt-mix-editorial-row,.zt-related-card,
+  .zt-related-item,.zt-review-page,.related-content,.related-articles,
+  .news-card,.gaming-card,.game-card,.video-card,.short-card,
+  .review-card,.guide-card,.article-card,.post-card,.featured-card,
+  .article-side,.news-sidebar,.sidebar
+) img:not([data-zt-focus]),
+#newsSlider img:not([data-zt-focus]),
+#ztFeaturedGrid img:not([data-zt-focus]),
+#ztHomeGuide img:not([data-zt-focus]),
+#ztStackList img:not([data-zt-focus]),
+#zt-home-shelves img:not([data-zt-focus]),
+.ztp-three-columns img:not([data-zt-focus]) {
+  object-position: 50% 50% !important;
+}
+:is(
+  .news-thumb,.article-thumb,.article-image,.video-thumb,.short-thumb,
+  .zt-shelf-thumbnail,.zt-review-thumb,.zt-special-thumb,
+  .zt-home-guide-photo,.zt-home-guide-side-photo,.zt-feature-card,
+  .zt-related-thumb,.zt-editorial-image,.gaming-thumb,.card-thumb
+) {
+  background-position: 50% 50% !important;
+}

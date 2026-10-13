@@ -335,6 +335,11 @@ for path in root.rglob('*.html'):
                     js_path,html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
+    # Apply LAST in the head to every existing and newly generated page.
+    thumb_tag='<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013centerThumbsAll" data-zt-thumbnails="center">'
+    html=re.sub(r'<link\b[^>]*href=["\\']/zt-thumbnails[.]css(?:[?][^"\\']*)?["\\'][^>]*>\s*',
+                '',html,flags=re.I)
+    html=re.sub(r'</head>',lambda m:thumb_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     html=unify_site_navigation(html,path.name)
     html=unify_review_layout(html,path.name)
     html=unify_review_final_panel(html,path.name)
