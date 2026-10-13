@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '48 * * * *'
+    # Independent 10-minute backstop for GitHub's sometimes-delayed */5 timer.
+    - cron: '7,17,27,37,47,57 * * * *'
 permissions:
   contents: read
   actions: write
@@ -12,7 +14,41 @@ concurrency:
   group: youtube-firebase-recovery
   cancel-in-progress: false
 jobs:
+  check-import-freshness:
+    # Avoid unnecessary runs of the importer if its own timer worked recently.
+    if: github.event_name == 'schedule' && github.event.schedule == '7,17,27,37,47,57 * * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Trigger overdue YouTube Community import
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import datetime,json,os,subprocess
+          repo=os.environ['REPOSITORY']
+          response=subprocess.run(
+              ['gh','run','list','--repo',repo,'--workflow','youtube-sync.yml',
+               '--limit','12','--json','createdAt,status,conclusion'],
+              check=True,capture_output=True,text=True)
+          runs=json.loads(response.stdout)
+          now=datetime.datetime.now(datetime.timezone.utc)
+          recent=False
+          for entry in runs:
+              stamp=datetime.datetime.fromisoformat(entry['createdAt'].replace('Z','+00:00'))
+              if stamp>=now-datetime.timedelta(minutes=9):
+                  recent=True
+                  break
+          if recent:
+              print('Primary 5-minute YouTube import recently started: no duplicate dispatch.')
+          else:
+              print('YouTube import overdue: dispatching independent recovery sync now.')
+              subprocess.run(
+                  ['gh','workflow','run','youtube-sync.yml','--repo',repo,'--ref','main'],check=True)
+          PY
   deploy-last-good:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '48 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
