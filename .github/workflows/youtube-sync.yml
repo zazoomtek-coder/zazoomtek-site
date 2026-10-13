@@ -329,6 +329,9 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
+          # Drop unstaged generated files; primary imports have already been committed.
+          git reset --hard HEAD
+          git clean -fd -- '__pycache__' 'scripts/__pycache__'
           for attempt in 1 2 3; do
             git fetch origin main
             if ! git rebase origin/main; then
@@ -340,9 +343,10 @@ jobs:
               python3 scripts/validate-sync-output.py community
               python3 scripts/update-youtube.py
               python3 scripts/validate-sync-output.py videos
-              python3 scripts/build-related-content.py
-              python3 scripts/inject-analytics.py
-              python3 scripts/build-search-index.py
+              # Never block published Community news on optional sidebars/search.
+              python3 scripts/build-related-content.py || echo 'Related links postponed.'
+              python3 scripts/inject-analytics.py || echo 'Analytics refresh postponed.'
+              python3 scripts/build-search-index.py || echo 'Search index postponed.'
               git add -A
               if git diff --cached --quiet; then
                 echo "Latest remote already contains the imported content."
