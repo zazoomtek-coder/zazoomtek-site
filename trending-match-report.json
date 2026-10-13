@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-12T23:02:44.443618+00:00",
+  "checked_at": "2026-10-13T00:02:41.675733+00:00",
   "source_sites": 16,
   "matches": 8,
   "selected": [
@@ -9,8 +9,8 @@
       "url": "/news-Ugkxjafwnrw9O14Zgh1LkgQ-Qz61uHxbVzsr.html",
       "trend_score": 49.81,
       "published_date": "2026-10-12",
-      "freshness_bonus": 72,
-      "selection_score": 104.38,
+      "freshness_bonus": 62,
+      "selection_score": 94.38,
       "sources": [
         {
           "site": "Gamesurf",
@@ -25,8 +25,8 @@
       "url": "/news-Ugkxo1WmD7nGUUwvBRTmjw8WQ7lnTe2ObkhK.html",
       "trend_score": 0,
       "published_date": "2026-10-12",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
       "sources": []
     },
     {
@@ -35,8 +35,8 @@
       "url": "/news-UgkxdT-9UEJaasE5Qg2L6lJa-Z51_YU94Kkz.html",
       "trend_score": 83.36,
       "published_date": "2026-10-12",
-      "freshness_bonus": 72,
-      "selection_score": 126.18,
+      "freshness_bonus": 62,
+      "selection_score": 116.18,
       "sources": [
         {
           "site": "Multiplayer.it",
@@ -51,8 +51,8 @@
       "url": "/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",
       "trend_score": 81.91,
       "published_date": "2026-10-12",
-      "freshness_bonus": 72,
-      "selection_score": 125.24,
+      "freshness_bonus": 62,
+      "selection_score": 115.24,
       "sources": [
         {
           "site": "SpazioGames",
