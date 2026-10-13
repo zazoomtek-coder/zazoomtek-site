@@ -419,6 +419,21 @@ footer.zt-unified-footer a[href="https://zazoomtek-coder.github.io/zazoomtek-sit
 @media(max-width:1050px){.zt-preview-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){#ztHomeGuide .zt-home-guide-content{height:auto!important;grid-template-columns:1fr!important} .zt-preview-explore-grid{gap:9px;padding:11px} .zt-preview-explore-meta h3{font-size:12px}.sidebar .zt-special-box{margin:0}}
 @media(max-width:400px){.zt-preview-explore-grid{grid-template-columns:1fr}.zt-preview-explore-meta{min-height:0}}
+/* Preview: latest horizontal video 16:9, irrespective of upload category. */
+#ztPreviewLatestYoutube{border:1px solid #dadada;background:#fff;overflow:hidden;margin:0 0 18px}
+#ztPreviewLatestYoutube .zt-special-head{background:#202020;min-height:52px}
+#ztPreviewLatestYoutube .zt-special-head h2{background:#db0032;color:#fff}
+#ztPreviewLatestYoutube .zt-preview-last-video-body{padding:13px}
+#ztPreviewLatestYoutube .zt-preview-last-video-player{display:block;position:relative;aspect-ratio:16/9;width:100%;height:auto;padding:0;border:0;background:#111;overflow:hidden;cursor:pointer}
+#ztPreviewLatestYoutube .zt-preview-last-video-player img{width:100%;height:100%;display:block;object-fit:cover;aspect-ratio:16/9}
+#ztPreviewLatestYoutube .zt-preview-last-video-player iframe{position:absolute;inset:0;display:block;width:100%;height:100%;aspect-ratio:16/9;border:0}
+#ztPreviewLatestYoutube .zt-preview-last-video-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:52px;height:40px;border-radius:12px;background:rgba(222,0,41,.93);font-size:23px;color:#fff;pointer-events:none;transition:transform .18s}
+#ztPreviewLatestYoutube .zt-preview-last-video-player:hover .zt-preview-last-video-play{transform:translate(-50%,-50%) scale(1.08)}
+#ztPreviewLatestYoutube .zt-preview-last-video-title{margin:11px 0 0;font:800 15px/1.35 Arial,Helvetica,sans-serif}
+#ztPreviewLatestYoutube .zt-preview-last-video-title a{color:#191919;text-decoration:none}
+#ztPreviewLatestYoutube .zt-preview-last-video-title a:hover{text-decoration:underline}
+#ztPreviewLatestYoutube .zt-preview-last-video-note{font:400 11px/1.4 Arial,Helvetica,sans-serif;color:#777;margin:7px 0 0}
+@media(max-width:680px){#ztPreviewLatestYoutube .zt-preview-last-video-title{font-size:14px}}
 </style>
 </head>
 <body>
@@ -690,29 +705,19 @@ il sito è appena nato e continuerà a crescere e migliorare, proprio come la no
 <!-- HOME_PREVIEW_EDITORIAL_SIDEBAR_START -->
 <!-- HOME_SPECIAL_SECTIONS_START -->
 
-        <section class="zt-special-box" data-special-section="tech" aria-label="TECH IMPACT">
-          <div class="zt-special-head">
-            <h2>TECH IMPACT</h2><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-today.html">VEDI <span aria-hidden="true">→</span></a>
-          </div>
-          <div class="zt-special-list" id="zt-special-tech">
-<article class="zt-special-item"><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-flock-safety-270-uscite-privacy-2026.html" class="zt-special-thumb" aria-label="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza"><img src="https://images.unsplash.com/photo-1685380458979-f8208307aab0?auto=format&fit=crop&w=1600&h=900&q=82" alt="Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza" loading="lazy"></a><h3><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-flock-safety-270-uscite-privacy-2026.html">Flock Safety, circa 270 uscite mentre cresce la protesta contro le telecamere di sorveglianza</a></h3></article>
-<article class="zt-special-item"><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-ico-dieci-aziende-ia-privacy-2026.html" class="zt-special-thumb" aria-label="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici"><img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&h=900&q=82" alt="Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici" loading="lazy"></a><h3><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-ico-dieci-aziende-ia-privacy-2026.html">Privacy e intelligenza artificiale: dieci grandi aziende cambiano le regole dopo i controlli britannici</a></h3></article>
-<article class="zt-special-item"><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html" class="zt-special-thumb" aria-label="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&h=900&q=82" alt="Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati" loading="lazy"></a><h3><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-ue-esperti-sicurezza-ia-ottobre-2026.html">Intelligenza artificiale, l&#39;UE riunisce esperti per valutare i rischi dei sistemi avanzati</a></h3></article>
-            <article class="zt-special-item">
-              <a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html" class="zt-special-thumb" aria-label="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano"><img src="https://zazoomtek-coder.github.io/zazoomtek-site/assets/special/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.webp" alt="Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano" loading="lazy"></a>
-              <h3><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-ue-bulgaria-digital-services-act-controlli-piattaforme.html">Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano</a></h3>
-            </article>
-            <article class="zt-special-item">
-              <a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html" class="zt-special-thumb" aria-label="Occhiali con IA, la Norvegia propone restrizioni temporanee: privacy e riprese al centro del dibattito"><img src="https://zazoomtek-coder.github.io/zazoomtek-site/assets/special/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.webp" alt="Occhiali con IA, la Norvegia propone restrizioni temporanee: privacy e riprese al centro del dibattito" loading="lazy"></a>
-              <h3><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html">Occhiali con IA, la Norvegia propone restrizioni temporanee: privacy e riprese al centro del dibattito</a></h3>
-            </article>
-            <article class="zt-special-item">
-              <a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.html" class="zt-special-thumb" aria-label="Cyberattacchi, FBI e Dipartimento di Giustizia sequestrano strumenti attribuiti a Flax Typhoon"><img src="https://zazoomtek-coder.github.io/zazoomtek-site/assets/special/tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.webp" alt="Cyberattacchi, FBI e Dipartimento di Giustizia sequestrano strumenti attribuiti a Flax Typhoon" loading="lazy"></a>
-              <h3><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-impact-fbi-sequestro-microscan-fishhub-flax-typhoon.html">Cyberattacchi, FBI e Dipartimento di Giustizia sequestrano strumenti attribuiti a Flax Typhoon</a></h3>
-            </article>
-          </div>
-          <div class="zt-special-footer"><a href="https://zazoomtek-coder.github.io/zazoomtek-site/tech-today.html">Tutte le notizie Tech Impact <span aria-hidden="true">→</span></a></div>
-        </section>
+        <section class="zt-special-box zt-preview-last-video" id="ztPreviewLatestYoutube" aria-label="Ultimo video orizzontale dal canale ZazoomTek">
+  <div class="zt-special-head">
+    <h2>ULTIMO VIDEO</h2><a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">TUTTI <span aria-hidden="true">→</span></a>
+  </div>
+  <div class="zt-preview-last-video-body">
+    <button class="zt-preview-last-video-player" type="button" data-video="tEkXOj7XOwA" onclick="playVideo(this)" aria-label="Riproduci Sesame Street: Amici e risate PS5 - lungo gamplay">
+      <img src="https://i.ytimg.com/vi/tEkXOj7XOwA/maxresdefault.jpg" alt="Sesame Street: Amici e risate PS5 - lungo gamplay" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/tEkXOj7XOwA/hqdefault.jpg'" loading="lazy" decoding="async">
+      <span class="zt-preview-last-video-play" aria-hidden="true">▶</span>
+    </button>
+    <h3 class="zt-preview-last-video-title"><a href="https://www.youtube.com/watch?v=tEkXOj7XOwA" target="_blank" rel="noopener">Sesame Street: Amici e risate PS5 - lungo gamplay</a></h3>
+    <p class="zt-preview-last-video-note">Il video orizzontale 16:9 più recente del canale, senza distinzione di categoria. Shorts e video verticali esclusi.</p>
+  </div>
+</section>
 
         <section class="zt-special-box" data-special-section="gaming" aria-label="GAMING INSIDE">
           <div class="zt-special-head">
@@ -1122,6 +1127,38 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
   }).catch(function (err) {
     console.info('Preserved last valid featured cards:',err.message);
   });
+}());
+</script>
+<script id="zt-preview-newest-horizontal-video">
+/* Automatic latest-video slot: read the all-channel uploaded videos feed.
+   Never display Shorts/live streams or use a 9:16 video frame. */
+(function () {
+  'use strict';
+  const section=document.getElementById('ztPreviewLatestYoutube');
+  if(!section)return;
+  const button=section.querySelector('.zt-preview-last-video-player');
+  const img=button.querySelector('img');
+  const title=section.querySelector('.zt-preview-last-video-title a');
+  const safeId=/^[A-Za-z0-9_-]{11}$/;
+  const feed=new URL('home-video-feed.json',document.baseURI);
+  fetch(feed,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Feed unavailable');return r.json()}).then(items=>{
+    if(!Array.isArray(items))throw new Error('Invalid feed');
+    const candidates=items.filter(v=>v && safeId.test(v.id) &&
+      v.short===false && v.live===false &&
+      !(v.aspectRatio && v.aspectRatio!=='16:9') &&
+      typeof v.title==='string' && v.title.trim() &&
+      typeof v.publishedAt==='string');
+    candidates.sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt));
+    const newest=candidates[0];
+    if(!newest)return; // Preserve the last valid 16:9 video.
+    button.dataset.video=newest.id;
+    button.setAttribute('aria-label','Riproduci '+newest.title);
+    img.src='https://i.ytimg.com/vi/'+newest.id+'/maxresdefault.jpg';
+    img.onerror=function(){this.onerror=null;this.src='https://i.ytimg.com/vi/'+newest.id+'/hqdefault.jpg'};
+    img.alt=newest.title;
+    title.textContent=newest.title;
+    title.href='https://www.youtube.com/watch?v='+newest.id;
+  }).catch(err=>console.info('Preserved last 16:9 video:',err.message));
 }());
 </script>
 </body>
