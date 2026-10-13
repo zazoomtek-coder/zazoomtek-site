@@ -33,8 +33,11 @@ def open_with_retry(req, *, timeout=30, parse_json=False, attempts=5):
     raise RuntimeError(f"YouTube request failed after {attempts} attempts: {last_error}")
 
 def fetch():
+    # Query cache-busting avoids repeatedly receiving a stale Community HTML
+    # snapshot from the YouTube edge cache right after a new publication.
+    fresh_url=URL+"?zt_check="+str(int(time.time()//60))
     req=urllib.request.Request(
-        URL,
+        fresh_url,
         headers={
             "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
             "Accept-Language":"it-IT,it;q=0.9,en;q=0.8",
@@ -569,6 +572,105 @@ def fetch_invidious_full_history():
         if complete and len(posts)>=500:
             break
     return best_posts,best_complete
+
+def fetch_recent_alternate(known_ids, current_ids):
+    """Independently check the channel-ID Community tab when the handle page is stale.
+
+    A new ID is required; existing articles are never rewritten from this source.
+    Failure of a secondary source cannot prevent normal YouTube syncing.
+    """
+    url=f"https://www.youtube.com/channel/{CHANNEL_ID}/community?zt_check={int(time.time()//60)}"
+    req=urllib.request.Request(url,headers={
+        "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+        "Accept-Language":"it-IT,it;q=0.9,en;q=0.8",
+        "Cache-Control":"no-cache","Pragma":"no-cache",
+    })
+    try:
+        page=open_with_retry(req,timeout=10,attempts=1)
+        data=initial_data(page)
+        if not data:
+            return []
+        candidates=[]
+        parse_nodes(data,candidates,set())
+        new=[x for x in candidates if x["id"] not in known_ids and x["id"] not in current_ids]
+        print(f"Secondary YouTube Community check: {len(candidates)} visible, {len(new)} new IDs.")
+        return new
+    except Exception as err:
+        print(f"Secondary YouTube check unavailable (normal sync continues): {err}")
+        return []
+
+
+def fetch_recent_invidious(known_ids,current_ids):
+    """Best-effort cross-check for newly published public posts; never use as sole archive.
+
+    Third-party mirrors may be stale or temporarily offline. Accept ONLY post IDs
+    missing from the current archive and whose real Unix timestamp is recent.
+    """
+    now=int(time.time())
+    base="https://invidious.f5.si"
+    endpoint=f"{base}/api/v1/channels/{CHANNEL_ID}/community"
+    req=urllib.request.Request(endpoint,headers={
+        "User-Agent":"Mozilla/5.0","Accept":"application/json","Cache-Control":"no-cache",
+    })
+    try:
+        payload=open_with_retry(req,timeout=8,parse_json=True,attempts=1)
+        items=payload.get("comments") if isinstance(payload,dict) else None
+        if not isinstance(items,list):
+            return []
+        new=[]
+        for item in items[:35]:
+            if not isinstance(item,dict):
+                continue
+            pid=item.get("commentId","")
+            body=(item.get("content") or "").strip()
+            try:
+                ts=int(item.get("published") or 0)
+            except (TypeError,ValueError):
+                continue
+            if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{12,}",pid):
+                continue
+            if not body or pid in known_ids or pid in current_ids or any(p["id"]==pid for p in new):
+                continue
+            if not (now-14*86400 <= ts <= now+600):
+                continue
+            when,when_iso=italian_date_from_timestamp(ts)
+            imgs=invidious_attachment_images(item.get("attachment"))
+            new.append({"id":pid,"text":html.unescape(re.sub(r"<[^>]*>","",body)),
+                        "published":when,"published_iso":when_iso,
+                        "image":imgs[0] if imgs else "","images":imgs,
+                        "url":"https://www.youtube.com/post/"+pid})
+        print(f"Independent Community source: {len(items)} checked, {len(new)} new IDs.")
+        return new
+    except Exception as err:
+        print(f"Independent Community check unavailable (normal sync continues): {err}")
+        return []
+
+
+def augment_recent_posts(posts,previous,complete,force_full_scan=False):
+    """Detect genuinely new posts despite an old first page or delayed cron.
+
+    A secondary match is never enough to delete or change prior Community data.
+    """
+    if force_full_scan:
+        return posts,complete
+    known={p.get("id") for p in previous if isinstance(p,dict) and p.get("id")}
+    fresh={p.get("id") for p in posts if isinstance(p,dict) and p.get("id")}
+    new_direct=fresh-known
+    print(f"Primary Community check: {len(posts)} visible, {len(new_direct)} newly discovered IDs.")
+    if new_direct or not known:
+        return posts,complete
+    new=fetch_recent_alternate(known,fresh)
+    fresh.update(p["id"] for p in new)
+    if not new:
+        new=fetch_recent_invidious(known,fresh)
+    if new:
+        # Keep the original YouTube scan for all known post bodies/images;
+        # only prepend the missing post IDs so later merging retains history.
+        posts=new+posts
+        complete=False
+        print(f"RECOVERED {len(new)} new Community post(s) via independent recent-post check.")
+    return posts,complete
+
 
 def merge_historical_posts(primary, historical, previous):
     """Use historical ordering/coverage while preserving richer direct YouTube records."""
@@ -2491,6 +2593,7 @@ def main():
     if force_full_scan:
         print("FULL Community history scan requested: ignoring incremental boundary.")
     posts,complete=parse(fetch(),scan_known_ids)
+    posts,complete=augment_recent_posts(posts,previous,complete,force_full_scan)
     if force_full_scan:
         direct_posts=list(posts)
         historical,historical_complete=fetch_invidious_full_history()
