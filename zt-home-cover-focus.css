@@ -1,0 +1,26 @@
+/* ZAZOOMTEK — approved individual cover focus points, 2026-10-13.
+   Applies only on the three-column Home (Tech, Gaming, editorial boxes).
+   No size, crop mode or aspect-ratio changes. No other pages affected.
+   Shared zt-thumbnails.css consumes --zt-text-focal-point per image. */
+html body .ztp-final-three .ztp-news-tech img[src*="wTV9oR-jX2J2C"]{--zt-text-focal-point:3% 50%!important;object-position:3% 50%!important;}   /* Totem */
+html body .ztp-final-three .ztp-news-tech img[src*="3c5f_5ssRd3cd"]{--zt-text-focal-point:22% 50%!important;object-position:22% 50%!important;}  /* ColorOS 17 */
+html body .ztp-final-three .ztp-news-tech img[src*="OIMvcjBOepuv"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;}    /* Hisense Speed Oven */
+html body .ztp-final-three .ztp-news-tech img[src*="caAAYlybmsmVm"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;}  /* Veeam Governance */
+html body .ztp-final-three .ztp-news-tech img[src*="2PV-epMqjxmt"]{--zt-text-focal-point:2% 50%!important;object-position:2% 50%!important;}    /* Huawei WATCH */
+html body .ztp-final-three .ztp-news-tech img[src*="QfnQWrsNOYL6"]{--zt-text-focal-point:2% 50%!important;object-position:2% 50%!important;}    /* Black Friday */
+html body .ztp-final-three .ztp-news-tech img[src*="A820KkDIt94"]{--zt-text-focal-point:8% 50%!important;object-position:8% 50%!important;}    /* Sharp */
+html body .ztp-final-three .ztp-news-gaming img[src*="IOzMp-WICqUI"]{--zt-text-focal-point:88% 50%!important;object-position:88% 50%!important;}  /* PUBG, scritte sulla destra */
+html body .ztp-final-three .ztp-news-gaming img[src*="IlkiJdRTJ3Zw"]{--zt-text-focal-point:7% 50%!important;object-position:7% 50%!important;}   /* Lucca card */
+html body .ztp-final-three .ztp-news-gaming img[src*="eE-6hFhgCW3"]{--zt-text-focal-point:7% 50%!important;object-position:7% 50%!important;}   /* Be Comics */
+html body .ztp-final-three .ztp-news-gaming img[src*="PdcP0LGfc9LC"]{--zt-text-focal-point:4% 50%!important;object-position:4% 50%!important;}  /* Crazy Taxi */
+html body .ztp-final-three .ztp-news-gaming img[src*="8k--O-qWG2k7"]{--zt-text-focal-point:12% 50%!important;object-position:12% 50%!important;}  /* ROCKBEASTS */
+html body .ztp-final-three .ztp-news-gaming img[src*="1vAiDd2TyG8"]{--zt-text-focal-point:9% 50%!important;object-position:9% 50%!important;}    /* Tower Tactics II */
+html body .ztp-final-three .ztp-news-gaming img[src*="ahl8LogGQOG"]{--zt-text-focal-point:8% 50%!important;object-position:8% 50%!important;}   /* Talos Principle */
+html body .ztp-final-three .ztp-news-gaming img[src*="soZXps2f6_Lk"]{--zt-text-focal-point:18% 50%!important;object-position:18% 50%!important;}  /* Ace Combat */
+html body .ztp-final-three .ztp-news-gaming img[src*="pY0m2L6tOuY"]{--zt-text-focal-point:22% 50%!important;object-position:22% 50%!important;}  /* FC 27 */
+html body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="PdcP0LGfc9LC"]{--zt-text-focal-point:0% 50%!important;object-position:0% 50%!important;}  /* Crazy Taxi */
+html body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="8k--O-qWG2k7"]{--zt-text-focal-point:8% 50%!important;object-position:8% 50%!important;}  /* ROCKBEASTS */
+html body .ztp-final-three .ztp-news-rail .zt-popular-article img[src*="cVqr61yghwTF"]{--zt-text-focal-point:5% 50%!important;object-position:5% 50%!important;}  /* Adobe */
+html body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="tech-impact-grecia-verso"]{--zt-text-focal-point:10% 50%!important;object-position:10% 50%!important;} 
+html body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="tech-impact-frode-streaming"]{--zt-text-focal-point:10% 50%!important;object-position:10% 50%!important;} 
+html body .ztp-final-three .ztp-news-rail .zt-special-item img[src*="gaming-inside-gears-of-war"]{--zt-text-focal-point:8% 50%!important;object-position:8% 50%!important;} 
