@@ -409,6 +409,38 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "grecia-verso-il-divieto-di-social-media-per-i-minori-di-15-anni-i-dettagli-della-rifo",
+      "title": "Grecia verso il divieto di social media per i minori di 15 anni: i dettagli della riforma",
+      "summary": "Il governo greco ha avviato l'iter legislativo per introdurre un divieto di accesso ai social media per i minori di 15 anni, con l'obiettivo di proteggere i giovani dai rischi legati alla rete. Secondo quanto illustrato dai ministri competenti, il provvedimento prevede sistemi di verifica dell'età basati su strumenti digitali e si inserisce nel quadro normativo europeo del Digital Services Act.",
+      "paragraphs": [
+        "La Grecia si muove verso l'introduzione di un divieto di accesso ai servizi di social networking per i minori di 15 anni, delineando un nuovo quadro normativo la cui entrata in vigore è prevista per il primo gennaio 2027. Come riportato da Euronews, i contenuti principali del disegno di legge sono stati presentati nel corso di una conferenza dai ministri competenti, tra cui il ministro di Stato Akis Skertsos, il ministro della Salute Adonis Georgiadis e il ministro della Governance Digitale Dimitris Papastergiou. L'iniziativa governativa punta a tutelare i minori dai potenziali rischi connessi all'utilizzo delle piattaforme digitali, garantendo al contempo la salvaguardia della privacy degli utenti.",
+        "L'iter parlamentare del provvedimento prevede l'approdo del testo davanti alle commissioni già a metà ottobre, con il dibattito e il voto finale in seduta plenaria calendarizzati per la fine dello stesso mese. La tempistica stabilita prevede l'applicazione del nuovo quadro normativo a partire dal primo gennaio 2027, offrendo così alle aziende tecnologiche il tempo necessario per adeguarsi ai cambiamenti. Durante la presentazione, il ministro Akis Skertsos ha sottolineato la corresponsabilità di Stato e aziende hi-tech nella protezione dei minori online, evidenziando la necessità di supportare i genitori contro algoritmi progettati per mantenere i giovani costantemente connessi.",
+        "La misura centrale della riforma vieta l'accesso a servizi come Instagram, TikTok e Facebook a chi non ha ancora compiuto quindici anni, imponendo alle piattaforme l'obbligo di applicare metodi di verifica dell'età affidabili, proporzionati e appropriati. Per l'implementazione pratica del sistema, il ministro Dimitris Papastergiou ha evidenziato il ruolo chiave di strumenti come Gov.gr Wallet e Kids Wallet, basati sull'utilizzo di digital age tokens. Tali soluzioni tecnologiche permettono di confermare il raggiungimento della soglia d'età senza la necessità di divulgare dati personali eccedenti o dettagli completi sull'identità dei minori.",
+        "Il quadro normativo delineato prevede che i meccanismi di verifica si basino su tecniche accurate e sicure, capaci di prevenire eventuali elusioni ed operare efficacemente nel rispetto della legislazione europea. L'iniziativa greca si inserisce inoltre nel più ampio contesto comunitario, trovando un fondamentale punto di riferimento nell'articolo 28 del Digital Services Act (DSA) relativo alla protezione dei minori online. La supervisione sull'applicazione delle nuove regole non avverrà soltanto a livello nazionale, ma si avvarrà del meccanismo di cooperazione transfrontaliera previsto dal DSA tra le autorità competenti e la Commissione Europea."
+      ],
+      "date": "2026-10-13",
+      "sources": [
+        "https://www.euronews.com/2026/10/12/greeces-social-media-ban-for-under-15s-what-you-need-to-know"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-13T00:59:47.467951+00:00"
+      },
+      "source_fingerprints": [
+        "596e9940b8479330"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
