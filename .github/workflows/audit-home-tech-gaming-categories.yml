@@ -46,9 +46,14 @@ jobs:
                 const result=await page.evaluate(()=>{
                   function read(section){return [...document.querySelectorAll(".ztp-news-"+section+" .ztp-news-items > article.article-row")].map(row=>({
                     title:row.querySelector("h3")?.innerText||"",
-                    url:row.querySelector("h3 a")?.getAttribute("href")||""
+                    url:row.querySelector("h3 a")?.getAttribute("href")||"",
+                    publishedAt:row.getAttribute("data-published-at")||"",
+                    publicationText:row.querySelector(".article-meta")?.textContent||"",
+                    visible:getComputedStyle(row).display!=="none"
                   }));}
-                  return {tech:read("tech"),gaming:read("gaming"),scrollWidth:document.documentElement.scrollWidth,width:innerWidth};
+                  return {tech:read("tech"),gaming:read("gaming"),
+                    archiveWrapperPresent:!!document.querySelector("#ztpMoreGaming"),
+                    scrollWidth:document.documentElement.scrollWidth,width:innerWidth};
                 });
                 const all=[...result.tech.map(x=>({...x,section:"tech"})),...result.gaming.map(x=>({...x,section:"gaming"}))];
                 assert(all.length>=10,"Expected at least 10 imported current Home articles");
@@ -60,6 +65,29 @@ jobs:
                   if(match){assert.equal(match.section,section,match.title+" must be in "+section);verified++;}
                 }
                 assert(verified>=5,"Too few known current article classifications could be checked");
+                assert(!result.archiveWrapperPresent,"Old archive header must not precede newer Gaming news");
+                const months={gennaio:0,febbraio:1,marzo:2,aprile:3,maggio:4,giugno:5,luglio:6,agosto:7,settembre:8,ottobre:9,novembre:10,dicembre:11};
+                function published(entry){
+                  if(entry.publishedAt){
+                    const iso=Date.parse(entry.publishedAt);
+                    if(Number.isFinite(iso))return iso;
+                  }
+                  const found=entry.publicationText.toLowerCase().match(/([0-3]?\\d)\\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\\s+(20\\d{2})/);
+                  return found?Date.UTC(+found[3],months[found[2]],+found[1]):NaN;
+                }
+                for(const category of ["tech","gaming"]){
+                  const items=result[category].filter(x=>x.visible);
+                  assert(items.length>=3,category+" needs at least three current visible stories");
+                  let previous=Infinity;
+                  for(const row of items){
+                    const time=published(row);
+                    assert(Number.isFinite(time),"Missing publication date for "+row.title);
+                    assert(time<=previous,category+" not newest first: "+row.title);
+                    previous=time;
+                  }
+                  console.log("CHRONOLOGICAL",view.label,category,
+                    items.map(x=>x.publicationText.trim()+" | "+x.title.slice(0,35)).join(" -> "));
+                }
                 assert(result.scrollWidth-result.width<=8,"Horizontal page overflow");
                 await page.screenshot({path:"/tmp/zt-home-topic-"+view.label+".png",fullPage:false});
                 console.log("PASS LIVE HOME",view.label,"Tech:",result.tech.length,"Gaming:",result.gaming.length,"Checked topics:",verified);
