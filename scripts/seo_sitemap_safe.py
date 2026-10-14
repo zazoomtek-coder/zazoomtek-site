@@ -6,7 +6,8 @@ atomically replace changed files. Dates come only from verified article metadata
 No YouTube API or Firebase access needed.
 """
 import argparse
-from datetime import datetime, timezone
+import json
+from datetime import datetime, timezone, date
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -29,6 +30,8 @@ class Head(HTMLParser):
         self.canonicals = []
         self.robots = []
         self.dates = {}
+        self.jsonld = []
+        self._json = None
 
     def handle_starttag(self, tag, pairs):
         props = {k.lower(): (v or '') for k, v in pairs if k}
@@ -41,17 +44,64 @@ class Head(HTMLParser):
                 self.robots.append(props.get('content', ''))
             if prop in ('article:modified_time', 'article:published_time'):
                 self.dates[prop] = props.get('content', '')
+        if tag.lower() == 'script' and props.get('type','').lower() == 'application/ld+json':
+            self._json = ''
+
+    def handle_data(self, data):
+        if self._json is not None:
+            self._json += data
+
+    def handle_endtag(self, tag):
+        if tag.lower() == 'script' and self._json is not None:
+            self.jsonld.append(self._json)
+            self._json = None
 
 def date_from_meta(value):
     if not value:
         return None
     try:
-        dt = datetime.fromisoformat(value.strip().replace('Z', '+00:00'))
+        value = value.strip()
+        if re.fullmatch(r'\d{4}-\d{2}-\d{2}', value):
+            day = date.fromisoformat(value)
+            return day.isoformat() if day <= datetime.now(timezone.utc).date() else None
+        dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
         if dt.tzinfo is None or dt.astimezone(timezone.utc) > datetime.now(timezone.utc):
             return None
         return dt.date().isoformat()
     except ValueError:
         return None
+
+def schema_article_lastmod(head, url):
+    """Only trust dateModified for the SAME canonical article, never related items."""
+    for raw in head.jsonld:
+        try:
+            data = json.loads(raw)
+        except (ValueError, TypeError):
+            continue
+        stack = [data]
+        while stack:
+            node = stack.pop()
+            if isinstance(node, list):
+                stack.extend(node)
+                continue
+            if not isinstance(node, dict):
+                continue
+            if isinstance(node.get('@graph'), list):
+                stack.extend(node['@graph'])
+            kinds = node.get('@type', [])
+            kinds = [kinds] if isinstance(kinds, str) else kinds if isinstance(kinds, list) else []
+            if not any(t in kinds for t in ('Article', 'NewsArticle', 'BlogPosting')):
+                continue
+            page = node.get('mainEntityOfPage')
+            target = page if isinstance(page, str) else page.get('@id') if isinstance(page, dict) else None
+            if target != url and node.get('url') != url:
+                continue
+            value = node.get('dateModified')
+            if isinstance(value, str):
+                validated = date_from_meta(value)
+                if validated:
+                    return validated
+    return None
 
 def entries(root):
     found = {}
@@ -76,7 +126,9 @@ def entries(root):
         parts = urlsplit(expected)
         if parts.scheme != 'https' or parts.netloc != 'zazoomtek.it':
             continue
-        lastmod = date_from_meta(parsed.dates.get('article:modified_time')) or date_from_meta(parsed.dates.get('article:published_time'))
+        lastmod = (date_from_meta(parsed.dates.get('article:modified_time'))
+                   or schema_article_lastmod(parsed, expected)
+                   or date_from_meta(parsed.dates.get('article:published_time')))
         found[expected] = lastmod
     if ORIGIN + '/' not in found:
         raise ValueError('Homepage canonical missing: refusing sitemap changes')
