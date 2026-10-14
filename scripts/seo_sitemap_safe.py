@@ -15,6 +15,7 @@ import re
 import tempfile
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
+from seo_paths_safe import html_pages, canonical_candidates
 
 ORIGIN = 'https://zazoomtek.it'
 SITEMAP_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
@@ -54,7 +55,7 @@ def date_from_meta(value):
 
 def entries(root):
     found = {}
-    for path in sorted(root.glob('*.html')):
+    for path in html_pages(root):
         if path.name in OMIT or path.name.startswith('preview-'):
             continue
         try:
@@ -69,9 +70,9 @@ def entries(root):
         parsed.feed(before_head)
         if any('noindex' in re.split(r'[;,\s]+', rule.lower()) for rule in parsed.robots):
             continue
-        expected = ORIGIN + ('/' if path.name == 'index.html' else '/' + path.name)
-        if parsed.canonicals != [expected]:
+        if len(parsed.canonicals) != 1 or parsed.canonicals[0] not in canonical_candidates(root, path):
             continue
+        expected = parsed.canonicals[0]
         parts = urlsplit(expected)
         if parts.scheme != 'https' or parts.netloc != 'zazoomtek.it':
             continue
