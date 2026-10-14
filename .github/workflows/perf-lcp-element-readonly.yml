@@ -1,0 +1,53 @@
+name: Read-only mobile LCP element investigation
+on:
+  push:
+    branches:
+      - seo/live-thumb-smoke-20261014
+    paths:
+      - '.github/workflows/perf-lcp-element-readonly.yml'
+permissions:
+  contents: read
+jobs:
+  investigate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install isolated lightweight Chrome controller
+        run: npm install --no-save playwright-core@1.56.1
+      - name: Read-only mobile page instrumentation
+        run: |
+          node <<'JS'
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+            await page.addInitScript(()=>{
+              window.__ztLcp=[];
+              try {
+                new PerformanceObserver(list=>{
+                  for(const entry of list.getEntries()){
+                    const el=entry.element;
+                    window.__ztLcp.push({
+                      startTime:entry.startTime,size:entry.size,url:entry.url,
+                      outer:el?.outerHTML?.slice(0,500),
+                      tag:el?.tagName,
+                      className:String(el?.className||'').slice(0,130),
+                      loadAttr:el?.getAttribute?.('loading'),
+                      fetchpriority:el?.getAttribute?.('fetchpriority'),
+                    })
+                  }
+                }).observe({type:'largest-contentful-paint',buffered:true});
+              }catch(e){window.__ztLcpError=String(e)}
+            });
+            await page.goto('https://zazoomtek.it/',{waitUntil:'domcontentloaded',timeout:40000});
+            await page.waitForTimeout(8500);
+            const lcp=await page.evaluate(()=>({records:window.__ztLcp,error:window.__ztLcpError}));
+            console.log('LCP_ELEMENT_RESULT',JSON.stringify(lcp).slice(0,12000));
+            const imgs=await page.evaluate(()=>[...document.querySelectorAll('img')].slice(0,18).map(x=>({src:x.currentSrc?.slice(0,140),loading:x.loading,priority:x.fetchPriority,rect:(()=>{let r=x.getBoundingClientRect();return [Math.round(r.top),Math.round(r.width),Math.round(r.height)]})()})));
+            console.log('TOP_IMAGES',JSON.stringify(imgs).slice(0,8500));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
