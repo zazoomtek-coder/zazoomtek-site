@@ -29,6 +29,8 @@ def transform(root, content, findings):
         title=re.sub(r'\s*\|\s*ZazoomTek\s*$','',title,flags=re.I).strip()
         if not title: continue
         links.append('<li><a href="/'+html.escape(name,quote=True)+'">'+html.escape(title)+'</a></li>')
+    if any(name=='chi-sono.html' and kind=='orphan_unlinked' for name,kind,_ in findings):
+        links.append('<li><a href="/chi-sono.html">Informazioni su ZazoomTek</a></li>')
     existing=AREA.search(content)
     if not links:
         return AREA.sub('',content) if existing else content,len(links)
