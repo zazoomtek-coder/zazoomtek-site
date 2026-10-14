@@ -74,7 +74,8 @@ def audit(root):
         if rel!='index.html' and inbound[rel]==0:
             findings.append((rel,'orphan_unlinked','No incoming local page links'))
     summary=Counter(item[1] for item in findings)
-    return {'files_scanned':len(files),'canonical_pages':len(live),'finding_counts':dict(summary),
+    priorities=[item for item in findings if item[1] in ('h1_count','duplicate_title','duplicate_description','orphan_unlinked')]
+    return {'priority_findings':priorities[:120],'files_scanned':len(files),'canonical_pages':len(live),'finding_counts':dict(summary),
             'findings_sample':findings[:150],'missing_targets':unresolved.most_common(45),
             'by_page':live}
 def main():
