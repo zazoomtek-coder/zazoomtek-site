@@ -43,15 +43,24 @@ for(const [newer,older] of [
  ["13/10/2026","11/10/2026"],
  ["2026-10-14","2026-10-13"]
 ]) assert(order(newer)>order(older),newer+" must appear above "+older);
-assert(source.includes("oldArchive.remove()"),"Legacy Gaming archive wrapper must not be above current news");
 assert(source.includes("orderHomeColumn(tech)")&&source.includes("orderHomeColumn(gaming)"),
  "Both Tech and Gaming must be ordered by publication");
-assert(source.includes('oldArchive.querySelectorAll("article.ztp-gaming-extra")'),
- "Archive cards must participate in chronological ordering");
+const templateLiteral=source.match(/const fragmentHTML=("(?:\\.|[^"\\])*");/);
+assert(templateLiteral,"Home layout template must exist");
+const homeTemplate=JSON.parse(templateLiteral[1]);
+assert(!homeTemplate.includes("ztpMoreGaming")&&!homeTemplate.includes("ztp-gaming-extra"),
+ "Obsolete fixed Gaming articles must never outrank current YouTube Community news");
+assert(!source.includes('oldArchive.querySelectorAll'),"Static Gaming article reinsertion must be removed");
 const index=fs.readFileSync("index.html","utf8");
 const feed=index.split("<!-- ARTICLE_FEED_START -->")[1]?.split("<!-- ARTICLE_FEED_END -->")[0];
 assert(feed,"canonical Home feed missing");
 const rows=[...feed.matchAll(/<article\b[^>]*class="article-row"[\s\S]*?<h3><a[^>]*>(.*?)<\/a><\/h3>/g)];
+const published=[...feed.matchAll(/<article\b[^>]*class="article-row"[^>]*data-published-at="([^"]+)"/g)]
+ .map(m=>order(m[1]));
+assert.equal(published.length,rows.length,"Every Home news card must include its real publication timestamp");
+for(let n=1;n<published.length;n++)assert(published[n-1]>=published[n],
+ "Canonical Home news must be newest-first at indexes "+(n-1)+" and "+n);
+
 assert(rows.length>=10,"Home must contain at least 10 current articles");
 const categories=rows.map(x=>classify(x[1].replace(/&amp;/g,"&").replace(/&quot;/g,'"')));
 const gaming=categories.filter(x=>x==="gaming").length;
