@@ -1,13 +1,14 @@
 name: SEO production health - independent read only
 on:
   schedule:
-    - cron: '23 5 * * *'
+    - cron: '23 */6 * * *'
   workflow_dispatch:
   push:
     branches:
       - seo/public-health-watch-20261014
     paths:
       - 'scripts/seo_public_health_readonly.py'
+      - 'scripts/seo_production_performance_watch.py'
       - 'scripts/test_seo_public_health_readonly.py'
       - '.github/workflows/seo-public-health-readonly.yml'
 permissions:
@@ -25,3 +26,6 @@ jobs:
         run: python3 scripts/test_seo_public_health_readonly.py
       - name: Verify public sitemap News and watch-page video SEO
         run: python3 scripts/seo_public_health_readonly.py --strict
+
+      - name: Check homepage, archives, robots and sitemap response timings (read-only)
+        run: python3 scripts/seo_production_performance_watch.py --strict
