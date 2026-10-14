@@ -166,7 +166,18 @@ def main():
         rows=[]
         for x in (p for p in published if p["section"]==section):
             url="/"+x["filename"];title=esc(x["title"]);summary=esc(x["summary"])
-            cover=esc(x.get("image") or "/ChatGPT.png")
+            # Two topic-specific original covers for the category archive.
+            # Leave article hero, Schema.org and approved source metadata untouched.
+            archive_cover_overrides = {
+                "tech-impact-le-norme-ue-sull-ia-affrontano-il-primo-test-con-i-laboratori.html":
+                    "/assets/special/tech-impact-eu-ai-test-labs-original-20261014.svg",
+                "tech-impact-california-nuova-legge-vieta-l-uso-di-bot-e-intelligenza-artificiale-nei-licenziament.html":
+                    "/assets/special/tech-impact-california-ai-workplace-law-original-20261014.svg",
+            }
+            special_cover = archive_cover_overrides.get(x["filename"])
+            if special_cover and not (ROOT / special_cover.lstrip("/")).is_file():
+                raise RuntimeError("Missing unique Tech Impact archive image: "+special_cover)
+            cover=esc(special_cover or x.get("image") or "/ChatGPT.png")
             rows.append('<article class="news-row"><a href="'+esc(url)+'"><img src="'+cover+'" alt="'+title+'" loading="lazy"></a><div class="news-copy"><h2><a href="'+esc(url)+'">'+title+'</a></h2><div class="news-meta">ZazoomTek · '+esc(x["date"])+'</div><p>'+summary+'</p><a class="news-read" href="'+esc(url)+'">Leggi tutto</a></div></article>')
         replacement='<div class="news-list" id="newsList" data-auto-articles="'+section+'">'+"\n".join(rows)+'</div>'
         # Community banner is inserted AFTER the closing news-list DIV.
