@@ -48,12 +48,17 @@ def propose(path,root,source):
     if 'noindex' in robots or 'none' in robots:return None
     m=TITLE.search(head)
     title=shorten(m.group(2),73,34) if m else None
+    if m and path.name == 'news.html' and ' '.join(html.unescape(m.group(2)).split()) == 'News | ZazoomTek':
+        title='News Tecnologia e Gaming | ZazoomTek'
     descriptions=[tag for tag in META.finditer(head) if DESCRIPTION.search(tag.group(0))]
     description=None
     if len(descriptions)==1:
         content=CONTENT.search(descriptions[0].group(0))
         if content:
             description=shorten(content.group('text'),158,85)
+            if (path.name == 'news-UgkxRIkkCOSKmYs0Irjj3gONuRScFsor9-qu.html'
+                    and html.unescape(content.group('text')).strip() == 'Avete già prenotato GT6?'):
+                description='Discussione della Community ZazoomTek dedicata alle prenotazioni di GT6, con opinioni e commenti dei lettori.'
     return (head,tail,m,title,descriptions,description)
 
 def build(root,minimum=500):
