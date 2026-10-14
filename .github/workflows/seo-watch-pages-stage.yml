@@ -49,17 +49,21 @@ jobs:
           assert all(z[3:].startswith('watch/') for z in changed.splitlines()),changed[:500]
           print('PASS: all imported videos have ONE prominent player and validated video sitemap; NO existing files touched')
           PY
-      - name: Smoke test common site header and new page rendering in ephemeral checkout
+      - name: Verify new pages carry approved header/CSS already, without site redesign
         run: |
-          python3 scripts/apply-site-design.py
+          python3 scripts/test_seo_video_archive_safe.py
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('watch/index.html')
-          html=p.read_text(encoding='utf-8')
-          assert '/zt-design.css?v=20261012sidebarFix5' in html
-          assert html.count('zt-thumbnails.css')==1
-          for label in ['Home','News','Recensioni','Guide','Tech Impact','Gaming Inside','Community','Video']:
-              assert label in html, label
-          assert '<header class="zt-header">' in html
-          print('PASS: new video hub inherits approved ZazoomTek design and 8-button nav')
+          files=[Path('watch/index.html')]+sorted(Path('watch').glob('*.html'))[:6]
+          assert len(files)==7
+          for p in files:
+              src=p.read_text(encoding='utf-8')
+              head=src.split('</head>')[0]
+              assert 'zt-design.css?v=20261012sidebarFix5' in head,p
+              assert 'zt-thumbnails.css?v=20261013textPriorityCover5' in head,p
+              assert '<header class="zt-header">' in src,p
+              assert '<nav class="zt-nav"' in src,p
+              for label in ['Home','News','Recensioni','Guide','Tech Impact','Gaming Inside','Community','Video']:
+                  assert label in src,p
+          print('PASS: video watch pages have full approved site header/nav/CSS without second normalizer pass')
           PY
