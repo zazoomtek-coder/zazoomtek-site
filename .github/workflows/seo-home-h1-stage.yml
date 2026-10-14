@@ -1,0 +1,74 @@
+name: Home semantic H1 visual safety staging
+on:
+  push:
+    branches:
+      - seo/home-semantic-h1-20261014
+    paths:
+      - 'scripts/seo_home_h1_safe.py'
+      - 'scripts/test_seo_home_h1_safe.py'
+      - '.github/workflows/seo-home-h1-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate semantic heading transformation
+        run: |
+          python3 scripts/test_seo_home_h1_safe.py
+          python3 scripts/seo_home_h1_safe.py --check
+      - name: Prove exact same featured news body and no extra heading
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys,re
+          sys.path.insert(0,'scripts')
+          from seo_home_h1_safe import transform,BEFORE,AFTER
+          before=Path('index.html').read_text()
+          after=transform(before)
+          assert after!=before
+          assert '<h1' not in before
+          assert after.count('<h1 ')==1
+          assert BEFORE not in after and AFTER in after
+          assert before.split('<!-- FEATURED_NEWS_START -->')[1]==after.split('<!-- FEATURED_NEWS_START -->')[1]
+          assert all(x in after for x in ('ztFeaturedGrid','/zt-design.css','zt-thumbnails.css'))
+          assert len(re.findall(r'<img\b',before,re.I))==len(re.findall(r'<img\b',after,re.I))
+          assert len(re.findall(r'<a\b',before,re.I))==len(re.findall(r'<a\b',after,re.I))
+          print('PASS: one visible H1, exact original content/images/links, future deploy idempotent')
+          PY
+      - name: Compare original H2 with new H1 computed styles in mobile and desktop
+        run: |
+          npm install --no-save playwright-core@1.56.1 >/dev/null
+          node <<'JS'
+          const {chromium}=require('playwright-core'),fs=require('fs'),cp=require('child_process');
+          (async()=>{
+            const src=fs.readFileSync('index.html','utf8');
+            const firstStyle=(src.match(/<style>[\s\S]*?<\/style>/i)||[])[0];
+            if (!firstStyle) throw Error('Missing primary homepage style');
+            const css=firstStyle.replace(/<style>|<\/style>/g,'')+'\n.module-head h2{letter-spacing:.025em}';
+            const replaced=css.replace(/\.module-head h2/g,'.module-head :is(h2,h1)');
+            const body1='<div class="module-head"><h2>News in evidenza</h2></div>';
+            const body2='<div class="module-head"><h1 style="letter-spacing:.025em">News in evidenza</h1></div>';
+            const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            for(const width of [390,1280]){
+              const page=await browser.newPage({viewport:{width,height:840}});
+              const items=[];
+              for(const [cssText,body] of [[css,body1],[replaced,body2]]){
+                await page.setContent('<style>'+cssText+'</style><section class="module">'+body+'</section>');
+                items.push(await page.$eval('.module-head > *',el=>{
+                  const s=getComputedStyle(el),r=el.getBoundingClientRect();
+                  return {width:r.width,height:r.height,font:s.font,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight,color:s.color,background:s.background,padding:s.padding,margin:s.margin,textTransform:s.textTransform};
+                }));
+              }
+              for(const key of Object.keys(items[0]))if(items[0][key]!==items[1][key]){
+                throw new Error('Visual regression '+width+' '+key+' '+JSON.stringify(items))
+              }
+              console.log('PASS heading exact computed styles and box size at viewport',width);
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
