@@ -284,6 +284,11 @@ jobs:
           python3 -m pip install --disable-pip-version-check -q Pillow
           python3 -m py_compile scripts/seo_discover_two_covers.py
           python3 scripts/seo_discover_two_covers.py
+      - name: Compose non-upscaled Discover sharing cards for small Community images (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 -m py_compile scripts/seo_discover_remote_cards.py
+          python3 scripts/seo_discover_remote_cards.py
       - name: Audit Google Discover covers and previews (read-only, non-blocking)
         continue-on-error: true
         run: |
