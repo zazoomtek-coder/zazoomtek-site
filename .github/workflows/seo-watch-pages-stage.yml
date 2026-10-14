@@ -1,0 +1,65 @@
+name: Staging SEO video watch pages - no existing page changes
+on:
+  push:
+    branches: [seo/staged-watch-pages-20261014]
+    paths:
+      - 'scripts/seo_watch_pages_safe.py'
+      - 'scripts/test_seo_watch_pages_safe.py'
+      - '.github/workflows/seo-watch-pages-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test future videos, IDs, dates and unique pages
+        run: python3 scripts/test_seo_watch_pages_safe.py
+      - name: Count verified watch pages without writing
+        run: python3 scripts/seo_watch_pages_safe.py --check
+      - name: Generate in throwaway checkout and test real video indexing
+        run: |
+          python3 scripts/seo_watch_pages_safe.py
+          python3 scripts/seo_sitemap_safe.py --check
+          python3 scripts/seo_video_sitemap_safe.py --check
+          python3 - <<'PY'
+          import sys,re,subprocess
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_video_sitemap_safe import entries,build
+          from seo_sitemap_safe import entries as sitemap_entries
+          from seo_watch_pages_safe import feed_items
+          vid=entries(Path('.'))
+          feed=feed_items(Path('.'))
+          pages=list(Path('watch').glob('*.html'))
+          assert len(vid)==len(feed),(len(vid),len(feed))
+          assert len(pages)==len(vid)+1,(len(pages),len(vid))
+          sitemap=dict(sitemap_entries(Path('.')))
+          assert 'https://zazoomtek.it/watch/' in sitemap
+          assert all(('https://zazoomtek.it/watch/'+p.name) in sitemap for p in pages if p.name!='index.html')
+          assert len(sitemap)>=700,len(sitemap)
+          for p in pages:
+              html=p.read_text()
+              assert html.count('<h1')==1 and html.count('</html>')==1,p
+              if p.name!='index.html':
+                  assert html.count('<iframe')==1 and 'VideoObject' in html,p
+          changed=subprocess.run(['git','status','--porcelain'],capture_output=True,text=True,check=True).stdout
+          assert all(z[3:].startswith('watch/') for z in changed.splitlines()),changed[:500]
+          print('PASS: all imported videos have ONE prominent player and validated video sitemap; NO existing files touched')
+          PY
+      - name: Smoke test common site header and new page rendering in ephemeral checkout
+        run: |
+          python3 scripts/apply-site-design.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('watch/index.html')
+          html=p.read_text(encoding='utf-8')
+          assert '/zt-design.css?v=20261012sidebarFix5' in html
+          assert html.count('zt-thumbnails.css')==1
+          for label in ['Home','News','Recensioni','Guide','Tech Impact','Gaming Inside','Community','Video']:
+              assert label in html, label
+          assert '<header class="zt-header">' in html
+          print('PASS: new video hub inherits approved ZazoomTek design and 8-button nav')
+          PY
