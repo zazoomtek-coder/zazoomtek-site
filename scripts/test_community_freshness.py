@@ -59,4 +59,33 @@ with patch.object(mod,"open_with_retry",return_value=sample):
     assert [x["id"] for x in rows]==[fresh["id"]],rows
     assert rows[0]["published_iso"] and rows[0]["url"].endswith(fresh["id"])
 
+# A cached/old first Community page must not hide a newer post available
+# through another official YouTube URL. Reject repeated IDs from later pages.
+def official_page(pid, headline):
+    data={"contents":{"postRenderer":{
+        "postId":pid,
+        "contentText":{"runs":[{"text":headline}]},
+        "publishedTimeText":{"simpleText":"1 minuto fa"}
+    }}}
+    return "var ytInitialData = "+mod.json.dumps(data)+";</script>"
+
+with patch.object(mod,"open_with_retry",side_effect=[
+    official_page(a["id"],a["text"]),
+    official_page(fresh["id"],fresh["text"]),
+    official_page(fresh["id"],fresh["text"]),
+    mod.urllib.error.URLError("one mobile source offline"),
+]):
+    actual=mod.fetch_recent_alternate({a["id"]},set())
+    assert [x["id"] for x in actual]==[fresh["id"]],actual
+
+# The first public mirror can be down; the next healthy mirror must still
+# recover the missing post, without generating duplicates.
+with patch.object(mod,"invidious_instances",return_value=[
+    "https://first-mirror.example","https://second-mirror.example"
+]),patch.object(mod,"open_with_retry",side_effect=[
+    mod.urllib.error.URLError("first mirror unavailable"),sample
+]):
+    actual=mod.fetch_recent_invidious({a["id"]},set())
+    assert [x["id"] for x in actual]==[fresh["id"]],actual
+
 print("PASS: new post detection, fallback, no duplicates, no stale false positives, full-history safety")
