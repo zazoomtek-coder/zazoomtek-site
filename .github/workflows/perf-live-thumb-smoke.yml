@@ -1,0 +1,48 @@
+name: Read-only homepage thumbnail production smoke
+on:
+  push:
+    branches:
+      - seo/live-thumb-smoke-20261014
+    paths:
+      - '.github/workflows/perf-live-thumb-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Confirm real site image URLs, SEO and non-disruptive HTML
+        run: |
+          python3 - <<'PY'
+          import re,time,urllib.request,xml.etree.ElementTree as ET
+          def get(path):
+            last=None
+            for attempt in range(4):
+              try:
+                req=urllib.request.Request('https://zazoomtek.it'+path,headers={'User-Agent':'Mozilla/5.0 (ZazoomTek readonly smoke)'})
+                with urllib.request.urlopen(req,timeout=18) as r:
+                  assert r.status==200
+                  return r.read().decode('utf-8','replace')
+              except Exception as e:
+                last=e
+                time.sleep(3)
+            raise RuntimeError((path,last))
+          html=get('/')
+          tags=re.findall(r'<img\b[^>]*>',html,re.I)
+          small=[t for t in tags if 'yt3.ggpht.com/' in t and '=s1200-rw-nd-v1' in t and re.search(r'loading=["\x27]lazy',t,re.I)]
+          assert 20<=len(small)<=50, f'Unexpected adjusted lazy thumbnails: {len(small)}'
+          originals=[t for t in tags if 'yt3.ggpht.com/' in t and '=s1600-rw-nd-v1' in t and re.search(r'loading=["\x27]eager',t,re.I)]
+          assert originals, 'The first featured eager image must remain unchanged'
+          assert '<main' in html.lower() and '</main>' in html.lower()
+          assert 'zt-thumbnails.css' in html
+          assert 'rel="canonical" href="https://zazoomtek.it/"' in html
+          print(f'PASS public home: {len(small)} lazy Community thumbnails lightweight, eager hero original')
+          news=get('/news-sitemap.xml')
+          ET.fromstring(news)
+          print('PASS recent News sitemap available')
+          sitemap=get('/sitemap.xml')
+          root=ET.fromstring(sitemap)
+          assert len(root)>=500,len(root)
+          print('PASS canonical sitemap still present:',len(root))
+          PY
