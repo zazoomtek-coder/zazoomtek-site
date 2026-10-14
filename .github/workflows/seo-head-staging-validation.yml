@@ -1,0 +1,44 @@
+name: SEO head staging safety checks
+on:
+  push:
+    branches:
+      - seo/meta-stage-20261014
+    paths:
+      - 'scripts/seo_head_safe.py'
+      - 'scripts/test_seo_head_safe.py'
+      - '.github/workflows/seo-head-staging-validation.yml'
+      - '.github/workflows/deploy-site-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: zt-seo-head-staging
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Metadata unit tests
+        run: python3 scripts/test_seo_head_safe.py
+      - name: Read-only run on all real HTML pages
+        run: python3 scripts/seo_head_safe.py --check
+      - name: Verify unchanged content and safe deploy placement
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import importlib.util,re
+          spec=importlib.util.spec_from_file_location('meta','scripts/seo_head_safe.py')
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          changes=mod.build(Path('.'))
+          assert len(changes)<=550
+          for p,revised in changes.items():
+              before=p.read_text(encoding='utf-8',errors='replace')
+              assert re.split(r'</head\s*>',before,1,flags=re.I)[1]==re.split(r'</head\s*>',revised,1,flags=re.I)[1]
+          deploy=Path('.github/workflows/deploy-site-live.yml').read_text(encoding='utf-8')
+          assert 'Enhance Search/Discover metadata (non-blocking)' in deploy
+          assert 'continue-on-error: true' in deploy
+          print(f'PASS: {len(changes)} metadata-only candidate pages, no body/layout changes.')
+          PY
