@@ -1,5 +1,5 @@
 name: Read-only production watch pages and video SEO verification
-# Rerun against canonical sitemap module-loading fix from production.
+# Final replay after automatic five-minute YouTube sync and successful Firebase redeploy.
 on:
   push:
     branches: [seo/live-video-check-20261014]
