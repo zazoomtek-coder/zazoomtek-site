@@ -1,0 +1,36 @@
+name: Validate responsive featured images
+on:
+  push:
+    branches:
+      - perf/responsive-featured-images-mobile-desktop-20261014
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify responsive images preserve layout and URLs
+        run: |
+          python3 -m py_compile scripts/seo_featured_srcset_safe.py
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          import seo_featured_srcset_safe as s
+          before=Path('index.html').read_text(encoding='utf-8')
+          after=s.transform(before)
+          assert s.transform(after)==after
+          a=before.index(s.START)+len(s.START)
+          b=before.index(s.END,a)
+          c=after.index(s.END,a)
+          assert before[:a]==after[:a] and before[b:]==after[c:]
+          old=s.IMG.findall(before[a:b])
+          new=s.IMG.findall(after[a:c])
+          assert len(old)==len(new)==6 and old[4:]==new[4:]
+          for x,y in zip(old[:4],new[:4]):
+              assert x[:-1] == y.split(' srcset=')[0]
+              assert 'srcset="' in y and 'sizes="' in y
+          print('PASS: all source URLs and editorial images unchanged')
+          PY
