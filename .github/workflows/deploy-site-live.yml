@@ -284,7 +284,7 @@ jobs:
           python3 -m pip install --disable-pip-version-check -q Pillow
           python3 -m py_compile scripts/seo_discover_two_covers.py
           python3 scripts/seo_discover_two_covers.py
-      - name: Compose Discover cards and factual fallback previews (non-blocking)
+      - name: Localize Discover article previews and fallback cards (non-blocking)
         continue-on-error: true
         run: |
           python3 -m py_compile scripts/seo_discover_remote_cards.py
