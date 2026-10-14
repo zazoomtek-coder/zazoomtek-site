@@ -1,0 +1,131 @@
+name: Whole site SEO content analysis
+on:
+  push:
+    branches:
+      - seo/complete-site-metadata-20261014
+    paths:
+      - 'scripts/seo_whole_site_audit.py'
+      - 'scripts/test_seo_whole_site_audit.py'
+      - '.github/workflows/seo-whole-site-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+      - 'scripts/seo_concise_metadata_safe.py'
+      - 'scripts/test_seo_concise_metadata_safe.py'
+      - 'scripts/seo_generic_article_headline_safe.py'
+      - 'scripts/test_seo_generic_article_headline_safe.py'
+      - 'scripts/seo_paginated_h1_safe.py'
+      - 'scripts/test_seo_paginated_h1_safe.py'
+      - 'scripts/seo_news_archive_descriptions.py'
+      - 'scripts/test_seo_news_archive_descriptions.py'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test SEO scanner with future nested category
+        run: python3 scripts/test_seo_whole_site_audit.py
+      - name: Audit current site without modification
+        run: python3 scripts/seo_whole_site_audit.py --output "$RUNNER_TEMP/whole-seo.json"
+      - name: Test metadata-only normalization and safety
+        run: |
+          python3 scripts/test_seo_concise_metadata_safe.py
+          python3 scripts/seo_concise_metadata_safe.py --check
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_concise_metadata_safe import build
+          changes,stats=build(Path('.'))
+          assert stats['pages']>=500 and stats['changed_pages']>300,stats
+          for path,revised in changes.items():
+              previous=path.read_text(encoding='utf-8',errors='replace')
+              assert previous.split('</head>',1)[1]==revised.split('</head>',1)[1]
+          print('PASS sitewide SEO condensed metadata without any body/layout changes:',stats)
+          PY
+      - name: Verify factual generic headlines without touching article paragraphs
+        run: |
+          python3 scripts/test_seo_generic_article_headline_safe.py
+          python3 scripts/seo_generic_article_headline_safe.py --check
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_generic_article_headline_safe import build
+          changes,pages=build(Path('.'))
+          assert pages>=500
+          assert 15 <= len(changes) <= 45,len(changes)
+          print('PASS unique truthful article H1 and metadata candidates:',len(changes))
+          PY
+      - name: Test and stage all proposed SEO changes without publishing
+        run: |
+          python3 scripts/test_seo_paginated_h1_safe.py
+          python3 scripts/seo_paginated_h1_safe.py --check
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_paginated_h1_safe import build
+          changes=build(Path('.'))
+          assert len(changes)==4,sorted(str(x) for x in changes)
+          print('PASS semantic archive H1 upgraded with original homepage heading style',len(changes))
+          PY
+          python3 scripts/seo_generic_article_headline_safe.py
+          python3 scripts/seo_paginated_h1_safe.py
+          python3 scripts/seo_concise_metadata_safe.py
+          python3 scripts/test_seo_news_archive_descriptions.py
+          python3 scripts/seo_news_archive_descriptions.py
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_whole_site_audit import audit
+          data=audit(Path('.'))
+          print('POST-SEO COUNTS',data['finding_counts'])
+          from seo_concise_metadata_safe import propose,shorten,CONTENT
+          for name in ('news-Ugkx--hIBK2mCq26KvL_h_Z8LRFE7Nk0dBTN.html','news-Ugkx0a4ZBZi-Q5t-PI3p2uPLwePr6lFDPqU3.html'):
+              p=Path(name)
+              val=propose(p.resolve(),Path('.').resolve(),p.read_text(encoding='utf-8'))
+              print('REMAINING DEBUG',name,'has',bool(val),'candidate',repr(val[5][:100]) if val and val[5] else None,'meta count',len(val[4]) if val else None)
+          print('HIGH PRIORITY',data['priority_findings'])
+          print('BROKEN-LINK CANDIDATES',data['missing_targets'][:22])
+          print('REMAINING NONSTANDARD DESCRIPTIONS',[(p,len(x['description']),x['description'][:95]) for p,x in data['by_page'].items() if len(x['description'])<45 or len(x['description'])>170][:65])
+          assert data['canonical_pages']>=540
+          assert data['finding_counts'].get('h1_count',0)<=1
+          assert data['finding_counts'].get('title_length',0)<70
+          assert data['finding_counts'].get('description_length',0)<95
+          assert data['finding_counts'].get('duplicate_description',0)==0
+          PY
+      - name: Validate mobile and desktop headline geometry with real CSS
+        run: |
+          npm install --no-save playwright-core@1.56.1 >/dev/null 2>&1
+          python3 -m http.server 8766 >/tmp/zt-seo-preview.log 2>&1 &
+          node <<'JS'
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            const checks=['pagina-2.html','pagina-3.html','news-Ugkx-BI6NjJ4uPtJvBCYOX9RQxqP_pqEP0il.html'];
+            for(const width of [390,1366]){
+              const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
+              for(const name of checks){
+                await page.goto('http://127.0.0.1:8766/'+name,{waitUntil:'domcontentloaded',timeout:35000});
+                const result=await page.locator('h1').first().evaluate(el=>{
+                  const r=el.getBoundingClientRect();
+                  return {title:el.textContent.trim(),left:r.left,right:r.right,height:r.height,display:getComputedStyle(el).display};
+                });
+                if(!result.title||result.left < -3||result.right>width+3||result.height<15||result.height>450||result.display==='none'){
+                  throw new Error(JSON.stringify({width,name,result}));
+                }
+                console.log('PASS responsive existing H1 layout',width,name,result.title.slice(0,80));
+              }
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whole-site-seo-findings
+          path: ${{ runner.temp }}/whole-seo.json
+          retention-days: 7
