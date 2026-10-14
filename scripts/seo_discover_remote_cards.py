@@ -62,7 +62,12 @@ def pages(root):
             from urllib.parse import unquote
             local=(root/unquote(parts.path).lstrip("/")).resolve()
             if local.is_relative_to(root) and local.is_file():
-                continue
+                try:
+                    with Image.open(local) as probe:
+                        if probe.width>=1200 and probe.height>=250:
+                            continue
+                except (OSError,ValueError,UnidentifiedImageError):
+                    pass
         matches.setdefault(url,[]).append(page)
     return matches
 
