@@ -443,7 +443,7 @@
    const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
    if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
    const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
-   stylesheet.href="/zt-home-gap-fix-20261014.css?v=8";document.head.appendChild(stylesheet);
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=9";document.head.appendChild(stylesheet);
    area.querySelectorAll(".ztp-news-items").forEach(function(col){
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });
@@ -581,4 +581,43 @@
   schedule();
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+
+/* ZT_REVIEW_TECH_ARTWORK_16_9_20261014
+   Make review covers readable as complete art in a wide frame with natural-color
+   side extensions; landscape covers keep their original full-bleed shape. */
+(function(){
+  "use strict";
+  if(!["/","/index.html"].includes(location.pathname))return;
+  function init(){
+    const track=document.querySelector(".ztp-top-main .latest-reviews-module #latestVideos");
+    if(!track)return;
+    function apply(){
+      [...track.querySelectorAll(".zt-review-thumb > img")].forEach(function(img){
+        const thumb=img.closest(".zt-review-thumb");
+        if(!thumb)return;
+        const url=img.currentSrc||img.src;
+        if(url && thumb.dataset.ztReviewArtUrl!==url){
+          // Use the same original cover for both layers, never invent a product image.
+          thumb.style.setProperty("--zt-thumb-artwork","url("+JSON.stringify(url)+")");
+          thumb.dataset.ztReviewArtUrl=url;
+        }
+        thumb.classList.add("zt-review-adapted");
+        if(img.complete && img.naturalWidth>0 && img.naturalHeight>0){
+          const ratio=img.naturalWidth/img.naturalHeight;
+          thumb.classList.toggle("zt-cover-landscape",ratio>=1.64);
+        }
+        if(!img.dataset.ztRatioListener){
+          img.dataset.ztRatioListener="yes";
+          img.addEventListener("load",apply,{passive:true});
+        }
+      });
+    }
+    apply();
+    const observer=new MutationObserver(function(records){
+      if(records.some(rec=>rec.addedNodes.length || rec.removedNodes.length))apply();
+    });
+    observer.observe(track,{childList:true,subtree:true});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
