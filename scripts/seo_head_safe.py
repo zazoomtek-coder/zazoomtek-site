@@ -13,6 +13,7 @@ import json
 import os
 import re
 import tempfile
+from seo_paths_safe import html_pages, canonical_candidates
 
 ORIGIN = 'https://zazoomtek.it'
 MARKER = '<!-- ZT_SEO_HEAD_SAFE_V1 -->'
@@ -43,7 +44,7 @@ def valid_url(url):
     except ValueError:
         return False
 
-def transform(name, text):
+def transform(name, text, canonical_urls=None):
     if MARKER in text or name.startswith('preview-') or name == '404.html':
         return text
     end = re.search(r'</head\s*>', text, re.I)
@@ -52,9 +53,10 @@ def transform(name, text):
     head, remainder = text[:end.start()], text[end.start():]
     meta = Metadata()
     meta.feed(head)
-    canonical = ORIGIN + ('/' if name == 'index.html' else '/' + name)
-    if meta.canonicals != [canonical]:
+    expected = canonical_urls or {ORIGIN + ('/' if name == 'index.html' else '/' + name)}
+    if len(meta.canonicals) != 1 or meta.canonicals[0] not in expected:
         return text
+    canonical = meta.canonicals[0]
     robots = ' '.join(meta.meta.get(k, '') for k in ('robots', 'googlebot')).lower()
     if re.search(r'(?<![a-z])(?:noindex|none|noimageindex)(?![a-z])', robots):
         return text
@@ -100,9 +102,9 @@ def transform(name, text):
 def build(root):
     changes = {}
     count = 0
-    for path in sorted(root.glob('*.html')):
+    for path in html_pages(root):
         source = path.read_text(encoding='utf-8', errors='replace')
-        revised = transform(path.name, source)
+        revised = transform(path.name, source, canonical_candidates(root, path))
         if revised != source:
             before = re.split(r'</head\s*>', source, maxsplit=1, flags=re.I)
             after = re.split(r'</head\s*>', revised, maxsplit=1, flags=re.I)
