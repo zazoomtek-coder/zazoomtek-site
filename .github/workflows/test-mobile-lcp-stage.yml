@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - perf/mobile-lcp-priority-20261014
+      - perf/preload-first-lcp-20261014
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,7 +33,8 @@ jobs:
           assert 'fetchpriority="high"' in tags[0]
           assert 'srcset=' in tags[0]
           assert all('loading="lazy"' in t and 'fetchpriority="high"' not in t for t in tags[1:])
-          assert text[:a]==modified[:a], 'head changed'
+          assert '<!-- ZT_MOBILE_LCP_PRELOAD_V2 -->' in modified
+          assert modified.count('rel="preload" as="image" fetchpriority="high"')==1
           assert text[text.index(m.END,a):]==modified[b:], 'tail changed'
           print('PASS mobile cover loading, high-priority and source bounds')
           PY
