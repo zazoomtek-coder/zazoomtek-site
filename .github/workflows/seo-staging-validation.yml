@@ -1,0 +1,38 @@
+name: SEO staging safety checks
+on:
+  push:
+    branches:
+      - seo/staging-safe-20261014
+    paths:
+      - 'scripts/seo_sitemap_safe.py'
+      - 'scripts/test_seo_sitemap_safe.py'
+      - '.github/workflows/seo-staging-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: zt-seo-staging-safety
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests - isolated fixtures
+        run: python3 scripts/test_seo_sitemap_safe.py
+      - name: Dry-run current site sitemap without edits
+        run: |
+          python3 scripts/seo_sitemap_safe.py --check
+          python3 - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          spec=importlib.util.spec_from_file_location("seo","scripts/seo_sitemap_safe.py")
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          out,count=mod.build(Path("."))
+          assert count>=500,f"unexpectedly small sitemap: {count}"
+          assert b"https://zazoomtek.it/" in out["sitemap.xml"]
+          assert b"noindex" not in out["sitemap.xml"].lower()
+          print(f"PASS: {count} canonical pages, sitemap valid, no public-site changes.")
+          PY
