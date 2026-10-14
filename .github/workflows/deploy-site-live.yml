@@ -341,6 +341,14 @@ jobs:
         run: |
           python3 scripts/test_seo_featured_all_visible_safe.py
           python3 scripts/seo_featured_all_visible_safe.py
+      # Prioritize only the actual first mobile cover, restore deferred loading
+      # for the other five after the legacy all-visible transform.
+      - name: Prioritize responsive mobile featured LCP cover (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 -m py_compile scripts/seo_mobile_lcp_priority_safe.py
+          python3 scripts/seo_mobile_lcp_priority_safe.py
+          python3 scripts/seo_mobile_lcp_priority_safe.py --check
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
