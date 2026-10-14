@@ -125,3 +125,22 @@ main.page .ztp-gaming-reviews .ztp-review-all{font-size:11px;color:#fff;font-wei
  }
  #articoli.ztp-news-area .ztp-gaming-bottom-fill{display:none!important}
 }
+
+/* Featured real Gaming article fills the bottom of the news column without white gaps. */
+@media(min-width:1150px){
+ #articoli.ztp-news-area .ztp-news-gaming .ztp-gaming-bottom-fill:not([hidden]){
+   display:block!important;grid-template-columns:none!important;min-width:0!important;
+   margin:0!important;padding:10px 0 14px!important;
+   border-top:1px solid #e5e8ee!important;
+ }
+ #articoli.ztp-news-area .ztp-news-gaming .ztp-gaming-bottom-thumb{
+   display:block!important;width:100%!important;margin:0 0 9px!important;
+ }
+ #articoli.ztp-news-area .ztp-news-gaming .ztp-gaming-bottom-thumb img{
+   width:100%!important;aspect-ratio:16/9!important;object-fit:contain!important;
+   object-position:center!important;border-radius:9px!important;
+ }
+ #articoli.ztp-news-area .ztp-news-gaming .ztp-gaming-bottom-copy a{
+   font-size:clamp(13px,1.05vw,17px)!important;line-height:1.27!important;
+ }
+}
