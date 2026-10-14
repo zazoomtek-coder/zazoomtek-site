@@ -195,16 +195,11 @@
   while(side.firstElementChild)rail.appendChild(side.firstElementChild);
   side.remove();
   const videoShelfTarget=area.querySelector("#ztpVideosAnchor");
-  // Put Shorts in a compact right-hand companion to Explore Videos.
-  const videoPair=document.createElement("div");
-  videoPair.className="ztp-video-shorts-pair";
+  // Shorts stay in the 20% editorial rail, beneath Dalla Redazione;
+  // Explore Video retains its full original width.
   const shortsSlot=document.createElement("aside");
   shortsSlot.className="ztp-shorts-companion";
   shortsSlot.setAttribute("aria-label","Ultimi Shorts ZazoomTek");
-  if(videoShelfTarget){
-    videoShelfTarget.parentElement.insertBefore(videoPair,videoShelfTarget);
-    videoPair.append(videoShelfTarget,shortsSlot);
-  }
   const root=document.querySelector("main.page");
   function mountShelves(){
    const shelves=document.getElementById("zt-home-shelves");
@@ -266,6 +261,7 @@
   const ytFollow=rail.querySelector(".zt-youtube-follow");
   if(ytFollow)ytFollow.insertAdjacentElement("afterend",editorialBox);
   else rail.appendChild(editorialBox);
+  editorialBox.insertAdjacentElement("afterend",shortsSlot);
   // Three large and real editorial images; keep article links, never inject placeholders.
   function reconcileRight(){
     if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
@@ -273,7 +269,7 @@
       try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
     }));
     const eligible=editorialCards.filter(card=>!linked.has(new URL(card.href).pathname));
-    const selected=new Set(eligible.slice(0,5));
+    const selected=new Set(eligible.slice(0,3));
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
   }
@@ -447,7 +443,7 @@
    const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
    if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
    const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
-   stylesheet.href="/zt-home-gap-fix-20261014.css?v=7";document.head.appendChild(stylesheet);
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=8";document.head.appendChild(stylesheet);
    area.querySelectorAll(".ztp-news-items").forEach(function(col){
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });
