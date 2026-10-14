@@ -85,6 +85,7 @@ jobs:
           print('POST-SEO COUNTS',data['finding_counts'])
           print('HIGH PRIORITY',data['priority_findings'])
           print('BROKEN-LINK CANDIDATES',data['missing_targets'][:22])
+          print('REMAINING NONSTANDARD DESCRIPTIONS',[(p,len(x['description']),x['description'][:95]) for p,x in data['by_page'].items() if len(x['description'])<45 or len(x['description'])>170][:65])
           assert data['canonical_pages']>=540
           assert data['finding_counts'].get('h1_count',0)<=1
           assert data['finding_counts'].get('title_length',0)<70
