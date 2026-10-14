@@ -1,4 +1,4 @@
-name: Audit production-safe approved Home layout
+name: Audit candidate Home layout before release
 on:
   push:
     branches: [main]
@@ -58,6 +58,11 @@ jobs:
           mkdir -p /tmp/zt-prod-audit
           cd /tmp/zt-prod-audit
           npm install --no-save --silent playwright-core@1.56.0
+      - name: Start local candidate website for pre-deployment browser checks
+        run: |
+          nohup python3 -m http.server 8877 --bind 127.0.0.1 >/tmp/zt-prod-audit/http.log 2>&1 &
+          sleep 2
+          curl -fsSI http://127.0.0.1:8877/index.html
       - name: Verify actual rendered page and links, images, videos across viewports
         env:
           NODE_PATH: /tmp/zt-prod-audit/node_modules
@@ -67,7 +72,7 @@ jobs:
           async function main(){
            const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
            try{
-            const url="https://zazoomtek.it/";
+            const url="http://127.0.0.1:8877/";
             for(const v of [{label:"desktop",width:1600,height:900},{label:"tablet",width:1100,height:900},{label:"mobile",width:390,height:844}]){
              const page=await browser.newPage({viewport:{width:v.width,height:v.height}});
              let errors=[];page.on("pageerror",e=>errors.push(e.message));
