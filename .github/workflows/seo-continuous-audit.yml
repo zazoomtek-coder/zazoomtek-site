@@ -1,0 +1,28 @@
+name: Continuous SEO audit - read only
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/seo_continuous_audit.py'
+      - 'scripts/test_seo_continuous_audit.py'
+      - 'scripts/seo_paths_safe.py'
+      - '.github/workflows/seo-continuous-audit.yml'
+permissions:
+  contents: read
+concurrency:
+  group: seo-read-only-audit
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify audit itself against future section fixtures
+        run: python3 scripts/test_seo_continuous_audit.py
+      - name: Inspect existing, current and newly published pages without writing anything
+        run: python3 scripts/seo_continuous_audit.py
