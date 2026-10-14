@@ -12,6 +12,7 @@ const samples=[
  ["Hasbro Games Junior Collection riunisce Monopoly, Cluedo e Il Gioco della Vita in una raccolta per tutta la famiglia","gaming"],
  ["Trust punta sul benessere digitale, dalla postura alle periferiche ergonomiche per lavoro e gaming","tech"],
  ["SpongeBob SquarePants: Titans of the Tide arriva su Nintendo Switch","gaming"],
+ ["Total War: SHOGUN 2 - Complete Edition è disponibile oggi","gaming"],
  ["Lucca Comics & Games lancia LC&G Card Collection, il nuovo gioco di carte digitali","gaming"],
  ["Sharp presenta BP-80C70 e BP-80C80, nuove multifunzione","tech"],
  ["PLAYERS al M9 di Venezia Mestre racconta 80 anni di videogiochi","gaming"],
