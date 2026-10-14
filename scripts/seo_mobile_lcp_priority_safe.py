@@ -15,14 +15,14 @@ SRC = re.compile(r'src="([^"]+)"', re.I)
 CDN = re.compile(r"^(https://yt3\.ggpht\.com/[A-Za-z0-9_-]{20,})=s(?:1600|1200)-rw-nd-v1$", re.I)
 
 def replace_attr(tag, name, value):
-    pattern = re.compile(r'\\s'+re.escape(name)+r'\\s*=\\s*"[^"]*"', re.I)
+    pattern = re.compile(r'\s'+re.escape(name)+r'\s*=\s*"[^"]*"', re.I)
     att = ' '+name+'="'+value+'"'
     if pattern.search(tag):
         return pattern.sub(lambda _:att,tag,count=1)
     return tag[:-1]+att+">"
 
 def remove_attr(tag,name):
-    return re.sub(r'\\s'+re.escape(name)+r'\\s*=\\s*"[^"]*"', "", tag, flags=re.I)
+    return re.sub(r'\s'+re.escape(name)+r'\s*=\s*"[^"]*"', "", tag, flags=re.I)
 
 def transform(html):
     if html.count(START)!=1 or html.count(END)!=1:
