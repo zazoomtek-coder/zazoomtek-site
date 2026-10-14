@@ -27,7 +27,7 @@ def shorten(value,limit,minimum):
         if cutoff<minimum:cutoff=allowed
         result=base[:cutoff].rstrip(' ,;:–—-.')+suffix
     else:
-        window=value[:limit+1]
+        window=value[:limit]
         stops=[m.end() for m in re.finditer(r'[.!?](?:\s|$)',window)]
         stop=max((s for s in stops if minimum<=s<=limit),default=None)
         if stop is None:
