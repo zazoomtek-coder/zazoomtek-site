@@ -90,3 +90,45 @@ def verified_video(source, known_videos):
         'thumbnailUrl': f'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg',
         'embedUrl': f'https://www.youtube.com/embed/{video_id}',
     }
+
+
+class PrimaryArticleImage(HTMLParser):
+    """Read only the first descriptive image within a primary editorial article."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.article_depth = 0
+        self.src = None
+        self.alt = ''
+
+    def handle_starttag(self, tag, attrs):
+        data = {k.lower(): (v or '') for k, v in attrs if k}
+        if tag.lower() == 'article':
+            css = data.get('class', '').lower().split()
+            if self.article_depth or 'article-main' in css:
+                self.article_depth += 1
+        if tag.lower() != 'img' or not self.article_depth or self.src is not None:
+            return
+        src = data.get('src', '').strip()
+        alt = data.get('alt', '').strip()
+        if len(alt) < 15 or not src:
+            return
+        if any(x in src.lower() for x in ('chatgpt.png','icons8.com','youtube-play','favicon','logo.')):
+            return
+        if src.startswith('/'):
+            src = 'https://zazoomtek.it' + src
+        elif not src.startswith('https://'):
+            return
+        u = urlsplit(src)
+        if not u.netloc or not u.path or u.path.lower().endswith('.svg'):
+            return
+        self.src = src
+        self.alt = alt
+
+    def handle_endtag(self, tag):
+        if tag.lower() == 'article' and self.article_depth:
+            self.article_depth -= 1
+
+def primary_article_image(source):
+    parser = PrimaryArticleImage()
+    parser.feed(source)
+    return parser.src
