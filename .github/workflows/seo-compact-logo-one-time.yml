@@ -1,0 +1,50 @@
+name: One-time staged lossless-looking logo resize
+on:
+  push:
+    branches:
+      - seo/compact-logo-stage-20261014
+    paths:
+      - '.github/workflows/seo-compact-logo-one-time.yml'
+permissions:
+  contents: write
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python3 -m pip install 'Pillow>=10,<13'
+      - name: Generate guarded compact PNG from original in staging
+        run: |
+          python3 - <<'PY'
+          from PIL import Image,ImageStat,ImageChops
+          from pathlib import Path
+          import io
+          f=Path("ChatGPT.png")
+          old_bytes=f.read_bytes()
+          image=Image.open(io.BytesIO(old_bytes)).convert('RGBA')
+          assert image.size==(1254,1254), f"Unexpected branding image geometry: {image.size}; ABORT"
+          optimized=image.resize((512,512),Image.Resampling.LANCZOS)
+          out=io.BytesIO()
+          optimized.save(out,format='PNG',optimize=True,compress_level=9)
+          data=out.getvalue()
+          original52=image.resize((52,52),Image.Resampling.LANCZOS)
+          compact52=optimized.resize((52,52),Image.Resampling.LANCZOS)
+          mean_diff=sum(ImageStat.Stat(ImageChops.difference(original52,compact52)).mean)/4
+          assert len(data)<len(old_bytes)*0.3,(len(data),len(old_bytes))
+          assert mean_diff<0.4,mean_diff
+          assert Image.open(io.BytesIO(data)).size==(512,512)
+          f.write_bytes(data)
+          print("PASS: PNG logo",len(old_bytes),"->",len(data),"bytes; 52px visual mean abs diff",round(mean_diff,4))
+          PY
+      - name: Keep only the optimized PNG in branch (no permanent extra automation)
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -- .github/workflows/seo-compact-logo-one-time.yml
+          git add -- ChatGPT.png
+          git diff --cached --name-only
+          git commit -m "perf: safely optimize ZazoomTek branding PNG, 512px"
+          git push origin HEAD:seo/compact-logo-stage-20261014
