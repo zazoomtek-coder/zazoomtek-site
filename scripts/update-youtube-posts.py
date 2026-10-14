@@ -574,76 +574,113 @@ def fetch_invidious_full_history():
     return best_posts,best_complete
 
 def fetch_recent_alternate(known_ids, current_ids):
-    """Independently check the channel-ID Community tab when the handle page is stale.
+    """Cross-check independent OFFICIAL YouTube Community URLs.
 
-    A new ID is required; existing articles are never rewritten from this source.
-    Failure of a secondary source cannot prevent normal YouTube syncing.
+    YouTube may serve different cached first pages at handle/channel/mobile URLs.
+    Scan several distinct endpoints and union only genuinely unseen post IDs.
+    Never discard existing posts when a source is delayed or unavailable.
     """
-    url=f"https://www.youtube.com/channel/{CHANNEL_ID}/community?zt_check={int(time.time()//60)}"
-    req=urllib.request.Request(url,headers={
-        "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
-        "Accept-Language":"it-IT,it;q=0.9,en;q=0.8",
-        "Cache-Control":"no-cache","Pragma":"no-cache",
-    })
-    try:
-        page=open_with_retry(req,timeout=10,attempts=1)
-        data=initial_data(page)
-        if not data:
-            return []
-        candidates=[]
-        parse_nodes(data,candidates,set())
-        new=[x for x in candidates if x["id"] not in known_ids and x["id"] not in current_ids]
-        print(f"Secondary YouTube Community check: {len(candidates)} visible, {len(new)} new IDs.")
-        return new
-    except Exception as err:
-        print(f"Secondary YouTube check unavailable (normal sync continues): {err}")
-        return []
+    stamp=str(int(time.time()//60))
+    urls=[
+        f"https://www.youtube.com/channel/{CHANNEL_ID}/community?zt_check={stamp}",
+        f"https://www.youtube.com/channel/{CHANNEL_ID}/posts?zt_check={stamp}",
+        f"https://www.youtube.com/@ZazoomTek/community?zt_check={stamp}",
+        f"https://m.youtube.com/@ZazoomTek/posts?zt_check={stamp}",
+    ]
+    discovered=[]
+    seen=set(known_ids)|set(current_ids)
+    successful=0
+    failures=[]
+    for url in urls:
+        req=urllib.request.Request(url,headers={
+            "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+            "Accept-Language":"it-IT,it;q=0.9,en;q=0.8",
+            "Cache-Control":"no-cache","Pragma":"no-cache",
+        })
+        try:
+            page=open_with_retry(req,timeout=12,attempts=1)
+            data=initial_data(page)
+            if not data:
+                failures.append(url.split("?")[0]+": no ytInitialData")
+                continue
+            candidates=[]
+            parse_nodes(data,candidates,set())
+            if not candidates:
+                failures.append(url.split("?")[0]+": no Community posts")
+                continue
+            successful+=1
+            added=0
+            for item in candidates:
+                pid=item.get("id")
+                if not pid or pid in seen or not (item.get("text") or "").strip():
+                    continue
+                seen.add(pid)
+                discovered.append(item)
+                added+=1
+            print(f"Official Community cross-check: {len(candidates)} visible, {added} new IDs ({url.split('?')[0]})")
+        except Exception as err:
+            failures.append(url.split("?")[0]+": "+str(err))
+    if failures:
+        print("Community source warnings: "+"; ".join(failures)[:900])
+    print(f"Official Community cross-check total: {successful}/{len(urls)} sources, {len(discovered)} missing posts recovered.")
+    return discovered
 
 
 def fetch_recent_invidious(known_ids,current_ids):
-    """Best-effort cross-check for newly published public posts; never use as sole archive.
+    """Check several public mirrors ONLY for recent, not-yet-imported Community posts.
 
-    Third-party mirrors may be stale or temporarily offline. Accept ONLY post IDs
-    missing from the current archive and whose real Unix timestamp is recent.
+    One mirror can return HTTP 502/530 or an old snapshot. Continue with other
+    healthy API instances instead of declaring the source empty.
     """
     now=int(time.time())
-    base="https://invidious.f5.si"
-    endpoint=f"{base}/api/v1/channels/{CHANNEL_ID}/community"
-    req=urllib.request.Request(endpoint,headers={
-        "User-Agent":"Mozilla/5.0","Accept":"application/json","Cache-Control":"no-cache",
-    })
-    try:
-        payload=open_with_retry(req,timeout=8,parse_json=True,attempts=1)
-        items=payload.get("comments") if isinstance(payload,dict) else None
-        if not isinstance(items,list):
-            return []
-        new=[]
-        for item in items[:35]:
-            if not isinstance(item,dict):
+    discovered=[]
+    seen=set(known_ids)|set(current_ids)
+    successful=0
+    failed=[]
+    for base in invidious_instances()[:5]:
+        endpoint=f"{base}/api/v1/channels/{CHANNEL_ID}/community"
+        req=urllib.request.Request(endpoint,headers={
+            "User-Agent":"Mozilla/5.0","Accept":"application/json","Cache-Control":"no-cache",
+        })
+        try:
+            payload=open_with_retry(req,timeout=10,parse_json=True,attempts=1)
+            items=payload.get("comments") if isinstance(payload,dict) else None
+            if not isinstance(items,list):
+                failed.append(base+": invalid response")
                 continue
-            pid=item.get("commentId","")
-            body=(item.get("content") or "").strip()
-            try:
-                ts=int(item.get("published") or 0)
-            except (TypeError,ValueError):
-                continue
-            if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{12,}",pid):
-                continue
-            if not body or pid in known_ids or pid in current_ids or any(p["id"]==pid for p in new):
-                continue
-            if not (now-14*86400 <= ts <= now+600):
-                continue
-            when,when_iso=italian_date_from_timestamp(ts)
-            imgs=invidious_attachment_images(item.get("attachment"))
-            new.append({"id":pid,"text":html.unescape(re.sub(r"<[^>]*>","",body)),
-                        "published":when,"published_iso":when_iso,
-                        "image":imgs[0] if imgs else "","images":imgs,
-                        "url":"https://www.youtube.com/post/"+pid})
-        print(f"Independent Community source: {len(items)} checked, {len(new)} new IDs.")
-        return new
-    except Exception as err:
-        print(f"Independent Community check unavailable (normal sync continues): {err}")
-        return []
+            successful+=1
+            count=0
+            for item in items[:40]:
+                if not isinstance(item,dict):
+                    continue
+                pid=item.get("commentId","")
+                body=(item.get("content") or "").strip()
+                try:
+                    ts=int(item.get("published") or 0)
+                except (TypeError,ValueError):
+                    continue
+                if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{12,}",pid):
+                    continue
+                if not body or pid in seen:
+                    continue
+                if not (now-14*86400 <= ts <= now+600):
+                    continue
+                when,when_iso=italian_date_from_timestamp(ts)
+                imgs=invidious_attachment_images(item.get("attachment"))
+                discovered.append({"id":pid,"text":html.unescape(re.sub(r"<[^>]*>","",body)),
+                                   "published":when,"published_iso":when_iso,
+                                   "image":imgs[0] if imgs else "","images":imgs,
+                                   "url":"https://www.youtube.com/post/"+pid})
+                seen.add(pid)
+                count+=1
+            print(f"Community mirror {base}: {len(items)} visible, {count} new IDs.")
+        except Exception as err:
+            failed.append(base+": "+str(err))
+    if failed:
+        print("Community mirror warnings: "+"; ".join(failed)[:900])
+    if not successful:
+        print("::warning::All third-party Community mirrors unavailable; official YouTube scans remain authoritative.")
+    return discovered
 
 
 def augment_recent_posts(posts,previous,complete,force_full_scan=False):
