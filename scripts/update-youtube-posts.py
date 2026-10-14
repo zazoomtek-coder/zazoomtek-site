@@ -33,8 +33,11 @@ def open_with_retry(req, *, timeout=30, parse_json=False, attempts=5):
     raise RuntimeError(f"YouTube request failed after {attempts} attempts: {last_error}")
 
 def fetch():
-    # Query cache-busting avoids repeatedly receiving a stale Community HTML
-    # snapshot from the YouTube edge cache right after a new publication.
+    """Bound the primary YouTube request to the five-minute polling window.
+
+    A slow/unavailable primary endpoint must not monopolize the import job:
+    main() continues to independent Community URLs using the safe saved archive.
+    """
     fresh_url=URL+"?zt_check="+str(int(time.time()//60))
     req=urllib.request.Request(
         fresh_url,
@@ -46,19 +49,20 @@ def fetch():
         }
     )
     last_problem="unknown"
-    for attempt in range(5):
-        page=open_with_retry(req,timeout=30,attempts=3)
-        # A successful HTTP response can still be a transient YouTube
-        # interstitial/challenge with no usable ytInitialData. Treat that as a
-        # temporary failure and retry instead of publishing an empty feed.
-        if initial_data(page):
-            return page
-        last_problem="YouTube page contained no usable ytInitialData"
-        if attempt<4:
-            wait=min(20,3*(attempt+1))
-            print(f"{last_problem}; retrying in {wait}s...")
+    for attempt in range(3):
+        try:
+            page=open_with_retry(req,timeout=10,attempts=2)
+            if initial_data(page):
+                return page
+            last_problem="YouTube page contained no usable ytInitialData"
+        except Exception as err:
+            last_problem=str(err)
+        if attempt<2:
+            wait=2*(attempt+1)
+            print(f"Primary Community page unavailable ({last_problem}); retrying in {wait}s...")
             time.sleep(wait)
-    raise RuntimeError(f"Community page unavailable after retries: {last_problem}")
+    raise RuntimeError(f"Primary Community page unavailable after bounded retries: {last_problem}")
+
 
 def initial_data(s):
     pats=[r'var ytInitialData = ({.*?});</script>',r'ytInitialData\s*=\s*({.*?});</script>']
@@ -497,7 +501,7 @@ def invidious_instances():
             "https://api.invidious.io/instances.json",
             headers={"User-Agent":"Mozilla/5.0","Accept":"application/json"}
         )
-        data=open_with_retry(req,timeout=20,parse_json=True,attempts=2)
+        data=open_with_retry(req,timeout=7,parse_json=True,attempts=1)
         for host,meta in data if isinstance(data,list) else []:
             if not isinstance(meta,dict):
                 continue
@@ -598,7 +602,7 @@ def fetch_recent_alternate(known_ids, current_ids):
             "Cache-Control":"no-cache","Pragma":"no-cache",
         })
         try:
-            page=open_with_retry(req,timeout=12,attempts=1)
+            page=open_with_retry(req,timeout=8,attempts=1)
             data=initial_data(page)
             if not data:
                 failures.append(url.split("?")[0]+": no ytInitialData")
@@ -637,13 +641,13 @@ def fetch_recent_invidious(known_ids,current_ids):
     seen=set(known_ids)|set(current_ids)
     successful=0
     failed=[]
-    for base in invidious_instances()[:5]:
+    for base in invidious_instances()[:3]:
         endpoint=f"{base}/api/v1/channels/{CHANNEL_ID}/community"
         req=urllib.request.Request(endpoint,headers={
             "User-Agent":"Mozilla/5.0","Accept":"application/json","Cache-Control":"no-cache",
         })
         try:
-            payload=open_with_retry(req,timeout=10,parse_json=True,attempts=1)
+            payload=open_with_retry(req,timeout=7,parse_json=True,attempts=1)
             items=payload.get("comments") if isinstance(payload,dict) else None
             if not isinstance(items,list):
                 failed.append(base+": invalid response")
@@ -2676,7 +2680,16 @@ def main():
     scan_known_ids=set() if force_full_scan else known_ids
     if force_full_scan:
         print("FULL Community history scan requested: ignoring incremental boundary.")
-    posts,complete=parse(fetch(),scan_known_ids)
+    try:
+        posts,complete=parse(fetch(),scan_known_ids)
+    except Exception as err:
+        if not previous:
+            raise
+        print(f"::warning::Primary YouTube Community unavailable: {err}; recovering from official alternate pages.")
+        # Retain all previous posts while the alternate official URLs and mirrors
+        # look for genuinely new IDs. Never replace a healthy archive with zero.
+        posts=list(previous)
+        complete=False
     posts,complete=augment_recent_posts(posts,previous,complete,force_full_scan)
     if force_full_scan:
         direct_posts=list(posts)
