@@ -25,6 +25,13 @@ class HeadSeoTests(unittest.TestCase):
         source = '<head><link rel="canonical" href="https://zazoomtek.it/recensione-example.html"><meta name="robots" content="max-image-preview:standard"><meta property="og:type" content="article"><script type="application/ld+json">{"@type":"Article"}</script></head><body>ok</body>'
         self.assertEqual(mod.transform('recensione-example.html',source),source)
 
+    def test_future_category_path_is_supported_without_body_changes(self):
+        source='<head><link rel="canonical" href="https://zazoomtek.it/new-category/editorial.html"><meta property="og:type" content="article"><meta property="og:title" content="Nuova sezione"><meta name="description" content="Test"></head><body>Unchanged</body>'
+        value=mod.transform('editorial.html',source,{'https://zazoomtek.it/new-category/editorial.html'})
+        self.assertIn('max-image-preview:large',value)
+        self.assertIn('"@type":"Article"',value)
+        self.assertEqual(source.split('</head>')[1],value.split('</head>')[1])
+
     def test_never_change_noindex_or_mismatched_canonical(self):
         source = '<head><link rel="canonical" href="https://zazoomtek.it/ignored.html"><meta name="robots" content="noindex"></head><body>ok</body>'
         self.assertEqual(mod.transform('ignored.html',source),source)

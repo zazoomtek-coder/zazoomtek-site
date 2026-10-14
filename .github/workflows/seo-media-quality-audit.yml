@@ -1,0 +1,42 @@
+name: Non-blocking SEO media quality audit
+on:
+  # Independent of the protected YouTube Community and video sync workflows.
+  schedule:
+    - cron: '37 4 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - seo/future-sections-video-audit-20261014
+    paths:
+      - 'scripts/seo_*.py'
+      - 'scripts/test_seo_*.py'
+      - '.github/workflows/seo-media-quality-audit.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+concurrency:
+  group: zazoomtek-seo-audit-independent
+  cancel-in-progress: true
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install read-only image parser
+        run: python3 -m pip install 'Pillow>=10,<13'
+      - name: Run independent SEO safeguards
+        run: |
+          python3 scripts/test_seo_sitemap_safe.py
+          python3 scripts/test_seo_head_safe.py
+          python3 scripts/test_seo_media_safe.py
+          python3 scripts/seo_sitemap_safe.py --check
+          python3 scripts/seo_head_safe.py --check
+      - name: Audit Discover pictures and verifiable embedded videos
+        run: python3 scripts/seo_media_report.py --output "$RUNNER_TEMP/zazoomtek-seo-media-audit.json"
+      - name: Keep report in GitHub Actions, not in the website
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-audit-report
+          path: ${{ runner.temp }}/zazoomtek-seo-media-audit.json
+          retention-days: 14
