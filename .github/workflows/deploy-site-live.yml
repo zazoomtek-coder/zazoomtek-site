@@ -278,6 +278,12 @@ jobs:
           assert 'Sitemap: https://zazoomtek.it/sitemap.xml' in Path('robots.txt').read_text(encoding='utf-8'), 'robots.txt sitemap declaration missing'
           print('PASS:',len(urls),'canonical sitemap URLs validated before Firebase publish')
           PY
+      - name: Generate two factual high-resolution Discover previews (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 -m pip install --disable-pip-version-check -q Pillow
+          python3 -m py_compile scripts/seo_discover_two_covers.py
+          python3 scripts/seo_discover_two_covers.py
       - name: Audit Google Discover covers and previews (read-only, non-blocking)
         continue-on-error: true
         run: |
