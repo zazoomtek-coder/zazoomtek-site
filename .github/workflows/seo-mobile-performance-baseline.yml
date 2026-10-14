@@ -29,4 +29,15 @@ jobs:
           for(const key of metrics) console.log(key+':',a[key]?.displayValue||'not reported')
           const bottlenecks=['render-blocking-resources','unused-javascript','uses-optimized-images','uses-responsive-images','offscreen-images','uses-text-compression','modern-image-formats']
           for(const key of bottlenecks) if(a[key]&&a[key].numericValue) console.log('Potential opportunity:',key,a[key].displayValue||a[key].numericValue)
+          const detailNames=['largest-contentful-paint-element','lcp-discovery-insight','lcp-breakdown-insight','network-requests']
+          for(const name of detailNames){
+            const audit=a[name]
+            if(!audit)continue
+            if(name==='network-requests'){
+              const big=(audit.details?.items||[]).filter(x=>x.resourceType==='Image').sort((x,y)=>(y.transferSize||0)-(x.transferSize||0)).slice(0,14)
+              console.log('Largest network images:',JSON.stringify(big.map(x=>({url:x.url,transferSize:x.transferSize,resourceSize:x.resourceSize,mimeType:x.mimeType}))))
+            }else{
+              console.log('LCP diagnostic '+name+':',JSON.stringify(audit.details?.items||audit.details||{}).slice(0,5500))
+            }
+          }
           JS
