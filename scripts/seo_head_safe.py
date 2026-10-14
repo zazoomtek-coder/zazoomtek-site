@@ -10,11 +10,12 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
 import json
+import html
 import os
 import re
 import tempfile
 from seo_paths_safe import html_pages, canonical_candidates
-from seo_media_safe import verified_video, feed_videos
+from seo_media_safe import verified_video, feed_videos, primary_article_image
 
 ORIGIN = 'https://zazoomtek.it'
 MARKER = '<!-- ZT_SEO_HEAD_SAFE_V1 -->'
@@ -63,6 +64,15 @@ def transform(name, text, canonical_urls=None, known_videos=None):
         return text
 
     insert = []
+    # Select an image ALREADY displayed as the main article's cover.
+    # Never guess from related-news thumbnails, site logos or category lists.
+    hero = None
+    if 'og:image' not in meta.meta and '<article' in remainder.lower():
+        hero = primary_article_image(remainder)
+        if hero:
+            insert.append('<meta property="og:image" content="' + html.escape(hero, quote=True) + '">')
+            if 'twitter:image' not in meta.meta:
+                insert.append('<meta name="twitter:image" content="' + html.escape(hero, quote=True) + '">')
     if not re.search(r'max-image-preview\s*:', robots):
         insert.append('<meta name="robots" content="max-image-preview:large">')
 
@@ -82,7 +92,7 @@ def transform(name, text, canonical_urls=None, known_videos=None):
             author = meta.meta.get('author', '').strip()
             if author:
                 article['author'] = {'@type': 'Organization', 'name': author} if author == 'ZazoomTek' else {'@type': 'Person', 'name': author}
-            image = meta.meta.get('og:image', '').strip()
+            image = meta.meta.get('og:image', '').strip() or hero
             if valid_url(image):
                 article['image'] = [image]
             for field, key in [('article:published_time', 'datePublished'), ('article:modified_time', 'dateModified')]:
