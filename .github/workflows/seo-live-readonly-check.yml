@@ -1,0 +1,53 @@
+name: SEO live read-only verification
+on:
+  push:
+    branches:
+      - seo/meta-stage-20261014
+    paths:
+      - '.github/workflows/seo-live-readonly-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify_public_pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Inspect public Firebase pages without changing them
+        run: |
+          python3 - <<'PY'
+          import urllib.request,xml.etree.ElementTree as ET,re,time
+          origin='https://zazoomtek.it'
+          def load(path):
+              req=urllib.request.Request(origin+path,headers={'User-Agent':'ZazoomTek-SEO-ReadOnly-Check/1.0'})
+              last=None
+              for attempt in range(3):
+                  try:
+                      with urllib.request.urlopen(req,timeout=14) as r:
+                          assert r.status==200,(path,r.status)
+                          return r.read().decode('utf-8','replace')
+                  except Exception as e:
+                      last=e
+                      time.sleep(2)
+              raise RuntimeError(f'Public page unreachable: {path}: {last}')
+          xml=load('/sitemap.xml')
+          root=ET.fromstring(xml)
+          ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          locs=[n.text for n in root.findall('.//s:loc',ns)]
+          assert len(locs)>=500,len(locs)
+          assert origin+'/poly-fighter-recensione-pc.html' in locs
+          assert len(locs)==len(set(locs))
+          assert all(x.startswith(origin+'/') for x in locs)
+          print('PASS public XML sitemap:',len(locs),'distinct canonical pages')
+          news=load('/news.html')
+          assert 'max-image-preview:large' in news.split('</head>')[0]
+          print('PASS public News index allows large previews')
+          poly=load('/poly-fighter-recensione-pc.html')
+          hd=poly.split('</head>')[0]
+          assert '<script type="application/ld+json">' in hd
+          assert '"@type":"Article"' in hd
+          assert 'https://zazoomtek.it/poly-fighter-recensione-pc.html' in hd
+          print('PASS public article has verified Article markup; content visible')
+          assert 'User-agent: *' in load('/robots.txt')
+          print('PASS public robots.txt accessible')
+          PY
