@@ -1,0 +1,27 @@
+name: Whole site SEO content analysis
+on:
+  push:
+    branches:
+      - seo/complete-site-metadata-20261014
+    paths:
+      - 'scripts/seo_whole_site_audit.py'
+      - 'scripts/test_seo_whole_site_audit.py'
+      - '.github/workflows/seo-whole-site-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test SEO scanner with future nested category
+        run: python3 scripts/test_seo_whole_site_audit.py
+      - name: Audit current site without modification
+        run: python3 scripts/seo_whole_site_audit.py --output "$RUNNER_TEMP/whole-seo.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whole-site-seo-findings
+          path: ${{ runner.temp }}/whole-seo.json
+          retention-days: 7
