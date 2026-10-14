@@ -1,0 +1,53 @@
+name: SEO live smoke - read only
+on:
+  push:
+    branches:
+      - seo/public-smoke-20261014
+    paths:
+      - '.github/workflows/seo-live-20261014-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate published site - no repository writes
+        run: |
+          python3 - <<'PY'
+          from urllib.request import Request,urlopen
+          import xml.etree.ElementTree as ET
+          import re, time
+          root='https://zazoomtek.it'
+          def read(path):
+              req=Request(root+path,headers={'User-Agent':'ZazoomTek-ReadOnly-SEOSmoke/1.0'})
+              with urlopen(req,timeout=20) as response:
+                  assert response.status==200,(path,response.status)
+                  return response.read().decode('utf-8','replace')
+          sitemap=ET.fromstring(read('/sitemap.xml'))
+          ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          locs=[x.text for x in sitemap.findall('s:url/s:loc',ns)]
+          assert len(locs)>=500,len(locs)
+          assert len(locs)==len(set(locs))
+          assert root+'/poly-fighter-recensione-pc.html' in locs
+          assert root+'/' in locs
+          print('PASS: public sitemap valid;',len(locs),'unique canonicals')
+          robots=read('/robots.txt')
+          assert 'Allow: /' in robots and root+'/sitemap.xml' in robots
+          print('PASS: robots.txt')
+          impact=read('/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html')
+          impact_head=re.split(r'</head\s*>',impact,maxsplit=1,flags=re.I)[0]
+          assert 'property="og:image"' in impact_head
+          assert 'images.unsplash.com' in impact_head
+          assert 'max-image-preview:large' in impact_head
+          assert 'https://zazoomtek.it/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html' in impact_head
+          print('PASS: actual gaming editorial cover is used as Open Graph image')
+          category=read('/tech-today.html')
+          assert 'max-image-preview:large' in category.split('</head>')[0]
+          print('PASS: category Discover image preview allowed')
+          poly=read('/poly-fighter-recensione-pc.html')
+          assert '<script type="application/ld+json">' in poly.split('</head>')[0]
+          print('PASS: article data present')
+          print('PASS: live SEO smoke completed without modifying any production file')
+          PY
