@@ -189,6 +189,22 @@ jobs:
         run: |
           python3 scripts/test_seo_real_article_og_safe.py
           python3 scripts/seo_real_article_og_safe.py
+      # SEO content quality for every old/new/future canonical HTML page.
+      # Four protected fixes: unique real Community headline, semantic paginated
+      # H1, concise search metadata, unique News-archive description. The
+      # YouTube importers and CSS are NEVER modified. This runs in the release
+      # checkout only and must NEVER gate Firebase publishing.
+      - name: Normalize site-wide SEO titles descriptions and archive headings (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_generic_article_headline_safe.py
+          python3 scripts/test_seo_paginated_h1_safe.py
+          python3 scripts/test_seo_concise_metadata_safe.py
+          python3 scripts/test_seo_news_archive_descriptions.py
+          python3 scripts/seo_generic_article_headline_safe.py
+          python3 scripts/seo_paginated_h1_safe.py
+          python3 scripts/seo_concise_metadata_safe.py
+          python3 scripts/seo_news_archive_descriptions.py
       # Only enrich existing article JSON-LD with the verified, on-page hero.
       # Independent, non-blocking and applied in Firebase's ephemeral checkout.
       - name: Associate real article hero with existing Schema.org (non-blocking)
