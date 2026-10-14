@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-14T13:00:16.214720+00:00",
+  "checked_at": "2026-10-14T13:12:00.591394+00:00",
   "source_sites": 16,
   "matches": 7,
   "selected": [
@@ -62,20 +62,14 @@
       ]
     },
     {
-      "title": "L'IA è meno regolamentata di un cartone del latte: l'allarme del Presidente di Microsoft",
+      "title": "Le norme UE sull'IA affrontano il primo test con i laboratori",
       "section": "tech-impact",
-      "url": "/tech-impact-l-ia-e-meno-regolamentata-di-un-cartone-del-latte-l-allarme-del-presidente-di-microso.html",
-      "trend_score": 100.0,
+      "url": "/tech-impact-le-norme-ue-sull-ia-affrontano-il-primo-test-con-i-laboratori.html",
+      "trend_score": 0,
       "published_date": "2026-10-14",
       "freshness_bonus": null,
       "selection_score": null,
-      "sources": [
-        {
-          "site": "Hardware Upgrade",
-          "title": "L'IA è 'meno regolamentata di un cartone del latte': l'allarme del Presidente di Microsoft",
-          "score": 1.0
-        }
-      ]
+      "sources": []
     },
     {
       "title": "Steam: nuovo record storico di traffico e utenti simultanei nel 2026",
