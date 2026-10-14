@@ -10,6 +10,8 @@ on:
       - '.github/workflows/deploy-site-live.yml'
       - 'scripts/seo_concise_metadata_safe.py'
       - 'scripts/test_seo_concise_metadata_safe.py'
+      - 'scripts/seo_generic_article_headline_safe.py'
+      - 'scripts/test_seo_generic_article_headline_safe.py'
 permissions:
   contents: read
 jobs:
@@ -37,6 +39,20 @@ jobs:
               previous=path.read_text(encoding='utf-8',errors='replace')
               assert previous.split('</head>',1)[1]==revised.split('</head>',1)[1]
           print('PASS sitewide SEO condensed metadata without any body/layout changes:',stats)
+          PY
+      - name: Verify factual generic headlines without touching article paragraphs
+        run: |
+          python3 scripts/test_seo_generic_article_headline_safe.py
+          python3 scripts/seo_generic_article_headline_safe.py --check
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_generic_article_headline_safe import build
+          changes,pages=build(Path('.'))
+          assert pages>=500
+          assert 15 <= len(changes) <= 45,len(changes)
+          print('PASS unique truthful article H1 and metadata candidates:',len(changes))
           PY
       - uses: actions/upload-artifact@v4
         with:
