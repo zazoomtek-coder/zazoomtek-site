@@ -177,9 +177,14 @@ def build(root):
             item['seo_title']=item['title']+' ('+item['category']+', '+item['publishedAt'][:10]+', '+item['id'][-4:]+')'
         else:
             item['seo_title']=item['title']
-        if len(item['seo_title']+' | ZazoomTek')>75:
-            prefix=item['seo_title'][:51].rsplit(' ',1)[0].rstrip(' ,.;')
-            item['seo_title']=prefix+'… '+item['id'][-5:]
+        # Always use the verified video ID to keep final titles unique even
+        # when unrelated originals share identical shortened title prefixes.
+        suffix=' ['+item['id']+']'
+        available=75-len(' | ZazoomTek')-len(suffix)
+        if len(item['seo_title'])>available:
+            prefix=item['seo_title'][:available-1].rsplit(' ',1)[0].rstrip(' ,.;')
+            item['seo_title']=prefix+'…'
+        item['seo_title']+=suffix
         name=WATCH_DIR+'/'+item['id']+'.html'
         output[name]=make_video(root,item,header,footer)
     output[WATCH_DIR+'/index.html']=make_directory(items,header,footer)
