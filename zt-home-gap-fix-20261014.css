@@ -452,7 +452,7 @@ main.page .ztp-top-main .latest-reviews-module #latestVideos
   content:""!important;
   position:absolute!important;
   inset:-20%!important;
-  z-index:-1!important;
+  z-index:0!important;
   background-image:var(--zt-thumb-artwork)!important;
   background-size:cover!important;
   background-position:center!important;
