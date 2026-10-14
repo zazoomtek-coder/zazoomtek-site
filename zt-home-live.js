@@ -155,7 +155,7 @@
   video.className="ztp-review-videos ztp-top-videos";
   video.setAttribute("aria-label","Ultime video recensioni ZazoomTek");
   video.innerHTML='<h2>ULTIME VIDEO RECENSIONI</h2><div class="ztp-review-list" id="ztpReviewVideoList"></div><div class="ztp-review-footer"><a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener noreferrer">TUTTE LE VIDEO RECENSIONI →</a></div>';
-  topMain.append(latest,guide);top.append(topMain,video);main.insertBefore(top,area);
+  topMain.append(latest,guide);top.append(topMain);main.insertBefore(top,area);
   const list=video.querySelector("#ztpReviewVideoList");
   // Selected dynamically from the actual authenticated channel JSON.
   const fallbackReviewIDs=["WwGAaKGfoGY","tb1CAHc1QoM","6Zz4E1FhAY4"];
@@ -227,28 +227,12 @@
   // Keep category columns aligned without injecting stale, prewritten Gaming news.
   // Match their rendered heights by distributing spare space BETWEEN real cards.
   // Mobile/tablet stacks remain untouched.
+  // Eliminate inline height/space-between that artificially spread Gaming articles.
   function balance(){
-   const techItems=area.querySelector(".ztp-news-tech .ztp-news-items");
-   const gamingItems=area.querySelector(".ztp-news-gaming .ztp-news-items");
-   if(!techItems||!gamingItems)return;
-   const cols=[techItems,gamingItems];
-   for(const col of cols){
-    col.style.removeProperty("min-height");
-    col.style.removeProperty("display");
-    col.style.removeProperty("flex-direction");
-    col.style.removeProperty("justify-content");
-   }
-   if(window.innerWidth<=820)return;
-   const heights=cols.map(col=>col.getBoundingClientRect().height);
-   const maxHeight=Math.max(...heights);
-   for(let n=0;n<cols.length;n++){
-    if(maxHeight-heights[n]<5)continue;
-    const col=cols[n];
-    col.style.display="flex";
-    col.style.flexDirection="column";
-    col.style.justifyContent="space-between";
-    col.style.minHeight=Math.ceil(maxHeight)+"px";
-   }
+    [area.querySelector(".ztp-news-tech .ztp-news-items"),area.querySelector(".ztp-news-gaming .ztp-news-items")].forEach(function(col){
+      if(!col)return;
+      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
+    });
   }
 
   // Fill remaining vertical space with published articles, never blank padding.
@@ -443,4 +427,85 @@
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enhance,{once:true});
   else enhance();
+})();
+
+
+/* ZT_HOME_RESTORE_REVIEWS_GUIDE_EXTRA_20261014
+   Runtime-only enhancement: canonical news URLs and imports remain unchanged. */
+(function(){
+ "use strict";
+ if(!["/","/index.html"].includes(location.pathname))return;
+ function run(){
+   const area=document.querySelector("#articoli.ztp-news-area");
+   const top=document.querySelector(".ztp-top");
+   const review=document.querySelector(".ztp-top-main .latest-reviews-module");
+   const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
+   if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
+   const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=2";document.head.appendChild(stylesheet);
+   area.querySelectorAll(".ztp-news-items").forEach(function(col){
+     ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
+   });
+   const track=review.querySelector("#latestVideos");
+   const olderCards=track?[...track.querySelectorAll("article.video-card")]:[];
+   const gamingCards=olderCards.filter(function(card){
+     const url=card.querySelector("h3 a")?.getAttribute("href")||"";
+     return /poly-fighter|sesame-street|transport-fever|recensione-Ugkxvpi|walto|recensione-Ugkx1Mz|ace-combat|recensione-UgkxPQV/i.test(url);
+   }).slice(0,3);
+   function reviewCard(data){
+     const c=document.createElement("article");c.className="video-card zt-review-card";
+     const imageLink=document.createElement("a");imageLink.className="video-thumb zt-review-thumb";imageLink.href=data.href;
+     const image=document.createElement("img");image.src=data.img;image.alt=data.title;image.loading="lazy";image.decoding="async";imageLink.appendChild(image);
+     const heading=document.createElement("h3"),anchor=document.createElement("a");anchor.href=data.href;anchor.textContent=data.title;heading.appendChild(anchor);
+     if(data.href.startsWith("https://")){imageLink.target="_blank";imageLink.rel="noopener noreferrer";anchor.target="_blank";anchor.rel="noopener noreferrer";}
+     c.append(imageLink,heading);
+     if(data.kind){const small=document.createElement("small");small.textContent=data.kind;c.appendChild(small);}
+     return c;
+   }
+   if(track){
+     track.replaceChildren(
+       reviewCard({href:"/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html",title:"70mai Dash Cam 4K A900 | Recensione",img:"https://yt3.ggpht.com/_Dt3qOg45HgYDTfEAyPaMIcIFyrOaQLiH8WoY2GfoAvX7uaU1uc9OUTBBBqKuTgWNnWAGeV-aoFx4Ug=s1600-rw-nd-v1",kind:"Recensione scritta"}),
+       reviewCard({href:"/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html",title:"IIFACTOR M08E AI Smart Glasses | Recensione",img:"https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1600-rw-nd-v1",kind:"Recensione scritta"}),
+       reviewCard({href:"https://www.youtube.com/watch?v=6hLJq9njq5o",title:"realme Buds T500 Pro Harry Potter Edition | Recensione",img:"https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg",kind:"Video recensione"})
+     );
+   }
+   const h=review.querySelector(".module-head h2");if(h)h.textContent="RECENSIONI TECH";
+   const label=review.querySelector(".module-head span");if(label)label.textContent="Tre recensioni Tech";
+
+   // Attach the approved Extra section next to Guides, using real article URLs.
+   const panel=document.createElement("div");panel.id="ztp-guide-extra";guide.parentNode.insertBefore(panel,guide);panel.appendChild(guide);
+   const extra=document.createElement("section");extra.id="ztHomeExtra";extra.className="ztp-extra";
+   const exHead=document.createElement("div");exHead.className="ztp-extra-head";
+   const exTitle=document.createElement("h2");exTitle.textContent="EXTRA";
+   const all=document.createElement("a");all.href="/news.html";all.textContent="VEDI LE NEWS →";exHead.append(exTitle,all);
+   const extraCards=document.createElement("div");extraCards.className="ztp-extra-cards";
+   [
+    {title:"Lucca Comics & Games 2026: libri, cinema e laboratori al Family Palace",href:"/news-Ugkxkk9aJrFlDilY7DUHfpNHaeFsH8sLHlsq.html",img:"https://yt3.ggpht.com/gn8PSH9febduVnXswTI55wxxJcRl-luSlIqnR1K44RYoImNUrMcJ8JZ5s9Zp_EIWYaPHRwJLaXWOHg=s1600-rw-nd-v1"},
+    {title:"Audible porta Dracula a Lucca Comics & Games 2026",href:"/news-UgkxdCKf9zXV8NLBt0uw4KMcDsu_108G-9kZ.html",img:"https://yt3.ggpht.com/Fs620rveEmCUexhO_0svMk4DNpgPs0OzWWzZj0ygxis9AiMa0jteijukfqZEeeuPEk0rxN52zYVI=s1600-rw-nd-v1"}
+   ].forEach(function(item){
+     const a=document.createElement("a");a.className="ztp-extra-card";a.href=item.href;
+     const img=document.createElement("img");img.src=item.img;img.alt=item.title;img.loading="lazy";img.decoding="async";
+     const name=document.createElement("strong");name.textContent=item.title;a.append(img,name);extraCards.appendChild(a);
+   });
+   extra.append(exHead,extraCards);panel.appendChild(extra);
+
+   // Move three real Gaming reviews to after the news grid, not at the very bottom.
+   if(!document.getElementById("ztpGamingReviews")){
+     const section=document.createElement("section");section.className="module ztp-gaming-reviews";section.id="ztpGamingReviews";
+     const head=document.createElement("div");head.className="module-head";
+     const title=document.createElement("h2");title.textContent="RECENSIONI GAMING";
+     const more=document.createElement("a");more.href="/recensioni-scritte.html";more.className="ztp-review-all";more.textContent="VEDI TUTTE →";head.append(title,more);
+     const cards=document.createElement("div");cards.className="ztp-gaming-review-cards";
+     if(gamingCards.length===3){gamingCards.forEach(card=>cards.appendChild(card.cloneNode(true)));}
+     else {
+       [
+         {title:"Poly Fighter | Recensione PC",href:"/poly-fighter-recensione-pc.html",img:"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3977340/472302f24d5fcb52f0a111fd532d0ec1dd429810/capsule_616x353.jpg"},
+         {title:"Sesame Street: Amici e risate | Recensione PS5",href:"/sesame-street-amici-e-risate-recensione-ps5.html",img:"/assets/recensioni/sesame-street/cover.webp"},
+         {title:"Transport Fever 3 | Recensione PS5",href:"/recensione-Ugkxvpi4bKV_hiuDy7XJQb0-qw7CTJc5Is33.html",img:"https://yt3.ggpht.com/kI8EIbI2faK9m5NvmrggFQ_OdgW14-sL-iUXXwOFarZ_VX71Sne7FtDadwv0UmPwZ0eWOMhqxJg7eRQ=s1600-rw-nd-v1"}
+       ].forEach(item=>cards.appendChild(reviewCard(item)));
+     }
+     section.append(head,cards);area.insertAdjacentElement("afterend",section);
+   }
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();
 })();
