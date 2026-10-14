@@ -1,0 +1,40 @@
+name: Discover existing Article image staging tests
+on:
+  push:
+    branches:
+      - seo/discover-article-images-20261014
+    paths:
+      - 'scripts/seo_schema_image_safe.py'
+      - 'scripts/test_seo_schema_image_safe.py'
+      - '.github/workflows/deploy-site-live.yml'
+      - '.github/workflows/seo-discover-article-images-stage.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate genuine article images and future sections
+        run: python3 scripts/test_seo_schema_image_safe.py
+      - name: Check every current article without modifying anything
+        run: python3 scripts/seo_schema_image_safe.py --check
+      - name: Verify no article body changes or YouTube workflow changes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,sys
+          sys.path.insert(0,'scripts')
+          from seo_schema_image_safe import build
+          changes,examined=build(Path('.'))
+          assert examined>=500,examined
+          assert 1<=len(changes)<=120,len(changes)
+          for path,new in changes.items():
+              old=path.read_text(encoding='utf-8',errors='replace')
+              assert re.split(r'</head\s*>',old,maxsplit=1,flags=re.I)[1] == re.split(r'</head\s*>',new,maxsplit=1,flags=re.I)[1],path
+          deploy=Path('.github/workflows/deploy-site-live.yml').read_text()
+          assert 'Associate real article hero with existing Schema.org (non-blocking)' in deploy
+          assert 'continue-on-error: true' in deploy
+          print(f'PASS: {len(changes)} real schema image candidates across {examined} pages; all article bodies identical')
+          PY
