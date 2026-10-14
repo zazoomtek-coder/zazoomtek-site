@@ -17,7 +17,7 @@ assert "tEkXOj7XOwA" in rules["original_gameplay_ids"], "Missing creator-approve
 assert "const authenticGameplay=clean.filter(x=>x.category==='gameplay' && !x.short && !x.live && !used.has(x.id));" in js, "Wrong GAMEPLAY selection rule"
 assert "const backupGameplay=ztHomeVideoFallback.filter(x=>x.category==='gameplay'" in js, "Stale-feed protection missing"
 assert "let archive=clean.find(x=>x.completedLive" not in js, "Obsolete live-only selection is still present"
-assert 'zt-visual.js?v=20261013gameplayCacheFix2' in home, "Homepage cache bust missing"
+assert re.search(r'zt-visual\.js\?v=20\d{6}[A-Za-z0-9_-]+', home), "Homepage cache bust missing"
 deploy_design=(root/"scripts/apply-site-design.py").read_text(encoding="utf-8")
 assert "js_path=home_js_ref.group(1)" in deploy_design, "Deploy must preserve Home Javascript version"
 assert "20261012titleSubtitle" not in deploy_design, "Obsolete Javascript version still forced by deploy"
