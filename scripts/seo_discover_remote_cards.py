@@ -34,7 +34,7 @@ def fetch(url):
             if len(blob)>MAX_READ:return None
         with Image.open(BytesIO(blob)) as im:
             im.load()
-            if im.width>=1200:return "large"
+            # Keep high-resolution covers local too, avoiding remote availability issues.
             if im.width<120 or im.height<120:return None
             return im.convert("RGB")
     except (OSError,ValueError,UnidentifiedImageError):
@@ -133,8 +133,6 @@ def main():
         for job in as_completed(jobs):
             url=jobs[job]
             image=job.result()
-            if isinstance(image,str) and image=="large":
-                continue
             if image is None:
                 unavailable+=1
                 card=fallback_card(root,url,targets[url][0])
