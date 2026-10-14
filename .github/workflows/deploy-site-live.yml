@@ -282,7 +282,16 @@ jobs:
         continue-on-error: true
         run: |
           python3 -m py_compile scripts/seo_discover_readiness.py
-          python3 scripts/seo_discover_readiness.py --output /tmp/zazoomtek-discover-audit.json
+          python3 -m pip install --disable-pip-version-check -q Pillow
+          python3 scripts/seo_discover_readiness.py --output "$RUNNER_TEMP/zazoomtek-discover-audit.json"
+      - name: Archive Google Discover image audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-discover-audit
+          path: ${{ runner.temp }}/zazoomtek-discover-audit.json
+          if-no-files-found: ignore
+          retention-days: 14
       # Optional Google News sitemap: verified original dates from the last 48h.
       # Independent of protected YouTube sync, site layout and normal sitemap.
       - name: Generate recent editorial News sitemap (non-blocking)
