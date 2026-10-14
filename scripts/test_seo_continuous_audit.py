@@ -17,8 +17,10 @@ class FutureSections(unittest.TestCase):
             self.assertEqual(problems,[])
             page.write_text('<head><title>Test</title><meta name="robots" content="noindex"></head>',encoding='utf-8')
             count,problems=audit(root)
+            self.assertEqual(problems,[])  # intentional noindex is excluded
+            page.write_text('<head><title>Test</title></head>',encoding='utf-8')
+            _,problems=audit(root)
             self.assertTrue(any(k=='canonical' for _,k,_ in problems))
-            self.assertTrue(any(k=='noindex' for _,k,_ in problems))
 
     def test_draft_folder_ignored(self):
         with tempfile.TemporaryDirectory() as temp:
