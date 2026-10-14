@@ -26,6 +26,8 @@ class HeadParser(HTMLParser):
         self.canonicals=[]
         self.robots=[]
         self.scripts=[]
+        self.og_type=''
+        self.og_title=''
         self._json=None
     def handle_starttag(self,tag,attrs):
         props={k.lower():(v or '') for k,v in attrs if k}
@@ -33,6 +35,10 @@ class HeadParser(HTMLParser):
             self.canonicals.append(props.get('href','').strip())
         if tag.lower()=='meta' and props.get('name','').lower() in ('robots','googlebot'):
             self.robots.append(props.get('content','').strip().lower())
+        if tag.lower()=='meta' and props.get('property','').lower()=='og:type':
+            self.og_type=props.get('content','').strip().lower()
+        if tag.lower()=='meta' and props.get('property','').lower()=='og:title':
+            self.og_title=props.get('content','').strip()
         if tag.lower()=='script' and props.get('type','').lower()=='application/ld+json':
             self._json=''
     def handle_data(self,data):
@@ -96,6 +102,42 @@ def news_candidate(path,root,now):
             return url,date,title.strip(),raw_date
     return None
 
+def approved_standard_entries(root,now):
+    """Trust only original dates in the editorial registry AND matching live HTML."""
+    registry=root/'manual-news.json'
+    try:
+        data=json.loads(registry.read_text(encoding='utf-8'))
+    except (OSError,ValueError):
+        return {}
+    if not isinstance(data,dict) or not isinstance(data.get('items'),list):
+        return {}
+    recent={}
+    for item in data['items']:
+        if not isinstance(item,dict):continue
+        slug=item.get('slug')
+        title=item.get('title')
+        published=item.get('published_at')
+        if not all(isinstance(v,str) for v in (slug,title,published)):continue
+        if not slug.endswith('.html') or not Path(slug).name.startswith('news-') or not title.strip():continue
+        if slug.startswith('/') or '..' in Path(slug).parts:continue
+        path=(root/slug).resolve()
+        if not path.is_relative_to(root) or not path.is_file():continue
+        try:
+            date=datetime.fromisoformat(published.replace('Z','+00:00'))
+        except ValueError:continue
+        if date.tzinfo is None or not(now-timedelta(hours=48)<=date.astimezone(timezone.utc)<=now):continue
+        source=path.read_text(encoding='utf-8',errors='replace')
+        match=re.search(r'</head\s*>',source,re.I)
+        if not match:continue
+        head=HeadParser()
+        head.feed(source[:match.start()])
+        if len(head.canonicals)!=1 or head.canonicals[0] not in canonical_candidates(root,path):continue
+        if head.og_type!='article' or head.og_title!=title.strip():continue
+        if any(re.search(r'(?<![a-z])(?:noindex|none)(?![a-z])',r) for r in head.robots):continue
+        url=head.canonicals[0]
+        recent[url]=(url,date,title.strip(),published)
+    return recent
+
 def entries(root,now=None):
     root=Path(root).resolve()
     now=now or datetime.now(timezone.utc)
@@ -103,6 +145,8 @@ def entries(root,now=None):
     for path in html_pages(root):
         item=news_candidate(path,root,now)
         if item: result[item[0]]=item
+    for url, item in approved_standard_entries(root,now).items():
+        result.setdefault(url,item)
     if len(result)>1000:
         raise RuntimeError('Google News sitemap exceeds 1000 current news; split required before deployment')
     return sorted(result.values(),key=lambda x:(x[1],x[0]),reverse=True)
