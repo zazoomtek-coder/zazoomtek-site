@@ -1,4 +1,5 @@
 name: Read-only mobile performance baseline
+# Post-logo optimization verification: measures LIVE URL, not branch checkout
 on:
   push:
     branches:
