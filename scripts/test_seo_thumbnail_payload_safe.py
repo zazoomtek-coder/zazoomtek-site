@@ -27,7 +27,7 @@ class SafeThumbs(unittest.TestCase):
             html='<head><title>Future article</title></head><main><a href="/article">Article</a><img loading="lazy" src="'+BASE+'s1600-rw-nd-v1"></main>'
             path=section/'article.html'
             path.write_text(html)
-            changes,pages,images=inspect(root,minimum=1)
+            changes,pages,images=inspect(root,minimum=1,scope='all')
             self.assertEqual((pages,images),(1,1))
             self.assertIn(path,changes)
             self.assertEqual(changes[path].replace('s1200-rw-nd-v1','s1600-rw-nd-v1'),html)
