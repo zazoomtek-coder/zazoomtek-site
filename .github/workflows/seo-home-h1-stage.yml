@@ -48,7 +48,7 @@ jobs:
             const src=fs.readFileSync('index.html','utf8');
             const firstStyle=(src.match(/<style>[\s\S]*?<\/style>/i)||[])[0];
             if (!firstStyle) throw Error('Missing primary homepage style');
-            const css=firstStyle.replace(/<style>|<\/style>/g,'');
+            const css=firstStyle.replace(/<style>|<\/style>/g,'')+'\n.module-head h2{letter-spacing:.025em}';
             const replaced=css.replace(/\.module-head h2/g,'.module-head :is(h2,h1)');
             const body1='<div class="module-head"><h2>News in evidenza</h2></div>';
             const body2='<div class="module-head"><h1 style="letter-spacing:.025em">News in evidenza</h1></div>';
