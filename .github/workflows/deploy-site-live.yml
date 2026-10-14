@@ -186,6 +186,14 @@ jobs:
         run: |
           python3 scripts/test_seo_news_sitemap.py
           python3 scripts/seo_news_sitemap.py
+      # Optional performance optimization for homepage Community card thumbnails.
+      # Only the 1600px remote img/src of lazy cards is capped at 1200px;
+      # no CSS, image layout, indexed article images or YouTube imports are touched.
+      - name: Optimize lazy homepage Community thumbnail delivery (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_thumbnail_payload_safe.py
+          python3 scripts/seo_thumbnail_payload_safe.py --scope homepage
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
