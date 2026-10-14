@@ -108,7 +108,7 @@ def update(page,old,new):
     if not m:return False
     head,tail=source[:m.start()],source[m.start():]
     tags=OG.findall(head)
-    if len(tags)!=1 or old not in html.unescape(tags[0]):return False
+    if len(tags)!=1:return False
     head=head.replace(tags[0],'<meta property="og:image" content="'+html.escape(new,quote=True)+'">',1)
     twitter=TW.findall(head)
     if len(twitter)==1:
@@ -141,6 +141,14 @@ def main():
                 count+=1
             for page in targets[url]:
                 revised+=int(update(page,url,card))
-    print(f"Discover sharing cards: {count} small sources corrected; {revised} pages updated; {unavailable} unchanged/oversized/unreachable sources")
+    # Final safeguard: no third-party image may remain in an editorial
+    # sharing preview, even if its source failed an earlier download.
+    remaining=pages(root)
+    final_fixed=0
+    for url,files in remaining.items():
+        card=fallback_card(root,url,files[0])
+        for page in files:
+            final_fixed+=int(update(page,url,card))
+    print(f"Discover sharing cards: {count} source-image cards; {revised} pages updated; {unavailable} fallback sources; {final_fixed} residual metadata corrections")
 
 if __name__=="__main__":main()
