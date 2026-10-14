@@ -38,6 +38,22 @@ class NewsSitemapSafety(unittest.TestCase):
         self.assertEqual(entries(self.root,self.now),[])
         self.article.write_text(self.content(robots='noindex'))
         self.assertEqual(entries(self.root,self.now),[])
+    def test_recent_standard_editorial_news_requires_registry_and_matching_page(self):
+        page=self.root/'news-standard-test.html'
+        title='Titolo approvato nella redazione'
+        meta='<head><link rel="canonical" href="https://zazoomtek.it/news-standard-test.html"><meta property="og:type" content="article"><meta property="og:title" content="'+title+'"><meta name="robots" content="index,follow"></head><body>Testo integrale</body>'
+        page.write_text(meta)
+        registry={'items':[{'slug':page.name,'title':title,'published_at':'2026-10-14T09:50:00Z','kind':'standard'}]}
+        (self.root/'manual-news.json').write_text(json.dumps(registry))
+        urls=[r[0] for r in entries(self.root,self.now)]
+        self.assertIn('https://zazoomtek.it/news-standard-test.html',urls)
+        page.write_text(meta.replace(title,'Titolo diverso'))
+        self.assertNotIn('https://zazoomtek.it/news-standard-test.html',[r[0] for r in entries(self.root,self.now)])
+        page.write_text(meta)
+        registry['items'][0]['published_at']='2026-10-10T09:50:00Z'
+        (self.root/'manual-news.json').write_text(json.dumps(registry))
+        self.assertNotIn('https://zazoomtek.it/news-standard-test.html',[r[0] for r in entries(self.root,self.now)])
+
     def test_empty_news_sitemap_is_valid(self):
         self.article.unlink()
         xml=make_xml(entries(self.root,self.now))
