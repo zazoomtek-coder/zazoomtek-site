@@ -387,3 +387,41 @@ main.page .ztp-top-main .latest-reviews-module #latestVideos small{
    grid-template-columns:repeat(2,minmax(0,1fr))!important;
  }
 }
+
+/* ZT_IMPACT_UNIQUE_COVERS_AND_RAIL_SHORTS_20261014
+   Keep 50/30/20; Shorts sit immediately AFTER three Redazione images.
+   All cover images preserve intrinsic 16:9 and never crop text. */
+#articoli.ztp-news-area .ztp-primary-feed > #ztpVideosAnchor{
+  display:block!important;width:100%!important;min-width:0!important;
+  max-width:100%!important;margin:0!important;
+}
+#articoli.ztp-news-area .ztp-news-rail > .ztp-shorts-companion{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  margin:0!important;display:block!important;
+}
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion .ztp-rail-shorts{
+  width:100%!important;border-radius:12px!important;overflow:hidden!important;
+}
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion .zt-shelf-grid.zt-shelf-shorts{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;
+  padding:8px!important;
+}
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion .zt-shelf-card:nth-child(n+5){
+  display:none!important;
+}
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion .zt-shelf-card img{
+  aspect-ratio:9/13!important;object-fit:contain!important;
+  object-position:center!important;
+}
+#articoli.ztp-news-area #zt-special-tech .zt-special-item .zt-special-thumb img{
+  width:100%!important;height:auto!important;aspect-ratio:16/9!important;
+  object-fit:contain!important;object-position:center!important;
+}
+@media(max-width:720px){
+  #articoli.ztp-news-area .ztp-news-rail > .ztp-shorts-companion{
+    grid-column:1/-1!important;
+  }
+  #articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion .zt-shelf-card img{
+    aspect-ratio:9/12!important;
+  }
+}
