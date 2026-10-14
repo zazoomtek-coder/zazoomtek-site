@@ -1,0 +1,43 @@
+name: Preserve public ZazoomTek video watch archive
+on:
+  schedule:
+    - cron: '37 4 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - seo/staged-watch-pages-20261014
+    paths:
+      - 'scripts/seo_video_archive_safe.py'
+      - 'scripts/test_seo_video_archive_safe.py'
+      - '.github/workflows/seo-video-archive.yml'
+permissions:
+  contents: write
+concurrency:
+  group: zazoomtek-seo-video-archive-independent
+  cancel-in-progress: false
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate archive logic without affecting video importer
+        run: python3 scripts/test_seo_video_archive_safe.py
+      - name: Safe archive update independent from five-minute YouTube import
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git rebase origin/main
+          python3 scripts/seo_video_archive_safe.py
+          git add video-watch-archive.json
+          if ! git diff --cached --quiet; then
+            git commit -m "seo: preserve public video watch history without editing YouTube imports"
+            git push origin HEAD:main
+          else
+            echo "Watch archive up to date; no commit or deployment required."
+          fi

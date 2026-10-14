@@ -55,6 +55,15 @@ jobs:
         run: |
           python3 -m py_compile scripts/apply-site-design.py scripts/zt_sidebar_mix.py scripts/build-related-content.py
           python3 scripts/apply-site-design.py
+      # Owned YouTube video watch pages live in /watch/ only. No existing
+      # graphics, content, navbar, sync importer, or homepage is modified.
+      # Run after shared design normalization to avoid ~200 extra design passes.
+      - name: Build verified video watch pages and archive directory (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_watch_pages_safe.py
+          python3 scripts/test_seo_video_archive_safe.py
+          python3 scripts/seo_watch_pages_safe.py
       - name: Verify no unstyled or wrapping navigation reaches Firebase
         run: |
           python3 - <<'PY'
