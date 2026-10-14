@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-14T08:52:11.737062+00:00",
+  "checked_at": "2026-10-14T09:06:31.168408+00:00",
   "source_sites": 16,
-  "matches": 6,
+  "matches": 7,
   "selected": [
     {
       "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
@@ -68,14 +68,25 @@
       ]
     },
     {
-      "title": "Attacco informatico ai supermercati: frigoriferi manomessi e cibo da buttare",
+      "title": "L'IA è meno regolamentata di un cartone del latte: l'allarme del Presidente di Microsoft",
       "section": "tech-impact",
-      "url": "/tech-impact-attacco-informatico-ai-supermercati-frigoriferi-manomessi-e-cibo-da-buttare.html",
-      "trend_score": 0,
-      "published_date": "2026-10-13",
+      "url": "/tech-impact-l-ia-e-meno-regolamentata-di-un-cartone-del-latte-l-allarme-del-presidente-di-microso.html",
+      "trend_score": 109.0,
+      "published_date": "2026-10-14",
       "freshness_bonus": null,
       "selection_score": null,
-      "sources": []
+      "sources": [
+        {
+          "site": "Hardware Upgrade",
+          "title": "L'IA è 'meno regolamentata di un cartone del latte': l'allarme del Presidente di Microsoft",
+          "score": 1.0
+        },
+        {
+          "site": "HDblog",
+          "title": "L'AI � meno controllata del latte: l'allarme di Microsoft",
+          "score": 0.6784
+        }
+      ]
     },
     {
       "title": "Steam: nuovo record storico di traffico e utenti simultanei nel 2026",
