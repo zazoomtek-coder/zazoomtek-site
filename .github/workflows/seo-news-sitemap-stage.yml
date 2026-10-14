@@ -1,0 +1,44 @@
+name: Google News sitemap staging safety
+on:
+  push:
+    branches:
+      - seo/news-sitemap-staging-20261014
+    paths:
+      - 'scripts/seo_news_sitemap.py'
+      - 'scripts/test_seo_news_sitemap.py'
+      - '.github/workflows/deploy-site-live.yml'
+      - '.github/workflows/seo-news-sitemap-stage.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test News sitemap fixtures including future sections
+        run: python3 scripts/test_seo_news_sitemap.py
+      - name: Read-only check on real current site
+        run: python3 scripts/seo_news_sitemap.py --check
+      - name: Confirm XML and no source or layout changes
+        run: |
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          sys.path.insert(0,'scripts')
+          from seo_news_sitemap import entries,make_xml,SITEMAP_NS,NEWS_NS
+          pages=entries(Path('.'))
+          xml=make_xml(pages)
+          root=ET.fromstring(xml)
+          ns={'s':SITEMAP_NS,'news':NEWS_NS}
+          self_urls=[x.text for x in root.findall('.//s:loc',ns)]
+          assert len(self_urls)==len(set(self_urls))
+          assert all(x.startswith('https://zazoomtek.it/') for x in self_urls)
+          assert len(root.findall('.//news:news',ns))==len(pages)
+          assert 1 <= len(pages) <= 1000, f'Unexpected News sitemap count {len(pages)}'
+          assert not Path('news-sitemap.xml').exists(), 'Test should not write site files'
+          deploy=Path('.github/workflows/deploy-site-live.yml').read_text()
+          assert 'Generate recent editorial News sitemap (non-blocking)' in deploy
+          print(f'PASS: {len(pages)} recent News URLs; valid XML; public site untouched')
+          PY
