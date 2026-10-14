@@ -205,6 +205,19 @@ jobs:
           python3 scripts/seo_paginated_h1_safe.py
           python3 scripts/seo_concise_metadata_safe.py
           python3 scripts/seo_news_archive_descriptions.py
+      - name: Audit normalized whole-site SEO before Firebase publishing
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_whole_site_audit.py
+          python3 scripts/seo_whole_site_audit.py --output "$RUNNER_TEMP/seo-release-audit.json"
+      - name: Archive the whole-site SEO audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-release-audit
+          path: ${{ runner.temp }}/seo-release-audit.json
+          if-no-files-found: ignore
+          retention-days: 14
       # Only enrich existing article JSON-LD with the verified, on-page hero.
       # Independent, non-blocking and applied in Firebase's ephemeral checkout.
       - name: Associate real article hero with existing Schema.org (non-blocking)
