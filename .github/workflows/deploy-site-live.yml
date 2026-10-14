@@ -209,6 +209,13 @@ jobs:
         run: |
           python3 scripts/test_seo_news_sitemap.py
           python3 scripts/seo_news_sitemap.py
+      # Video indexing is enabled only for verified prominent main-content embeds.
+      # Never label a thumbnail, secondary article trailer or dynamic modal as a watch page.
+      - name: Generate only genuinely eligible Video sitemap (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_video_sitemap_safe.py
+          python3 scripts/seo_video_sitemap_safe.py
       # Optional performance optimization for homepage Community card thumbnails.
       # Only the 1600px remote img/src of lazy cards is capped at 1200px;
       # no CSS, image layout, indexed article images or YouTube imports are touched.

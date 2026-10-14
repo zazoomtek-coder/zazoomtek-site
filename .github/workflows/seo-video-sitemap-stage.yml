@@ -1,0 +1,39 @@
+name: Safe video sitemap staging for future watch pages
+on:
+  push:
+    branches:
+      - seo/future-video-sitemap-20261014
+    paths:
+      - 'scripts/seo_video_sitemap_safe.py'
+      - 'scripts/test_seo_video_sitemap_safe.py'
+      - '.github/workflows/seo-video-sitemap-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require real main player, real video record and visible description
+        run: python3 scripts/test_seo_video_sitemap_safe.py
+      - name: Read-only video index diagnosis for current and future sections
+        run: |
+          python3 scripts/seo_video_sitemap_safe.py --check
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'scripts')
+          from seo_video_sitemap_safe import entries,build,NS,VNS
+          from xml.etree import ElementTree as ET
+          found=entries(Path('.'))
+          assert len(found)<=200,len(found)
+          xml=build(found)
+          node=ET.fromstring(xml)
+          ns={'s':NS,'v':VNS}
+          assert len(node.findall('s:url',ns))==len(found)
+          assert len(node.findall('.//v:video',ns))==len(found)
+          assert not Path('video-sitemap.xml').exists()
+          print(f'PASS: {len(found)} real watch pages; no invented video sitemap or HTML changes')
+          PY
