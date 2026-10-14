@@ -425,3 +425,101 @@ main.page .ztp-top-main .latest-reviews-module #latestVideos small{
     aspect-ratio:9/12!important;
   }
 }
+
+
+/* ZT_THUMBNAIL_FORMAT_FIX_20261014
+   Review Tech: genuine 16:9 frame with a softly extended background for square
+   covers; full foreground artwork and all lettering remain visible.
+   Shorts: fill the real 9:16 thumbnail viewport instead of rendering a small
+   landscape strip between large unused black areas. */
+main.page .ztp-top-main .latest-reviews-module #latestVideos
+  .zt-review-thumb.zt-review-adapted{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  align-items:center!important;
+  justify-items:center!important;
+  position:relative!important;
+  isolation:isolate!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+  background:#13243a!important;
+  border-radius:7px 7px 0 0!important;
+}
+main.page .ztp-top-main .latest-reviews-module #latestVideos
+  .zt-review-thumb.zt-review-adapted::before{
+  content:""!important;
+  position:absolute!important;
+  inset:-20%!important;
+  z-index:-1!important;
+  background-image:var(--zt-thumb-artwork)!important;
+  background-size:cover!important;
+  background-position:center!important;
+  filter:blur(17px) saturate(.95) brightness(.78)!important;
+  transform:scale(1.07)!important;
+  pointer-events:none!important;
+}
+main.page .ztp-top-main .latest-reviews-module #latestVideos
+  .zt-review-thumb.zt-review-adapted>img{
+  display:block!important;
+  position:relative!important;
+  z-index:1!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:0 auto!important;
+  background:transparent!important;
+  border:0!important;
+}
+main.page .ztp-top-main .latest-reviews-module #latestVideos
+  .zt-review-thumb.zt-review-adapted.zt-cover-landscape>img{
+  object-fit:cover!important;
+}
+/* Override older rules that were forcing the Shorts image to height:auto and
+   object-fit:contain. Preserve the actual 9:16 card and centered play icon. */
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion
+  .ztp-rail-shorts .zt-shelf-card .zt-shelf-thumbnail{
+  display:block!important;
+  position:relative!important;
+  isolation:isolate!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:9/16!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  margin:0!important;
+  background:#10131a!important;
+}
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion
+  .ztp-rail-shorts .zt-shelf-card .zt-shelf-thumbnail>img{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  display:block!important;
+  margin:0!important;
+  background:transparent!important;
+  transform:none!important;
+}
+#articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion
+  .ztp-rail-shorts .zt-shelf-card .zt-shelf-play{
+  position:absolute!important;
+  z-index:2!important;
+}
+@media(max-width:720px){
+  #articoli.ztp-news-area .ztp-news-rail .ztp-shorts-companion
+    .ztp-rail-shorts .zt-shelf-card .zt-shelf-thumbnail{
+    aspect-ratio:9/16!important;
+  }
+}
