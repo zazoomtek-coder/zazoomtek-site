@@ -1,0 +1,61 @@
+name: Read-only live LCP release verification
+on:
+  push:
+    branches:
+      - seo/live-thumb-smoke-20261014
+    paths:
+      - '.github/workflows/perf-lcp-live-release.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify public featured image priority and original layout
+        run: |
+          python3 - <<'PY'
+          import re,time,urllib.request
+          url='https://zazoomtek.it/'
+          for attempt in range(14):
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(req,timeout=20) as r:
+                assert r.status==200
+                html=r.read().decode('utf-8','replace')
+              start=html.index('<!-- FEATURED_NEWS_START -->')
+              end=html.index('<!-- FEATURED_NEWS_END -->',start)
+              group=html[start:end]
+              covers=re.findall(r'<img\b[^>]*>',group,re.I)
+              assert len(covers)==6,len(covers)
+              if 'fetchpriority="high"' in covers[0] and '=s1200-rw-nd-v1' in covers[0]:
+                assert 'loading="eager"' in covers[0]
+                assert not any('fetchpriority="high"' in x for x in covers[1:])
+                assert len(re.findall(r'loading="lazy"',group))==5
+                assert 'zt-thumbnails.css' in html
+                assert '<link rel="canonical" href="https://zazoomtek.it/"' in html
+                print('PASS live: first featured hero priority high at 1200px; other five covers still lazy; canonical/CSS present')
+                break
+              if attempt==13:
+                raise AssertionError('Latest Firebase image priority not visible after retries')
+              time.sleep(9)
+            except Exception as e:
+              if attempt==13:raise
+              time.sleep(9)
+          PY
+      - name: Install isolated Lighthouse
+        run: npm install --global lighthouse@12
+      - name: Measure live mobile performance after fix
+        run: |
+          lighthouse https://zazoomtek.it/ --only-categories=performance --form-factor=mobile --screenEmulation.mobile=true --throttling-method=simulate --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --output=json --output-path=/tmp/zt-mobile-lcp-after.json --quiet
+          node - <<'JS'
+          const fs=require('fs'), x=JSON.parse(fs.readFileSync('/tmp/zt-mobile-lcp-after.json'));
+          console.log('MOBILE_POSTFIX_SCORE',Math.round(x.categories.performance.score*100));
+          for(const k of ['first-contentful-paint','largest-contentful-paint','cumulative-layout-shift','total-blocking-time']){
+            console.log('MOBILE_POSTFIX',k,x.audits[k]?.displayValue);
+          }
+          console.log('MOBILE_POSTFIX_LCP_HINTS',JSON.stringify(x.audits['lcp-discovery-insight']?.details?.items||[]).slice(0,2500));
+          JS
