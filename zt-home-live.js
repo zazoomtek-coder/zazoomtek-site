@@ -148,6 +148,10 @@
   // Move live pagination: still updated by scripts and fully clickable.
   const pagination=original.querySelector("nav.pagination");
   if(pagination)area.querySelector("#ztpNewsPager").appendChild(pagination);
+  // Small pagination belongs directly after the Tech/Gaming news, not after videos.
+  const pager=area.querySelector("#ztpNewsPager");
+  const newsColumns=area.querySelector(".ztp-primary-feed .ztp-two-news-columns");
+  if(pager&&newsColumns)newsColumns.insertAdjacentElement("afterend",pager);
   layout.classList.add("ztp-three-home");
   const top=document.createElement("div");top.className="ztp-top";
   const topMain=document.createElement("div");topMain.className="ztp-top-main";
@@ -191,6 +195,16 @@
   while(side.firstElementChild)rail.appendChild(side.firstElementChild);
   side.remove();
   const videoShelfTarget=area.querySelector("#ztpVideosAnchor");
+  // Put Shorts in a compact right-hand companion to Explore Videos.
+  const videoPair=document.createElement("div");
+  videoPair.className="ztp-video-shorts-pair";
+  const shortsSlot=document.createElement("aside");
+  shortsSlot.className="ztp-shorts-companion";
+  shortsSlot.setAttribute("aria-label","Ultimi Shorts ZazoomTek");
+  if(videoShelfTarget){
+    videoShelfTarget.parentElement.insertBefore(videoPair,videoShelfTarget);
+    videoPair.append(videoShelfTarget,shortsSlot);
+  }
   const root=document.querySelector("main.page");
   function mountShelves(){
    const shelves=document.getElementById("zt-home-shelves");
@@ -199,15 +213,14 @@
    const sync=()=>{
      const full=[...shelves.children].find(el=>el.classList.contains("zt-shelf")&&!el.querySelector(".zt-shelf-shorts"));
      if(full){const h=full.querySelector(".zt-shelf-head h2");if(h&&h.textContent!=="ESPLORA ULTIMI VIDEO")h.textContent="ESPLORA ULTIMI VIDEO";}
-     const shorts=[...shelves.children].find(el=>el.classList.contains("zt-shelf")&&el.querySelector(".zt-shelf-shorts"));
+     const shorts=[...shelves.children].find(el=>el.classList.contains("zt-shelf")&&el.querySelector(".zt-shelf-shorts")) || rail.querySelector(".ztp-rail-shorts") || shortsSlot.querySelector(".ztp-rail-shorts");
      if(!shorts)return;
      shorts.classList.add("ztp-rail-shorts");
      const heading=shorts.querySelector(".zt-shelf-head h2");
      if(heading)heading.textContent="ULTIMI SHORTS";
-     const prev=rail.querySelector(".ztp-rail-shorts");
+     const prev=shortsSlot.querySelector(".ztp-rail-shorts");
      if(prev&&prev!==shorts)prev.replaceWith(shorts);
-     else if(!prev){if(inside)inside.insertAdjacentElement("afterend",shorts);else rail.appendChild(shorts);}
-     if(inside&&shorts.previousElementSibling!==inside)inside.insertAdjacentElement("afterend",shorts);
+     else if(shorts.parentElement!==shortsSlot)shortsSlot.appendChild(shorts);
      requestAnimationFrame(reconcileRight);
    };
    sync();
@@ -260,7 +273,7 @@
       try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
     }));
     const eligible=editorialCards.filter(card=>!linked.has(new URL(card.href).pathname));
-    const selected=new Set(eligible.slice(0,3));
+    const selected=new Set(eligible.slice(0,5));
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
   }
@@ -434,7 +447,7 @@
    const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
    if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
    const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
-   stylesheet.href="/zt-home-gap-fix-20261014.css?v=6";document.head.appendChild(stylesheet);
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=7";document.head.appendChild(stylesheet);
    area.querySelectorAll(".ztp-news-items").forEach(function(col){
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });

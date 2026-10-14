@@ -33,7 +33,7 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert '/zt-home-live.js?v=20261014reviewsBeforeVideos1' in src
+          assert '/zt-home-live.js?v=20261014sevenApproved1' in src
           assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
           assert r'\g<1>' not in src and r'\g<2>' not in src
           live_js=pathlib.Path("zt-home-live.js").read_text()
@@ -80,7 +80,7 @@ jobs:
              let visible=false;
              for(let retry=0;retry<22;retry++){
               await page.goto(url+"?qa="+retry,{waitUntil:"domcontentloaded",timeout:45000});
-              if(await page.locator(".ztp-final-three .ztp-news-rail .ztp-rail-shorts .zt-shelf-card").count()===6){visible=true;break;}
+              if(await page.locator(".ztp-final-three .ztp-shorts-companion .ztp-rail-shorts .zt-shelf-card").count()===6){visible=true;break;}
               if(retry!==21)await page.waitForTimeout(4000);
              }
              if(!visible)throw Error("Fresh staging page failed to render genuine Shorts");
@@ -112,10 +112,10 @@ jobs:
                 selectedReviewCount:document.querySelectorAll(".ztp-review-card a[href^='https://www.youtube.com/watch?v=']").length,
                 primaryVideoTitle:document.querySelector("#ztpVideosAnchor .zt-shelf h2")?.textContent,
                 primaryVideoCount:document.querySelectorAll("#ztpVideosAnchor .zt-shelf-card").length,
-                railShortCount:document.querySelectorAll(".ztp-news-rail .ztp-rail-shorts .zt-shelf-card").length,
-                shortsTitle:document.querySelector(".ztp-news-rail .ztp-rail-shorts h2")?.textContent,
+                railShortCount:document.querySelectorAll(".ztp-shorts-companion .ztp-rail-shorts .zt-shelf-card").length,
+                shortsTitle:document.querySelector(".ztp-shorts-companion .ztp-rail-shorts h2")?.textContent,
                 noOldStack:document.querySelectorAll(".ztp-news-rail .zt-video-stack").length===0,
-                shortsAfterInside:(()=>{const a=document.querySelector('.ztp-news-rail .zt-special-box[data-special-section="gaming"]'),b=document.querySelector(".ztp-news-rail .ztp-rail-shorts");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
+                shortsBesideVideos:(()=>{const a=document.querySelector("#ztpVideosAnchor"),b=document.querySelector(".ztp-shorts-companion");return !!a&&!!b&&a.parentElement===b.parentElement&&!!a.closest(".ztp-video-shorts-pair")})(),
                 guides:!!document.querySelector("#ztHomeGuide"),reviews:!!document.querySelector(".latest-reviews-module"),
                 navCount:document.querySelectorAll('header nav a').length,
                 pagesLink:!!document.querySelector("#ztpNewsPager a[href='/pagina-2.html']"),
@@ -130,6 +130,9 @@ jobs:
                 reviewsBeforeVideos:(()=>{const a=document.querySelector("#ztpGamingReviews"),b=document.querySelector("#ztpVideosAnchor");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
                 newsBeforeReviews:(()=>{const a=document.querySelector("#articoli .ztp-two-news-columns"),b=document.querySelector("#ztpGamingReviews");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
                 reviewNewsGap:(()=>{const a=document.querySelector("#articoli .ztp-two-news-columns"),b=document.querySelector("#ztpGamingReviews");return a&&b?Math.round(b.getBoundingClientRect().top-a.getBoundingClientRect().bottom):null})(),
+                pagerAfterNews:(()=>{const a=document.querySelector(".ztp-two-news-columns"),b=document.querySelector("#ztpNewsPager");return !!a&&!!b&&a.nextElementSibling===b})(),
+                reviewAfterPager:(()=>{const a=document.querySelector("#ztpNewsPager"),b=document.querySelector("#ztpGamingReviews");return !!a&&!!b&&a.nextElementSibling===b})(),
+                pagerReviewGap:(()=>{const a=document.querySelector("#ztpNewsPager"),b=document.querySelector("#ztpGamingReviews");return a&&b?Math.round(b.getBoundingClientRect().top-a.getBoundingClientRect().bottom):null})(),
                 extraCardCount:document.querySelectorAll("#ztHomeExtra .ztp-extra-card").length,
                 homeFixCSS:!!document.querySelector('link[href*="zt-home-gap-fix-20261014.css"]'),
                 bigEditorialCards:document.querySelectorAll('.ztp-news-rail .ztp-editorial-archive .ztp-editorial-story:not([hidden])').length,
@@ -144,12 +147,12 @@ jobs:
              });
              console.log(v.label,JSON.stringify(d),errors);
              if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
-             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||d.reviewNewsGap>40||d.extraCardCount!==2||!d.homeFixCSS||d.bigEditorialCards!==3||!d.backToTopExists||!d.backToTopInvisibleInitially)
+             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||!d.reviewAfterPager||!d.pagerAfterNews||d.pagerReviewGap===null||d.pagerReviewGap>35||d.extraCardCount!==2||!d.homeFixCSS||d.bigEditorialCards<3||!d.backToTopExists||!d.backToTopInvisibleInitially)
                throw Error("New 10/10 news, Tech reviews, Extra or Gaming review modules missing");
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
-             if(!d.noOldStack||!d.shortsAfterInside||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
+             if(!d.noOldStack||!d.shortsBesideVideos||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
              if(d.overflow>8)throw Error("Mobile horizontal overflow");
              if(d.imagesValidSource!==d.imagesTotal)throw Error("News thumbnails lack valid source/ALT");
              if(d.imagesOk<d.imagesTotal*.70)throw Error("Too many broken news thumbnails");
