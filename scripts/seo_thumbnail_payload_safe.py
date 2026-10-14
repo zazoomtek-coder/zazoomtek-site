@@ -46,7 +46,7 @@ def transform(source):
     revised=IMG.sub(lambda m:transform_tag(m.group(0)),source)
     return revised
 
-def inspect(root,minimum=500):
+def inspect(root,minimum=500,scope='homepage'):
     changes={}
     html_count=0
     altered_tags=0
@@ -54,6 +54,8 @@ def inspect(root,minimum=500):
         if path.name.startswith(('anteprima-','preview-','draft-')):
             continue
         html_count+=1
+        if scope == 'homepage' and path.relative_to(root).as_posix() != 'index.html':
+            continue
         src=path.read_text(encoding='utf-8',errors='replace')
         revised=transform(src)
         if revised!=src:
@@ -75,10 +77,11 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument('--root',type=Path,default=Path('.'))
     p.add_argument('--check',action='store_true')
+    p.add_argument('--scope',choices=('homepage','all'),default='homepage')
     args=p.parse_args()
     root=args.root.resolve()
-    changes,pages,images=inspect(root)
-    print(f'Community thumbnail payload: {images} lazy images in {len(changes)} files; {pages} HTML scanned; dry_run={args.check}')
+    changes,pages,images=inspect(root,scope=args.scope)
+    print(f'Community thumbnail payload: {images} lazy images in {len(changes)} files; {pages} HTML scanned; scope={args.scope}; dry_run={args.check}')
     if args.check:return
     for path,revised in changes.items():
         path.write_text(revised,encoding='utf-8')
