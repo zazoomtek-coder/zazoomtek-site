@@ -56,7 +56,7 @@ def propose(path,root,source):
             description=shorten(content.group('text'),158,85)
     return (head,tail,m,title,descriptions,description)
 
-def build(root):
+def build(root,minimum=500):
     root=Path(root).resolve()
     changes={}
     pages=list(html_pages(root))
@@ -98,7 +98,7 @@ def build(root):
         if new!=source:
             assert new.split('</head>',1)[-1]==source.split('</head>',1)[-1]
             changes[page]=new
-    if len(pages)<500:raise RuntimeError('Unexpected repository size, refusing metadata edits')
+    if len(pages)<minimum:raise RuntimeError('Unexpected repository size, refusing metadata edits')
     return changes,{'pages':len(pages),'changed_pages':len(changes),
                     'shorter_titles':title_updates,'shorter_descriptions':description_updates}
 
