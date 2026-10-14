@@ -12,6 +12,8 @@ on:
       - 'scripts/test_seo_concise_metadata_safe.py'
       - 'scripts/seo_generic_article_headline_safe.py'
       - 'scripts/test_seo_generic_article_headline_safe.py'
+      - 'scripts/seo_paginated_h1_safe.py'
+      - 'scripts/test_seo_paginated_h1_safe.py'
 permissions:
   contents: read
 jobs:
@@ -53,6 +55,36 @@ jobs:
           assert pages>=500
           assert 15 <= len(changes) <= 45,len(changes)
           print('PASS unique truthful article H1 and metadata candidates:',len(changes))
+          PY
+      - name: Test and stage all proposed SEO changes without publishing
+        run: |
+          python3 scripts/test_seo_paginated_h1_safe.py
+          python3 scripts/seo_paginated_h1_safe.py --check
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_paginated_h1_safe import build
+          changes=build(Path('.'))
+          assert len(changes)==4,sorted(str(x) for x in changes)
+          print('PASS semantic archive H1 upgraded with original homepage heading style',len(changes))
+          PY
+          python3 scripts/seo_generic_article_headline_safe.py
+          python3 scripts/seo_paginated_h1_safe.py
+          python3 scripts/seo_concise_metadata_safe.py
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_whole_site_audit import audit
+          data=audit(Path('.'))
+          print('POST-SEO COUNTS',data['finding_counts'])
+          print('HIGH PRIORITY',data['priority_findings'])
+          print('BROKEN-LINK CANDIDATES',data['missing_targets'][:22])
+          assert data['canonical_pages']>=540
+          assert data['finding_counts'].get('h1_count',0)<=1
+          assert data['finding_counts'].get('title_length',0)<70
+          assert data['finding_counts'].get('description_length',0)<95
           PY
       - uses: actions/upload-artifact@v4
         with:
