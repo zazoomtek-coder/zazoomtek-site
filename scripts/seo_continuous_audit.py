@@ -54,7 +54,7 @@ def audit(root):
     for page in html_pages(root):
         count+=1
         rel=str(page.relative_to(root))
-        if page.name.startswith(('anteprima-', 'preview-', 'draft-')):
+        if 'includes' in page.relative_to(root).parts[:-1] or page.name.startswith(('anteprima-', 'preview-', 'draft-')):
             continue
         try:
             source=page.read_text(encoding='utf-8',errors='replace')

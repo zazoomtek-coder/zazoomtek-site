@@ -7,6 +7,7 @@ on:
     branches:
       - main
       - seo/continuous-audit-20261014
+      - seo/audit-fragment-exclusions-20261014
     paths:
       - 'scripts/seo_continuous_audit.py'
       - 'scripts/test_seo_continuous_audit.py'
