@@ -7,6 +7,7 @@ on:
       - 'scripts/seo_sitemap_safe.py'
       - 'scripts/test_seo_sitemap_safe.py'
       - '.github/workflows/seo-staging-validation.yml'
+      - '.github/workflows/deploy-site-live.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -34,5 +35,8 @@ jobs:
           assert count>=500,f"unexpectedly small sitemap: {count}"
           assert b"https://zazoomtek.it/" in out["sitemap.xml"]
           assert b"noindex" not in out["sitemap.xml"].lower()
-          print(f"PASS: {count} canonical pages, sitemap valid, no public-site changes.")
+          deploy=Path(".github/workflows/deploy-site-live.yml").read_text(encoding="utf-8")
+          assert 'Generate verified SEO sitemap (non-blocking)' in deploy
+          assert 'continue-on-error: true' in deploy
+          print(f"PASS: {count} canonical pages, sitemap valid, optional deploy integration.")
           PY
