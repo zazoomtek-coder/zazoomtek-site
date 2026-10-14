@@ -325,25 +325,6 @@ jobs:
         run: |
           python3 scripts/test_seo_thumbnail_payload_safe.py
           python3 scripts/seo_thumbnail_payload_safe.py --scope homepage
-      # First static featured NEWS image only: higher fetch priority and
-      # conservative 1200px CDN request at unchanged aspect ratio. No layout,
-      # YouTube/Community synchronization, or editorial content changes.
-      - name: Prioritize first featured homepage image for mobile LCP (non-blocking)
-        continue-on-error: true
-        run: |
-          python3 scripts/test_seo_featured_lcp_safe.py
-          python3 scripts/seo_featured_lcp_safe.py
-      # The six static featured News cards are in the mobile initial viewport.
-      # All six may load eagerly, but only first image gets HIGH fetch priority.
-      # No title, CSS, graphic position, YouTube importer or card link changes.
-      - name: Eager-load six viewport-visible News covers (non-blocking)
-        continue-on-error: true
-        run: |
-          python3 scripts/test_seo_featured_all_visible_safe.py
-          python3 scripts/seo_featured_all_visible_safe.py
-      # Mobile Lighthouse identified a different featured card as LCP.
-      # Do not reintroduce loading=lazy for 5 above-the-fold cards.
-      # Keep the preceding six-cover eager transform and only one high priority.
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
