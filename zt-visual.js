@@ -204,3 +204,33 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 })();
+
+
+/* ZT_SITE_BACK_TO_TOP_20261014 — accessible button on every public page. */
+(function(){
+ "use strict";
+ function install(){
+  if(document.getElementById("ztBackToTop"))return;
+  const sheet=document.createElement("style");sheet.id="zt-backtop-style";
+  sheet.textContent=".zt-backtop{position:fixed;right:clamp(16px,2vw,28px);bottom:calc(21px + env(safe-area-inset-bottom,0px));z-index:9000;width:54px;height:54px;display:grid;place-items:center;background:#df0935;color:#fff;border:0;border-radius:50%;font:900 29px/1 Arial,Helvetica,sans-serif;cursor:pointer;box-shadow:0 5px 14px #0003;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);transition:opacity .18s ease,transform .18s ease,visibility .18s}.zt-backtop.zt-backtop-visible{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}.zt-backtop:hover{background:#bd1230;box-shadow:0 7px 17px #0004}.zt-backtop:focus-visible{outline:3px solid #2185ff;outline-offset:3px}@media(max-width:620px){.zt-backtop{width:48px;height:48px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:26px}}@media(prefers-reduced-motion:reduce){.zt-backtop{transition:none}}";
+  document.head.appendChild(sheet);
+  const button=document.createElement("button");button.type="button";button.id="ztBackToTop";
+  button.className="zt-backtop";button.setAttribute("aria-label","Torna in alto");button.title="Torna in alto";
+  button.textContent="↑";
+  button.addEventListener("click",function(){
+    const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({top:0,behavior:reduce?"auto":"smooth"});
+  });
+  document.body.appendChild(button);
+  let ticking=false;
+  function sync(){
+    ticking=false;
+    const visible=window.scrollY>300;
+    button.classList.toggle("zt-backtop-visible",visible);
+    button.setAttribute("aria-hidden",visible?"false":"true");
+  }
+  window.addEventListener("scroll",function(){if(!ticking){ticking=true;requestAnimationFrame(sync);}},{passive:true});
+  sync();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
