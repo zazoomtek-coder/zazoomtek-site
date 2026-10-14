@@ -1,0 +1,44 @@
+name: Staging mobile first featured LCP safety
+on:
+  push:
+    branches:
+      - seo/lcp-first-featured-20261014
+    paths:
+      - 'scripts/seo_featured_lcp_safe.py'
+      - 'scripts/test_seo_featured_lcp_safe.py'
+      - '.github/workflows/perf-first-featured-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regression tests for first featured hero only
+        run: python3 scripts/test_seo_featured_lcp_safe.py
+      - name: Dry-run against the real current homepage
+        run: |
+          python3 scripts/seo_featured_lcp_safe.py --check
+          python3 - <<'PY'
+          import sys,re
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_featured_lcp_safe import transform,START,END
+          src=Path('index.html').read_text(encoding='utf-8')
+          revised=transform(src)
+          assert revised!=src
+          assert src.split(START)[0]==revised.split(START)[0]
+          assert src.split(END)[1]==revised.split(END)[1]
+          original=src.split(START)[1].split(END)[0]
+          altered=revised.split(START)[1].split(END)[0]
+          oldimages=re.findall(r'<img\b[^>]*>',original,re.I)
+          newimages=re.findall(r'<img\b[^>]*>',altered,re.I)
+          assert len(oldimages)==len(newimages)==6
+          assert oldimages[1:]==newimages[1:]
+          assert oldimages[0]!=newimages[0]
+          assert 'fetchpriority="high"' in newimages[0]
+          assert transform(revised)==revised
+          print('PASS: only first Featured News image changed; five other covers and all other HTML identical')
+          PY
