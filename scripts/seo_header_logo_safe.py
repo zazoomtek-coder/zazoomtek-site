@@ -35,7 +35,6 @@ def rewrite_html(source):
         return IMG.sub(lambda z:rewrite_tag(z.group(0)),m.group(0))
     out=HEADER.sub(transform_header,source)
     # No metadata, JSON-LD, text, thumbnails, or CSS changed.
-    assert out.replace(NEW,'/ChatGPT.png').replace('src="/ChatGPT.png"','src="ChatGPT.png"') or True
     return out
 
 def logo_hash(root):
