@@ -90,6 +90,10 @@ def audit(root):
             counts["locally_measured_images"] += 1
         else:
             counts["unmeasured_remote_or_missing_images"] += 1
+            # Filename dimensions are evidence; HTML width attributes are not.
+            named = re.search(r"(?:capsule_|header_|cover_)(\\d{2,4})x(\\d{2,4})", parts.path, re.I)
+            if named and int(named.group(1)) < 1200:
+                flag("undersized_named_remote_image", f"{named.group(1)}x{named.group(2)}: {url}")
     return {"counts": dict(counts), "findings": issues}
 
 def main():
