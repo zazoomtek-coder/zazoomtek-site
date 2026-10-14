@@ -33,7 +33,7 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert '/zt-home-live.js?v=20261014impactShortsRail1' in src
+          assert '/zt-home-live.js?v=20261014coverFit1' in src
           assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
           assert r'\g<1>' not in src and r'\g<2>' not in src
           live_js=pathlib.Path("zt-home-live.js").read_text()
@@ -114,6 +114,22 @@ jobs:
                 primaryVideoCount:document.querySelectorAll("#ztpVideosAnchor .zt-shelf-card").length,
                 railShortCount:document.querySelectorAll(".ztp-shorts-companion .ztp-rail-shorts .zt-shelf-card").length,
                 shortsTitle:document.querySelector(".ztp-shorts-companion .ztp-rail-shorts h2")?.textContent,
+                techReviewCoverFit:(()=>{
+                  const links=[...document.querySelectorAll(".ztp-top-main .latest-reviews-module #latestVideos .zt-review-thumb")];
+                  return links.length===3&&links.every(link=>{
+                    const image=link.querySelector("img"), r=link.getBoundingClientRect();
+                    return !!(link.classList.contains("zt-review-adapted")&&link.style.getPropertyValue("--zt-thumb-artwork")&&
+                      image&&(getComputedStyle(image).objectFit==="contain"||getComputedStyle(image).objectFit==="cover"));
+                  })&&links.every(link=>{const r=link.getBoundingClientRect();return r.width>0&&Math.abs(r.width/r.height-16/9)<.035;});
+                })(),
+                shortsPortraitFit:(()=>{
+                  const images=[...document.querySelectorAll(".ztp-shorts-companion .zt-shelf-card:nth-child(-n+4) .zt-shelf-thumbnail > img")];
+                  return images.length===4&&images.every(im=>{
+                    const box=im.closest(".zt-shelf-thumbnail").getBoundingClientRect(),r=im.getBoundingClientRect();
+                    return getComputedStyle(im).objectFit==="cover"&&r.width>0&&
+                      Math.abs(r.height-box.height)<3&&Math.abs(r.width-box.width)<3;
+                  });
+                })(),
                 noOldStack:document.querySelectorAll(".ztp-news-rail .zt-video-stack").length===0,
                 shortsUnderEditorial:(()=>{const a=document.querySelector(".ztp-news-rail .ztp-editorial-archive"),b=document.querySelector(".ztp-news-rail > .ztp-shorts-companion");return !!a&&!!b&&a.nextElementSibling===b})(),
                 shortsNoLongerInVideoRow:!document.querySelector("#articoli .ztp-primary-feed .ztp-shorts-companion"),
@@ -160,6 +176,7 @@ jobs:
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
+             if(!d.techReviewCoverFit||!d.shortsPortraitFit)throw Error("Tech review 16:9 or Shorts 9:16 artwork is not filling the requested card format");
              if(!d.noOldStack||!d.shortsUnderEditorial||!d.shortsNoLongerInVideoRow||!d.videoEnoughWidth||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
              if(d.overflow>8)throw Error("Mobile horizontal overflow");
              if(d.imagesValidSource!==d.imagesTotal)throw Error("News thumbnails lack valid source/ALT");
