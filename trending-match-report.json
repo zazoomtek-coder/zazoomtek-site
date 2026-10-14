@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-14T08:16:50.953898+00:00",
+  "checked_at": "2026-10-14T08:52:11.737062+00:00",
   "source_sites": 16,
-  "matches": 5,
+  "matches": 6,
   "selected": [
     {
       "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
@@ -20,14 +20,20 @@
       ]
     },
     {
-      "title": "News: Just Dance: Decades of Hits è disponibile, 35 brani attraversano sei decenni di musica",
+      "title": "News: Huawei lancia in Italia WATCH 6 Series e MatePad Pro 12\", tra benessere, produttività e design premium",
       "section": "tech",
-      "url": "/news-UgkxSAUvOBM5omwI8FETzQpDNw4IkUGduS0G.html",
-      "trend_score": 0,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
+      "url": "/news-UgkxbcoXD_25p4VIR7kWs-B0XEppXkXv9j2h.html",
+      "trend_score": 57.18,
+      "published_date": "2026-10-13",
+      "freshness_bonus": 62,
+      "selection_score": 99.17,
+      "sources": [
+        {
+          "site": "Hardware Upgrade",
+          "title": "HUAWEI MatePad Pro 12 e WATCH 6 arrivano in Italia: ecco quanto costano e cosa offrono",
+          "score": 0.5718
+        }
+      ]
     },
     {
       "title": "News: Battlefield 6 Stagione 5 parte oggi con Las Vegas, Area 51, Rapid Royale e crossover Dead Space",
