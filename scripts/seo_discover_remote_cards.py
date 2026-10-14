@@ -34,7 +34,7 @@ def fetch(url):
             if len(blob)>MAX_READ:return None
         with Image.open(BytesIO(blob)) as im:
             im.load()
-            if im.width>=1200:return None
+            if im.width>=1200:return "large"
             if im.width<120 or im.height<120:return None
             return im.convert("RGB")
     except (OSError,ValueError,UnidentifiedImageError):
@@ -58,6 +58,32 @@ def pages(root):
         if urlsplit(url).scheme!="https" or urlsplit(url).netloc in ("zazoomtek.it","www.zazoomtek.it"):continue
         matches.setdefault(url,[]).append(page)
     return matches
+
+def fallback_card(root,url,page):
+    source=page.read_text(encoding="utf-8",errors="replace")
+    match=re.search(r"<title[^>]*>(.*?)</title>",source,re.I|re.S)
+    title=html.unescape(re.sub(r"<[^>]+>"," ",match.group(1))) if match else page.stem
+    title=re.sub(r"\\s*\\|\\s*ZazoomTek\\s*$","",title,flags=re.I).strip()
+    name=hashlib.sha256(url.encode("utf-8")).hexdigest()[:22]+"-editorial.webp"
+    output=root/ROOTNAME/name
+    output.parent.mkdir(parents=True,exist_ok=True)
+    img=Image.new("RGB",SIZE,(24,29,42))
+    draw=ImageDraw.Draw(img)
+    draw.rectangle((0,0,15,675),fill=(214,18,50))
+    font_path="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    face=ImageFont.truetype(font_path,48) if Path(font_path).exists() else ImageFont.load_default()
+    draw.text((66,80),"ZAZOOMTEK  |  COMMUNITY",font=face,fill=(255,108,127))
+    words=title.split();rows=[];line=""
+    for word in words:
+        candidate=(line+" "+word).strip()
+        if draw.textbbox((0,0),candidate,font=face)[2]>1030 and line:
+            rows.append(line);line=word
+        else:line=candidate
+    if line:rows.append(line)
+    for i,row in enumerate(rows[:5]):
+        draw.text((66,185+i*82),row,font=face,fill="white")
+    img.save(output,format="WEBP",quality=88,method=5)
+    return BASE+"/"+ROOTNAME+"/"+name
 
 def save_card(root,url,picture):
     stem=hashlib.sha256(url.encode("utf-8")).hexdigest()[:22]+".webp"
@@ -107,11 +133,14 @@ def main():
         for job in as_completed(jobs):
             url=jobs[job]
             image=job.result()
+            if isinstance(image,str) and image=="large":
+                continue
             if image is None:
                 unavailable+=1
-                continue
-            card=save_card(root,url,image)
-            count+=1
+                card=fallback_card(root,url,targets[url][0])
+            else:
+                card=save_card(root,url,image)
+                count+=1
             for page in targets[url]:
                 revised+=int(update(page,url,card))
     print(f"Discover sharing cards: {count} small sources corrected; {revised} pages updated; {unavailable} unchanged/oversized/unreachable sources")
