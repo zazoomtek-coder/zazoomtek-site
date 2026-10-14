@@ -83,6 +83,11 @@ jobs:
           from seo_whole_site_audit import audit
           data=audit(Path('.'))
           print('POST-SEO COUNTS',data['finding_counts'])
+          from seo_concise_metadata_safe import propose,shorten,CONTENT
+          for name in ('news-Ugkx--hIBK2mCq26KvL_h_Z8LRFE7Nk0dBTN.html','news-Ugkx0a4ZBZi-Q5t-PI3p2uPLwePr6lFDPqU3.html'):
+              p=Path(name)
+              val=propose(p.resolve(),Path('.').resolve(),p.read_text(encoding='utf-8'))
+              print('REMAINING DEBUG',name,'has',bool(val),'candidate',repr(val[5][:100]) if val and val[5] else None,'meta count',len(val[4]) if val else None)
           print('HIGH PRIORITY',data['priority_findings'])
           print('BROKEN-LINK CANDIDATES',data['missing_targets'][:22])
           print('REMAINING NONSTANDARD DESCRIPTIONS',[(p,len(x['description']),x['description'][:95]) for p,x in data['by_page'].items() if len(x['description'])<45 or len(x['description'])>170][:65])
