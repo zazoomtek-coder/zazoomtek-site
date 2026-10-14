@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/audit-production-home-layout-20261013.yml'
       - 'zt-home-live.js'
+      - 'zt-home-gap-fix-20261014.css'
+      - 'scripts/test-home-news-categories.cjs'
       - 'index.html'
       - 'scripts/update-youtube-posts.py'
       - 'firebase.json'
@@ -116,12 +118,21 @@ jobs:
                 popularTitle:document.querySelector("#zt-popular-title")?.textContent.trim(),
                 popularHtml:document.querySelector(".zt-popular-head")?.innerHTML,
                 hasLeakedBackrefs:/\\g<[12]>/.test(document.querySelector(".zt-popular-head")?.textContent||""),
+                topTechReviewCount:document.querySelectorAll(".ztp-top-main .latest-reviews-module #latestVideos .video-card").length,
+                gamingReviewCount:document.querySelectorAll("#ztpGamingReviews .ztp-gaming-review-cards .video-card").length,
+                extraCardCount:document.querySelectorAll("#ztHomeExtra .ztp-extra-card").length,
+                homeFixCSS:!!document.querySelector('link[href*="zt-home-gap-fix-20261014.css"]'),
+                gamingMaxGap:(()=>{
+                  const r=[...document.querySelectorAll(".ztp-news-gaming .ztp-news-items > .article-row")].filter(x=>x.getBoundingClientRect().height>0).map(x=>x.getBoundingClientRect());
+                  return Math.round(Math.max(0,...r.slice(1).map((x,i)=>x.top-r[i].bottom)));
+                })(),
                 overflow:document.documentElement.scrollWidth-window.innerWidth,
                };
              });
              console.log(v.label,JSON.stringify(d),errors);
              if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
-             if(d.newsCount!==15||d.distinctLinks!==15||d.selectedReviewCount!==3)throw Error("Original news and reviews are broken");
+             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||d.extraCardCount!==2||!d.homeFixCSS)
+               throw Error("New 10/10 news, Tech reviews, Extra or Gaming review modules missing");
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
@@ -133,9 +144,8 @@ jobs:
              if(v.label==="desktop"){
               if(!(d.tech.x<d.gaming.x&&d.gaming.x<d.rail.x))throw Error("Desktop no three editorial columns");
               const r=[d.tech.w,d.gaming.w,d.rail.w],sum=r.reduce((a,b)=>a+b,0);
-              if(r.some((w,i)=>Math.abs(w/sum-[.45,.35,.20][i])>.015))throw Error("Wrong 45/35/20 ratio");
-              if(Math.abs(d.tech.b-d.gaming.b)>180)throw Error("Unbalanced news column heights");
-              if(Math.abs(d.primary.b-d.rail.b)>200)throw Error("Empty white gap at bottom of columns");
+              if(r.some((w,i)=>Math.abs(w/sum-[.50,.30,.20][i])>.015))throw Error("Wrong 50/30/20 ratio");
+              if(d.gamingMaxGap>26)throw Error("Excess empty spaces between Gaming news cards: "+d.gamingMaxGap+"px");
              }else if(v.label==="tablet"){
               if(!(d.tech.x<d.gaming.x&&d.rail.y>d.tech.y))throw Error("Tablet two-column layout broken");
              }else if(!(d.tech.y<d.gaming.y&&d.gaming.y<d.rail.y))throw Error("Mobile stacked layout broken");
