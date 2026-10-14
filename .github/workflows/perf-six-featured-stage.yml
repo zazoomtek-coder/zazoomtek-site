@@ -1,0 +1,46 @@
+name: Six visible News cover images performance safety
+on:
+  push:
+    branches:
+      - seo/visible-featured-images-20261014
+    paths:
+      - 'scripts/seo_featured_all_visible_safe.py'
+      - 'scripts/test_seo_featured_all_visible_safe.py'
+      - '.github/workflows/perf-six-featured-stage.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test safe transformations
+        run: |
+          python3 scripts/test_seo_featured_lcp_safe.py
+          python3 scripts/test_seo_featured_all_visible_safe.py
+      - name: Reproduce exactly the two optional homepage performance stages
+        run: |
+          python3 scripts/seo_featured_lcp_safe.py
+          python3 scripts/seo_featured_all_visible_safe.py --check
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'scripts')
+          from seo_featured_all_visible_safe import transform,START,END
+          src=Path('index.html').read_text()
+          dst=transform(src)
+          assert dst!=src
+          assert src.split(START)[0]==dst.split(START)[0]
+          assert src.split(END)[1]==dst.split(END)[1]
+          before=src.split(START)[1].split(END)[0]
+          after=dst.split(START)[1].split(END)[0]
+          assert len(re.findall(r'<img\b',before))==len(re.findall(r'<img\b',after))==6
+          assert re.sub(r'<img\b[^>]*>','',before)==re.sub(r'<img\b[^>]*>','',after)
+          assert after.count('loading="eager"')==6
+          assert after.count('fetchpriority="high"')==1
+          assert transform(dst)==dst
+          print('PASS: exact same News cards, layout, titles and links; only six image loading/size attributes changed')
+          PY
