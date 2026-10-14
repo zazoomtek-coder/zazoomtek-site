@@ -149,6 +149,22 @@ jobs:
         run: |
           python3 scripts/test_seo_home_h1_safe.py
           python3 scripts/seo_home_h1_safe.py
+      # Optimize only the 52px ZazoomTek header logo shown by all pages.
+      # Full-resolution PNG remains for schema.org, OG, sharing and Discover.
+      # Fingerprinted small PNG is prebuilt: Pillow only needed if original changes.
+      - name: Serve compact faithful header logo site-wide (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_header_logo_safe.py
+          python3 - <<'PY'
+          import sys,subprocess
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_header_logo_safe import asset_current
+          if not asset_current(Path('.').resolve()):
+              subprocess.check_call([sys.executable,'-m','pip','install','--disable-pip-version-check','-q','Pillow>=10,<13'])
+          PY
+          python3 scripts/seo_header_logo_safe.py
       # Article metadata is enhanced only in the ephemeral release checkout.
       # It must never edit an importer, the site repository, or HTML bodies.
       - name: Enhance Search/Discover metadata (non-blocking)
