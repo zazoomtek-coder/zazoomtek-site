@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-14T10:17:19.644196+00:00",
+  "checked_at": "2026-10-14T10:50:14.414086+00:00",
   "source_sites": 16,
   "matches": 7,
   "selected": [
@@ -71,7 +71,7 @@
       "title": "L'IA è meno regolamentata di un cartone del latte: l'allarme del Presidente di Microsoft",
       "section": "tech-impact",
       "url": "/tech-impact-l-ia-e-meno-regolamentata-di-un-cartone-del-latte-l-allarme-del-presidente-di-microso.html",
-      "trend_score": 109.0,
+      "trend_score": 100.0,
       "published_date": "2026-10-14",
       "freshness_bonus": null,
       "selection_score": null,
@@ -80,11 +80,6 @@
           "site": "Hardware Upgrade",
           "title": "L'IA è 'meno regolamentata di un cartone del latte': l'allarme del Presidente di Microsoft",
           "score": 1.0
-        },
-        {
-          "site": "HDblog",
-          "title": "L'AI � meno controllata del latte: l'allarme di Microsoft",
-          "score": 0.6784
         }
       ]
     },
