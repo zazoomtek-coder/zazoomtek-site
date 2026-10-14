@@ -38,6 +38,9 @@ class VerifiedWatch(unittest.TestCase):
         self.assertEqual(entries(self.root),[])
         self.page.write_text(src.replace('index,follow','noindex,follow'))
         self.assertEqual(entries(self.root),[])
+    def test_sidebar_video_not_mislabeled_as_primary(self):
+        self.set_page(aside=True)
+        self.assertEqual(entries(self.root),[])
     def test_no_feed_no_fabricated_video_dates(self):
         (self.root/'home-video-feed.json').write_text('[]')
         self.assertEqual(entries(self.root),[])
