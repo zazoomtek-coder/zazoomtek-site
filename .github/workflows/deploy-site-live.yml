@@ -142,6 +142,28 @@ jobs:
           assert count>=20, f"Only {count} verified editorial boxes"
           print("PASS:",count,"real-image editorial boxes, consistent compact typography")
           PY
+      # Optional, isolated: SEO must NEVER delay or block YouTube/Firebase publishing.
+      # Build in the Firebase checkout only; the live repository and HTML remain untouched.
+      - name: Generate verified SEO sitemap (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_sitemap_safe.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import importlib.util
+          import xml.etree.ElementTree as ET
+          spec=importlib.util.spec_from_file_location('seo','scripts/seo_sitemap_safe.py')
+          seo=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(seo)
+          outputs,count=seo.build(Path('.'))
+          old=Path('sitemap.xml')
+          previous=len(ET.parse(old).getroot()) if old.exists() else 0
+          minimum=max(500, int(previous*0.95))
+          if count<minimum:
+              raise RuntimeError(f'SEO sitemap guard: {count} canonical pages, expected >= {minimum}')
+          changed=seo.publish(Path('.'),outputs)
+          print(f'Optional SEO sitemap: {count} canonical pages; {len(changed)} regenerated files')
+          PY
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
