@@ -179,6 +179,13 @@ jobs:
           changed=seo.publish(Path('.'),outputs)
           print(f'Optional SEO sitemap: {count} canonical pages; {len(changed)} regenerated files')
           PY
+      # Optional Google News sitemap: verified original dates from the last 48h.
+      # Independent of protected YouTube sync, site layout and normal sitemap.
+      - name: Generate recent editorial News sitemap (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_news_sitemap.py
+          python3 scripts/seo_news_sitemap.py
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
