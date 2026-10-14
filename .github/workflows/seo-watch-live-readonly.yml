@@ -1,0 +1,107 @@
+name: Read-only production watch pages and video SEO verification
+on:
+  push:
+    branches: [seo/live-video-check-20261014]
+    paths:
+      - '.github/workflows/seo-watch-live-readonly.yml'
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Verify site player pages, social SEO, three XML sitemaps, zero UI changes
+        run: |
+          python3 - <<'PY'
+          import urllib.request,xml.etree.ElementTree as ET,json,re,time
+          from html import unescape
+          ORIGIN='https://zazoomtek.it'
+          def get(path):
+              request=urllib.request.Request(ORIGIN+path,headers={'User-Agent':'Mozilla/5.0 (ZazoomTek ReadOnly Video SEO QA)'})
+              with urllib.request.urlopen(request,timeout=18) as response:
+                  assert response.status==200,(path,response.status)
+                  return response.read().decode('utf-8','replace')
+          last=None
+          for n in range(14):
+              try:
+                  hub=get('/watch/')
+                  video=get('/watch/tEkXOj7XOwA.html')
+                  root=ET.fromstring(get('/video-sitemap.xml'))
+                  NS={'s':'http://www.sitemaps.org/schemas/sitemap/0.9',
+                      'video':'http://www.google.com/schemas/sitemap-video/1.1'}
+                  entries=root.findall('s:url',NS)
+                  assert len(entries)>=190,len(entries)
+                  break
+              except Exception as exc:
+                  last=exc
+                  if n==13:raise
+                  time.sleep(10)
+          assert hub.count('href="/watch/')>=190
+          assert '<h1>Video ZazoomTek</h1>' in hub
+          assert '<header class="zt-header">' in hub
+          assert 'zt-design.css' in hub and 'zt-thumbnails.css' in hub
+          for path,ident in [('/watch/tEkXOj7XOwA.html','tEkXOj7XOwA'),
+                             ('/watch/yFaamUx3h-Q.html','yFaamUx3h-Q'),
+                             ('/watch/WwGAaKGfoGY.html','WwGAaKGfoGY')]:
+              html= get(path)
+              canonical=ORIGIN+path
+              assert f'<link rel="canonical" href="{canonical}">' in html,path
+              assert f'https://www.youtube-nocookie.com/embed/{ident}' in html,path
+              assert html.count('<iframe')==1,path
+              assert '<main class="zt-watch-shell">' in html
+              ld=re.findall(r'<script type="application/ld\+json">(.*?)</script>',html,re.S)
+              assert ld, path
+              data=json.loads(unescape(ld[0]))
+              assert data['@type']=='VideoObject'
+              assert data['mainEntityOfPage']==canonical
+              assert data['uploadDate'] and data['thumbnailUrl'].startswith('https://i.ytimg.com/vi/'+ident)
+              print('PASS published watch-page video player/Schema.org:',ident)
+          sitemap=ET.fromstring(get('/sitemap.xml'))
+          locs=[n.text for n in sitemap.findall('.//s:loc',NS)]
+          assert len(locs)>=735,len(locs)
+          assert ORIGIN+'/watch/' in locs
+          assert ORIGIN+'/watch/tEkXOj7XOwA.html' in locs
+          assert len(locs)==len(set(locs))
+          video_locs=[n.findtext('s:loc',namespaces=NS) for n in entries]
+          assert len(set(video_locs))==len(video_locs)
+          assert ORIGIN+'/watch/tEkXOj7XOwA.html' in video_locs
+          assert all(x.startswith(ORIGIN+'/watch/') for x in video_locs)
+          assert all(n.find('video:video',NS) is not None for n in entries)
+          print('PASS video sitemap:',len(entries),'actual watch-page entries; canonical sitemap:',len(locs))
+          news=ET.fromstring(get('/news-sitemap.xml'))
+          print('PASS Google News sitemap:',len(news))
+          robots=get('/robots.txt')
+          assert f'Sitemap: {ORIGIN}/video-sitemap.xml' in robots
+          assert f'Sitemap: {ORIGIN}/sitemap.xml' in robots
+          homepage=get('/')
+          assert '<!-- FEATURED_NEWS_START -->' in homepage
+          assert 'zt-featured-grid' in homepage
+          assert 'zt-thumbnails.css' in homepage
+          print('PASS robots, homepage and existing editorial navigation unchanged')
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify watch player aspect ratios mobile in a headless browser
+        run: |
+          npm install --no-save playwright-core@1.56.1
+          node <<'JS'
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            for(const [id,expected] of [['tEkXOj7XOwA',16/9],['yFaamUx3h-Q',9/16]]){
+              const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+              await page.goto('https://zazoomtek.it/watch/'+id+'.html',{waitUntil:'domcontentloaded',timeout:35000});
+              await page.locator('.zt-watch-frame iframe').waitFor({state:'attached'});
+              const geom=await page.locator('.zt-watch-frame').boundingBox();
+              const h1=await page.locator('main h1').count();
+              if(!geom||geom.width<150||geom.height<200||Math.abs(geom.width/geom.height-expected)>.05||h1!==1){
+                throw new Error('Broken mobile video layout '+id+' '+JSON.stringify({geom,h1}));
+              }
+              console.log('PASS mobile watch player shape',id,JSON.stringify({width:geom.width,height:geom.height}));
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
