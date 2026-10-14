@@ -103,9 +103,10 @@ def make_video(root,item,header,footer):
     safe_title=escape(title,quote=True)
     name=escape(item.get('seo_title') or title,quote=True)+' | ZazoomTek'
     e= lambda value:escape(str(value),quote=True)
-    seo_desc=f"{title}. Video {item['category'].lower()} ZazoomTek del {item['publishedAt'][:10]}."
+    seo_desc=f"Video ZazoomTek: {title}. {item['category']} del {item['publishedAt'][:10]}. ID YouTube {ident}."
     if len(seo_desc)>158:
-        seo_desc=seo_desc[:155].rsplit(' ',1)[0].rstrip(' ,.;')+'…'
+        seo_desc=seo_desc[:130].rsplit(' ',1)[0].rstrip(' ,.;')+'… Video '+ident+'.'
+
     ratio='9/16' if item['short'] else '16/9'
     width='min(460px,100%)' if item['short'] else '100%'
     return f'''<!doctype html>
