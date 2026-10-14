@@ -52,9 +52,16 @@ const homeTemplate=JSON.parse(templateLiteral[1]);
 assert(!homeTemplate.includes("ztpMoreGaming")&&!homeTemplate.includes("ztp-gaming-extra"),
  "Obsolete fixed Gaming articles must never outrank current YouTube Community news");
 assert(!source.includes('oldArchive.querySelectorAll'),"Static Gaming article reinsertion must be removed");
-assert(source.includes('function balance()')&&source.includes('Math.max(...heights)')&&
- source.includes('col.style.justifyContent="space-between"'),
- "Use spacing between current news to balance Tech and Gaming, not fixed old articles");
+assert(source.includes("function balance()") &&
+ !source.includes('col.style.justifyContent="space-between"') &&
+ source.includes('col.style.removeProperty(p)'),
+ "Gaming articles must flow contiguously without forced height or space-between");
+assert(source.includes('ztpGamingReviews') && source.includes('ztHomeExtra') && source.includes('RECENSIONI TECH'),
+ "Homepage must restore Gaming reviews below news, Extra next to Guide and three Tech reviews");
+const css=fs.readFileSync("zt-home-gap-fix-20261014.css","utf8");
+assert(css.includes(".ztp-news-tech") && css.includes("-webkit-line-clamp:3") &&
+ css.includes("#ztp-guide-extra") && css.includes(".ztp-gaming-reviews"),
+ "Updated Home must preserve Tech descriptions, Guide/Extra and Gaming review styles");
 const index=fs.readFileSync("index.html","utf8");
 const feed=index.split("<!-- ARTICLE_FEED_START -->")[1]?.split("<!-- ARTICLE_FEED_END -->")[0];
 assert(feed,"canonical Home feed missing");
