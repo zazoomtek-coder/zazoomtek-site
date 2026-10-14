@@ -97,6 +97,33 @@ jobs:
           assert data['finding_counts'].get('description_length',0)<95
           assert data['finding_counts'].get('duplicate_description',0)==0
           PY
+      - name: Validate mobile and desktop headline geometry with real CSS
+        run: |
+          npm install --no-save playwright-core@1.56.1 >/dev/null 2>&1
+          python3 -m http.server 8766 >/tmp/zt-seo-preview.log 2>&1 &
+          node <<'JS'
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            const checks=['pagina-2.html','pagina-3.html','news-Ugkx-BI6NjJ4uPtJvBCYOX9RQxqP_pqEP0il.html'];
+            for(const width of [390,1366]){
+              const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
+              for(const name of checks){
+                await page.goto('http://127.0.0.1:8766/'+name,{waitUntil:'domcontentloaded',timeout:35000});
+                const result=await page.locator('h1').first().evaluate(el=>{
+                  const r=el.getBoundingClientRect();
+                  return {title:el.textContent.trim(),left:r.left,right:r.right,height:r.height,display:getComputedStyle(el).display};
+                });
+                if(!result.title||result.left < -3||result.right>width+3||result.height<15||result.height>450||result.display==='none'){
+                  throw new Error(JSON.stringify({width,name,result}));
+                }
+                console.log('PASS responsive existing H1 layout',width,name,result.title.slice(0,80));
+              }
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
       - uses: actions/upload-artifact@v4
         with:
           name: whole-site-seo-findings
