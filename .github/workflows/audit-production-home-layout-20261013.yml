@@ -85,7 +85,7 @@ jobs:
              }
              if(!visible)throw Error("Fresh staging page failed to render genuine Shorts");
              // Lazy thumbnails below the fold must first be requested before evaluating them.
-             await page.evaluate(()=>document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image").forEach(img=>img.loading="eager"));
+             await page.evaluate(()=>document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image, #zt-special-tech .zt-special-item:nth-child(-n+3) img").forEach(img=>img.loading="eager"));
              await page.waitForTimeout(3500);
              const d=await page.evaluate(()=>{
                const bounds=q=>{const el=document.querySelector(q);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom};};
