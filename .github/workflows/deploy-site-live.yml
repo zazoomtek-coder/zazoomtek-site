@@ -173,6 +173,13 @@ jobs:
           python3 scripts/test_seo_head_safe.py
           python3 scripts/test_seo_media_safe.py
           python3 scripts/seo_head_safe.py
+      # Verified cover OpenGraph metadata only, on temporary Firebase checkout.
+      # Never touch layouts, imports, or already declared OG images.
+      - name: Add verified article OpenGraph covers (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_real_article_og_safe.py
+          python3 scripts/seo_real_article_og_safe.py
       # Only enrich existing article JSON-LD with the verified, on-page hero.
       # Independent, non-blocking and applied in Firebase's ephemeral checkout.
       - name: Associate real article hero with existing Schema.org (non-blocking)

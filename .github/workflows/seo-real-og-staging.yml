@@ -1,0 +1,36 @@
+name: Staging verified article OpenGraph cover
+on:
+  push:
+    branches: [seo/real-article-og-image-20261014]
+    paths:
+      - 'scripts/seo_real_article_og_safe.py'
+      - 'scripts/test_seo_real_article_og_safe.py'
+      - '.github/workflows/seo-real-og-staging.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test new and previously published article scenarios
+        run: python3 scripts/test_seo_real_article_og_safe.py
+      - name: Inspect all pages without writes
+        run: python3 scripts/seo_real_article_og_safe.py --check
+      - name: Validate every modification is confined to head metadata
+        run: |
+          python3 - <<'PY'
+          import sys,re
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_real_article_og_safe import scan
+          changes,pages=scan(Path('.'))
+          assert pages>=500,pages
+          assert 1<=len(changes)<100,len(changes)
+          for path,out in changes.items():
+              old=path.read_text(encoding='utf-8',errors='replace')
+              assert re.split(r'</head\s*>',old,maxsplit=1,flags=re.I)[1]==re.split(r'</head\s*>',out,maxsplit=1,flags=re.I)[1]
+          print(f'PASS: {len(changes)} verified article OG covers; {pages} pages audited; bodies/graphics unchanged')
+          PY
