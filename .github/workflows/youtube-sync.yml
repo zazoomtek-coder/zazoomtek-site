@@ -2,8 +2,9 @@ name: Sync YouTube to site
 
 on:
   schedule:
-    # Check YouTube every five minutes; no content change means no site build/deploy.
-    - cron: '*/5 * * * *'
+    # Poll every five minutes, offset from minute :00 to reduce GitHub's top-of-hour scheduling congestion.
+    # GitHub schedule is best-effort; the separate offset watchdog remains active.
+    - cron: '1-59/5 * * * *'
   push:
     branches: [main]
     paths:
