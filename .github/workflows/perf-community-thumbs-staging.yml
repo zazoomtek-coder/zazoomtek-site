@@ -1,0 +1,64 @@
+name: Staging Community thumbnails performance safety
+on:
+  push:
+    branches:
+      - seo/responsive-community-thumbs-20261014
+    paths:
+      - 'scripts/seo_thumbnail_payload_safe.py'
+      - 'scripts/test_seo_thumbnail_payload_safe.py'
+      - '.github/workflows/perf-community-thumbs-staging.yml'
+      - '.github/workflows/deploy-site-live.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regression tests - protect homepage and article layout
+        run: python3 scripts/test_seo_thumbnail_payload_safe.py
+      - name: Inspect all current/future HTML without changing GitHub
+        run: |
+          python3 scripts/seo_thumbnail_payload_safe.py --check
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'scripts')
+          from seo_thumbnail_payload_safe import inspect
+          from html.parser import HTMLParser
+          results,pages,images=inspect(Path('.'))
+          assert pages>=500
+          assert 20<=images<=500,(pages,images)
+          for p,new in results.items():
+            old=p.read_text(encoding='utf-8',errors='replace')
+            assert new.replace('=s1200-rw-nd-v1','=s1600-rw-nd-v1')==old,(p,'unexpected body changes')
+          print(f'PASS: {images} lightweight Community card thumbnails; source, layout, canonical, OG images unchanged')
+          PY
+      - name: Check two CDN resized image URLs with real visual dimensions
+        run: |
+          python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13' >/dev/null
+          python3 - <<'PY'
+          import io,urllib.request
+          from PIL import Image
+          ids=[
+            '9FRlJEWGi_Ss_pNt5ErSXTgKUzZ6x2PMYLIJg4zlLdIsxufuePBUH5MLbbYpyhdos48YhYtk7c9d',
+            'dCLtdYj8Itti0LSzx_yBIBO4Sg8NLt50d6tJWT5n9kvV5pXnm4L4orME9j40B6i7ut8wO2b7BlBo1Q',
+          ]
+          for token in ids:
+            results={}
+            for size in (1600,1200):
+              url='https://yt3.ggpht.com/'+token+f'=s{size}-rw-nd-v1'
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(req,timeout=20) as res:
+                content=res.read()
+                assert 0<len(content)<1_000_000,(url,len(content))
+                with Image.open(io.BytesIO(content)) as image:
+                  results[size]=(image.size,len(content))
+            original,smaller=results[1600],results[1200]
+            assert smaller[0][0]<=original[0][0],results
+            assert smaller[0][1]<=original[0][1],results
+            assert abs(smaller[0][0]/smaller[0][1]-original[0][0]/original[0][1])<.015,results
+            assert smaller[0][0]>=min(900,original[0][0]),results
+            print('PASS: exact same aspect and readable size; original vs thumbnail',results)
+          PY
