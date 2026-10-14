@@ -14,6 +14,8 @@ on:
       - 'scripts/test_seo_generic_article_headline_safe.py'
       - 'scripts/seo_paginated_h1_safe.py'
       - 'scripts/test_seo_paginated_h1_safe.py'
+      - 'scripts/seo_news_archive_descriptions.py'
+      - 'scripts/test_seo_news_archive_descriptions.py'
 permissions:
   contents: read
 jobs:
@@ -72,6 +74,8 @@ jobs:
           python3 scripts/seo_generic_article_headline_safe.py
           python3 scripts/seo_paginated_h1_safe.py
           python3 scripts/seo_concise_metadata_safe.py
+          python3 scripts/test_seo_news_archive_descriptions.py
+          python3 scripts/seo_news_archive_descriptions.py
           python3 - <<'PY'
           import sys
           from pathlib import Path
@@ -85,6 +89,7 @@ jobs:
           assert data['finding_counts'].get('h1_count',0)<=1
           assert data['finding_counts'].get('title_length',0)<70
           assert data['finding_counts'].get('description_length',0)<95
+          assert data['finding_counts'].get('duplicate_description',0)==0
           PY
       - uses: actions/upload-artifact@v4
         with:
