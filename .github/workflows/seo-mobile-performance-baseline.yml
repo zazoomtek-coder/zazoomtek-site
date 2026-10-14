@@ -1,0 +1,32 @@
+name: Read-only mobile performance baseline
+on:
+  push:
+    branches:
+      - seo/public-smoke-20261014
+    paths:
+      - '.github/workflows/seo-mobile-performance-baseline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobile_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Lighthouse on isolated CI runner
+        run: npm install --global lighthouse@12
+      - name: Measure production HOME only (read-only)
+        run: |
+          lighthouse https://zazoomtek.it/ --only-categories=performance --form-factor=mobile --screenEmulation.mobile=true --throttling-method=simulate --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --output=json --output-path=/tmp/zt-home-mobile.json --quiet
+          node - <<'JS'
+          const report=require('/tmp/zt-home-mobile.json')
+          const a=report.audits||{}
+          const metrics=['first-contentful-paint','largest-contentful-paint','cumulative-layout-shift','total-blocking-time','speed-index']
+          console.log('READ-ONLY MOBILE LIGHTHOUSE SCORE:',Math.round((report.categories.performance?.score||0)*100))
+          for(const key of metrics) console.log(key+':',a[key]?.displayValue||'not reported')
+          const bottlenecks=['render-blocking-resources','unused-javascript','uses-optimized-images','uses-responsive-images','offscreen-images','uses-text-compression','modern-image-formats']
+          for(const key of bottlenecks) if(a[key]&&a[key].numericValue) console.log('Potential opportunity:',key,a[key].displayValue||a[key].numericValue)
+          JS
