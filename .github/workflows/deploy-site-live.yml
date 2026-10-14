@@ -219,8 +219,7 @@ jobs:
           python3 scripts/seo_schema_completion_safe.py
       # Optional, isolated: SEO must NEVER delay or block YouTube/Firebase publishing.
       # Build in the Firebase checkout only; the live repository and HTML remain untouched.
-      - name: Generate verified SEO sitemap (non-blocking)
-        continue-on-error: true
+      - name: Generate verified SEO sitemap (required)
         run: |
           python3 scripts/test_seo_sitemap_safe.py
           python3 - <<'PY'
@@ -240,6 +239,22 @@ jobs:
               raise RuntimeError(f'SEO sitemap guard: {count} canonical pages, expected >= {minimum}')
           changed=seo.publish(Path('.'),outputs)
           print(f'Optional SEO sitemap: {count} canonical pages; {len(changed)} regenerated files')
+          PY
+      - name: Verify published sitemap artifacts before deployment
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          root=ET.parse('sitemap.xml').getroot()
+          urls=[e.text for e in root.findall('s:url/s:loc',ns)]
+          txt=Path('sitemap.txt').read_text(encoding='utf-8').splitlines()
+          assert len(urls)>=500, 'Sitemap URL count below safe minimum'
+          assert len(urls)==len(set(urls)), 'Sitemap duplicates'
+          assert urls==txt, 'Sitemap XML/TXT mismatch'
+          assert Path('sitemap.xml').read_bytes()==Path('google-sitemap.xml').read_bytes(), 'Google sitemap mismatch'
+          assert 'Sitemap: https://zazoomtek.it/sitemap.xml' in Path('robots.txt').read_text(encoding='utf-8'), 'robots.txt sitemap declaration missing'
+          print('PASS:',len(urls),'canonical sitemap URLs validated before Firebase publish')
           PY
       - name: Audit Google Discover covers and previews (read-only, non-blocking)
         continue-on-error: true
