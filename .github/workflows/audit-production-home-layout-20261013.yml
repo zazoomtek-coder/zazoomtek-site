@@ -33,7 +33,7 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert '/zt-home-live.js?v=20261014gamingExtra3' in src
+          assert '/zt-home-live.js?v=20261014reviewsBeforeVideos1' in src
           assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
           assert r'\g<1>' not in src and r'\g<2>' not in src
           live_js=pathlib.Path("zt-home-live.js").read_text()
@@ -126,6 +126,10 @@ jobs:
                 hasLeakedBackrefs:/\\g<[12]>/.test(document.querySelector(".zt-popular-head")?.textContent||""),
                 topTechReviewCount:document.querySelectorAll(".ztp-top-main .latest-reviews-module #latestVideos .video-card").length,
                 gamingReviewCount:document.querySelectorAll("#ztpGamingReviews .ztp-gaming-review-cards .video-card").length,
+                reviewInPrimary:!!document.querySelector("#articoli .ztp-primary-feed > #ztpGamingReviews"),
+                reviewsBeforeVideos:(()=>{const a=document.querySelector("#ztpGamingReviews"),b=document.querySelector("#ztpVideosAnchor");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
+                newsBeforeReviews:(()=>{const a=document.querySelector("#articoli .ztp-two-news-columns"),b=document.querySelector("#ztpGamingReviews");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
+                reviewNewsGap:(()=>{const a=document.querySelector("#articoli .ztp-two-news-columns"),b=document.querySelector("#ztpGamingReviews");return a&&b?Math.round(b.getBoundingClientRect().top-a.getBoundingClientRect().bottom):null})(),
                 extraCardCount:document.querySelectorAll("#ztHomeExtra .ztp-extra-card").length,
                 homeFixCSS:!!document.querySelector('link[href*="zt-home-gap-fix-20261014.css"]'),
                 bigEditorialCards:document.querySelectorAll('.ztp-news-rail .ztp-editorial-archive .ztp-editorial-story:not([hidden])').length,
@@ -140,7 +144,7 @@ jobs:
              });
              console.log(v.label,JSON.stringify(d),errors);
              if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
-             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||d.extraCardCount!==2||!d.homeFixCSS||d.bigEditorialCards!==3||!d.backToTopExists||!d.backToTopInvisibleInitially)
+             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||d.reviewNewsGap>40||d.extraCardCount!==2||!d.homeFixCSS||d.bigEditorialCards!==3||!d.backToTopExists||!d.backToTopInvisibleInitially)
                throw Error("New 10/10 news, Tech reviews, Extra or Gaming review modules missing");
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");

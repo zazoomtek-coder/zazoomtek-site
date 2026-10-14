@@ -434,7 +434,7 @@
    const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
    if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
    const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
-   stylesheet.href="/zt-home-gap-fix-20261014.css?v=5";document.head.appendChild(stylesheet);
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=6";document.head.appendChild(stylesheet);
    area.querySelectorAll(".ztp-news-items").forEach(function(col){
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });
@@ -496,7 +496,14 @@
          {title:"Transport Fever 3 | Recensione PS5",href:"/recensione-Ugkxvpi4bKV_hiuDy7XJQb0-qw7CTJc5Is33.html",img:"https://yt3.ggpht.com/kI8EIbI2faK9m5NvmrggFQ_OdgW14-sL-iUXXwOFarZ_VX71Sne7FtDadwv0UmPwZ0eWOMhqxJg7eRQ=s1600-rw-nd-v1"}
        ].forEach(item=>cards.appendChild(reviewCard(item)));
      }
-     section.append(head,cards);area.insertAdjacentElement("afterend",section);
+     section.append(head,cards);
+     // Gaming reviews belong immediately after the Tech/Gaming news grid,
+     // inside the primary feed, before Explore Videos and pagination.
+     const videoAnchor=area.querySelector("#ztpVideosAnchor");
+     const newsColumns=area.querySelector(".ztp-primary-feed .ztp-two-news-columns");
+     if(videoAnchor)videoAnchor.insertAdjacentElement("beforebegin",section);
+     else if(newsColumns)newsColumns.insertAdjacentElement("afterend",section);
+     else area.querySelector(".ztp-primary-feed")?.appendChild(section);
    }
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();
