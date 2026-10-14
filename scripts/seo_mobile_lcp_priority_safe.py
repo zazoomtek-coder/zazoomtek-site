@@ -39,7 +39,7 @@ def transform(html):
         if not src: raise RuntimeError("Featured image src missing")
         if i==0:
             tag=replace_attr(tag,"loading","eager")
-            tag=replace_attr(tag,"fetchpriority","high")
+            tag=replace_attr(tag,"fetchpriority","low")
             cdn=CDN.fullmatch(src.group(1))
             if cdn:
                 stem=cdn.group(1)
@@ -48,21 +48,26 @@ def transform(html):
                     stem+f"=s{n}-rw-nd-v1 {n}w" for n in (480,720,960,1200)))
                 tag=replace_attr(tag,"sizes","(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 560px")
         else:
-            tag=replace_attr(tag,"loading","lazy")
-            tag=remove_attr(tag,"fetchpriority")
+            # Six featured images are above the fold in mobile layout.
+            tag=replace_attr(tag,"loading","eager")
+            if i==5:
+                tag=replace_attr(tag,"fetchpriority","high")
+            else:
+                tag=replace_attr(tag,"fetchpriority","low")
             # Do not change other featured image URLs or visual quality.
         changed.append(tag)
     it=iter(changed)
     newblock=IMG.sub(lambda _:next(it),block)
     revised=html[:a]+newblock+html[b:]
-    # Issue one early preload matching the actual responsive first cover.
-    # This is derived from current featured news on EACH deploy, not a stale URL.
-    main=changed[0]
+    # Preload observed sixth-card LCP, not unrelated first-card image.
+    # Select dynamically during each deploy when highlighted news changes.
+    main=changed[5]
     source=SRC.search(main)
     srcset=re.search(r'\bsrcset="([^"]+)"',main)
     sizes=re.search(r'\bsizes="([^"]+)"',main)
-    if not source:raise RuntimeError("Missing primary cover URL")
-    preload='<link rel="preconnect" href="https://yt3.ggpht.com" crossorigin>\n'
+    if not source or not source.group(1).startswith("/assets/special/"):
+        raise RuntimeError("Unexpected featured LCP source")
+    preload=''
     preload+='<link rel="preload" as="image" fetchpriority="high" href="'+source.group(1)+'"'
     if srcset:preload+=' imagesrcset="'+srcset.group(1)+'"'
     if sizes:preload+=' imagesizes="'+sizes.group(1)+'"'
