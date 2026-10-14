@@ -1,0 +1,32 @@
+name: Read-only optimized logo public verification
+on:
+  push:
+    branches:
+      - seo/public-smoke-20261014
+    paths:
+      - '.github/workflows/seo-live-logo-verify.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Confirm new production PNG bytes, independently
+        run: |
+          python3 - <<'PY'
+          from urllib.request import Request,urlopen
+          import struct
+          url='https://zazoomtek.it/ChatGPT.png'
+          with urlopen(Request(url,headers={'User-Agent':'ZazoomTek-SEO-Public-Check/1.0'}),timeout=20) as r:
+              assert r.status==200
+              data=r.read()
+          assert data[:8]==b'\x89PNG\r\n\x1a\n'
+          w,h=struct.unpack('>II',data[16:24])
+          assert (w,h)==(512,512), (w,h)
+          assert 100000 < len(data) < 350000,len(data)
+          print('PASS: public logo dimensions:',w,h,'file bytes:',len(data),'expected: 280137')
+          assert len(data)==280137, 'Unexpected published logo version'
+          print('PASS: precise optimized PNG deployed, brand appearance safely preserved')
+          PY
