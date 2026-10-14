@@ -232,6 +232,14 @@ jobs:
         run: |
           python3 scripts/test_seo_featured_lcp_safe.py
           python3 scripts/seo_featured_lcp_safe.py
+      # The six static featured News cards are in the mobile initial viewport.
+      # All six may load eagerly, but only first image gets HIGH fetch priority.
+      # No title, CSS, graphic position, YouTube importer or card link changes.
+      - name: Eager-load six viewport-visible News covers (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_featured_all_visible_safe.py
+          python3 scripts/seo_featured_all_visible_safe.py
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
