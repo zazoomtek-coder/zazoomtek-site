@@ -1,0 +1,27 @@
+name: SEO production health - independent read only
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - seo/public-health-watch-20261014
+    paths:
+      - 'scripts/seo_public_health_readonly.py'
+      - 'scripts/test_seo_public_health_readonly.py'
+      - '.github/workflows/seo-public-health-readonly.yml'
+permissions:
+  contents: read
+concurrency:
+  group: zazoomtek-seo-health-independent
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test independent SEO health checks
+        run: python3 scripts/test_seo_public_health_readonly.py
+      - name: Verify public sitemap News and watch-page video SEO
+        run: python3 scripts/seo_public_health_readonly.py --strict
