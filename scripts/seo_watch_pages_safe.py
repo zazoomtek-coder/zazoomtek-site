@@ -101,15 +101,18 @@ def make_video(root,item,header,footer):
           'publisher':{'@type':'Organization','name':'ZazoomTek','url':ORIGIN+'/'},
           'mainEntityOfPage':url}
     safe_title=escape(title,quote=True)
-    name=safe_title+' | Video ZazoomTek'
+    name=escape(item.get('seo_title') or title,quote=True)+' | ZazoomTek'
     e= lambda value:escape(str(value),quote=True)
+    seo_desc=f"{title}. Video {item['category'].lower()} ZazoomTek del {item['publishedAt'][:10]}."
+    if len(seo_desc)>158:
+        seo_desc=seo_desc[:155].rsplit(' ',1)[0].rstrip(' ,.;')+'…'
     ratio='9/16' if item['short'] else '16/9'
     width='min(460px,100%)' if item['short'] else '100%'
     return f'''<!doctype html>
 <html lang="it"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{name}</title>
-<meta name="description" content="{e(desc[:260])}">
+<meta name="description" content="{e(seo_desc)}">
 <meta name="robots" content="index,follow,max-image-preview:large,max-video-preview:-1">
 <link rel="canonical" href="{e(url)}">
 <meta name="author" content="ZazoomTek">\n<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarFix5">\n<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013textPriorityCover5">
@@ -165,7 +168,17 @@ def build(root):
     items=feed_items(root)
     header,footer=page_parts(root)
     output={}
+    from collections import Counter
+    name_counts=Counter(x['title'].casefold() for x in items)
     for item in items:
+        item=dict(item)
+        if name_counts[item['title'].casefold()]>1:
+            item['seo_title']=item['title']+' ('+item['category']+', '+item['publishedAt'][:10]+', '+item['id'][-4:]+')'
+        else:
+            item['seo_title']=item['title']
+        if len(item['seo_title']+' | ZazoomTek')>75:
+            prefix=item['seo_title'][:51].rsplit(' ',1)[0].rstrip(' ,.;')
+            item['seo_title']=prefix+'… '+item['id'][-5:]
         name=WATCH_DIR+'/'+item['id']+'.html'
         output[name]=make_video(root,item,header,footer)
     output[WATCH_DIR+'/index.html']=make_directory(items,header,footer)
