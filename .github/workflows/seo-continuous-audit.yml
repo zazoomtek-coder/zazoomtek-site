@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - seo/continuous-audit-20261014
     paths:
       - 'scripts/seo_continuous_audit.py'
       - 'scripts/test_seo_continuous_audit.py'
