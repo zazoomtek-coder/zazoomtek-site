@@ -64,7 +64,7 @@ def audit():
                     failures.append(f"{path}: missing or incorrect canonical")
                 if any("noindex" in x.lower() for x in parser.robots):
                     failures.append(f"{path}: robots meta noindex")
-                if parser.h1 == 0 and not re.search(r"<h1\\b",body,re.I):
+                if parser.h1 == 0 and not re.search(r"<h1\b",body,re.I):
                     failures.append(f"{path}: H1 absent")
             if path == "/robots.txt" and "sitemap.xml" not in body.lower():
                 failures.append("robots.txt: sitemap not advertised")
