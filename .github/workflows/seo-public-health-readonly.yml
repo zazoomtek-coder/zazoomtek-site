@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - seo/public-health-watch-20261014
     paths:
       - 'scripts/seo_public_health_readonly.py'
