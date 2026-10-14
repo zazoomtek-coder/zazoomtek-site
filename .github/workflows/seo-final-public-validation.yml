@@ -1,0 +1,62 @@
+name: Final independent SEO safety and public deploy check
+on:
+  push:
+    branches:
+      - seo/live-final-safety-check-20261014
+    paths:
+      - '.github/workflows/seo-final-public-validation.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check live homepage and a published review/news
+        run: |
+          python3 - <<'PY'
+          import re,struct,time,urllib.request,xml.etree.ElementTree as ET
+          origin='https://zazoomtek.it'
+          def get(path):
+            req=urllib.request.Request(origin+path,headers={'User-Agent':'Mozilla/5.0 (ZazoomTek SEO audit)'})
+            with urllib.request.urlopen(req,timeout=24) as resp:
+              assert resp.status==200,(path,resp.status)
+              return resp.read()
+          for retry in range(9):
+            try:
+              home=get('/').decode('utf-8','replace')
+              if re.search(r'<h1\b[^>]*>News in evidenza</h1>',home,re.I) and 'zt-header-logo-128.png' in home:
+                break
+              if retry==8:raise RuntimeError('Latest semantic H1 and header-logo still missing in production')
+            except Exception:
+              if retry==8:raise
+            time.sleep(8)
+          assert len(re.findall(r'<h1\b',home,re.I))==1
+          assert home.count('<!-- FEATURED_NEWS_START -->')==1
+          assert 'zt-thumbnails.css' in home
+          assert 'max-image-preview:large' in home
+          assert 'rel="canonical" href="https://zazoomtek.it/"' in home
+          print('PASS: visible semantic homepage H1, featured News, CSS, canonical and Discover unchanged')
+          image=get('/assets/zt-header-logo-128.png')
+          assert image[:8]==b'\x89PNG\r\n\x1a\n'
+          dims=struct.unpack('>II',image[16:24])
+          assert max(dims)<=128 and len(image)<60000,(dims,len(image))
+          raw=get('/ChatGPT.png')
+          assert len(raw)>len(image)*4
+          print('PASS: raster brand logo:',dims,len(image),'bytes, original full quality remains available:',len(raw),'bytes')
+          for article in ['/poly-fighter-recensione-pc.html','/news.html']:
+            text=get(article).decode('utf-8','replace')
+            assert '<h1' in text
+            assert 'zt-header-logo-128.png' in text
+            assert 'ChatGPT.png' in text # full logo remains available for links/schema
+            assert 'zt-design.css' in text
+            print('PASS public page & unmodified appearance shell:',article)
+          general=ET.fromstring(get('/sitemap.xml'))
+          assert len(general)>=500,len(general)
+          news=ET.fromstring(get('/news-sitemap.xml'))
+          assert len(news)>=1
+          robots=get('/robots.txt').decode('utf-8','replace')
+          assert 'Sitemap: https://zazoomtek.it/sitemap.xml' in robots
+          assert 'Sitemap: https://zazoomtek.it/news-sitemap.xml' in robots
+          print('PASS sitemap totals canonical / news:',len(general),len(news))
+          PY
