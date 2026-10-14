@@ -1,0 +1,61 @@
+
+/* ZazoomTek HOME correction 2026-10-14. Scoped to homepage, no global SEO/layout changes. */
+#articoli.ztp-news-area .ztp-news-items{display:block!important;min-height:0!important;height:auto!important;justify-content:initial!important;align-content:start!important}
+#articoli.ztp-news-area .ztp-news-items>.article-row{min-height:0!important;height:auto!important;flex:none!important;align-self:stretch!important;margin:0!important;padding:8px 0!important;gap:10px!important}
+#articoli.ztp-news-area .ztp-news-items>.article-row.zt-mag-big{padding:10px 0 14px!important}
+#articoli.ztp-news-area .ztp-news-gaming .ztp-news-items>.article-row:not(.zt-mag-big){grid-template-columns:minmax(0,42%) minmax(0,1fr)!important}
+#articoli.ztp-news-area .ztp-news-tech .ztp-news-items>.article-row:not(.zt-mag-big){grid-template-columns:minmax(0,39%) minmax(0,1fr)!important}
+#articoli.ztp-news-area .ztp-news-tech .ztp-news-items>.article-row .article-copy p{display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important;font-size:12px!important;line-height:1.42!important;margin:6px 0!important;color:#4b5563!important}
+#articoli.ztp-news-area .ztp-news-tech .ztp-news-items>.article-row.zt-mag-big .article-copy p{-webkit-line-clamp:4!important;font-size:12.5px!important}
+#articoli.ztp-news-area .ztp-news-tech .ztp-news-items>.article-row:not(.zt-mag-big) .article-copy h3{font-size:clamp(12px,.95vw,15px)!important}
+#articoli.ztp-news-area .ztp-news-gaming .ztp-news-items>.article-row .article-copy h3{font-size:clamp(12px,.9vw,14px)!important}
+#articoli.ztp-news-area .ztp-news-items>.article-row .article-copy .read-more{margin-top:3px!important}
+#articoli.ztp-news-area .ztp-news-rail{align-self:start!important}
+main.page .ztp-top{display:block!important;width:100%!important;margin:0 0 16px!important}
+main.page .ztp-top-main{width:100%!important;display:flex!important;flex-direction:column!important;gap:14px!important}
+main.page .ztp-top-main .latest-reviews-module{width:100%!important;margin:0!important;background:#171717!important}
+main.page .ztp-top-main .latest-reviews-module .module-head h2{font-size:16px!important}
+main.page .ztp-top-main .latest-reviews-module .module-controls,main.page .ztp-top-main .latest-reviews-module .module-head span{display:none!important}
+main.page .ztp-top-main .latest-reviews-module .video-strip{overflow:visible!important;padding:10px!important;background:#161616!important}
+main.page .ztp-top-main .latest-reviews-module #latestVideos{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important;width:100%!important;transform:none!important;overflow:visible!important}
+main.page .ztp-top-main .latest-reviews-module #latestVideos>.video-card{width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;flex:none!important;background:#0d0d0d!important;overflow:hidden!important}
+main.page .ztp-top-main .latest-reviews-module #latestVideos .video-thumb{display:block!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;overflow:hidden!important;background:#121923!important}
+main.page .ztp-top-main .latest-reviews-module #latestVideos .video-thumb img{display:block!important;width:100%!important;height:100%!important;aspect-ratio:16/9!important;object-fit:contain!important;object-position:center!important}
+main.page .ztp-top-main .latest-reviews-module #latestVideos h3{color:#fff!important;min-height:0!important;font-size:clamp(11px,.91vw,15px)!important;padding:9px 12px!important;margin:0!important;line-height:1.3!important}
+main.page .ztp-top-main .latest-reviews-module #latestVideos small{display:block!important;padding:0 12px 11px!important;margin:0!important;color:#bfc1c5!important;font-size:10px!important}
+main.page #ztp-guide-extra{display:grid!important;grid-template-columns:minmax(0,2fr) minmax(0,1fr)!important;gap:12px!important;align-items:stretch!important}
+main.page #ztp-guide-extra #ztHomeGuide{height:100%!important;margin:0!important;min-width:0!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-content{height:380px!important}
+main.page #ztp-guide-extra .ztp-extra{border:1px solid #dfe6ef;border-radius:14px;overflow:hidden;background:#fff;min-width:0}
+main.page .ztp-extra-head{background:#202020;color:#fff;display:flex;justify-content:space-between;align-items:center;height:48px}
+main.page .ztp-extra-head h2{margin:0;background:#d51232;clip-path:polygon(0 0,calc(100% - 17px) 0,100% 100%,0 100%);padding:0 29px 0 16px;height:100%;display:flex;align-items:center;font:900 17px Arial,sans-serif;color:#fff}
+main.page .ztp-extra-head a{color:#fff;font-weight:900;font-size:10px;margin-right:13px}
+main.page .ztp-extra-cards{display:grid;grid-template-rows:repeat(2,minmax(0,1fr));height:380px;gap:10px;padding:11px}
+main.page .ztp-extra-card{display:grid;grid-template-columns:42% minmax(0,1fr);gap:8px;align-items:center;border:1px solid #ededed;border-radius:7px;padding:8px;min-height:0;overflow:hidden;background:#fafafa}
+main.page .ztp-extra-card img{width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;object-position:center;background:#111827;border-radius:4px}
+main.page .ztp-extra-card strong{font-size:clamp(10px,.85vw,13px);line-height:1.28;display:block}
+main.page .ztp-extra-card:hover strong{color:#d51232}
+main.page .ztp-gaming-reviews{margin:14px 0 20px!important;background:#161616!important}
+main.page .ztp-gaming-reviews .module-head{display:flex!important;align-items:center;justify-content:space-between;background:#202020;color:#fff}
+main.page .ztp-gaming-reviews .ztp-gaming-review-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding:12px}
+main.page .ztp-gaming-reviews .video-card{min-width:0;width:100%;margin:0;background:#0b0b0b;color:#fff;overflow:hidden}
+main.page .ztp-gaming-reviews .video-thumb{display:block;width:100%;aspect-ratio:16/9;overflow:hidden;background:#171d24}
+main.page .ztp-gaming-reviews .video-thumb img{width:100%;height:100%;object-fit:contain;object-position:center}
+main.page .ztp-gaming-reviews h3{font-size:clamp(11px,1vw,15px)!important;line-height:1.3!important;margin:0!important;padding:9px 11px!important;color:#fff!important}
+main.page .ztp-gaming-reviews .ztp-review-all{font-size:11px;color:#fff;font-weight:900;padding:0 14px}
+@media(max-width:850px){
+ main.page #ztp-guide-extra{grid-template-columns:1fr!important}
+ main.page .ztp-extra-cards{height:auto;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none}
+ main.page .ztp-extra-card{grid-template-columns:1fr;align-items:start}
+ main.page .ztp-top-main .latest-reviews-module #latestVideos{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ main.page .ztp-gaming-reviews .ztp-gaming-review-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #articoli.ztp-news-area .ztp-news-items>.article-row:not(.zt-mag-big){gap:8px!important}
+}
+@media(max-width:500px){
+ main.page .ztp-top-main .latest-reviews-module #latestVideos{grid-template-columns:1fr!important}
+ main.page .ztp-extra-cards{grid-template-columns:1fr}
+ main.page .ztp-extra-card{grid-template-columns:minmax(0,39%) minmax(0,1fr)}
+ main.page .ztp-gaming-reviews .ztp-gaming-review-cards{grid-template-columns:1fr}
+ #articoli.ztp-news-area .ztp-news-tech .ztp-news-items>.article-row .article-copy p{-webkit-line-clamp:2!important;font-size:11px!important}
+ #articoli.ztp-news-area .ztp-news-items>.article-row:not(.zt-mag-big){grid-template-columns:minmax(0,39%) minmax(0,1fr)!important}
+}
