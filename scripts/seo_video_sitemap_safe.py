@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from seo_paths_safe import html_pages,canonical_candidates,ORIGIN
-from seo_media_safe import feed_videos,verified_video,VisibleVideoParser
+from seo_media_safe import feed_videos,verified_video,YT_EMBED
 from seo_head_safe import Metadata
 
 NS='http://www.sitemaps.org/schemas/sitemap/0.9'
@@ -41,6 +41,38 @@ class VisibleCopy(HTMLParser):
             self.paragraph=False;self.paragraph_text=[]
         if t=='main' and self.main:self.main-=1
 
+class VisibleCentralEmbed(HTMLParser):
+    """Ignore videos inside sitebars, related blocks, navigation and hidden areas."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack=[]
+        self.ids=[]
+        self.main=0
+        self.blocked=0
+    def handle_starttag(self,tag,attrs):
+        name=tag.lower()
+        a={k.lower():(v or '') for k,v in attrs if k}
+        css=a.get('class','').lower().split()
+        blocked=(name in ('aside','nav','footer') or
+                 any(token in ('related','sidebar','recommendations','zt-sidebar') for token in css) or
+                 'hidden' in a or a.get('aria-hidden','').lower()=='true')
+        if name=='main':self.main+=1
+        if blocked:self.blocked+=1
+        self.stack.append((name,blocked))
+        if name=='iframe' and self.main and not self.blocked:
+            match=YT_EMBED.match(a.get('src',''))
+            if match:self.ids.append(match.group(1))
+    def handle_endtag(self,tag):
+        name=tag.lower()
+        # HTMLParser feeds start/end tags; restore the nearest structural scope.
+        for i in range(len(self.stack)-1,-1,-1):
+            if self.stack[i][0]==name:
+                removed=self.stack[i:]
+                self.stack=self.stack[:i]
+                self.blocked=max(0,self.blocked-sum(int(b) for _,b in removed))
+                self.main=max(0,self.main-sum(1 for n,_ in removed if n=='main'))
+                return
+
 def watch_candidate(path,root,known):
     html=path.read_text(encoding='utf-8',errors='replace')
     m=re.search(r'</head\s*>',html,re.I)
@@ -53,6 +85,9 @@ def watch_candidate(path,root,known):
     if re.search(r'(?<![a-z])(?:noindex|none)(?![a-z])',robots):return None
     video=verified_video(body,known)
     if not video:return None
+    central=VisibleCentralEmbed()
+    central.feed(body)
+    if len(central.ids)!=1 or not video['embedUrl'].endswith('/'+central.ids[0]):return None
     visible=VisibleCopy()
     visible.feed(body)
     if not visible.header.strip() or not visible.parts:return None
