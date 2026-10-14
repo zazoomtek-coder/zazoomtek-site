@@ -253,24 +253,16 @@
   const ytFollow=rail.querySelector(".zt-youtube-follow");
   if(ytFollow)ytFollow.insertAdjacentElement("afterend",editorialBox);
   else rail.appendChild(editorialBox);
+  // Three large and real editorial images; keep article links, never inject placeholders.
   function reconcileRight(){
     if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
-    editorialCards.forEach(card=>card.hidden=true);
-    editorialBox.style.display="none";
-    if(window.innerWidth<=1380)return;
-    const primary=area.querySelector(".ztp-primary-feed");
-    if(!primary)return;
-    if(primary.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom<90)return;
-    const alreadyLinked=new Set([...area.querySelectorAll(".ztp-news-item h3 a")].map(a=>a.getAttribute("href")));
-    editorialBox.style.display="block";
-    for(const card of editorialCards){
-      if(alreadyLinked.has(card.getAttribute("href")))continue;
-      const before=Math.abs(primary.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom);
-      card.hidden=false;
-      const after=Math.abs(primary.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom);
-      if(after>=before){card.hidden=true;break;}
-    }
-    if(!editorialCards.some(card=>!card.hidden))editorialBox.style.display="none";
+    const linked=new Set([...area.querySelectorAll(".ztp-news-item h3 a")].map(a=>{
+      try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
+    }));
+    const eligible=editorialCards.filter(card=>!linked.has(new URL(card.href).pathname));
+    const selected=new Set(eligible.slice(0,3));
+    editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
+    editorialBox.style.display=selected.size?"block":"none";
   }
 
   balance();
@@ -442,7 +434,7 @@
    const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
    if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
    const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
-   stylesheet.href="/zt-home-gap-fix-20261014.css?v=2";document.head.appendChild(stylesheet);
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=3";document.head.appendChild(stylesheet);
    area.querySelectorAll(".ztp-news-items").forEach(function(col){
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });
@@ -508,4 +500,55 @@
    }
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();
+})();
+
+/* ZT_HOME_SYMMETRY_NEWS_20261014
+   One additional archived Gaming headline fills measured unused column space.
+   Canonical 10+10 news feeds stay untouched; no duplicates and no fake links. */
+(function(){
+ "use strict";
+ if(!["/","/index.html"].includes(location.pathname))return;
+ function init(){
+  const tech=document.querySelector("#articoli .ztp-news-tech .ztp-news-items");
+  const gaming=document.querySelector("#articoli .ztp-news-gaming .ztp-news-items");
+  if(!tech||!gaming)return;
+  const candidates=[
+    {href:"/news-Ugkxjafwnrw9O14Zgh1LkgQ-Qz61uHxbVzsr.html",title:"TEKKEN 8, Roger Jr. mostrato a EVO France: gameplay, storia e date di uscita",img:"https://yt3.ggpht.com/CYkB_BV0hfpkrJptq3XgtBqqAcQiAJCTuOm9km7zzxQP9X9QCOT5VpqhVD5oVvZiOyRLHchgZ-Ow=s1600-rw-nd-v1"},
+    {href:"/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",title:"Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane",img:"https://yt3.ggpht.com/snQpfRxzG3mI7g-r-wuX8OgCKR2pJp4La95d3wh6hmgf0PLRlKdlZKCBJUOzr-RjXM_4qevUl5rC-6w=s1600-rw-nd-v1"}
+  ];
+  let scheduled=false;
+  function paint(){
+   scheduled=false;
+   const previous=document.getElementById("ztpGamingGapFiller");
+   if(matchMedia("(max-width:1149px)").matches){if(previous)previous.hidden=true;return;}
+   if(tech.querySelectorAll(":scope > article.article-row").length<10||
+      gaming.querySelectorAll(":scope > article.article-row").length<10)return;
+   if(previous)previous.hidden=true;
+   const gap=tech.getBoundingClientRect().bottom-gaming.getBoundingClientRect().bottom;
+   if(gap<115)return;
+   const existing=new Set([...document.querySelectorAll("#articoli .ztp-news-item h3 a, #articoli .ztp-editorial-story:not([hidden])")].map(a=>{
+      try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
+   }));
+   const choice=candidates.find(c=>!existing.has(c.href));
+   if(!choice)return;
+   if(previous){
+      previous.hidden=false;
+      return;
+   }
+   const card=document.createElement("article");card.id="ztpGamingGapFiller";card.className="ztp-gaming-bottom-fill";
+   const thumb=document.createElement("a");thumb.href=choice.href;thumb.className="ztp-gaming-bottom-thumb";
+   const img=document.createElement("img");img.src=choice.img;img.alt=choice.title;img.loading="lazy";img.decoding="async";thumb.appendChild(img);
+   const copy=document.createElement("div");copy.className="ztp-gaming-bottom-copy";
+   const label=document.createElement("span");label.textContent="DALLE NEWS GAMING";
+   const title=document.createElement("a");title.href=choice.href;title.textContent=choice.title;
+   copy.append(label,title);card.append(thumb,copy);gaming.appendChild(card);
+  }
+  function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(paint);}}
+  new MutationObserver(schedule).observe(tech,{childList:true});
+  new MutationObserver(schedule).observe(gaming,{childList:true});
+  window.addEventListener("resize",schedule,{passive:true});
+  window.addEventListener("load",schedule,{once:true});
+  schedule();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
