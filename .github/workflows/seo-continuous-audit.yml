@@ -34,6 +34,13 @@ jobs:
         continue-on-error: true
         run: |
           python3 scripts/test_seo_whole_site_audit.py
+          # Mirror live SEO normalization in this disposable runner only.
+          # Never commit these generated changes or publish a site from here.
+          python3 scripts/seo_home_h1_safe.py
+          python3 scripts/seo_generic_article_headline_safe.py
+          python3 scripts/seo_paginated_h1_safe.py
+          python3 scripts/seo_concise_metadata_safe.py
+          python3 scripts/seo_news_archive_descriptions.py
           python3 scripts/seo_whole_site_audit.py --output "$RUNNER_TEMP/seo-metadata-and-links.json"
       - name: Archive read-only SEO quality findings
         if: always()
