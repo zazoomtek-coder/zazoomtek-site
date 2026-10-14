@@ -1,0 +1,50 @@
+name: Post-deploy read-only six-featured mobile performance validation
+on:
+  push:
+    branches:
+      - seo/performance-production-verification-20261014
+    paths:
+      - '.github/workflows/perf-six-featured-live-check.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wait until all six featured images load eagerly on public Firebase
+        run: |
+          python3 - <<'PY'
+          import re,time,urllib.request
+          for attempt in range(14):
+            req=urllib.request.Request('https://zazoomtek.it/',headers={'User-Agent':'Mozilla/5.0'})
+            with urllib.request.urlopen(req,timeout=20) as res:html=res.read().decode('utf-8','replace')
+            a=html.split('<!-- FEATURED_NEWS_START -->')
+            b=a[1].split('<!-- FEATURED_NEWS_END -->')[0] if len(a)==2 else ''
+            imgs=re.findall(r'<img\b[^>]*>',b,re.I)
+            if len(imgs)==6 and all('loading="eager"' in x for x in imgs):
+              assert imgs[0].count('fetchpriority="high"')==1
+              assert all('fetchpriority="high"' not in x for x in imgs[1:])
+              assert len(re.findall(r'<h1\b',html))==1
+              assert 'zt-header-logo-128.png' in html
+              print('PASS: six above-fold images eager, first remains high, header visuals and SEO intact')
+              break
+            if attempt==13:raise RuntimeError('New first-viewport image hints not live after retries')
+            time.sleep(9)
+          PY
+      - name: Install isolated Lighthouse
+        run: npm install -g lighthouse@12 >/dev/null
+      - name: Run mobile Lighthouse on actual published site
+        run: |
+          lighthouse https://zazoomtek.it/ --only-categories=performance --form-factor=mobile --screenEmulation.mobile=true --throttling-method=simulate --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --output=json --output-path=/tmp/lighthouse-six-eager.json --quiet
+          node - <<'JS'
+          const x=require('/tmp/lighthouse-six-eager.json');
+          console.log('LIVE_NEW_MOBILE_SCORE',Math.round(x.categories.performance.score*100));
+          for(const k of ['first-contentful-paint','largest-contentful-paint','total-blocking-time','cumulative-layout-shift','speed-index']){
+            console.log('LIVE_NEW_METRIC',k,x.audits[k]?.displayValue)
+          }
+          console.log('LIVE_NEW_LCP_HINTS',JSON.stringify(x.audits['lcp-discovery-insight']?.details?.items||[]).slice(0,2200));
+          JS
