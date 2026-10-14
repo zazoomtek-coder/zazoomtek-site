@@ -61,6 +61,35 @@ class SitemapSafety(unittest.TestCase):
         self.assertIn(b'https://zazoomtek.it/future/editorial/article.html',output['sitemap.xml'])
         self.assertNotIn(b'/scripts/internal.html',output['sitemap.xml'])
 
+    def test_same_canonical_newsarticle_date_modified_is_used(self):
+        self.write('tech-impact-example.html',
+                   '<head><link rel="canonical" href="https://zazoomtek.it/tech-impact-example.html">'
+                   '<script type="application/ld+json">'
+                   '{"@context":"https://schema.org","@graph":['
+                   '{"@type":"NewsArticle","mainEntityOfPage":"https://zazoomtek.it/tech-impact-example.html",'
+                   '"datePublished":"2026-10-04","dateModified":"2026-10-12"},'
+                   '{"@type":"NewsArticle","mainEntityOfPage":"https://zazoomtek.it/not-this-page.html",'
+                   '"dateModified":"2026-10-14"}]}'
+                   '</script></head><body>Article unchanged</body>')
+        xml,_=seo.build(self.root)
+        root=ET.fromstring(xml['sitemap.xml'])
+        ns={'s':seo.SITEMAP_NS}
+        matches=[node for node in root.findall('s:url',ns)
+                 if node.find('s:loc',ns).text=='https://zazoomtek.it/tech-impact-example.html']
+        self.assertEqual(len(matches),1)
+        self.assertEqual(matches[0].find('s:lastmod',ns).text,'2026-10-12')
+        self.assertNotIn(b'not-this-page.html',xml['sitemap.xml'])
+    def test_unverified_dates_cannot_change_sitemap(self):
+        self.write('news-future.html',
+                   '<head><link rel="canonical" href="https://zazoomtek.it/news-future.html">'
+                   '<script type="application/ld+json">'
+                   '{"@type":"NewsArticle","mainEntityOfPage":"https://zazoomtek.it/news-future.html",'
+                   '"dateModified":"2099-01-01"}'
+                   '</script></head>')
+        rows=seo.entries(self.root)
+        item=next((x for x in rows if x[0].endswith('news-future.html')),None)
+        self.assertIsNotNone(item)
+        self.assertIsNone(item[1])
     def test_dry_run_and_repeat_are_safe(self):
         result, _ = seo.build(self.root)
         self.assertEqual(len(seo.publish(self.root, result, check=True)), 3)
