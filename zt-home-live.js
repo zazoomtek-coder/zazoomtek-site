@@ -224,27 +224,30 @@
   }
   // Only distinct real archive articles may expand Gaming. A static hidden
   // cache is never shown twice, and card balancing avoids creating new gaps.
+  // Keep category columns aligned without injecting stale, prewritten Gaming news.
+  // Match their rendered heights by distributing spare space BETWEEN real cards.
+  // Mobile/tablet stacks remain untouched.
   function balance(){
-   const columnTech=area.querySelector(".ztp-news-tech");
-   const columnGaming=area.querySelector(".ztp-news-gaming");
-   if(!columnTech||!columnGaming)return;
-   const extras=[...area.querySelectorAll(".ztp-gaming-extra")];
-   extras.forEach(card=>card.classList.remove("ztp-extra-visible"));
+   const techItems=area.querySelector(".ztp-news-tech .ztp-news-items");
+   const gamingItems=area.querySelector(".ztp-news-gaming .ztp-news-items");
+   if(!techItems||!gamingItems)return;
+   const cols=[techItems,gamingItems];
+   for(const col of cols){
+    col.style.removeProperty("min-height");
+    col.style.removeProperty("display");
+    col.style.removeProperty("flex-direction");
+    col.style.removeProperty("justify-content");
+   }
    if(window.innerWidth<=820)return;
-   const existing=new Set([...rows].map(r=>r.querySelector("h3 a")?.getAttribute("href")));
-   const seen=new Set(existing);
-   const target=columnTech.getBoundingClientRect().height-120;
-   for(const card of extras){
-     const link=card.querySelector("h3 a")?.getAttribute("href");
-     if(!link||seen.has(link))continue;
-     seen.add(link);
-     const before=columnGaming.getBoundingClientRect().height;
-     if(before>=target)break;
-     card.classList.add("ztp-extra-visible");
-     const after=columnGaming.getBoundingClientRect().height;
-     if(Math.abs(after-columnTech.getBoundingClientRect().height)>Math.abs(before-columnTech.getBoundingClientRect().height)){
-       card.classList.remove("ztp-extra-visible");break;
-     }
+   const heights=cols.map(col=>col.getBoundingClientRect().height);
+   const maxHeight=Math.max(...heights);
+   for(let n=0;n<cols.length;n++){
+    if(maxHeight-heights[n]<5)continue;
+    const col=cols[n];
+    col.style.display="flex";
+    col.style.flexDirection="column";
+    col.style.justifyContent="space-between";
+    col.style.minHeight=Math.ceil(maxHeight)+"px";
    }
   }
 

@@ -52,6 +52,9 @@ const homeTemplate=JSON.parse(templateLiteral[1]);
 assert(!homeTemplate.includes("ztpMoreGaming")&&!homeTemplate.includes("ztp-gaming-extra"),
  "Obsolete fixed Gaming articles must never outrank current YouTube Community news");
 assert(!source.includes('oldArchive.querySelectorAll'),"Static Gaming article reinsertion must be removed");
+assert(source.includes('function balance()')&&source.includes('Math.max(...heights)')&&
+ source.includes('col.style.justifyContent="space-between"'),
+ "Use spacing between current news to balance Tech and Gaming, not fixed old articles");
 const index=fs.readFileSync("index.html","utf8");
 const feed=index.split("<!-- ARTICLE_FEED_START -->")[1]?.split("<!-- ARTICLE_FEED_END -->")[0];
 assert(feed,"canonical Home feed missing");
