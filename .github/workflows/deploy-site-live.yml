@@ -194,6 +194,14 @@ jobs:
         run: |
           python3 scripts/test_seo_thumbnail_payload_safe.py
           python3 scripts/seo_thumbnail_payload_safe.py --scope homepage
+      # First static featured NEWS image only: higher fetch priority and
+      # conservative 1200px CDN request at unchanged aspect ratio. No layout,
+      # YouTube/Community synchronization, or editorial content changes.
+      - name: Prioritize first featured homepage image for mobile LCP (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_featured_lcp_safe.py
+          python3 scripts/seo_featured_lcp_safe.py
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
