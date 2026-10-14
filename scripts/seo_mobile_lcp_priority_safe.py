@@ -39,7 +39,7 @@ def transform(html):
         if not src: raise RuntimeError("Featured image src missing")
         if i==0:
             tag=replace_attr(tag,"loading","eager")
-            tag=replace_attr(tag,"fetchpriority","low")
+            tag=replace_attr(tag,"fetchpriority","high")
             cdn=CDN.fullmatch(src.group(1))
             if cdn:
                 stem=cdn.group(1)
@@ -48,39 +48,13 @@ def transform(html):
                     stem+f"=s{n}-rw-nd-v1 {n}w" for n in (480,720,960,1200)))
                 tag=replace_attr(tag,"sizes","(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 560px")
         else:
-            # Six featured images are above the fold in mobile layout.
-            tag=replace_attr(tag,"loading","eager")
-            if i==5:
-                tag=replace_attr(tag,"fetchpriority","high")
-            else:
-                tag=replace_attr(tag,"fetchpriority","low")
+            tag=replace_attr(tag,"loading","lazy")
+            tag=remove_attr(tag,"fetchpriority")
             # Do not change other featured image URLs or visual quality.
         changed.append(tag)
     it=iter(changed)
     newblock=IMG.sub(lambda _:next(it),block)
-    revised=html[:a]+newblock+html[b:]
-    # Preload observed sixth-card LCP, not unrelated first-card image.
-    # Select dynamically during each deploy when highlighted news changes.
-    main=changed[5]
-    source=SRC.search(main)
-    srcset=re.search(r'\bsrcset="([^"]+)"',main)
-    sizes=re.search(r'\bsizes="([^"]+)"',main)
-    if not source or not source.group(1).startswith("/assets/special/"):
-        raise RuntimeError("Unexpected featured LCP source")
-    preload=''
-    preload+='<link rel="preload" as="image" fetchpriority="high" href="'+source.group(1)+'"'
-    if srcset:preload+=' imagesrcset="'+srcset.group(1)+'"'
-    if sizes:preload+=' imagesizes="'+sizes.group(1)+'"'
-    preload+='>\n'
-    marker='<!-- ZT_MOBILE_LCP_PRELOAD_V2 -->'
-    tag=marker+'\n'+preload
-    old=re.compile(re.escape(marker)+r'[\s\S]*?<!-- /ZT_MOBILE_LCP_PRELOAD_V2 -->')
-    tag+='<!-- /ZT_MOBILE_LCP_PRELOAD_V2 -->'
-    if old.search(revised):
-        return old.sub(lambda _:tag,revised,count=1)
-    head=re.search(r'<head\b[^>]*>',revised,re.I)
-    if not head:raise RuntimeError("Missing head")
-    return revised[:head.end()]+'\n'+tag+revised[head.end():]
+    return html[:a]+newblock+html[b:]
 
 def main():
     p=argparse.ArgumentParser()
