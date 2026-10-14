@@ -59,23 +59,23 @@ def transform(html):
     # This is derived from current featured news on EACH deploy, not a stale URL.
     main=changed[0]
     source=SRC.search(main)
-    srcset=re.search(r'\\bsrcset="([^"]+)"',main)
-    sizes=re.search(r'\\bsizes="([^"]+)"',main)
+    srcset=re.search(r'\bsrcset="([^"]+)"',main)
+    sizes=re.search(r'\bsizes="([^"]+)"',main)
     if not source:raise RuntimeError("Missing primary cover URL")
-    preload='<link rel="preconnect" href="https://yt3.ggpht.com" crossorigin>\\n'
+    preload='<link rel="preconnect" href="https://yt3.ggpht.com" crossorigin>\n'
     preload+='<link rel="preload" as="image" fetchpriority="high" href="'+source.group(1)+'"'
     if srcset:preload+=' imagesrcset="'+srcset.group(1)+'"'
     if sizes:preload+=' imagesizes="'+sizes.group(1)+'"'
-    preload+='>\\n'
+    preload+='>\n'
     marker='<!-- ZT_MOBILE_LCP_PRELOAD_V2 -->'
-    tag=marker+'\\n'+preload
-    old=re.compile(re.escape(marker)+r'[\\s\\S]*?<!-- /ZT_MOBILE_LCP_PRELOAD_V2 -->')
+    tag=marker+'\n'+preload
+    old=re.compile(re.escape(marker)+r'[\s\S]*?<!-- /ZT_MOBILE_LCP_PRELOAD_V2 -->')
     tag+='<!-- /ZT_MOBILE_LCP_PRELOAD_V2 -->'
     if old.search(revised):
         return old.sub(lambda _:tag,revised,count=1)
-    head=re.search(r'<head\\b[^>]*>',revised,re.I)
+    head=re.search(r'<head\b[^>]*>',revised,re.I)
     if not head:raise RuntimeError("Missing head")
-    return revised[:head.end()]+'\\n'+tag+revised[head.end():]
+    return revised[:head.end()]+'\n'+tag+revised[head.end():]
 
 def main():
     p=argparse.ArgumentParser()
