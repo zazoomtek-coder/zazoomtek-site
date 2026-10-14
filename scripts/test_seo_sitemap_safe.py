@@ -19,6 +19,7 @@ class SitemapSafety(unittest.TestCase):
         self.write('news.html', '<head><meta property="article:published_time" content="2026-10-13T12:00:00+02:00"><link rel="canonical" href="https://zazoomtek.it/news.html"></head>')
         self.write('excluded.html', '<head><link rel="canonical" href="https://zazoomtek.it/excluded.html"><meta name="robots" content="NOINDEX, follow"></head>')
         self.write('preview-test.html', '<head><link rel="canonical" href="https://zazoomtek.it/preview-test.html"></head>')
+        self.write('anteprima-test.html', '<head><link rel="canonical" href="https://zazoomtek.it/anteprima-test.html"></head>')
         self.write('foreign.html', '<head><link rel="canonical" href="https://wrong.example/foreign.html"></head>')
         self.write('dup.html', '<head><link rel="canonical" href="https://zazoomtek.it/dup.html"><link rel="canonical" href="https://zazoomtek.it/dup.html"></head>')
 
@@ -38,6 +39,7 @@ class SitemapSafety(unittest.TestCase):
         self.assertIn(b'<lastmod>2026-10-13</lastmod>', sitemap)
         self.assertNotIn(b'excluded.html', sitemap)
         self.assertNotIn(b'preview-test.html', sitemap)
+        self.assertNotIn(b'anteprima-test.html', sitemap)
         self.assertNotIn(b'foreign.html', sitemap)
         self.assertNotIn(b'dup.html', sitemap)
 
