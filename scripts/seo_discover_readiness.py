@@ -7,6 +7,8 @@ from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit, unquote
+from urllib.request import Request, urlopen
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from seo_paths_safe import html_pages, canonical_candidates
 from seo_head_safe import Metadata
 
@@ -41,9 +43,23 @@ def image_width(root, url):
     except (ImportError, OSError, ValueError):
         return None
 
+def remote_size(url):
+    """Use real remote image headers, not HTML dimensions."""
+    try:
+        from PIL import Image
+        request = Request(url, headers={"User-Agent":"Mozilla/5.0 ZazoomTekDiscoverAudit"})
+        with urlopen(request, timeout=6) as response:
+            if response.status != 200:
+                return None
+            with Image.open(response) as picture:
+                return picture.size
+    except Exception:
+        return None
+
 def audit(root):
     issues = []
     counts = Counter()
+    remote = {}
     for path in html_pages(root):
         name = path.name
         if name.startswith(("preview-", "anteprima-", "draft-")):
@@ -92,11 +108,26 @@ def audit(root):
                 flag("small_local_image", f"{width}x{height}: {url}")
             counts["locally_measured_images"] += 1
         else:
-            counts["unmeasured_remote_or_missing_images"] += 1
+            remote.setdefault(url, []).append(name)
             # Filename dimensions are evidence; HTML width attributes are not.
             named = re.search(r"(?:capsule_|header_|cover_)(\d{2,4})x(\d{2,4})", parts.path, re.I)
             if named and int(named.group(1)) < 1200:
                 flag("undersized_named_remote_image", f"{named.group(1)}x{named.group(2)}: {url}")
+    # External hosts may reject probes. Such images remain unverified.
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        tasks = {pool.submit(remote_size, url): url for url in remote}
+        for future in as_completed(tasks):
+            url = tasks[future]
+            dimensions = future.result()
+            if dimensions:
+                counts["measured_external_images"] += len(remote[url])
+                if dimensions[0] < 1200:
+                    counts["undersized_external_images"] += len(remote[url])
+                    for name in remote[url]:
+                        issues.append({"page":name,"issue":"undersized_external_image",
+                                       "detail":str(dimensions[0])+"x"+str(dimensions[1])+": "+url})
+            else:
+                counts["unverified_external_images"] += len(remote[url])
     return {"counts": dict(counts), "findings": issues}
 
 def main():
