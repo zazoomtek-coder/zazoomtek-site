@@ -325,6 +325,11 @@ jobs:
         run: |
           python3 scripts/test_seo_thumbnail_payload_safe.py
           python3 scripts/seo_thumbnail_payload_safe.py --scope homepage
+      - name: Prioritize measured Gaming Inside mobile LCP only
+        run: |
+          python3 -m py_compile scripts/seo_lcp_last_card_safe.py
+          python3 scripts/seo_lcp_last_card_safe.py
+          python3 scripts/seo_lcp_last_card_safe.py --check
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
       - name: Refuse stale main snapshot just before deployment
