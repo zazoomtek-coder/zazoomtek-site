@@ -212,6 +212,11 @@ jobs:
         run: |
           python3 scripts/test_seo_schema_image_safe.py
           python3 scripts/seo_schema_image_safe.py
+      - name: Complete Schema.org identity and breadcrumbs (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 -m py_compile scripts/seo_schema_completion_safe.py
+          python3 scripts/seo_schema_completion_safe.py
       # Optional, isolated: SEO must NEVER delay or block YouTube/Firebase publishing.
       # Build in the Firebase checkout only; the live repository and HTML remain untouched.
       - name: Generate verified SEO sitemap (non-blocking)
