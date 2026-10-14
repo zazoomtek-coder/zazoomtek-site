@@ -15,6 +15,8 @@ on:
       - '.github/workflows/seo-continuous-audit.yml'
       - 'scripts/seo_whole_site_audit.py'
       - 'scripts/test_seo_whole_site_audit.py'
+      - 'scripts/seo_link_legacy_news.py'
+      - 'scripts/seo_concise_metadata_safe.py'
 permissions:
   contents: read
 concurrency:
