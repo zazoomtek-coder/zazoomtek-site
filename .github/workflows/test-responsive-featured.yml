@@ -30,7 +30,7 @@ jobs:
           new=s.IMG.findall(after[a:c])
           assert len(old)==len(new)==6 and old[4:]==new[4:]
           for x,y in zip(old[:4],new[:4]):
-              assert x.split(' srcset=')[0] == y.split(' srcset=')[0]
+              assert x[:-1] == y.split(' srcset=')[0]
               assert 'srcset="' in y and 'sizes="' in y
           print('PASS: all source URLs and editorial images unchanged')
           PY
