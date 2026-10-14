@@ -178,3 +178,6 @@ main.page .ztp-gaming-reviews .ztp-review-all{font-size:11px;color:#fff;font-wei
     font-size:9px!important;margin-bottom:7px!important;
   }
 }
+
+/* Gaming reviews occupy the same editorial feed, straight after news and before videos. */
+#articoli.ztp-news-area .ztp-primary-feed > #ztpGamingReviews{margin:0!important;width:100%!important;max-width:100%!important;align-self:stretch!important;min-width:0!important}
