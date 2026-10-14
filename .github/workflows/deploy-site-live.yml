@@ -210,6 +210,10 @@ jobs:
         run: |
           python3 -m py_compile scripts/seo_link_legacy_news.py
           python3 scripts/seo_link_legacy_news.py
+      - name: Prevent recurring News SEO metadata regressions
+        run: |
+          python3 -m py_compile scripts/seo_final_metadata_guard.py
+          python3 scripts/seo_final_metadata_guard.py
       - name: Audit normalized whole-site SEO before Firebase publishing
         continue-on-error: true
         run: |
