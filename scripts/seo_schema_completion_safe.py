@@ -16,8 +16,6 @@ LD = re.compile(r'<script\b[^>]*\btype\s*=\s*["\']application/ld\+json["\'][^>]*
 CATEGORY = {
     "news-": ("News", "news.html"),
     "recensione-": ("Recensioni", "recensioni.html"),
-    "gaming-inside-": ("Gaming Inside", "gaming-inside.html"),
-    "tech-impact-": ("Tech Impact", "tech-impact.html"),
     "guida-": ("Guide", "guide.html"),
 }
 ARCHIVE = {
@@ -94,8 +92,8 @@ def transform(path, root, source):
         parent = next((v for prefix, v in CATEGORY.items() if path_name.startswith(prefix)), None)
         if not parent and path_name in ARCHIVE:
             parent = None
-        elif not parent:
-            # No category guessing for arbitrary articles.
+        elif not parent and info.meta.get("og:type", "").lower() != "article" and not path_name.startswith(("gaming-inside-", "tech-impact-")):
+            # No category guessing for arbitrary non-article pages.
             return source
         crumbs = [{"@type":"ListItem","position":1,"name":"Home","item":ORIGIN+"/"}]
         if parent:
