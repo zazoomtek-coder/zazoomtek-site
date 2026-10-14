@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-14T06:14:10.835615+00:00",
+  "checked_at": "2026-10-14T07:02:50.620978+00:00",
   "source_sites": 16,
-  "matches": 4,
+  "matches": 5,
   "selected": [
     {
       "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
@@ -20,13 +20,13 @@
       ]
     },
     {
-      "title": "News: Trust punta sul benessere digitale, dalla postura alle periferiche ergonomiche per lavoro e gaming",
+      "title": "News: Just Dance: Decades of Hits è disponibile, 35 brani attraversano sei decenni di musica",
       "section": "tech",
-      "url": "/news-Ugkxka6JuXiolB2wKRFgTtZc1o91E8yqNdTC.html",
+      "url": "/news-UgkxSAUvOBM5omwI8FETzQpDNw4IkUGduS0G.html",
       "trend_score": 0,
-      "published_date": "2026-10-13",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
       "sources": []
     },
     {
@@ -46,14 +46,20 @@
       ]
     },
     {
-      "title": "News: PUBG Mobile Global Open 2026 Season 2, nuovo formato e montepremi da 500.000 dollari",
+      "title": "News: Total War: SHOGUN 2 - Complete Edition è disponibile con tre campagne, tutti i DLC e oltre 50 fazioni",
       "section": "gaming",
-      "url": "/news-UgkxIr1ovTsXpg6l496osuO5FluCv2lu6j84.html",
-      "trend_score": 0,
-      "published_date": "2026-10-13",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
-      "sources": []
+      "url": "/news-UgkxzbPLnlTRTXP7fJT2zY2x10Z2OdXlSlH8.html",
+      "trend_score": 59.78,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 72,
+      "selection_score": 110.86,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "Total War: Shogun 2 - Complete Edition - il trailer di lancio",
+          "score": 0.5978
+        }
+      ]
     },
     {
       "title": "Attacco informatico ai supermercati: frigoriferi manomessi e cibo da buttare",
