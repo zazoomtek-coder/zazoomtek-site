@@ -65,7 +65,10 @@ def audit(root):
         for href in p.links:
             dest=target(href)
             if not dest:continue
-            if dest in names:inbound[dest]+=1
+            existing=(root/dest).resolve()
+            # A noindex archive file may be a valid linked destination, even
+            # when deliberately excluded from SEO page inventories.
+            if dest in names or (existing.is_relative_to(root) and existing.is_file()):inbound[dest]+=1
             else:unresolved[dest]+=1
     for group,code in ((titles,'duplicate_title'),(descs,'duplicate_description')):
         for value,which in group.items():
