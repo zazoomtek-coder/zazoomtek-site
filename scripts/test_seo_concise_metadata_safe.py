@@ -12,7 +12,17 @@ class Metadata(unittest.TestCase):
             body='<body><main><h1>La recensione originale resta intatta</h1><img src="/cover.jpg" alt="Original cover"><p>Text preserved exactly</p></main></body>'
             source='<html><head><title>'+original_title+'</title><meta name="description" content="'+original_desc+'"><link rel="canonical" href="https://zazoomtek.it/future-category/review.html"></head>'+body+'</html>'
             file.write_text(source)
-            changes,stats=build(root) if False else ({}, {})
+            changes,stats=build(root,minimum=1)
+            self.assertEqual(stats['changed_pages'],1)
+            self.assertEqual(stats['shorter_titles'],1)
+            self.assertEqual(stats['shorter_descriptions'],1)
+            actual=changes[file]
+            self.assertLessEqual(len(re.search(r'<title>(.*?)</title>',actual).group(1)),73)
+            self.assertLessEqual(len(re.search(r'name="description" content="([^"]+)',actual).group(1)),170)
+            self.assertEqual(actual.split('</head>')[1],source.split('</head>')[1])
+            file.write_text(actual)
+            again,stats2=build(root,minimum=1)
+            self.assertEqual(again,{})
             self.assertTrue(shorten(original_title,73,34))
             self.assertTrue(shorten(original_desc,158,85))
             self.assertEqual(source.split('</head>')[1],source.split('</head>')[1])
