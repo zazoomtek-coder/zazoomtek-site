@@ -3,8 +3,7 @@ on:
   push:
     branches:
       - perf/mobile-lcp-priority-20261014
-      - perf/preload-first-lcp-20261014
-      - perf/fix-actual-lcp-20261014
+      - perf/rollback-lcp-to-4s-20261014
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,15 +30,10 @@ jobs:
           b=modified.index(m.END,a)
           tags=m.IMG.findall(modified[a:b])
           assert len(tags)==6
-          assert 'fetchpriority="low"' in tags[0]
+          assert 'fetchpriority="high"' in tags[0]
           assert 'srcset=' in tags[0]
-          assert all('loading="eager"' in t for t in tags)
-          assert all('fetchpriority="low"' in t for t in tags[1:5])
-          assert 'fetchpriority="high"' in tags[5]
-          assert '/assets/special/' in tags[5]
-          assert '<!-- ZT_MOBILE_LCP_PRELOAD_V2 -->' in modified
-          assert modified.count('rel="preload" as="image" fetchpriority="high"')==1
-          assert '/assets/special/' in modified.split('<!-- ZT_MOBILE_LCP_PRELOAD_V2 -->')[1].split('<!-- /ZT_MOBILE_LCP_PRELOAD_V2 -->')[0]
+          assert all('loading="lazy"' in t and 'fetchpriority="high"' not in t for t in tags[1:])
+          assert text[:a]==modified[:a], 'head changed'
           assert text[text.index(m.END,a):]==modified[b:], 'tail changed'
           print('PASS mobile cover loading, high-priority and source bounds')
           PY
