@@ -142,6 +142,13 @@ jobs:
           assert count>=20, f"Only {count} verified editorial boxes"
           print("PASS:",count,"real-image editorial boxes, consistent compact typography")
           PY
+      # Semantic main heading of the existing visible News in evidenza label.
+      # Preserve identical computed mobile/desktop layout; never touch importers.
+      - name: Apply accessible homepage H1 with preserved styling (non-blocking)
+        continue-on-error: true
+        run: |
+          python3 scripts/test_seo_home_h1_safe.py
+          python3 scripts/seo_home_h1_safe.py
       # Article metadata is enhanced only in the ephemeral release checkout.
       # It must never edit an importer, the site repository, or HTML bodies.
       - name: Enhance Search/Discover metadata (non-blocking)
