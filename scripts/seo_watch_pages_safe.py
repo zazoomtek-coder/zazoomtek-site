@@ -17,7 +17,7 @@ import json,re
 from seo_media_safe import feed_videos,YT_ID
 from seo_paths_safe import ORIGIN
 
-MAX_ITEMS=250
+MAX_ITEMS=2000
 WATCH_DIR='watch'
 CATEGORY={
     'recensioni':'Videorecensione', 'gaming':'Gaming', 'gameplay':'Gameplay',
@@ -27,9 +27,25 @@ CATEGORY={
 def feed_items(root):
     src=root/'home-video-feed.json'
     obj=json.loads(src.read_text(encoding='utf-8'))
+    archive=root/'video-watch-archive.json'
+    if archive.is_file():
+        prior=json.loads(archive.read_text(encoding='utf-8'))
+        if isinstance(prior,list):
+            seen_ids={x.get('id') for x in obj if isinstance(x,dict)}
+            obj.extend(x for x in prior if isinstance(x,dict) and x.get('id') not in seen_ids)
     if not isinstance(obj,list) or len(obj)<10:
         raise ValueError('Video feed unexpectedly small; no watch pages generated')
     valid=feed_videos(root)
+    # Archive entries were confirmed from the same imported public feed when
+    # first recorded. Keep their original dates/titles without alterations.
+    for item in obj:
+        if not isinstance(item,dict):continue
+        ident=item.get('id')
+        if not isinstance(ident,str) or not YT_ID.fullmatch(ident) or ident in valid:continue
+        title=item.get('title')
+        when=item.get('publishedAt')
+        if isinstance(title,str) and 6<=len(title.strip())<=230 and isinstance(when,str):
+            valid[ident]={'name':title.strip(),'uploadDate':when}
     out=[]
     seen=set()
     for item in obj:
@@ -96,7 +112,7 @@ def make_video(root,item,header,footer):
 <meta name="description" content="{e(desc[:260])}">
 <meta name="robots" content="index,follow,max-image-preview:large,max-video-preview:-1">
 <link rel="canonical" href="{e(url)}">
-<meta name="author" content="ZazoomTek">
+<meta name="author" content="ZazoomTek">\n<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarFix5">\n<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013textPriorityCover5">
 <meta property="og:type" content="video.other">
 <meta property="og:site_name" content="ZazoomTek">
 <meta property="og:title" content="{safe_title}">
@@ -135,7 +151,7 @@ def make_directory(items,header,footer):
 <title>Video ZazoomTek: recensioni, test, gaming e gameplay</title>
 <meta name="description" content="{escape(desc,quote=True)}">
 <meta name="robots" content="index,follow,max-image-preview:large">
-<link rel="canonical" href="{url}">
+<link rel="canonical" href="{url}">\n<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarFix5">\n<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013textPriorityCover5">
 <meta property="og:title" content="Archivio video ZazoomTek">
 <meta property="og:description" content="{escape(desc,quote=True)}">
 <meta property="og:type" content="website"><meta property="og:url" content="{url}">
