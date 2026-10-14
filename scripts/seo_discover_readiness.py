@@ -48,6 +48,9 @@ def audit(root):
         name = path.name
         if name.startswith(("preview-", "anteprima-", "draft-")):
             continue
+        # Paginated News archives are listings, not editorial articles.
+        if re.fullmatch(r"news-[0-9]+\.html", name):
+            continue
         original = path.read_text(encoding="utf-8", errors="replace")
         match = END_HEAD.search(original)
         if not match:
