@@ -1,0 +1,46 @@
+name: Final production SEO read-only verification
+on:
+  push:
+    branches:
+      - seo/final-og-production-verification-20261014
+    paths:
+      - '.github/workflows/seo-production-readonly-final.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read public canonical pages, metadata and sitemaps
+        run: |
+          python3 - <<'PY'
+          import re,urllib.request,xml.etree.ElementTree as ET
+          def load(path):
+            request=urllib.request.Request('https://zazoomtek.it'+path,headers={'User-Agent':'Mozilla/5.0 (readonly ZazoomTek SEO verification)'})
+            with urllib.request.urlopen(request,timeout=20) as response:
+              assert response.status==200
+              return response.read().decode('utf-8','replace')
+          cases=[
+            '/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html',
+            '/gaming-inside-gta-vi-rockstar-licenziamenti-discord-2026.html'
+          ]
+          for case in cases:
+            page=load(case)
+            head=page[:page.lower().index('</head>')]
+            assert re.search(r'<meta\b[^>]*property=["\x27]og:image["\x27][^>]*>',head,re.I),case
+            assert re.search(r'<link\b[^>]*rel=["\x27]canonical["\x27][^>]*>',head,re.I),case
+            assert '<main' in page.lower() and '<h1' in page.lower(),case
+            print('PASS article metadata and original visible content:',case)
+          home=load('/')
+          assert '<h1' in home.lower()
+          assert home.count('fetchpriority="high"')>=1
+          print('PASS homepage semantic headline and featured image priority')
+          regular=ET.fromstring(load('/sitemap.xml'))
+          assert len(regular)>=500
+          news=ET.fromstring(load('/news-sitemap.xml'))
+          print('PASS canonical sitemap',len(regular),'and Google News sitemap',len(news))
+          robots=load('/robots.txt')
+          assert 'Sitemap: https://zazoomtek.it/sitemap.xml' in robots
+          print('PASS robots.txt sitemap discovery')
+          PY
