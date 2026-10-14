@@ -163,6 +163,18 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     # Prioritize each source's freshest published, category-correct stories.
     # Cross-section exclusion must happen BEFORE selection, not after it.
     tech = choose(distinct(extract("tech-today.html"), published_home), 4, today)
+    # Keep distinct topic-specific homepage covers even when the category feed is regenerated.
+    # These files are actual local SVG assets, not remote placeholders.
+    tech_cover_overrides = {
+        "/tech-impact-le-norme-ue-sull-ia-affrontano-il-primo-test-con-i-laboratori.html":
+            "/assets/special/tech-impact-eu-ai-test-labs-original-20261014.svg",
+        "/tech-impact-california-nuova-legge-vieta-l-uso-di-bot-e-intelligenza-artificiale-nei-licenziament.html":
+            "/assets/special/tech-impact-california-ai-workplace-law-original-20261014.svg",
+    }
+    for item in tech:
+        cover = tech_cover_overrides.get(item["url"])
+        if cover and valid_image(cover):
+            item["image"] = cover
     special_urls = {item["url"] for item in tech}
     gaming = choose(distinct(extract("gaming-today.html"), published_home | special_urls), 4, today)
     special_urls.update(item["url"] for item in gaming)
