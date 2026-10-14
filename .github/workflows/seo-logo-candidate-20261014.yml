@@ -1,0 +1,39 @@
+name: Read-only logo optimization preview
+on:
+  push:
+    branches:
+      - seo/public-smoke-20261014
+    paths:
+      - '.github/workflows/seo-logo-candidate-20261014.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install 'Pillow>=10,<13'
+      - name: Evaluate lossless and 512px logo candidates (no commits)
+        run: |
+          python3 - <<'PY'
+          from PIL import Image,ImageChops,ImageStat
+          from pathlib import Path
+          import io
+          source=Path('ChatGPT.png')
+          original=Image.open(source).convert('RGBA')
+          print('ORIGINAL size:',original.size, 'bytes:',source.stat().st_size)
+          original_small=original.resize((52,52),Image.Resampling.LANCZOS)
+          for limit in [None,768,512,384]:
+              img=original
+              if limit:
+                  img=original.copy()
+                  img.thumbnail((limit,limit),Image.Resampling.LANCZOS)
+              output=io.BytesIO()
+              img.save(output,format='PNG',optimize=True,compress_level=9)
+              candidate=img.resize((52,52),Image.Resampling.LANCZOS)
+              diff=ImageChops.difference(original_small,candidate)
+              mae=sum(ImageStat.Stat(diff).mean)/4
+              print('CANDIDATE max_dim',limit or 'same','pixels',img.size,'bytes',len(output.getvalue()),'52px_RGBA_abs_diff',round(mae,3))
+          PY
