@@ -241,6 +241,11 @@ jobs:
           changed=seo.publish(Path('.'),outputs)
           print(f'Optional SEO sitemap: {count} canonical pages; {len(changed)} regenerated files')
           PY
+      - name: Audit Google Discover covers and previews (read-only, non-blocking)
+        continue-on-error: true
+        run: |
+          python3 -m py_compile scripts/seo_discover_readiness.py
+          python3 scripts/seo_discover_readiness.py --output /tmp/zazoomtek-discover-audit.json
       # Optional Google News sitemap: verified original dates from the last 48h.
       # Independent of protected YouTube sync, site layout and normal sitemap.
       - name: Generate recent editorial News sitemap (non-blocking)
