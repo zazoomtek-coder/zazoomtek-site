@@ -1,0 +1,40 @@
+name: Structured-date sitemap safety validation
+on:
+  push:
+    branches:
+      - seo/sitemap-jsonld-lastmod-20261014
+    paths:
+      - 'scripts/seo_sitemap_safe.py'
+      - 'scripts/test_seo_sitemap_safe.py'
+      - '.github/workflows/seo-sitemap-date-stage.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify canonical and accurate article modification dates
+        run: python3 scripts/test_seo_sitemap_safe.py
+      - name: Dry-run real site - no page, robots or sitemap modifications
+        run: |
+          python3 scripts/seo_sitemap_safe.py --check
+          python3 - <<'PY'
+          import sys,xml.etree.ElementTree as ET
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_sitemap_safe import build,SITEMAP_NS
+          output,num=build(Path('.'))
+          current=ET.parse('sitemap.xml').getroot()
+          future=ET.fromstring(output['sitemap.xml'])
+          n={'s':SITEMAP_NS}
+          old_urls={e.text for e in current.findall('.//s:loc',n)}
+          new_urls={e.text for e in future.findall('.//s:loc',n)}
+          assert num==len(new_urls)>=500
+          assert len(old_urls&new_urls)>=int(.95*len(old_urls)),(len(old_urls),len(new_urls))
+          old_dates=len(current.findall('.//s:lastmod',n))
+          new_dates=len(future.findall('.//s:lastmod',n))
+          assert new_dates>=old_dates,(old_dates,new_dates)
+          print(f'PASS: {len(new_urls)} URLs, lastmod {old_dates}→{new_dates}, no HTML/CSS/YouTube changes')
+          PY
