@@ -1,28 +1,22 @@
 {
-  "checked_at": "2026-10-14T13:12:00.591394+00:00",
+  "checked_at": "2026-10-14T13:23:10.281545+00:00",
   "source_sites": 16,
-  "matches": 7,
+  "matches": 6,
   "selected": [
     {
-      "title": "News: realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone",
+      "title": "News Tech:",
       "section": "tech",
-      "url": "/news-UgkxJtnjr69lRe_UU0p4peoueh64NfWSi1zF.html",
-      "trend_score": 60.38,
-      "published_date": "2026-10-13",
-      "freshness_bonus": 62,
-      "selection_score": 101.25,
-      "sources": [
-        {
-          "site": "Hardware Upgrade",
-          "title": "realme passa a ColorOS 17 con Android 17, aggiornamenti da ottobre per quattro modelli",
-          "score": 0.6038
-        }
-      ]
+      "url": "/news-UgkxwiYLtGYe4u_rvHjHhrA8QM_KD32KcsEA.html",
+      "trend_score": 0,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
     },
     {
-      "title": "News: Sony premiata con il Technology & Engineering Emmy Award per il contributo alle specifiche NMOS",
+      "title": "News: Invincible VS, la Stagione 2 introduce Angstrom Levy e anticipa Agent Spider per la Stagione 3",
       "section": "tech",
-      "url": "/news-Ugkxo5QI5Efk3Q7DxPZMMGveZ4DWlrfsrdDZ.html",
+      "url": "/news-UgkxXceRhhYmqSVnSCYUnBmmGOoUEExn5Fza.html",
       "trend_score": 0,
       "published_date": "2026-10-14",
       "freshness_bonus": 72,
