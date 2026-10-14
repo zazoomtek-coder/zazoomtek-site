@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-14T12:16:10.792084+00:00",
+  "checked_at": "2026-10-14T13:00:16.214720+00:00",
   "source_sites": 16,
   "matches": 7,
   "selected": [
@@ -20,18 +20,28 @@
       ]
     },
     {
-      "title": "News: Huawei lancia in Italia WATCH 6 Series e MatePad Pro 12\", tra benessere, produttività e design premium",
+      "title": "News: Sony premiata con il Technology & Engineering Emmy Award per il contributo alle specifiche NMOS",
       "section": "tech",
-      "url": "/news-UgkxbcoXD_25p4VIR7kWs-B0XEppXkXv9j2h.html",
-      "trend_score": 57.18,
-      "published_date": "2026-10-13",
-      "freshness_bonus": 62,
-      "selection_score": 99.17,
+      "url": "/news-Ugkxo5QI5Efk3Q7DxPZMMGveZ4DWlrfsrdDZ.html",
+      "trend_score": 0,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "News: MSI entra nella mobilità elettrica in Italia con la nuova divisione EVSE",
+      "section": "gaming",
+      "url": "/news-UgkxR8nf0KLOwhQcQXG2SONf6uGIGRg5tgtG.html",
+      "trend_score": 77.75,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 72,
+      "selection_score": 122.54,
       "sources": [
         {
-          "site": "Hardware Upgrade",
-          "title": "HUAWEI MatePad Pro 12 e WATCH 6 arrivano in Italia: ecco quanto costano e cosa offrono",
-          "score": 0.5718
+          "site": "Gamesurf",
+          "title": "MSI entra nel settore della mobilita elettrica in Italia con EVSE",
+          "score": 0.7775
         }
       ]
     },
@@ -48,22 +58,6 @@
           "site": "SpazioGames",
           "title": "Battlefield 6, la Stagione 5 parte con Las Vegas, Area 51 e Dead Space",
           "score": 0.8881
-        }
-      ]
-    },
-    {
-      "title": "News: Total War: SHOGUN 2 - Complete Edition è disponibile con tre campagne, tutti i DLC e oltre 50 fazioni",
-      "section": "gaming",
-      "url": "/news-UgkxzbPLnlTRTXP7fJT2zY2x10Z2OdXlSlH8.html",
-      "trend_score": 59.78,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 72,
-      "selection_score": 110.86,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "Total War: Shogun 2 - Complete Edition - il trailer di lancio",
-          "score": 0.5978
         }
       ]
     },
