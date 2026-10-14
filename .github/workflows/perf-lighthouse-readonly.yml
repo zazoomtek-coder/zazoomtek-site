@@ -1,0 +1,43 @@
+name: Read-only mobile Lighthouse performance diagnosis
+on:
+  push:
+    branches:
+      - seo/live-thumb-smoke-20261014
+    paths:
+      - '.github/workflows/perf-lighthouse-readonly.yml'
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Lighthouse on isolated CI runner
+        run: npm install --global lighthouse@12
+      - name: Audit current real production mobile homepage without any writes
+        run: |
+          lighthouse https://zazoomtek.it/ --only-categories=performance --form-factor=mobile --screenEmulation.mobile=true --throttling-method=simulate --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --output=json --output-path=/tmp/zt-lighthouse-current.json --quiet
+          node - <<'JS'
+          const fs=require('fs');
+          const o=JSON.parse(fs.readFileSync('/tmp/zt-lighthouse-current.json'));
+          const a=o.audits;
+          console.log('LIVE_MOBILE_SCORE',Math.round(o.categories.performance.score*100));
+          for (const key of ['first-contentful-paint','largest-contentful-paint','cumulative-layout-shift','total-blocking-time','speed-index']) {
+            const z=a[key]; console.log('METRIC',key,z?.displayValue,z?.numericValue);
+          }
+          for (const key of ['lcp-discovery-insight','lcp-breakdown-insight','render-blocking-resources','uses-responsive-images','modern-image-formats','unused-javascript','lcp-lazy-loaded','network-requests']) {
+            const z=a[key]; if(!z) continue;
+            console.log('DIAG',key,'score',z.score,'savings',z.details?.overallSavingsBytes,JSON.stringify(z.details?.items||[]).slice(0,8500));
+          }
+          const nodes=Object.entries(a).filter(([k,v])=>/lcp|image|network|font|critical/i.test(k)&&v?.score!==1).map(([key,v])=>({key,score:v.score,displayValue:v.displayValue}));
+          console.log('OTHER_DIAG',JSON.stringify(nodes.slice(0,45)));
+          JS
+      - name: Store report in GitHub Actions, not in the site
+        uses: actions/upload-artifact@v4
+        with:
+          name: readonly-mobile-lighthouse
+          path: /tmp/zt-lighthouse-current.json
+          retention-days: 7
