@@ -55,7 +55,14 @@ def pages(root):
         p=Head();p.feed(head)
         if len(p.image)!=1:continue
         url=p.image[0]
-        if urlsplit(url).scheme!="https" or urlsplit(url).netloc in ("zazoomtek.it","www.zazoomtek.it"):continue
+        parts=urlsplit(url)
+        if parts.scheme!="https":continue
+        if parts.netloc in ("zazoomtek.it","www.zazoomtek.it"):
+            # A missing local cover must receive the same factual fallback.
+            from urllib.parse import unquote
+            local=(root/unquote(parts.path).lstrip("/")).resolve()
+            if local.is_relative_to(root) and local.is_file():
+                continue
         matches.setdefault(url,[]).append(page)
     return matches
 
