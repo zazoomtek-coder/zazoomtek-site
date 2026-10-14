@@ -1,0 +1,57 @@
+name: Staging canonical sitemap import regression safety
+on:
+  push:
+    branches: [seo/sitemap-import-fix-20261014]
+    paths:
+      - '.github/workflows/deploy-site-live.yml'
+      - '.github/workflows/seo-sitemap-import-regression.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test existing sitemap canonical logic
+        run: python3 scripts/test_seo_sitemap_safe.py
+      - name: Reproduce EXACT Firebase step with 200 verified generated watch pages
+        run: |
+          python3 scripts/test_seo_watch_pages_safe.py
+          python3 scripts/seo_watch_pages_safe.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import importlib.util
+          import sys
+          import xml.etree.ElementTree as ET
+          sys.path.insert(0,str(Path('scripts').resolve()))
+          spec=importlib.util.spec_from_file_location('seo','scripts/seo_sitemap_safe.py')
+          seo=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(seo)
+          outputs,count=seo.build(Path('.'))
+          old=Path('sitemap.xml')
+          previous=len(ET.parse(old).getroot()) if old.exists() else 0
+          minimum=max(500, int(previous*0.95))
+          if count<minimum:
+              raise RuntimeError(f'SEO sitemap guard: {count} canonical pages, expected >= {minimum}')
+          changed=seo.publish(Path('.'),outputs)
+          assert count>=735,count
+          assert 'sitemap.xml' in changed
+          assert 'google-sitemap.xml' in changed
+          root=ET.parse('sitemap.xml').getroot()
+          ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls={n.text for n in root.findall('.//s:loc',ns)}
+          assert len(urls)==count
+          assert 'https://zazoomtek.it/watch/tEkXOj7XOwA.html' in urls
+          assert 'https://zazoomtek.it/watch/' in urls
+          print(f'PASS: guarded Firebase sitemap regenerated {len(urls)} canonical URLs including VIDEO pages')
+          PY
+      - name: Verify production workflow uses tested module loader
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/deploy-site-live.yml').read_text(encoding='utf-8')
+          assert "sys.path.insert(0,str(Path('scripts').resolve()))" in text
+          assert "Generate verified SEO sitemap (non-blocking)" in text
+          print('PASS: production YAML contains the verified local import fix')
+          PY
