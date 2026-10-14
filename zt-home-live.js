@@ -434,7 +434,7 @@
    const guide=document.querySelector(".ztp-top-main #ztHomeGuide");
    if(!area||!top||!review||!guide||document.getElementById("ztp-guide-extra"))return;
    const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";
-   stylesheet.href="/zt-home-gap-fix-20261014.css?v=5";document.head.appendChild(stylesheet);
+   stylesheet.href="/zt-home-gap-fix-20261014.css?v=6";document.head.appendChild(stylesheet);
    area.querySelectorAll(".ztp-news-items").forEach(function(col){
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });
