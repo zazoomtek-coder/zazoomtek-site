@@ -41,6 +41,26 @@ class SitemapSafety(unittest.TestCase):
         self.assertNotIn(b'foreign.html', sitemap)
         self.assertNotIn(b'dup.html', sitemap)
 
+    def test_new_nested_sections_are_discovered_without_duplicate_urls(self):
+        folder=self.root / 'future' / 'editorial'
+        folder.mkdir(parents=True)
+        (folder/'index.html').write_text(
+            '<head><link rel="canonical" href="https://zazoomtek.it/future/editorial/"></head>',
+            encoding='utf-8')
+        (folder/'article.html').write_text(
+            '<head><link rel="canonical" href="https://zazoomtek.it/future/editorial/article.html"></head>',
+            encoding='utf-8')
+        forbidden=self.root / 'scripts'
+        forbidden.mkdir()
+        (forbidden/'internal.html').write_text(
+            '<head><link rel="canonical" href="https://zazoomtek.it/scripts/internal.html"></head>',
+            encoding='utf-8')
+        output,count=seo.build(self.root)
+        self.assertEqual(count,4)
+        self.assertIn(b'https://zazoomtek.it/future/editorial/',output['sitemap.xml'])
+        self.assertIn(b'https://zazoomtek.it/future/editorial/article.html',output['sitemap.xml'])
+        self.assertNotIn(b'/scripts/internal.html',output['sitemap.xml'])
+
     def test_dry_run_and_repeat_are_safe(self):
         result, _ = seo.build(self.root)
         self.assertEqual(len(seo.publish(self.root, result, check=True)), 3)
