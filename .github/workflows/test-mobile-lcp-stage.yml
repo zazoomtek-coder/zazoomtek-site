@@ -33,7 +33,7 @@ jobs:
           assert 'srcset=' in tags[0]
           assert all('loading="lazy"' in t and 'fetchpriority="high"' not in t for t in tags[1:])
           assert text[:a]==modified[:a], 'head changed'
-          assert text[b:]==modified[modified.index(m.END,a):], 'tail changed'
+          assert text[text.index(m.END,a):]==modified[b:], 'tail changed'
           print('PASS mobile cover loading, high-priority and source bounds')
           PY
       - name: Ensure existing deploy metadata normalization no longer fails
