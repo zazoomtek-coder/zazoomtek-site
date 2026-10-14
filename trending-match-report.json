@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-13T23:10:44.829157+00:00",
+  "checked_at": "2026-10-14T00:08:29.107616+00:00",
   "source_sites": 16,
   "matches": 4,
   "selected": [
@@ -9,8 +9,8 @@
       "url": "/news-UgkxJtnjr69lRe_UU0p4peoueh64NfWSi1zF.html",
       "trend_score": 60.38,
       "published_date": "2026-10-13",
-      "freshness_bonus": 72,
-      "selection_score": 111.25,
+      "freshness_bonus": 62,
+      "selection_score": 101.25,
       "sources": [
         {
           "site": "Hardware Upgrade",
@@ -25,8 +25,8 @@
       "url": "/news-Ugkxka6JuXiolB2wKRFgTtZc1o91E8yqNdTC.html",
       "trend_score": 0,
       "published_date": "2026-10-13",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
       "sources": []
     },
     {
@@ -35,8 +35,8 @@
       "url": "/news-UgkxpDZIazqC27JoPRdG2K77ILgLd-SO7YjZ.html",
       "trend_score": 88.81,
       "published_date": "2026-10-13",
-      "freshness_bonus": 72,
-      "selection_score": 129.73,
+      "freshness_bonus": 62,
+      "selection_score": 119.73,
       "sources": [
         {
           "site": "SpazioGames",
@@ -51,8 +51,8 @@
       "url": "/news-UgkxIr1ovTsXpg6l496osuO5FluCv2lu6j84.html",
       "trend_score": 0,
       "published_date": "2026-10-13",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
       "sources": []
     },
     {
