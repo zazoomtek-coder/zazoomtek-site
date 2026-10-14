@@ -1,4 +1,5 @@
 name: Read-only production watch pages and video SEO verification
+# Rerun against canonical sitemap module-loading fix from production.
 on:
   push:
     branches: [seo/live-video-check-20261014]
