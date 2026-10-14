@@ -1,0 +1,49 @@
+name: Read-only live Discover schema verification
+on:
+  push:
+    branches:
+      - seo/live-discover-smoke-20261014
+    paths:
+      - '.github/workflows/seo-live-discover-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect real public NewsArticle image data without any modifications
+        run: |
+          python3 - <<'PY'
+          import json,re,time,urllib.request
+          pages=[
+            'gaming-inside-agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali.html',
+            'tech-impact-agcom-multa-retelit-digital-services-e-tekmind-per-822-500-euro-a-causa-dello-spoofin.html',
+          ]
+          for page in pages:
+            uri='https://zazoomtek.it/'+page
+            for i in range(3):
+              try:
+                req=urllib.request.Request(uri,headers={'User-Agent':'ZazoomTek-ReadOnly-Discover-Schema-Check'})
+                with urllib.request.urlopen(req,timeout=18) as resp:
+                  assert resp.status==200,(uri,resp.status)
+                  html=resp.read().decode('utf-8','replace')
+                head=html.split('</head>')[0]
+                matches=re.findall(r'<script[^>]*type=["\x27]application/ld\+json["\x27][^>]*>([\s\S]*?)</script>',head,re.I)
+                found=[]
+                for raw in matches:
+                  obj=json.loads(raw)
+                  candidates=obj.get('@graph',[]) if isinstance(obj,dict) and '@graph' in obj else [obj]
+                  for article in candidates:
+                    if isinstance(article,dict) and article.get('@type') in ('NewsArticle','Article') and article.get('mainEntityOfPage')==uri and article.get('image'):
+                      found.append(article)
+                assert len(found)==1,(uri,'Missing exactly one matching article image schema')
+                image=found[0]['image']
+                assert isinstance(image,list) and image[0].startswith('https://'),(uri,image)
+                assert 'max-image-preview:large' in head,(uri,'Image preview restricted')
+                print('PASS public NewsArticle with real image:',page, image[0])
+                break
+              except Exception as exc:
+                if i==2: raise
+                time.sleep(3)
+          PY
