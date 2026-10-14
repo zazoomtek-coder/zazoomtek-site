@@ -14,6 +14,7 @@ import os
 import re
 import tempfile
 from seo_paths_safe import html_pages, canonical_candidates
+from seo_media_safe import verified_video, feed_videos
 
 ORIGIN = 'https://zazoomtek.it'
 MARKER = '<!-- ZT_SEO_HEAD_SAFE_V1 -->'
@@ -44,7 +45,7 @@ def valid_url(url):
     except ValueError:
         return False
 
-def transform(name, text, canonical_urls=None):
+def transform(name, text, canonical_urls=None, known_videos=None):
     if MARKER in text or name.startswith('preview-') or name == '404.html':
         return text
     end = re.search(r'</head\s*>', text, re.I)
@@ -91,6 +92,15 @@ def transform(name, text, canonical_urls=None):
             payload = json.dumps(article, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
             insert.append('<script type="application/ld+json">' + payload + '</script>')
 
+    # Only verified, directly embedded main-content videos. No sidebar thumbnails,
+    # scripted embeds, guessed publication dates or unrelated YouTube links.
+    if known_videos and '<iframe' in remainder.lower() and not re.search(
+            r'["\x27]@type["\x27]\s*:\s*["\x27]VideoObject["\x27]', head, re.I):
+        video = verified_video(remainder, known_videos)
+        if video:
+            payload = json.dumps(video, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
+            insert.append('<script type="application/ld+json">' + payload + '</script>')
+
     if not insert:
         return text
     out = head + '\n' + MARKER + '\n' + '\n'.join(insert) + '\n' + remainder
@@ -102,9 +112,10 @@ def transform(name, text, canonical_urls=None):
 def build(root):
     changes = {}
     count = 0
+    known_videos = feed_videos(root)
     for path in html_pages(root):
         source = path.read_text(encoding='utf-8', errors='replace')
-        revised = transform(path.name, source, canonical_candidates(root, path))
+        revised = transform(path.name, source, canonical_candidates(root, path), known_videos)
         if revised != source:
             before = re.split(r'</head\s*>', source, maxsplit=1, flags=re.I)
             after = re.split(r'</head\s*>', revised, maxsplit=1, flags=re.I)
