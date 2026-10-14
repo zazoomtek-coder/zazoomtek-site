@@ -1,0 +1,73 @@
+name: Final read-only sitewide editorial SEO production checks
+on:
+  push:
+    branches: [seo/verify-sitewide-public-20261014]
+    paths: ['.github/workflows/seo-verify-sitewide-live.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verify real Firebase metadata canonicals archives and video SEO
+        run: |
+          python3 - <<'PY'
+          import re,html,urllib.request,xml.etree.ElementTree as ET,time
+          BASE='https://zazoomtek.it'
+          def fetch(path):
+            last=None
+            for attempt in range(4):
+              try:
+                req=urllib.request.Request(BASE+path,headers={'User-Agent':'Mozilla/5.0 (ZazoomTek SEO readonly release verify)'})
+                with urllib.request.urlopen(req,timeout=18) as res:
+                  assert res.status==200,(path,res.status)
+                  return res.read().decode('utf-8','replace')
+              except Exception as err:
+                last=err;time.sleep(3)
+            raise last
+          def meta(path):
+            body=fetch(path)
+            head=body.split('</head>',1)[0]
+            t=re.search(r'<title\b[^>]*>(.*?)</title>',head,re.I|re.S)
+            d=re.search(r'<meta\b[^>]*name=["\x27]description["\x27][^>]*>',head,re.I)
+            assert t and d,(path,'missing metadata')
+            desc=re.search(r'content=["\x27]([^"\x27]*)',d.group(0),re.I)
+            assert desc,path
+            title=html.unescape(t.group(1)).strip()
+            description=html.unescape(desc.group(1)).strip()
+            assert len(title)<=75,(path,title)
+            assert len(description)<=170,(path,len(description))
+            assert 'rel="canonical"' in head,(path,'canonical')
+            return body,title,description
+          for path in ('/gaming-inside-agcm-microsoft-diablo-immortal-call-of-duty-mobile-monete-virtuali.html',
+                       '/tech-impact-norvegia-proposta-divieto-occhiali-intelligenza-artificiale.html',
+                       '/news-2.html','/news-3.html'):
+            content,title,desc=meta(path)
+            assert '<main' in content.lower(),path
+            print('PASS live canonical and concise SEO metadata:',path,len(title),len(desc))
+          n2=meta('/news-2.html')[2]
+          n3=meta('/news-3.html')[2]
+          assert 'pagina 2' in n2 and 'pagina 3' in n3 and n2!=n3
+          for path in ('/pagina-2.html','/pagina-3.html','/pagina-4.html','/pagina-5.html'):
+            page=fetch(path)
+            assert len(re.findall(r'<h1\b',page,re.I))==1,path
+            assert 'News in evidenza' in page,path
+            print('PASS live archive H1:',path)
+          page,title,desc=meta('/news-Ugkx-BI6NjJ4uPtJvBCYOX9RQxqP_pqEP0il.html')
+          h1=re.search(r'<h1\b[^>]*>(.*?)</h1>',page,re.I|re.S)
+          assert h1 and 'EA SPORTS FC 27' in html.unescape(h1.group(1)),(title,h1.group(1) if h1 else None)
+          assert title.lower()!='news | zazoomtek' and len(desc)>45
+          print('PASS factual former-placeholder news headline and excerpt')
+          home=fetch('/')
+          assert re.search(r'<h1\b',home,re.I)
+          assert 'zt-thumbnails.css' in home
+          video=fetch('/watch/tEkXOj7XOwA.html')
+          assert 'VideoObject' in video and '/embed/tEkXOj7XOwA' in video
+          print('PASS original homepage design and existing YouTube watch page')
+          xml=ET.fromstring(fetch('/sitemap.xml'))
+          ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          count=len(xml.findall('.//s:loc',ns))
+          assert count>=740,count
+          print('PASS current canonical sitemap',count)
+          PY
