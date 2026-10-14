@@ -8,6 +8,8 @@ on:
       - 'scripts/test_seo_whole_site_audit.py'
       - '.github/workflows/seo-whole-site-stage.yml'
       - '.github/workflows/deploy-site-live.yml'
+      - 'scripts/seo_concise_metadata_safe.py'
+      - 'scripts/test_seo_concise_metadata_safe.py'
 permissions:
   contents: read
 jobs:
@@ -20,6 +22,22 @@ jobs:
         run: python3 scripts/test_seo_whole_site_audit.py
       - name: Audit current site without modification
         run: python3 scripts/seo_whole_site_audit.py --output "$RUNNER_TEMP/whole-seo.json"
+      - name: Test metadata-only normalization and safety
+        run: |
+          python3 scripts/test_seo_concise_metadata_safe.py
+          python3 scripts/seo_concise_metadata_safe.py --check
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from seo_concise_metadata_safe import build
+          changes,stats=build(Path('.'))
+          assert stats['pages']>=500 and stats['changed_pages']>300,stats
+          for path,revised in changes.items():
+              previous=path.read_text(encoding='utf-8',errors='replace')
+              assert previous.split('</head>',1)[1]==revised.split('</head>',1)[1]
+          print('PASS sitewide SEO condensed metadata without any body/layout changes:',stats)
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: whole-site-seo-findings
