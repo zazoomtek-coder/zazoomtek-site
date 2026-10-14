@@ -23,7 +23,7 @@ def html_pages(root):
             continue
         if not page.is_file() or page.name in SKIP_FILES:
             continue
-        if page.name.startswith(("preview-", "draft-")):
+        if page.name.startswith(("preview-", "anteprima-", "draft-")):
             continue
         if any(part.startswith(".") or part.lower() in SKIP_DIRS for part in rel.parts[:-1]):
             continue
