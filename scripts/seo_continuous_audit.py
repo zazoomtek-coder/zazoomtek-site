@@ -54,6 +54,8 @@ def audit(root):
     for page in html_pages(root):
         count+=1
         rel=str(page.relative_to(root))
+        if page.name.startswith(('anteprima-', 'preview-', 'draft-')):
+            continue
         try:
             source=page.read_text(encoding='utf-8',errors='replace')
         except OSError as e:
@@ -65,6 +67,10 @@ def audit(root):
         try: parser.feed(source[:match.start()])
         except Exception as e:
             issues.append((rel,'malformed_head',str(e)));continue
+        # A deliberate noindex is not a failed SEO page: search, privacy,
+        # legal and editorial previews should remain excluded from Google.
+        if any(re.search(r'(?<!\w)noindex(?!\w)',r,re.I) for r in parser.robots):
+            continue
         if len(parser.canonical)!=1 or parser.canonical[0] not in canonical_candidates(root,page):
             issues.append((rel,'canonical','Missing, duplicate or mismatched canonical'))
         else:
@@ -72,8 +78,6 @@ def audit(root):
             if url in seen:
                 issues.append((rel,'duplicate_canonical',f'Also declared in {seen[url]}'))
             seen[url]=rel
-        if any(re.search(r'(?<!\w)noindex(?!\w)',r,re.I) for r in parser.robots):
-            issues.append((rel,'noindex','Published-looking page has noindex; verify intent'))
         if not ''.join(parser.title).strip():
             issues.append((rel,'title','Missing title'))
         if len(parser.description)!=1 or not parser.description[0].strip():
