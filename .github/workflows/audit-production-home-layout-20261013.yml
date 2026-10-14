@@ -33,7 +33,7 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert '/zt-home-live.js?v=20261014sevenApproved1' in src
+          assert '/zt-home-live.js?v=20261014sevenApproved2' in src
           assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
           assert r'\g<1>' not in src and r'\g<2>' not in src
           live_js=pathlib.Path("zt-home-live.js").read_text()
@@ -116,6 +116,8 @@ jobs:
                 shortsTitle:document.querySelector(".ztp-shorts-companion .ztp-rail-shorts h2")?.textContent,
                 noOldStack:document.querySelectorAll(".ztp-news-rail .zt-video-stack").length===0,
                 shortsBesideVideos:(()=>{const a=document.querySelector("#ztpVideosAnchor"),b=document.querySelector(".ztp-shorts-companion");return !!a&&!!b&&a.parentElement===b.parentElement&&!!a.closest(".ztp-video-shorts-pair")})(),
+                shortsRightOfVideos:(()=>{const a=document.querySelector("#ztpVideosAnchor"),b=document.querySelector(".ztp-shorts-companion");if(!a||!b)return false;const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return window.innerWidth<=720?y.top>=x.bottom-10:y.x>x.x&&Math.abs(y.top-x.top)<15})(),
+                videoEnoughWidth:(()=>{const a=document.querySelector("#ztpVideosAnchor"),b=document.querySelector(".ztp-primary-feed");return a&&b&&a.getBoundingClientRect().width>=b.getBoundingClientRect().width*(window.innerWidth<=720?.75:.60)})(),
                 guides:!!document.querySelector("#ztHomeGuide"),reviews:!!document.querySelector(".latest-reviews-module"),
                 navCount:document.querySelectorAll('header nav a').length,
                 pagesLink:!!document.querySelector("#ztpNewsPager a[href='/pagina-2.html']"),
@@ -152,7 +154,7 @@ jobs:
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
-             if(!d.noOldStack||!d.shortsBesideVideos||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
+             if(!d.noOldStack||!d.shortsBesideVideos||!d.shortsRightOfVideos||!d.videoEnoughWidth||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
              if(d.overflow>8)throw Error("Mobile horizontal overflow");
              if(d.imagesValidSource!==d.imagesTotal)throw Error("News thumbnails lack valid source/ALT");
              if(d.imagesOk<d.imagesTotal*.70)throw Error("Too many broken news thumbnails");
