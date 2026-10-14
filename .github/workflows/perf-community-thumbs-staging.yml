@@ -29,7 +29,7 @@ jobs:
           from html.parser import HTMLParser
           results,pages,images=inspect(Path('.'))
           assert pages>=500
-          assert 20<=images<=500,(pages,images)
+          assert 15<=images<=100,(pages,images)
           for p,new in results.items():
             old=p.read_text(encoding='utf-8',errors='replace')
             assert new.replace('=s1200-rw-nd-v1','=s1600-rw-nd-v1')==old,(p,'unexpected body changes')
