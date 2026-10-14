@@ -514,7 +514,9 @@
      // inside the primary feed, before Explore Videos and pagination.
      const videoAnchor=area.querySelector("#ztpVideosAnchor");
      const newsColumns=area.querySelector(".ztp-primary-feed .ztp-two-news-columns");
-     if(videoAnchor)videoAnchor.insertAdjacentElement("beforebegin",section);
+     const videoPair=videoAnchor?.closest(".ztp-video-shorts-pair");
+     if(videoPair)videoPair.insertAdjacentElement("beforebegin",section);
+     else if(videoAnchor)videoAnchor.insertAdjacentElement("beforebegin",section);
      else if(newsColumns)newsColumns.insertAdjacentElement("afterend",section);
      else area.querySelector(".ztp-primary-feed")?.appendChild(section);
    }
