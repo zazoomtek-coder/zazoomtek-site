@@ -2,8 +2,6 @@ name: News in evidenza - aggiornamento statico indipendente
 # This is the independent, provider-free six-slot updater. Existing
 # AI research remains a separate, optional production flow.
 on:
-  schedule:
-    - cron: '19 */2 * * *'
   workflow_dispatch:
   push:
     branches: [main]
