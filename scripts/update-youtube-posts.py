@@ -2439,6 +2439,8 @@ def write_news_archive(news,reviews):
     combined=manual_news_entries()
     known={slug for _,slug,_ in combined}
     for p in news:
+        if post_category(p)=="extra":
+            continue  # EXTRA belongs exclusively to /extra.html.
         slug=news_slug(p)
         if slug in known:continue
         when=news_publication_timestamp(p.get("published_iso") or p.get("published"))
@@ -2597,7 +2599,8 @@ def render_home_latest_reviews(reviews, limit=5):
 
 def render_ticker(news):
     rows=[]
-    for i,p in enumerate(reversed(news[:10])):
+    allowed=[p for p in news if post_category(p)!="extra"]
+    for i,p in enumerate(reversed(allowed[:10])):
         cls=' class="active"' if i==0 else ""
         rows.append(f'    <a{cls} href="{news_slug(p)}">{html.escape(news_title(p))}</a>')
     return "\n".join(rows)
@@ -2701,8 +2704,8 @@ def render_article_feed(posts, home_guide_inset=""):
     rows=[]
     # Backward-compatible optional parameter deliberately does not insert Guides.
     for p in posts:
-        if is_review(p):
-            continue  # Defensive guard against reviews reappearing in the Home or pagination.
+        if is_review(p) or post_category(p)=="extra":
+            continue  # EXTRA and reviews must never enter Tech or Gaming columns.
         kind=post_kind(p)
         title=post_title(p)
         slug=post_slug(p)
