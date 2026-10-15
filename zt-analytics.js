@@ -62,16 +62,20 @@
         }
       }
     }catch(e){}
-    if(fromStorage){
-      if(!fromCookie) writeConsentCookie(fromStorage);
-      return fromStorage;
-    }
     if(fromCookie){
-      try{
-        localStorage.setItem(KEY,fromCookie);
-        localStorage.setItem(DATE_KEY,String(Date.now()));
-      }catch(e){}
+      // The shared cookie is authoritative if the decision changed
+      // on the other subdomain and localStorage still holds an older choice.
+      if(fromStorage!==fromCookie){
+        try{
+          localStorage.setItem(KEY,fromCookie);
+          localStorage.setItem(DATE_KEY,String(Date.now()));
+        }catch(e){}
+      }
       return fromCookie;
+    }
+    if(fromStorage){
+      writeConsentCookie(fromStorage);
+      return fromStorage;
     }
     return null;
   }
