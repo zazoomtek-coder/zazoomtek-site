@@ -8,7 +8,8 @@
       "date": "15 ottobre 2026",
       "published_at": "2026-10-15T13:40:00Z",
       "kind": "standard",
-      "featured_section": "gaming"
+      "featured_section": "gaming",
+      "featured_until": "2026-10-18T23:59:59Z"
     },
     {
       "slug": "news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
