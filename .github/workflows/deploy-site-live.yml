@@ -338,21 +338,30 @@ jobs:
           python3 scripts/seo_featured_srcset_safe.py --check
       # Prevent a queued job with an older checkout from overwriting a newer
       # successful release. Requeue a fresh validation instead of deploying stale HTML.
-      - name: Refuse stale main snapshot just before deployment
+      # Never silently skip publication because the importer committed newer content
+      # while optional release transformations were running. Use the freshest
+      # committed, validated pages, even when the checkout has become stale.
+      - name: Refresh stale snapshot from latest main before deployment
         id: freshness
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git fetch origin main
           if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-            echo "::warning::Newer main commit detected; this run will not deploy a stale snapshot."
-            echo "current=false" >> "$GITHUB_OUTPUT"
-            # Never self-dispatch: repeated repository changes can cause a dispatch storm.
-            # The normal main push trigger schedules a fresh deployment.
-          else
-            echo "current=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::New Community content arrived during build; deploying fresh main instead of skipping."
+            git reset --hard origin/main
+            python3 scripts/validate-sync-output.py community
+            python3 scripts/validate-sync-output.py videos
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          items=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))['items']
+          assert len(items)==6 and [i['section'] for i in items]==[
+              'tech','tech','tech','gaming','tech-impact','gaming-inside']
+          assert len({i['url'] for i in items})==6
+          print('Latest committed YouTube and featured content verified.')
+          PY
           fi
+          echo "current=true" >> "$GITHUB_OUTPUT"
       - name: Verify Extra homepage article links exist in deploy snapshot
         run: |
           python3 - <<'PY'
