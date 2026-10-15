@@ -4,7 +4,7 @@
   var ID='G-01F6Q4BGTC';
   var KEY='zt_analytics_consent';
   var DATE_KEY='zt_analytics_consent_at';
-  var CONSENT_DAYS=180;
+  var CONSENT_DAYS=185; // at least six calendar months
   var CONSENT_MS=CONSENT_DAYS*24*60*60*1000;
   var loaded=false;
 
