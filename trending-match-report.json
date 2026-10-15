@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-15T14:55:38.028562+00:00",
+  "checked_at": "2026-10-15T15:40:46.252273+00:00",
   "source_sites": 15,
-  "matches": 4,
+  "matches": 5,
   "selected": [
     {
       "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
@@ -34,20 +34,14 @@
       "sources": []
     },
     {
-      "title": "Bandai Namco raddoppia a Lucca Comics & Games 2026 con anteprime, Gundam Base e Tamagotchi",
+      "title": "GTA VI, Rockstar pubblica il trailer di lancio con la musica dei Justice",
       "section": "gaming",
-      "url": "/news-Ugkx9PpTc7HRquvwgw8Ts6VoFPjlYv8YB2tO.html",
-      "trend_score": 81.31,
-      "published_date": "2026-10-15",
+      "url": "/news-gta-vi-trailer-lancio-justice-15-ottobre-2026.html",
+      "trend_score": 120,
+      "published_date": "15 ottobre 2026",
       "freshness_bonus": 72,
-      "selection_score": 124.85,
-      "sources": [
-        {
-          "site": "SpazioGames",
-          "title": "Bandai Namco raddoppia a Lucca Comics & Games 2026",
-          "score": 0.8131
-        }
-      ]
+      "selection_score": 150.0,
+      "sources": []
     },
     {
       "title": "La via francese all'Intelligenza Artificiale: Parigi punta sull'asse Nvidia-Mistral",
