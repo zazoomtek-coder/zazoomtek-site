@@ -72,9 +72,23 @@ jobs:
         env:
           ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
-          # Import first: an unrelated regression test must never skip new posts.
-          python3 scripts/update-youtube-posts.py
-          python3 scripts/validate-sync-output.py community
+          # Retry the full Community acquisition serially, not as parallel writers.
+          # Each attempt re-reads YouTube; only validated results are committed.
+          imported=false
+          for attempt in 1 2 3; do
+            if python3 scripts/update-youtube-posts.py && python3 scripts/validate-sync-output.py community; then
+              imported=true
+              break
+            fi
+            echo "::warning::Community import attempt ${attempt}/3 failed."
+            git reset --hard HEAD
+            git clean -fd
+            if [ "$attempt" -lt 3 ]; then sleep "$((attempt * 4))"; fi
+          done
+          if [ "$imported" != true ]; then
+            echo "::error::Community import exhausted three serial attempts; last known-good content retained."
+            exit 1
+          fi
           if [ -n "$(git status --porcelain)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
