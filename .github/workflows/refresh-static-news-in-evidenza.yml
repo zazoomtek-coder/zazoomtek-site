@@ -49,6 +49,14 @@ jobs:
           assert [a['section'] for a in articles]==[
               'tech','tech','tech','gaming','tech-impact','gaming-inside']
           assert len({x['url'] for x in articles})==6
+          # Category labels alone are insufficient: check the actual headlines.
+          import sys
+          sys.path.insert(0,'scripts')
+          from trending_crosscheck import classify
+          for article in articles[:4]:
+              assert classify(article['title']) == article['section'], (
+                  'Wrong featured category: '+article['title'])
+          assert classify('WWE 2K26 incontra Street Fighter') == 'gaming'
           for article in articles:
               local=Path(article['url'].lstrip('/'))
               assert local.is_file(),article['url']
