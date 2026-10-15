@@ -133,6 +133,52 @@
     if(label)label.textContent=clip.title;
   }
 
+
+  // ZT_EDITORIAL_CONTEXT_FILTER_20261015
+  // Recommend OTHER topics, never links or headlines already in main content.
+  function storySection(url){
+    const v=String(url||"").split(/[?#]/)[0].replace(/^.*\//,"").toLowerCase();
+    if(v==="tech-today.html"||v.startsWith("tech-impact-"))return "tech";
+    if(v==="gaming-today.html"||v.startsWith("gaming-inside-"))return "gaming";
+    if(v==="guide.html"||v.startsWith("guida-"))return "guides";
+    if(/^recensioni-scritte(?:-\d+)?\.html$/.test(v)||v.startsWith("recensione-")||/(?:^|-)recensione(?:-|\.html)/.test(v))return "reviews";
+    if(/^news(?:-\d+)?\.html$/.test(v)||v.startsWith("news-"))return "news";
+    if(/^extra(?:-\d+)?\.html$/.test(v))return "extra";
+    return null;
+  }
+  function normalizedHeadline(value){
+    return String(value||"").normalize("NFKC")
+      .replace(/^(?:news(?:\s+(?:tech|gaming|extra))?|review)\s*:\s*/i,"")
+      .replace(/[‘’]/g,"'")
+      .replace(/\s+/g," ").trim().toLowerCase();
+  }
+  function editorialContext(main,filename){
+    const topic=storySection(filename);
+    const links=new Set([path]);
+    const titles=new Set();
+    for(const anchor of main.querySelectorAll("a[href]")){
+      try{
+        const u=new URL(anchor.getAttribute("href"),location.href);
+        if(u.origin===location.origin && /^\/[a-zA-Z0-9_%-]+\.html$/.test(u.pathname))
+          links.add(u.pathname);
+      }catch(error){/* Skip non-web or malformed targets. */}
+      const text=normalizedHeadline(anchor.textContent);
+      if(text.length>=22)titles.add(text);
+    }
+    for(const node of main.querySelectorAll("h1,h2,h3")){
+      const title=normalizedHeadline(node.textContent);
+      if(title.length>=22)titles.add(title);
+    }
+    return {topic,links,titles};
+  }
+  function eligibleDiscovery(item,context){
+    if(!isStory(item))return false;
+    if(context.topic && storySection(item.url)===context.topic)return false;
+    if(context.links.has(item.url))return false;
+    if(context.titles.has(normalizedHeadline(item.title)))return false;
+    return true;
+  }
+
   // ZT_EDITORIAL_HOME_STACK_20261015
   // Approved Home layout on internal pages: 16:9 full-width images, title below.
   // Uses the *actual bottom of the black Community banner* as the limit.
@@ -169,6 +215,12 @@
     else if(filename==="gaming-today.html")order=["inside","impact","editorial","featured","reviews","recent","guides"];
     else if(/^extra(?:-\d+)?\.html$/.test(filename))order=["editorial","featured","impact","inside","reviews","recent","guides"];
     else order=["featured","editorial","impact","inside","reviews","recent","guides"];
+
+    const context=editorialContext(main,filename);
+    const topicByKey={featured:"news",recent:"news",impact:"tech",inside:"gaming",
+                      reviews:"reviews",guides:"guides"};
+    // The mixed Dalla redazione pool must pass the same filter as every box.
+    order=order.filter(key=>key==="editorial"||topicByKey[key]!==context.topic);
 
     const create=(tag,cls)=>{
       const node=document.createElement(tag);
@@ -228,16 +280,17 @@
       // On a stacked mobile page the sidebar starts AFTER the editorial
       // content, so height matching is neither possible nor appropriate.
       if(mode.desktop && mode.target<540){
-        aside.replaceChildren(...original);
+        // No room for a full-size picture: keep only the Amazon partner.
+        aside.replaceChildren(...[...aside.children].filter(x=>x.classList?.contains("zt-amazon-partner")));
         aside.removeAttribute("data-zt-large-editorial");
-        return false;
+        return true;
       }
       const usedLinks=new Set([path]);
       const pool={};
       for(const key of order){
         const group=selected[key][1];
         const all=(Array.isArray(feed[group])?feed[group]:[])
-          .filter(isStory);
+          .filter(item=>eligibleDiscovery(item,context));
         const unique=[];const seen=new Set();
         for(const item of all)if(!seen.has(item.url)){
           seen.add(item.url);unique.push(item);
@@ -253,9 +306,9 @@
       const records=[];
       const first=order.find(key=>next(key));
       if(!first){
-        aside.replaceChildren(...original);
+        aside.replaceChildren(...(affiliate?[affiliate]:[]),...kept);
         aside.removeAttribute("data-zt-large-editorial");
-        return false;
+        return true;
       }
       const start=module(first);
       const initial=next(first);
@@ -265,9 +318,9 @@
       aside.replaceChildren(start.section,...(affiliate?[affiliate]:[]),...kept);
       records.push(start);
       if(height()>aim+3){
-        aside.replaceChildren(...original);
-        aside.removeAttribute("data-zt-large-editorial");
-        return false;
+        // Preserve only the already-verified, cross-category item.
+        aside.dataset.ztAdaptiveRail="minimal-cross-category";
+        return true;
       }
       if(!mode.desktop){
         for(const key of order){
