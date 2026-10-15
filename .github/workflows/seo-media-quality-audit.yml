@@ -1,8 +1,6 @@
 name: Non-blocking SEO media quality audit
 on:
-  # Independent of the protected YouTube Community and video sync workflows.
-  schedule:
-    - cron: '37 4 * * *'
+  # Manual/nonproduction SEO media checks; no recurring hosting overhead.
   workflow_dispatch:
   push:
     branches:
