@@ -89,22 +89,44 @@
     writeConsentCookie(value);
   }
 
+  // Consent Mode v2 ADVANCED: initialize BEFORE gtag('config').
+  // Unconsented page views may generate cookieless pings for GA4 modeling.
+  // Ads and personalization consent always remain denied.
+  var currentConsent=readConsent();
+  window.dataLayer=window.dataLayer||[];
+  window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
+  window.gtag('consent','default',{
+    analytics_storage:'denied',
+    ad_storage:'denied',
+    ad_user_data:'denied',
+    ad_personalization:'denied'
+  });
+  window.gtag('set','ads_data_redaction',true);
+  window.gtag('set','url_passthrough',false);
+  if(currentConsent==='granted'){
+    window.gtag('consent','update',{analytics_storage:'granted'});
+  }
+  // Called even when consent is unknown or denied, but no analytics cookies
+  // may be used while analytics_storage remains denied.
   function loadGA4(){
-    if(loaded) return;
+    if(loaded)return;
     loaded=true;
-    window.dataLayer=window.dataLayer||[];
-    window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
     window.gtag('js',new Date());
     window.gtag('config',ID,{
+      send_page_view:true,
       anonymize_ip:true,
       allow_google_signals:false,
       allow_ad_personalization_signals:false
     });
-    var s=document.createElement('script');
-    s.async=true;
-    s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(ID);
-    document.head.appendChild(s);
+    var script=document.createElement('script');
+    script.async=true;
+    script.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(ID);
+    document.head.appendChild(script);
   }
+
+  // Begin collecting permitted cookieless pings as early as the script runs,
+  // independent of whether the visitor interacts with the consent banner.
+  loadGA4();
 
   function css(){
     if(document.getElementById('zt-consent-style')) return;
@@ -141,12 +163,18 @@
   }
 
   function choose(value){
+    if(!validChoice(value))return;
     saveConsent(value);
+    currentConsent=value;
+    // Ads consent never switches to granted on this Analytics-only site.
+    window.gtag('consent','update',{
+      analytics_storage:value,
+      ad_storage:'denied',
+      ad_user_data:'denied',
+      ad_personalization:'denied'
+    });
     removeBanner();
     showSettingsButton();
-    if(value==='granted') loadGA4();
-    // Revoking consent on the settings panel must also stop a tag already loaded.
-    if(value==='denied'&&loaded) window.location.reload();
   }
 
   function showBanner(){
@@ -157,7 +185,7 @@
     box.setAttribute('role','dialog');
     box.setAttribute('aria-label','Preferenze cookie');
     box.innerHTML=
-      '<p><strong>ZazoomTek utilizza cookie e tecnologie simili per misurare il traffico e migliorare i contenuti. Puoi accettare o rifiutare.</strong></p>'+
+      '<p><strong>ZazoomTek misura le visite con Google Analytics: prima della tua scelta possono partire segnali senza cookie. Solo con ACCETTA attiviamo i cookie Analytics; con RIFIUTA restano disattivati.</strong></p>'+
       '<p><a href="/cookie.html">Cookie Policy</a></p>'+
       '<div class="zt-actions"><button type="button" class="zt-accept">ACCETTA</button><button type="button" class="zt-reject">RIFIUTA</button></div>';
     box.querySelector('.zt-accept').addEventListener('click',function(){choose('granted');});
@@ -167,11 +195,7 @@
 
   function init(){
     css();
-    var consent=readConsent();
-    if(consent==='granted'){
-      loadGA4();
-      showSettingsButton();
-    }else if(consent==='denied'){
+    if(currentConsent==='granted'||currentConsent==='denied'){
       showSettingsButton();
     }else{
       showBanner();
