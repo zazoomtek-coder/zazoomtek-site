@@ -11,6 +11,7 @@ on:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
       - 'scripts/test_review_dedup.py'
+      - 'scripts/test_community_category_routing.py'
       - 'scripts/test_community_freshness.py'
       - 'scripts/test_video_sync_reliability.py'
       - 'scripts/update-youtube.py'
@@ -69,6 +70,7 @@ jobs:
         env:
           ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
+          python3 scripts/test_community_category_routing.py
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
           if [ -n "$(git status --porcelain)" ]; then
