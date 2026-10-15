@@ -639,6 +639,14 @@ def apply():
         {"section":a["section"],"url":a["url"],"title":a["title"],"image":a["image"]}
         for a in chosen]}
     target=ROOT/"featured-carousel.json"
+    # Do not redeploy identical six news merely because the scan timestamp moved.
+    if target.is_file():
+        try:
+            previous=json.loads(target.read_text(encoding="utf-8"))
+            if previous.get("items")==carousel["items"]:
+                carousel["generated_utc"]=previous.get("generated_utc",carousel["generated_utc"])
+        except (OSError,ValueError,TypeError,AttributeError):
+            pass
     rendered=json.dumps(carousel,ensure_ascii=False,indent=2)+"\n"
     if not target.exists() or target.read_text(encoding="utf-8")!=rendered:
         target.write_text(rendered,encoding="utf-8")
