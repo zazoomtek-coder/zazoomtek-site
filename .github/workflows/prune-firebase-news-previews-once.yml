@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prune-firebase-news-previews-once.yml'
 permissions:
   contents: read
 jobs:
