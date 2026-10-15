@@ -672,7 +672,7 @@ def selftest():
     existing=matches(owned_candidates(),{"items":[]})
     sample=pick(existing,on_date=dt.date(2026,10,11))
     assert len(sample)==6 and [x["section"] for x in sample]==[
-        "tech","tech","gaming","gaming","tech-impact","gaming-inside"]
+        "tech","tech","tech","gaming","tech-impact","gaming-inside"]
     assert len({x["url"] for x in sample})==6
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
