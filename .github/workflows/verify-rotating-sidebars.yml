@@ -1,0 +1,53 @@
+name: Verify live rotating sidebars
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/zt_sidebar_mix.py'
+      - 'scripts/apply-site-design.py'
+      - 'scripts/build-related-content.py'
+      - 'zt-sidebar-live.js'
+      - '.github/workflows/verify-rotating-sidebars.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Python and browser script syntax
+        run: |
+          python3 -m py_compile scripts/zt_sidebar_mix.py scripts/apply-site-design.py scripts/build-related-content.py
+          node --check zt-sidebar-live.js
+      - name: Build and check only verified real sidebar feeds
+        shell: bash
+        run: |
+          python3 scripts/zt_sidebar_mix.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          import sys
+          sys.path.insert(0,'scripts')
+          from zt_sidebar_mix import rotated
+          feed=json.loads(Path('zt-sidebar-feed.json').read_text(encoding='utf-8'))
+          for group in ('news','reviews','tech','gaming','editorial'):
+              items=feed.get(group,[])
+              if not items:
+                  raise SystemExit('Empty verified feed: '+group)
+              for x in items:
+                  target=x['url'].lstrip('/')
+                  if not Path(target).is_file():
+                      raise SystemExit('Broken sidebar link: '+target)
+                  if target.startswith('news-') and x['title'].lower().startswith('news extra:'):
+                      raise SystemExit('EXTRA appears outside dedicated Extra archive')
+          if len(feed['news'])>1:
+              a=rotated(feed['news'],'news-UgkxExample.html','featured',bucket=0)[0]['url']
+              b=rotated(feed['news'],'news-UgkxExample.html','featured',bucket=1)[0]['url']
+              if a==b:
+                  raise SystemExit('Rotation did not change across two-hour periods')
+          print('Sidebar VERIFIED:',{k:len(v) for k,v in feed.items() if k!='videos'})
+          PY
