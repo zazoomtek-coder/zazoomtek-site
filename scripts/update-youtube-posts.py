@@ -2729,6 +2729,63 @@ def render_article_feed(posts, home_guide_inset=""):
         )
     return "\n".join(rows)
 
+def render_home_chronological_feed(posts, limit=15):
+    """Home: newest real Community and independently published NEWS, no duplicates.
+
+    The browser suppresses stories that appear in the live six-card featured
+    mosaic. Keep them in the canonical feed so a changed viral selection cannot
+    make an article vanish from BOTH locations.
+    """
+    ranked=[]
+    seen=set()
+    for post in posts:
+        if is_review(post) or post_category(post)=="extra":
+            continue
+        slug=news_slug(post)
+        published=news_publication_timestamp(post.get("published_iso") or post.get("published"))
+        if published is None or slug in seen:
+            continue
+        seen.add(slug)
+        ranked.append((published,slug,render_article_feed([post])))
+    registry=Path("manual-news.json")
+    if registry.is_file():
+        manual={item.get("slug"):item
+                for item in json.loads(registry.read_text(encoding="utf-8")).get("items",[])
+                if isinstance(item,dict)}
+        for published,slug,_ in manual_news_entries():
+            if slug in seen:
+                continue
+            item=manual[slug]
+            category=str(item.get("featured_section") or "").lower()
+            if category not in ("tech","gaming"):
+                category="news"
+            title=html.escape(str(item.get("title") or "News ZazoomTek"))
+            image=html.escape(str(item.get("image") or "/ChatGPT.png"),quote=True)
+            summary=html.escape(str(item.get("excerpt") or ""))
+            date=html.escape(str(item.get("date") or ""))
+            iso=html.escape(str(item.get("published_at") or ""),quote=True)
+            search=html.escape((str(item.get("title") or "")+" "+str(item.get("excerpt") or "")).lower(),quote=True)
+            row=(
+                f'<article class="article-row" data-manual-news="true" data-post-category="{category}" '
+                f'data-published-at="{iso}" data-search="{search}">'
+                f'<a href="/{slug}"><img class="article-image" src="{image}" alt="{title}" loading="lazy"></a>'
+                f'<div class="article-copy"><h3><a href="/{slug}">{title}</a></h3>'
+                f'<div class="article-meta">ZazoomTek · {date}</div>'
+                f'<p>{summary}</p><a class="read-more" href="/{slug}">Leggi tutto ›</a>'
+                '</div></article>'
+            )
+            seen.add(slug)
+            ranked.append((published,slug,row))
+    ranked.sort(key=lambda entry:(entry[0],entry[1]),reverse=True)
+    selected=ranked[:limit]
+    if len(selected)!=limit or len({item[1] for item in selected})!=limit:
+        raise RuntimeError("Home News chronology: expected distinct, dated articles")
+    print("Home NEWS chronological: ",len(ranked),"source articles,",
+          len(selected),"visible cards, manual included:",
+          sum('data-manual-news="true"' in x[2] for x in selected))
+    return "\\n".join(item[2] for item in selected)
+
+
 def render(posts):
     return render_news_cards(posts)
 
@@ -3006,8 +3063,14 @@ def main():
     except (OSError,ValueError,TypeError):
         built_manual_hash=""
     manually_changed=bool(manual_hash) and manual_hash!=built_manual_hash
+    current_home_renderer="chronological-manual-home-v1"
+    try:
+        last_renderer=json.loads(manual_state.read_text(encoding="utf-8")).get("home_renderer","")
+    except (OSError,ValueError,TypeError):
+        last_renderer=""
     force_rebuild=(os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
-                   or not migrated_extra or outdated_titles or manually_changed)
+                   or not migrated_extra or outdated_titles or manually_changed
+                   or last_renderer!=current_home_renderer)
     if source_unchanged and not force_full_scan and not force_rebuild:
         print("No YouTube Community content changes; skipping HTML regeneration.")
         return
@@ -3030,8 +3093,6 @@ def main():
     write_review_archive(reviews,editorial_rows)
     for p in news: write_news_page(p,news)
     write_news_archive(general_news,reviews)
-    if manual_hash:
-        manual_state.write_text(json.dumps({"sha256":manual_hash},indent=2),encoding="utf-8")
     write_extra_archive(news,reviews)
     update_sitemap()
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
@@ -3065,7 +3126,7 @@ def main():
     # Only Tech and Gaming enter the two Home news columns. EXTRA is a
     # dedicated ninth-menu archive and must not be relabeled as Tech or Gaming.
     home_news=general_news
-    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(home_news[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_home_chronological_feed(home_news,PAGE_SIZE)+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
     pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(1,total_article_pages)+"\n        <!-- ARTICLE_PAGINATION_END -->"
@@ -3080,6 +3141,8 @@ def main():
     # pages 2-5 identical in layout, featured six-card grid and independent
     # carousel loader, rather than cloning a stale pre-import Home snapshot.
     write_article_pages(general_news)
+    if manual_hash:
+        manual_state.write_text(json.dumps({"sha256":manual_hash,"home_renderer":current_home_renderer},indent=2)+"\\n",encoding="utf-8")
     if force_full_scan and complete:
         FULL_COMMUNITY_SCAN_FLAG.unlink(missing_ok=True)
         print("Full Community history scan completed; one-time flag removed.")
