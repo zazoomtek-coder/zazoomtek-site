@@ -433,6 +433,33 @@ def pick(articles,on_date=None):
         # Reuse already-published ZazoomTek pages whenever the same lead was
         # imported from YouTube; never create or display duplicate stories.
         count=0
+        # Respect a verified editorial promotion for a short, explicitly dated
+        # window. News must exist and be recorded in manual-news.json; expired
+        # promotions automatically yield to the ordinary trending selection.
+        for promoted in json.loads((ROOT/"manual-news.json").read_text(encoding="utf-8")).get("items", []):
+            if count == quota:
+                break
+            if promoted.get("kind") != kind or not promoted.get("featured_until"):
+                continue
+            try:
+                expiration = dt.datetime.fromisoformat(promoted["featured_until"].replace("Z","+00:00"))
+            except (TypeError, ValueError):
+                continue
+            if expiration.tzinfo is None or NOW() >= expiration:
+                continue
+            url = "/" + str(promoted.get("slug", ""))
+            image = str(promoted.get("image", ""))
+            title = str(promoted.get("title", ""))
+            if not (re.fullmatch(r"/news-[a-z0-9-]+\.html", url)
+                    and (ROOT/url.lstrip("/")).is_file()
+                    and classify(title) == kind
+                    and (image.startswith("https://") or
+                         (image.startswith("/") and (ROOT/image.lstrip("/")).is_file()))):
+                continue
+            count += add({"url": url, "title": title, "image": image,
+                          "section": kind, "trend_score": 120, "freshness": 100,
+                          "published_date": promoted.get("date"),
+                          "matched_sources": [], "summary": promoted.get("excerpt", "")})
         for x in auto_selected:
             if count==quota:break
             if x.get("section")!=kind:continue
