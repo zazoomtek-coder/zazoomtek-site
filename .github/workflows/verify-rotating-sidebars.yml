@@ -62,6 +62,10 @@ jobs:
             exit 0
           fi
           git commit -m "Refresh verified rotating editorial sidebar feed"
+          # The test rebuilds hundreds of temporary HTML pages. Only publish
+          # the validated JSON: discard unstaged build products before rebase.
+          git reset --hard HEAD
+          git clean -fd
           for attempt in 1 2 3 4; do
             git fetch origin main
             if ! git rebase origin/main; then
