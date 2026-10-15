@@ -2281,6 +2281,158 @@ def build_news_archive_page(news_chunk,page_num,total_pages,reviews):
         +'</body></html>'
     )
 
+
+EXTRA_PAGE_SIZE=20
+
+def extra_page_href(page):
+    return "/extra.html" if page==1 else f"/extra-{page}.html"
+
+def render_extra_related():
+    """Curated, real published articles; no fabricated EXTRA news or fake tests."""
+    related=[
+        ("Lucca Comics & Games 2026: 60 anni di Family Palace tra libri, cinema e laboratori",
+         "/news-Ugkxkk9aJrFlDilY7DUHfpNHaeFsH8sLHlsq.html",
+         "Cultura, famiglie e attività al Real Collegio"),
+        ("Just Dance: Decades of Hits attraversa sei decenni di musica",
+         "/news-UgkxSAUvOBM5omwI8FETzQpDNw4IkUGduS0G.html",
+         "Musica, intrattenimento e danza"),
+        ("Come collegare una PlayStation 2 a una TV 4K moderna",
+         "/guida-come-usare-playstation-2-tv-4k-moderna.html",
+         "Retrogaming e cultura dei videogiochi"),
+    ]
+    items=[]
+    for title,href,desc in related:
+        if not Path(href.lstrip("/")).is_file():
+            continue
+        items.append(
+            '<a class="zt-extra-related-link" href="'+html.escape(href,quote=True)+'">'
+            '<strong>'+html.escape(title)+'</strong><span>'+html.escape(desc)+'</span></a>'
+        )
+    if not items:
+        return ""
+    return ('<section class="zt-extra-related" aria-labelledby="zt-extra-related-title">'
+            '<div class="module-title" id="zt-extra-related-title">Articoli correlati</div>'
+            '<div class="zt-extra-related-grid">'+"".join(items)+'</div></section>')
+
+def render_extra_pagination(current, pages):
+    if pages<=1: return ""
+    items=[]
+    for i in range(1,pages+1):
+        if i==current:
+            items.append(f'<span class="active" aria-current="page">{i}</span>')
+        else:
+            items.append(f'<a href="{extra_page_href(i)}">{i}</a>')
+    if current<pages:
+        items.append(f'<a class="next" href="{extra_page_href(current+1)}">NEXT</a>')
+    return '<nav class="archive-pagination" aria-label="Pagine Extra">'+"".join(items)+'</nav>'
+
+def build_extra_archive_page(items,page_num,pages,reviews):
+    """Complete responsive archive, matching News/Guides and their editorial widgets."""
+    canonical="https://zazoomtek.it"+extra_page_href(page_num)
+    title=("Extra: lifestyle, cultura, sport e curiosità | ZazoomTek" if page_num==1
+           else f"Extra - Pagina {page_num} | ZazoomTek")
+    description=("News Extra su lifestyle, giocattoli, sport, cultura, eventi e "
+                 "intrattenimento: articoli della Community ZazoomTek, senza "
+                 "mescolarli alle notizie tech e gaming.")
+    introduction=(
+        '<div class="zt-extra-intro"><p><strong>Extra</strong> raccoglie le notizie '
+        'di ZazoomTek che escono dal mondo della tecnologia e dei videogiochi: '
+        'lifestyle, cultura, giocattoli, cosmetici, sport, gastronomia, eventi '
+        'e curiosità. Una sezione editoriale autonoma in cui scoprire '
+        'storie e novità di interesse generale, con gli stessi criteri '
+        'di chiarezza e approfondimento delle altre pagine del sito.</p>'
+        '<p>Gli articoli importati dalla Community YouTube vengono selezionati '
+        'in base alla categoria editoriale <em>News Extra</em>, che non appare '
+        'nei titoli delle notizie. Le recensioni sono invece consultabili '
+        'nell’archivio Recensioni e le notizie su software, hardware e videogiochi '
+        'continuano a essere pubblicate nelle sezioni corrispondenti.</p></div>'
+    )
+    if items:
+        listing='<div class="news-list" id="extraList">'+render_news_rows(items)+'</div>'
+    else:
+        listing=(
+            '<div class="zt-extra-welcome"><h2>Nuove notizie Extra in arrivo</h2>'
+            '<p>La categoria è pronta: i nuovi post della Community contrassegnati '
+            'come News Extra appariranno qui automaticamente, senza duplicazioni '
+            'nelle altre sezioni.</p></div>'
+        )
+    schema=json_ld_script({
+        "@context":"https://schema.org",
+        "@type":"CollectionPage",
+        "@id":canonical+"#collection",
+        "url":canonical,
+        "name":title,
+        "description":description,
+        "inLanguage":"it-IT",
+        "isPartOf":{"@id":"https://zazoomtek.it/#website"},
+        "breadcrumb":{"@type":"BreadcrumbList","itemListElement":[
+            {"@type":"ListItem","position":1,"name":"Home","item":"https://zazoomtek.it/"},
+            {"@type":"ListItem","position":2,"name":"Extra","item":"https://zazoomtek.it/extra.html"}
+        ]}
+    })
+    extra_css='''<style>
+.zt-extra-intro{background:#f9f9f9;border-left:5px solid #d51232;padding:16px 20px;margin:4px 0 20px;line-height:1.68;color:#252525}
+.zt-extra-intro p{margin:0 0 12px}.zt-extra-intro p:last-child{margin:0}
+.zt-extra-welcome{background:#fff;border:1px solid #e3e3e3;padding:28px;margin-bottom:20px}
+.zt-extra-welcome h2{font-size:1.2rem;margin:0 0 10px;color:#222}
+.zt-extra-welcome p{margin:0;line-height:1.65}
+.zt-extra-related{margin:24px 0;background:#fff;border:1px solid #ddd}
+.zt-extra-related .module-title{background:#202020;color:#fff;padding:12px 16px;border-left:6px solid #d51232;font-weight:900;text-transform:uppercase}
+.zt-extra-related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:15px}
+.zt-extra-related-link{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid #e2e2e2;color:#252525;text-decoration:none}
+.zt-extra-related-link:hover{border-color:#d51232;color:#b30f2c}
+.zt-extra-related-link strong{font-size:.94rem;line-height:1.35}
+.zt-extra-related-link span{font-size:.78rem;color:#656565}
+@media(max-width:730px){.zt-extra-related-grid{grid-template-columns:1fr}}
+</style>'''
+    return (
+        '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
+        '<link rel="icon" type="image/png" href="/ChatGPT.png">'
+        '<title>'+html.escape(title)+'</title>'
+        '<meta name="description" content="'+html.escape(description,quote=True)+'">'
+        '<link rel="canonical" href="'+canonical+'">'
+        '<meta name="robots" content="index,follow,max-image-preview:large">'
+        '<meta property="og:type" content="website">'
+        '<meta property="og:site_name" content="ZazoomTek">'
+        '<meta property="og:locale" content="it_IT">'
+        '<meta property="og:title" content="'+html.escape(title,quote=True)+'">'
+        '<meta property="og:description" content="'+html.escape(description,quote=True)+'">'
+        '<meta property="og:url" content="'+canonical+'">'
+        '<meta property="og:image" content="https://zazoomtek.it/ChatGPT.png">'
+        '<meta name="twitter:card" content="summary_large_image">'
+        '<meta name="twitter:title" content="'+html.escape(title,quote=True)+'">'
+        '<meta name="twitter:description" content="'+html.escape(description,quote=True)+'">'
+        +schema+NEWS_ARCHIVE_STYLE+extra_css+'</head><body>'
+        +rich_editorial_header("extra")
+        +'<main class="news-page"><div class="zt-wrap news-layout">'
+        +'<section class="news-main"><div class="news-main-head"><h1>Extra</h1>'
+        '<div class="news-filter"><span>Lifestyle</span><span>Cultura</span>'
+        '<span>Sport</span><span>Giocattoli</span><span>Eventi</span></div></div>'
+        +introduction+listing
+        +render_extra_pagination(page_num,pages)
+        +render_extra_related()
+        +'</section><aside class="news-sidebar">'+news_video_sidebar(reviews)
+        +'</aside></div></main>'+legal_footer()+SMART_STICKY_SCRIPT
+        +'</body></html>'
+    )
+
+def write_extra_archive(news,reviews):
+    extras=[p for p in news if post_category(p)=="extra"]
+    extras.sort(
+        key=lambda p:news_publication_timestamp(p.get("published_iso") or p.get("published")) or 0,
+        reverse=True,
+    )
+    pages=max(1,(len(extras)+EXTRA_PAGE_SIZE-1)//EXTRA_PAGE_SIZE)
+    for page_num in range(1,pages+1):
+        batch=extras[(page_num-1)*EXTRA_PAGE_SIZE:page_num*EXTRA_PAGE_SIZE]
+        Path(extra_page_href(page_num).lstrip("/")).write_text(
+            build_extra_archive_page(batch,page_num,pages,reviews),encoding="utf-8")
+    for stale in Path(".").glob("extra-[0-9]*.html"):
+        if stale.name not in {extra_page_href(n).lstrip("/") for n in range(2,pages+1)}:
+            stale.unlink()
+    print("EXTRA archive:",len(extras),"distinct Community posts,",pages,"pages")
+
 def write_news_archive(news,reviews):
     # A single chronological feed for manual + Community NEWS, including
     # pagination. Never pin manually authored articles ahead of newer posts.
@@ -2845,11 +2997,11 @@ def main():
     write_review_archive(reviews,editorial_rows)
     for p in news: write_news_page(p,news)
     write_news_archive(news,reviews)
+    write_extra_archive(news,reviews)
+    update_sitemap()
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
     # Calculate pagination now; generate pages only AFTER Home is finalized.
     total_article_pages=min(5,max(1,(len(news)+PAGE_SIZE-1)//PAGE_SIZE))
-    # Rebuild canonical sitemap after every content sync so Search Console always sees current URLs.
-    update_sitemap()
     s=INDEX.read_text(encoding="utf-8")
     s2=s
     home_reviews=render_home_latest_reviews(reviews)
@@ -2875,7 +3027,10 @@ def main():
                 < s2.index("<!-- HOME_GUIDES_INSET_START -->")
                 < s2.index('id="articoli"')):
         raise RuntimeError("Approved Home Guides position invalid; abort Community sync")
-    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(news[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
+    # Only Tech and Gaming enter the two Home news columns. EXTRA is a
+    # dedicated ninth-menu archive and must not be relabeled as Tech or Gaming.
+    home_news=[p for p in news if post_category(p)!="extra"]
+    feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(home_news[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
     pagination="<!-- ARTICLE_PAGINATION_START -->\n"+render_pagination(1,total_article_pages)+"\n        <!-- ARTICLE_PAGINATION_END -->"
