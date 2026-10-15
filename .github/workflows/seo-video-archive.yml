@@ -1,7 +1,6 @@
 name: Preserve public ZazoomTek video watch archive
 on:
-  schedule:
-    - cron: '37 4 * * *'
+  # Archive maintenance only on request or targeted staging changes.
   workflow_dispatch:
   push:
     branches:
