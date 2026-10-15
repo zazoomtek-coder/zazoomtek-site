@@ -28,9 +28,9 @@ for anchor in re.finditer(r'<a\b([^>]*)>([\s\S]*?)</a>',home_match.group(1),re.I
         href="/"+href.lstrip("./")
     home_items.append((label,href))
 required_nav=("Home","News","Recensioni","Guide","Tech Impact",
-              "Gaming Inside","Community","Video")
+              "Gaming Inside","Extra","Community","Video")
 if tuple(label for label,_ in home_items)!=required_nav:
-    raise RuntimeError("Home main navigation must contain all eight approved buttons in order")
+    raise RuntimeError("Home main navigation must contain all nine approved buttons in order")
 
 reference_source=(root / "news.html").read_text(encoding="utf-8")
 header_pattern=re.compile(r'<header\b[^>]*>[\s\S]*?</header>',re.I)
@@ -55,6 +55,17 @@ def active_nav_key(filename):
         return "Tech Impact"
     if name.startswith("gaming-inside-") or name=="gaming-today.html":
         return "Gaming Inside"
+    if name=="extra.html" or name.startswith("extra-"):
+        return "Extra"
+    # Imported EXTRA news keep their news-YouTube ID; detect by the
+    # article breadcrumb, not a filename substring or keyword guess.
+    if re.fullmatch(r"news-Ugkx[^/]+[.]html",name):
+        try:
+            raw=(root/name).read_text(encoding="utf-8",errors="replace")
+            if re.search(r'<a\s+href="/extra[.]html">Extra</a>',raw,re.I):
+                return "Extra"
+        except OSError:
+            pass
     if name.startswith(("test-","unboxing-","gaming-")) or name in (
         "recensioni.html","test.html","unboxing.html","gaming.html"):
         return "Video"
