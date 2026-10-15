@@ -1418,7 +1418,7 @@ def write_review_page(p, all_reviews=None):
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
-        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
+        +editorial_display_h1(title)+f'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
         +img+f'<div class="article-body">{review_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)
@@ -1911,7 +1911,7 @@ def write_review_page(p, all_reviews=None):
         +rich_review_header()
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
         +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/recensioni-scritte.html">Recensioni</a> / '+html.escape(title)+'</div>'
-        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
+        +editorial_display_h1(title)+f'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 Recensione</span></div>'
         +img+f'<div class="article-body">{review_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +latest_reviews_sidebar_box(all_reviews,p.get("id") or "",5)

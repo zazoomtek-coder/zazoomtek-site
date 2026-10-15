@@ -7,6 +7,11 @@ import re
 import html as html_utils
 
 root=Path(__file__).resolve().parents[1]
+# Repair legacy visible publication dates before verifying site-wide pages.
+from zt_publication_dates import repair_publication_dates
+fixed_dates, unresolved_dates, audited_dates = repair_publication_dates(root)
+print(f"Publication dates audited: {audited_dates}; repaired: {fixed_dates}; without reliable source: {unresolved_dates}")
+
 
 # SITE_NAV_CANONICAL_20261012 - Mandatory navigation on ALL HTML pages.
 # Home is the source of truth: any change to its menu is inherited by all
