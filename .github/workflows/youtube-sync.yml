@@ -177,8 +177,21 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
-          python3 scripts/update-youtube.py
-          python3 scripts/validate-sync-output.py videos
+          videos_imported=false
+          for attempt in 1 2 3; do
+            if python3 scripts/update-youtube.py && python3 scripts/validate-sync-output.py videos; then
+              videos_imported=true
+              break
+            fi
+            echo "::warning::YouTube video import attempt ${attempt}/3 failed."
+            git reset --hard HEAD
+            git clean -fd
+            if [ "$attempt" -lt 3 ]; then sleep "$((attempt * 4))"; fi
+          done
+          if [ "$videos_imported" != true ]; then
+            echo "::error::Video import exhausted three serial attempts; valid remote state retained."
+            exit 1
+          fi
           if [ -n "$(git status --porcelain)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
