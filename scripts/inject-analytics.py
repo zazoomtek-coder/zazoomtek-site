@@ -5,7 +5,7 @@ from zt_footer import unify_footer
 import re
 
 ROOT=Path(".")
-TAG='<script src="/zt-analytics.js" defer></script>'
+TAG='<script src="/zt-analytics.js" async></script>'
 STYLE='<link rel="stylesheet" href="/zt-design.css?v=20261010footernav" data-zt-design="20261010">'
 SKIP={"googlea3c594e14c6f832d.html"}
 
@@ -21,7 +21,11 @@ def inject(path: Path):
                        "/zt-design.css?v=20261010footernav",updated,count=1)
     else:
         updated=re.sub(r"</head>",lambda m:STYLE+"\n"+m.group(0),updated,count=1,flags=re.I)
-    if TAG not in updated:
+    # Preserve just one analytics loader on each page. Async runs while the
+    # document is parsing and captures even brief visits more reliably.
+    analytics_tag_re=r'<script\\b[^>]*\\bsrc=["\\\']/zt-analytics[.]js(?:[?][^"\\\']*)?["\\\'][^>]*>\\s*</script>'
+    updated, existing_tags=re.subn(analytics_tag_re,TAG,updated,count=1,flags=re.I)
+    if existing_tags==0:
         updated=re.sub(r"</head>",lambda m:TAG+"\n"+m.group(0),updated,count=1,flags=re.I)
     updated=unify_footer(updated)
     if updated==content:
