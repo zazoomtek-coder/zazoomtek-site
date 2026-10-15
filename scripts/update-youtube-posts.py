@@ -829,7 +829,7 @@ def is_review(p):
 
     # News Tech / News Gaming / News Extra are ROUTING MARKERS only.
     # Never interpret them as reviews, even when the body mentions a rating.
-    if re.match(r"^news(?:\s+(?:tech|gaming|extra))?\s*(?::|$)",first,re.I):
+    if re.match(r"^news(?:\s+(?:tech|game|gaming|extra))?\s*(?::|$)",first,re.I):
         return False
     if re.match(r"^review\s*(?::|$)",first,re.I):
         return True
@@ -1668,14 +1668,14 @@ def clean_site_title(line):
 
 # Editorial routing is taken from the FIRST Community heading only.
 # These labels never appear in on-site titles, OG tags, snippets or article H1.
-NEWS_ROUTING_RE=re.compile(r"^news(?:\s+(tech|gaming|extra))?\s*(?::\s*(.*))?$",re.I)
+NEWS_ROUTING_RE=re.compile(r"^news(?:\s+(tech|game|gaming|extra))?\s*(?::\s*(.*))?$",re.I)
 
 def post_category(p):
     raw=p.get("text") or ""
     heading=next((clean_site_title(x) for x in raw.splitlines() if clean_site_title(x)), "")
     match=NEWS_ROUTING_RE.match(heading.strip())
     if match:
-        return (match.group(1) or "news").lower()
+        return {"game":"gaming"}.get((match.group(1) or "news").lower(),(match.group(1) or "news").lower())
     return "review" if is_review(p) else "news"
 
 
