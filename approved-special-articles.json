@@ -698,6 +698,37 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "la-via-francese-all-intelligenza-artificiale-parigi-punta-sull-asse-nvidia-mistral",
+      "title": "La via francese all'Intelligenza Artificiale: Parigi punta sull'asse Nvidia-Mistral",
+      "summary": "Una bozza non pubblicabile che analizza la strategia della Francia per la sovranità tecnologica nell'intelligenza artificiale, basandosi sulle informazioni pubblicate da Il Sole 24 Ore in merito a infrastrutture, accordi pubblici e applicazioni industriali.",
+      "paragraphs": [
+        "La Francia sta portando avanti un percorso mirato alla costruzione della propria sovranità digitale e tecnologica, muovendosi attraverso un'implementazione industriale su vasta scala che interessa i settori chiave dell'economia reale. Secondo quanto riportato da Il Sole 24 Ore, che fa riferimento anche a quanto documentato sul blog ufficiale di NVIDIA, questo modello industriale affonda le sue radici nei semi gettati durante l'AI Action Summit del febbraio 2025 e nei vertici denominati 'Choose France'. La strategia francese non si limita a dichiarazioni di intenti politici nei consessi europei, ma punta a un ecosistema integrato che unisce la visione dello Stato, le infrastrutture private, le eccellenze accademiche e i campioni nazionali del software.",
+        "Un pilastro fondamentale di questa strategia è il controllo dell'infrastruttura fisica e la capacità di elaborare i dati a livello nazionale. In questa direzione si inserisce l'espansione della produzione di server dedicati all'intelligenza artificiale in Europa da parte di Bull: come evidenziato dalla fonte giornalistica, a partire dal 2028 lo stabilimento di Angers, inaugurato di recente, si occuperà di produrre sistemi basati sull'architettura NVIDIA Vera Rubin Ultra NVL72. Parallelamente, sul fronte dei dati immateriali, l'accordo quadro CANUT ha reso Twake.ai l'unico ambiente di lavoro digitale certificato per oltre 2.500 enti pubblici francesi, un sistema basato sul modello NVIDIA Nemotron e gestito da LINAGORA e Docaposte. Nel comparto finanziario, inoltre, l'operatore SBS sta sviluppando piattaforme protette per consentire alle banche di utilizzare l'intelligenza artificiale generativa mantenendo i dati all'interno dei confini aziendali.",
+        "Sul versante dello sviluppo software, la Francia si affida ai modelli aperti con Mistral AI nel ruolo di capofila, ricordando il recente rilascio del modello Large 4. Le applicazioni pratiche di queste tecnologie toccano anche settori avanzati come la space economy e la produzione industriale. Tra gli esempi citati da Il Sole 24 Ore figura il satellite Altair-1, lanciato con successo nel mese di riferimento e frutto dell'integrazione con Loft Orbital: grazie all'impiego dei moduli NVIDIA Jetson AGX Orin e dei modelli Mistral, il satellite è in grado di effettuare elaborazioni per l'osservazione della Terra in tempo reale e operazioni autonome direttamente nello spazio. Ulteriori sviluppi e segnali legati a questo ecosistema tecnologico sono attesi dal keynote di Jensen Huang in occasione del GTC Berlin fissato per mercoledì 21 ottobre."
+      ],
+      "date": "2026-10-15",
+      "sources": [
+        "https://www.ilsole24ore.com/art/la-via-francese-all-intelligenza-artificiale-cosi-parigi-blinda-sua-sovranita-tecnologica-sull-asse-nvidia-mistral-AJd8F4iB"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-15T13:52:44.111996+00:00"
+      },
+      "source_fingerprints": [
+        "3e8c7229dd7cc4e0"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
