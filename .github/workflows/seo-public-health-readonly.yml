@@ -1,8 +1,6 @@
 name: SEO production health - independent read only
 on:
-  # Independent production smoke checks, every six hours.
-  schedule:
-    - cron: '23 */6 * * *'
+  # Optional SEO health checks on request/relevant changes; no fixed polling.
   workflow_dispatch:
   push:
     branches:
