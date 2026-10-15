@@ -90,6 +90,8 @@ def classify(title,hint=""):
     # Gaming-branded hardware is still technology, not video-game news.
     device=bool(re.search(r"\b(cuffie|auricolari|headset|microfono|notebook|laptop|smartphone|router|tastiera|mouse|monitor|scheda grafica|videocamera|audio spaziale|tablet|fotocamera|ssd|dash cam)\b",original))
     if device:return "tech"
+    # A named videogame and its alpha/beta/gameplay announcement must not occupy a Tech slot.
+    if re.search(r"\b(vaultbreakers|pvpve|pvp|pve|gameplay|alpha test|beta test|playtest|early access)\b",original):return "gaming"
     # EA SPORTS FC is a football video game, not a consumer-technology launch.
     if re.search(r"\b(ea sports fc(?:\s*\d{2})?|ea fc(?:\s*\d{2})?|fifa|efootball|football manager|pro evolution soccer|wwe\s*2k\d{2}|street fighter|tekken|mortal kombat|nba\s*2k\d{2})\b",original):return "gaming"
     return "gaming" if gaming or hint=="gaming" else "tech"
