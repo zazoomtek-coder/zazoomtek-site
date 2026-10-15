@@ -129,6 +129,21 @@ def write_rotating_sidebar_feed(news, tech, gaming, videos):
                 break
         clips[category]=matches
     payload["videos"]=clips
+    # Interleave categories instead of returning 3 nearly identical links
+    # from one category in the "Dalla redazione" editorial recommendations.
+    editorial=[]
+    used=set()
+    for index in range(12):
+        for kind in ("news","tech","gaming","reviews","guides"):
+            group=payload.get(kind,[])
+            if index>=len(group):
+                continue
+            item=group[index]
+            if item["url"] in used:
+                continue
+            used.add(item["url"])
+            editorial.append(item)
+    payload["editorial"]=editorial
     path=ROOT/"zt-sidebar-feed.json"
     result=json.dumps(payload,ensure_ascii=False,separators=(",",":"))+"\n"
     if not path.exists() or path.read_text(encoding="utf-8")!=result:
