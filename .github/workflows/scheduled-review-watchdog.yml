@@ -1,7 +1,9 @@
 name: Scheduled review publication watchdog
+# Primary approved-review publisher retains its 5-minute schedule.
+# This fallback runs hourly to reduce unnecessary checks.
 on:
   schedule:
-    - cron: '3,13,23,33,43,53 * * * *'
+    - cron: '3 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
