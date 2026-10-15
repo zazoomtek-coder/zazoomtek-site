@@ -19,6 +19,16 @@ Ogni altra modifica a ZazoomTek.it deve preservarla.
 Gaming Inside, Google Analytics, SEO, ricerca, Guide o articoli manuali**, se la
 modifica non richiede espressamente un intervento all'importazione YouTube.
 
+## Regola vincolante: video solo via player YouTube
+
+- **Non scaricare, copiare, caricare o conservare file video** (MP4, WebM, ecc.) su GitHub, Firebase Hosting o Cloudflare. Il video rimane ospitato da YouTube.
+- L'importatore `scripts/update-youtube.py` acquisisce **solo ID, titoli, date, categorie, URL, miniature/link e metadati** necessari alle schede del sito; l'espressione «importare video» significa importare le schede, **mai i file audiovisivi**.
+- Nelle pagine di ZazoomTek.it, cliccando sulla copertina si apre il **player incorporato di YouTube** (preferire `https://www.youtube-nocookie.com/embed/VIDEO_ID`), come nella recensione «Poly Fighter PC»: riproduzione dai server YouTube, non dalla banda del nostro hosting.
+- Preferire miniature remote `https://i.ytimg.com/vi/VIDEO_ID/...` quando disponibili; non confondere le copertine locali degli **articoli Community**, che restano pubblicazioni editoriali, con file video.
+- **Priorità assoluta durante la migrazione Cloudflare**: preservare separatamente sia l'importazione automatica di video/player sia quella dei post Community (news e recensioni). Non dimezzare né sospendere queste due importazioni per risparmiare build o traffico. Eventuali riduzioni riguardano prima automazioni non essenziali.
+- L'integrazione player richiede che il video sia pubblico e consenta l'incorporamento; se non è incorporabile, mostrare un link di apertura su YouTube, senza copiarne il file.
+- Verificare per ogni migrazione che le schede mostrino miniatura, titolo, clic, player e fallback, e che nessun flusso produca file video locali.
+
 ## Separazione degli errori
 
 1. Ogni 5 minuti verificare il canale YouTube.
