@@ -634,6 +634,38 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "chatgpt-e-la-sicurezza-dei-minori-otto-stati-usa-citano-in-giudizio-openai",
+      "title": "ChatGPT e la sicurezza dei minori: otto Stati USA citano in giudizio OpenAI",
+      "summary": "Otto Stati americani hanno promosso azioni legali contro OpenAI, accusando la società di aver commercializzato ChatGPT come uno strumento sicuro per i giovani nonostante presunti rischi e la raccolta illecita di dati. L'azienda respinge le contestazioni difendendo le proprie misure di protezione.",
+      "paragraphs": [
+        "Come riferito dalla testata HWUpgrade, otto Stati degli Stati Uniti hanno avviato vertenze giudiziarie separate nei tribunali statali contro OpenAI, mettendo sotto accusa la sicurezza di ChatGPT e la trasparenza verso genitori e consumatori. Le azioni legali sono state depositate in Iowa, Kansas, Nebraska, Virginia Occidentale, Arkansas, Arizona, Idaho e Montana. Secondo le contestazioni presentate dalle autorità locali, la società avrebbe dato priorità ai profitti e alla crescita commerciale rispetto alla tutela degli utenti, promuovendo il chatbot come un servizio sicuro anche per i minorenni senza informare adeguatamente sui potenziali rischi legati a un utilizzo prolungato o non idoneo.",
+        "Le denunce evidenziano diversi pericoli associati alle interazioni con l'intelligenza artificiale, tra cui la fornitura di consigli medici rischiosi, l'incitamento a comportamenti dannosi e l'amplificazione di paranoie e deliri. Le autorità sostengono inoltre che il sistema possa indebolire il pensiero critico, favorire abitudini non salutari e raccogliere illecitamente i dati personali dei minori. Nelle denunce si citano anche vicende giudiziarie promosse da familiari di persone decedute e recenti episodi di attacchi informatici associati a sistemi fuori controllo. La procuratrice generale dell'Iowa, Brenna Bird, ha dichiarato che la causa del suo Stato mira a tutelare i residenti da condotte definite sconsiderate e illegali, sostenendo che l'azienda presenti il software come sicuro e amico mentre fornisce indicazioni pericolose. Parallelamente, la vertenza dell'Arizona sottolinea l'allontanamento di OpenAI dalla sua iniziale natura di organizzazione orientata al bene pubblico.",
+        "OpenAI ha respinto le accuse per bocca del portavoce Drew Pusateri, il quale ha affermato che ChatGPT dispone di protezioni per età all'avanguardia nel settore. Pusateri ha spiegato che la società intende proseguire il lavoro con esperti per introdurre ulteriori tutele, come i controlli parentali e i promemoria per le pause, confermando la disponibilità a collaborare con le istituzioni per definire regole condivise per l'intero comparto. A supporto della propria posizione, l'azienda richiama il recente lancio ad agosto di ChatGPT for Teens, una versione studiata per gli adolescenti con filtri volti a limitare l'esposizione a materiali inappropriati.",
+        "Le cause intentate dagli otto Stati chiedono ai giudici di irrogare sanzioni civili a OpenAI, di vietare dichiarazioni ritenute ingannevoli sulla sicurezza del chatbot e di ordinare la cancellazione dei dati personali raccolti illegittimamente. Questa nuova offensiva legale si aggiunge all'azione intrapresa lo scorso giugno dal procuratore generale della Florida, James Uthmeier, che aveva citato in giudizio la società con accuse analoghe sulla distribuzione di un prodotto non sicuro."
+      ],
+      "date": "2026-10-15",
+      "sources": [
+        "https://www.hwupgrade.it/news/web/chatgpt-fa-male-ai-giovani-otto-stati-usa-portano-openai-in-tribunale_160609.html"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-15T09:05:51.254775+00:00"
+      },
+      "source_fingerprints": [
+        "aec7ae1f17682399"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
