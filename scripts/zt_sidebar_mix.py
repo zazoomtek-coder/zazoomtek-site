@@ -130,7 +130,7 @@ def write_rotating_sidebar_feed(news, tech, gaming, videos):
         clips[category]=matches
     payload["videos"]=clips
     path=ROOT/"zt-sidebar-feed.json"
-    result=json.dumps(payload,ensure_ascii=False,separators=(",",":"))+"\\n"
+    result=json.dumps(payload,ensure_ascii=False,separators=(",",":"))+"\n"
     if not path.exists() or path.read_text(encoding="utf-8")!=result:
         path.write_text(result,encoding="utf-8")
     print("Sidebar live feed:", {k:len(v) for k,v in payload.items()
