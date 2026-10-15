@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-15T13:55:06.654356+00:00",
+  "generated_utc": "2026-10-15T13:56:18.546979+00:00",
   "sites": {
     "hdblog": {
       "headlines": 20,
@@ -83,7 +83,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -96,7 +96,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -109,7 +109,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -122,7 +122,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -135,7 +135,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -148,7 +148,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -161,7 +161,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -174,7 +174,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -187,7 +187,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -200,7 +200,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -213,7 +213,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -226,7 +226,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-13T16:27:44.846288+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -239,7 +239,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -252,7 +252,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:33:10.334980+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -265,7 +265,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -278,7 +278,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -291,7 +291,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -304,7 +304,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -317,7 +317,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hdblog",
@@ -330,7 +330,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -343,7 +343,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -356,7 +356,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -369,7 +369,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-13T10:27:40.249577+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -382,7 +382,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -395,7 +395,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -408,7 +408,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -421,7 +421,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:28:48.653070+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -434,7 +434,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -447,7 +447,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -460,7 +460,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -473,7 +473,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -486,7 +486,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-14T07:02:47.871324+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -499,7 +499,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-14T08:52:08.256456+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -512,7 +512,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-12T08:57:10.258135+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -525,7 +525,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-11T12:29:02.878692+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -538,7 +538,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -551,7 +551,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -564,7 +564,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -577,7 +577,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "dday",
@@ -590,7 +590,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -603,7 +603,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -616,7 +616,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -629,7 +629,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-12T09:29:26.815799+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -642,7 +642,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -655,7 +655,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-14T07:02:47.871324+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -668,7 +668,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-13T16:27:44.846288+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -681,7 +681,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -694,7 +694,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-13T06:33:21.616139+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -707,7 +707,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-11T05:51:24.146140+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -720,7 +720,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -733,7 +733,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -746,7 +746,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -759,7 +759,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -772,7 +772,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-13T22:46:57.092400+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -785,7 +785,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-13T20:51:22.415195+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -798,7 +798,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -811,7 +811,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -824,7 +824,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -837,7 +837,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "smartworld",
@@ -850,7 +850,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -863,7 +863,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -876,7 +876,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -889,7 +889,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -902,7 +902,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -915,7 +915,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -928,7 +928,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -941,7 +941,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -954,7 +954,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -967,7 +967,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -980,7 +980,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -993,7 +993,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1006,7 +1006,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1019,7 +1019,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1032,7 +1032,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1045,7 +1045,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1058,7 +1058,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1071,7 +1071,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1084,7 +1084,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1097,7 +1097,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-12T07:30:23.755779+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "tomshw",
@@ -1110,7 +1110,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1123,7 +1123,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1136,7 +1136,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1149,7 +1149,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1162,7 +1162,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1175,7 +1175,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1188,7 +1188,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1201,7 +1201,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1214,7 +1214,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1227,7 +1227,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1240,7 +1240,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1253,7 +1253,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1266,7 +1266,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1279,7 +1279,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1292,7 +1292,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1305,7 +1305,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1318,7 +1318,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1331,7 +1331,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1344,7 +1344,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1357,7 +1357,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1370,7 +1370,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1383,7 +1383,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-13T17:29:12.417278+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1396,7 +1396,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-13T12:33:29.680763+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1409,7 +1409,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-12T18:28:27.343313+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1422,7 +1422,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1435,7 +1435,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T04:49:26.672427+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1448,7 +1448,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-13T16:27:44.846288+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1461,7 +1461,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1474,7 +1474,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1487,7 +1487,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1500,7 +1500,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1513,7 +1513,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1526,7 +1526,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1539,7 +1539,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1552,7 +1552,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1565,7 +1565,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1578,7 +1578,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1591,7 +1591,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1604,7 +1604,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1617,7 +1617,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "multiplayer",
@@ -1630,7 +1630,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1643,7 +1643,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1656,7 +1656,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1669,7 +1669,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1682,7 +1682,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1695,7 +1695,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1708,7 +1708,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-14T22:46:06.825352+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1721,7 +1721,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1734,7 +1734,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-14T20:48:47.720681+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1747,7 +1747,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1760,7 +1760,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1773,7 +1773,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1786,7 +1786,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1799,7 +1799,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-13T22:46:57.092400+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1812,7 +1812,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-13T16:27:44.846288+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1825,7 +1825,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1838,7 +1838,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-14T22:46:06.825352+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1851,7 +1851,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1864,7 +1864,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1877,7 +1877,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "everyeye",
@@ -1890,7 +1890,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1903,7 +1903,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1916,7 +1916,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1929,7 +1929,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1942,7 +1942,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1955,7 +1955,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1968,7 +1968,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-13T08:29:28.465221+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1981,7 +1981,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -1994,7 +1994,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2007,7 +2007,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2020,7 +2020,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2033,7 +2033,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2046,7 +2046,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2059,7 +2059,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2072,7 +2072,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2085,7 +2085,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2098,7 +2098,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2111,7 +2111,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2124,7 +2124,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2137,7 +2137,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "spaziogames",
@@ -2150,7 +2150,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2163,7 +2163,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2176,7 +2176,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2189,7 +2189,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2202,7 +2202,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-13T08:29:28.465221+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2215,7 +2215,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2228,7 +2228,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-12T20:25:58.406530+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2241,7 +2241,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2254,7 +2254,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-12T10:55:16.281256+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2267,7 +2267,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-12T15:06:28.819744+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2280,7 +2280,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2293,7 +2293,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2306,7 +2306,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2319,7 +2319,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2332,7 +2332,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2345,7 +2345,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2358,7 +2358,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2371,7 +2371,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2384,7 +2384,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-12T15:06:28.819744+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2397,7 +2397,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-13T10:27:40.249577+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "ign",
@@ -2410,7 +2410,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2423,7 +2423,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2436,7 +2436,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2449,7 +2449,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2462,7 +2462,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2475,7 +2475,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2488,7 +2488,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2501,7 +2501,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-13T10:27:40.249577+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2514,7 +2514,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2527,7 +2527,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2540,7 +2540,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2553,7 +2553,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2566,7 +2566,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2579,7 +2579,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2592,7 +2592,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2605,7 +2605,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2618,7 +2618,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2631,7 +2631,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2644,7 +2644,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2657,7 +2657,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamesurf",
@@ -2670,7 +2670,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2683,7 +2683,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-14T08:52:08.256456+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2696,7 +2696,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2709,7 +2709,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T08:52:08.256456+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2722,7 +2722,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2735,7 +2735,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2748,7 +2748,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2761,7 +2761,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2774,7 +2774,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2787,7 +2787,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2800,7 +2800,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2813,7 +2813,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2826,7 +2826,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2839,7 +2839,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2852,7 +2852,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2865,7 +2865,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2878,7 +2878,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2891,7 +2891,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2904,7 +2904,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2917,7 +2917,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2930,7 +2930,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T02:48:21.486304+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2943,7 +2943,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2956,7 +2956,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2969,7 +2969,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "igncom",
@@ -2982,20 +2982,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T00:58:12.032123+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
-    },
-    {
-      "source": "gamespot",
-      "name": "GameSpot.com",
-      "kind": "gaming",
-      "title": "GTA 6 Is Getting An Original Score From Electronic Duo Justice",
-      "url": "https://www.gamespot.com/articles/gta-6-is-getting-an-original-score-from-electronic-duo-justice/",
-      "rank": 1,
-      "homepage": false,
-      "featured_priority": 0,
-      "rss_fallback": true,
-      "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3003,12 +2990,12 @@
       "kind": "gaming",
       "title": "The GTA 6 Launch Trailer Shows Off Vice City And Steamy Scene With Lucia And Jason",
       "url": "https://www.gamespot.com/articles/gta-6-launch-trailer-is-here/",
-      "rank": 2,
+      "rank": 1,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3016,12 +3003,12 @@
       "kind": "gaming",
       "title": "GTA 6’s Push For Realism Includes A Context-Specific Sweating System, For Real",
       "url": "https://www.gamespot.com/articles/gta-6s-push-for-realism-includes-a-context-specific-sweating-system-for-real/",
-      "rank": 3,
+      "rank": 2,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3029,12 +3016,12 @@
       "kind": "gaming",
       "title": "Something Utterly Chaotic Is Happening In The VTuber World",
       "url": "https://www.gamespot.com/articles/something-utterly-chaotic-is-happening-in-the-vtuber-world/",
-      "rank": 4,
+      "rank": 3,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3042,12 +3029,12 @@
       "kind": "gaming",
       "title": "Cyberpunk 2 Is Evolving Beyond Its Director’s Original Vision",
       "url": "https://www.gamespot.com/articles/cyberpunk-2-is-evolving-beyond-its-directors-original-vision/",
-      "rank": 5,
+      "rank": 4,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3055,12 +3042,12 @@
       "kind": "gaming",
       "title": "Epic Is Overhauling Its Anti-Cheat So That Fortnite Can Finally Come To A New Platform",
       "url": "https://www.gamespot.com/articles/epic-is-overhauling-its-anti-cheat-so-that-fortnite-can-finally-come-to-a-new-platform/",
-      "rank": 6,
+      "rank": 5,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T20:48:47.720681+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3068,12 +3055,12 @@
       "kind": "gaming",
       "title": "Xbox Survey About Exclusives Includes A Nuclear Strategy, But Wait Just A Minute",
       "url": "https://www.gamespot.com/articles/xbox-survey-about-exclusives-includes-a-nuclear-strategy-but-wait-just-a-minute/",
-      "rank": 7,
+      "rank": 6,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T20:48:47.720681+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3081,12 +3068,12 @@
       "kind": "gaming",
       "title": "GTA 6 Reviews: When They Could Be Released",
       "url": "https://www.gamespot.com/articles/gta-6-reviews-when-they-could-be-released/",
-      "rank": 8,
+      "rank": 7,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T20:48:47.720681+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3094,12 +3081,12 @@
       "kind": "gaming",
       "title": "Retro Handhelds Loaded With Unlicensed Games Could Face Government Crackdown",
       "url": "https://www.gamespot.com/articles/retro-handhelds-loaded-with-unlicensed-games-could-face-government-crackdown/",
-      "rank": 9,
+      "rank": 8,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3107,12 +3094,12 @@
       "kind": "gaming",
       "title": "Ex-Overwatch Director Jeff Kaplan Says He Never Wanted The Spotlight, But The Game Needed A Face",
       "url": "https://www.gamespot.com/articles/ex-overwatch-director-jeff-kaplan-says-he-never-wanted-the-spotlight-but-the-game-needed-a-face/",
-      "rank": 10,
+      "rank": 9,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3120,12 +3107,12 @@
       "kind": "gaming",
       "title": "Jeff Kaplan Says Separation From Overwatch Was “Clinical”: ” I Never Go Back”",
       "url": "https://www.gamespot.com/articles/jeff-kaplan-says-seperation-from-overwatch-was-clinical-i-never-go-back/",
-      "rank": 11,
+      "rank": 10,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3133,12 +3120,12 @@
       "kind": "gaming",
       "title": "Minecraft’s Verity Is A Top Trending Halloween Costume For 2026",
       "url": "https://www.gamespot.com/articles/minecrafts-verity-is-a-top-trending-halloween-costume-for-2026/",
-      "rank": 12,
+      "rank": 11,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3146,12 +3133,12 @@
       "kind": "gaming",
       "title": "PlayStation Plus Extra/Premium Games For October 2026 Revealed",
       "url": "https://www.gamespot.com/articles/playstation-plus-extra-premium-games-for-october-2026-revealed/",
-      "rank": 13,
+      "rank": 12,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3159,12 +3146,12 @@
       "kind": "gaming",
       "title": "Xbox Nano Controller Announced, And It’s So Small",
       "url": "https://www.gamespot.com/articles/xbox-nano-controller-announced-and-its-so-small/",
-      "rank": 14,
+      "rank": 13,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3172,12 +3159,12 @@
       "kind": "gaming",
       "title": "Ubisoft’s Latest Restructuring Plan Puts Trials Developer RedLynx On The Chopping Block",
       "url": "https://www.gamespot.com/articles/ubisofts-latest-restructuring-plan-puts-trials-developer-redlynx-on-the-chopping-block/",
-      "rank": 15,
+      "rank": 14,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3185,12 +3172,12 @@
       "kind": "gaming",
       "title": "GTA 6 Leaks Are Still Coming, Rockstar Labels The 2022 Hack “Weirdly Invasive”",
       "url": "https://www.gamespot.com/articles/gta-6-leaks-are-still-coming-rockstar-labels-the-2022-hack-weirdly-invasive/",
-      "rank": 16,
+      "rank": 15,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3198,12 +3185,12 @@
       "kind": "gaming",
       "title": "GTA 6 Could Have Been Even Bigger And Released Years Sooner, But Then These Things Happened",
       "url": "https://www.gamespot.com/articles/gta-6-could-have-been-even-bigger-and-released-years-sooner-but-then-these-things-happened/",
-      "rank": 17,
+      "rank": 16,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3211,12 +3198,12 @@
       "kind": "gaming",
       "title": "Hideo Kojima Reviews 2026’s Most Divisive Movie, Digger",
       "url": "https://www.gamespot.com/articles/hideo-kojima-reviews-2026s-most-divisive-movie-digger/",
-      "rank": 18,
+      "rank": 17,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3224,12 +3211,12 @@
       "kind": "gaming",
       "title": "Take-Two CEO’s Response To Second GTA 6 Delay: “Please Tell Me You’re Kidding”",
       "url": "https://www.gamespot.com/articles/take-two-ceos-response-to-second-gta-6-delay-please-tell-me-youre-kidding/",
-      "rank": 19,
+      "rank": 18,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "gamespot",
@@ -3237,12 +3224,25 @@
       "kind": "gaming",
       "title": "GTA 6’s Nightclubs Have An Absurd Amount Of Detail, Right Down To The Lighting",
       "url": "https://www.gamespot.com/articles/gta-6-nightclubs-have-an-absurd-amount-of-detail-right-down-to-the-lighting/",
+      "rank": 19,
+      "homepage": false,
+      "featured_priority": 0,
+      "rss_fallback": true,
+      "first_seen": "2026-10-14T13:00:12.837326+00:00",
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
+    },
+    {
+      "source": "gamespot",
+      "name": "GameSpot.com",
+      "kind": "gaming",
+      "title": "Rockstar Says GTA 6 Didn’t Cost $1.5 Billion To Make, But Won’t Reveal The Real Number",
+      "url": "https://www.gamespot.com/articles/rockstar-says-gta-6-didnt-cost-1-5-billion-to-make-but-wont-reveal-the-real-number/",
       "rank": 20,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3255,7 +3255,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3268,7 +3268,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3281,7 +3281,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3294,7 +3294,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3307,7 +3307,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3320,7 +3320,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-13T10:27:40.249577+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3333,7 +3333,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3346,7 +3346,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3359,7 +3359,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3372,7 +3372,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3385,7 +3385,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3398,7 +3398,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3411,7 +3411,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3424,7 +3424,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-14T20:48:47.720681+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3437,7 +3437,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3450,7 +3450,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3463,7 +3463,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3476,7 +3476,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3489,7 +3489,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "eurogamer",
@@ -3502,7 +3502,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3515,7 +3515,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3528,7 +3528,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3541,7 +3541,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3554,7 +3554,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3567,7 +3567,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3580,7 +3580,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3593,7 +3593,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3606,7 +3606,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3619,7 +3619,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3632,7 +3632,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3645,7 +3645,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-13T10:27:40.249577+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3658,7 +3658,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3671,7 +3671,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3684,7 +3684,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3697,7 +3697,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3710,7 +3710,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3723,7 +3723,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3736,7 +3736,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3749,7 +3749,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "polygon",
@@ -3762,7 +3762,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3775,7 +3775,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3788,7 +3788,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3801,7 +3801,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3814,7 +3814,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3827,7 +3827,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3840,7 +3840,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3853,7 +3853,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-13T22:46:57.092400+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3866,7 +3866,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-13T22:46:57.092400+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3879,7 +3879,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-12T22:23:46.004776+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3892,7 +3892,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3905,7 +3905,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3918,7 +3918,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3931,7 +3931,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3944,7 +3944,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3957,7 +3957,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3970,7 +3970,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3983,7 +3983,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -3996,7 +3996,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -4009,7 +4009,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-15T13:55:06.654356+00:00"
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
     },
     {
       "source": "zazoom",
@@ -4022,6 +4022,19 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-15T13:56:18.546979+00:00"
+    },
+    {
+      "source": "gamespot",
+      "name": "GameSpot.com",
+      "kind": "gaming",
+      "title": "GTA 6 Is Getting An Original Score From Electronic Duo Justice",
+      "url": "https://www.gamespot.com/articles/gta-6-is-getting-an-original-score-from-electronic-duo-justice/",
+      "rank": 1,
+      "homepage": false,
+      "featured_priority": 0,
+      "rss_fallback": true,
+      "first_seen": "2026-10-15T13:55:06.654356+00:00",
       "last_seen": "2026-10-15T13:55:06.654356+00:00"
     },
     {
@@ -4373,19 +4386,6 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-15T13:03:17.793372+00:00"
-    },
-    {
-      "source": "gamespot",
-      "name": "GameSpot.com",
-      "kind": "gaming",
-      "title": "Rockstar Says GTA 6 Didn’t Cost $1.5 Billion To Make, But Won’t Reveal The Real Number",
-      "url": "https://www.gamespot.com/articles/rockstar-says-gta-6-didnt-cost-1-5-billion-to-make-but-wont-reveal-the-real-number/",
-      "rank": 18,
-      "homepage": false,
-      "featured_priority": 0,
-      "rss_fallback": true,
-      "first_seen": "2026-10-14T13:00:12.837326+00:00",
       "last_seen": "2026-10-15T13:03:17.793372+00:00"
     },
     {
