@@ -76,7 +76,8 @@ def main():
         print("Special replacements to investigate:",", ".join(candidates) or "none")
         out=__import__("os").environ.get("GITHUB_OUTPUT")
         if out:
-            with open(out,"a",encoding="utf-8") as f:f.write("special_research="+str(bool(candidates)).lower()+"\n")
+            with open(out,"a",encoding="utf-8") as f:
+                f.write("special_research="+str(bool(candidates)).lower()+"\n")
                 f.write("special_sections="+",".join(candidates)+"\n")
         return
     parser.error("Choose --apply or --test")
