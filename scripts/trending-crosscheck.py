@@ -408,7 +408,7 @@ def prefer_latest_verified_special(selected,eligible):
 
 
 def pick(articles,on_date=None):
-    """Homepage: 3 Tech NEWS, 1 Gaming NEWS, 1 separate Impact and 1 separate Inside."""
+    """Homepage: 2 Tech NEWS, 2 Gaming NEWS, 1 separate Impact and 1 separate Inside."""
     chosen=[];seen=set()
     def add(article):
         if article["url"] in seen:
@@ -429,7 +429,7 @@ def pick(articles,on_date=None):
             auto_selected=[]
     standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
     for kind in ("tech","gaming"):
-        quota = 3 if kind == "tech" else 1
+        quota = 2
         # Reuse already-published ZazoomTek pages whenever the same lead was
         # imported from YouTube; never create or display duplicate stories.
         count=0
@@ -553,7 +553,7 @@ def pick(articles,on_date=None):
             raise RuntimeError("Duplicate highlighted special news")
     assert len(chosen)==6
     assert [x["section"] for x in chosen]==[
-        "tech","tech","tech","gaming","tech-impact","gaming-inside"]
+        "tech","tech","gaming","gaming","tech-impact","gaming-inside"]
     return chosen
 
 
@@ -701,7 +701,7 @@ def selftest():
     existing=matches(owned_candidates(),{"items":[]})
     sample=pick(existing,on_date=dt.date(2026,10,11))
     assert len(sample)==6 and [x["section"] for x in sample]==[
-        "tech","tech","tech","gaming","tech-impact","gaming-inside"]
+        "tech","tech","gaming","gaming","tech-impact","gaming-inside"]
     assert len({x["url"] for x in sample})==6
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[

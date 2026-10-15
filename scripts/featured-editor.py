@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-QUOTA=("tech","tech","tech","gaming","tech-impact","gaming-inside")
+QUOTA=("tech","tech","gaming","gaming","tech-impact","gaming-inside")
 
 def load_matcher():
     p=ROOT/"scripts/trending-crosscheck.py"

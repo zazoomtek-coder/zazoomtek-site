@@ -44,14 +44,14 @@ jobs:
           articles=state.get('items',[])
           assert len(articles)==6
           assert [a['section'] for a in articles]==[
-              'tech','tech','tech','gaming','tech-impact','gaming-inside']
+              'tech','tech','gaming','gaming','tech-impact','gaming-inside']
           assert len({x['url'] for x in articles})==6
           for article in articles:
               local=Path(article['url'].lstrip('/'))
               assert local.is_file(),article['url']
               if article['image'].startswith('/'):
                   assert Path(article['image'].lstrip('/')).is_file(),article['image']
-          print('STATIC FEATURED PASS: 3 Tech, 1 Gaming, 1 Impact, 1 Inside; valid article destinations')
+          print('STATIC FEATURED PASS: 2 Tech, 2 Gaming, 1 Impact, 1 Inside; valid article destinations')
           PY
             git add -- featured-carousel.json trending-sources.json trending-match-report.json
             if git diff --cached --quiet; then
