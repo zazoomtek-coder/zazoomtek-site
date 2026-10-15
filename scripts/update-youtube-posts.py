@@ -2,7 +2,7 @@
 # Global scrollbar refresh marker
 # Structured data refresh marker
 from zt_footer import FOOTER_HTML
-import json,re,html,time,unicodedata,urllib.error,urllib.request,urllib.parse,os
+import json,re,html,time,hashlib,unicodedata,urllib.error,urllib.request,urllib.parse,os
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
@@ -2994,8 +2994,20 @@ def main():
         r'<h2>\s*<a\b[^>]*>\s*(?:News\s+(?:Tech|Gaming|Extra)|News)\s*:',
         archive_source,re.I,
     ))
+    # Manually written News must be rebuilt even if the YouTube Community
+    # feed has not changed. Keep a stable hash of the *published* manual registry
+    # so a missed/older manual article cannot force rebuilding every five minutes.
+    manual_registry=Path("manual-news.json")
+    manual_state=Path(".manual-news-build-state.json")
+    manual_hash=(hashlib.sha256(manual_registry.read_bytes()).hexdigest()
+                 if manual_registry.is_file() else "")
+    try:
+        built_manual_hash=json.loads(manual_state.read_text(encoding="utf-8")).get("sha256","")
+    except (OSError,ValueError,TypeError):
+        built_manual_hash=""
+    manually_changed=bool(manual_hash) and manual_hash!=built_manual_hash
     force_rebuild=(os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
-                   or not migrated_extra or outdated_titles)
+                   or not migrated_extra or outdated_titles or manually_changed)
     if source_unchanged and not force_full_scan and not force_rebuild:
         print("No YouTube Community content changes; skipping HTML regeneration.")
         return
@@ -3018,6 +3030,8 @@ def main():
     write_review_archive(reviews,editorial_rows)
     for p in news: write_news_page(p,news)
     write_news_archive(general_news,reviews)
+    if manual_hash:
+        manual_state.write_text(json.dumps({"sha256":manual_hash},indent=2)+"\\n",encoding="utf-8")
     write_extra_archive(news,reviews)
     update_sitemap()
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.

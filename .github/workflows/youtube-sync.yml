@@ -10,6 +10,7 @@ on:
     paths:
       - '.github/workflows/youtube-sync.yml'
       - 'scripts/update-youtube-posts.py'
+      - 'manual-news.json'
       - 'scripts/test_review_dedup.py'
       - 'scripts/test_community_category_routing.py'
       - 'scripts/test_community_freshness.py'
