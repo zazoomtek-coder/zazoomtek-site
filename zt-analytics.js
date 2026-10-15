@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   // One common header for all non-home pages, including newly generated articles.
-  if(!document.querySelector('.ticker-video-links')){
+  if(!document.querySelector('.ticker-video-links') && !document.querySelector('script[src^="/zt-unified-header.js"]')){
     var globalHeader=document.createElement('script');
     globalHeader.defer=true;
     globalHeader.src='/zt-unified-header.js?v=20261015a';
