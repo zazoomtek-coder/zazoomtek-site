@@ -57,6 +57,7 @@ jobs:
               assert classify(article['title']) == article['section'], (
                   'Wrong featured category: '+article['title'])
           assert classify('WWE 2K26 incontra Street Fighter') == 'gaming'
+          assert classify('VAULTBREAKERS apre l’alpha test pubblico con modalità PvPvE') == 'gaming'
           for article in articles:
               local=Path(article['url'].lstrip('/'))
               assert local.is_file(),article['url']
