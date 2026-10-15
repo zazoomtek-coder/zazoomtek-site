@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-15T13:56:21.973102+00:00",
+  "checked_at": "2026-10-15T13:57:04.595431+00:00",
   "source_sites": 15,
   "matches": 4,
   "selected": [
@@ -14,19 +14,19 @@
       "sources": []
     },
     {
-      "title": "NBA BOUNCE si aggiorna per la stagione NBA 2026-27 con nuove grafiche, loghi e mascotte",
-      "section": "tech",
-      "url": "/news-UgkxbQC_45QYb4vz61Y5kAuZvoDQrOJqcE2y.html",
-      "trend_score": 0,
-      "published_date": "2026-10-15",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
-    },
-    {
       "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
       "section": "tech",
       "url": "/news-UgkxY6L5CMugYZWxCHQIvKQ2DMoO-CL15L4b.html",
+      "trend_score": 0,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
+      "sources": []
+    },
+    {
+      "title": "Sandisk partner esclusivo per lo storage dei Meta VR Glasses",
+      "section": "tech",
+      "url": "/news-UgkxhVDcyMWZkqmKTauSkanEv4Brx1IQ9cRp.html",
       "trend_score": 0,
       "published_date": "2026-10-14",
       "freshness_bonus": 62,
