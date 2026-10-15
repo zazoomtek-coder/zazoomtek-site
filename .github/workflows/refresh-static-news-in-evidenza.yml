@@ -52,9 +52,11 @@ jobs:
           # Category labels alone are insufficient: check the actual headlines.
           import sys
           sys.path.insert(0,'scripts')
-          from trending_crosscheck import classify
+          from trending_crosscheck import classify, community_explicit_categories
+          explicit=community_explicit_categories()
           for article in articles[:4]:
-              assert classify(article['title']) == article['section'], (
+              actual=explicit.get(article['url']) or classify(article['title'])
+              assert actual == article['section'], (
                   'Wrong featured category: '+article['title'])
           assert classify('WWE 2K26 incontra Street Fighter') == 'gaming'
           assert classify('VAULTBREAKERS apre l’alpha test pubblico con modalità PvPvE') == 'gaming'
