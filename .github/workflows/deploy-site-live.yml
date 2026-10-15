@@ -352,6 +352,33 @@ jobs:
           else
             echo "current=true" >> "$GITHUB_OUTPUT"
           fi
+      - name: Verify Extra homepage article links exist in deploy snapshot
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          class ExtraLinks(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_list=False
+                  self.depth=0
+                  self.hrefs=[]
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if tag=="div" and a.get("id")=="extraList":
+                      self.in_list=True
+                  if self.in_list and tag=="a" and a.get("href","").startswith("/"):
+                      self.hrefs.append(a["href"].split("?")[0])
+              def handle_endtag(self,tag):
+                  pass
+          p=ExtraLinks()
+          p.feed(Path("extra.html").read_text(encoding="utf-8"))
+          paths=sorted(set(x for x in p.hrefs if x.endswith(".html")))
+          missing=[x for x in paths if not Path(x.lstrip("/")).is_file()]
+          if missing:
+              raise SystemExit("Extra contains unpublished article links: "+", ".join(missing[:20]))
+          print("PASS:",len(paths),"Extra article links present in Firebase snapshot.")
+          PY
       - name: Deploy latest validated GitHub snapshot to Firebase
         if: steps.freshness.outputs.current == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -360,3 +387,30 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}
           channelId: live
           projectId: zazomtek
+
+      - name: Verify published Extra article URLs after deployment
+        if: steps.freshness.outputs.current == 'true'
+        run: |
+          python3 - <<'PY'
+          import urllib.request,time
+          urls=[
+            "https://zazoomtek.it/extra.html",
+            "https://zazoomtek.it/extra-silki-sedia-3d-seta-riciclata-tracciabilita.html",
+            "https://zazoomtek.it/extra-superlega-credem-banca-2026-27-vbtv-fantasy-game.html",
+          ]
+          for url in urls:
+              last=""
+              for attempt in range(6):
+                  try:
+                      req=urllib.request.Request(url,headers={"User-Agent":"ZazoomTek-deploy-healthcheck/1.0","Cache-Control":"no-cache"})
+                      with urllib.request.urlopen(req,timeout=20) as response:
+                          if response.status==200 and b"<html" in response.read(1024).lower():
+                              print("PASS",response.status,url)
+                              break
+                          last=f"Unexpected status: {response.status}"
+                  except Exception as exc:
+                      last=str(exc)
+                  time.sleep(10)
+              else:
+                  raise SystemExit(f"Extra public URL failed: {url}: {last}")
+          PY
