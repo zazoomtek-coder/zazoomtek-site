@@ -1,6 +1,8 @@
-name: One-time Firebase news preview cleanup
-# Destructive channel cleanup is ALWAYS explicit, never triggered by a code push.
+name: Automatic expired Firebase Hosting version cleanup
+# Only versions already marked EXPIRED are eligible. Never remove live or preview channels.
 on:
+  schedule:
+    - cron: '17 3 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,38 +15,6 @@ jobs:
         with:
           credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}'
           project_id: zazomtek
-      - name: Install Firebase CLI
-        run: npm install --global firebase-tools@15.33.0
-      - name: Delete superseded PR16-PR22 preview channels only
-        shell: bash
-        run: |
-          set -euo pipefail
-          firebase hosting:channel:list --project zazomtek --json > "$RUNNER_TEMP/news-preview-channels.json"
-          python3 - <<'PY'
-          import json,os,subprocess
-          path=os.path.join(os.environ['RUNNER_TEMP'],'news-preview-channels.json')
-          with open(path,encoding='utf-8') as f: response=json.load(f)
-          if isinstance(response,dict) and response.get('status')=='error': raise RuntimeError('Cannot list Firebase channels')
-          channels=[]
-          def scan(value):
-              if isinstance(value,dict):
-                  name=value.get('name')
-                  if isinstance(name,str) and '/channels/' in name: channels.append(name.rsplit('/',1)[-1])
-                  for nested in value.values(): scan(nested)
-              elif isinstance(value,list):
-                  for nested in value: scan(nested)
-          scan(response)
-          print('Firebase channels listed:',len(channels),flush=True)
-          print('Temporary PR channels:',sorted(x for x in channels if x.startswith('pr'))[:50],flush=True)
-          prefixes=tuple(f'pr{i}-' for i in range(16,23))
-          chosen=sorted(set(x for x in channels if x.startswith(prefixes)))
-          print('Superseded news-preview channels found:',len(chosen),flush=True)
-          for name in chosen:
-              print('Deleting temporary channel:',name,flush=True)
-              subprocess.run(['firebase','hosting:channel:delete',name,'--project','zazomtek','--force'],check=True)
-          print('Cleanup complete; live channel was not touched',flush=True)
-          PY
-
       - name: Delete only Firebase Hosting versions already EXPIRED
         shell: bash
         run: |
