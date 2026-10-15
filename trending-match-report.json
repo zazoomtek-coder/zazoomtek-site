@@ -1,18 +1,8 @@
 {
-  "checked_at": "2026-10-15T13:53:21.450180+00:00",
+  "checked_at": "2026-10-15T13:55:09.608498+00:00",
   "source_sites": 15,
-  "matches": 5,
+  "matches": 4,
   "selected": [
-    {
-      "title": "Acornia: Mirror Worlds mostra il primo gameplay tra pasticceria, combattimenti e mondi speculari",
-      "section": "tech",
-      "url": "/news-Ugkxtb4Bti1EEpldDK5P1xmG-cj8aGmJz58X.html",
-      "trend_score": 0,
-      "published_date": "2026-10-15",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
-    },
     {
       "title": "Expeditions: Samurai, il nuovo diario degli sviluppatori svela il villaggio dell’Atto 3",
       "section": "tech",
@@ -31,6 +21,16 @@
       "published_date": "2026-10-15",
       "freshness_bonus": 72,
       "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
+      "section": "tech",
+      "url": "/news-UgkxY6L5CMugYZWxCHQIvKQ2DMoO-CL15L4b.html",
+      "trend_score": 0,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
       "sources": []
     },
     {
