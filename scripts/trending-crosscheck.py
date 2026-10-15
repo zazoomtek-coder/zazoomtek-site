@@ -439,7 +439,7 @@ def pick(articles,on_date=None):
         for promoted in json.loads((ROOT/"manual-news.json").read_text(encoding="utf-8")).get("items", []):
             if count == quota:
                 break
-            if promoted.get("kind") != kind or not promoted.get("featured_until"):
+            if (promoted.get("featured_section") or promoted.get("kind")) != kind or not promoted.get("featured_until"):
                 continue
             try:
                 expiration = dt.datetime.fromisoformat(promoted["featured_until"].replace("Z","+00:00"))
