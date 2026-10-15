@@ -2988,6 +2988,9 @@ def main():
     # Keep raw YouTube state intact; only suppress duplicate reviews on the site.
     visible_posts=[p for p in posts if not is_review(p) or p.get("id") in approved_ids]
     news=[p for p in posts if not is_review(p)]
+    # Strict editorial isolation: EXTRA never appears in Tech/Gaming feeds,
+    # the generic News archive, Home pagination or the Home news ticker.
+    general_news=[p for p in news if post_category(p)!="extra"]
     if not news:
         raise RuntimeError("Community safety check failed: zero news parsed.")
     editorial_rows=manual_review_rows(published_reviews,old_archive)
@@ -2996,12 +2999,12 @@ def main():
     for p in reviews: write_review_page(p,reviews)
     write_review_archive(reviews,editorial_rows)
     for p in news: write_news_page(p,news)
-    write_news_archive(news,reviews)
+    write_news_archive(general_news,reviews)
     write_extra_archive(news,reviews)
     update_sitemap()
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
     # Calculate pagination now; generate pages only AFTER Home is finalized.
-    total_article_pages=min(5,max(1,(len(news)+PAGE_SIZE-1)//PAGE_SIZE))
+    total_article_pages=min(5,max(1,(len(general_news)+PAGE_SIZE-1)//PAGE_SIZE))
     s=INDEX.read_text(encoding="utf-8")
     s2=s
     home_reviews=render_home_latest_reviews(reviews)
@@ -3011,7 +3014,7 @@ def main():
     # The old sidebar reviews box was moved into the main content area.
     s2=re.sub(r'\s*<!-- HOME_LATEST_REVIEWS_START -->.*?<!-- HOME_LATEST_REVIEWS_END -->\s*','\n',s2,flags=re.S)
 
-    ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(news)+"\n    <!-- NEWS_TICKER_END -->"
+    ticker="<!-- NEWS_TICKER_START -->\n"+render_ticker(general_news)+"\n    <!-- NEWS_TICKER_END -->"
     s2=re.sub(r'<!-- NEWS_TICKER_START -->.*?<!-- NEWS_TICKER_END -->',ticker,s2,flags=re.S)
 
     # The carousel has completely separate file ownership and runs through
@@ -3029,7 +3032,7 @@ def main():
         raise RuntimeError("Approved Home Guides position invalid; abort Community sync")
     # Only Tech and Gaming enter the two Home news columns. EXTRA is a
     # dedicated ninth-menu archive and must not be relabeled as Tech or Gaming.
-    home_news=[p for p in news if post_category(p)!="extra"]
+    home_news=general_news
     feed="<!-- ARTICLE_FEED_START -->\n"+render_article_feed(home_news[:PAGE_SIZE])+"\n          <!-- ARTICLE_FEED_END -->"
     s2=re.sub(r'<!-- ARTICLE_FEED_START -->.*?<!-- ARTICLE_FEED_END -->',feed,s2,flags=re.S)
 
@@ -3044,7 +3047,7 @@ def main():
     # Always use the FINAL updated Home as the pagination template. This keeps
     # pages 2-5 identical in layout, featured six-card grid and independent
     # carousel loader, rather than cloning a stale pre-import Home snapshot.
-    write_article_pages(news)
+    write_article_pages(general_news)
     if force_full_scan and complete:
         FULL_COMMUNITY_SCAN_FLAG.unlink(missing_ok=True)
         print("Full Community history scan completed; one-time flag removed.")
