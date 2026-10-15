@@ -56,6 +56,52 @@ jobs:
               subprocess.run(
                   ['gh','workflow','run','youtube-sync.yml','--repo',repo,'--ref','main'],check=True)
           PY
+  verify-publication:
+    # A green importer run does not prove that Firebase serves the new article.
+    if: github.event_name == 'schedule' && github.event.schedule == '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check fresh article URLs against public Firebase and request recovery
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import re,time,urllib.request,urllib.error,subprocess
+          from pathlib import Path
+          content=Path('index.html').read_text(encoding='utf-8')
+          area=content.split('<!-- ARTICLE_FEED_START -->',1)[-1].split('<!-- ARTICLE_FEED_END -->',1)[0]
+          recent=re.findall(r'<a href="(news-[^"]+\.html)"',area)[:3]
+          if not recent:
+              print('No archive links found for public freshness check.')
+              raise SystemExit(1)
+          missing=[]
+          for path in recent:
+              req=urllib.request.Request('https://zazoomtek.it/'+path,headers={'User-Agent':'ZazoomTek-publication-watchdog/1.0','Cache-Control':'no-cache'})
+              try:
+                  with urllib.request.urlopen(req,timeout=12) as response:
+                      body=response.read(4000)
+                      if response.status!=200 or b'<html' not in body.lower():
+                          missing.append(path)
+              except (urllib.error.URLError,TimeoutError) as exc:
+                  print('Public check failed:',path,str(exc))
+                  missing.append(path)
+          if not missing:
+              print('PASS: latest three article URLs are available publicly.')
+              raise SystemExit(0)
+          print('::warning::Some committed news are not publicly reachable:',missing)
+          runs=subprocess.run(['gh','run','list','--workflow','deploy-site-live.yml','--limit','5','--json','status','conclusion','createdAt'],check=True,capture_output=True,text=True)
+          import json,datetime
+          now=datetime.datetime.now(datetime.timezone.utc)
+          for run in json.loads(runs.stdout):
+              age=(now-datetime.datetime.fromisoformat(run['createdAt'].replace('Z','+00:00'))).total_seconds()/60
+              if run['status'] in ('in_progress','queued','pending','waiting') and age<18:
+                  print('Firebase deployment already underway; not dispatching a duplicate.')
+                  raise SystemExit(0)
+          subprocess.run(['gh','workflow','run','deploy-site-live.yml','--ref','main'],check=True)
+          print('::warning::Recovery deploy queued for missing live news.')
+          PY
   deploy-last-good:
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '48 * * * *'
     runs-on: ubuntu-latest
