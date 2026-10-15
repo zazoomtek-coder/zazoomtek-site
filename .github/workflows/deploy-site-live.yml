@@ -346,9 +346,10 @@ jobs:
           set -euo pipefail
           git fetch origin main
           if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-            echo "::notice::Newer main commit detected after validation; queueing a fresh build."
+            echo "::warning::Newer main commit detected; this run will not deploy a stale snapshot."
             echo "current=false" >> "$GITHUB_OUTPUT"
-            gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+            # Never self-dispatch: repeated repository changes can cause a dispatch storm.
+            # The normal main push trigger schedules a fresh deployment.
           else
             echo "current=true" >> "$GITHUB_OUTPUT"
           fi
