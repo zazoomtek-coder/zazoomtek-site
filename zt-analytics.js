@@ -3,14 +3,86 @@
 
   var ID='G-01F6Q4BGTC';
   var KEY='zt_analytics_consent';
+  var DATE_KEY='zt_analytics_consent_at';
+  var CONSENT_DAYS=180;
+  var CONSENT_MS=CONSENT_DAYS*24*60*60*1000;
   var loaded=false;
 
+  function validChoice(value){
+    return value==='granted'||value==='denied';
+  }
+
+  // Technical first-party cookie: remembers only whether Analytics was
+  // accepted or refused. Shared between zazoomtek.it and www.zazoomtek.it.
+  function readConsentCookie(){
+    var parts=document.cookie.split(';');
+    for(var i=0;i<parts.length;i++){
+      var part=parts[i].trim();
+      if(part.indexOf(KEY+'=')===0){
+        var value=part.slice(KEY.length+1);
+        return validChoice(value)?value:null;
+      }
+    }
+    return null;
+  }
+
+  function writeConsentCookie(value){
+    if(!validChoice(value)) return;
+    var attrs=[
+      KEY+'='+value,
+      'Max-Age='+(CONSENT_DAYS*24*60*60),
+      'Path=/',
+      'SameSite=Lax'
+    ];
+    if(location.protocol==='https:') attrs.push('Secure');
+    if(/(^|\\.)zazoomtek\\.it$/i.test(location.hostname)){
+      attrs.push('Domain=.zazoomtek.it');
+    }
+    document.cookie=attrs.join('; ');
+  }
+
   function readConsent(){
-    try{return localStorage.getItem(KEY);}catch(e){return null;}
+    var fromCookie=readConsentCookie();
+    var fromStorage=null;
+    try{
+      var value=localStorage.getItem(KEY);
+      if(validChoice(value)){
+        var stamp=Number(localStorage.getItem(DATE_KEY));
+        // Existing preferences used this key without a timestamp.
+        // Honour them, assigning a date rather than reopening the banner.
+        if(!stamp||!Number.isFinite(stamp)||stamp>Date.now()){
+          stamp=Date.now();
+          localStorage.setItem(DATE_KEY,String(stamp));
+        }
+        if(Date.now()-stamp<CONSENT_MS){
+          fromStorage=value;
+        }else{
+          localStorage.removeItem(KEY);
+          localStorage.removeItem(DATE_KEY);
+        }
+      }
+    }catch(e){}
+    if(fromStorage){
+      if(!fromCookie) writeConsentCookie(fromStorage);
+      return fromStorage;
+    }
+    if(fromCookie){
+      try{
+        localStorage.setItem(KEY,fromCookie);
+        localStorage.setItem(DATE_KEY,String(Date.now()));
+      }catch(e){}
+      return fromCookie;
+    }
+    return null;
   }
 
   function saveConsent(value){
-    try{localStorage.setItem(KEY,value);}catch(e){}
+    if(!validChoice(value)) return;
+    try{
+      localStorage.setItem(KEY,value);
+      localStorage.setItem(DATE_KEY,String(Date.now()));
+    }catch(e){}
+    writeConsentCookie(value);
   }
 
   function loadGA4(){
@@ -69,6 +141,8 @@
     removeBanner();
     showSettingsButton();
     if(value==='granted') loadGA4();
+    // Revoking consent on the settings panel must also stop a tag already loaded.
+    if(value==='denied'&&loaded) window.location.reload();
   }
 
   function showBanner(){
