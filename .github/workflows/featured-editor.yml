@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: '19 */2 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/featured-editor.yml'
+      - 'scripts/featured-editor.py'
 permissions:
   contents: write
   actions: write
