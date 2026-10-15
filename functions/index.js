@@ -375,7 +375,7 @@ exports.trafficApi = onRequest(
     let body;
     try { body = JSON.parse(raw); } catch (_) { return res.status(400).end(); }
     const page = typeof body.page === "string" ? body.page : "";
-    if (!(page === "/" || /^\/[A-Za-z0-9_%./-]{1,180}\.html$/.test(page)) ||
+    if (!(page === "/" || /^\/[A-Za-z0-9_%.-]{1,180}\.html$/.test(page)) ||
         page.includes("..") || page.includes("//")) {
       return res.status(400).end();
     }
