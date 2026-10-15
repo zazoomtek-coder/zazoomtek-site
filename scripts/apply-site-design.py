@@ -305,9 +305,18 @@ def split_editorial_title_h1(page, filename):
 
 
 def unify_site_navigation(page, filename):
-    # Keep the original Home and its pagination masthead untouched.
-    if filename=="index.html" or re.fullmatch(r'pagina-\d+\.html',filename):
+    # Preserve the approved Home layout, but update pagination mastheads to
+    # the same nine buttons; otherwise an old page blocks every Firebase deploy.
+    if filename=="index.html":
         return page
+    if re.fullmatch(r'pagina-\d+\.html',filename):
+        canonical_home=re.search(r'<nav\s+class=["\']nav["\'][^>]*>[\s\S]*?</nav>',home_source,re.I)
+        actual=re.search(r'<nav\s+class=["\']nav["\'][^>]*>[\s\S]*?</nav>',page,re.I)
+        if canonical_home and actual:
+            new_nav=canonical_home.group().replace('class="active" href="/"','href="/"')
+            return page[:actual.start()]+new_nav+page[actual.end():]
+        raise RuntimeError(filename+": missing Home pagination menu")
+
     first=header_pattern.search(page)
     if not first:
         return page
@@ -412,21 +421,21 @@ for nav_path in sorted(root.glob('*.html')):
         if "ZAZOOM" in header.upper() or "ChatGPT.png" in header:
             raise RuntimeError(f"{nav_path.name}: missing full navigation header")
         continue
-    # Exactly the eight Home links, in the correct order, on EVERY page.
+    # Exactly the nine Home links, in the correct order, on EVERY page.
     labels=[
         html_utils.unescape(re.sub('<[^>]+>', '', group)).strip()
         for group in re.findall('<a[^>]*>(.*?)</a>',match.group(),re.I|re.S)
     ]
     if tuple(labels)!=required_nav:
         raise RuntimeError(
-            f"{nav_path.name}: expected eight Home buttons in order; got {labels}")
+            f"{nav_path.name}: expected nine Home buttons in order; got {labels}")
     if 'href="/zt-design.css?v=20261012sidebarFix5"' not in nav_content:
         raise RuntimeError(
             f"{nav_path.name}: shared stylesheet absent or outdated")
     nav_checked+=1
 if nav_checked<20:
     raise RuntimeError(f"Only {nav_checked} pages with full site navigation verified")
-print(f"Verified all eight Home navigation buttons on {nav_checked} site pages")
+print(f"Verified all nine Home navigation buttons on {nav_checked} site pages")
 
 # Make it impossible to deploy a new complete review in the old narrow layout.
 reviews_checked=0
