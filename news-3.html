@@ -22,9 +22,331 @@
 .news-sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}.side-box{margin-bottom:18px;border:1px solid #ddd;background:#fff}.side-video{padding:10px}.side-video a.thumb{display:block;position:relative}.side-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.side-video a.thumb:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:36px;border-radius:8px;background:rgba(220,0,0,.92);display:grid;place-items:center;color:#fff}.side-video h3{margin:8px 2px 6px;font-size:.92rem;line-height:1.25}.side-video small{display:block;color:#888;margin:0 2px 6px}.amazon-mini{padding:16px}.amazon-mini h3{margin:0 0 8px}.amazon-mini p{font-size:.78rem;color:#666;line-height:1.4}.amazon-mini a{display:block;text-align:center;background:var(--zt-grad);color:#fff;padding:11px 8px;font-weight:900;font-size:.75rem}.archive-pagination{margin:28px 0 0;background:#202020;padding:20px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}.archive-pagination a,.archive-pagination span{min-width:52px;height:50px;padding:0 15px;border:1px solid #555;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}.archive-pagination .active{background:var(--zt-grad);border-color:transparent}.archive-pagination .next{min-width:92px}
 @media(max-width:980px){.news-layout{grid-template-columns:1fr}.news-sidebar{position:static;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.side-box{margin:0}}
 @media(max-width:720px){.news-row{grid-template-columns:1fr;padding:14px}.news-sidebar{grid-template-columns:1fr}}
-</style><link rel="stylesheet" href="/zt-design.css?v=20261010footernav" data-zt-design="20261010">
-<script src="/zt-analytics.js" defer></script>
-</head><body><header class="zt-header"><div class="zt-wrap zt-headrow"><a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><span class="zt-brand-copy"><strong class="zt-wordmark" aria-label="ZazoomTek"><span class="zt-mark-blue" aria-hidden="true">ZAZOOM</span><span class="zt-mark-red" aria-hidden="true">TEK</span></strong><small class="zt-brand-tagline">TECH · GAMING · COMMUNITY</small></span></a><nav class="zt-nav"><a href="/">Home</a><a class="active" href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni</a><a href="/guide.html">Guide</a><a href="/tech-today.html">Tech Impact</a><a href="/gaming-today.html">Gaming Inside</a><a href="/extra.html">Extra</a><a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a><a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a></nav><div class="zt-tools"><form class="zt-search" action="/cerca.html" method="get"><input name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form><div class="zt-socials"><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube"></a><a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a><a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp"></a></div></div></div></header><div class="zt-strip"><div class="zt-wrap"><strong>News</strong><span>Notizie tech, gaming e novità dalla Community ZazoomTek</span></div></div><main class="news-page"><div class="zt-wrap news-layout"><section class="news-main"><div class="news-main-head"><h1>Notizie</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Software</span></div></div><div class="news-list" id="newsList"><article class="news-row" data-news-search="be comics! be games! be xmas! arriva a torino il 12 e 13 dicembre con gaming, cosplay e cultura pop news: be comics! be games! be xmas! arriva a torino il 12 e 13 dicembre con gaming, cosplay e cultura pop
+</style></head><body><header class="zt-header"><div class="zt-wrap zt-headrow"><a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><span class="zt-brand-copy"><strong class="zt-wordmark" aria-label="ZazoomTek"><span class="zt-mark-blue" aria-hidden="true">ZAZOOM</span><span class="zt-mark-red" aria-hidden="true">TEK</span></strong><small class="zt-brand-tagline">TECH · GAMING · COMMUNITY</small></span></a><nav class="zt-nav"><a href="/">Home</a><a class="active" href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni</a><a href="/guide.html">Guide</a><a href="/tech-today.html">Tech Impact</a><a href="/gaming-today.html">Gaming Inside</a><a href="/extra.html">Extra</a><a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener">Community</a><a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener">Video</a></nav><div class="zt-tools"><form class="zt-search" action="/cerca.html" method="get"><input name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form><div class="zt-socials"><a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube"></a><a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a><a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp"></a></div></div></div></header><div class="zt-strip"><div class="zt-wrap"><strong>News</strong><span>Notizie tech, gaming e novità dalla Community ZazoomTek</span></div></div><main class="news-page"><div class="zt-wrap news-layout"><section class="news-main"><div class="news-main-head"><h1>Notizie</h1><div class="news-filter"><span>Tutte</span><span>Gaming</span><span>Tech</span><span>Hardware</span><span>Software</span></div></div><div class="news-list" id="newsList"><article class="news-row" data-news-search="players al m9 di venezia mestre racconta 80 anni di videogiochi tra cultura, società e creatività news: players al m9 di venezia mestre racconta 80 anni di videogiochi tra cultura, società e creatività
+dal 14 ottobre 2026 al 14 febbraio 2027, il terzo piano di m9 – museo del ’900 di venezia mestre ospita players. giochi, videogiochi, cultura e società, una mostra dedicata al videogioco come linguaggio culturale, forma espressiva e fenomeno sociale. curata da fabio viola con michelangela di giacomo, giuseppe cosenza e damiano bordoni, l’esposizione attraversa circa ottant’anni di storia, dai primi esperimenti nei laboratori di ricerca alle sale giochi, dalle console domestiche fino alle esperienze contemporanee.
+⠀
+players opens at m9 – museo del ’900 in venice mestre on october 14, 2026, exploring video games as a cultural, artistic and social language. the exhibition spans around 80 years of gaming history, from pioneering experiments and arcades to home consoles, contemporary games, streaming and creative platforms.
+⠀
+il videogioco entra nel museo come linguaggio culturale
+la mostra parte da un presupposto preciso: il videogioco non è più soltanto una forma di intrattenimento, ma uno dei linguaggi culturali più influenti del nostro tempo, capace di dialogare con cinema, letteratura, arti visive e cultura popolare. il percorso vuole raccontarne l’evoluzione storica e tecnologica, ma soprattutto il modo in cui il gaming ha modificato abitudini, immaginario e forme di socialità di intere generazioni.
+⠀
+dai primi laboratori alle sale giochi e alle console domestiche
+l’allestimento ricostruisce alcuni degli ambienti che hanno segnato la storia del videogioco. si passa dai primi spazi di ricerca agli amusement arcade, per arrivare alle camerette degli anni ottanta e novanta e ai salotti nei quali le console sono diventate parte della vita quotidiana. il pubblico può quindi seguire l’evoluzione del medium non soltanto attraverso oggetti esposti, ma anche attraverso ambientazioni e postazioni giocabili.
+⠀
+computer space, pong e un raro dragon’s lair tra i cabinati storici
+tra i pezzi più interessanti figurano cabinati originali di computer space e pong, due testimonianze fondamentali degli inizi dell’industria videoludica, insieme a un raro cabinato di dragon’s lair. a questi si aggiungono console, materiali e oggetti provenienti da collezioni e realtà culturali legate alla storia del gioco.
+⠀
+sid meier e altri protagonisti internazionali raccontano il medium
+il percorso è arricchito da interviste realizzate appositamente con figure importanti della storia del videogioco. tra i protagonisti figurano sid meier, yuka kitamura e jon wilcox, legato al team di sviluppo di worms di team17. alcuni di loro hanno inoltre messo a disposizione oggetti originali per completare l’esperienza espositiva.
+⠀
+tre sezioni per giocare, guardare e creare
+players è articolata in tre grandi aree: #play, #watch e #create. la prima racconta l’evoluzione del videogioco come mezzo e pratica sociale; la seconda ne analizza il rapporto con cinema, arti visive, esport e streaming; la terza entra invece nel processo creativo e nel modo in cui i giocatori possono diventare essi stessi autori di mondi, livelli e regole.
+⠀
+#play attraversa la storia del videogioco
+la sezione #play parte dai primi esperimenti sviluppati negli anni cinquanta e sessanta, attraversa i titoli atari degli anni settanta e i grandi cabinati arcade, fino ad arrivare a console come super nintendo e sega mega drive. nell’area dedicata alla contemporaneità sarà inoltre presente playstation 5, con una selezione ufficiale di videogiochi curata da sony.
+⠀
+#watch racconta videogiochi, cinema, esport e streaming
+la seconda sezione esplora il videogioco come spettacolo e linguaggio visivo. il percorso comprende sequenze cinematografiche, walking simulator, fotografia virtuale, trasmissioni esport e cultura dello streaming. tra i titoli presenti figurano dragon’s lair, detroit: become human, limbo, death stranding, ico e shadow of the colossus.
+⠀
+#create porta il pubblico dietro le quinte
+la sezione #create è dedicata agli autori e al processo di creazione dei videogiochi, ma mostra anche come il confine tra sviluppatore e giocatore sia diventato sempre più sottile. piattaforme come super mario maker, dreams e minecraft permettono infatti agli utenti di progettare direttamente ambienti, livelli, regole ed esperienze interattive.
+⠀
+al centro ci sono le persone, non soltanto le macchine
+uno degli elementi centrali della mostra è proprio il ruolo delle persone: chi progetta, chi sviluppa, chi gioca e chi osserva. players è stata pensata per un pubblico ampio, dagli appassionati storici alla gen z, passando per famiglie, scuole e semplici curiosi, con l’obiettivo di mostrare come il videogioco sia diventato uno dei grandi linguaggi contemporanei.
+⠀
+una mostra pensata anche per l’accessibilità
+per due venerdì al mese sarà disponibile jimmy, lo standing wheelchair progettato dall’azienda veneziana bemoove. per la prima volta in un contesto museale, il dispositivo permetterà ai visitatori con disabilità di muoversi autonomamente in posizione eretta durante la visita.
+⠀
+giocare all’italiana racconta cosa c’era prima dei videogiochi
+parallelamente a players, l’esposizione permanente di m9 ospita il percorso giocare all’italiana. storia, costume e società attraverso il giocattolo del novecento, dedicato all’evoluzione del gioco in italia prima dell’arrivo del videogame. il percorso attraversa giocattoli artigianali, propaganda, boom economico, giochi di società, ruoli di genere e primi esperimenti di elettronica educativa.
+⠀
+videogiochi come ponte tra novecento e presente
+l’obiettivo complessivo è mostrare come il videogioco possa essere utilizzato anche per leggere trasformazioni sociali, tecnologiche e culturali. dalle prime sperimentazioni fino alle piattaforme contemporanee, il medium diventa così un filo conduttore capace di collegare il novecento con il presente e con le nuove forme di creatività digitale.
+⠀
+players sarà visitabile fino al 14 febbraio 2027
+la mostra players. giochi, videogiochi, cultura e società sarà aperta al pubblico presso m9 – museo del ’900 di venezia mestre dal 14 ottobre 2026 al 14 febbraio 2027, offrendo un percorso che unisce storia, cultura, tecnologia e possibilità di giocare direttamente con alcune delle piattaforme che hanno segnato l’evoluzione del medium.
+⠀
+vi piacerebbe visitare una mostra che permette di passare da pong e dragon’s lair fino a ps5, minecraft e death stranding ripercorrendo quasi tutta la storia del videogioco?
+⠀
+se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
+⠀
+subscribe
+🌐 zazoomtek
+▶️ youtube: @zazoomtek
+❤️ patreon: zazoomtek
+🎵 tiktok: @zazoomtek
+💬 whatsapp: zazoomtek
+⠀
+#players #m9museo900 #videogiochi #gamingculture #retrogaming #veneziamestre #storiadeivideogiochi #gamingnews #zazoomtek"><a href="/news-UgkxZjaKkzlUnVnkLWOxij-vAO-KwMJ8Mde9.html"><img src="https://yt3.ggpht.com/p_OaeWUUryl9QYFKMCZG5qm6pvwk38Tscd0KU18tm2L19tz5oX8O4OvStHZ91ounJKrAZB-npCXcsg=s1600-rw-nd-v1" alt="PLAYERS al M9 di Venezia Mestre racconta 80 anni di videogiochi tra cultura, società e creatività" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxZjaKkzlUnVnkLWOxij-vAO-KwMJ8Mde9.html">PLAYERS al M9 di Venezia Mestre racconta 80 anni di videogiochi tra cultura, società e creatività</a></h2><div class="news-meta">ZazoomTek · 13 ottobre 2026</div><p>Dal 14 ottobre 2026 al 14 febbraio 2027, il terzo piano di M9 – Museo del ’900 di Venezia Mestre ospita PLAYERS. Giochi, videogiochi, cultura e società, una mostra dedicata al videogioco come linguaggio culturale, forma espressiva e fenomeno…</p><a class="news-read" href="/news-UgkxZjaKkzlUnVnkLWOxij-vAO-KwMJ8Mde9.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="totem arriva nei negozi città del sole, 160 giochi senza schermo né connessione news: totem arriva nei negozi città del sole, 160 giochi senza schermo né connessione
+città del sole porta nei propri negozi totem, il nuovo dispositivo firmato morphée pensato per offrire ai bambini un’alternativa concreta a smartphone e tablet nei momenti di attesa, viaggio o gioco in famiglia. il funzionamento è volutamente semplice: si sceglie un tema, si capovolge il dispositivo e una voce propone una delle 160 attività disponibili, senza schermo, senza connessione e senza materiali da preparare.
+⠀
+totem by morphée arrives in città del sole stores with 160 screen-free activities designed for children and families. the device works without a display or internet connection and uses a simple flip-to-play interaction to start each game.
+⠀
+un’alternativa allo smartphone nei momenti di attesa
+totem nasce per quei momenti in cui è facile ricorrere automaticamente a uno schermo per intrattenere i più piccoli: un pomeriggio di pioggia, un’attesa al ristorante, un viaggio o semplicemente qualche minuto prima di cena. l’idea è sostituire il consumo passivo di contenuti con attività basate su voce, ascolto, movimento e immaginazione.
+⠀
+il gesto ricorda la classica boîte à meuh
+il funzionamento prende ispirazione da un meccanismo molto semplice: quello delle classiche scatole sonore che si attivano quando vengono capovolte. totem utilizza lo stesso gesto per avviare un’attività a sorpresa, rendendo l’interazione comprensibile anche ai bambini più piccoli senza menu complessi o istruzioni da leggere.
+⠀
+160 giochi organizzati in quattro categorie
+il dispositivo include 160 attività suddivise in quattro grandi temi: concentrazione, creatività, gratitudine e viaggio. ogni categoria è pensata per adattarsi a momenti differenti della giornata e a situazioni di gioco sia individuali sia condivise con famiglia e amici.
+⠀
+concentrazione per allenare attenzione e autocontrollo
+tra le attività dedicate alla concentrazione troviamo giochi come “la parola proibita” e “il gioco delle statue”. l’obiettivo è stimolare attenzione, ascolto e capacità di riflessione attraverso attività semplici che possono essere utilizzate anche nei momenti in cui i bambini sono particolarmente agitati.
+⠀
+creatività per trasformare l’immaginazione in gioco
+la sezione creatività propone attività come “l’oggetto misterioso” e “il ventriloquo”, pensate per spingere i bambini a inventare, raccontare e condividere idee. in questo caso il valore del dispositivo non deriva da immagini o animazioni, ma proprio dal fatto che sia il bambino a costruire mentalmente la scena.
+⠀
+gratitudine e attività dedicate al benessere
+tra le categorie compare anche gratitudine, con proposte come “lo yoga degli animali”. questi giochi invitano i bambini a riconoscere e raccontare piccoli momenti positivi della giornata, introducendo attività più tranquille accanto a quelle basate maggiormente su movimento e attenzione.
+⠀
+viaggio per rendere più divertenti gli spostamenti
+la sezione viaggio comprende giochi come “nel mio zaino c’è” e “né sì né no”, pensati per occupare il tempo durante tragitti in auto, treno o altri spostamenti. totem è stato progettato proprio per essere facilmente trasportabile e utilizzabile lontano da casa, senza richiedere connessione o altri accessori.
+⠀
+l’effetto sorpresa cambia ogni partita
+uno degli elementi più caratteristici è l’impossibilità di sapere in anticipo quale attività verrà proposta. il bambino sceglie soltanto il tema ruotando la parte superiore del dispositivo, quindi capovolge totem e ascolta il gioco selezionato automaticamente. questa casualità rende ogni utilizzo differente e punta a mantenere alta la curiosità.
+⠀
+un solo pulsante per riascoltare le istruzioni
+l’interfaccia è stata ridotta all’essenziale. oltre alla rotazione per scegliere la categoria e al movimento di capovolgimento, totem dispone di un unico pulsante che permette di riascoltare l’attività proposta. una scelta coerente con l’obiettivo di creare un prodotto utilizzabile in autonomia anche dai più piccoli.
+⠀
+niente schermo e nessuna connessione
+uno dei punti centrali del progetto è proprio l’assenza di display e collegamenti online. totem non richiede quindi smartphone, tablet o accesso a internet per funzionare, trasformando la tecnologia in uno strumento che accompagna il gioco senza diventare il centro dell’esperienza.
+⠀
+pensato per casa, famiglia e viaggi
+le dimensioni e la struttura portatile permettono di utilizzare totem in contesti diversi: a casa, durante una visita ad amici, in viaggio o nelle attese quotidiane. l’obiettivo è offrire un’attività pronta all’uso, senza dover preparare materiali o organizzare in anticipo il gioco.
+⠀
+disponibile nei negozi città del sole a 59,95 euro
+totem è disponibile nei punti vendita città del sole e online al prezzo di 59,95 euro. la proposta si inserisce nella filosofia del marchio, da sempre orientata verso giochi capaci di stimolare creatività, pensiero e partecipazione attiva.
+⠀
+secondo voi un dispositivo senza schermo come totem può davvero diventare un’alternativa efficace allo smartphone nei momenti di attesa dei bambini?
+⠀
+se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
+⠀
+subscribe
+🌐 zazoomtek
+▶️ youtube: @zazoomtek
+❤️ patreon: zazoomtek
+🎵 tiktok: @zazoomtek
+💬 whatsapp: zazoomtek
+⠀
+#totem #morphee #cittadelsole #giochieducativi #screenfree #bambini #famiglia #technews #zazoomtek"><a href="/news-UgkxBGaXbwgP0ASm6MzyOwrF9mLqjBPwqdrv.html"><img src="https://yt3.ggpht.com/wTV9oR-jX2J2Cgq0a0FVOjGscLX8NsUG5faWPP38JP9YxnPvsGul_5ySB0DWXv73RA4JwKCmVbAOqA=s1600-rw-nd-v1" alt="Totem arriva nei negozi Città del Sole, 160 giochi senza schermo né connessione" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxBGaXbwgP0ASm6MzyOwrF9mLqjBPwqdrv.html">Totem arriva nei negozi Città del Sole, 160 giochi senza schermo né connessione</a></h2><div class="news-meta">ZazoomTek · 13 ottobre 2026</div><p>Città del Sole porta nei propri negozi Totem, il nuovo dispositivo firmato Morphée pensato per offrire ai bambini un’alternativa concreta a smartphone e tablet nei momenti di attesa, viaggio o gioco in famiglia. Il funzionamento è volutamente…</p><a class="news-read" href="/news-UgkxBGaXbwgP0ASm6MzyOwrF9mLqjBPwqdrv.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="realme passa a coloros 17 basato su android 17, rollout da ottobre sui primi smartphone news: realme passa a coloros 17 basato su android 17, rollout da ottobre sui primi smartphone
+realme annuncia l’arrivo di coloros 17 basato su android 17, segnando un nuovo passaggio nell’evoluzione del software del brand. il nuovo sistema punta soprattutto su fluidità, intelligenza artificiale e continuità dell’esperienza d’uso, con un rollout globale previsto a partire da ottobre su alcuni dei modelli più recenti e rappresentativi della gamma.
+⠀
+realme is introducing coloros 17 based on android 17, with a stronger focus on fluidity, intelligent resource management and ai-powered features. the global rollout starts in october, initially covering selected flagship and recent realme smartphones.
+⠀
+da realme ui 7.0 a coloros 17
+il passaggio a coloros 17 rappresenta un’evoluzione importante per l’esperienza software realme. il brand parla di una transizione naturale rispetto a realme ui 7.0, mantenendo gli elementi già familiari agli utenti ma integrandoli in una piattaforma più strettamente collegata allo sviluppo di coloros.
+⠀
+fluidità e reattività al centro dell’esperienza
+uno dei principali obiettivi della nuova versione è migliorare la sensazione di velocità durante l’utilizzo quotidiano. coloros 17 introduce animazioni più fluide, interazioni più immediate e una gestione intelligente delle risorse pensata per mantenere prestazioni stabili e affidabili anche nel tempo.
+⠀
+l’intelligenza artificiale diventa più presente
+l’ai assume un ruolo più centrale all’interno del sistema operativo. realme vuole superare il modello basato esclusivamente su domande e risposte, introducendo strumenti capaci di assistere l’utente nell’organizzazione dei contenuti, nella gestione delle attività e nello sviluppo di nuove idee.
+⠀
+ai pensata per creare, imparare e organizzare
+coloros 17 punta quindi a utilizzare l’intelligenza artificiale in modo più trasversale. le nuove funzionalità sono progettate per accompagnare attività come creazione di contenuti, studio, gaming e comunicazione, cercando di rendere il sistema operativo più utile nelle attività quotidiane e non soltanto più ricco di funzioni.
+⠀
+collaborazione più stretta con il team coloros
+realme sottolinea anche una collaborazione sempre più profonda con il team coloros. questo approccio dovrebbe permettere al brand di integrare funzionalità software più avanzate continuando però a mantenere le caratteristiche che distinguono l’esperienza realme.
+⠀
+un cambiamento importante nella strategia software
+il passaggio da realme ui a coloros 17 mostra una maggiore convergenza verso una piattaforma software comune. per gli utenti significa un’interfaccia che dovrebbe conservare continuità con il passato, ma beneficiare allo stesso tempo di uno sviluppo più ampio e di una maggiore integrazione delle tecnologie ai.
+⠀
+rollout globale da ottobre
+la distribuzione ufficiale di coloros 17 inizierà a ottobre 2026 e procederà gradualmente. realme adotterà un rollout per fasi, quindi non tutti i dispositivi compatibili riceveranno l’aggiornamento nello stesso momento.
+⠀
+i primi modelli compatibili
+tra i primi smartphone coinvolti figurano realme gt 8 pro, realme gt 7 pro, realme 16 pro e realme 16 pro+. si tratta di modelli recenti e di fascia alta o medio-alta, scelti per inaugurare la nuova generazione software.
+⠀
+disponibilità diversa in base a modello e mercato
+realme precisa che tempistiche e disponibilità potranno variare in base al dispositivo e al paese. il rollout verrà quindi esteso progressivamente ad altri smartphone compatibili, seguendo un calendario differente a seconda dei mercati.
+⠀
+android 17 diventa la base della nuova esperienza realme
+con coloros 17, realme costruisce la propria nuova piattaforma software sulla base di android 17, puntando a offrire un sistema più fluido, intelligente e integrato nelle attività quotidiane. l’obiettivo è rendere lo smartphone sempre più capace di adattarsi al modo in cui viene utilizzato, mantenendo allo stesso tempo semplicità e continuità.
+⠀
+secondo voi il passaggio da realme ui a coloros 17 rappresenta un miglioramento oppure preferivate un’interfaccia più distinta per realme?
+⠀
+se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
+⠀
+subscribe
+🌐 zazoomtek
+▶️ youtube: @zazoomtek
+❤️ patreon: zazoomtek
+🎵 tiktok: @zazoomtek
+💬 whatsapp: zazoomtek
+⠀
+#realme #coloros17 #android17 #realmegt8pro #realmegt7pro #intelligenzaartificiale #smartphone #technews #zazoomtek"><a href="/news-UgkxJtnjr69lRe_UU0p4peoueh64NfWSi1zF.html"><img src="https://yt3.ggpht.com/3c5f_5ssRd3cdl2SMa68ugboaW64GvTrsQC6LrVMBOLeiiX1E5IEBCnCJ63D60BtnDYJQYPBwjvEJQ=s1600-rw-nd-v1" alt="realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxJtnjr69lRe_UU0p4peoueh64NfWSi1zF.html">realme passa a ColorOS 17 basato su Android 17, rollout da ottobre sui primi smartphone</a></h2><div class="news-meta">ZazoomTek · 13 ottobre 2026</div><p>realme annuncia l’arrivo di ColorOS 17 basato su Android 17, segnando un nuovo passaggio nell’evoluzione del software del brand. Il nuovo sistema punta soprattutto su fluidità, intelligenza artificiale e continuità dell’esperienza d’uso, con un…</p><a class="news-read" href="/news-UgkxJtnjr69lRe_UU0p4peoueh64NfWSi1zF.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="hisense presenta speed oven, il forno 7-in-1 che raggiunge 230 °c in soli 60 secondi news: hisense presenta speed oven, il forno 7-in-1 che raggiunge 230 °c in soli 60 secondi
+hisense amplia la propria gamma di elettrodomestici per la cucina con speed oven, una soluzione multifunzione progettata per riunire in un unico apparecchio microonde, forno, grill, friggitrice ad aria e diverse modalità di cottura automatica. il nuovo modello punta soprattutto sulla rapidità: grazie alla combinazione di microonde, flusso d’aria 3d e riscaldamento superiore può raggiungere 230 °c in appena 60 secondi, eliminando nella maggior parte dei casi la necessità del tradizionale preriscaldamento.
+⠀
+hisense speed oven combines microwave, air frying, grilling and conventional oven functions in a single compact appliance. its multi-source heating system can reach 230 °c in 60 seconds, while more than 40 automatic programs aim to simplify everyday cooking.
+⠀
+un unico apparecchio per sostituire più elettrodomestici
+speed oven nasce con l’obiettivo di ridurre il numero di dispositivi necessari in cucina. hisense riunisce infatti diverse tecnologie normalmente distribuite tra microonde, forno tradizionale, friggitrice ad aria, grill, tostapane e altri apparecchi, creando una soluzione pensata per preparare rapidamente sia piccoli pasti sia ricette più complete.
+⠀
+230 °c in appena 60 secondi
+uno degli elementi più interessanti è la velocità di riscaldamento. hisense dichiara che speed oven può raggiungere 230 °c in soli 60 secondi, sfruttando contemporaneamente energia a microonde, aria calda tridimensionale e riscaldamento dall’alto. l’obiettivo è iniziare immediatamente la preparazione degli alimenti riducendo i tempi di attesa tipici dei forni tradizionali.
+⠀
+tempi di cottura ridotti fino al 60%
+secondo hisense, questa combinazione di tecnologie può ridurre i tempi di preparazione fino al 60% rispetto a un forno tradizionale. una cottura più rapida dovrebbe inoltre contribuire a trattenere maggiormente l’umidità all’interno degli alimenti, cercando di mantenere l’esterno croccante senza asciugare eccessivamente la parte interna.
+⠀
+tre fonti di calore lavorano contemporaneamente
+speed oven utilizza tre differenti sistemi di riscaldamento: energia a microonde, flusso d’aria calda 3d e un elemento riscaldante in fibra di carbonio. invece di concentrare il calore prevalentemente in una sola direzione, il sistema punta a distribuirlo in maniera più uniforme intorno al cibo, migliorando doratura e omogeneità della cottura.
+⠀
+speedheat smart tray è il cuore del sistema
+una delle caratteristiche più particolari è lo speedheat smart tray, uno speciale vassoio che contiene un materiale in grado di assorbire l’energia delle microonde e trasformarla direttamente in calore. in questo modo anche la parte inferiore degli alimenti riceve una fonte di calore intensa, elemento normalmente difficile da ottenere utilizzando esclusivamente un microonde.
+⠀
+più croccantezza anche dal basso
+il funzionamento dello smart tray permette di lavorare sulla doratura della base, rendendo speed oven più adatto a preparazioni come pizza, prodotti da forno, biscotti e alette di pollo. l’obiettivo è avvicinare il risultato a quello di un forno tradizionale mantenendo però i tempi ridotti tipici della tecnologia a microonde.
+⠀
+due zone termiche nella stessa cavità
+lo speedheat smart tray può anche suddividere lo spazio interno in due zone termiche differenti. la parte superiore può essere utilizzata per preparazioni rapide ad alta temperatura, mentre quella inferiore è destinata a riscaldamento delicato, lievitazione o cotture più lente. hisense punta così a consentire la preparazione contemporanea di pietanze diverse limitando anche la contaminazione tra aromi e sapori.
+⠀
+14 categorie principali di cottura
+speed oven mette a disposizione 14 modalità principali: speedy cook, frittura ad aria, microonde, riscaldamento, scongelamento, grill, forno, tostatura, disidratazione, cottura lenta, cottura combinata, pulizia a vapore, my favourite e impostazioni. la varietà punta a rendere l’apparecchio utilizzabile durante praticamente ogni momento della giornata.
+⠀
+oltre 40 programmi automatici
+alle modalità principali si aggiungono più di 40 programmi automatici, pensati per alimenti e preparazioni comuni come pizza, nuggets di pollo, verdure, pasta e riso. l’utente può quindi affidarsi alle impostazioni preconfigurate quando non vuole regolare manualmente temperatura, durata e combinazione delle diverse fonti di calore.
+⠀
+sette elettrodomestici in uno
+hisense presenta speed oven come una soluzione capace di riunire le funzioni di sette differenti elettrodomestici. oltre alla cottura tradizionale e al microonde, sono disponibili frittura ad aria, tostatura, disidratazione, cottura lenta e modalità combinate, permettendo di passare rapidamente da un semplice riscaldamento degli avanzi a preparazioni più elaborate.
+⠀
+quick start, modalità eco e sicurezza bambini
+tra le funzioni dedicate all’utilizzo quotidiano troviamo quick start, pensata per avviare rapidamente il riscaldamento, una modalità eco destinata alla riduzione dei consumi e il blocco di sicurezza per bambini. l’interfaccia è inoltre multilingue e comprende una funzione di pulizia a vapore per semplificare la manutenzione interna.
+⠀
+display tft a colori e comandi touch
+il controllo avviene attraverso un display tft a colori da 3,5 pollici, comandi touch digitali e una manopola fisica. questa combinazione permette di navigare tra programmi e impostazioni senza affidarsi esclusivamente a menu touch, mantenendo una gestione rapida di temperatura, modalità e durata.
+⠀
+capacità interna di 28 litri
+nonostante l’impostazione compatta, speed oven offre una cavità da 28 litri. il design flatbed elimina il tradizionale piatto rotante del microonde e permette quindi di sfruttare in modo più efficiente l’intera superficie interna, facilitando l’inserimento di recipienti più grandi, pizze e più porzioni contemporaneamente.
+⠀
+pensato per cucine moderne e ritmi più veloci
+il concetto alla base del prodotto è quello di concentrare diverse tecnologie di cottura in uno spazio relativamente contenuto, riducendo sia i tempi necessari per preparare i pasti sia il numero di elettrodomestici presenti sul piano di lavoro. per famiglie, piccoli appartamenti o semplicemente per chi cucina spesso in poco tempo, questa versatilità rappresenta l’elemento principale della proposta hisense.
+⠀
+velocità del microonde e risultati più vicini al forno
+speed oven cerca quindi di superare uno dei principali limiti del microonde tradizionale: la difficoltà nel creare superfici realmente dorate e croccanti. l’unione tra speedheat smart tray, aria calda 3d e riscaldamento superiore punta proprio a combinare la rapidità del microonde con una resa più vicina a quella di un forno convenzionale.
+⠀
+vi incuriosisce di più la possibilità di raggiungere 230 °c in 60 secondi oppure l’idea di sostituire più elettrodomestici con un’unica soluzione?
+⠀
+se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
+⠀
+subscribe
+🌐 zazoomtek
+▶️ youtube: @zazoomtek
+❤️ patreon: zazoomtek
+🎵 tiktok: @zazoomtek
+💬 whatsapp: zazoomtek
+⠀
+#hisense #speedoven #elettrodomestici #smartkitchen #friggitriceadaria #forno #cucinasmart #technews #zazoomtek"><a href="/news-UgkxkZg10OhFGxe-d-bQ_gj4zino-VF-ER5K.html"><img src="https://yt3.ggpht.com/OIMvcjBOepuvTEVDOs7xTOfsC3l6RwqjdycDx0YJOlQU41ArFoRkgc4HjTI0FFsaqARtrHVyBkABLw=s1600-rw-nd-v1" alt="Hisense presenta Speed Oven, il forno 7-in-1 che raggiunge 230 °C in soli 60 secondi" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxkZg10OhFGxe-d-bQ_gj4zino-VF-ER5K.html">Hisense presenta Speed Oven, il forno 7-in-1 che raggiunge 230 °C in soli 60 secondi</a></h2><div class="news-meta">ZazoomTek · 13 ottobre 2026</div><p>Hisense amplia la propria gamma di elettrodomestici per la cucina con Speed Oven, una soluzione multifunzione progettata per riunire in un unico apparecchio microonde, forno, grill, friggitrice ad aria e diverse modalità di cottura automatica. Il…</p><a class="news-read" href="/news-UgkxkZg10OhFGxe-d-bQ_gj4zino-VF-ER5K.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="ai e governance, per veeam senza visibilità non può esistere un vero controllo news: ai e governance, per veeam senza visibilità non può esistere un vero controllo
+la crescita degli agenti di intelligenza artificiale sta cambiando profondamente il modo in cui le aziende devono affrontare governance, sicurezza e resilienza. secondo dave russell, senior vice president e head of strategy di veeam software, definire policy e autorizzazioni non basta più: per governare realmente l’ai bisogna sapere dove opera, quali dati utilizza, quali azioni esegue e quali conseguenze produce nei sistemi aziendali.
+⠀
+ai governance increasingly depends on visibility, not just policies and permissions. as autonomous agents gain access to data and business systems, organizations need to understand what they do, what they change and how to recover when something goes wrong.
+⠀
+l’88% utilizza o sperimenta agenti ai, ma solo il 28% riesce davvero a controllarli
+il dato più significativo riguarda il divario tra adozione e capacità di monitoraggio. l’88% delle organizzazioni utilizza già agenti ai oppure ne sta sperimentando l’adozione, ma soltanto il 28% dichiara di riuscire a identificare con certezza sistemi ai che operano fuori dai parametri autorizzati. un divario destinato a diventare più importante man mano che questi strumenti acquisiscono maggiore autonomia.
+⠀
+gli agenti ai non si limitano più a suggerire
+la differenza rispetto alle precedenti generazioni di strumenti intelligenti è nella capacità di agire direttamente. gli agenti possono accedere ai dati, interagire con applicazioni, modificare sistemi e prendere decisioni con una supervisione umana sempre più ridotta. una persona può autorizzarne l’introduzione, ma questo non significa essere automaticamente in grado di seguirne ogni comportamento una volta che il sistema entra in produzione.
+⠀
+l’ai può modificare direttamente gli ambienti di produzione
+per la prima volta le organizzazioni devono gestire sistemi capaci di cambiare autonomamente lo stato degli ambienti operativi. un’azione apparentemente corretta può modificare record, configurazioni o autorizzazioni e propagare i propri effetti attraverso più piattaforme prima che qualcuno si accorga del problema. la governance deve quindi includere la possibilità di ricostruire esattamente ciò che è accaduto.
+⠀
+il problema ricorda il cloud, ma con una differenza decisiva
+la difficoltà nel mantenere visibilità completa non è nuova: con cloud e saas, i team it hanno spesso scoperto applicazioni o macchine virtuali soltanto dopo la loro attivazione. con l’ai, però, il problema cambia dimensione perché un agente non si limita a esistere nell’infrastruttura, ma interagisce attivamente con dati, applicazioni e workload a una velocità che può superare la capacità di supervisione manuale.
+⠀
+bisogna sapere a quali dati può accedere ogni agente
+una volta individuati gli agenti ai presenti nell’organizzazione, diventa necessario conoscere esattamente il loro perimetro operativo. quali dati alimentano le loro decisioni? quali sistemi possono modificare? quali privilegi possiedono? e soprattutto, chi è responsabile dei risultati prodotti? senza queste informazioni, il controllo rimane inevitabilmente incompleto.
+⠀
+bloccare l’ai non è una soluzione realistica
+impedire semplicemente l’utilizzo degli strumenti ai non rappresenta una strategia sostenibile. i dipendenti continueranno a cercare tecnologie capaci di semplificare e velocizzare il proprio lavoro, anche quando non sono formalmente approvate. l’obiettivo dovrebbe essere quindi rendere l’ai sufficientemente visibile da poter essere compresa, controllata e utilizzata in sicurezza.
+⠀
+gli agenti devono essere gestiti come software di produzione
+veeam propone di applicare all’intelligenza artificiale la stessa disciplina utilizzata per i sistemi software più critici: test prima del rilascio, verifica degli accessi, monitoraggio delle modifiche, documentazione delle dipendenze e procedure di continuità operativa. la differenza fondamentale è che gli agenti possono continuare ad agire autonomamente dopo il deployment, rendendo il monitoraggio continuo ancora più importante.
+⠀
+testing e dati reali diventano parte della governance
+verificare un agente soltanto in condizioni controllate potrebbe non essere sufficiente. prima dell’utilizzo su sistemi aziendali critici è necessario considerare anche la qualità e la rappresentatività dei dati con cui entrerà realmente in contatto. dataset affidabili diventano quindi una componente essenziale del processo di validazione e del framework complessivo di governance.
+⠀
+serve anche una responsabilità chiaramente definita
+quando la supervisione dell’ai viene distribuita tra più team senza ruoli precisi, diventa difficile stabilire chi debba rispondere di una decisione errata o di un incidente. definire responsabilità e ownership diventa quindi fondamentale per costruire accountability e fiducia nell’utilizzo di sistemi autonomi.
+⠀
+la resilienza ai non significa soltanto evitare downtime
+un agente potrebbe provocare danni senza interrompere alcun servizio. il sistema potrebbe continuare a funzionare mentre vengono modificati migliaia di file, alterati record o cambiate configurazioni. in questi casi il problema non è semplicemente ripristinare l’intera infrastruttura, ma capire esattamente quali elementi siano stati modificati e intervenire soltanto dove necessario.
+⠀
+ogni azione dovrebbe lasciare una traccia
+per effettuare un ripristino selettivo serve una catena di evidenze che permetta di collegare ogni agente alle azioni eseguite, ai dati utilizzati e alle modifiche generate. senza questo contesto, il recupero rischia di basarsi su ipotesi invece che su informazioni verificabili.
+⠀
+prepararsi agli errori prima di mettere l’ai in produzione
+prima di distribuire un agente, le aziende dovrebbero già sapere cosa fare se il comportamento diventa imprevedibile, chi può sospenderlo, quali procedure alternative garantiscono la continuità e se le modifiche introdotte possono essere annullate selettivamente. la resilienza, in questo scenario, significa riuscire a identificare rapidamente un errore, limitarne l’impatto e correggerlo senza compromettere l’intera organizzazione.
+⠀
+la vera preparazione all’ai parte dalla visibilità
+secondo veeam, le organizzazioni più preparate non saranno necessariamente quelle che adotteranno più agenti, ma quelle capaci di comprenderne il comportamento e mantenerne il controllo nel tempo. serve quindi un inventario aggiornato dei sistemi ai, conoscenza dei dati accessibili, visibilità sulle autorizzazioni, responsabilità definite e possibilità di ricostruire ogni azione importante.
+⠀
+governance significa sapere cosa ha fatto davvero l’ai
+definire ciò che un agente può fare rappresenta soltanto il primo passo. la sfida più complessa consiste nel sapere ciò che ha realmente fatto, quali effetti ha prodotto e come correggere rapidamente eventuali conseguenze indesiderate. è da questa capacità di osservazione e controllo che può nascere una fiducia concreta nell’intelligenza artificiale utilizzata all’interno delle imprese.
+⠀
+secondo voi le aziende sono realmente pronte a controllare agenti ai sempre più autonomi oppure l’adozione sta avanzando più velocemente degli strumenti di governance?
+⠀
+se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
+⠀
+subscribe
+🌐 zazoomtek
+▶️ youtube: @zazoomtek
+❤️ patreon: zazoomtek
+🎵 tiktok: @zazoomtek
+💬 whatsapp: zazoomtek
+⠀
+#veeam #intelligenzaartificiale #aiagents #aigovernance #cybersecurity #dataprotection #resilienza #technews #zazoomtek"><a href="/news-Ugkx421MOc98LGwAzu85c136vEAf5r_50wfO.html"><img src="https://yt3.ggpht.com/caAAYlybmsmVmX8jAK2JH3BzkDRDq8aW1R1AibgdGiY5RAm5cbB6gZf9jEFhfsN1iulP010cBRqV=s1600-rw-nd-v1" alt="AI e governance, per Veeam senza visibilità non può esistere un vero controllo" loading="lazy"></a><div class="news-copy"><h2><a href="/news-Ugkx421MOc98LGwAzu85c136vEAf5r_50wfO.html">AI e governance, per Veeam senza visibilità non può esistere un vero controllo</a></h2><div class="news-meta">ZazoomTek · 13 ottobre 2026</div><p>La crescita degli agenti di intelligenza artificiale sta cambiando profondamente il modo in cui le aziende devono affrontare governance, sicurezza e resilienza. Secondo Dave Russell, Senior Vice President e Head of Strategy di Veeam Software,…</p><a class="news-read" href="/news-Ugkx421MOc98LGwAzu85c136vEAf5r_50wfO.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="huawei lancia in italia watch 6 series e matepad pro 12&quot;, tra benessere, produttività e design premium news: huawei lancia in italia watch 6 series e matepad pro 12&quot;, tra benessere, produttività e design premium
+huawei amplia il proprio ecosistema in italia con huawei watch 6 series e huawei matepad pro 12&quot;, due dispositivi pensati per accompagnare attività quotidiane molto diverse, dalla produttività e creatività al fitness e al monitoraggio del benessere. il nuovo tablet punta su portabilità, display oled papermatte e accessori dedicati, mentre gli smartwatch introducono nuove funzioni di analisi, connettività e controllo direttamente dal polso.
+⠀
+huawei is expanding its ecosystem in italy with the new huawei watch 6 series and huawei matepad pro 12&quot;. the devices focus on productivity, creativity, fitness and everyday wellness, combining premium design with smart features and deeper cross-device integration.
+⠀
+huawei matepad pro 12&quot; punta su leggerezza e mobilità
+il nuovo matepad pro 12&quot; misura appena 4,7 mm di spessore e pesa 454 grammi, caratteristiche pensate per chi lavora o crea contenuti anche lontano dalla scrivania. huawei utilizza un’architettura interna a tre strati con una struttura portante studiata per aumentare la resistenza alla flessione del 50% rispetto alla generazione precedente, mantenendo allo stesso tempo un profilo particolarmente sottile. in italia viene proposto nella colorazione blu con una finitura luminosa e minimalista.
+⠀
+display oled papermatte 3k fino a 144 hz
+uno degli elementi centrali è il display oled flessibile papermatte da 12 pollici, progettato per ridurre riflessi e riverberi in differenti condizioni di illuminazione. huawei dichiara un miglioramento fino al 30% delle prestazioni antiriflesso rispetto alla generazione precedente. il pannello offre risoluzione 3k, luminosità di picco fino a 1.600 nit e frequenza di aggiornamento fino a 144 hz, mentre le cornici da 3,55 mm e il rapporto schermo-corpo del 93% permettono di sfruttare quasi interamente la superficie frontale.
+⠀
+produttività con m-pencil pro e glide keyboard
+matepad pro 12&quot; integra huawei notes e funzioni pensate per un utilizzo più vicino a quello di un pc, insieme alla possibilità di lavorare tra sistemi e dispositivi differenti attraverso l’interconnessione cross-os. il tablet può essere abbinato alla huawei m-pencil pro e alla huawei glide keyboard, creando una configurazione orientata alla scrittura, al disegno, alla gestione dei documenti e alla collaborazione.
+⠀
+huawei watch 6 series arriva in più dimensioni e materiali
+la nuova famiglia comprende huawei watch 6 e watch 6 pro, disponibili in differenti configurazioni. il modello da 42 mm pesa appena 38 grammi e misura 10,2 mm di spessore, diventando secondo huawei il più leggero mai realizzato nella linea watch. la variante da 46 mm utilizza invece una cassa in acciaio inossidabile, mentre entrambe adottano il nuovo arcglow design e il cinturino huawei easycross.
+⠀
+watch 6 pro punta su ceramica e finiture premium
+la versione pro introduce materiali più ricercati. il modello da 46 mm space edition combina una lunetta in ceramica nera con dettagli dorati, mentre il watch 6 pro da 43 mm utilizza cassa e cinturino in ceramica nano-tech, configurazione che huawei presenta come il primo smartwatch interamente in ceramica della propria serie watch.
+⠀
+x-tap e health glance per controllare 11 parametri
+sul fronte del benessere, la nuova versione di x-tap consente di richiamare health glance con un semplice tocco. il sistema riunisce 11 parametri suddivisi in quattro aree: salute generale, endocrina, cardiovascolare e respiratoria. le informazioni vengono accompagnate da suggerimenti personalizzati elaborati sulla base delle tendenze registrate nel tempo.
+⠀
+healthy living aggiunge anche il quadrante dieta
+huawei amplia inoltre la funzione healthy living attraverso un nuovo quadrante dedicato all’alimentazione. l’obiettivo è riunire in un’unica esperienza attività fisica, sonno, umore e dieta, offrendo indicazioni utili a costruire una routine quotidiana più equilibrata senza limitare lo smartwatch al semplice conteggio degli allenamenti.
+⠀
+esim, oltre 100 sport e funzioni outdoor
+watch 6 series supporta la comunicazione indipendente tramite esim, permettendo di rimanere connessi anche quando lo smartphone non è immediatamente disponibile. gli smartwatch supportano oltre 100 modalità di allenamento, mentre la versione pro aggiunge l’app expedition, dedicata agli utenti che praticano attività outdoor.
+⠀
+nuova gesture con rotazione del polso e pagamenti contactless
+tra le novità dell’interfaccia compare una gesture basata sulla rotazione del polso, utilizzabile per navigare tra alcune funzioni senza ricorrere esclusivamente al touchscreen. la serie supporta inoltre i pagamenti contactless attraverso curve pay, ampliando le possibilità di utilizzo quotidiano direttamente dal polso.
+⠀
+matepad pro 12&quot; costa 1.299 euro
+huawei matepad pro 12&quot; è disponibile su huawei store nella colorazione blu al prezzo consigliato di 1.299 euro. fino al 16 novembre 2026 huawei applica uno sconto di 100 euro e include huawei m-pencil pro in omaggio. la configurazione proposta comprende inoltre una tastiera con layout inglese.
+⠀
+watch 6 series parte da 449 euro
+la gamma huawei watch 6 series è disponibile su huawei store con prezzi a partire da 449 euro. fino al 23 novembre 2026 è previsto uno sconto di 50 euro, offrendo quindi una promozione valida durante le prime settimane di commercializzazione.
+⠀
+huawei care pass incluso per entrambi
+per matepad pro 12&quot; e watch 6 series huawei include huawei care pass, che prevede servizi dedicati alla protezione e all’assistenza del dispositivo. secondo le condizioni indicate dal produttore, il pacchetto comprende una sostituzione relativa a schermo, batteria e cover posteriore entro i primi due anni dall’acquisto.
+⠀
+tra il nuovo matepad pro 12&quot; e huawei watch 6 series, quale dispositivo vi sembra più interessante per l’uso quotidiano?
+⠀
+se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
+⠀
+subscribe
+🌐 zazoomtek
+▶️ youtube: @zazoomtek
+❤️ patreon: zazoomtek
+🎵 tiktok: @zazoomtek
+💬 whatsapp: zazoomtek
+⠀
+#huawei #huaweiwatch6 #huaweiwatch6pro #matepadpro12 #smartwatch #tablet #wearabletech #technews #zazoomtek"><a href="/news-UgkxbcoXD_25p4VIR7kWs-B0XEppXkXv9j2h.html"><img src="https://yt3.ggpht.com/2PV-epMqjxmtEPMBhw0wCcPQY2w1qd0GxVcthNzmq0ALW9masWhyj-gbgl0Ytg2a-lax81wD4Ia3tg=s1600-rw-nd-v1" alt="Huawei lancia in Italia WATCH 6 Series e MatePad Pro 12&quot;, tra benessere, produttività e design premium" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxbcoXD_25p4VIR7kWs-B0XEppXkXv9j2h.html">Huawei lancia in Italia WATCH 6 Series e MatePad Pro 12&quot;, tra benessere, produttività e design premium</a></h2><div class="news-meta">ZazoomTek · 13 ottobre 2026</div><p>Huawei amplia il proprio ecosistema in Italia con HUAWEI WATCH 6 Series e HUAWEI MatePad Pro 12&quot;, due dispositivi pensati per accompagnare attività quotidiane molto diverse, dalla produttività e creatività al fitness e al monitoraggio del benessere.…</p><a class="news-read" href="/news-UgkxbcoXD_25p4VIR7kWs-B0XEppXkXv9j2h.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="be comics! be games! be xmas! arriva a torino il 12 e 13 dicembre con gaming, cosplay e cultura pop news: be comics! be games! be xmas! arriva a torino il 12 e 13 dicembre con gaming, cosplay e cultura pop
 torino si prepara ad accogliere be comics! be games! be xmas!, l’edizione natalizia dell’evento dedicato alla cultura pop organizzato da fandango club creators insieme a gl events italia. l’appuntamento è fissato per sabato 12 e domenica 13 dicembre 2026 all’oval lingotto fiere, trasformato per due giorni in uno spazio dedicato a fumetti, videogiochi, cosplay, k-pop, musica, community, artist alley e spettacoli dal vivo.
 ⠀
 be comics! be games! be xmas! comes to turin on december 12 and 13, 2026, with a special winter edition dedicated to comics, gaming, cosplay, k-pop and pop culture. the event will take place at oval lingotto fiere with international guests, creators, communities, workshops, shows and a large artist alley.
@@ -699,306 +1021,7 @@ subscribe
 🎵 tiktok: @zazoomtek
 💬 whatsapp: zazoomtek
 ⠀
-#gameground2026 #castlevania #michiruyamane #bolzano #falloutlondon #ubisoftmilan #gamingitalia #videogiochi #zazoomtek"><a href="/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html"><img src="https://yt3.ggpht.com/snQpfRxzG3mI7g-r-wuX8OgCKR2pJp4La95d3wh6hmgf0PLRlKdlZKCBJUOzr-RjXM_4qevUl5rC-6w=s1600-rw-nd-v1" alt="Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html">Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore</a></h2><div class="news-meta">ZazoomTek · 12 ottobre 2026</div><p>Dal 16 al 18 ottobre 2026 Bolzano ospiterà Game Ground 2026, festival dedicato alla cultura del videogioco arrivato alla sua sesta edizione. L’evento punta ancora una volta a distinguersi dalle tradizionali fiere gaming mettendo al centro…</p><a class="news-read" href="/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="ea sports fc 27, tornano le stelle del futuro con rio ngumoha protagonista del team 1 news: ea sports fc 27, tornano le stelle del futuro con rio ngumoha protagonista del team 1
-ea sports fc 27 riporta in primo piano stelle del futuro, la campagna di football ultimate team dedicata ai giovani talenti destinati a diventare protagonisti del calcio mondiale. il team 1 è disponibile dal 9 al 16 ottobre 2026 e vede come volto principale rio ngumoha del liverpool, affiancato da una selezione di promesse provenienti dai principali campionati maschili e femminili.
-⠀
-future stars returns earlier than usual in ea sports fc 27, celebrating some of the most promising young players in world football. liverpool’s rio ngumoha headlines team 1, available in football ultimate team from october 9 to october 16, 2026.
-⠀
-rio ngumoha guida il team 1
-il protagonista principale di questa prima selezione è rio ngumoha, giovane talento del liverpool e ambasciatore di ea sports fc. dopo essere diventato il più giovane marcatore nella storia del club grazie al gol decisivo realizzato contro il newcastle nella scorsa stagione, ngumoha ha successivamente debuttato anche con la nazionale inglese, entrando rapidamente tra i prospetti più osservati della sua generazione.
-⠀
-da academy stelle del futuro ad ambasciatore di fc 27
-il percorso virtuale di ngumoha è iniziato già in ea sports fc 26, dove era uno dei giocatori dell’academy stelle del futuro con il valore evo più alto. secondo i dati diffusi da ea sports, il suo oggetto fut ha totalizzato oltre 37,5 milioni di gol, più di 30,7 milioni di assist ed è stato potenziato attraverso le evoluzioni oltre 312.000 volte, numeri che spiegano perché sia stato scelto come uno dei volti della nuova campagna.
-⠀
-una promozione dedicata alla nuova generazione del calcio
-stelle del futuro è una delle campagne storiche di ultimate team e nasce con l’obiettivo di valorizzare giovani giocatori prima della loro definitiva affermazione internazionale. negli anni precedenti la promozione ha coinvolto nomi come jude bellingham, alyssa thompson, pedri e bradley barcola, oggi diventati protagonisti nei rispettivi club e campionati.
-⠀
-il team 1 riunisce talenti da tutta europa e non solo
-la prima squadra comprende 15 giocatori, con rappresentanti provenienti da premier league, serie a, bundesliga, ligue 1, liga, liga mx, mls e dai principali campionati femminili. tra i nomi più interessanti figurano rio ngumoha, vicky lópez, myles lewis-skelly, tom bischof, gilberto mora, lily yohannes, mika godts, yoan bonny e lewis hall.
-⠀
-tutti i giocatori del team 1
-il team 1 di stelle del futuro comprende mika godts del paris saint-germain, yoan bonny del lombardia fc, julian hall dei red bull new york, vicky lópez del barcellona femminile, josh king del fulham, gilberto mora del club tijuana, rio ngumoha del liverpool, tom bischof del bayern monaco, lily yohannes dell’ol lyonnes, laura blindkilde del manchester city femminile, myles lewis-skelly dell’arsenal, jacobo ramón del como, jon martín della real sociedad, lewis hall del newcastle united e robin risser del rc lens.
-⠀
-il team 2 arriverà il 16 ottobre
-la campagna non terminerà con la prima selezione. ea sports ha confermato che il team 2 verrà annunciato il 16 ottobre, introducendo nuovi oggetti giocatore e ulteriori contenuti ottenibili attraverso sfide creazione rosa e obiettivi.
-⠀
-torna anche l’academy stelle del futuro
-uno degli elementi più apprezzati dagli utenti tornerà anche in fc 27. l’academy stelle del futuro permetterà di scegliere un giovane giocatore che rientra nei requisiti di età previsti e inserirlo in una serie di evoluzioni concatenate, trasformandolo progressivamente in una carta sempre più competitiva.
-⠀
-le evoluzioni diventano parte centrale della campagna
-il sistema permette quindi di costruire una propria stella del futuro invece di limitarsi agli oggetti disponibili nei pacchetti. completando le evoluzioni previste sarà possibile far crescere il giocatore scelto e personalizzarne il percorso all’interno di ultimate team, offrendo alla community un modo alternativo per sviluppare giovani talenti.
-⠀
-ea sports fc 27 è disponibile su playstation 5, playstation 4, xbox series x|s, xbox one, pc, nintendo switch e nintendo switch 2. il team 1 di stelle del futuro resterà nei pacchetti fino al 16 ottobre 2026, data in cui prenderà il via la seconda parte della campagna.
-⠀
-quale giovane talento del team 1 di stelle del futuro vorreste inserire subito nella vostra squadra di ultimate team?
-⠀
-se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
-⠀
-subscribe
-🌐 zazoomtek.it
-▶️ youtube: @zazoomtek
-❤️ patreon: zazoomtek
-🎵 tiktok: @zazoomtek
-💬 whatsapp: zazoomtek
-⠀
-#easportsfc27 #fc27 #futurestars #stelledelfuturo #ultimateteam #footballultimateteam #riongumoha #eafc #zazoomtek"><a href="/news-UgkxSZwRsjwa-UE_dTpIcqSMfUbFwtkh3Jn5.html"><img src="https://yt3.ggpht.com/pY0m2L6tOuYQRHdka4YMSiuhPg84FdSbOUUrhlcXCkNe3xOwjfshTHz0QE0M6OIZVTIaEwAbe-9p=s1600-rw-nd-v1" alt="EA SPORTS FC 27, tornano le Stelle del Futuro con Rio Ngumoha protagonista del Team 1" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxSZwRsjwa-UE_dTpIcqSMfUbFwtkh3Jn5.html">EA SPORTS FC 27, tornano le Stelle del Futuro con Rio Ngumoha protagonista del Team 1</a></h2><div class="news-meta">ZazoomTek · 11 ottobre 2026</div><p>EA SPORTS FC 27 riporta in primo piano Stelle del Futuro, la campagna di Football Ultimate Team dedicata ai giovani talenti destinati a diventare protagonisti del calcio mondiale. Il Team 1 è disponibile dal 9 al 16 ottobre 2026 e vede come volto…</p><a class="news-read" href="/news-UgkxSZwRsjwa-UE_dTpIcqSMfUbFwtkh3Jn5.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="call of duty modern warfare 4, dmz deep dive parte 2 svela fob, crafting, armi e accesso anticipato news: call of duty modern warfare 4, dmz deep dive parte 2 svela fob, crafting, armi e accesso anticipato
-activision ha pubblicato un nuovo approfondimento dedicato alla modalità dmz di call of duty: modern warfare 4, concentrandosi questa volta sulla struttura della fob, sui sistemi di crafting, sull’acquisizione delle armi, sulle taglie, sulle scorte e sulla progressione. la novità più importante riguarda però l’accesso anticipato: chi effettuerà il preordine digitale di modern warfare 4 potrà entrare in dmz già dal 20 ottobre 2026.
-⠀
-the second dmz deep dive for call of duty: modern warfare 4 reveals more details about the fob, weapon acquisition, crafting, bounties, loadouts and progression systems. players who digitally preorder modern warfare 4 will also receive early access to dmz starting october 20, 2026.
-⠀
-la fob diventa il centro operativo di dmz
-il nuovo approfondimento mostra più nel dettaglio il funzionamento della fob, la base dalla quale i giocatori potranno prepararsi prima delle incursioni. le diverse stazioni presenti al suo interno saranno legate alla gestione dell’equipaggiamento, alla progressione e alle attività necessarie per organizzare le successive operazioni nella modalità extraction di modern warfare 4.
-⠀
-crafting attraverso la stampante 3d
-tra i sistemi presentati compare anche il crafting tramite stampante 3d, uno degli elementi pensati per ampliare le possibilità di preparazione e gestione delle risorse. il sistema sarà integrato nelle attività della fob e consentirà ai giocatori di sfruttare ciò che hanno recuperato durante le missioni per prepararsi alle incursioni successive.
-⠀
-acquisizione delle armi e gestione dell’arsenale
-dmz continuerà a dare grande importanza alle armi recuperate sul campo e alla gestione dell’equipaggiamento. il deep dive approfondisce infatti il sistema di acquisizione delle armi, insieme alla gestione delle scorte e dei loadout, rendendo la preparazione prima di ogni ingresso nella zona operativa una parte centrale dell’esperienza.
-⠀
-taglie e nuovi obiettivi da affrontare
-le taglie rappresenteranno un altro elemento importante della modalità. i giocatori potranno affrontare attività specifiche e obiettivi aggiuntivi mentre esplorano le zone di combattimento, aumentando così le opportunità di ottenere ricompense ma anche i rischi durante ogni operazione.
-⠀
-scorte e loadout diventano ancora più importanti
-la gestione delle scorte sarà fondamentale per decidere cosa portare sul campo e cosa conservare nella fob. preparare correttamente un loadout potrà fare la differenza tra una missione riuscita e la perdita dell’equipaggiamento, mantenendo quella componente di rischio e ricompensa che caratterizza le esperienze extraction.
-⠀
-un sistema di progressione costruito attorno alle incursioni
-il nuovo approfondimento dedica spazio anche alla progressione generale di dmz. le attività completate, le risorse recuperate e la gestione della fob contribuiranno allo sviluppo del giocatore nel tempo, creando un ciclo continuo tra preparazione, ingresso nella zona operativa, recupero delle risorse e potenziamento della propria capacità di affrontare missioni sempre più impegnative.
-⠀
-dmz punta a essere una componente centrale di modern warfare 4
-la quantità di sistemi mostrati suggerisce che dmz non sarà una semplice modalità secondaria. fob, crafting, gestione dell’arsenale, taglie, scorte e progressione costruiscono un’esperienza più strutturata, pensata per premiare sia la pianificazione sia la capacità di adattarsi durante le incursioni.
-⠀
-accesso anticipato dal 20 ottobre
-activision ha inoltre confermato che chi preordinerà digitalmente call of duty: modern warfare 4 potrà ottenere l’accesso anticipato a dmz a partire da martedì 20 ottobre 2026, permettendo ai giocatori di entrare nella modalità prima del lancio generale.
-⠀
-tra fob, crafting, gestione delle armi e progressione, quale sistema della nuova dmz di modern warfare 4 vi incuriosisce di più?
-⠀
-se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
-⠀
-subscribe
-🌐 zazoomtek.it
-▶️ youtube: @zazoomtek
-❤️ patreon: zazoomtek
-🎵 tiktok: @zazoomtek
-💬 whatsapp: zazoomtek
-⠀
-#callofduty #modernwarfare4 #codmw4 #dmz #callofdutydmz #activision #infinityward #gamingnews #zazoomtek"><a href="/news-UgkxFcKuOM5B9s3C-I_wnL7Y-0E4nj3h7bXb.html"><img src="https://yt3.ggpht.com/q14FYSA6R5xDB4mMIZDhHGXz272eXMpB9lwIbLE5wvuK6C87KEULSTTIpf1Sxv75SUmbzuMDTSCK=s1600-rw-nd-v1" alt="Call of Duty Modern Warfare 4, DMZ Deep Dive Parte 2 svela FOB, crafting, armi e accesso anticipato" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxFcKuOM5B9s3C-I_wnL7Y-0E4nj3h7bXb.html">Call of Duty Modern Warfare 4, DMZ Deep Dive Parte 2 svela FOB, crafting, armi e accesso anticipato</a></h2><div class="news-meta">ZazoomTek · 11 ottobre 2026</div><p>Activision ha pubblicato un nuovo approfondimento dedicato alla modalità DMZ di Call of Duty: Modern Warfare 4, concentrandosi questa volta sulla struttura della FOB, sui sistemi di crafting, sull’acquisizione delle armi, sulle taglie, sulle scorte…</p><a class="news-read" href="/news-UgkxFcKuOM5B9s3C-I_wnL7Y-0E4nj3h7bXb.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="crazy taxi: world tour corre in brasile, sega svela la quarta mappa della campagna news: crazy taxi: world tour corre in brasile, sega svela la quarta mappa della campagna
-
-sega ha presentato al brasil game show 2026 una nuova ambientazione di crazy taxi: world tour, confermando il brasile come quarta delle cinque mappe previste nella campagna narrativa tour mondiale. la presentazione è stata affidata a kenji kanno, creatore originale di crazy taxi e producer del nuovo capitolo, che ha mostrato il primo trailer dedicato alla nuova area.
-⠀
-crazy taxi: world tour is heading to brazil with a new map inspired by vibrant city streets, beaches and coastal landscapes. the brazil location is the fourth of five maps featured in the game’s world tour single-player campaign, with the full game scheduled for 2027.
-⠀
-il brasile entra nel tour mondiale
-la nuova mappa porta i giocatori attraverso un’ambientazione caratterizzata da strade urbane molto vivaci, zone costiere e panorami ispirati al territorio brasiliano. l’obiettivo del team è ricreare il contrasto tra la frenesia delle aree cittadine e gli scenari naturali che circondano la città, mantenendo il ritmo estremamente veloce e imprevedibile che ha sempre caratterizzato la serie crazy taxi.
-⠀
-la quarta delle cinque mappe della campagna
-il brasile rappresenta la quarta località confermata per la modalità tour mondiale, la nuova campagna narrativa single player di crazy taxi: world tour. il gioco porterà quindi la struttura classica della serie su scala internazionale, chiedendo ai giocatori di affrontare missioni e corse in città differenti, ognuna caratterizzata da conformazione, traffico e percorsi specifici.
-⠀
-tornano anche i negozi reali
-sega ha confermato la presenza nella mappa brasiliana di diverse attività commerciali realmente esistenti, tra cui habib’s, fogo de chão e fast shop. è un richiamo diretto ai capitoli storici di crazy taxi, nei quali marchi e locali reali facevano parte integrante degli scenari e contribuivano a rendere più riconoscibili le destinazioni dei passeggeri.
-⠀
-kenji kanno torna alla guida della serie
-a presentare la nuova ambientazione è stato kenji kanno, figura storica del franchise e producer di crazy taxi: world tour. secondo kanno, il team di sviluppo ha trovato particolare ispirazione nel contrasto tra le strade affollate, la vita urbana contemporanea, le spiagge e i paesaggi naturali brasiliani, cercando di trasferire nel gioco un’atmosfera energica e immediatamente riconoscibile.
-⠀
-una campagna narrativa completamente nuova
-crazy taxi: world tour segna un’evoluzione importante rispetto ai capitoli originali introducendo una vera modalità storia. tour mondiale porterà il giocatore attraverso cinque ambientazioni differenti e aggiungerà una struttura narrativa al tradizionale gameplay basato sul trasporto dei passeggeri nel minor tempo possibile.
-⠀
-crazy taxi rimane fedele alla sua formula
-nonostante l’espansione della struttura, il cuore del gioco rimane quello classico della serie: velocità elevata, percorsi improvvisati, scorciatoie, salti, traffico da evitare e corse contro il tempo. il nuovo capitolo punta a mantenere quella sensazione di caos controllato che rese famoso crazy taxi nelle sale giochi e successivamente su dreamcast.
-⠀
-il brasile punta su città, spiagge e varietà visiva
-la nuova area sembra progettata per offrire una notevole varietà ambientale. le strade cittadine permetteranno di attraversare quartieri densamente popolati e zone commerciali, mentre le aree costiere offriranno scenari più aperti e panoramici. la combinazione potrebbe avere un impatto anche sul modo di affrontare le missioni, grazie a percorsi e ostacoli differenti.
-⠀
-uscita prevista nel 2027
-crazy taxi: world tour sarà pubblicato nel 2027 su xbox series x|s, xbox su pc, steam, playstation 5 e nintendo switch 2. il titolo supporterà inoltre xbox play anywhere e può già essere aggiunto alla lista dei desideri su diverse piattaforme.
-⠀
-il ritorno di uno dei franchise storici di sega
-la serie crazy taxi debuttò nelle sale giochi nel 1999 e divenne rapidamente uno dei titoli simbolo di sega grazie alla combinazione tra guida arcade, ambientazioni aperte e una colonna sonora fortemente riconoscibile. world tour prova a recuperare quella formula ampliandola con una struttura più moderna, modalità narrative e ambientazioni distribuite in diverse parti del mondo.
-⠀
-la scelta del brasile vi sembra adatta allo stile frenetico di crazy taxi oppure avreste preferito vedere un’altra città nella campagna tour mondiale?
-⠀
-se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
-⠀
-subscribe
-🌐 zazoomtek.it
-▶️ youtube: @zazoomtek
-❤️ patreon: zazoomtek
-🎵 tiktok: @zazoomtek
-💬 whatsapp: zazoomtek
-⠀
-#crazytaxi #crazytaxiworldtour #sega #brasilgameshow #kenjikanno #ps5 #xboxseriesx #nintendoswitch2 #zazoomtek"><a href="/news-UgkxHwO-OKR3z-qEkJL0MBsZS_tMU0R5Q0fi.html"><img src="https://yt3.ggpht.com/PdcP0LGfc9LCO05zLQnPdX_jLsp3pxHl_vMGM7x_MsuJgjNeJ_knp1FEP1fvcldjqT7DFnFb09J3dg=s1600-rw-nd-v1" alt="Crazy Taxi: World Tour corre in Brasile, SEGA svela la quarta mappa della campagna" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxHwO-OKR3z-qEkJL0MBsZS_tMU0R5Q0fi.html">Crazy Taxi: World Tour corre in Brasile, SEGA svela la quarta mappa della campagna</a></h2><div class="news-meta">ZazoomTek · 11 ottobre 2026</div><p>SEGA ha presentato al Brasil Game Show 2026 una nuova ambientazione di Crazy Taxi: World Tour, confermando il Brasile come quarta delle cinque mappe previste nella campagna narrativa Tour Mondiale. La presentazione è stata affidata a Kenji Kanno,…</p><a class="news-read" href="/news-UgkxHwO-OKR3z-qEkJL0MBsZS_tMU0R5Q0fi.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="rockbeasts arriverà a gennaio 2027, demo gratuita su steam e cast con matthew mercer, sam riegel e liam o’brien news: rockbeasts arriverà a gennaio 2027, demo gratuita su steam e cast con matthew mercer, sam riegel e liam o’brien
-lichthund e critical role hanno svelato nuovi dettagli su rockbeasts, il gdr manageriale narrativo dedicato al mondo del rock, annunciando il lancio a gennaio 2027 e la disponibilità immediata di una demo gratuita su steam. il progetto racconta l’ascesa di una band grunge negli anni ’90 alternativi, combinando gestione, scelte narrative, rapporti interpersonali e una forte identità musicale.
-⠀
-rockbeasts is coming in january 2027, and a free demo is now available on steam with the first two episodes. the game also confirms matthew mercer, sam riegel and liam o’brien in the voice cast, alongside the previously announced iggy pop.
-⠀
-rockbeasts debutta con una demo gratuita su steam
-la demo permette di giocare i primi due episodi dell’avventura, offrendo un primo assaggio della struttura narrativa, della gestione della band e delle decisioni che influenzeranno il percorso del gruppo. un terzo episodio verrà aggiunto durante lo steam next fest, ampliando ulteriormente la prova prima dell’uscita definitiva.
-⠀
-lancio fissato a gennaio 2027
-lichthund ha confermato che rockbeasts sarà pubblicato a gennaio 2027. il gioco è previsto su steam, playstation 5, xbox series x, nintendo switch e nintendo switch 2, con l’obiettivo di raggiungere un pubblico ampio sin dal debutto.
-⠀
-matthew mercer, sam riegel e liam o’brien entrano nel cast
-tra gli annunci principali figura la partecipazione di matthew mercer, sam riegel e liam o’brien, che presteranno la voce a tre personaggi chiave del gioco. i tre si affiancano a iggy pop, già annunciato in precedenza, mentre ulteriori membri del cast verranno svelati prima del lancio.
-⠀
-critical role torna nel mondo dei videogiochi
-rockbeasts rappresenta il secondo importante progetto videoludico legato a critical role dopo dispatch di adhoc studio. la collaborazione conferma l’interesse della compagnia per esperienze narrative interattive caratterizzate da forte scrittura, interpretazione e costruzione dei personaggi.
-⠀
-un gdr manageriale ambientato nel rock alternativo degli anni ’90
-il giocatore vestirà i panni del manager di una giovane band grunge che prova a passare dall’anonimato di un garage ai grandi palchi. bisognerà organizzare concerti, gestire risorse, programmare prove, affrontare problemi interni al gruppo e prendere decisioni capaci di cambiare il futuro della band.
-⠀
-le relazioni contano quanto la carriera
-ogni scelta influenzerà rapporti, reputazione e percorso professionale. il gioco metterà spesso il giocatore davanti a compromessi difficili, chiedendo quando difendere la propria visione artistica, quando cedere alle pressioni esterne e quanto sacrificare pur di raggiungere il successo.
-⠀
-una storia tra ironia, emozioni e industria musicale
-il tono narrativo viene descritto come oscuro, ironico ed emotivo, con una storia incentrata su un gruppo di outsider che cerca di sopravvivere all’industria musicale senza perdere ciò che li ha spinti a fare musica. la sceneggiatura è firmata da jakub szamałek, autore noto per the witcher 3, cyberpunk 2077 e the blood of dawnwalker.
-⠀
-uno stile visivo ispirato all’epoca d’oro di mtv
-rockbeasts utilizza uno stile grafico disegnato a mano ispirato alla cultura musicale degli anni ’90. l’ambientazione propone un’america alternativa popolata da personaggi antropomorfi, con un’estetica fortemente legata all’immaginario rock dell’epoca.
-⠀
-17 brani originali ispirati all’alternative rock
-la musica sarà uno degli elementi centrali dell’esperienza. il gioco include 17 brani originali completi ispirati alla scena alternative rock degli anni ’90, costruendo una colonna sonora pensata per accompagnare l’evoluzione della band dai piccoli locali fino ai grandi palchi.
-⠀
-un progetto già premiato per il comparto audio
-rockbeasts ha già ottenuto riconoscimenti prima del lancio, vincendo il premio excellence in audio ai devgamm awards e ricevendo nomination per il devgamm grand prize e il best audio di gamescom. nel 2025 è stato inoltre selezionato per day of the devs ai the game awards e per i tribeca games awards.
-⠀
-la demo è disponibile ora su steam
-rockbeasts arriverà a gennaio 2027 su pc e console, mentre la demo gratuita con i primi due episodi è già disponibile su steam. il terzo episodio verrà aggiunto in occasione dello steam next fest.
-⠀
-secondo voi un gdr manageriale dedicato al rock anni ’90 può funzionare meglio come esperienza narrativa o come vero gestionale musicale?
-⠀
-se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
-⠀
-subscribe
-🌐 zazoomtek.it
-▶️ youtube: @zazoomtek
-❤️ patreon: zazoomtek
-🎵 tiktok: @zazoomtek
-💬 whatsapp: zazoomtek
-⠀
-#rockbeasts #criticalrole #matthewmercer #samriegel #liamobrien #steam #indiegame #gamingnews #zazoomtek"><a href="/news-Ugkx81GUVNUFspfrdJg6MW5WBAeXDwSLumGP.html"><img src="https://yt3.ggpht.com/8k--O-qWG2k7aEJwhFAbBbGVLWg9-UuyAPeZa8tcsaM03WkpIGdy2hm5_of1OGpnOduEoh8unHSO=s1600-rw-nd-v1" alt="ROCKBEASTS arriverà a gennaio 2027, demo gratuita su Steam e cast con Matthew Mercer, Sam Riegel e Liam O’Brien" loading="lazy"></a><div class="news-copy"><h2><a href="/news-Ugkx81GUVNUFspfrdJg6MW5WBAeXDwSLumGP.html">ROCKBEASTS arriverà a gennaio 2027, demo gratuita su Steam e cast con Matthew Mercer, Sam Riegel e Liam O’Brien</a></h2><div class="news-meta">ZazoomTek · 11 ottobre 2026</div><p>LICHTHUND e Critical Role hanno svelato nuovi dettagli su ROCKBEASTS, il GDR manageriale narrativo dedicato al mondo del rock, annunciando il lancio a gennaio 2027 e la disponibilità immediata di una demo gratuita su Steam. Il progetto racconta…</p><a class="news-read" href="/news-Ugkx81GUVNUFspfrdJg6MW5WBAeXDwSLumGP.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="grazie a tutti voi! zazoomtek cresce ancora! 💙❤️ grazie a tutti voi! zazoomtek cresce ancora! 🚀
-
-voglio ringraziare tutti voi che ogni giorno seguite zazoomtek, guardate i video, lasciate un like, commentate e sostenete il canale. siete voi a rendere possibile questa crescita! ❤️
-
-🇬🇧 thank you all for supporting zazoomtek and helping our community grow! we are excited to announce that our brand-new website is now online!
-
-⠀
-
-🌐 è online il nuovo sito zazoomtek.it!
-
-un nuovo spazio dedicato alla nostra passione per la tecnologia e i videogiochi, dove troverete:
-
-📰 news e novità dal mondo tech e gaming
-
-🎮 recensioni e approfondimenti sui videogiochi
-
-💻 test e recensioni di prodotti tecnologici
-
-📦 unboxing, gadget e nuove scoperte
-
-🎥 i video e i contenuti del nostro canale youtube
-
-
-
-il sito è appena nato e continuerà a crescere e migliorare, proprio come la nostra community!
-
-👉 visitate www.zazoomtek.it e aggiungetelo ai vostri preferiti per non perdere le novità!
-
-💙❤️ grazie davvero per il vostro sostegno. questo è soltanto l&#x27;inizio di una nuova avventura e sono felice di condividerla con tutti voi!
-
-💬 avete già visitato il nuovo sito? fatemi sapere nei commenti cosa ne pensate e cosa vi piacerebbe trovare!
-
-👍 continuate a seguire zazoomtek, lasciate un like e condividete il canale con i vostri amici!
-
-#zazoomtek #tecnologia #gaming #videogiochi #technews #recensioni #community"><a href="/news-Ugkx8FpJmRlS3S7_ZcqmirDiYmcCbg7dSjyt.html"><img src="https://yt3.ggpht.com/hKSuXxh43cNqAOVKoPTMc4BBdc8gY_ZV2ZjNRU4BQ0yv88djq-XmETg_ka6uBZk_JFWtWUETNpklhQ=s1600-rw-nd-v1" alt="GRAZIE A TUTTI VOI! ZAZOOMTEK CRESCE ANCORA!" loading="lazy"></a><div class="news-copy"><h2><a href="/news-Ugkx8FpJmRlS3S7_ZcqmirDiYmcCbg7dSjyt.html">GRAZIE A TUTTI VOI! ZAZOOMTEK CRESCE ANCORA!</a></h2><div class="news-meta">ZazoomTek · 10 ottobre 2026</div><p>Voglio ringraziare tutti voi che ogni giorno seguite ZazoomTek, guardate i video, lasciate un like, commentate e sostenete il canale. Siete voi a rendere possibile questa crescita! È ONLINE IL NUOVO SITO ZAZOOMTEK.IT! Un nuovo spazio dedicato alla…</p><a class="news-read" href="/news-Ugkx8FpJmRlS3S7_ZcqmirDiYmcCbg7dSjyt.html">Leggi tutto ›</a></div></article><article class="news-row" data-news-search="battlefield 6 stagione 5 porta la guerra a las vegas con tre nuove mappe, rapid royale e crossover dead space news: battlefield 6 stagione 5 porta la guerra a las vegas con tre nuove mappe, rapid royale e crossover dead space
-electronic arts e battlefield studios hanno svelato la stagione 5 di battlefield 6 e battlefield redsec, descritta come la stagione più grande realizzata finora. il nuovo ciclo di contenuti prenderà il via il 13 ottobre 2026 e porterà la battaglia a las vegas e nel deserto del nevada con tre nuove mappe, una nuova modalità battle royale più rapida, un evento crossover con dead space, modifiche a mappe esistenti e diverse funzionalità richieste dalla community.
-⠀
-battlefield 6 season 5 launches on october 13, 2026, with three new maps set in and around las vegas, a faster rapid royale mode for redsec and a limited-time dead space crossover event. the season will roll out across three phases through december, alongside major gameplay updates, competitive events and new community-focused features.
-⠀
-la stagione 5 parte con assedio a las vegas
-la prima fase della stagione si chiama assedio a las vegas e debutterà il 13 ottobre. il lancio introdurrà immediatamente due nuove mappe: vegas strip e area 51, due ambientazioni molto differenti pensate per sfruttare sia gli scontri urbani sia gli spazi aperti.
-vegas strip trasforma una delle zone più riconoscibili della città in un campo di battaglia caratterizzato da casinò, hotel, ristoranti, gallerie e numerosi elementi distruttibili. la struttura della mappa dovrebbe favorire combattimenti dinamici, con continui cambi di ritmo tra spazi interni e aree più aperte.
-⠀
-area 51 porta battlefield nel deserto del nevada
-la seconda mappa conduce invece i giocatori lontano dalle luci di las vegas, fino al perimetro della celebre area 51.
-la battaglia si sviluppa tra colline desertiche e strutture sotterranee, offrendo un’impostazione più militare e misteriosa rispetto alla vegas strip. la possibilità di passare dagli spazi esterni alle installazioni nascoste dovrebbe creare situazioni tattiche molto diverse all’interno della stessa partita.
-⠀
-rapid royale accelera battlefield redsec
-una delle novità principali riguarda rapid royale, nuova interpretazione della battle royale di battlefield redsec.
-la modalità mantiene l’obiettivo classico di sopravvivere fino alla fine, ma riduce durata delle partite e numero complessivo di partecipanti. il risultato dovrebbe essere un’esperienza più compatta e aggressiva rispetto alla battle royale tradizionale.
-⠀
-le eliminazioni permettono di rientrare in battaglia
-rapid royale introduce anche una particolare meccanica di rientro. eliminando gli avversari è possibile ottenere gettoni utilizzabili per tornare in partita dopo essere stati sconfitti.
-la difficoltà aumenta però progressivamente: il numero di eliminazioni necessario per conquistare nuovi gettoni cresce durante la partita, rendendo sempre più complicato ottenere una seconda possibilità nelle fasi finali.
-⠀
-tornano open series ed elite series
-la stagione 5 segna anche il ritorno delle battlefield redsec open series ed elite series.
-l’elite series mette in palio un montepremi globale di 1.338.000 dollari, confermando la volontà di electronic arts di continuare a sviluppare anche la componente competitiva di redsec.
-⠀
-dead space arriva giusto in tempo per halloween
-dal 20 ottobre al 7 novembre sarà disponibile un evento a tempo limitato ispirato a dead space.
-la pax armata sarà impegnata nella ricerca di tecnologie segrete nascoste sotto area 51, con ambientazioni e riferimenti che richiamano il remake di dead space pubblicato nel 2023. l’evento comprenderà inoltre elementi estetici esclusivi da sbloccare.
-⠀
-un crossover pensato per cambiare atmosfera
-l’inserimento di dead space introduce un tono molto diverso rispetto alla normale guerra militare di battlefield.
-l’obiettivo sembra essere quello di sfruttare l’ambientazione sotterranea di area 51 per costruire un’esperienza più inquietante e adatta al periodo di halloween, mantenendo comunque le caratteristiche fondamentali del gameplay battlefield.
-⠀
-colpo al casinò arriva il 10 novembre
-la seconda fase della stagione, chiamata colpo al casinò, inizierà il 10 novembre.
-il nuovo contenuto introdurrà la terza mappa della stagione, ambientata all’interno di un grande casinò europeo sulla strip. nelle profondità dei suoi caveau si nascondono informazioni e risorse strategiche contese sia dalla pax sia dalla nato.
-⠀
-una mappa pensata per il combattimento ravvicinato
-il casinò europeo è progettato principalmente per scontri a distanza ridotta.
-la presenza di numerosi elementi distruttibili permetterà ai giocatori di aprire nuovi percorsi e modificare il campo di battaglia, sfruttando la distruzione ambientale per creare accessi alternativi e nuove opportunità tattiche.
-⠀
-assi di ghiaccio chiude la stagione a dicembre
-la terza e ultima fase, assi di ghiaccio, debutterà l’8 dicembre.
-las vegas verrà trasformata da condizioni climatiche gelide e la stagione si concluderà con una nuova operazione ambientata tra vegas strip e area 51, ampliando ulteriormente il collegamento tra le diverse mappe introdotte durante il ciclo stagionale.
-⠀
-cambiano anche blackwell fields e new sobek city
-la stagione 5 non aggiunge soltanto nuovi scenari.
-battlefield studios ha annunciato modifiche importanti anche a blackwell fields e new sobek city, con interventi destinati a cambiare il modo in cui i giocatori affrontano entrambe le mappe.
-⠀
-arrivano anche plotoni e browser dei server
-tra le novità più richieste dalla community figurano inoltre l’introduzione dei plotoni e del browser dei server.
-si tratta di due funzionalità particolarmente importanti per chi gioca regolarmente online, perché migliorano organizzazione delle squadre, ricerca delle partite e gestione delle sessioni multiplayer.
-⠀
-la stagione più grande realizzata finora
-battlefield studios presenta la stagione 5 come il contenuto stagionale più ambizioso pubblicato finora per battlefield 6.
-tre mappe completamente nuove, una nuova interpretazione della battle royale, il crossover con dead space, modifiche alle mappe esistenti e nuove funzionalità social rendono questo aggiornamento uno dei più ricchi dall’uscita del gioco.
-⠀
-la stagione 5 parte il 13 ottobre
-battlefield 6 stagione 5 inizierà ufficialmente il 13 ottobre 2026 con assedio a las vegas, proseguirà il 10 novembre con colpo al casinò e terminerà con assi di ghiaccio a partire dall’8 dicembre.
-⠀
-il trailer gameplay ufficiale della stagione 5 è disponibile sul canale ufficiale battlefield su youtube.
-⠀
-tra vegas strip, area 51, rapid royale e il crossover con dead space, quale contenuto della stagione 5 volete provare per primo?
-⠀
-se ti piacciono tecnologia, gaming, unboxing e recensioni, seguimi su zazoomtek.
-⠀
-subscribe
-🌐 zazoomtek.it
-▶️ youtube: @zazoomtek
-❤️ patreon: zazoomtek
-🎵 tiktok: @zazoomtek
-💬 whatsapp: zazoomtek
-⠀
-#battlefield6 #battlefield #season5 #lasvegas #area51 #deadspace #battlefieldredsec #gamingnews #zazoomtek"><a href="/news-UgkxnhcQnMs37VSNzyLG45qciYrpRf-UCrx4.html"><img src="https://yt3.ggpht.com/MnANh54VsEBDhU11uFWa0kl-Rbslqtzp6H7DgBXrWtMw2rSNIMx4jZHzW2IGYlKBaL1FULoLbGdOUnA=s1600-rw-nd-v1" alt="Battlefield 6 Stagione 5 porta la guerra a Las Vegas con tre nuove mappe, Rapid Royale e crossover Dead Space" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxnhcQnMs37VSNzyLG45qciYrpRf-UCrx4.html">Battlefield 6 Stagione 5 porta la guerra a Las Vegas con tre nuove mappe, Rapid Royale e crossover Dead Space</a></h2><div class="news-meta">ZazoomTek · 10 ottobre 2026</div><p>Electronic Arts e Battlefield Studios hanno svelato la Stagione 5 di Battlefield 6 e Battlefield REDSEC, descritta come la stagione più grande realizzata finora. Il nuovo ciclo di contenuti prenderà il via il 13 ottobre 2026 e porterà la battaglia a…</p><a class="news-read" href="/news-UgkxnhcQnMs37VSNzyLG45qciYrpRf-UCrx4.html">Leggi tutto ›</a></div></article></div><nav class="archive-pagination" aria-label="Pagine News"><a href="/news.html">1</a><a href="/news-2.html">2</a><span class="active">3</span><a href="/news-4.html">4</a><a href="/news-5.html">5</a><a class="next" href="/news-4.html">NEXT</a></nav>
-<!-- ZT_COMMUNITY_BANNER_START -->
-<div class="zt-community-area">
-  <section class="zt-community-banner" aria-labelledby="zt-community-title">
-    <div class="zt-community-copy">
-      <span class="zt-community-kicker">ZAZOOMTEK COMMUNITY</span>
-      <h2 id="zt-community-title">Non perderti le prossime recensioni e news</h2>
-      <p>Segui ZazoomTek per ricevere nuovi contenuti su tecnologia, gaming, test e unboxing.</p>
-    </div>
-    <div class="zt-community-social" aria-label="Seguici sui social">
-      <a class="zt-community-icon" href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener noreferrer" aria-label="Iscriviti su YouTube" title="Iscriviti su YouTube"><img src="https://img.icons8.com/color/96/youtube-play.png" alt="YouTube" loading="lazy" width="46" height="46"></a>
-      <a class="zt-community-icon" href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener noreferrer" aria-label="Segui ZazoomTek su TikTok" title="Seguici su TikTok"><img src="https://img.icons8.com/color/96/tiktok--v1.png" alt="TikTok" loading="lazy" width="46" height="46"></a>
-      <a class="zt-community-icon" href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener noreferrer" aria-label="Segui il canale WhatsApp di ZazoomTek" title="Seguici su WhatsApp"><img src="https://img.icons8.com/color/96/whatsapp--v1.png" alt="WhatsApp" loading="lazy" width="46" height="46"></a>
-    </div>
-  </section>
-</div>
-<!-- ZT_COMMUNITY_BANNER_END -->
-</section><aside class="news-sidebar zt-side-mix"><section class="side-box zt-mix-feature"><a class="module-title" href="/news.html">News in evidenza</a><a href="/news-UgkxXceRhhYmqSVnSCYUnBmmGOoUEExn5Fza.html" class="zt-mix-feature-image"><img loading="lazy" src="https://yt3.ggpht.com/EoKOEVjA0Gx455lYDry-3KyVbbe1TxA5Dj3gNRquLiJQWKjo1XT0AGUZzOWQL6HQVU9HIljvqASgFQ=s1600-rw-nd-v1" alt="Invincible VS, la Stagione 2 introduce Angstrom Levy e anticipa Agent Spider per la Stagione 3"></a><div class="zt-mix-feature-copy"><h3><a href="/news-UgkxXceRhhYmqSVnSCYUnBmmGOoUEExn5Fza.html">Invincible VS, la Stagione 2 introduce Angstrom Levy e anticipa Agent Spider per la Stagione 3</a></h3><a class="zt-mix-read" href="/news-UgkxXceRhhYmqSVnSCYUnBmmGOoUEExn5Fza.html">LEGGI LA NOTIZIA ›</a></div></section><section class="side-box zt-amazon-partner"><div class="module-title">Su Amazon</div><div class="amazon-mini"><h3>I prodotti recensiti da ZazoomTek</h3><p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p><a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section><section class="side-box zt-mix-recent"><div class="zt-mix-news-heading"><a class="module-title" href="/recensioni-scritte.html">Ultime Recensioni</a><a class="zt-mix-header-more" href="/recensioni-scritte.html" aria-label="Vedi ultime recensioni">VEDI →</a></div><div class="zt-mix-recent-list"><a href="/recensione-Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1.html" class="zt-mix-recent-row"><img loading="lazy" src="https://yt3.ggpht.com/N4pfXhDsrSM30VYS6UEzap9MuNHjA6ZFyI26hUnobKUtGVGGLM5opLabhZlPbRwXpqrVcPvmzDc7Ug=s1600-rw-nd-v1" alt=""><span>WALTO Recensione PC</span></a><a href="/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html" class="zt-mix-recent-row"><img loading="lazy" src="https://yt3.ggpht.com/_Dt3qOg45HgYDTfEAyPaMIcIFyrOaQLiH8WoY2GfoAvX7uaU1uc9OUTBBBqKuTgWNnWAGeV-aoFx4Ug=s1600-rw-nd-v1" alt=""><span>70mai Dash Cam 4K A900 | Recensione</span></a><a href="/recensione-UgkxPQVLBegGEPWvHmDjVq-rA5b8EwFeFrtk.html" class="zt-mix-recent-row"><img loading="lazy" src="https://yt3.ggpht.com/PnhfNW7_MLtVB63Z8DDccG7u0wQyS4_e2LAdFfOSdS5gA2TcCbuYiscWwQDf5kU2ETFYo7g7O1OFECI=s1600-rw-nd-v1" alt=""><span>ACE COMBAT 8: WINGS OF THEVE | Recensione PS5</span></a><a href="/recensione-Ugkxq4wPsbAKxSo1aB0OptleaGIR5iyfIuyz.html" class="zt-mix-recent-row"><img loading="lazy" src="https://yt3.ggpht.com/2BbUGmq4OqF8GJfN-ww0ZjdnK_MMsFvOBCdH2JKjC1pvyCvQPOOxSxFVUotZTLLr8X_EoXMnfi1opw=s1600-rw-nd-v1" alt=""><span>Marvel&#x27;s Wolverine | Recensione PS5</span></a><a href="/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html" class="zt-mix-recent-row"><img loading="lazy" src="https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1600-rw-nd-v1" alt=""><span>IIFACTOR M08E AI Smart Glasses | Recensione</span></a><a href="/recensione-UgkxUyzI3zn3urxvkpRPcd349swqkNqHFXEK.html" class="zt-mix-recent-row"><img loading="lazy" src="https://yt3.ggpht.com/Atdo_7e4hrvPm6xi19WkBp9fPiB3l06t-3MCzIVVOoeDFCb3KvU59-7BRHlqYZl8Gc3WdLz0JNAsrzY=s1600-rw-nd-v1" alt=""><span>NBA 2K27 | Recensione PS5</span></a></div><a class="zt-mix-news-all" href="/recensioni-scritte.html">Tutte le recensioni →</a></section><section class="side-box zt-mix-video"><a class="module-title" href="/recensioni.html">Video · Recensioni</a><a class="zt-mix-video-row" href="https://www.youtube.com/watch?v=by7Qm_XFO8c" target="_blank" rel="noopener"><span class="zt-mix-video-thumb"><img src="https://i.ytimg.com/vi/by7Qm_XFO8c/hqdefault.jpg" alt="70mai Dash Cam 4K A900: Recensione e Test" loading="lazy"></span><span>70mai Dash Cam 4K A900: Recensione e Test</span></a></section><section class="side-box zt-mix-editorial"><a class="module-title" href="/tech-today.html">Tech Impact</a><a class="zt-mix-editorial-row" href="/tech-impact-data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale.html"><img loading="lazy" src="/assets/special/tech-impact-data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale.webp" alt="Data center in Lombardia: richieste per 11 GW e ipotesi di stretta normativa regionale"><span>Data center in Lombardia: richieste per 11 GW e ipotesi di stretta normativa regionale</span></a></section><section class="side-box zt-mix-video"><a class="module-title" href="/gaming.html">Video · Gaming</a><a class="zt-mix-video-row" href="https://www.youtube.com/watch?v=11ldZsap0a0" target="_blank" rel="noopener"><span class="zt-mix-video-thumb"><img src="https://i.ytimg.com/vi/11ldZsap0a0/hqdefault.jpg" alt="Call of Duty: Modern Warfare 4 Campaign First Look – Traffic" loading="lazy"></span><span>Call of Duty: Modern Warfare 4 Campaign First Look – Traffic</span></a></section><section class="side-box zt-mix-editorial"><a class="module-title" href="/gaming-today.html">Gaming Inside</a><a class="zt-mix-editorial-row" href="/gaming-inside-playstation-accordo-antitrust-da-7-85-milioni-di-dollari-cosa-comporta-per-i-consumat.html"><img loading="lazy" src="/assets/special/gaming-inside-playstation-accordo-antitrust-da-7-85-milioni-di-dollari-cosa-comporta-per-i-consumat.webp" alt="PlayStation, accordo antitrust da 7,85 milioni di dollari: cosa comporta per i consumatori"><span>PlayStation, accordo antitrust da 7,85 milioni di dollari: cosa comporta per i consumatori</span></a></section></aside></div></main><footer class="legal-footer zt-unified-footer" data-zt-footer="20261011community-column">
+#gameground2026 #castlevania #michiruyamane #bolzano #falloutlondon #ubisoftmilan #gamingitalia #videogiochi #zazoomtek"><a href="/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html"><img src="https://yt3.ggpht.com/snQpfRxzG3mI7g-r-wuX8OgCKR2pJp4La95d3wh6hmgf0PLRlKdlZKCBJUOzr-RjXM_4qevUl5rC-6w=s1600-rw-nd-v1" alt="Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore" loading="lazy"></a><div class="news-copy"><h2><a href="/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html">Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane ospite d’onore</a></h2><div class="news-meta">ZazoomTek · 12 ottobre 2026</div><p>Dal 16 al 18 ottobre 2026 Bolzano ospiterà Game Ground 2026, festival dedicato alla cultura del videogioco arrivato alla sua sesta edizione. L’evento punta ancora una volta a distinguersi dalle tradizionali fiere gaming mettendo al centro…</p><a class="news-read" href="/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html">Leggi tutto ›</a></div></article></div><nav class="archive-pagination" aria-label="Pagine News"><a href="/news.html">1</a><a href="/news-2.html">2</a><span class="active">3</span><a href="/news-4.html">4</a><a href="/news-5.html">5</a><a class="next" href="/news-4.html">NEXT</a></nav></section><aside class="news-sidebar"><section class="side-box zt-amazon-partner"><div class="module-title">Su Amazon</div><div class="amazon-mini"><h3>I prodotti recensiti da ZazoomTek</h3><p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p><a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section><section class="side-box"><a class="module-title" href="/recensioni.html">Video · Recensioni</a><div class="side-video"><a class="thumb" href="https://www.youtube.com/watch?v=WwGAaKGfoGY" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/WwGAaKGfoGY/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/WwGAaKGfoGY/hqdefault.jpg'" alt="Sesame Street: Friends &amp; Fun PS5 Review" loading="lazy"></a><h3>Sesame Street: Friends &amp; Fun PS5 Review</h3><small>Recensioni</small></div></section><section class="side-box"><a class="module-title" href="/test.html">Video · Test</a><div class="side-video"><a class="thumb" href="https://www.youtube.com/watch?v=WmIXQGZYhTc" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/WmIXQGZYhTc/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/WmIXQGZYhTc/hqdefault.jpg'" alt="realme C100 5G Test Gaming" loading="lazy"></a><h3>realme C100 5G Test Gaming</h3><small>Test</small></div></section><section class="side-box"><a class="module-title" href="/unboxing.html">Video · Unboxing</a><div class="side-video"><a class="thumb" href="https://www.youtube.com/watch?v=lmOGs9M_vhw" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/lmOGs9M_vhw/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/lmOGs9M_vhw/hqdefault.jpg'" alt="IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?" loading="lazy"></a><h3>IIFACTOR M08E AI Smart Glasses UNBOXING | Cosa c’è nella scatola?</h3><small>Unboxing</small></div></section><section class="side-box"><a class="module-title" href="/gaming.html">Video · Gaming</a><div class="side-video"><a class="thumb" href="https://www.youtube.com/watch?v=nQ26PED9Rgc" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/nQ26PED9Rgc/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/nQ26PED9Rgc/hqdefault.jpg'" alt="ACE COMBAT 8 PS5 – Missione 2 NOMAD | Difendiamo la Flotta! Gameplay ITA" loading="lazy"></a><h3>ACE COMBAT 8 PS5 – Missione 2 NOMAD | Difendiamo la Flotta! Gameplay ITA</h3><small>Gaming</small></div></section><section class="side-box"><a class="module-title" href="https://www.youtube.com/playlist?list=PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI">Video · AnalogikTek</a><div class="side-video"><a class="thumb" href="https://www.youtube.com/watch?v=An2RZr9_Cxs" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/An2RZr9_Cxs/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/An2RZr9_Cxs/hqdefault.jpg'" alt="Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming" loading="lazy"></a><h3>Nintendo 64: il catalogo GIG del 1997 che ci faceva sognare | Retrogaming</h3><small>Analogiktek</small></div></section></aside></div></main><footer class="legal-footer zt-unified-footer" data-zt-footer="20261011community-column">
   <div class="zt-footer-content">
     <nav class="footer-links footer-main-nav" aria-label="Menu del sito">
       <a href="/">Home</a><a href="/news.html">News</a><a href="/recensioni-scritte.html">Recensioni</a><a href="/guide.html">Guide</a><a href="/tech-today.html">Tech Impact</a><a href="/gaming-today.html">Gaming Inside</a><a href="/extra.html">Extra</a><a href="https://www.youtube.com/@ZazoomTek/posts" target="_blank" rel="noopener noreferrer">Community</a><a href="https://www.youtube.com/@ZazoomTek/videos" target="_blank" rel="noopener noreferrer">Video</a>
