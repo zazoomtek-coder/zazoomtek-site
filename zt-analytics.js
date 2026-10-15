@@ -3,117 +3,31 @@
 
   var ID='G-01F6Q4BGTC';
   var KEY='zt_analytics_consent';
-  var DATE_KEY='zt_analytics_consent_at';
-  var CONSENT_DAYS=185; // at least six calendar months
-  var CONSENT_MS=CONSENT_DAYS*24*60*60*1000;
   var loaded=false;
 
-  function validChoice(value){
-    return value==='granted'||value==='denied';
-  }
-
-  // Technical first-party cookie: remembers only whether Analytics was
-  // accepted or refused. Shared between zazoomtek.it and www.zazoomtek.it.
-  function readConsentCookie(){
-    var parts=document.cookie.split(';');
-    for(var i=0;i<parts.length;i++){
-      var part=parts[i].trim();
-      if(part.indexOf(KEY+'=')===0){
-        var value=part.slice(KEY.length+1);
-        return validChoice(value)?value:null;
-      }
-    }
-    return null;
-  }
-
-  function writeConsentCookie(value){
-    if(!validChoice(value)) return;
-    var attrs=[
-      KEY+'='+value,
-      'Max-Age='+(CONSENT_DAYS*24*60*60),
-      'Path=/',
-      'SameSite=Lax'
-    ];
-    if(location.protocol==='https:') attrs.push('Secure');
-    if(location.hostname==='zazoomtek.it'||location.hostname==='www.zazoomtek.it'){
-      attrs.push('Domain=.zazoomtek.it');
-    }
-    document.cookie=attrs.join('; ');
-  }
-
   function readConsent(){
-    var fromCookie=readConsentCookie();
-    var fromStorage=null;
-    try{
-      var value=localStorage.getItem(KEY);
-      if(validChoice(value)){
-        var stamp=Number(localStorage.getItem(DATE_KEY));
-        // Existing preferences used this key without a timestamp.
-        // Honour them, assigning a date rather than reopening the banner.
-        if(!stamp||!Number.isFinite(stamp)||stamp>Date.now()){
-          stamp=Date.now();
-          localStorage.setItem(DATE_KEY,String(stamp));
-        }
-        if(Date.now()-stamp<CONSENT_MS){
-          fromStorage=value;
-        }else{
-          localStorage.removeItem(KEY);
-          localStorage.removeItem(DATE_KEY);
-        }
-      }
-    }catch(e){}
-    if(fromCookie){
-      // The shared cookie is authoritative if the decision changed
-      // on the other subdomain and localStorage still holds an older choice.
-      if(fromStorage!==fromCookie){
-        try{
-          localStorage.setItem(KEY,fromCookie);
-          localStorage.setItem(DATE_KEY,String(Date.now()));
-        }catch(e){}
-      }
-      return fromCookie;
-    }
-    if(fromStorage){
-      writeConsentCookie(fromStorage);
-      return fromStorage;
-    }
-    return null;
+    try{return localStorage.getItem(KEY);}catch(e){return null;}
   }
 
   function saveConsent(value){
-    if(!validChoice(value)) return;
-    try{
-      localStorage.setItem(KEY,value);
-      localStorage.setItem(DATE_KEY,String(Date.now()));
-    }catch(e){}
-    writeConsentCookie(value);
+    try{localStorage.setItem(KEY,value);}catch(e){}
   }
 
-  // Basic consent mode: NEVER contact GA4 until the visitor has accepted.
-  // The separate first-party aggregate counter does not depend on this choice.
   function loadGA4(){
-    if(loaded)return;
+    if(loaded) return;
     loaded=true;
     window.dataLayer=window.dataLayer||[];
     window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
-    window.gtag('consent','default',{
-      analytics_storage:'denied',
-      ad_storage:'denied',
-      ad_user_data:'denied',
-      ad_personalization:'denied'
-    });
-    window.gtag('consent','update',{analytics_storage:'granted'});
     window.gtag('js',new Date());
     window.gtag('config',ID,{
-      send_page_view:true,
       anonymize_ip:true,
       allow_google_signals:false,
       allow_ad_personalization_signals:false
     });
-    var script=document.createElement('script');
-    script.async=true;
-    script.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(ID);
-    document.head.appendChild(script);
+    var s=document.createElement('script');
+    s.async=true;
+    s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(ID);
+    document.head.appendChild(s);
   }
 
   function css(){
@@ -150,35 +64,11 @@
     document.body.appendChild(b);
   }
 
-  function clearAnalyticsCookies(){
-    // When an existing acceptance is revoked, expire first-party GA cookies.
-    try{
-      document.cookie.split(';').forEach(function(pair){
-        var name=pair.trim().split('=')[0];
-        if(!/^_ga(?:_|$)|^_gid$|^_gat(?:_|$)/.test(name))return;
-        document.cookie=name+'=;Max-Age=0;Path=/;SameSite=Lax';
-        if(location.hostname==='zazoomtek.it'||location.hostname==='www.zazoomtek.it'){
-          document.cookie=name+'=;Max-Age=0;Path=/;Domain=.zazoomtek.it;SameSite=Lax';
-        }
-      });
-    }catch(e){}
-  }
-
   function choose(value){
-    if(!validChoice(value))return;
-    var previouslyAccepted=readConsent()==='granted';
     saveConsent(value);
     removeBanner();
     showSettingsButton();
-    if(value==='granted'){
-      loadGA4();
-    }else if(previouslyAccepted){
-      if(loaded&&typeof window.gtag==='function'){
-        window.gtag('consent','update',{analytics_storage:'denied'});
-      }
-      clearAnalyticsCookies();
-      window.location.reload();
-    }
+    if(value==='granted') loadGA4();
   }
 
   function showBanner(){
@@ -189,7 +79,7 @@
     box.setAttribute('role','dialog');
     box.setAttribute('aria-label','Preferenze cookie');
     box.innerHTML=
-      '<p><strong>ZazoomTek utilizza Google Analytics solo se premi ACCETTA. Senza cookie di tracciamento, il sito conta separatamente le visualizzazioni complessive delle pagine a fini statistici. Puoi accettare o rifiutare.</strong></p>'+
+      '<p><strong>ZazoomTek utilizza cookie e tecnologie simili per misurare il traffico e migliorare i contenuti. Puoi accettare o rifiutare.</strong></p>'+
       '<p><a href="/cookie.html">Cookie Policy</a></p>'+
       '<div class="zt-actions"><button type="button" class="zt-accept">ACCETTA</button><button type="button" class="zt-reject">RIFIUTA</button></div>';
     box.querySelector('.zt-accept').addEventListener('click',function(){choose('granted');});
