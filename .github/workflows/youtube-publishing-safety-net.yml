@@ -4,9 +4,9 @@ name: YouTube publishing safety net
 on:
   workflow_dispatch:
   schedule:
-    - cron: '48 * * * *'
-    # Independent 5-minute watchdog, offset two minutes from the primary */5 schedule.
-    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+    # Fifteen-minute fallback only; primary YouTube import stays every five minutes.
+    # No unconditional hourly deployment when no content has changed.
+    - cron: '2,17,32,47 * * * *'
 permissions:
   contents: read
   actions: write
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   check-import-freshness:
     # Avoid unnecessary runs of the importer if its own timer worked recently.
-    if: github.event_name == 'schedule' && github.event.schedule == '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+    if: github.event_name == 'schedule' && github.event.schedule == '2,17,32,47 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -58,7 +58,7 @@ jobs:
           PY
   verify-publication:
     # A green importer run does not prove that Firebase serves the new article.
-    if: github.event_name == 'schedule' && github.event.schedule == '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+    if: github.event_name == 'schedule' && github.event.schedule == '2,17,32,47 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -103,7 +103,7 @@ jobs:
           print('::warning::Recovery deploy queued for missing live news.')
           PY
   deploy-last-good:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '48 * * * *'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
