@@ -1,26 +1,26 @@
 {
-  "checked_at": "2026-10-15T09:18:45.148856+00:00",
+  "checked_at": "2026-10-15T10:16:57.742898+00:00",
   "source_sites": 15,
-  "matches": 4,
+  "matches": 3,
   "selected": [
     {
-      "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
+      "title": "Acornia: Mirror Worlds mostra il primo gameplay tra pasticceria, combattimenti e mondi speculari",
       "section": "tech",
-      "url": "/news-UgkxY6L5CMugYZWxCHQIvKQ2DMoO-CL15L4b.html",
+      "url": "/news-Ugkxtb4Bti1EEpldDK5P1xmG-cj8aGmJz58X.html",
       "trend_score": 0,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
       "sources": []
     },
     {
-      "title": "Sandisk partner esclusivo per lo storage dei Meta VR Glasses",
+      "title": "Expeditions: Samurai, il nuovo diario degli sviluppatori svela il villaggio dell’Atto 3",
       "section": "tech",
-      "url": "/news-UgkxhVDcyMWZkqmKTauSkanEv4Brx1IQ9cRp.html",
+      "url": "/news-Ugkxq0g8HZ9ql1NaJty5PmPuKecpHsmnDHqi.html",
       "trend_score": 0,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
       "sources": []
     },
     {
