@@ -1667,7 +1667,7 @@ def clean_site_title(line):
 
 # Editorial routing is taken from the FIRST Community heading only.
 # These labels never appear in on-site titles, OG tags, snippets or article H1.
-NEWS_ROUTING_RE=re.compile(r"^news(?:\\s+(tech|gaming|extra))?\\s*(?::\\s*(.*))?$",re.I)
+NEWS_ROUTING_RE=re.compile(r"^news(?:\s+(tech|gaming|extra))?\s*(?::\s*(.*))?$",re.I)
 
 def post_category(p):
     raw=p.get("text") or ""
@@ -2159,14 +2159,16 @@ def write_news_page(p, all_news=None):
             f'<a href="/{fs}"><img src="{fi}" alt="{html.escape(ft)}"></a><h3><a href="/{fs}">{html.escape(ft)}</a></h3>'
             f'<a class="cta" href="/{fs}">SCOPRI DI PIÙ ›</a></div></section>'
         )
+    section="Extra" if post_category(p)=="extra" else "News"
+    archive_href="/extra.html" if section=="Extra" else "/news.html"
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        +article_head_metadata(p,title,slug,"Extra" if post_category(p)=="extra" else "News")+NEWS_DETAIL_STYLE+'</head><body>'
-        +rich_editorial_header("extra" if post_category(p)=="extra" else "news")
+        +article_head_metadata(p,title,slug,section)+NEWS_DETAIL_STYLE+'</head><body>'
+        +rich_editorial_header("extra" if section=="Extra" else "news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
-        +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/extra.html" if post_category(p)=="extra" else "/news.html">'+("Extra" if post_category(p)=="extra" else "News")+'</a> / '+html.escape(title)+'</div>'
-        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 '+("Extra" if post_category(p)=="extra" else "News")+'</span></div>'
+        +f'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="{archive_href}">{section}</a> / '+html.escape(title)+'</div>'
+        +editorial_display_h1(title)+f'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 {section}</span></div>'
         +img+f'<div class="article-body">{news_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a></div></section>'
