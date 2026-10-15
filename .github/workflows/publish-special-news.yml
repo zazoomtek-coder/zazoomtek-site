@@ -5,8 +5,6 @@ on:
   workflow_dispatch:
   # Hourly recovery: approved stories must not remain unpublished when a
   # cross-workflow dispatch is missed or the old archive layout has changed.
-  schedule:
-    - cron: '53 * * * *'
   push:
     branches: [main]
     paths:
