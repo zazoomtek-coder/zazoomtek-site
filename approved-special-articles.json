@@ -729,6 +729,38 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale",
+      "title": "Data center in Lombardia: richieste per 11 GW e ipotesi di stretta normativa regionale",
+      "summary": "La Regione Lombardia valuta una revisione della recente legge sui data center per far fronte a un boom di richieste che ha raggiunto quota 11 GW. Crescono intanto le mobilitazioni e le proteste dei comitati cittadini tra Rho e Milano.",
+      "paragraphs": [
+        "Secondo quanto riferito dall'agenzia Reuters e riportato da DDay.it, la Lombardia si appresta a irrigidire la normativa sui data center approvata appena quattro mesi fa. L'assessore regionale alle risorse energetiche, Massimo Sertori, ha annunciato che le modifiche saranno sottoposte alla giunta il 19 ottobre, con un possibile passaggio in consiglio regionale stimato nel giro di circa un mese. La legge originaria, varata nel mese di giugno, era nata per disciplinare la corsa agli insediamenti concentrata soprattutto nell'area milanese, individuando come siti preferiti le aree industriali dismesse o da rigenerare e prevedendo aggravi economici per i progetti localizzati altrove.",
+        "Il quadro normativo attuale prevede già un raddoppio del contributo di costruzione, pari al 100% in più se il centro dati consuma suolo agricolo e al 200% in caso di realizzazione all'interno di parchi, riserve e aree di rilevanza naturale. Per i progetti che superano i 10 MW di potenza di connessione è inoltre prevista una rilevanza sovracomunale, con il coinvolgimento dei Comuni interessati tramite una conferenza in grado di definire eventuali misure compensative. Tuttavia, come evidenziato da Sertori, la nuova revisione intende imprimere un giro di vite ulteriore per disincentivare i progetti sui terreni agricoli e indirizzarli verso i siti industriali abbandonati, introducendo inoltre richieste più stringenti sui sistemi di raffreddamento a basso impatto idrico e sull'utilizzo di elettricità proveniente da fonti rinnovabili.",
+        "La necessità di intervenire è legata ai numeri registrati dopo l'entrata in vigore della legge di giugno, periodo in cui sono giunte oltre 60 domande per una capacità complessiva stimata intorno agli 11 GW. Sulla base delle stime regionali riportate da DDay.it, l'eventuale realizzazione e messa in esercizio di tutti gli impianti comporterebbe un assorbimento di circa 90 TWh di elettricità all'anno, un valore superiore del 40% rispetto ai consumi energetici complessivi dell'intera Lombardia, che oggi si attesta sui 65 TWh tra utenze domestiche e industriali. Lo stesso assessore Sertori ha definito la situazione non sostenibile, rimarcando l'assenza di un tetto massimo alla potenza installabile o al consumo energetico all'interno delle disposizioni attuali, pur ricordando che le istanze attuali rimangono per ora progetti sulla carta, a fronte di stime di settore che prevedono per l'intera penisola una nuova capacità compresa tra 2,5 e 3 GW entro il 2030.",
+        "Parallelamente all'iter istituzionale, il tema ha alimentato la mobilitazione della cittadinanza e dei comitati locali. Le proteste, avviate già in primavera prima dell'approvazione della normativa, hanno registrato una forte intensificazione nelle ultime settimane: il 3 ottobre circa 600 persone hanno manifestato a Rho contro tre progetti previsti in città, mentre il 10 ottobre oltre mille persone, sostenute da una quarantina di comitati, si sono radunate in piazza della Scala a Milano per chiedere formalmente una moratoria sulle autorizzazioni. Al centro delle contestazioni figurano il consumo di suolo agricolo, i prelievi idrici, la presenza di grandi scorte di gasolio destinate ai generatori di emergenza e la concentrazione di più progetti nei medesimi comuni senza una valutazione preventiva degli effetti cumulativi."
+      ],
+      "date": "2026-10-15",
+      "sources": [
+        "https://www.dday.it/redazione/59105/data-center-in-lombardia-richiesti-11-gw-consumerebbero-il-40-di-elettricita-in-piu-dellintera-regione-la-legge-e-da-rivedere"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-15T13:57:31.939958+00:00"
+      },
+      "source_fingerprints": [
+        "54669860d55944a4"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
