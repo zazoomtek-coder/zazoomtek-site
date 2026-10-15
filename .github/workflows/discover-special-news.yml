@@ -4,16 +4,11 @@ name: Tech Impact e Gaming Inside - ricerca verificata
 # remain in force. No fabricated news or unsupported automatic publication.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/special-editorial-run.trigger'
-      - 'scripts/discover-special-news.py'
-      - 'scripts/trending-crosscheck.py'
-      - 'scripts/auto-approve-special.py'
-      - 'scripts/special_gemini_client.py'
-      - 'scripts/generate-special-drafts.py'
-      - 'scripts/write-special-articles.py'
+    inputs:
+      sections:
+        description: 'Comma-separated eligible replacement sections: tech-impact,gaming-inside'
+        required: true
+        type: string
 permissions:
   contents: write
   actions: write
@@ -39,6 +34,27 @@ jobs:
         id: discover
         run: |
           python3 scripts/discover-special-news.py
+          # A replacement candidate can create at most one original article per selected section.
+          # Never run the general news generator without an explicit feature replacement.
+          FEATURED_SECTIONS="${{ inputs.sections }}" python3 - <<'PYFILTER'
+          import json,os
+          from pathlib import Path
+          path=Path("special-candidates.json")
+          state=json.loads(path.read_text(encoding="utf-8"))
+          categories={"tech-impact":"tech","gaming-inside":"gaming"}
+          allowed={categories[s.strip()] for s in os.environ.get("FEATURED_SECTIONS","").split(",") if s.strip() in categories}
+          if not allowed:
+              raise SystemExit("Refusing unattended special creation without replacement categories")
+          items=state.get("items",[])
+          filtered=[]
+          for category in sorted(allowed):
+              pool=[x for x in items if x.get("section")==category]
+              pool.sort(key=lambda x:(int(x.get("featured_priority") or 0),str(x.get("published_utc") or "")),reverse=True)
+              if pool:filtered.append(pool[0])
+          state["items"]=filtered
+          path.write_text(json.dumps(state,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("Replacement-only special candidates:",[(x.get("section"),x.get("title")) for x in filtered])
+          PYFILTER
           python3 - <<'PY'
           import json, os
           from pathlib import Path
