@@ -84,7 +84,7 @@ def classify(title,hint=""):
     words=set(title.split())
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
-    gaming=bool(words&GAMING) or bool(re.search(r"\b(call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
+    gaming=bool(words&GAMING) or bool(re.search(r"\b(acornia|expeditions\s*:\s*samurai|fire emblem|grand theft auto|gta\s*(?:vi|6)|call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     # Gaming-branded hardware is still technology, not video-game news.
@@ -408,7 +408,7 @@ def prefer_latest_verified_special(selected,eligible):
 
 
 def pick(articles,on_date=None):
-    """Homepage: two Tech NEWS, two Gaming NEWS, one Impact and one Inside."""
+    """Homepage: 3 Tech NEWS, 1 Gaming NEWS, 1 separate Impact and 1 separate Inside."""
     chosen=[];seen=set()
     def add(article):
         if article["url"] in seen:
@@ -436,6 +436,8 @@ def pick(articles,on_date=None):
         for x in auto_selected:
             if count==quota:break
             if x.get("section")!=kind:continue
+            # Never trust an upstream category when the headline is clearly a game.
+            if classify(x.get("title",""))!=kind:continue
             url=x.get("url","");image=x.get("image","")
             if not (url.startswith("/news-") and (ROOT/url.lstrip("/")).is_file()
                     and (image.startswith("https://") or
@@ -447,7 +449,7 @@ def pick(articles,on_date=None):
                   "matched_sources":[],"summary":x.get("summary","")}
             count+=add(item)
         regular=sorted((a for a in articles
-                        if a["section"]==kind and a["url"].startswith("/news-")
+                        if a["section"]==kind and classify(a.get("title",""))==kind and a["url"].startswith("/news-")
                         and (ROOT/a["url"].lstrip("/")).is_file()
                         and (a["image"].startswith("https://") or
                              (ROOT/a["image"].lstrip("/")).is_file())),
@@ -458,7 +460,7 @@ def pick(articles,on_date=None):
             count+=add(article)
         for x in standard:
             if count==quota:break
-            if x.get("kind")!=kind:continue
+            if x.get("kind")!=kind or classify(x.get("title",""))!=kind:continue
             url="/news-"+x["slug"]+".html"
             image="/assets/special/news-"+x["slug"]+".webp"
             if not (ROOT/url.lstrip("/")).is_file() or not (ROOT/image.lstrip("/")).is_file():continue
