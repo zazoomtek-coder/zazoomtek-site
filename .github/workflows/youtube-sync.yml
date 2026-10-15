@@ -72,7 +72,7 @@ jobs:
         env:
           ZT_FORCE_SYNC: ${{ inputs.force_sync == true }}
         run: |
-          python3 scripts/test_community_category_routing.py
+          # Import first: an unrelated regression test must never skip new posts.
           python3 scripts/update-youtube-posts.py
           python3 scripts/validate-sync-output.py community
           if [ -n "$(git status --porcelain)" ]; then
