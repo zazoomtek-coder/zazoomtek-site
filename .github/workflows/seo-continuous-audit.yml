@@ -1,7 +1,6 @@
 name: Continuous SEO audit - read only
 on:
-  schedule:
-    - cron: '17 6 * * *'
+  # Low-priority SEO diagnostics: manual or relevant code changes only.
   workflow_dispatch:
   push:
     branches:
