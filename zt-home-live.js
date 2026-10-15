@@ -508,15 +508,47 @@
    const extra=document.createElement("section");extra.id="ztHomeExtra";extra.className="ztp-extra";
    const exHead=document.createElement("div");exHead.className="ztp-extra-head";
    const exTitle=document.createElement("h2");exTitle.textContent="EXTRA";
-   const all=document.createElement("a");all.href="/news.html";all.textContent="VEDI LE NEWS →";exHead.append(exTitle,all);
+   const all=document.createElement("a");all.href="/extra.html";all.textContent="VEDI LE NEWS →";exHead.append(exTitle,all);
    const extraCards=document.createElement("div");extraCards.className="ztp-extra-cards";
-   [
-    {title:"Lucca Comics & Games 2026: libri, cinema e laboratori al Family Palace",href:"/news-Ugkxkk9aJrFlDilY7DUHfpNHaeFsH8sLHlsq.html",img:"https://yt3.ggpht.com/gn8PSH9febduVnXswTI55wxxJcRl-luSlIqnR1K44RYoImNUrMcJ8JZ5s9Zp_EIWYaPHRwJLaXWOHg=s1600-rw-nd-v1"},
-    {title:"Audible porta Dracula a Lucca Comics & Games 2026",href:"/news-UgkxdCKf9zXV8NLBt0uw4KMcDsu_108G-9kZ.html",img:"https://yt3.ggpht.com/Fs620rveEmCUexhO_0svMk4DNpgPs0OzWWzZj0ygxis9AiMa0jteijukfqZEeeuPEk0rxN52zYVI=s1600-rw-nd-v1"}
-   ].forEach(function(item){
-     const a=document.createElement("a");a.className="ztp-extra-card";a.href=item.href;
-     const img=document.createElement("img");img.src=item.img;img.alt=item.title;img.loading="lazy";img.decoding="async";
-     const name=document.createElement("strong");name.textContent=item.title;a.append(img,name);extraCards.appendChild(a);
+   // Always read the newest two Extra articles from their canonical archive.
+   // Do not freeze article names in the homepage script.
+   const renderExtraCards=function(items){
+     extraCards.replaceChildren();
+     items.slice(0,2).forEach(function(item){
+       if(!item.href || !item.title)return;
+       const a=document.createElement("a");a.className="ztp-extra-card";a.href=item.href;
+       const img=document.createElement("img");img.src=item.img||"/ChatGPT.png";img.alt=item.title;img.loading="lazy";img.decoding="async";
+       const name=document.createElement("strong");name.textContent=item.title;
+       a.append(img,name);extraCards.appendChild(a);
+     });
+   };
+   const readExtraArchive=function(){
+     return fetch("/extra.html",{cache:"no-store"}).then(function(response){
+       if(!response.ok)throw Error("Extra archive HTTP "+response.status);
+       return response.text();
+     }).then(function(markup){
+       const doc=new DOMParser().parseFromString(markup,"text/html");
+       const rows=Array.from(doc.querySelectorAll("#extraList .news-row"));
+       const seen=new Set();
+       const items=rows.map(function(row){
+         const link=row.querySelector(".news-copy h2 a") || row.querySelector("h2 a");
+         const img=row.querySelector("img");
+         if(!link)return null;
+         const href=link.getAttribute("href");
+         if(!href||seen.has(href))return null;
+         seen.add(href);
+         return {title:link.textContent.trim(),href:href,img:img?.getAttribute("src")||""};
+       }).filter(Boolean);
+       if(!items.length)throw Error("Empty Extra archive");
+       return items;
+     });
+   };
+   readExtraArchive().then(renderExtraCards).catch(function(error){
+     console.warn("Extra homepage feed unavailable:",error);
+     // The archive is still accessible through the section heading.
+     const link=document.createElement("a");link.className="ztp-extra-card";
+     link.href="/extra.html";link.textContent="Scopri le ultime news Extra →";
+     extraCards.replaceChildren(link);
    });
    extra.append(exHead,extraCards);panel.appendChild(extra);
 
