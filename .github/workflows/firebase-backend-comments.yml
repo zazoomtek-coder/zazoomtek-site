@@ -1,4 +1,4 @@
-name: Deploy Firebase comments backend
+name: Deploy Firebase comments and private traffic counters
 
 on:
   push:
@@ -37,7 +37,9 @@ jobs:
         run: |
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
 
-      - name: Deploy comments API and Firestore rules
+      - name: Verify code then deploy comments and aggregate traffic functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
-        run: npx firebase-tools@latest deploy --only functions:commentsApi --project zazomtek --non-interactive
+        run: |
+          node --check functions/index.js
+          npx firebase-tools@latest deploy --only functions:commentsApi,functions:trafficApi --project zazomtek --non-interactive
