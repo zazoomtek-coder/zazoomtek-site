@@ -89,28 +89,20 @@
     writeConsentCookie(value);
   }
 
-  // Consent Mode v2 ADVANCED: initialize BEFORE gtag('config').
-  // Unconsented page views may generate cookieless pings for GA4 modeling.
-  // Ads and personalization consent always remain denied.
-  var currentConsent=readConsent();
-  window.dataLayer=window.dataLayer||[];
-  window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
-  window.gtag('consent','default',{
-    analytics_storage:'denied',
-    ad_storage:'denied',
-    ad_user_data:'denied',
-    ad_personalization:'denied'
-  });
-  window.gtag('set','ads_data_redaction',true);
-  window.gtag('set','url_passthrough',false);
-  if(currentConsent==='granted'){
-    window.gtag('consent','update',{analytics_storage:'granted'});
-  }
-  // Called even when consent is unknown or denied, but no analytics cookies
-  // may be used while analytics_storage remains denied.
+  // Basic consent mode: NEVER contact GA4 until the visitor has accepted.
+  // The separate first-party aggregate counter does not depend on this choice.
   function loadGA4(){
     if(loaded)return;
     loaded=true;
+    window.dataLayer=window.dataLayer||[];
+    window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
+    window.gtag('consent','default',{
+      analytics_storage:'denied',
+      ad_storage:'denied',
+      ad_user_data:'denied',
+      ad_personalization:'denied'
+    });
+    window.gtag('consent','update',{analytics_storage:'granted'});
     window.gtag('js',new Date());
     window.gtag('config',ID,{
       send_page_view:true,
@@ -123,10 +115,6 @@
     script.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(ID);
     document.head.appendChild(script);
   }
-
-  // Begin collecting permitted cookieless pings as early as the script runs,
-  // independent of whether the visitor interacts with the consent banner.
-  loadGA4();
 
   function css(){
     if(document.getElementById('zt-consent-style')) return;
@@ -162,19 +150,35 @@
     document.body.appendChild(b);
   }
 
+  function clearAnalyticsCookies(){
+    // When an existing acceptance is revoked, expire first-party GA cookies.
+    try{
+      document.cookie.split(';').forEach(function(pair){
+        var name=pair.trim().split('=')[0];
+        if(!/^_ga(?:_|$)|^_gid$|^_gat(?:_|$)/.test(name))return;
+        document.cookie=name+'=;Max-Age=0;Path=/;SameSite=Lax';
+        if(location.hostname==='zazoomtek.it'||location.hostname==='www.zazoomtek.it'){
+          document.cookie=name+'=;Max-Age=0;Path=/;Domain=.zazoomtek.it;SameSite=Lax';
+        }
+      });
+    }catch(e){}
+  }
+
   function choose(value){
     if(!validChoice(value))return;
+    var previouslyAccepted=readConsent()==='granted';
     saveConsent(value);
-    currentConsent=value;
-    // Ads consent never switches to granted on this Analytics-only site.
-    window.gtag('consent','update',{
-      analytics_storage:value,
-      ad_storage:'denied',
-      ad_user_data:'denied',
-      ad_personalization:'denied'
-    });
     removeBanner();
     showSettingsButton();
+    if(value==='granted'){
+      loadGA4();
+    }else if(previouslyAccepted){
+      if(loaded&&typeof window.gtag==='function'){
+        window.gtag('consent','update',{analytics_storage:'denied'});
+      }
+      clearAnalyticsCookies();
+      window.location.reload();
+    }
   }
 
   function showBanner(){
@@ -185,7 +189,7 @@
     box.setAttribute('role','dialog');
     box.setAttribute('aria-label','Preferenze cookie');
     box.innerHTML=
-      '<p><strong>ZazoomTek misura le visite con Google Analytics: prima della tua scelta possono partire segnali senza cookie. Solo con ACCETTA attiviamo i cookie Analytics; con RIFIUTA restano disattivati.</strong></p>'+
+      '<p><strong>ZazoomTek utilizza Google Analytics solo se premi ACCETTA. Senza cookie di tracciamento, il sito conta separatamente le visualizzazioni complessive delle pagine a fini statistici. Puoi accettare o rifiutare.</strong></p>'+
       '<p><a href="/cookie.html">Cookie Policy</a></p>'+
       '<div class="zt-actions"><button type="button" class="zt-accept">ACCETTA</button><button type="button" class="zt-reject">RIFIUTA</button></div>';
     box.querySelector('.zt-accept').addEventListener('click',function(){choose('granted');});
@@ -195,7 +199,11 @@
 
   function init(){
     css();
-    if(currentConsent==='granted'||currentConsent==='denied'){
+    var consent=readConsent();
+    if(consent==='granted'){
+      loadGA4();
+      showSettingsButton();
+    }else if(consent==='denied'){
       showSettingsButton();
     }else{
       showBanner();
