@@ -21,6 +21,32 @@
     "target": "zazoomtek",
     "headers": [
       {
+        "source": "/zt-sidebar-live.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0, must-revalidate"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/javascript; charset=utf-8"
+          }
+        ]
+      },
+      {
+        "source": "/zt-sidebar-feed.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, no-cache, must-revalidate"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json; charset=utf-8"
+          }
+        ]
+      },
+      {
         "source": "/featured-carousel.json",
         "headers": [
           {
