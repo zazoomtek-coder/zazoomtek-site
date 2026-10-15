@@ -1,5 +1,12 @@
 (function(){
   'use strict';
+  // One common header for all non-home pages, including newly generated articles.
+  if(!document.querySelector('.ticker-video-links')){
+    var globalHeader=document.createElement('script');
+    globalHeader.defer=true;
+    globalHeader.src='/zt-unified-header.js?v=20261015a';
+    document.head.appendChild(globalHeader);
+  }
 
   var ID='G-01F6Q4BGTC';
   var KEY='zt_analytics_consent';
