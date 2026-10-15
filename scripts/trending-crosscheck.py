@@ -349,7 +349,26 @@ def extract_cards(page,selector="news-row"):
                       "row":row})
     return cards
 
+def community_explicit_categories():
+    """Honor the editorial label from the original YouTube post, not title guesses."""
+    try:
+        posts=json.loads((ROOT/".youtube-posts.json").read_text(encoding="utf-8"))
+    except (OSError,ValueError):
+        return {}
+    result={}
+    for post in posts if isinstance(posts,list) else []:
+        if not isinstance(post,dict) or not post.get("id"):
+            continue
+        lines=[x.strip() for x in (post.get("text") or "").splitlines() if x.strip()]
+        if not lines:continue
+        header=re.match(r"^news\\s+(tech|game|gaming|extra)\\s*(?::|$)",lines[0],re.I)
+        if header:
+            kind=header.group(1).lower()
+            result["/news-"+post["id"]+".html"]="gaming" if kind in ("game","gaming") else kind
+    return result
+
 def owned_candidates():
+    explicit=community_explicit_categories()
     regular=extract_cards((ROOT/"news.html").read_text(encoding="utf-8"))
     special=[]
     for kind,page in (("tech-impact","tech-today.html"),("gaming-inside","gaming-today.html")):
@@ -359,7 +378,8 @@ def owned_candidates():
     by_url={}
     for i,x in enumerate(regular+special):
         if x["url"] in by_url:continue
-        x["section"]=x.get("section") or classify(x["title"])
+        x["section"]=x.get("section") or explicit.get(x["url"]) or classify(x["title"])
+        x["editorial_category"]=x["url"] in explicit
         x["freshness"]=max(0,80-i)
         by_url[x["url"]]=x
     return list(by_url.values())
@@ -376,7 +396,7 @@ def matches(owned,state):
         # The topic of a game's launch is a gaming news item even when the
         # headline does not literally contain the words "videogame" or "PS5".
         # Use corroborating *category only*, never publisher content or imagery.
-        if article["section"]=="tech" and matched:
+        if article["section"]=="tech" and matched and not article.get("editorial_category"):
             game_sites={m[1]["source"] for m in matched if m[0]>=.52 and m[1]["kind"]=="gaming"}
             tech_sites={m[1]["source"] for m in matched if m[0]>=.52 and m[1]["kind"]=="tech"}
             hardware=bool(re.search(r"(?i)cuffie|headset|notebook|laptop|scheda grafica|monitor|processore|smartphone|periferic|driver|mouse|tastiera|hardware|router",article["title"]))
@@ -478,7 +498,7 @@ def pick(articles,on_date=None):
                   "matched_sources":[],"summary":x.get("summary","")}
             count+=add(item)
         regular=sorted((a for a in articles
-                        if a["section"]==kind and classify(a.get("title",""))==kind and a["url"].startswith("/news-")
+                        if a["section"]==kind and (a.get("editorial_category") or classify(a.get("title",""))==kind) and a["url"].startswith("/news-")
                         and (ROOT/a["url"].lstrip("/")).is_file()
                         and (a["image"].startswith("https://") or
                              (ROOT/a["image"].lstrip("/")).is_file())),
