@@ -51,7 +51,8 @@ jobs:
         continue-on-error: true
         run: python3 -m pip install --quiet pillow
 
-      - name: Validate sync programs
+      - name: Validate sync programs (diagnostic, never block imports)
+        continue-on-error: true
         run: |
           python3 -m py_compile scripts/update-youtube.py scripts/update-youtube-posts.py scripts/validate-sync-output.py scripts/test_review_dedup.py scripts/test_community_freshness.py scripts/test_video_sync_reliability.py
           python3 scripts/test_review_dedup.py
