@@ -134,7 +134,7 @@
   }
   function apply(feed){
     if(!feed || !Array.isArray(feed.news)|| !Array.isArray(feed.reviews))return;
-    const asides=document.querySelectorAll("aside.zt-side-mix");
+    const asides=document.querySelectorAll("aside.zt-side-mix, aside.sidebar");
     for(const aside of asides){
       // Featured first, never move the Amazon affiliate widget or the box order.
       const sections=[...aside.querySelectorAll(":scope > section")];
@@ -147,7 +147,7 @@
       aside.dataset.ztSidebarLive="2h";
     }
   }
-  if(!document.querySelector("aside.zt-side-mix"))return;
+  if(!document.querySelector("aside.zt-side-mix, aside.sidebar"))return;
   if(typeof fetch!=="function")return;
   fetch("/zt-sidebar-feed.json",{cache:"no-store",credentials:"omit"})
     .then(response=>response.ok?response.json():null)
