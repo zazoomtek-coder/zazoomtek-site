@@ -44,6 +44,17 @@ if not nav_pattern.search(header_template):
 
 def active_nav_key(filename):
     name=filename.lower()
+    if name=="extra.html" or re.fullmatch(r"extra-\d+[.]html",name):
+        return "Extra"
+    # An Extra Community article keeps its stable news-ID URL, but belongs
+    # solely to Extra. The category must win over the news filename prefix.
+    if name.startswith("news-ugkx") and name.endswith(".html"):
+        try:
+            article=(root/filename).read_text(encoding="utf-8",errors="replace")
+            if re.search(r'<a\s+href="/extra[.]html">Extra</a>',article,re.I):
+                return "Extra"
+        except OSError:
+            pass
     if name.startswith(("news-","news.")) or name in ("news.html",):
         return "News"
     if (name.startswith(("recensione-","recensioni-","review-")) or
@@ -55,17 +66,6 @@ def active_nav_key(filename):
         return "Tech Impact"
     if name.startswith("gaming-inside-") or name=="gaming-today.html":
         return "Gaming Inside"
-    if name=="extra.html" or name.startswith("extra-"):
-        return "Extra"
-    # Imported EXTRA news keep their news-YouTube ID; detect by the
-    # article breadcrumb, not a filename substring or keyword guess.
-    if re.fullmatch(r"news-Ugkx[^/]+[.]html",name):
-        try:
-            raw=(root/name).read_text(encoding="utf-8",errors="replace")
-            if re.search(r'<a\s+href="/extra[.]html">Extra</a>',raw,re.I):
-                return "Extra"
-        except OSError:
-            pass
     if name.startswith(("test-","unboxing-","gaming-")) or name in (
         "recensioni.html","test.html","unboxing.html","gaming.html"):
         return "Video"
