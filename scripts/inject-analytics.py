@@ -23,7 +23,7 @@ def inject(path: Path):
         updated=re.sub(r"</head>",lambda m:STYLE+"\n"+m.group(0),updated,count=1,flags=re.I)
     # Preserve just one analytics loader on each page. Async runs while the
     # document is parsing and captures even brief visits more reliably.
-    analytics_tag_re=r'<script\\b[^>]*\\bsrc=["\\\']/zt-analytics[.]js(?:[?][^"\\\']*)?["\\\'][^>]*>\\s*</script>'
+    analytics_tag_re=r'<script[^>]*src="/zt-analytics[.]js"[^>]*></script>'
     updated, existing_tags=re.subn(analytics_tag_re,TAG,updated,count=1,flags=re.I)
     if existing_tags==0:
         updated=re.sub(r"</head>",lambda m:TAG+"\n"+m.group(0),updated,count=1,flags=re.I)
