@@ -1,18 +1,8 @@
 {
-  "checked_at": "2026-10-15T14:19:44.876081+00:00",
+  "checked_at": "2026-10-15T14:21:31.524852+00:00",
   "source_sites": 15,
   "matches": 4,
   "selected": [
-    {
-      "title": "Expeditions: Samurai, il nuovo diario degli sviluppatori svela il villaggio dell’Atto 3",
-      "section": "tech",
-      "url": "/news-Ugkxq0g8HZ9ql1NaJty5PmPuKecpHsmnDHqi.html",
-      "trend_score": 0,
-      "published_date": "2026-10-15",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
-    },
     {
       "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
       "section": "tech",
@@ -27,6 +17,16 @@
       "title": "Sandisk partner esclusivo per lo storage dei Meta VR Glasses",
       "section": "tech",
       "url": "/news-UgkxhVDcyMWZkqmKTauSkanEv4Brx1IQ9cRp.html",
+      "trend_score": 0,
+      "published_date": "2026-10-14",
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
+      "sources": []
+    },
+    {
+      "title": "DJI Dock 4 debutta con cambio batteria automatico in 25 secondi e il nuovo Matrice 5TD",
+      "section": "tech",
+      "url": "/news-UgkxPKQEw3ewQOKWRqsd2CIx7urBYzyGFFGM.html",
       "trend_score": 0,
       "published_date": "2026-10-14",
       "freshness_bonus": 62,
