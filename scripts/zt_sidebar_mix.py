@@ -8,6 +8,8 @@ Run after Community sync and before each Firebase publish.
 """
 from html import escape, unescape
 from pathlib import Path
+from datetime import datetime, timezone
+import hashlib
 import json
 import re
 
@@ -62,6 +64,78 @@ def video_cache():
 
 def e(value):
     return escape(str(value or ""), quote=True)
+
+# Two-hour editorial refresh: different, real stories on different pages.
+# No traffic tracking, cookies, personal identifiers or random client metrics.
+SIDEBAR_PERIOD_SECONDS=7200
+
+def rotation_bucket():
+    return int(datetime.now(timezone.utc).timestamp()//SIDEBAR_PERIOD_SECONDS)
+
+def rotated(items, page, section, count=1, excluded=(), bucket=None):
+    """Recent, distinct published entries, varied by page and two-hour period."""
+    candidates=[]
+    seen=set(excluded)
+    for item in items:
+        link=item.get("url") if isinstance(item,dict) else None
+        if not link or link in seen:
+            continue
+        seen.add(link)
+        candidates.append(item)
+    if not candidates:
+        return []
+    stamp=rotation_bucket() if bucket is None else bucket
+    digest=int.from_bytes(hashlib.sha256((page+"|"+section).encode("utf-8")).digest()[:8],"big")
+    start=(digest+stamp)%len(candidates)
+    return [candidates[(start+i)%len(candidates)] for i in range(min(count,len(candidates)))]
+
+def filtered_current(items, filename):
+    """Do not recommend the article currently being read."""
+    return [item for item in items if item.get("url")!="/"+filename]
+
+def write_rotating_sidebar_feed(news, tech, gaming, videos):
+    """Safe, pre-validated published content for client-side editorial rotation."""
+    reviews=news_rows("recensioni-scritte.html",max_count=20)
+    guides=news_rows("guide.html",max_count=12)
+    extra=news_rows("extra.html",max_count=20)
+    groups={"news":news[:25],"reviews":reviews[:16],"tech":tech[:16],
+            "gaming":gaming[:16],"guides":guides[:12],"extra":extra[:16]}
+    def published(items):
+        values=[]
+        seen=set()
+        for item in items:
+            url=item.get("url") or ""
+            if (url in seen or not re.fullmatch(r"/[a-zA-Z0-9_%-]+[.]html",url)
+                    or not (ROOT/url.lstrip("/")).is_file()):
+                continue
+            seen.add(url)
+            values.append({"url":url,"title":item["title"],
+                           "image":item["image"]})
+        return values
+    payload={kind:published(items) for kind,items in groups.items()}
+    if not payload["news"] or not payload["reviews"]:
+        raise RuntimeError("Cannot publish a rotating sidebar with empty NEWS or reviews")
+    clips={}
+    for category in ("recensioni","test","unboxing","gaming"):
+        matches=[]
+        for item in videos:
+            ident=item.get("id") or ""
+            if (item.get("category")!=category or item.get("short") or
+                    item.get("live") or item.get("completedLive") or
+                    not re.fullmatch(r"[A-Za-z0-9_-]{11}",ident)):
+                continue
+            matches.append({"id":ident,"title":str(item.get("title") or category)})
+            if len(matches)>=10:
+                break
+        clips[category]=matches
+    payload["videos"]=clips
+    path=ROOT/"zt-sidebar-feed.json"
+    result=json.dumps(payload,ensure_ascii=False,separators=(",",":"))+"\\n"
+    if not path.exists() or path.read_text(encoding="utf-8")!=result:
+        path.write_text(result,encoding="utf-8")
+    print("Sidebar live feed:", {k:len(v) for k,v in payload.items()
+                               if k!="videos"}, "verified published items")
+
 
 def feature(heading, article, more):
     if not article:
@@ -171,18 +245,36 @@ def amazon():
             '<p>Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p>'
             '<a href="https://www.amazon.it/gp/profile/amzn1.account.AE76ZMY5J56NNH3HUPWFJGVZEC5A?&amp;linkCode=ll2&amp;tag=zazoomtek-21&amp;linkId=d2dd9b9524bc6fb76da94e041a661201&amp;ref_=as_li_ss_tl" target="_blank" rel="nofollow sponsored noopener">VEDI I PRODOTTI SU AMAZON ›</a></div></section>')
 
-def build_sidebar(kind, news, tech, gaming, videos, article_count=None):
+def build_sidebar(kind, news, tech, gaming, videos, article_count=None, page_key=""):
     if not news:
         return None  # Never wipe the sidebar after a partial import.
-    featured = feature("News in evidenza", featured_article(news), "/news.html")
-    all_news = recent_list(news)
-    last_reviews = recent_list(news_rows("recensioni-scritte.html", max_count=6), "reviews")
-    tech_module = mini_article("Tech Impact", tech[0] if tech else None, "/tech-today.html")
-    gaming_module = mini_article("Gaming Inside", gaming[0] if gaming else None, "/gaming-today.html")
-    reviews = video_box("recensioni", "Recensioni", "/recensioni.html", videos)
-    tests = video_box("test", "Test", "/test.html", videos)
-    unboxing = video_box("unboxing", "Unboxing", "/unboxing.html", videos)
-    gaming_video = video_box("gaming", "Gaming", "/gaming.html", videos)
+    # Server-rendered fallback rotates on every two-hour publication. Client
+    # selects updated verified items as well, without redeploying between slots.
+    page=page_key or kind
+    excluded={"/"+page}
+    cover=rotated(news[:20],page,"featured",excluded=excluded)
+    featured=feature("News in evidenza",cover[0] if cover else None,"/news.html")
+    other_news=rotated(news[:22],page,"newest",6,excluded=excluded|({cover[0]["url"]} if cover else set()))
+    all_news=recent_list(other_news)
+    latest_reviews=rotated(news_rows("recensioni-scritte.html",20),page,"reviews",6,excluded=excluded)
+    last_reviews=recent_list(latest_reviews,"reviews")
+    tech_pick=rotated(tech,page,"tech",excluded=excluded)
+    gaming_pick=rotated(gaming,page,"gaming",excluded=excluded)
+    tech_module=mini_article("Tech Impact",tech_pick[0] if tech_pick else None,"/tech-today.html")
+    gaming_module=mini_article("Gaming Inside",gaming_pick[0] if gaming_pick else None,"/gaming-today.html")
+    def clip(category, caption, href):
+        collection=[item for item in videos if item.get("category")==category
+                    and not item.get("short") and not item.get("live")
+                    and not item.get("completedLive") and item.get("id")]
+        # Keep the existing video-box HTML and one approved real video.
+        selected=rotated([{"url":v["id"],"item":v} for v in collection[:10]],
+                         page,category,1)
+        return video_box(category,caption,href,
+                         [selected[0]["item"]] if selected else [])
+    reviews=clip("recensioni","Recensioni","/recensioni.html")
+    tests=clip("test","Test","/test.html")
+    unboxing=clip("unboxing","Unboxing","/unboxing.html")
+    gaming_video=clip("gaming","Gaming","/gaming.html")
     choices = {
         "news": [last_reviews, reviews, tech_module, gaming_video, gaming_module],
         "reviews": [all_news, tests, gaming_module, unboxing, tech_module],
@@ -197,12 +289,12 @@ def build_sidebar(kind, news, tech, gaming, videos, article_count=None):
     # to the real amount of left-column content. This does NOT hide articles:
     # the archive/category links stay available within the remaining widgets.
     if article_count is not None and 0 < article_count <= 4:
-        choices[kind] = [recent_list(news, max_items=3)]
+        choices[kind] = [recent_list(other_news, max_items=3)]
     elif article_count is not None and 4 < article_count <= 7:
         primary = {"tech": gaming_module, "gaming": tech_module,
                    "news": last_reviews, "reviews": tests,
                    "guides": tech_module, "extra": tech_module}[kind]
-        choices[kind] = [primary, recent_list(news, max_items=3)]
+        choices[kind] = [primary, recent_list(other_news, max_items=3)]
     # Feature always on top, Amazon immediately below, then proportional boxes.
     return ('<aside class="news-sidebar zt-side-mix">'
             + featured + amazon() + "".join(x for x in choices[kind] if x)
@@ -221,8 +313,8 @@ def page_kind(filename):
 
 def refresh_sidebars():
     news = all_published_news()
-    tech = news_rows("tech-today.html",3)
-    gaming = news_rows("gaming-today.html",3)
+    tech = news_rows("tech-today.html",16)
+    gaming = news_rows("gaming-today.html",16)
     videos = video_cache()
     changed = 0
     for path in sorted(ROOT.glob("*.html")):
@@ -234,7 +326,7 @@ def refresh_sidebars():
         # Never edit video imports, Community pages or the independent carousel.
         article_count=len(re.findall(r'<article\b[^>]*class="[^"]*\bnews-row\b',
                                      original, re.I))
-        sidebar = build_sidebar(kind,news,tech,gaming,videos,article_count)
+        sidebar = build_sidebar(kind,news,tech,gaming,videos,article_count,page_key=path.name)
         if not sidebar:
             continue
         if ASIDE.search(original):
@@ -256,7 +348,9 @@ def refresh_sidebars():
     # The PRIMARY Home is different: its right column MUST start with
     # Ultimi Video, without a duplicate "News in evidenza" box.
     # Never inject this widget into index.html.
-    home_feature = feature("News in evidenza", featured_article(news), "/news.html") if news else ""
+    # Each numbered Home page receives its own rotating, recent featured story.
+    # Never place this extra box on the actual homepage.
+    home_feature = bool(news)
     if home_feature:
         home_marked = re.compile(
             r'<!-- ZT_HOME_SIDEBAR_FEATURE_START -->[\s\S]*?<!-- ZT_HOME_SIDEBAR_FEATURE_END -->',
@@ -273,8 +367,9 @@ def refresh_sidebars():
                 raise RuntimeError(f"{home.name}: no right sidebar for top featured news")
             cleaned = home_marked.sub("", src)
             match = home_tag.search(cleaned)
+            selected=rotated(news[:20],home.name,"featured",excluded={"/"+home.name})
             block = ('<!-- ZT_HOME_SIDEBAR_FEATURE_START -->'
-                     + home_feature
+                     + feature("News in evidenza",selected[0] if selected else None,"/news.html")
                      + '<!-- ZT_HOME_SIDEBAR_FEATURE_END -->')
             updated = cleaned[:match.end()] + "\n" + block + cleaned[match.end():]
             if updated != src:
@@ -318,7 +413,7 @@ def refresh_sidebars():
             kind = "reviews"
         else:
             kind = "news"
-        sidebar = build_sidebar(kind, news, tech, gaming, videos)
+        sidebar = build_sidebar(kind, news, tech, gaming, videos, page_key=path.name)
         if not sidebar:
             continue  # Never overwrite with an incomplete news cache.
         sidebar = sidebar.replace(
@@ -356,6 +451,7 @@ def refresh_sidebars():
         if updated != original:
             path.write_text(updated, encoding="utf-8")
             detail_count += 1
+    write_rotating_sidebar_feed(news,tech,gaming,videos)
     print(f"Mixed archive sidebars refreshed: {changed} pages, {len(news)} current news.")
     print(f"Editorial sidebars refreshed: {detail_count} pages; {repaired_count} missing sidebars restored.")
 
