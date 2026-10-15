@@ -35,7 +35,7 @@
       'SameSite=Lax'
     ];
     if(location.protocol==='https:') attrs.push('Secure');
-    if(/(^|\\.)zazoomtek\\.it$/i.test(location.hostname)){
+    if(location.hostname==='zazoomtek.it'||location.hostname==='www.zazoomtek.it'){
       attrs.push('Domain=.zazoomtek.it');
     }
     document.cookie=attrs.join('; ');
