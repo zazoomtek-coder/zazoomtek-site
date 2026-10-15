@@ -2985,8 +2985,16 @@ def main():
     # Community archive and News/Tech/Gaming categories have been rebuilt.
     migrated_extra=(Path("extra.html").is_file() and
                     'data-zt-extra-generated="1"' in Path("extra.html").read_text(encoding="utf-8"))
+    # Also migrate older generated News/Tech/Gaming headlines which still
+    # contain the routing prefixes from the former duplicate title formatter.
+    archive_source=(Path("news.html").read_text(encoding="utf-8")
+                    if Path("news.html").is_file() else "")
+    outdated_titles=bool(re.search(
+        r'<h2>\s*<a\b[^>]*>\s*(?:News\s+(?:Tech|Gaming|Extra)|News)\s*:',
+        archive_source,re.I,
+    ))
     force_rebuild=(os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
-                   or not migrated_extra)
+                   or not migrated_extra or outdated_titles)
     if source_unchanged and not force_full_scan and not force_rebuild:
         print("No YouTube Community content changes; skipping HTML regeneration.")
         return
