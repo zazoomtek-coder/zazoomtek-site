@@ -103,9 +103,17 @@
   let techCount=0,gamingCount=0;
   for(const row of rows){
    const title=row.querySelector('h3 a')?.textContent||"";
+   const category=(row.dataset.postCategory||"").toLowerCase();
+   // HARD EXCLUSION: EXTRA stays in /extra.html, even when its headline
+   // mentions computers, gaming or technology incidentally.
+   if(category==="extra"||/^news\s+extra\s*:/i.test(title)){
+    row.hidden=true;
+    continue;
+   }
    const lead=row.querySelector(".article-copy p")?.textContent||"";
    const image=row.querySelector("img.article-image");
-   const isGaming=categorizeHomeArticle(title,lead,image?.alt||"",image?.getAttribute("src")||"")==="gaming";
+   const route=(category==="tech"||category==="gaming")?category:null;
+   const isGaming=(route||categorizeHomeArticle(title,lead,image?.alt||"",image?.getAttribute("src")||""))==="gaming";
    row.classList.add("ztp-news-item");
    if(isGaming){
     const i=gamingCount++;
@@ -364,6 +372,8 @@
       var link=from.querySelector(".news-copy h2 a");
       var img=from.querySelector("img");
       if (!link||!img) return null;
+      var title=String(link.textContent||"").trim();
+      if(/^news\s+extra\s*:/i.test(title)||from.getAttribute("data-post-category")==="extra")return null;
       var url=link.getAttribute("href");
       if (!url||!/^\/(news-|tech-impact-|gaming-inside-)[\w-]+\.html$/.test(url)||seen.has(url)) return null;
       seen.add(url);
