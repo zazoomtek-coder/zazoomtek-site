@@ -429,11 +429,12 @@ def pick(articles,on_date=None):
             auto_selected=[]
     standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
     for kind in ("tech","gaming"):
+        quota = 3 if kind == "tech" else 1
         # Reuse already-published ZazoomTek pages whenever the same lead was
         # imported from YouTube; never create or display duplicate stories.
         count=0
         for x in auto_selected:
-            if count==2:break
+            if count==quota:break
             if x.get("section")!=kind:continue
             url=x.get("url","");image=x.get("image","")
             if not (url.startswith("/news-") and (ROOT/url.lstrip("/")).is_file()
@@ -453,10 +454,10 @@ def pick(articles,on_date=None):
                        key=lambda a:ordinary_priority(a,on_date),
                        reverse=True)
         for article in regular:
-            if count==2:break
+            if count==quota:break
             count+=add(article)
         for x in standard:
-            if count==2:break
+            if count==quota:break
             if x.get("kind")!=kind:continue
             url="/news-"+x["slug"]+".html"
             image="/assets/special/news-"+x["slug"]+".webp"
@@ -464,8 +465,8 @@ def pick(articles,on_date=None):
             count+=add({"url":url,"title":x["title"],"image":image,
                         "section":kind,"trend_score":0,"freshness":0,
                         "matched_sources":[],"summary":""})
-        if count!=2:
-            raise RuntimeError("Missing 2 verified "+kind+" standard NEWS")
+        if count!=quota:
+            raise RuntimeError(f"Missing {quota} verified {kind} standard NEWS")
     special_feed=json.loads((ROOT/"special-featured.json").read_text(encoding="utf-8")).get("items",[])
     approvals=json.loads((ROOT/"approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
     for kind,section in (("tech","tech-impact"),("gaming","gaming-inside")):
@@ -523,7 +524,7 @@ def pick(articles,on_date=None):
             raise RuntimeError("Duplicate highlighted special news")
     assert len(chosen)==6
     assert [x["section"] for x in chosen]==[
-        "tech","tech","gaming","gaming","tech-impact","gaming-inside"]
+        "tech","tech","tech","gaming","tech-impact","gaming-inside"]
     return chosen
 
 
