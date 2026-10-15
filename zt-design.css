@@ -1455,3 +1455,27 @@ body {overflow-y:visible;overscroll-behavior-y:auto}
     font-size:12px!important;
   }
 }
+
+/* ZT_EXTRA_NAV_20261015: accommodate the ninth canonical menu item.
+   Desktop-only; keep the preexisting mobile navigation untouched. */
+@media(min-width:1181px){
+  .topbar:has(> .nav),.zt-headrow:has(> .zt-nav){
+    grid-template-columns:max-content minmax(0,1fr) minmax(190px,265px)!important;
+  }
+  .topbar > .nav,.zt-headrow > .zt-nav{
+    min-width:0!important;flex-wrap:nowrap!important;
+  }
+  .topbar > .nav > a,.zt-headrow > .zt-nav > a{
+    padding-left:8px!important;padding-right:8px!important;
+    font-size:.69rem!important;white-space:nowrap!important;
+    letter-spacing:0!important;
+  }
+  .topbar > .search-wrap,.zt-headrow > .zt-tools{padding-left:8px!important;min-width:0!important;}
+  .topbar .brand,.zt-headrow .zt-brand{padding-right:12px!important;}
+}
+@media(min-width:1181px) and (max-width:1320px){
+  .topbar:has(> .nav),.zt-headrow:has(> .zt-nav){
+    grid-template-columns:max-content minmax(0,1fr) minmax(170px,215px)!important;
+  }
+  .topbar > .nav > a,.zt-headrow > .zt-nav > a{padding-left:6px!important;padding-right:6px!important;font-size:.63rem!important;}
+}
