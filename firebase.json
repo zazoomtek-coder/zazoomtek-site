@@ -34,19 +34,6 @@
         ]
       },
       {
-        "source": "/zt-analytics.js",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, max-age=0, must-revalidate"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/javascript; charset=utf-8"
-          }
-        ]
-      },
-      {
         "source": "/zt-visual.js",
         "headers": [
           {
