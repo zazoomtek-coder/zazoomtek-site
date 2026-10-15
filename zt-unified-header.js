@@ -2,6 +2,7 @@
 'use strict';
 if(document.querySelector('.ticker-video-links'))return;
 function mount(){
+ if(document.querySelector('.ticker-video-links'))return; // Home already has the canonical header.
  var old=document.querySelector('body > header, header.zt-header, header.site-header');
  if(!old||document.getElementById('zt-unified-header'))return;
  fetch('/?zt_header=1',{credentials:'same-origin'}).then(function(r){if(!r.ok)throw Error('Home header unavailable');return r.text()}).then(function(html){
