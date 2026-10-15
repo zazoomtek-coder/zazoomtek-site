@@ -1,0 +1,60 @@
+name: Check Firebase Hosting traffic logs
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/traffic-logging-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZAZOMTEK }}'
+          project_id: zazomtek
+      - name: Check read-only Firebase Hosting Cloud Logging availability
+        shell: bash
+        run: |
+          python3 -m pip install --quiet google-auth requests
+          python3 - <<'PY'
+          import datetime as dt
+          import google.auth
+          from google.auth.transport.requests import AuthorizedSession
+
+          credentials,_=google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+          session=AuthorizedSession(credentials)
+          since=(dt.datetime.now(dt.timezone.utc)-dt.timedelta(days=7)).isoformat().replace("+00:00","Z")
+          req={
+              "resourceNames":["projects/zazomtek"],
+              "filter":'resource.type="firebase_domain" AND logName="projects/zazomtek/logs/webrequests" AND timestamp>="'+since+'"',
+              "orderBy":"timestamp desc",
+              "pageSize":1,
+          }
+          try:
+              r=session.post("https://logging.googleapis.com/v2/entries:list",json=req,timeout=20)
+              code=r.status_code
+              has_entry=bool(r.json().get("entries")) if code==200 else False
+          except Exception as exc:
+              code="network unavailable"
+              has_entry=False
+          print("Firebase Hosting log-reading HTTP status:",code)
+          print("A recent Hosting request log is accessible:",has_entry)
+          with open(__import__("os").environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## Firebase Hosting traffic logs\n\n")
+              f.write("API status: **"+str(code)+"**. Recent CDN request logs accessible: **"+str(has_entry)+"**.\n\n")
+              if code==403:
+                  f.write("The connected GitHub service account does not have Logging Viewer permissions. An owner must grant read-only access.\n")
+              elif code==200 and not has_entry:
+                  f.write("No Hosting CDN request logs were returned. The owner may need to link Firebase Hosting to Cloud Logging in the Firebase console.\n")
+              elif code==200 and has_entry:
+                  f.write("Read-only log access is available; daily page-view summaries can be prepared from HTML document requests without cookies.\n")
+              else:
+                  f.write("Cloud Logging read access is not yet available; see the API result above.\n")
+          PY
