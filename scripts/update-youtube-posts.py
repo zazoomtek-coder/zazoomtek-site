@@ -2783,7 +2783,7 @@ def render_home_chronological_feed(posts, limit=15):
     print("Home NEWS chronological: ",len(ranked),"source articles,",
           len(selected),"visible cards, manual included:",
           sum('data-manual-news="true"' in x[2] for x in selected))
-    return "\\n".join(item[2] for item in selected)
+    return chr(10).join(item[2] for item in selected)
 
 
 def render(posts):
@@ -3142,7 +3142,7 @@ def main():
     # carousel loader, rather than cloning a stale pre-import Home snapshot.
     write_article_pages(general_news)
     if manual_hash:
-        manual_state.write_text(json.dumps({"sha256":manual_hash,"home_renderer":current_home_renderer},indent=2)+"\\n",encoding="utf-8")
+        manual_state.write_text(json.dumps({"sha256":manual_hash,"home_renderer":current_home_renderer},indent=2),encoding="utf-8")
     if force_full_scan and complete:
         FULL_COMMUNITY_SCAN_FLAG.unlink(missing_ok=True)
         print("Full Community history scan completed; one-time flag removed.")
