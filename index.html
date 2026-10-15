@@ -1478,6 +1478,13 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
     return response.json();
   }).then(function (data) {
     if (!data || !valid(data.items)) throw Error('Invalid carousel data');
+    // Do not replace newer server-rendered cards with an old JSON snapshot.
+    // The autonomous carousel is refreshed separately from YouTube imports.
+    var generated=Date.parse(data.generated_utc || '');
+    if (!Number.isFinite(generated) || Date.now()-generated > 20*60*1000 || generated>Date.now()+5*60*1000) {
+      console.info('Preserving server-rendered featured news: carousel JSON is stale.');
+      return;
+    }
     var cards=document.createDocumentFragment();
     data.items.forEach(function (item, i) {
       var a=document.createElement('a');
