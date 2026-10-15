@@ -1433,8 +1433,9 @@ def render_review_rows(posts):
         title=review_title(p); slug=review_slug(p)
         img=html.escape(p.get("image") or "/ChatGPT.png")
         excerpt=html.escape(post_excerpt(p,250))
+        route=post_category(p)
         rows.append(
-            f'<article class="news-row" data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
+            f'<article class="news-row" data-post-category="{route}" data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
             f'<a href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
             f'<div class="news-copy"><h2><a href="/{slug}">{html.escape(title)}</a></h2>'
             f'<div class="news-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
@@ -2240,7 +2241,7 @@ def manual_news_entries():
             continue
         slug=p.get("slug","")
         if (not isinstance(slug,str) or not re.fullmatch(r"news-[a-z0-9-]+\.html",slug)
-                or p.get("kind") in ("tech","gaming")
+                or str(p.get("kind") or "").lower() in ("tech","gaming","extra")
                 or slug in seen or not Path(slug).is_file()):
             continue
         when=news_publication_timestamp(p.get("published_at") or p.get("date"))
