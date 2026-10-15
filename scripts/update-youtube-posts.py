@@ -3031,7 +3031,7 @@ def main():
     for p in news: write_news_page(p,news)
     write_news_archive(general_news,reviews)
     if manual_hash:
-        manual_state.write_text(json.dumps({"sha256":manual_hash},indent=2)+"\\n",encoding="utf-8")
+        manual_state.write_text(json.dumps({"sha256":manual_hash},indent=2),encoding="utf-8")
     write_extra_archive(news,reviews)
     update_sitemap()
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
