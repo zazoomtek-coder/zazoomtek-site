@@ -404,7 +404,7 @@ def prefer_latest_verified_special(selected,eligible):
                                     x.get("freshness",0)))
     previous=published_date((selected or {}).get("published_date"))
     fresh=published_date(newest.get("published_date"))
-    return newest if selected is None or (fresh and (previous is None or fresh>previous)) else selected
+    return newest if selected is None or (fresh and (previous is None or fresh>previous or (fresh==previous and (newest.get("trend_score",0),newest.get("freshness",0)) > (selected.get("trend_score",0),selected.get("freshness",0))))) else selected
 
 
 def pick(articles,on_date=None):
