@@ -84,7 +84,7 @@ def classify(title,hint=""):
     words=set(title.split())
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
-    gaming=bool(words&GAMING) or bool(re.search(r"\b(acornia|expeditions\s*:\s*samurai|fire emblem|grand theft auto|gta\s*(?:vi|6)|call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
+    gaming=bool(words&GAMING) or bool(re.search(r"\b(acornia|nba\s+bounce|expeditions\s*:\s*samurai|fire emblem|grand theft auto|gta\s*(?:vi|6)|call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     # Gaming-branded hardware is still technology, not video-game news.
