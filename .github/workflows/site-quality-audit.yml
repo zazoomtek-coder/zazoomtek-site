@@ -1,8 +1,7 @@
 name: ZazoomTek whole-site quality audit
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '27 4 * * *'
+  # Full quality audit stays available manually and on relevant changes.
   push:
     branches: [main]
     paths:
