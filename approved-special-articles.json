@@ -666,6 +666,38 @@
       "trend_verified": false,
       "featured": true,
       "cover_mode": "auto"
+    },
+    {
+      "section": "tech",
+      "slug": "corea-del-sud-forti-tensioni-e-carichi-normativi-elevati-sulla-privacy-per-le-aziende",
+      "title": "Corea del Sud: forti tensioni e carichi normativi elevati sulla privacy per le aziende di intelligenza artificiale",
+      "summary": "Un sondaggio e un'analisi comparativa internazionale rivelano che in Corea del Sud il livello di attrito normativo sui dati personali legati all'intelligenza artificiale è tra i più alti al mondo, alla pari con la Cina. Le imprese locali segnalano pesanti oneri di conformità e rallentamenti nei progetti.",
+      "paragraphs": [
+        "Nuove tensioni e preoccupazioni emergono in Corea del Sud attorno alla regolamentazione della privacy e dell'intelligenza artificiale. Secondo quanto emerso da un sondaggio riportato dalla testata DigitalToday, circa otto aziende di intelligenza artificiale su dieci nel Paese risentono di un pesante carico normativo legato ai requisiti di consenso per la raccolta e l'utilizzo delle informazioni personali. I dati dello studio, condotto nell'ambito del \"2026 survey on AI companies' perceptions of data regulation and the state of competitiveness\" e curato dal professor Jun-mo Ahn dell'Università di Korea, evidenziano che il 78,8% delle società interpellate ritiene elevato l'onere di conformità ai vincoli di consenso.",
+        "L'indagine rileva inoltre ulteriori criticità percepite dal settore industriale: il 75,8% delle aziende segnala difficoltà riguardo alle sanzioni, ai sovrapprezzi delle sanzioni e alle disposizioni di responsabilità, mentre il 72,7% punta il dito contro le restrizioni sull'uso dei dati per scopi diversi da quelli originali. Tali ostacoli normativi incidono concretamente sull'operatività aziendale. Negli ultimi dodici mesi, una quota rilevante di imprese ha dovuto ritardare il lancio di servizi o interrompere e ridimensionare progetti a causa di problematiche legate ai dati, arrivando in alcuni casi a valutare o a concretizzare l'abbandono del lancio di determinati servizi sul mercato domestico.",
+        "Sul fronte della comparazione globale, uno studio internazionale presentato dal professor Dong-hyun Kim dell'Università di Chung-Ang e basato su un'analisi aggiornata al 27 agosto di quarantotto giurisdizioni, evidenzia che il punteggio di attrito della Corea del Sud per la regolamentazione dei dati personali si attesta a 70,4 su una scala di 100. Tale valore colloca il Paese al livello più alto al mondo, in posizione di parità con la Cina e superando la media registrata dagli Stati membri dell'Unione Europea. Al contempo, il punteggio generale sulla regolamentazione dell'IA e l'incertezza legata all'applicazione delle norme risultano inferiori rispetto alla media UE.",
+        "Per discutere di queste tematiche e confrontarsi su possibili miglioramenti istituzionali capaci di coniugare la tutela dei dati personali e la competitività industriale, diverse organizzazioni accademiche e di ricerca — tra cui la Korean Society for Telecommunications Policy, la Korean Public Law Association, la Personal Information Protection Law Association, la Korean Artificial Intelligence Law Association e il Korea Information Society Development Institute (KISDI) — hanno pianificato un seminario accademico congiunto presso il Post Tower di Seoul."
+      ],
+      "date": "2026-10-15",
+      "sources": [
+        "https://www.digitaltoday.co.kr/en/view/114368/south-koreas-ai-privacy-regulation-friction-among-worlds-highest-79-percent-of-firms-burdened-by-consent-rules"
+      ],
+      "featured_priority": 0,
+      "editor_approved": false,
+      "auto_approved": true,
+      "approval_method": "strict_source_evidence",
+      "evidence_review": {
+        "paragraphs_supported": true,
+        "source_count": 1,
+        "official_source": false,
+        "verified_at": "2026-10-15T13:16:56.753853+00:00"
+      },
+      "source_fingerprints": [
+        "9574c2869be20256"
+      ],
+      "trend_verified": false,
+      "featured": true,
+      "cover_mode": "auto"
     }
   ]
 }
