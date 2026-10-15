@@ -355,6 +355,14 @@ for path in root.rglob('*.html'):
                     js_path,html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:js_tag+"\n"+m.group(0),html,count=1,flags=re.I)
+    # Rotating sidebar data is generated from real published content below.
+    # A tiny deferred script refreshes only right-column recommendations
+    # on every site page, without touching SEO article text or the homepage.
+    sidebar_tag='<script src="/zt-sidebar-live.js" defer></script>'
+    html=re.sub(r'<script\\b[^>]*src=["\\\']/zt-sidebar-live[.]js(?:[?][^"\\\']*)?["\\\'][^>]*>\\s*</script>\\s*',
+                '',html,flags=re.I)
+    if re.search(r'<aside\\b[^>]*class=["\\\'][^"\\\']*(?:sidebar|article-side|news-sidebar)',html,re.I):
+        html=re.sub(r'</head>',lambda m:sidebar_tag+"\\n"+m.group(0),html,count=1,flags=re.I)
     # Apply LAST in the head to every existing and newly generated page.
     thumb_tag='<link rel="stylesheet" href="/zt-thumbnails.css?v=20261013textPriorityCover5" data-zt-thumbnails="center">'
     html=re.sub(r'<link[^>]*zt-thumbnails[.]css[^>]*>\s*',
