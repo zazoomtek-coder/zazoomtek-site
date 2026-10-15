@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-15T11:15:53.818632+00:00",
+  "checked_at": "2026-10-15T12:15:13.296771+00:00",
   "source_sites": 15,
-  "matches": 4,
+  "matches": 5,
   "selected": [
     {
       "title": "Acornia: Mirror Worlds mostra il primo gameplay tra pasticceria, combattimenti e mondi speculari",
@@ -24,6 +24,22 @@
       "sources": []
     },
     {
+      "title": "Bandai Namco raddoppia a Lucca Comics & Games 2026 con anteprime, Gundam Base e Tamagotchi",
+      "section": "gaming",
+      "url": "/news-Ugkx9PpTc7HRquvwgw8Ts6VoFPjlYv8YB2tO.html",
+      "trend_score": 81.31,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 72,
+      "selection_score": 124.85,
+      "sources": [
+        {
+          "site": "SpazioGames",
+          "title": "Bandai Namco raddoppia a Lucca Comics & Games 2026",
+          "score": 0.8131
+        }
+      ]
+    },
+    {
       "title": "Fire Emblem: Fortune’s Weave, il Pass di espansione è disponibile ora su Nintendo Switch 2",
       "section": "gaming",
       "url": "/news-UgkxF1onW_jIgAiDRQAHSo4R4FAaDBvLBy2L.html",
@@ -36,22 +52,6 @@
           "site": "Gamesurf",
           "title": "Fire Emblem: Fortune's Weave annuncia il Pass di Espansione",
           "score": 0.6633
-        }
-      ]
-    },
-    {
-      "title": "MSI entra nella mobilità elettrica in Italia con la nuova divisione EVSE",
-      "section": "gaming",
-      "url": "/news-UgkxR8nf0KLOwhQcQXG2SONf6uGIGRg5tgtG.html",
-      "trend_score": 78.27,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 62,
-      "selection_score": 112.88,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "MSI entra nel settore della mobilita elettrica in Italia con EVSE",
-          "score": 0.7827
         }
       ]
     },
