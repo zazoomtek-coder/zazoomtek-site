@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-15T15:50:33.369164+00:00",
+  "checked_at": "2026-10-15T16:07:17.409646+00:00",
   "source_sites": 15,
-  "matches": 5,
+  "matches": 4,
   "selected": [
     {
       "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
@@ -24,24 +24,36 @@
       "sources": []
     },
     {
-      "title": "DJI Dock 4 debutta con cambio batteria automatico in 25 secondi e il nuovo Matrice 5TD",
-      "section": "tech",
-      "url": "/news-UgkxPKQEw3ewQOKWRqsd2CIx7urBYzyGFFGM.html",
-      "trend_score": 0,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
-      "sources": []
+      "title": "Bandai Namco raddoppia a Lucca Comics & Games 2026 con anteprime, Gundam Base e Tamagotchi",
+      "section": "gaming",
+      "url": "/news-Ugkx9PpTc7HRquvwgw8Ts6VoFPjlYv8YB2tO.html",
+      "trend_score": 81.31,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 72,
+      "selection_score": 124.85,
+      "sources": [
+        {
+          "site": "SpazioGames",
+          "title": "Bandai Namco raddoppia a Lucca Comics & Games 2026",
+          "score": 0.8131
+        }
+      ]
     },
     {
-      "title": "GTA VI, Rockstar pubblica il trailer di lancio con la musica dei Justice",
+      "title": "Fire Emblem: Fortune’s Weave, il Pass di espansione è disponibile ora su Nintendo Switch 2",
       "section": "gaming",
-      "url": "/news-gta-vi-trailer-lancio-justice-15-ottobre-2026.html",
-      "trend_score": 120,
-      "published_date": "15 ottobre 2026",
+      "url": "/news-UgkxF1onW_jIgAiDRQAHSo4R4FAaDBvLBy2L.html",
+      "trend_score": 66.33,
+      "published_date": "2026-10-15",
       "freshness_bonus": 72,
-      "selection_score": 150.0,
-      "sources": []
+      "selection_score": 115.11,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "Fire Emblem: Fortune's Weave annuncia il Pass di Espansione",
+          "score": 0.6633
+        }
+      ]
     },
     {
       "title": "La via francese all'Intelligenza Artificiale: Parigi punta sull'asse Nvidia-Mistral",
