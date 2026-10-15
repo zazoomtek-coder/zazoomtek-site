@@ -12,7 +12,7 @@ function mount(){
   var ticker=node.querySelector('#tickerTrack');if(ticker)ticker.removeAttribute('id');
   node.querySelectorAll('a[href]').forEach(function(a){var href=a.getAttribute('href');if(href&&!href.startsWith('/')&&!href.startsWith('#')&&!/^(https?:|mailto:)/.test(href))a.setAttribute('href','/'+href)});
   var logo=node.querySelector('img.brand-logo-img');if(logo)logo.src='/ChatGPT.png';
-  var current=location.pathname.replace(/\\/$/,'')||'/';
+  var current=location.pathname.endsWith('/') && location.pathname !== '/' ? location.pathname.slice(0,-1) : location.pathname;
   node.querySelectorAll('nav.nav a').forEach(function(a){a.classList.remove('active');a.removeAttribute('aria-current');if(new URL(a.href,location.href).pathname===current){a.classList.add('active');a.setAttribute('aria-current','page')}});
   var existingStrip=old.nextElementSibling;
   if(existingStrip&&existingStrip.matches('.zt-strip,.ticker,.news-ticker,.zt-news-strip'))existingStrip.remove();
