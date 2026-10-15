@@ -1,0 +1,24 @@
+name: Verify EXTRA-only news classification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-extra-routing.yml'
+      - 'scripts/update-youtube-posts.py'
+      - 'scripts/test_community_category_routing.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile importer and test category routing
+        run: |
+          python3 -m py_compile scripts/update-youtube-posts.py scripts/test_community_category_routing.py
+          python3 scripts/test_community_category_routing.py
