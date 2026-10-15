@@ -367,10 +367,16 @@ jobs:
                   a=dict(attrs)
                   if tag=="div" and a.get("id")=="extraList":
                       self.in_list=True
+                      self.depth=1
+                  elif self.in_list and tag=="div":
+                      self.depth+=1
                   if self.in_list and tag=="a" and a.get("href","").startswith("/"):
                       self.hrefs.append(a["href"].split("?")[0])
               def handle_endtag(self,tag):
-                  pass
+                  if self.in_list and tag=="div":
+                      self.depth-=1
+                      if self.depth==0:
+                          self.in_list=False
           p=ExtraLinks()
           p.feed(Path("extra.html").read_text(encoding="utf-8"))
           paths=sorted(set(x for x in p.hrefs if x.endswith(".html")))
