@@ -1,10 +1,10 @@
 {
-  "checked_at": "2026-10-15T08:53:39.743497+00:00",
+  "checked_at": "2026-10-15T09:06:15.300265+00:00",
   "source_sites": 15,
   "matches": 4,
   "selected": [
     {
-      "title": "News Tech: Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
+      "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
       "section": "tech",
       "url": "/news-UgkxY6L5CMugYZWxCHQIvKQ2DMoO-CL15L4b.html",
       "trend_score": 0,
@@ -14,7 +14,7 @@
       "sources": []
     },
     {
-      "title": "News Tech: Sandisk partner esclusivo per lo storage dei Meta VR Glasses",
+      "title": "Sandisk partner esclusivo per lo storage dei Meta VR Glasses",
       "section": "tech",
       "url": "/news-UgkxhVDcyMWZkqmKTauSkanEv4Brx1IQ9cRp.html",
       "trend_score": 0,
@@ -24,43 +24,43 @@
       "sources": []
     },
     {
-      "title": "News: MSI entra nella mobilità elettrica in Italia con la nuova divisione EVSE",
+      "title": "MSI entra nella mobilità elettrica in Italia con la nuova divisione EVSE",
       "section": "gaming",
       "url": "/news-UgkxR8nf0KLOwhQcQXG2SONf6uGIGRg5tgtG.html",
-      "trend_score": 77.75,
+      "trend_score": 78.27,
       "published_date": "2026-10-14",
       "freshness_bonus": 62,
-      "selection_score": 112.54,
+      "selection_score": 112.88,
       "sources": [
         {
           "site": "Gamesurf",
           "title": "MSI entra nel settore della mobilita elettrica in Italia con EVSE",
-          "score": 0.7775
+          "score": 0.7827
         }
       ]
     },
     {
-      "title": "News Gaming: Lucca Comics & Games 2026, il Family Palace celebra 60 anni tra libri, cinema, Pokémon e laboratori",
+      "title": "Lucca Comics & Games 2026, il Family Palace celebra 60 anni tra libri, cinema, Pokémon e laboratori",
       "section": "gaming",
       "url": "/news-Ugkxkk9aJrFlDilY7DUHfpNHaeFsH8sLHlsq.html",
-      "trend_score": 64.89,
+      "trend_score": 65.87,
       "published_date": "2026-10-14",
       "freshness_bonus": 62,
-      "selection_score": 104.18,
+      "selection_score": 104.82,
       "sources": [
         {
           "site": "SpazioGames",
           "title": "Lucca Comics 2026: il Family Palace tra Pokémon e Stilton",
-          "score": 0.6489
+          "score": 0.6587
         }
       ]
     },
     {
-      "title": "Rapporto OCSE: i rischi per le piccole imprese nella corsa globale alle nuove tecnologie",
+      "title": "ChatGPT e la sicurezza dei minori: otto Stati USA citano in giudizio OpenAI",
       "section": "tech-impact",
-      "url": "/tech-impact-rapporto-ocse-i-rischi-per-le-piccole-imprese-nella-corsa-globale-alle-nuove-tecnolog.html",
+      "url": "/tech-impact-chatgpt-e-la-sicurezza-dei-minori-otto-stati-usa-citano-in-giudizio-openai.html",
       "trend_score": 0,
-      "published_date": "2026-10-14",
+      "published_date": "2026-10-15",
       "freshness_bonus": null,
       "selection_score": null,
       "sources": []
