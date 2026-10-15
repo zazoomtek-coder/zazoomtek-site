@@ -133,17 +133,24 @@
     if(label)label.textContent=clip.title;
   }
 
-  // ZT_EDITORIAL_ADAPTIVE_20261015: align the last editorial item with
-  // the last left-column item using ONLY distinct published articles.
-  // No repeated section names, no repeated URL, and no empty spacer blocks.
+  // ZT_EDITORIAL_HOME_STACK_20261015
+  // Approved Home layout on internal pages: 16:9 full-width images, title below.
+  // Uses the *actual bottom of the black Community banner* as the limit.
   function upgradeEditorialRail(aside,feed){
     if(!aside.classList.contains("zt-side-mix") ||
        !aside.querySelector(".zt-mix-feature,.zt-mix-editorial,.zt-mix-recent"))return false;
     const filename=path.split("/").pop()||"";
-    const isDetail=aside.classList.contains("article-side") ||
-                   !!aside.closest(".detail-grid") ||
-                   !!aside.parentElement?.querySelector(":scope > article, :scope > main");
-    const types={
+    const parent=aside.parentElement;
+    const siblings=[...(parent?.children||[])].filter(node=>node!==aside &&
+      node.nodeType===1 && !/^(SCRIPT|STYLE)$/.test(node.tagName));
+    const main=siblings.sort((a,b)=>
+      b.getBoundingClientRect().height-a.getBoundingClientRect().height)[0];
+    if(!main)return false;
+    const original=[...aside.childNodes];
+    const affiliate=aside.querySelector(":scope > .zt-amazon-partner");
+    const kept=[...aside.children].filter(node=>node.tagName==="SECTION" &&
+      !node.matches(".zt-mix-feature,.zt-mix-editorial,.zt-mix-recent,.zt-mix-video,.zt-amazon-partner"));
+    const selected={
       featured:["News in evidenza","news","/news.html"],
       recent:["Ultimi articoli","news","/news.html"],
       impact:["Tech Impact","tech","/tech-today.html"],
@@ -153,220 +160,226 @@
       guides:["Guide","guides","/guide.html"]
     };
     let order;
-    if(filename.startsWith("tech-impact-"))order=["impact","editorial","inside","featured","reviews","guides"];
-    else if(filename.startsWith("gaming-inside-"))order=["inside","editorial","impact","featured","reviews","guides"];
-    else if(filename.startsWith("guida-")||filename==="guide.html")order=["guides","editorial","featured","impact","inside","reviews"];
+    if(filename.startsWith("tech-impact-"))order=["impact","editorial","inside","featured","reviews","recent","guides"];
+    else if(filename.startsWith("gaming-inside-"))order=["inside","editorial","impact","featured","reviews","recent","guides"];
+    else if(filename.startsWith("guida-")||filename==="guide.html")order=["guides","editorial","featured","impact","inside","reviews","recent"];
     else if(filename.includes("recensione")||filename.startsWith("test-")||filename.startsWith("unboxing-"))
-      order=["reviews","editorial","impact","inside","featured","guides"];
-    else if(filename==="tech-today.html")order=["impact","inside","editorial","featured","reviews","guides"];
-    else if(filename==="gaming-today.html")order=["inside","impact","editorial","featured","reviews","guides"];
-    else if(/^extra(?:-\d+)?\.html$/.test(filename))order=["editorial","featured","impact","inside","reviews","guides"];
-    else order=["featured","editorial","impact","inside","reviews","guides"];
+      order=["reviews","editorial","impact","inside","featured","guides","recent"];
+    else if(filename==="tech-today.html")order=["impact","inside","editorial","featured","reviews","recent","guides"];
+    else if(filename==="gaming-today.html")order=["inside","impact","editorial","featured","reviews","recent","guides"];
+    else if(/^extra(?:-\d+)?\.html$/.test(filename))order=["editorial","featured","impact","inside","reviews","recent","guides"];
+    else order=["featured","editorial","impact","inside","reviews","recent","guides"];
 
-    // The content column, not the sidebar itself, defines how far down
-    // editorial modules should extend. Article grids and archive grids both
-    // have the sidebar as a direct sibling of their principal content.
-    const parent=aside.parentElement;
-    const content=[...(parent?.children||[])].filter(el=>el!==aside &&
-      !/^(SCRIPT|STYLE|NOSCRIPT)$/.test(el.tagName));
-    const left=content.reduce((best,el)=>{
-      if(!best)return el;
-      return el.getBoundingClientRect().height>best.getBoundingClientRect().height?el:best;
-    },null);
-    function targetHeight(){
-      if(!left)return 0;
-      const a=aside.getBoundingClientRect();
-      const b=left.getBoundingClientRect();
-      return Math.max(0,Math.round(b.bottom-a.top));
-    }
-    const singleColumn=window.matchMedia?.("(max-width:980px)").matches || false;
-    const height=targetHeight();
-    const target=singleColumn?0:height;
-    if(!singleColumn && target<200)return false;
-
-    // Show fewer unique sections on short pages; never repeat a heading.
-    // Remaining space is handled by adding real stories INSIDE existing
-    // sections rather than cloning the whole section.
-    const boxLimit=singleColumn?2:Math.min(order.length,Math.max(1,
-      target<700?1:target<1150?2:target<1800?3:target<2550?4:target<3500?5:6));
-    const initialCount=singleColumn?3:target<500?1:target<1000?2:3;
-    const usedUrls=new Set([path]);
-    const pools={};
-    for(const key of order){
-      const group=types[key][1],items=feed[group];
-      const valid=(Array.isArray(items)?items:[]).filter(isStory);
-      const uniq=[];const seen=new Set();
-      for(const item of valid)if(!seen.has(item.url)){seen.add(item.url);uniq.push(item);}
-      const start=(hash(path+"|"+key)+slot)%Math.max(uniq.length,1);
-      pools[key]=uniq.slice(start).concat(uniq.slice(0,start));
-    }
-    function next(key){
-      for(const item of pools[key]){
-        if(!usedUrls.has(item.url)){
-          usedUrls.add(item.url);
-          return item;
-        }
-      }
-      return null;
-    }
-    const el=(tag,cls)=>{
+    const create=(tag,cls)=>{
       const node=document.createElement(tag);
       if(cls)node.className=cls;
       return node;
     };
-    function row(item){
-      const article=el("article","zt-special-item");
-      const picture=el("a","zt-special-thumb");
-      picture.href=item.url;picture.setAttribute("aria-label",item.title);
-      const img=el("img");
-      img.src=item.image;img.alt=item.title;img.loading="lazy";img.decoding="async";
-      picture.append(img);
-      const h3=el("h3"),link=el("a");
-      link.href=item.url;link.textContent=item.title;
-      h3.append(link);article.append(picture,h3);
+    function kicker(item){
+      if(/^\/tech-impact-/.test(item.url))return "TECH IMPACT";
+      if(/^\/gaming-inside-/.test(item.url))return "GAMING INSIDE";
+      if(/^\/(?:guida-)/.test(item.url))return "GUIDE";
+      if(/^\/(?:recensione-|.*-recensione-)/.test(item.url))return "RECENSIONE";
+      return "NEWS";
+    }
+    function card(item){
+      const article=create("article","zt-special-item");
+      const photo=create("a","zt-special-thumb");
+      photo.href=item.url;photo.setAttribute("aria-label",item.title);
+      const image=create("img");
+      image.src=item.image;image.alt=item.title;image.loading="lazy";image.decoding="async";
+      photo.append(image);
+      const category=create("div","zt-story-kicker");
+      category.textContent=kicker(item);
+      const heading=create("h3");
+      const link=create("a");link.href=item.url;link.textContent=item.title;
+      heading.append(link);
+      article.append(photo,category,heading);
       return article;
     }
-    function module(key,items){
-      const [title,group,href]=types[key];
-      const box=el("section","zt-special-box zt-editorial-large-box");
-      box.setAttribute("aria-label",title);
-      const head=el("header","zt-special-head");
-      const h2=el("h2");h2.textContent=title.toUpperCase();
-      const see=el("a");see.href=href;see.textContent="VEDI →";
-      head.append(h2,see);
-      const list=el("div","zt-special-list");
-      for(const item of items)list.append(row(item));
-      const footer=el("footer","zt-special-footer");
-      const all=el("a");all.href=href;all.textContent="Tutti gli articoli →";
-      footer.append(all);box.append(head,list,footer);
-      return {key,group,box,list};
+    function module(key){
+      const [label,group,url]=selected[key];
+      const section=create("section","zt-special-box zt-editorial-large-box");
+      section.setAttribute("aria-label",label);
+      const header=create("header","zt-special-head");
+      const title=create("h2");title.textContent=label.toUpperCase();
+      const see=create("a");see.href=url;see.textContent="VEDI →";
+      header.append(title,see);
+      const list=create("div","zt-special-list");
+      const footer=create("footer","zt-special-footer");
+      const all=create("a");all.href=url;all.textContent="TUTTI GLI ARTICOLI →";
+      footer.append(all);
+      section.append(header,list,footer);
+      return {key,group,section,list};
     }
-    const currentAmazon=aside.querySelector(":scope > section.zt-amazon-partner");
-    const preserved=[...aside.children].filter(node=>
-      node.tagName==="SECTION" &&
-      !node.matches(".zt-mix-feature,.zt-mix-editorial,.zt-mix-recent,.zt-mix-video,.zt-amazon-partner"));
-    const records=[];
-    for(const key of order){
-      if(records.length>=boxLimit)break;
-      const picks=[];
-      for(let i=0;i<initialCount;i++){
-        const item=next(key);
-        if(item)picks.push(item);
-      }
-      if(picks.length)records.push(module(key,picks));
+    function targetAndMode(){
+      const a=aside.getBoundingClientRect(),b=main.getBoundingClientRect();
+      const desktop=b.width>0 && a.width>0 && a.left>=b.right-5 &&
+        a.top < b.bottom-60 && a.left-b.right<150;
+      // Community banner is the exact requested stopping point. On pages
+      // without it use the bottom of the editorial content column.
+      const community=main.querySelector(".zt-community-banner");
+      const edge=community?community.getBoundingClientRect().bottom:b.bottom;
+      return {desktop,target:Math.round(edge-a.top)-7};
     }
-    if(!records.length)return false;
-    const nodes=[];
-    records.forEach((r,i)=>{
-      nodes.push(r.box);
-      if(i===0 && currentAmazon)nodes.push(currentAmazon);
-    });
-    if(!currentAmazon){
-      const existingAmazon=aside.querySelector(":scope > section.zt-amazon-partner");
-      if(existingAmazon)nodes.splice(1,0,existingAmazon);
-    }
-    aside.replaceChildren(...nodes,...preserved);
-    aside.dataset.ztLargeEditorial="three-cards";
-
-    // Rebuild from the verified feed only when the MAIN content changes size.
-    // Observing the sidebar itself could create an endless feedback loop.
-    const MAX_ROWS=target>3700?14:target>2400?11:8;
+    // No text, metadata, related articles, Home layout or Amazon content edited.
     function fit(){
-      if(singleColumn)return;
-      const viewportTarget=targetHeight();
-      if(viewportTarget<200)return;
-      for(const r of records)for(const card of r.list.children){
-        card.style.removeProperty("padding-top");
-        card.style.removeProperty("padding-bottom");
+      const mode=targetAndMode();
+      // On a stacked mobile page the sidebar starts AFTER the editorial
+      // content, so height matching is neither possible nor appropriate.
+      if(mode.desktop && mode.target<540){
+        aside.replaceChildren(...original);
+        aside.removeAttribute("data-zt-large-editorial");
+        return false;
       }
-      const sideHeight=()=>aside.getBoundingClientRect().height;
-      // Prefer trimming existing articles over creating a taller sidebar.
-      let guard=0;
-      while(sideHeight()>viewportTarget+35 && guard++<80){
-        const candidates=records.filter(r=>r.list.children.length>1);
-        if(!candidates.length)break;
-        candidates.sort((a,b)=>b.list.children.length-a.list.children.length);
-        candidates[0].list.lastElementChild.remove();
-      }
-      // Grow content proportionally, keeping the section names unique.
-      // A small number of extra boxes is allowed when the existing ones
-      // have already accumulated many thumbnails.
-      const stalled=new Set();
-      guard=0;
-      while(viewportTarget-sideHeight()>62 && guard++<100){
-        let options=records.filter(r=>r.list.children.length<MAX_ROWS &&
-                                       !stalled.has(r.key));
-        options.sort((a,b)=>a.list.children.length-b.list.children.length);
-        let chosen=null,added=false;
-        for(const r of options){
-          const item=next(r.key);
-          if(!item){stalled.add(r.key);continue;}
-          chosen={r,item};break;
+      const usedLinks=new Set([path]);
+      const pool={};
+      for(const key of order){
+        const group=selected[key][1];
+        const all=(Array.isArray(feed[group])?feed[group]:[])
+          .filter(isStory);
+        const unique=[];const seen=new Set();
+        for(const item of all)if(!seen.has(item.url)){
+          seen.add(item.url);unique.push(item);
         }
-        if(!chosen){
-          if(records.length>=order.length)break;
-          const nextKey=order.find(k=>!records.some(r=>r.key===k) &&
-                                       pools[k].some(x=>!usedUrls.has(x.url)));
-          if(!nextKey)break;
-          const items=[];
-          for(let i=0;i<Math.min(2,initialCount);i++){
-            const item=next(nextKey);
-            if(item)items.push(item);
-          }
-          if(!items.length)break;
-          const newRecord=module(nextKey,items);
-          const before=Math.abs(viewportTarget-sideHeight());
-          aside.append(newRecord.box);
-          const after=Math.abs(viewportTarget-sideHeight());
-          if(after<before || viewportTarget-sideHeight()>0){
-            records.push(newRecord);
-            stalled.clear();
-            added=true;
-          }else{
-            newRecord.box.remove();
-            // Avoid retrying the same unsuccessful category.
-            pools[nextKey]=[];
-          }
-        }else{
-          const before=Math.abs(viewportTarget-sideHeight());
-          const child=row(chosen.item);
-          chosen.r.list.append(child);
-          const after=Math.abs(viewportTarget-sideHeight());
-          if(after<=before || viewportTarget-sideHeight()>0){
-            added=true;stalled.clear();
-          }else{
-            child.remove();
-            stalled.add(chosen.r.key);
+        const shift=unique.length?(hash(path+"|"+key)+slot)%unique.length:0;
+        pool[key]=unique.slice(shift).concat(unique.slice(0,shift));
+      }
+      function next(key){
+        return pool[key].find(item=>!usedLinks.has(item.url))||null;
+      }
+      const height=()=>Math.ceil(aside.getBoundingClientRect().height);
+      const aim=mode.desktop?mode.target:Infinity;
+      const records=[];
+      const first=order.find(key=>next(key));
+      if(!first){
+        aside.replaceChildren(...original);
+        aside.removeAttribute("data-zt-large-editorial");
+        return false;
+      }
+      const start=module(first);
+      const initial=next(first);
+      start.list.append(card(initial));
+      usedLinks.add(initial.url);
+      aside.dataset.ztLargeEditorial="three-cards";
+      aside.replaceChildren(start.section,...(affiliate?[affiliate]:[]),...kept);
+      records.push(start);
+      if(height()>aim+3){
+        aside.replaceChildren(...original);
+        aside.removeAttribute("data-zt-large-editorial");
+        return false;
+      }
+      if(!mode.desktop){
+        for(const key of order){
+          if(records.length>=2)break;
+          if(key===first)continue;
+          const item=next(key);if(!item)continue;
+          const record=module(key);
+          record.list.append(card(item));
+          usedLinks.add(item.url);
+          aside.append(record.section);
+          records.push(record);
+        }
+        for(const r of records){
+          while(r.list.children.length<3){
+            const item=next(r.key);if(!item)break;
+            r.list.append(card(item));usedLinks.add(item.url);
           }
         }
-        if(!added && stalled.size>=records.length)break;
+        return true;
       }
-      // Distribute the final small difference across genuine cards instead
-      // of inserting an artificial white spacer at the bottom.
-      const remaining=viewportTarget-sideHeight();
-      const cards=records.flatMap(r=>[...r.list.children]);
-      if(remaining>2 && cards.length){
-        const boost=Math.min(20,Math.floor(remaining/(cards.length*2)));
-        if(boost>0)for(const card of cards){
-          card.style.setProperty("padding-top",(14+boost)+"px","important");
-          card.style.setProperty("padding-bottom",(14+boost)+"px","important");
+      const targetModules=Math.min(order.length,Math.max(1,Math.round(aim/1120)));
+      // Populate a modest number of unique headings, then enlarge THEIR
+      // picture stacks instead of duplicating a heading further down.
+      for(const key of order){
+        if(records.length>=targetModules)break;
+        if(records.some(r=>r.key===key))continue;
+        const item=next(key);if(!item)continue;
+        const r=module(key);
+        r.list.append(card(item));
+        aside.append(r.section);
+        if(height()<=aim-6){
+          usedLinks.add(item.url);records.push(r);
+        }else r.section.remove();
+      }
+      // Raise every chosen section to two pictures if it actually fits.
+      for(const r of records){
+        const item=next(r.key);if(!item)continue;
+        const entry=card(item);r.list.append(entry);
+        if(height()<=aim-5)usedLinks.add(item.url);
+        else entry.remove();
+      }
+      let rounds=0;
+      while(rounds++<115){
+        const free=aim-height();
+        if(free<35)break;
+        const proposals=[];
+        for(const r of records){
+          if(r.list.children.length>=13)continue;
+          const item=next(r.key);if(!item)continue;
+          const entry=card(item);
+          r.list.append(entry);
+          const cost=height()-(aim-free);
+          entry.remove();
+          if(cost>0 && cost<=free-4){
+            proposals.push({r,item,cost,score:r.list.children.length*140+Math.abs(free-cost)*.14});
+          }
         }
+        if(!proposals.length){
+          // A long article may need another DISTINCT section if existing
+          // pools run out. Repeated category headings are never permitted.
+          let added=false;
+          for(const key of order){
+            if(records.some(r=>r.key===key))continue;
+            const item=next(key);if(!item)continue;
+            const r=module(key);
+            r.list.append(card(item));
+            aside.append(r.section);
+            if(height()<=aim-6){
+              records.push(r);usedLinks.add(item.url);added=true;break;
+            }
+            r.section.remove();
+          }
+          if(!added)break;
+          continue;
+        }
+        proposals.sort((a,b)=>a.score-b.score);
+        const pick=proposals[0];
+        pick.r.list.append(card(pick.item));usedLinks.add(pick.item.url);
       }
-      aside.dataset.ztAdaptiveRail="true";
+      // Small leftover gaps are shared as breathing room between real
+      // thumbnails, never empty boxes or stretched/distorted images.
+      const extra=aim-height();
+      const cards=[...aside.querySelectorAll(".zt-editorial-large-box .zt-special-item")];
+      if(extra>3 && cards.length){
+        const padding=Math.min(20,Math.floor(extra/(cards.length*2)));
+        if(padding>0)for(const entry of cards)
+          entry.style.setProperty("--zt-rail-extra-pad",padding+"px");
+      }
+      // Ultimate guard against a late geometry change: end AT or just above
+      // the black Community banner. No blank filler blocks below it.
+      let n=0;
+      while(height()>aim+3 && n++<30){
+        const last=[...records].reverse().find(r=>r.list.children.length>1);
+        if(last){last.list.lastElementChild.remove();continue;}
+        if(records.length>1){records.pop().section.remove();continue;}
+        break;
+      }
+      aside.dataset.ztAdaptiveRail="community-bottom";
+      return true;
+    }
+    let pending=false;
+    function queueFit(){
+      if(pending)return;
+      pending=true;
+      requestAnimationFrame(()=>{pending=false;fit();});
     }
     fit();
-    if(singleColumn)return true;
-    let queued=false;
-    const scheduleFit=()=>{
-      if(queued)return;
-      queued=true;
-      requestAnimationFrame(()=>{queued=false;fit();});
-    };
-    window.addEventListener("load",scheduleFit,{once:true});
-    window.addEventListener("resize",scheduleFit,{passive:true});
-    if(typeof ResizeObserver!=="undefined" && left){
-      const observer=new ResizeObserver(scheduleFit);
-      observer.observe(left);
+    window.addEventListener("load",queueFit,{once:true});
+    window.addEventListener("resize",queueFit,{passive:true});
+    if(typeof ResizeObserver==="function"){
+      const observe=new ResizeObserver(queueFit);
+      observe.observe(main);
     }
     return true;
   }
