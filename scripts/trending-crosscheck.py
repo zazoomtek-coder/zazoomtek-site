@@ -84,7 +84,7 @@ def classify(title,hint=""):
     words=set(title.split())
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
-    gaming=bool(words&GAMING) or bool(re.search(r"\b(acornia|nba\s+bounce|expeditions\s*:\s*samurai|fire emblem|grand theft auto|gta\s*(?:vi|6)|call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
+    gaming=bool(words&GAMING) or bool(re.search(r"\b(acornia|nba\s+bounce|expeditions\s+samurai|fire emblem|grand theft auto|gta\s*(?:vi|6)|call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     # Gaming-branded hardware is still technology, not video-game news.
@@ -644,6 +644,8 @@ def selftest():
     assert classify("The Talos Principle 3 mostra gameplay e trailer")=="gaming"
     assert classify("EA SPORTS FC 27, tornano le Stelle del Futuro")=="gaming"
     assert classify("EA SPORTS FC 27 apre i preorder")=="gaming"
+    assert classify("Expeditions: Samurai, diario degli sviluppatori")=="gaming"
+    assert classify("NBA BOUNCE si aggiorna per la stagione")=="gaming"
     assert classify("Sony ECM-AX10 porta audio spaziale professionale su smartphone")=="tech"
     assert classify("Dragon’s Dogma 2: Dark Arisen disponibile il nuovo aggiornamento")=="gaming"
     assert classify("Beyond the Dark: Nightwatch horror cooperativo in uscita")=="gaming"
