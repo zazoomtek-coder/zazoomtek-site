@@ -827,9 +827,12 @@ def is_review(p):
     lines=[x.strip() for x in lines if x and x.strip()]
     first=(lines[0] if lines else "").lower().strip()
 
-    # Explicit editorial news labels always win.
-    if first=="news" or first.startswith("news:"):
+    # News Tech / News Gaming / News Extra are ROUTING MARKERS only.
+    # Never interpret them as reviews, even when the body mentions a rating.
+    if re.match(r"^news(?:\s+(?:tech|gaming|extra))?\s*(?::|$)",first,re.I):
         return False
+    if re.match(r"^review\s*(?::|$)",first,re.I):
+        return True
 
     body=raw.lower()
     if "recensione" in first or "review" in first or "voto finale" in body:
@@ -1225,6 +1228,7 @@ def rich_editorial_header(active="news"):
         '<a class="zt-brand" href="/"><img src="/ChatGPT.png" alt="ZazoomTek"><span class="zt-brand-copy"><strong class="zt-wordmark" aria-label="ZazoomTek"><span class="zt-mark-blue" aria-hidden="true">ZAZOOM</span><span class="zt-mark-red" aria-hidden="true">TEK</span></strong><small class="zt-brand-tagline">TECH · GAMING · COMMUNITY</small></span></a>'
         '<nav class="zt-nav">'
         +nav("Home","/","home")+nav("News","/news.html","news")+nav("Recensioni","/recensioni-scritte.html","recensioni")+nav("Guide","/guide.html","guide")+nav("Tech Impact","/tech-today.html","tech-today")+nav("Gaming Inside","/gaming-today.html","gaming-today")
+        +nav("Extra","/extra.html","extra")
         +nav("Community","https://www.youtube.com/@ZazoomTek/posts","community")+nav("Video","https://www.youtube.com/@ZazoomTek/videos","video")
         +'</nav>'
         '<div class="zt-tools"><form class="zt-search" action="/cerca.html" method="get"><input name="q" type="search" placeholder="Cerca nel sito..." aria-label="Cerca nel sito"><button type="submit">⌕</button></form>'
@@ -1233,7 +1237,9 @@ def rich_editorial_header(active="news"):
         '<a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok"></a>'
         '<a href="https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S" target="_blank" rel="noopener"><img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp"></a>'
         '</div></div></div></header>'
-        '<div class="zt-strip"><div class="zt-wrap"><strong>News</strong><span>Notizie tech, gaming e novità dalla Community ZazoomTek</span></div></div>'
+        +('<div class="zt-strip"><div class="zt-wrap"><strong>EXTRA</strong><span>Lifestyle, cultura, sport, eventi e curiosità dalla Community</span></div></div>'
+          if active=="extra" else
+          '<div class="zt-strip"><div class="zt-wrap"><strong>News</strong><span>Notizie tech, gaming e novità dalla Community ZazoomTek</span></div></div>')
     )
 
 def load_video_cache():
@@ -1658,14 +1664,37 @@ def clean_news_site_blocks(raw):
 def clean_site_title(line):
     return clean_site_line(line)
 
+
+# Editorial routing is taken from the FIRST Community heading only.
+# These labels never appear in on-site titles, OG tags, snippets or article H1.
+NEWS_ROUTING_RE=re.compile(r"^news(?:\\s+(tech|gaming|extra))?\\s*(?::\\s*(.*))?$",re.I)
+
+def post_category(p):
+    raw=p.get("text") or ""
+    heading=next((clean_site_title(x) for x in raw.splitlines() if clean_site_title(x)), "")
+    match=NEWS_ROUTING_RE.match(heading.strip())
+    if match:
+        return (match.group(1) or "news").lower()
+    return "review" if is_review(p) else "news"
+
+
+def visible_news_heading(line):
+    """Remove only the leading editorial routing token; preserve the real title."""
+    line=clean_site_title(line).strip()
+    match=NEWS_ROUTING_RE.match(line)
+    if match:
+        return (match.group(2) or "").strip()
+    return line
+
 def news_title(p):
     lines=[clean_site_title(x) for x in (p.get("text") or "").splitlines() if clean_site_title(x)]
     if not lines:
         return "News ZazoomTek"
-    first=lines[0].strip()
-    if first.lower().rstrip(":")=="news" and len(lines)>1:
-        return lines[1]
-    return re.sub(r"(?i)^news\s*:\s*", "", first).strip() or "News ZazoomTek"
+    title=visible_news_heading(lines[0])
+    # Standalone markers have the real editorial title on the following line.
+    if not title and len(lines)>1:
+        title=visible_news_heading(lines[1])
+    return title or "News ZazoomTek"
 
 def news_slug(p):
     return "news-"+p["id"]+".html"
@@ -1724,10 +1753,14 @@ def auto_news_heading(text, section_index=0):
 def news_body_html(p):
     blocks=clean_news_site_blocks(p.get("text") or "")
     title=news_title(p)
-    cleaned=[
-        b for b in blocks
-        if b!=title and b.lower().rstrip(":").strip()!="news"
-    ]
+    cleaned=[]
+    for i,b in enumerate(blocks):
+        # A category label is routing metadata, not article prose.
+        if i==0 and (not visible_news_heading(b) or visible_news_heading(b)==title):
+            continue
+        if b==title:
+            continue
+        cleaned.append(b)
     if not cleaned:
         return ""
 
@@ -1763,7 +1796,9 @@ def article_head_metadata(p,title,slug,section):
     published=(p.get("published_iso") or published_iso_from_label(p.get("published") or "")).strip()
     modified=(p.get("modified_iso") or published).strip()
     schema_type="NewsArticle" if section=="News" else "Article"
-    archive_url="https://zazoomtek.it/news.html" if section=="News" else "https://zazoomtek.it/recensioni-scritte.html"
+    archive_url=("https://zazoomtek.it/extra.html" if section=="Extra" else
+                 "https://zazoomtek.it/news.html" if section=="News" else
+                 "https://zazoomtek.it/recensioni-scritte.html")
     org_id="https://zazoomtek.it/#organization"
     site_id="https://zazoomtek.it/#website"
 
@@ -2127,11 +2162,11 @@ def write_news_page(p, all_news=None):
     page=(
         '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         '<link rel="icon" type="image/png" href="/ChatGPT.png">'
-        +article_head_metadata(p,title,slug,"News")+NEWS_DETAIL_STYLE+'</head><body>'
-        +rich_editorial_header("news")
+        +article_head_metadata(p,title,slug,"Extra" if post_category(p)=="extra" else "News")+NEWS_DETAIL_STYLE+'</head><body>'
+        +rich_editorial_header("extra" if post_category(p)=="extra" else "news")
         +'<main class="news-detail-page"><div class="zt-wrap detail-grid">'
-        +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / '+html.escape(title)+'</div>'
-        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 News</span></div>'
+        +'<article class="article-main"><div class="breadcrumbs"><a href="/">Home</a> / <a href="/extra.html" if post_category(p)=="extra" else "/news.html">'+("Extra" if post_category(p)=="extra" else "News")+'</a> / '+html.escape(title)+'</div>'
+        +editorial_display_h1(title)+'<div class="article-meta"><span>👤 ZazoomTek</span><span>📅 {html.escape(p.get("published") or "")}</span><span>🏷 '+("Extra" if post_category(p)=="extra" else "News")+'</span></div>'
         +img+f'<div class="article-body">{news_body_html(p)}</div>'+subscribe_cta_box()+'</article>'
         +'<aside class="article-side">'+feature_html
         +'<section class="compact-box"><div class="module-title">Segui ZazoomTek</div><div class="follow-box"><img src="/ChatGPT.png" alt="ZazoomTek"><strong>ZazoomTek</strong><a href="https://www.youtube.com/@ZazoomTek?sub_confirmation=1" target="_blank" rel="noopener">ISCRIVITI SU YOUTUBE</a></div></section>'
@@ -2282,9 +2317,16 @@ def post_slug(p):
     return review_slug(p) if is_review(p) else news_slug(p)
 
 def post_excerpt(p, limit=220):
-    blocks=clean_site_blocks(p.get("text") or "") if is_review(p) else clean_news_site_blocks(p.get("text") or "")
-    text=" ".join(blocks)
+    review=is_review(p)
+    blocks=clean_site_blocks(p.get("text") or "") if review else clean_news_site_blocks(p.get("text") or "")
     title=post_title(p)
+    if not review:
+        blocks=[b for i,b in enumerate(blocks)
+                if not (i==0 and (not visible_news_heading(b) or visible_news_heading(b)==title))
+                and b!=title]
+    else:
+        blocks=[b for b in blocks if b.lower().rstrip(":").strip()!="review"]
+    text=" ".join(blocks)
     if text.startswith(title):
         text=text[len(title):].strip(" :-–—")
     text=re.sub(r"\s+"," ",text).strip()
@@ -2517,8 +2559,9 @@ def render_article_feed(posts, home_guide_inset=""):
             p.get("published_iso") or published_iso_from_label(p.get("published") or ""),
             quote=True
         )
+        route=post_category(p)
         rows.append(
-            f'          <article class="article-row" data-published-at="{published_iso}" data-search="{search.lower()}">'
+            f'          <article class="article-row" data-post-category="{route}" data-published-at="{published_iso}" data-search="{search.lower()}">'
             f'<a href="{slug}"><img class="article-image" src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
             f'<div class="article-copy">'
             f'<h3><a href="{slug}">{html.escape(title)}</a></h3>'
