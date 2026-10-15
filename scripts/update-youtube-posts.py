@@ -1795,7 +1795,7 @@ def article_head_metadata(p,title,slug,section):
     image=(p.get("image") or "").strip()
     published=(p.get("published_iso") or published_iso_from_label(p.get("published") or "")).strip()
     modified=(p.get("modified_iso") or published).strip()
-    schema_type="NewsArticle" if section=="News" else "Article"
+    schema_type="NewsArticle" if section in ("News","Extra") else "Article"
     archive_url=("https://zazoomtek.it/extra.html" if section=="Extra" else
                  "https://zazoomtek.it/news.html" if section=="News" else
                  "https://zazoomtek.it/recensioni-scritte.html")
@@ -2405,7 +2405,7 @@ def build_extra_archive_page(items,page_num,pages,reviews):
         '<meta name="twitter:description" content="'+html.escape(description,quote=True)+'">'
         +schema+NEWS_ARCHIVE_STYLE+extra_css+'</head><body>'
         +rich_editorial_header("extra")
-        +'<main class="news-page"><div class="zt-wrap news-layout">'
+        +'<main class="news-page" data-zt-extra-generated="1"><div class="zt-wrap news-layout">'
         +'<section class="news-main"><div class="news-main-head"><h1>Extra</h1>'
         '<div class="news-filter"><span>Lifestyle</span><span>Cultura</span>'
         '<span>Sport</span><span>Giocattoli</span><span>Eventi</span></div></div>'
@@ -2977,7 +2977,12 @@ def main():
             for current,old in zip(posts,previous)
         )
     )
-    force_rebuild=os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
+    # One-time migration: a manually seeded EXTRA page does not mean the
+    # Community archive and News/Tech/Gaming categories have been rebuilt.
+    migrated_extra=(Path("extra.html").is_file() and
+                    'data-zt-extra-generated="1"' in Path("extra.html").read_text(encoding="utf-8"))
+    force_rebuild=(os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
+                   or not migrated_extra)
     if source_unchanged and not force_full_scan and not force_rebuild:
         print("No YouTube Community content changes; skipping HTML regeneration.")
         return
