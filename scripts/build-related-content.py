@@ -810,7 +810,11 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
             and item.get("image")  # no branded placeholders in Dalla redazione
             and 'content="noindex' not in item["raw"].lower()
         ]
-        rng = random.Random(record["name"])
+        # Different but reproducible editorial suggestions on each page and
+        # in each two-hour window. The live feed refreshes between deploys.
+        from datetime import datetime, timezone
+        editorial_slot=int(datetime.now(timezone.utc).timestamp()//7200)
+        rng = random.Random(record["name"]+"|"+str(editorial_slot))
         pool.sort(key=lambda item: item["name"])
         rng.shuffle(pool)
         picks = []
