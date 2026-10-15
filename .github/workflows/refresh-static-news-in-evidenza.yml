@@ -3,6 +3,9 @@ name: News in evidenza - aggiornamento statico indipendente
 # AI research remains a separate, optional production flow.
 on:
   workflow_dispatch:
+  schedule:
+    # Refresh independently every two hours, avoiding the top of the hour.
+    - cron: '23 */2 * * *'
   push:
     branches: [main]
     paths:
