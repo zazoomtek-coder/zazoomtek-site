@@ -33,6 +33,17 @@ def news_rows(filename, max_count=10):
         if not title:
             continue
         link, name = unescape(title.group(1)), unescape(CLEAN.sub("", title.group(2))).strip()
+        route=re.search(r'data-post-category="([^"]+)"',body,re.I)
+        # Defensive isolation: a marked EXTRA article may never be featured
+        # in the general Tech/Gaming news sidebar.
+        if filename!="extra.html" and (
+            (route and route.group(1).lower()=="extra")
+            or re.match(r"^News\\s+Extra\\s*:",name,re.I)
+        ):
+            continue
+        # The Community routing label never appears in sidebar headlines.
+        name=re.sub(r"^(?:News(?:\\s+(?:Tech|Gaming|Extra))?|Review)\\s*:\\s*",
+                    "",name,flags=re.I).strip()
         image = IMG.search(body)
         meta = META.search(body)
         # Do not substitute the site's brand logo for missing news covers.
