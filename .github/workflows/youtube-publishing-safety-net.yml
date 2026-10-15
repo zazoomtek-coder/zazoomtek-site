@@ -40,11 +40,14 @@ jobs:
               age=(now-stamp).total_seconds()/60
               status=entry.get('status')
               conclusion=entry.get('conclusion')
-              if age<20 and status in ('in_progress','queued','pending','requested','waiting'):
-                  recent=True  # Avoid stacking jobs while the primary sync is still running.
+              if status=='in_progress':
+                  recent=True  # Never dispatch a competing importer while one is running.
+                  break
+              if age<8 and status in ('queued','pending','requested','waiting'):
+                  recent=True  # Allow GitHub a short start-up window without duplicate dispatch.
                   break
               if age<7 and status=='completed' and conclusion=='success':
-                  recent=True  # The actual source check has just succeeded.
+                  recent=True
                   break
           if recent:
               print('Healthy recent YouTube sync already exists; no extra dispatch.')
