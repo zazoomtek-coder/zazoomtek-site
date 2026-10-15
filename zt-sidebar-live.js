@@ -133,111 +133,241 @@
     if(label)label.textContent=clip.title;
   }
 
-  // ZT_EDITORIAL_LARGE_20261015: 3 full-width real articles per internal editorial module.
-  // Only replace already populated editorial sidebars; the original HTML
-  // remains a safe fallback when the verified live feed cannot be loaded.
+  // ZT_EDITORIAL_ADAPTIVE_20261015: align the last editorial item with
+  // the last left-column item using ONLY distinct published articles.
+  // No repeated section names, no repeated URL, and no empty spacer blocks.
   function upgradeEditorialRail(aside,feed){
     if(!aside.classList.contains("zt-side-mix") ||
        !aside.querySelector(".zt-mix-feature,.zt-mix-editorial,.zt-mix-recent"))return false;
     const filename=path.split("/").pop()||"";
     const isDetail=aside.classList.contains("article-side") ||
-                   !!document.querySelector(".detail-grid");
-    const news=[["News in evidenza","news","/news.html"],
-                ["Tech Impact","tech","/tech-today.html"],
-                ["Gaming Inside","gaming","/gaming-today.html"],
-                ["Dalla redazione","editorial","/news.html"],
-                ["Ultime recensioni","reviews","/recensioni-scritte.html"]];
-    const reviews=[["Ultime recensioni","reviews","/recensioni-scritte.html"],
-                   ["Tech Impact","tech","/tech-today.html"],
-                   ["Gaming Inside","gaming","/gaming-today.html"],
-                   ["Guide","guides","/guide.html"],
-                   ["Dalla redazione","editorial","/news.html"]];
-    let layout;
-    if(isDetail){
-      if(filename.startsWith("tech-impact-")){
-        layout=[["Tech Impact","tech","/tech-today.html"],
-                ["Dalla redazione","editorial","/news.html"]];
-      }else if(filename.startsWith("gaming-inside-")){
-        layout=[["Gaming Inside","gaming","/gaming-today.html"],
-                ["Dalla redazione","editorial","/news.html"]];
-      }else if(filename.startsWith("guida-")){
-        layout=[["Guide","guides","/guide.html"],
-                ["Dalla redazione","editorial","/news.html"]];
-      }else if(filename.includes("recensione")||filename.startsWith("test-")){
-        layout=[["Ultime recensioni","reviews","/recensioni-scritte.html"],
-                ["Dalla redazione","editorial","/news.html"]];
-      }else{
-        layout=[["News in evidenza","news","/news.html"],
-                ["Dalla redazione","editorial","/news.html"]];
-      }
-    }else if(/^news(?:-\d+)?\.html$/.test(filename)){
-      layout=news;
-    }else if(/^recensioni-scritte(?:-\d+)?\.html$/.test(filename)){
-      layout=reviews;
-    }else if(filename==="tech-today.html"){
-      layout=[news[1],news[2],news[3],news[4]];
-    }else if(filename==="gaming-today.html"){
-      layout=[news[2],news[1],news[3],news[4]];
-    }else if(filename==="guide.html"){
-      layout=[reviews[3],reviews[4]];
-    }else if(/^extra(?:-\d+)?\.html$/.test(filename)){
-      layout=[news[3],news[0]];
-    }else{
-      layout=[news[3],news[1]];
-    }
-    // The large cards must not produce a much longer right column in a
-    // very short listing. Long News and Reviews use the approved five boxes.
-    if(!isDetail && !/^(news|recensioni-scritte)(?:-\d+)?\.html$/.test(filename)){
-      const articleCount=document.querySelectorAll("article.news-row").length;
-      if(articleCount>0 && articleCount<5)layout=layout.slice(0,2);
-    }
-    const prepared=[];
-    for(const [title,group,href] of layout){
-      const entries=choose(feed[group],group+"-large",3);
-      if(entries.length!==3)return false;
-      prepared.push({title,href,entries});
-    }
-    const create=(tag,cls)=>{
-      const n=document.createElement(tag);
-      if(cls)n.className=cls;
-      return n;
+                   !!aside.closest(".detail-grid") ||
+                   !!aside.parentElement?.querySelector(":scope > article, :scope > main");
+    const types={
+      featured:["News in evidenza","news","/news.html"],
+      recent:["Ultimi articoli","news","/news.html"],
+      impact:["Tech Impact","tech","/tech-today.html"],
+      inside:["Gaming Inside","gaming","/gaming-today.html"],
+      editorial:["Dalla redazione","editorial","/news.html"],
+      reviews:["Ultime recensioni","reviews","/recensioni-scritte.html"],
+      guides:["Guide","guides","/guide.html"]
     };
-    const blocks=[];
-    prepared.forEach(({title,href,entries},index)=>{
-      const box=create("section","zt-special-box zt-editorial-large-box");
+    let order;
+    if(filename.startsWith("tech-impact-"))order=["impact","editorial","inside","featured","reviews","guides"];
+    else if(filename.startsWith("gaming-inside-"))order=["inside","editorial","impact","featured","reviews","guides"];
+    else if(filename.startsWith("guida-")||filename==="guide.html")order=["guides","editorial","featured","impact","inside","reviews"];
+    else if(filename.includes("recensione")||filename.startsWith("test-")||filename.startsWith("unboxing-"))
+      order=["reviews","editorial","impact","inside","featured","guides"];
+    else if(filename==="tech-today.html")order=["impact","inside","editorial","featured","reviews","guides"];
+    else if(filename==="gaming-today.html")order=["inside","impact","editorial","featured","reviews","guides"];
+    else if(/^extra(?:-\d+)?\.html$/.test(filename))order=["editorial","featured","impact","inside","reviews","guides"];
+    else order=["featured","editorial","impact","inside","reviews","guides"];
+
+    // The content column, not the sidebar itself, defines how far down
+    // editorial modules should extend. Article grids and archive grids both
+    // have the sidebar as a direct sibling of their principal content.
+    const parent=aside.parentElement;
+    const content=[...(parent?.children||[])].filter(el=>el!==aside &&
+      !/^(SCRIPT|STYLE|NOSCRIPT)$/.test(el.tagName));
+    const left=content.reduce((best,el)=>{
+      if(!best)return el;
+      return el.getBoundingClientRect().height>best.getBoundingClientRect().height?el:best;
+    },null);
+    function targetHeight(){
+      if(!left)return 0;
+      const a=aside.getBoundingClientRect();
+      const b=left.getBoundingClientRect();
+      return Math.max(0,Math.round(b.bottom-a.top));
+    }
+    const singleColumn=window.matchMedia?.("(max-width:980px)").matches || false;
+    const height=targetHeight();
+    const target=singleColumn?0:height;
+    if(!singleColumn && target<200)return false;
+
+    // Show fewer unique sections on short pages; never repeat a heading.
+    // Remaining space is handled by adding real stories INSIDE existing
+    // sections rather than cloning the whole section.
+    const boxLimit=singleColumn?2:Math.min(order.length,Math.max(1,
+      target<700?1:target<1150?2:target<1800?3:target<2550?4:target<3500?5:6));
+    const initialCount=singleColumn?3:target<500?1:target<1000?2:3;
+    const usedUrls=new Set([path]);
+    const pools={};
+    for(const key of order){
+      const group=types[key][1],items=feed[group];
+      const valid=(Array.isArray(items)?items:[]).filter(isStory);
+      const uniq=[];const seen=new Set();
+      for(const item of valid)if(!seen.has(item.url)){seen.add(item.url);uniq.push(item);}
+      const start=(hash(path+"|"+key)+slot)%Math.max(uniq.length,1);
+      pools[key]=uniq.slice(start).concat(uniq.slice(0,start));
+    }
+    function next(key){
+      for(const item of pools[key]){
+        if(!usedUrls.has(item.url)){
+          usedUrls.add(item.url);
+          return item;
+        }
+      }
+      return null;
+    }
+    const el=(tag,cls)=>{
+      const node=document.createElement(tag);
+      if(cls)node.className=cls;
+      return node;
+    };
+    function row(item){
+      const article=el("article","zt-special-item");
+      const picture=el("a","zt-special-thumb");
+      picture.href=item.url;picture.setAttribute("aria-label",item.title);
+      const img=el("img");
+      img.src=item.image;img.alt=item.title;img.loading="lazy";img.decoding="async";
+      picture.append(img);
+      const h3=el("h3"),link=el("a");
+      link.href=item.url;link.textContent=item.title;
+      h3.append(link);article.append(picture,h3);
+      return article;
+    }
+    function module(key,items){
+      const [title,group,href]=types[key];
+      const box=el("section","zt-special-box zt-editorial-large-box");
       box.setAttribute("aria-label",title);
-      const head=create("header","zt-special-head");
-      const h2=create("h2");h2.textContent=title.toUpperCase();
-      const see=create("a");see.href=href;see.textContent="VEDI →";
+      const head=el("header","zt-special-head");
+      const h2=el("h2");h2.textContent=title.toUpperCase();
+      const see=el("a");see.href=href;see.textContent="VEDI →";
       head.append(h2,see);
-      const list=create("div","zt-special-list");
-      for(const item of entries){
-        const row=create("article","zt-special-item");
-        const thumb=create("a","zt-special-thumb");
-        thumb.href=item.url;thumb.setAttribute("aria-label",item.title);
-        const img=create("img");img.src=item.image;img.alt=item.title;
-        img.loading="lazy";img.decoding="async";
-        thumb.append(img);
-        const h3=create("h3");
-        const link=create("a");link.href=item.url;link.textContent=item.title;
-        h3.append(link);row.append(thumb,h3);list.append(row);
-      }
-      const foot=create("footer","zt-special-footer");
-      const all=create("a");all.href=href;all.textContent="Tutti gli articoli →";
-      foot.append(all);box.append(head,list,foot);blocks.push(box);
-      // Reuse the actual affiliate widget unchanged, after the first box.
-      if(index===0){
-        const amazon=aside.querySelector(":scope > section.zt-amazon-partner");
-        if(amazon)blocks.push(amazon);
-      }
-    });
-    if(!blocks.length)return false;
-    // Preserve any separately managed non-editorial widget, except legacy
-    // one-video teasers which the approved five-box preview replaces.
-    const preserved=[...aside.children].filter(node=>node.tagName==="SECTION" &&
+      const list=el("div","zt-special-list");
+      for(const item of items)list.append(row(item));
+      const footer=el("footer","zt-special-footer");
+      const all=el("a");all.href=href;all.textContent="Tutti gli articoli →";
+      footer.append(all);box.append(head,list,footer);
+      return {key,group,box,list};
+    }
+    const currentAmazon=aside.querySelector(":scope > section.zt-amazon-partner");
+    const preserved=[...aside.children].filter(node=>
+      node.tagName==="SECTION" &&
       !node.matches(".zt-mix-feature,.zt-mix-editorial,.zt-mix-recent,.zt-mix-video,.zt-amazon-partner"));
-    aside.replaceChildren(...blocks,...preserved);
+    const records=[];
+    for(const key of order){
+      if(records.length>=boxLimit)break;
+      const picks=[];
+      for(let i=0;i<initialCount;i++){
+        const item=next(key);
+        if(item)picks.push(item);
+      }
+      if(picks.length)records.push(module(key,picks));
+    }
+    if(!records.length)return false;
+    const nodes=[];
+    records.forEach((r,i)=>{
+      nodes.push(r.box);
+      if(i===0 && currentAmazon)nodes.push(currentAmazon);
+    });
+    if(!currentAmazon){
+      const existingAmazon=aside.querySelector(":scope > section.zt-amazon-partner");
+      if(existingAmazon)nodes.splice(1,0,existingAmazon);
+    }
+    aside.replaceChildren(...nodes,...preserved);
     aside.dataset.ztLargeEditorial="three-cards";
+
+    // Rebuild from the verified feed only when the MAIN content changes size.
+    // Observing the sidebar itself could create an endless feedback loop.
+    const MAX_ROWS=target>3700?14:target>2400?11:8;
+    function fit(){
+      if(singleColumn)return;
+      const viewportTarget=targetHeight();
+      if(viewportTarget<200)return;
+      for(const r of records)for(const card of r.list.children){
+        card.style.removeProperty("padding-top");
+        card.style.removeProperty("padding-bottom");
+      }
+      const sideHeight=()=>aside.getBoundingClientRect().height;
+      // Prefer trimming existing articles over creating a taller sidebar.
+      let guard=0;
+      while(sideHeight()>viewportTarget+35 && guard++<80){
+        const candidates=records.filter(r=>r.list.children.length>1);
+        if(!candidates.length)break;
+        candidates.sort((a,b)=>b.list.children.length-a.list.children.length);
+        candidates[0].list.lastElementChild.remove();
+      }
+      // Grow content proportionally, keeping the section names unique.
+      // A small number of extra boxes is allowed when the existing ones
+      // have already accumulated many thumbnails.
+      const stalled=new Set();
+      guard=0;
+      while(viewportTarget-sideHeight()>62 && guard++<100){
+        let options=records.filter(r=>r.list.children.length<MAX_ROWS &&
+                                       !stalled.has(r.key));
+        options.sort((a,b)=>a.list.children.length-b.list.children.length);
+        let chosen=null,added=false;
+        for(const r of options){
+          const item=next(r.key);
+          if(!item){stalled.add(r.key);continue;}
+          chosen={r,item};break;
+        }
+        if(!chosen){
+          if(records.length>=order.length)break;
+          const nextKey=order.find(k=>!records.some(r=>r.key===k) &&
+                                       pools[k].some(x=>!usedUrls.has(x.url)));
+          if(!nextKey)break;
+          const items=[];
+          for(let i=0;i<Math.min(2,initialCount);i++){
+            const item=next(nextKey);
+            if(item)items.push(item);
+          }
+          if(!items.length)break;
+          const newRecord=module(nextKey,items);
+          const before=Math.abs(viewportTarget-sideHeight());
+          aside.append(newRecord.box);
+          const after=Math.abs(viewportTarget-sideHeight());
+          if(after<before || viewportTarget-sideHeight()>0){
+            records.push(newRecord);
+            stalled.clear();
+            added=true;
+          }else{
+            newRecord.box.remove();
+            // Avoid retrying the same unsuccessful category.
+            pools[nextKey]=[];
+          }
+        }else{
+          const before=Math.abs(viewportTarget-sideHeight());
+          const child=row(chosen.item);
+          chosen.r.list.append(child);
+          const after=Math.abs(viewportTarget-sideHeight());
+          if(after<=before || viewportTarget-sideHeight()>0){
+            added=true;stalled.clear();
+          }else{
+            child.remove();
+            stalled.add(chosen.r.key);
+          }
+        }
+        if(!added && stalled.size>=records.length)break;
+      }
+      // Distribute the final small difference across genuine cards instead
+      // of inserting an artificial white spacer at the bottom.
+      const remaining=viewportTarget-sideHeight();
+      const cards=records.flatMap(r=>[...r.list.children]);
+      if(remaining>2 && cards.length){
+        const boost=Math.min(20,Math.floor(remaining/(cards.length*2)));
+        if(boost>0)for(const card of cards){
+          card.style.setProperty("padding-top",(14+boost)+"px","important");
+          card.style.setProperty("padding-bottom",(14+boost)+"px","important");
+        }
+      }
+      aside.dataset.ztAdaptiveRail="true";
+    }
+    fit();
+    if(singleColumn)return true;
+    let queued=false;
+    const scheduleFit=()=>{
+      if(queued)return;
+      queued=true;
+      requestAnimationFrame(()=>{queued=false;fit();});
+    };
+    window.addEventListener("load",scheduleFit,{once:true});
+    window.addEventListener("resize",scheduleFit,{passive:true});
+    if(typeof ResizeObserver!=="undefined" && left){
+      const observer=new ResizeObserver(scheduleFit);
+      observer.observe(left);
+    }
     return true;
   }
 
