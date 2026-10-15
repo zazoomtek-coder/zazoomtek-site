@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-15T10:16:57.742898+00:00",
+  "checked_at": "2026-10-15T10:51:15.048829+00:00",
   "source_sites": 15,
-  "matches": 3,
+  "matches": 4,
   "selected": [
     {
       "title": "Acornia: Mirror Worlds mostra il primo gameplay tra pasticceria, combattimenti e mondi speculari",
@@ -24,6 +24,22 @@
       "sources": []
     },
     {
+      "title": "Fire Emblem: Fortune’s Weave, il Pass di espansione è disponibile ora su Nintendo Switch 2",
+      "section": "gaming",
+      "url": "/news-UgkxF1onW_jIgAiDRQAHSo4R4FAaDBvLBy2L.html",
+      "trend_score": 66.33,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 72,
+      "selection_score": 115.11,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "Fire Emblem: Fortune's Weave annuncia il Pass di Espansione",
+          "score": 0.6633
+        }
+      ]
+    },
+    {
       "title": "MSI entra nella mobilità elettrica in Italia con la nuova divisione EVSE",
       "section": "gaming",
       "url": "/news-UgkxR8nf0KLOwhQcQXG2SONf6uGIGRg5tgtG.html",
@@ -36,22 +52,6 @@
           "site": "Gamesurf",
           "title": "MSI entra nel settore della mobilita elettrica in Italia con EVSE",
           "score": 0.7827
-        }
-      ]
-    },
-    {
-      "title": "Lucca Comics & Games 2026, il Family Palace celebra 60 anni tra libri, cinema, Pokémon e laboratori",
-      "section": "gaming",
-      "url": "/news-Ugkxkk9aJrFlDilY7DUHfpNHaeFsH8sLHlsq.html",
-      "trend_score": 65.87,
-      "published_date": "2026-10-14",
-      "freshness_bonus": 62,
-      "selection_score": 104.82,
-      "sources": [
-        {
-          "site": "SpazioGames",
-          "title": "Lucca Comics 2026: il Family Palace tra Pokémon e Stilton",
-          "score": 0.6587
         }
       ]
     },
