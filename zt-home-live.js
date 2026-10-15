@@ -132,6 +132,26 @@
    }else{techCount++;tech.appendChild(row);}
   }
 
+  // Featured stories live ONLY in the six-card mosaic while selected.
+  // Remove them from the homepage feeds (archive pages remain chronological).
+  const featuredUrls=new Set([...document.querySelectorAll('#ztFeaturedGrid > a[href]')].map(a=>new URL(a.getAttribute('href'),location.href).pathname));
+  function suppressFeaturedDuplicates(){
+    const cards=[...tech.querySelectorAll('article.article-row'),...gaming.querySelectorAll('article.article-row')];
+    for(const card of cards){
+      const href=card.querySelector('h3 a[href]')?.getAttribute('href');
+      if(!href)continue;
+      const isFeatured=featuredUrls.has(new URL(href,location.href).pathname);
+      card.hidden=isFeatured;
+      card.style.display=isFeatured?'none':'';
+    }
+  }
+  suppressFeaturedDuplicates();
+  const featuredGrid=document.getElementById('ztFeaturedGrid');
+  if(featuredGrid)new MutationObserver(function(){
+    featuredUrls.clear();
+    featuredGrid.querySelectorAll('a[href]').forEach(a=>featuredUrls.add(new URL(a.getAttribute('href'),location.href).pathname));
+    suppressFeaturedDuplicates();
+  }).observe(featuredGrid,{childList:true});
   // Live Tech and Gaming are derived exclusively from the latest canonical Community feed.
   // Never reinsert a static Gaming archive above new articles.
   orderHomeColumn(tech);
