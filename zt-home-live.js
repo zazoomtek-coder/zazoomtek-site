@@ -543,7 +543,24 @@
        return items;
      });
    };
-   readExtraArchive().then(renderExtraCards).catch(function(error){
+   const verifiedExtraCards=async function(items){
+     const working=[];
+     // Avoid broken links during Firebase propagation: only show a verified 200.
+     for(const item of items.slice(0,12)){
+       if(working.length===2)break;
+       try{
+         const target=new URL(item.href,window.location.origin);
+         if(target.origin!==window.location.origin)continue;
+         const response=await fetch(target.pathname,{method:"HEAD",cache:"no-store"});
+         if(response.ok)working.push(item);
+       }catch(error){
+         console.warn("Skipping unreachable Extra article:",item.href,error);
+       }
+     }
+     if(!working.length)throw Error("No published Extra articles return HTTP 200");
+     renderExtraCards(working);
+   };
+   readExtraArchive().then(verifiedExtraCards).catch(function(error){
      console.warn("Extra homepage feed unavailable:",error);
      // The archive is still accessible through the section heading.
      const link=document.createElement("a");link.className="ztp-extra-card";
