@@ -1,6 +1,32 @@
 (function(){
   'use strict';
 
+  // First-party aggregate statistic, independent from consented GA4.
+  // No visitor identifier, cookies, IP, fingerprint, query string or referrer
+  // is included in the payload; no persistent browser storage is written.
+  (function countAnonymousPageView(){
+    if(window.__ztAggregateViewSent)return;
+    var page=window.location.pathname||'/';
+    if(page!=='/'&&page.slice(-5).toLowerCase()!=='.html')return;
+    if(window.navigator&&window.navigator.webdriver)return;
+    window.__ztAggregateViewSent=true;
+    try{
+      if(typeof window.fetch==='function'){
+        window.fetch('/api/traffic',{
+          method:'POST',
+          mode:'same-origin',
+          credentials:'omit',
+          referrerPolicy:'no-referrer',
+          cache:'no-store',
+          keepalive:true,
+          headers:{'Content-Type':'text/plain;charset=UTF-8'},
+          body:JSON.stringify({page:page})
+        }).catch(function(){});
+      }
+    }catch(e){}
+  })();
+
+
   var ID='G-01F6Q4BGTC';
   var KEY='zt_analytics_consent';
   var DATE_KEY='zt_analytics_consent_at';
