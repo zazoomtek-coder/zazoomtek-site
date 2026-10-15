@@ -2106,13 +2106,14 @@ def clean_site_title(line):
     return clean_site_line(line)
 
 def news_title(p):
+    """Latest effective definition: remove routing prefixes from public titles."""
     lines=[clean_site_title(x) for x in (p.get("text") or "").splitlines() if clean_site_title(x)]
     if not lines:
         return "News ZazoomTek"
-    first=lines[0].strip()
-    if first.lower().rstrip(":")=="news" and len(lines)>1:
-        return lines[1]
-    return first
+    title=visible_news_heading(lines[0])
+    if not title and len(lines)>1:
+        title=visible_news_heading(lines[1])
+    return title or "News ZazoomTek"
 
 def news_slug(p):
     return "news-"+p["id"]+".html"
