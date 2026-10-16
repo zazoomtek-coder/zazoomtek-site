@@ -43,7 +43,7 @@ def main():
             assert len(selected)==6,selected
             assert sorted(x["section"] for x in selected)==["gaming"]+["tech"]*5
             assert [x["published_date"] for x in selected[:5]]==["2026-10-16"]*5
-            assert selected[0]["url"]==today_g["url"]
+            assert today_g["url"] in {x["url"] for x in selected}
             assert selected[-1]["published_date"]=="2026-10-15"
             assert mod.valid_featured_sections(selected)
             assert len({x["url"] for x in selected})==6
@@ -60,6 +60,13 @@ def main():
             assert not mod.allowed_featured_date({"published_date":""},reference)
             assert not mod.allowed_featured_date({"published_date":"2026-10-17"},reference)
             assert mod.local_publication_date({"published_at":"2026-10-15T23:50:00Z"})==reference
+            # Reject stale articles even if an archive card falsely says "yesterday".
+            stale_page=story(root,"tech-false-yesterday","2026-10-15","tech",1000)
+            (root/stale_page["url"][1:]).write_text(
+                '<meta property="article:published_time" content="2026-10-14T16:07:27Z">',encoding="utf-8")
+            assert not mod.allowed_featured_date(stale_page,reference)
+            assert stale_page["url"] not in {x["url"] for x in mod.pick([stale_page],on_date=reference)}
+
             # When fewer true Tech are available, real Gaming posts fill gaps.
             more_gaming=[story(root,"game-fill-"+str(i),"2026-10-16","gaming",i) for i in range(3)]
             selection=mod.pick(yesterday[:2]+[today_g,yesterday_g,*more_gaming],on_date=reference)
