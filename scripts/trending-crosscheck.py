@@ -453,7 +453,7 @@ def editorial_pins():
         if section not in ("tech-impact","gaming-inside") or section in sections:
             raise RuntimeError("Only one pin per authorized special section")
         if not isinstance(url,str) or not re.fullmatch(
-                r"/"+re.escape(section)+r"-[a-z0-9-]+\\.html",url):
+                r"/"+re.escape(section)+r"-[a-z0-9-]+\.html",url):
             raise RuntimeError("Invalid curated special URL")
         if url in urls or not (ROOT/url.lstrip("/")).is_file():
             raise RuntimeError("Curated featured article is missing or duplicated: "+url)
