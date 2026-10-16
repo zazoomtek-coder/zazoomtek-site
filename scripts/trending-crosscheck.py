@@ -483,46 +483,39 @@ def editorial_pins():
 
 ITALY_TIMEZONE=ZoneInfo("Europe/Rome")
 
-def local_publication_date(article):
-    """Article source metadata is authoritative; do not use scrape or scan time."""
-    value=article.get("published_at") or article.get("published_date") or article.get("date")
-    if isinstance(value,str):
-        timestamp=value.strip().replace("Z","+00:00")
-        if "T" in timestamp:
-            try:
-                parsed=dt.datetime.fromisoformat(timestamp)
-                if parsed.tzinfo is not None:
-                    return parsed.astimezone(ITALY_TIMEZONE).date()
-            except ValueError:
-                pass
-    return published_date(value)
-
 def publication_instant(article):
-    """Read real publication time from the linked article; never the build time.
+    """Verified original hour from this published article's Article metadata.
 
-    Home/News cards only store calendar day. For descending publication *hours*
-    use the NewsArticle meta from the already-existing local HTML file.
-    Un-timed entries sort after timed stories on the same day.
+    Archive cards keep an Italian calendar date but do not store the hour.
+    The canonical article meta timestamp takes priority, so a misleading
+    stale archive row cannot promote an older story as today's news.
     """
-    meta=article.get("published_at")
-    if not meta:
-        url=article.get("url","")
-        path=ROOT/str(url).lstrip("/")
-        if path.is_file() and path.suffix==".html":
-            body=path.read_text(encoding="utf-8",errors="replace")
-            match=re.search(
-                r'<meta[^>]*property="article:published_time"[^>]*content="([^"]+)"',
-                body,re.I)
-            if match:meta=html.unescape(match.group(1))
-    if isinstance(meta,str):
+    url=article.get("url","")
+    path=ROOT/str(url).lstrip("/")
+    raw=None
+    if path.is_file() and path.suffix==".html":
+        body=path.read_text(encoding="utf-8",errors="replace")
+        match=re.search(
+            r'<meta[^>]*property="article:published_time"[^>]*content="([^"]+)"',
+            body,re.I)
+        if match:
+            raw=html.unescape(match.group(1))
+    if not raw:
+        raw=article.get("published_at")
+    if isinstance(raw,str):
         try:
-            instant=dt.datetime.fromisoformat(meta.strip().replace("Z","+00:00"))
-            if instant.tzinfo:
-                return instant.astimezone(ITALY_TIMEZONE)
+            value=dt.datetime.fromisoformat(raw.strip().replace("Z","+00:00"))
+            if value.tzinfo:
+                return value.astimezone(ITALY_TIMEZONE)
         except ValueError:
             pass
-    day=local_publication_date(article)
+    # Explicit date-only metadata ranks after time-stamped stories that day.
+    day=published_date(article.get("published_date") or article.get("date") or raw)
     return dt.datetime.combine(day,dt.time.min,tzinfo=ITALY_TIMEZONE) if day else None
+
+def local_publication_date(article):
+    stamp=publication_instant(article)
+    return stamp.date() if stamp is not None else None
 
 def allowed_featured_date(article,on_date=None):
     """ONLY today or yesterday, using the local Italian calendar."""
