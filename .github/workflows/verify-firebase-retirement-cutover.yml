@@ -1,0 +1,39 @@
+name: Validate retired Firebase and active Cloudflare editorial workflows
+on:
+  push:
+    branches: [retire-firebase-publish-after-pages-20261016]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate actual workflows, imports, and Cloudflare cadence
+        run: |
+          python3 -m pip install -q pyyaml
+          python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+          wf=Path('.github/workflows')
+          for f in wf.glob('*.yml'):
+              yaml.safe_load(f.read_text(encoding='utf-8'))
+          assert not (wf/'firebase-hosting-merge.yml').exists()
+          assert not (wf/'firebase-hosting-pull-request.yml').exists()
+          assert 'if: false' in (wf/'deploy-site-live.yml').read_text()
+          for p in ('youtube-sync','refresh-home-editorials-daily','refresh-static-news-in-evidenza',
+                    'publish-standard-news','publish-approved-reviews','publish-special-news',
+                    'scan-trending-portals','build-guide-archive','refresh-featured-cover-photos',
+                    'youtube-publishing-safety-net','scheduled-review-watchdog'):
+              source=(wf/(p+'.yml')).read_text(encoding='utf-8')
+              assert 'gh workflow run deploy-site-live.yml' not in source, p
+              assert "'deploy-site-live.yml'" not in source, p
+          assert "cron: '1-59/5 * * * *'" in (wf/'youtube-sync.yml').read_text()
+          assert "cron: '23 */4 * * *'" in (wf/'refresh-static-news-in-evidenza.yml').read_text()
+          assert "cron: '12 7 * * *'" in (wf/'refresh-home-editorials-daily.yml').read_text()
+          assert "cron: '13 */2 * * *'" in (wf/'cloudflare-controlled-release.yml').read_text()
+          assert "firebase" not in (wf/'youtube-publishing-safety-net.yml').read_text().lower()
+          assert 'Firebase/Google' not in Path('privacy.html').read_text(encoding='utf-8')
+          print('PASS: production publishing no longer dispatches Firebase; editorial cadences retained.')
+          PY
