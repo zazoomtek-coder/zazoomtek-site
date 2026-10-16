@@ -5,9 +5,10 @@ name: Cloudflare Pages - hourly batched publishing
 #   Exclude: (none)
 on:
   schedule:
-    # Check once every hour. Zero public changes = zero Pages builds.
-    # GitHub schedule is best-effort and may start a few minutes late.
-    - cron: '13 * * * *'
+    # Check once every hour at minute :44 (UTC, also :44 in Italy).
+    # Zero public changes = zero Pages builds.
+    # GitHub schedule is best-effort and may start later than :44.
+    - cron: '44 * * * *'
   workflow_dispatch:
     inputs:
       urgent:
