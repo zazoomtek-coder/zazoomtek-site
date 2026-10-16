@@ -168,6 +168,10 @@
  function relocate(){
    const area=document.getElementById("articoli");
    const panel=document.getElementById("ztp-guide-extra");
+   const guideAll=document.querySelector("#ztHomeGuide .zt-home-guide-heading a");
+   const extraAll=document.querySelector("#ztHomeExtra .ztp-extra-head a");
+   if(guideAll)guideAll.textContent="VEDI TUTTO →";
+   if(extraAll)extraAll.textContent="VEDI TUTTO →";
    const gamingReviews=document.getElementById("ztpGamingReviews");
    const video=document.getElementById("ztpVideosAnchor");
    const main=area&&area.closest(".maincol");
