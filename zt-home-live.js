@@ -110,24 +110,20 @@
     row.hidden=true;
     continue;
    }
-   const lead=row.querySelector(".article-copy p")?.textContent||"";
-   const image=row.querySelector("img.article-image");
+   // Only the importer's explicit editorial category may enter a regular column.
+   // Unknown/Impact/Inside items remain in their dedicated editorial sections.
    const route=(category==="tech"||category==="gaming")?category:null;
-   const isGaming=(route||categorizeHomeArticle(title,lead,image?.alt||"",image?.getAttribute("src")||""))==="gaming";
+   if(!route || /^news\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(title)){
+     row.hidden=true;
+     continue;
+   }
+   const isGaming=route==="gaming";
    row.classList.add("ztp-news-item");
    if(isGaming){
     const i=gamingCount++;
     if(i===0||i===3)row.classList.add("ztp-gaming-feature");
     else row.classList.remove("ztp-gaming-feature");
-    const copy=row.querySelector(".article-copy");
-    if(copy&&!copy.querySelector(".ztp-gaming-kind")){
-      const label=document.createElement("span");
-      label.className="ztp-gaming-kind";
-      label.textContent=/sport|fc 27|racing/i.test(title)?"SPORT & CORSE":
-        /tekken|street fighter/i.test(title)?"PICCHIADURO":
-        /indie|chivalware/i.test(title)?"INDIE & NOVITÀ":"GAMING";
-      copy.prepend(label);
-    }
+    row.querySelectorAll(".ztp-gaming-kind").forEach(label=>label.remove());
     gaming.appendChild(row);
    }else{techCount++;tech.appendChild(row);}
   }
@@ -381,19 +377,24 @@
       catch(e) { return ""; }
     }
     var seen=new Set([].concat([].slice.call(tech.querySelectorAll("article.article-row")),[].slice.call(gaming.querySelectorAll("article.article-row"))).map(hrefOf).filter(Boolean));
-    function classify(title) {
-      var t=String(title||"").toLowerCase();
-      if (/^news\s+gaming\s*:|^gaming\s*:/.test(t)) return "gaming";
-      if (/^news\s+tech\s*:|^tech\s*:/.test(t)) return "tech";
-      if (/\b(pubg|playstation|ps5|xbox|nintendo|gaming|videogioch|videogame|fortnite|minecraft|steam|shogun|tekken|warhammer|enshrouded|lucca comics|cluedo|monopoly|just dance|battlefield|rpg|gameplay|wolverine|diablo|total war|ubisoft|spongebob|game ground|ace combat)\b/.test(t)) return "gaming";
-      return "tech";
+    function explicitArchiveCategory(from) {
+      const route=(from.dataset.postCategory||"").toLowerCase();
+      const heading=(from.querySelector(".news-copy h2 a")?.textContent||"").trim();
+      const url=from.querySelector(".news-copy h2 a")?.getAttribute("href")||"";
+      const signature=String(from.getAttribute("data-news-search")||"").slice(0,600);
+      if(/\/(?:tech-impact|gaming-inside)-/.test(url)
+         || /^news\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(heading)
+         || /\bnews\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(signature))return null;
+      if(route==="tech"||route==="gaming")return route;
+      const label=signature.match(/\bnews\s+(tech|gaming)\s*:/i);
+      return label?label[1].toLowerCase():null;
     }
     function makeArticle(from) {
       var link=from.querySelector(".news-copy h2 a");
       var img=from.querySelector("img");
       if (!link||!img) return null;
       var title=String(link.textContent||"").trim();
-      if(/^news\s+extra\s*:/i.test(title)||from.getAttribute("data-post-category")==="extra")return null;
+      if(!explicitArchiveCategory(from)||/^news\s+extra\s*:/i.test(title)||from.getAttribute("data-post-category")==="extra")return null;
       var url=link.getAttribute("href");
       if (!url||!/^\/(news-|tech-impact-|gaming-inside-)[\w-]+\.html$/.test(url)||seen.has(url)) return null;
       seen.add(url);
@@ -443,7 +444,9 @@
           var link=src.querySelector(".news-copy h2 a");
           if(!link) return;
           var name=link.textContent.trim();
-          var section=classify(name)==="gaming"?gaming:tech;
+          var route=explicitArchiveCategory(src);
+          if(!route)return;
+          var section=route==="gaming"?gaming:tech;
           if(section.querySelectorAll(":scope > article.article-row").length>=10)return;
           var row=makeArticle(src);
           if(row)section.appendChild(row);
