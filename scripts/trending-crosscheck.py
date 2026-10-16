@@ -474,7 +474,8 @@ def expected_featured_sections(pins=None):
 
 
 def pick(articles,on_date=None):
-    """Five Tech + one Gaming by default; user-requested special pins displace Tech."""\n    pins=editorial_pins()
+    """Five Tech + one Gaming by default; user-requested special pins displace Tech."""
+    pins=editorial_pins()
     chosen=[];seen=set()
     def add(article):
         if article["url"] in seen:
