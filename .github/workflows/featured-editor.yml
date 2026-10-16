@@ -1,64 +1,15 @@
-name: ZazoomTek - unico gestore News in evidenza
+name: Legacy featured editor (read-only, manual audit)
+# Normal six-card refresh is exclusively owned by refresh-static-news-in-evidenza.yml.
+# This workflow never generates Tech Impact or Gaming Inside news.
 on:
-  schedule:
-    - cron: '19 */2 * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/featured-editor.yml'
-      - 'scripts/featured-editor.py'
 permissions:
-  contents: write
-  actions: write
-concurrency:
-  group: zazoomtek-one-featured-editor
-  cancel-in-progress: false
+  contents: read
 jobs:
-  editorial:
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 24
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Validate single carousel editor
-        run: |
-          python3 -m py_compile scripts/featured-editor.py scripts/trending-crosscheck.py
-          python3 scripts/featured-editor.py --test
-      - name: Compare Italian and international technology and gaming headlines
-        run: python3 scripts/trending-crosscheck.py --sources
-      - name: Select only four existing regular articles and two valid special pages
-        id: featured
-        run: python3 scripts/featured-editor.py --apply
-      - name: Publish only changed data; never rewrite Community articles
-        id: commit
-        run: |
-          set -euo pipefail
-          git config user.name "ZazoomTek Featured Editor"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- featured-carousel.json trending-sources.json trending-match-report.json
-          if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          git commit -m "Editorial: rotate six verified featured news without duplicates"
-          for n in 1 2 3; do
-            if git pull --rebase origin main && git push origin HEAD:main; then
-              echo "changed=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            git rebase --abort || true
-            sleep "$((n*5))"
-          done
-          exit 1
-      - name: Deploy updated carousel to Firebase
-        if: steps.commit.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-site-live.yml --ref main
-      - name: Ask verified special desk to investigate replacement only
-        if: steps.featured.outputs.special_research == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run discover-special-news.yml --ref main -f sections="${{ steps.featured.outputs.special_sections }}"
+      - name: Read-only verification of manually selected featured items
+        run: python3 scripts/featured-editor.py --test
