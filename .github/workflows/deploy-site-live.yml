@@ -40,7 +40,10 @@ jobs:
           if carousel.is_file():
               items=json.loads(carousel.read_text(encoding='utf-8')).get('items',[])
               assert len(items)==6 and len({x['url'] for x in items})==6
-              assert [x['section'] for x in items]==['tech','tech','tech','gaming','tech-impact','gaming-inside']
+              import sys
+              sys.path.insert(0,'scripts')
+              from trending_crosscheck import expected_featured_sections
+              assert [x['section'] for x in items]==expected_featured_sections()
           print('YouTube content validated, carousel independent and safe.')
           PY
       # Every live deployment MUST normalize all old and newly imported HTML.
@@ -355,8 +358,10 @@ jobs:
           import json
           from pathlib import Path
           items=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))['items']
-          assert len(items)==6 and [i['section'] for i in items]==[
-              'tech','tech','tech','gaming','tech-impact','gaming-inside']
+          import sys
+          sys.path.insert(0,'scripts')
+          from trending_crosscheck import expected_featured_sections
+          assert len(items)==6 and [i['section'] for i in items]==expected_featured_sections()
           assert len({i['url'] for i in items})==6
           print('Latest committed YouTube and featured content verified.')
           PY
