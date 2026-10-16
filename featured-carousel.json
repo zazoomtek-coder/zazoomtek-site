@@ -1,11 +1,18 @@
 {
-  "generated_utc": "2026-10-16T19:26:25.929637+00:00",
+  "generated_utc": "2026-10-16T20:53:18.986798+00:00",
   "items": [
     {
       "section": "tech",
       "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
       "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
       "image": "https://yt3.ggpht.com/vPyauA74ElFi761jZsFZVjFWwPP2a-2IgdXU8w7xvhP9EKdoiNzJTPpRUx98rWpY4X-BtUzB-TA6tQ=s1600-rw-nd-v1",
+      "published_date": "2026-10-16"
+    },
+    {
+      "section": "gaming",
+      "url": "/news-UgkxHKjqDM_6w4x_d1JfWv0MwO8uWY5mvxdT.html",
+      "title": "Tales of Eternia Remastered è disponibile ora su PC e console",
+      "image": "https://yt3.ggpht.com/NSskrfq9i9pljVhldYWumZrovdtp82LmvZfIW8rtDikqxnb4uoolWuacle8xv6glmVcqWcLjw0NEzg=s1600-rw-nd-v1",
       "published_date": "2026-10-16"
     },
     {
@@ -27,13 +34,6 @@
       "url": "/news-UgkxtRknJZGjXPKTtnhDQrev1PCJdW5xRjdl.html",
       "title": "Razer presenta Barracuda V2 Pro con THX Spatial Audio+, ANC e autonomia fino a 70 ore",
       "image": "https://yt3.ggpht.com/pBv5j32ov1ALoedB7vWxiC_bYntY9JZxweD5vZs7udL88-wCwntH31GPVEM1HX6ILtpRa_eEGEjBlg=s1600-rw-nd-v1",
-      "published_date": "2026-10-16"
-    },
-    {
-      "section": "gaming",
-      "url": "/news-UgkxHKjqDM_6w4x_d1JfWv0MwO8uWY5mvxdT.html",
-      "title": "Tales of Eternia Remastered è disponibile ora su PC e console",
-      "image": "https://yt3.ggpht.com/NSskrfq9i9pljVhldYWumZrovdtp82LmvZfIW8rtDikqxnb4uoolWuacle8xv6glmVcqWcLjw0NEzg=s1600-rw-nd-v1",
       "published_date": "2026-10-16"
     }
   ]
