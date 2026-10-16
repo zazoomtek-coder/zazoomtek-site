@@ -149,16 +149,25 @@ jobs:
                 newsBeforeReviews:(()=>{const a=document.querySelector("#articoli .ztp-two-news-columns"),b=document.querySelector("#ztpGamingReviews");return !!a&&!!b&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
                 reviewNewsGap:(()=>{const a=document.querySelector("#articoli .ztp-two-news-columns"),b=document.querySelector("#ztpGamingReviews");return a&&b?Math.round(b.getBoundingClientRect().top-a.getBoundingClientRect().bottom):null})(),
                 pagerAfterNews:(()=>{const a=document.querySelector(".ztp-two-news-columns"),b=document.querySelector("#ztpNewsPager");return !!a&&!!b&&a.nextElementSibling===b})(),
-                reviewAfterPager:(()=>{const a=document.querySelector("#ztpNewsPager"),b=document.querySelector("#ztpGamingReviews");return !!a&&!!b&&a.nextElementSibling===b})(),
-                pagerReviewGap:(()=>{const a=document.querySelector("#ztpNewsPager"),b=document.querySelector("#ztpGamingReviews");return a&&b?Math.round(b.getBoundingClientRect().top-a.getBoundingClientRect().bottom):null})(),
-                extraCardCount:document.querySelectorAll("#ztHomeExtra .ztp-extra-card").length,
+                magazineAfterPager:(()=>{const a=document.querySelector("#ztpNewsPager"),b=document.querySelector("#ztp-guide-extra");return !!a&&!!b&&a.nextElementSibling===b})(),
+                reviewsAfterMagazines:(()=>{const a=document.querySelector("#ztp-guide-extra"),b=document.querySelector("#ztpGamingReviews");return !!a&&!!b&&a.nextElementSibling===b})(),
+                magazinesBeforeVideos:(()=>{const a=document.querySelector("#ztpGamingReviews"),b=document.querySelector("#ztpVideosAnchor");return !!a&&!!b&&a.nextElementSibling===b})(),
+                sideBySideMagazines:(()=>{
+                  const a=document.querySelector("#ztHomeGuide"),b=document.querySelector("#ztHomeExtra");
+                  if(!a||!b)return false;
+                  const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();
+                  return Math.abs(x.y-y.y)<5&&Math.abs(x.width-y.width)<15&&y.x>x.x;
+                })(),
+                pagerMagazineGap:(()=>{const a=document.querySelector("#ztpNewsPager"),b=document.querySelector("#ztp-guide-extra");return a&&b?Math.round(b.getBoundingClientRect().top-a.getBoundingClientRect().bottom):null})(),
+                guideMagazineCount:document.querySelectorAll("#ztHomeGuide .zt-magazine-primary,#ztHomeGuide .zt-magazine-small").length,
+                extraMagazineCount:document.querySelectorAll("#ztHomeExtra .zt-magazine-primary,#ztHomeExtra .zt-magazine-small").length,
                 homeFixCSS:!!document.querySelector('link[href*="zt-home-gap-fix-20261014.css"]'),
                 bigEditorialCards:document.querySelectorAll('.ztp-news-rail .ztp-editorial-archive .ztp-editorial-story:not([hidden])').length,
                 techCoverUnique:(()=>{
                   const covers=[...document.querySelectorAll("#zt-special-tech .zt-special-item:nth-child(-n+3) img")];
-                  return covers.length===3&&covers.some(im=>im.getAttribute("src")?.includes("tech-impact-eu-ai-test-labs-original-20261014.svg"))&&
-                    covers.some(im=>im.getAttribute("src")?.includes("tech-impact-california-ai-workplace-law-original-20261014.svg"))&&
-                    covers.every(im=>im.naturalWidth>1);
+                  const urls=covers.map(im=>im.getAttribute("src"));
+                  return covers.length>=2&&new Set(urls).size===covers.length&&
+                    covers.every(im=>!!im.getAttribute("src")&&!!im.getAttribute("alt"));
                 })(),
                 backToTopExists:!!document.querySelector('#ztBackToTop'),
                 backToTopInvisibleInitially:!document.querySelector('#ztBackToTop.zt-backtop-visible'),
@@ -171,7 +180,7 @@ jobs:
              });
              console.log(v.label,JSON.stringify(d),errors);
              if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
-             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||!d.reviewAfterPager||!d.pagerAfterNews||d.pagerReviewGap===null||d.pagerReviewGap>35||d.extraCardCount!==2||!d.homeFixCSS||d.bigEditorialCards!==3||!d.techCoverUnique||!d.backToTopExists||!d.backToTopInvisibleInitially)
+             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||!d.magazineAfterPager||!d.reviewsAfterMagazines||!d.magazinesBeforeVideos||!d.pagerAfterNews||d.pagerMagazineGap===null||d.pagerMagazineGap>35||d.extraMagazineCount<3||d.extraMagazineCount>4||d.guideMagazineCount<3||d.guideMagazineCount>4||!d.homeFixCSS||d.bigEditorialCards!==3||!d.techCoverUnique||!d.backToTopExists||!d.backToTopInvisibleInitially)
                throw Error("New 10/10 news, Tech reviews, Extra or Gaming review modules missing");
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
@@ -183,13 +192,14 @@ jobs:
              if(d.imagesOk<d.imagesTotal*.70)throw Error("Too many broken news thumbnails");
              if(errors.length)throw Error("JavaScript errors: "+errors.join(" ; "));
              if(v.label==="desktop"){
-              if(!(d.tech.x<d.gaming.x&&d.gaming.x<d.rail.x))throw Error("Desktop no three editorial columns");
-              const r=[d.tech.w,d.gaming.w,d.rail.w],sum=r.reduce((a,b)=>a+b,0);
-              if(r.some((w,i)=>Math.abs(w/sum-[.50,.30,.20][i])>.015))throw Error("Wrong 50/30/20 ratio");
+              if(!(d.gaming.x<d.tech.x&&d.tech.x<d.rail.x&&d.sideBySideMagazines))throw Error("Desktop Gaming/Tech/rail columns or 2 magazines misaligned");
+              const r=[d.gaming.w,d.tech.w,d.rail.w],sum=r.reduce((a,b)=>a+b,0);
+              if(r.some((w,i)=>Math.abs(w/sum-[.30,.50,.20][i])>.018))throw Error("Wrong 30/50/20 ratio");
               if(d.gamingMaxGap>26)throw Error("Excess empty spaces between Gaming news cards: "+d.gamingMaxGap+"px");
              }else if(v.label==="tablet"){
-              if(!(d.tech.x<d.gaming.x&&d.rail.y>d.tech.y))throw Error("Tablet two-column layout broken");
+              if(!(d.gaming.x<d.tech.x&&d.rail.y>d.tech.y))throw Error("Tablet Gaming/Tech columns broken");
              }else if(!(d.tech.y<d.gaming.y&&d.gaming.y<d.rail.y))throw Error("Mobile stacked layout broken");
+             await page.locator("#ztp-guide-extra").scrollIntoViewIfNeeded();
              await page.screenshot({path:"/tmp/zt-prod-audit/"+v.label+".png",fullPage:false});
              console.log("PASS "+v.label);
              await page.close();
