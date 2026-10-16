@@ -311,8 +311,8 @@ def main():
     if 'class="zt-featured-grid"' not in featured:
         raise RuntimeError("Unexpected featured-grid layout; refusing a destructive replacement")
     cards = re.findall(r'<a\b[^>]*class="[^"]*zt-feature-card[^"]*"[^>]*href="([^"]+)"', featured)
-    if len(cards) != 6 or len(set(cards)) != 6:
-        raise RuntimeError("Home featured grid must contain exactly six unique cards")
+    if len(cards)>6 or len(set(cards))!=len(cards):
+        raise RuntimeError("Home featured grid has duplicate or too many cards")
 
     manifest = json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))
     items = manifest.get("items",[])
@@ -321,8 +321,10 @@ def main():
     matcher=importlib.util.module_from_spec(spec)
     spec.loader.exec_module(matcher)
     expected=matcher.expected_featured_sections()
-    if len(items) != 6 or [x.get("section") for x in items] != expected:
-        raise RuntimeError("Featured manifest violates the editorial 5 Tech + 1 Gaming / pinned special contract")
+    if not matcher.valid_featured_sections(items):
+        raise RuntimeError("Featured manifest exceeds the editorial 5 Tech + 1 Gaming / pinned special maximum")
+    if any(not matcher.allowed_featured_date(x) for x in items if x["section"] in ("tech","gaming")):
+        raise RuntimeError("Featured manifest has older-than-yesterday NEWS")
 
     # This job owns only the ordinary-news chronological Home stream.
     # The independent featured publisher retains all six editorial positions.
