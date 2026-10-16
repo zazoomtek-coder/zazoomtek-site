@@ -151,22 +151,6 @@
           }
         ]
       }
-    ],
-    "rewrites": [
-      {
-        "source": "/api/comments",
-        "function": {
-          "functionId": "commentsApi",
-          "region": "europe-west1"
-        }
-      }
     ]
-  },
-  "functions": {
-    "source": "functions",
-    "runtime": "nodejs20"
-  },
-  "firestore": {
-    "rules": "firestore.rules"
   }
 }
