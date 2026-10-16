@@ -1,4 +1,26 @@
-# ZazoomTek Cloudflare migration — staging only
+# ZazoomTek Cloudflare migration — controlled static publishing
+
+## Emergency deployment settings (tested 16 Oct 2026)
+
+Git-connected Cloudflare Pages project for the already-live website:
+
+- GitHub repository: `zazoomtek-coder/zazoomtek-site`
+- Production branch: `main`
+- Framework: **None**
+- Project root: repository root (`/`)
+- Build command: **`python3 scripts/cloudflare-build-site.py`**
+- Output directory: **`dist`**
+- No secrets or Firebase API keys required. No Functions or Workers deployed.
+- The full staging build tested successfully on GitHub: 903 files / 29.93 MiB, including 200 YouTube player watch pages and the `/watch/` index.
+- DO NOT configure build output as `.`: that would publish scripts and private files.
+- Once the project exists, Cloudflare Pages > Settings > Build > Build watch paths must be **Include `cloudflare-release-trigger.txt` only**; exclude nothing. This is CRITICAL. `main` source changes alone must not trigger automatic builds.
+- Disable automatic previews for non-production branches (Branch deployment controls).
+- `.github/workflows/cloudflare-controlled-release.yml` checks content and batches releases every 2 hours, at most twelve a day, with a 31-day Git-history safety cap of 450 scheduled / 475 urgent markers. 31 days × 12 = 372, leaving a reserve for other builds or retries.
+- This scheduled cap is NOT the Cloudflare official billing meter. Inspect Pages usage in the Cloudflare dashboard; avoid extra builds/deployments outside the controlled marker workflow.
+- After a successful `*.pages.dev` URL is verified, attach `zazoomtek.it` and `www.zazoomtek.it` under **Pages project > Custom domains**; Cloudflare will handle Pages DNS records after confirmation. Never change nameservers again and never touch MX/TXT/email records.
+- Preserve GitHub content, root article URLs, six-featured-card JSON, responsive navigation, reviews, 200 video embed pages, images, sitemaps and robots.
+- Do NOT disable Firebase fallback or delete DNS records BEFORE a Pages preview is verified.
+
 
 This branch prepares a static **snapshot** of the existing site, preserving original public pages, visual assets, editorial JSON, and SEO resources. It does not change the public domain, Cloudflare account, Firebase deployment, or editorial automations.
 
@@ -10,7 +32,7 @@ This branch prepares a static **snapshot** of the existing site, preserving orig
 Those workflows currently dispatch `deploy-site-live.yml` (Firebase). Do **not** switch off Firebase or attach the Cloudflare custom domain until the publication router is migrated and checked. Avoid Pages auto-build on every 5-minute YouTube check unless it really changed content. Ensure serial deploys, test a preview, then switch the domain with a tested rollback path.
 
 ## Cloudflare staging
-`python3 scripts/build-cloudflare-pages.py` makes `dist/`, filters internal build tools, preview/test pages, private state and the deprecated comments files, and checks a conservative 19,000-file / 25 MiB per-file budget. Configure Cloudflare Pages with output directory `dist` and this build command only after the production publishing logic has been refactored, preferably on an isolated preview branch first.
+`python3 scripts/build-cloudflare-pages.py` makes `dist/`, filters internal build tools, preview/test pages, private state and the deprecated comments files, and checks a conservative 19,000-file / 25 MiB per-file budget. Configure Cloudflare Pages with output directory `dist` and build command `python3 scripts/cloudflare-build-site.py`; GitHub Actions verified it offline before the cutover.
 
 ## Before cutover
 1. Test desktop/mobile navigation, images, feeds, search, article URLs, redirects, sitemap, robots and all three desired automation results at a Cloudflare preview URL.

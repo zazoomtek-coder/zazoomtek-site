@@ -1,0 +1,57 @@
+name: Cloudflare Pages - controlled twice-daily-cycle publishing
+# Only this low-frequency commit should trigger Cloudflare Pages.
+# Cloudflare Pages Settings > Build > Build watch paths:
+#   Include: cloudflare-release-trigger.txt
+#   Exclude: (none)
+on:
+  schedule:
+    # Maximum twelve scheduled releases daily, at two-hour intervals.
+    - cron: '13 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      urgent:
+        description: 'Urgent editorial correction (uses reserved builds)'
+        required: false
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: zazoomtek-controlled-cloudflare-pages-releases
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Stage one atomic Cloudflare publish only when public content changed
+        run: |
+          set -euo pipefail
+          git config user.name "ZazoomTek Editorial Publisher"
+          git config user.email "actions@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 scripts/cloudflare-release-control.py --self-test
+            if [ "${{ inputs.urgent || false }}" = "true" ]; then
+              python3 scripts/cloudflare-release-control.py --urgent
+            else
+              python3 scripts/cloudflare-release-control.py
+            fi
+            git add -- cloudflare-release-trigger.txt
+            if git diff --cached --quiet; then
+              echo "No Cloudflare build needed (no new public content or reserve active)."
+              exit 0
+            fi
+            git commit -m "Cloudflare release: batch approved ZazoomTek articles"
+            if git push origin HEAD:main; then
+              echo "One Pages build requested via watched trigger file."
+              exit 0
+            fi
+            sleep "$((attempt * 4))"
+          done
+          echo "::error::Could not safely request the controlled Pages release."
+          exit 1
