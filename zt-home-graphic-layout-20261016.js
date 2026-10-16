@@ -169,6 +169,90 @@
      });
    });
  }
+
+ /* Extend the 20% right rail only when it would otherwise end early.
+    Every extra photo is linked to an actual published news item. */
+ function fillEditorialRail(){
+   const area=document.querySelector("#articoli.ztp-news-area");
+   const feed=area?.querySelector(".ztp-primary-feed");
+   const rail=area?.querySelector(".ztp-news-rail");
+   if(!feed||!rail||rail.dataset.ztFinalFillInitialized)return;
+   rail.dataset.ztFinalFillInitialized="1";
+   fetch("/news.html",{cache:"no-store"}).then(function(response){
+     if(!response.ok)throw new Error("News archive unavailable");
+     return response.text();
+   }).then(function(markup){
+     const doc=new DOMParser().parseFromString(markup,"text/html");
+     const existing=new Set([...document.querySelectorAll(
+       "#ztFeaturedGrid a[href],.ztp-news-items article h3 a[href],.ztp-news-rail a[href],#ztp-guide-extra a[href],#ztpGamingReviews a[href]"
+     )].map(function(a){
+       try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
+     }));
+     const data=[],seen=new Set();
+     doc.querySelectorAll(".news-row").forEach(function(row){
+       const a=row.querySelector(".news-copy h2 a[href]");
+       const img=row.querySelector("img[src]");
+       if(!a||!img)return;
+       const href=new URL(a.getAttribute("href"),location.origin);
+       if(href.origin!==location.origin||!href.pathname.endsWith(".html")||
+          existing.has(href.pathname)||seen.has(href.pathname))return;
+       const src=new URL(img.getAttribute("src"),location.origin);
+       if(src.protocol!=="https:"&&src.origin!==location.origin)return;
+       const title=a.textContent.trim();
+       if(!title)return;
+       seen.add(href.pathname);
+       data.push({href:href.pathname,img:src.href,title,
+         date:row.querySelector(".news-meta")?.textContent.trim()||""});
+     });
+     if(!data.length)return;
+     const module=document.createElement("section");
+     module.id="ztFinalRailStories";
+     module.className="zt-final-rail-stories";
+     module.setAttribute("aria-label","Altre notizie ZazoomTek");
+     const head=document.createElement("div");head.className="zt-final-rail-head";
+     const heading=document.createElement("h2");heading.textContent="ALTRE NOTIZIE";
+     const more=document.createElement("a");
+     more.href="/news.html";more.textContent="VEDI TUTTO →";
+     head.append(heading,more);module.append(head);
+     const items=[];
+     data.slice(0,8).forEach(function(item){
+       const a=document.createElement("a");a.className="zt-final-rail-article";a.href=item.href;
+       const img=document.createElement("img");
+       img.src=item.img;img.alt=item.title;img.loading="lazy";img.decoding="async";
+       const copy=document.createElement("span");
+       const title=document.createElement("strong");title.textContent=item.title;
+       copy.append(title);
+       if(item.date){
+         const small=document.createElement("small");small.textContent=item.date;
+         copy.append(small);
+       }
+       a.append(img,copy);a.hidden=true;module.append(a);items.push(a);
+     });
+     module.hidden=true;rail.appendChild(module);
+     let pending=false;
+     function rebalance(){
+       if(pending)return;pending=true;
+       requestAnimationFrame(function(){
+         pending=false;
+         // Measure from the actual content, not the stretched grid row.
+         items.forEach(function(item){item.hidden=true;});
+         module.hidden=true;
+         const gap=feed.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom;
+         if(gap<120)return;
+         module.hidden=false;
+         for(const item of items){
+           if(feed.getBoundingClientRect().bottom-rail.getBoundingClientRect().bottom<85)break;
+           item.hidden=false;
+         }
+         if(!items.some(item=>!item.hidden))module.hidden=true;
+       });
+     }
+     rebalance();
+     window.addEventListener("load",rebalance,{once:true});
+     window.addEventListener("resize",rebalance,{passive:true});
+     if("ResizeObserver" in window)new ResizeObserver(rebalance).observe(feed);
+   }).catch(function(error){console.info("Additional editorial rail content unavailable:",error.message);});
+ }
  function relocate(){
    const area=document.querySelector("#articoli.ztp-news-area");
    const feed=area?.querySelector(".ztp-primary-feed");
@@ -197,6 +281,7 @@
      const link=document.querySelector(selector);
      if(link)link.textContent="VEDI TUTTO →";
    });
+   fillEditorialRail();
    document.documentElement.classList.add("zt-home-graphics-20261016","zt-home-final-editorial-layout");
    return panel.parentElement===feed &&
      panel.previousElementSibling===preceding &&
