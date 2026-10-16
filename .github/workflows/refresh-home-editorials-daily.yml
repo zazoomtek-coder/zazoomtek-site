@@ -1,7 +1,7 @@
-name: Refresh ZazoomTek Home editorial boxes every three hours
+name: Refresh ZazoomTek Home editorial boxes once daily
 on:
   schedule:
-    - cron: '12 */3 * * *'
+    - cron: '12 7 * * *'
   workflow_dispatch:
   push:
     branches: [main]
