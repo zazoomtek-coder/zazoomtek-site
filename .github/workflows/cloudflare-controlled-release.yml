@@ -1,12 +1,13 @@
-name: Cloudflare Pages - controlled twice-daily-cycle publishing
-# Only this low-frequency commit should trigger Cloudflare Pages.
+name: Cloudflare Pages - hourly batched publishing
+# Only changes to the guarded trigger file may start a Cloudflare Pages build.
 # Cloudflare Pages Settings > Build > Build watch paths:
 #   Include: cloudflare-release-trigger.txt
 #   Exclude: (none)
 on:
   schedule:
-    # Maximum twelve scheduled releases daily, at two-hour intervals.
-    - cron: '13 */2 * * *'
+    # Check once every hour. Zero public changes = zero Pages builds.
+    # GitHub schedule is best-effort and may start a few minutes late.
+    - cron: '13 * * * *'
   workflow_dispatch:
     inputs:
       urgent:

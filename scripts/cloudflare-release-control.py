@@ -3,10 +3,14 @@
 
 Only the trigger file causes a Pages build. You MUST configure Pages Build
 watch paths -> Includes: cloudflare-release-trigger.txt, Excludes: (none).
-All source changes are batched into one scheduled release every two hours.
+All new public content is batched into at most one scheduled release per hour.
+If nothing public changed, the hourly check starts zero Cloudflare builds.
+Scheduled releases stop after 450 trigger changes in the previous 31 days,
+preserving a separate urgent reserve to 475 (and another 25 as contingency).
 
-This is a conservative, authenticated-Git-history *backstop*; for exact
-Cloudflare billing usage review the Cloudflare dashboard separately.
+This is a conservative Git-history backstop, NOT Cloudflare's actual billable
+build counter. Check the Cloudflare dashboard for any deployments outside
+this Git integration (such as manual redeployments or branch builds).
 """
 from __future__ import annotations
 import argparse
@@ -38,9 +42,13 @@ def git(*args: str) -> str:
     return p.stdout.strip()
 
 def build_count() -> int:
-    commits=git("log","--since="+HORIZON,"--format=%s",
+    # Count *all* commits that changed the watched release-trigger file, not
+    # only commits with a particular subject prefix. Each changed trigger may
+    # create a Pages build, including manual urgent deployments. Counting
+    # unknown message subjects is safer than silently undercounting.
+    commits=git("log","--since="+HORIZON,"--format=%H",
                 "--","cloudflare-release-trigger.txt").splitlines()
-    return sum(line.startswith("Cloudflare release:") for line in commits)
+    return len(set(commits))
 
 def public(path: str) -> bool:
     p=Path(path)
@@ -88,8 +96,14 @@ def main():
         assert decide(["news-X.html"],450)=="block-budget"
         assert decide(["news-X.html"],450,True)=="publish"
         assert decide(["news-X.html"],475,True)=="block-budget"
+        assert decide(["news-X.html"],449)=="publish"
+        assert decide(["news-X.html"],449,True)=="publish"
+        assert decide(["news-X.html"],475)=="block-budget"
         assert decide(["news-X.html"],0)=="publish"
         assert decide([],0)=="unchanged"
+        assert decide([],0,True)=="unchanged"
+        assert decide(["scripts/editorial-only.py"],0)=="publish"  # Only direct public diffs may be passed to decide().
+        assert not public("scripts/editorial-only.py")
         assert public("assets/special/example.webp") and public("news-example.html")
         assert not public(".github/workflows/main.yml")
         assert not public("scripts/private.py")
