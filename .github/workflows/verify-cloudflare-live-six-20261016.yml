@@ -1,0 +1,61 @@
+name: Verify live Cloudflare six-card Home after release
+on:
+  push:
+    branches: [verify-live-featured-six-20261016]
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Test public homepage after controlled Pages deployment
+        run: |
+          python3 - <<'PY'
+          import html,re,time,urllib.request,urllib.error
+          expected=[
+            '/news-UgkxanA_bg3ewHe8h6QlwNX-x68h4g3KFnJl.html',
+            '/news-UgkxnO7wMKAA5-asrOgA4z9nFwqxPBaShPTz.html',
+            '/news-Ugkx5hB09T4oM2Oph87ieWwY9aaVQvh3ucFS.html',
+            '/news-UgkxmhTWoKHgoMFRBVCVwarDzbQ13biS-HcH.html',
+            '/news-UgkxCaBCCHmRcCjF6K2cVN4r2exsKqM2tGlx.html',
+            '/news-UgkxmU1VFXktO3S_apxRfiAIz4z9H0kAK9bJ.html'
+          ]
+          domains=['https://zazoomtek.it/','https://www.zazoomtek.it/']
+          for trial in range(1,10):
+            ready=True
+            for domain in domains:
+              try:
+                request=urllib.request.Request(
+                  domain+'?zt_live_verify='+str(int(time.time())),
+                  headers={'Cache-Control':'no-cache','User-Agent':'Mozilla/5.0 (ZazoomTek QA)'})
+                with urllib.request.urlopen(request,timeout=15) as response:
+                  page=response.read().decode('utf-8','replace')
+                  print('LIVE',domain,'HTTP',response.status,'bytes',len(page),'server',response.headers.get('server'))
+                start=page.index('<!-- FEATURED_NEWS_START -->')
+                end=page.index('<!-- FEATURED_NEWS_END -->',start)
+                fragment=page[start:end]
+                links=re.findall(r'<a\s+class="zt-feature-card[^"]*"\s+href="([^"]+)"',fragment)
+                links=[html.unescape(x) for x in links]
+                if links!=expected:
+                  ready=False
+                  print('WAIT',domain,'attempt',trial,'actual',len(links),links)
+                else:
+                  print('PASS',domain,'all six correct published cards; no blank blocks')
+                  assert 'zt-special-tech' in page and 'zt-special-gaming' in page
+              except Exception as err:
+                ready=False
+                print('RETRY',domain,type(err).__name__,str(err)[:220])
+            if ready:
+              for path in expected[:3]:
+                req=urllib.request.Request('https://zazoomtek.it'+path,
+                  headers={'User-Agent':'Mozilla/5.0 (ZazoomTek QA)'})
+                with urllib.request.urlopen(req,timeout=15) as response:
+                  assert response.status==200,path
+                  print('PASS real public article:',path,response.status)
+              print('PASS: PUBLIC CLOUDFLARE ZAZOOMTEK SITE verified on apex and www.')
+              break
+            if trial==9:
+              raise SystemExit('FAILED: public Cloudflare Home has not updated to six verified current articles.')
+            time.sleep(15)
+          PY
