@@ -82,7 +82,7 @@ jobs:
           for attempt in 1 2 3 4; do
             git fetch origin main || { sleep "$((attempt*4))"; continue; }
             if git rebase origin/main && git push origin HEAD:main; then
-              gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+              echo "Cloudflare Pages batches published articles; no Firebase deployment."
               gh workflow run refresh-static-news-in-evidenza.yml --ref main --repo "$GITHUB_REPOSITORY"
               echo "Verified originals committed; independent static grid refresh queued."
               exit 0
