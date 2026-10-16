@@ -511,7 +511,7 @@ def publication_instant(article):
         if path.is_file() and path.suffix==".html":
             body=path.read_text(encoding="utf-8",errors="replace")
             match=re.search(
-                r'<meta\\s+property=["\\\']article:published_time["\\\']\\s+content=["\\\']([^"\\\']+)["\\\']',
+                r'<meta[^>]*property="article:published_time"[^>]*content="([^"]+)"',
                 body,re.I)
             if match:meta=html.unescape(match.group(1))
     if isinstance(meta,str):
