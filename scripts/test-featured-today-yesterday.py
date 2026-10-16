@@ -40,13 +40,13 @@ def main():
             unknown=story(root,"tech-undated","not-a-date","tech",1000)
             candidates=[old,future,unknown,*yesterday,today_g,*today,yesterday_g]
             selected=mod.pick(candidates,on_date=reference)
-            assert len(selected)==6,selected
-            assert sorted(x["section"] for x in selected)==["gaming"]+["tech"]*5
+            assert len(selected)==5,selected
+            assert sorted(x["section"] for x in selected)==["gaming"]+["tech"]*4
             assert [x["published_date"] for x in selected[:5]]==["2026-10-16"]*5
             assert today_g["url"] in {x["url"] for x in selected}
-            assert selected[-1]["published_date"]=="2026-10-15"
+            assert selected[-1]["published_date"]=="2026-10-16"
             assert mod.valid_featured_sections(selected)
-            assert len({x["url"] for x in selected})==6
+            assert len({x["url"] for x in selected})==5
 
             only_yesterday=mod.pick(yesterday[:2]+[yesterday_g,old],on_date=reference)
             assert len(only_yesterday)==3,only_yesterday
@@ -70,13 +70,13 @@ def main():
             # When fewer true Tech are available, real Gaming posts fill gaps.
             more_gaming=[story(root,"game-fill-"+str(i),"2026-10-16","gaming",i) for i in range(3)]
             selection=mod.pick(yesterday[:2]+[today_g,yesterday_g,*more_gaming],on_date=reference)
-            assert len(selection)==6,selection
+            assert len(selection)==5,selection
             assert [x["section"] for x in selection].count("tech")==2
-            assert [x["section"] for x in selection].count("gaming")==4
-            assert all(x["published_date"]=="2026-10-16" for x in selection[:4])
+            assert [x["section"] for x in selection].count("gaming")==3
+            assert all(x["published_date"]=="2026-10-16" for x in selection[:3])
             assert all(x["published_date"]=="2026-10-15" for x in selection[-2:])
             assert mod.valid_featured_sections(selection)
-            assert not mod.valid_featured_sections([{"section":"gaming"}]*7)
+            assert not mod.valid_featured_sections([{"section":"gaming"}]*6)
 
             # Chronological publication time within the same day, not trend score.
             timed_new=story(root,"tech-later","2026-10-16","tech",score=0)
@@ -90,7 +90,7 @@ def main():
         finally:
             mod.ROOT=saved
     print("PASS: Today's dates beat yesterday's even against higher trend score; no earlier fallback.")
-    print("PASS: Gaming fallback fills all six when fresh Technology news are scarce; correct publication-hour order.")
+    print("PASS: Gaming fallback fills at most five when fresh Technology news are scarce; correct publication-hour order.")
 
 if __name__=="__main__":
     main()
