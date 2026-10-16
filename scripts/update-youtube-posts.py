@@ -703,7 +703,7 @@ def augment_recent_posts(posts,previous,complete,force_full_scan=False):
     # CRITICAL: One newly visible Gaming post MUST NOT stop the scan before
     # other official YouTube URLs expose recently published Tech posts.
     # The different YouTube tabs often have inconsistent CDN snapshots.
-    extra_official=fetch_recent_alternate(known,fresh)
+    extra_official=fetch_recent_alternate(known,set(fresh))
     fresh.update(p["id"] for p in extra_official)
     # Mirrors help when YouTube's official tabs are all temporarily cached.
     # Query them only when official secondary tabs found nothing new. This
