@@ -1702,7 +1702,7 @@ def special_community_section(p):
     """Explicit first-line routing for isolated Tech Impact / Gaming Inside."""
     raw=p.get("text") or ""
     heading=next((clean_site_title(x) for x in raw.splitlines() if clean_site_title(x)), "")
-    match=re.match(r"^news\\s+(tech\\s+impact|gaming\\s+inside)\\s*:",heading,re.I)
+    match=re.match(r"^news\s+(tech\s+impact|gaming\s+inside)\s*:",heading,re.I)
     if match:
         return "tech-impact" if match.group(1).lower().startswith("tech") else "gaming-inside"
     return None
