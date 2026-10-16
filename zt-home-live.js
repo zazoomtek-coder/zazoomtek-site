@@ -508,7 +508,7 @@
    const extra=document.createElement("section");extra.id="ztHomeExtra";extra.className="ztp-extra";
    const exHead=document.createElement("div");exHead.className="ztp-extra-head";
    const exTitle=document.createElement("h2");exTitle.textContent="EXTRA";
-   const all=document.createElement("a");all.href="/extra.html";all.textContent="VEDI LE NEWS →";exHead.append(exTitle,all);
+   const all=document.createElement("a");all.href="/extra.html";all.textContent="VEDI TUTTO →";exHead.append(exTitle,all);
    const extraCards=document.createElement("div");extraCards.className="ztp-extra-cards";
    // Always read the newest two Extra articles from their canonical archive.
    // Do not freeze article names in the homepage script.
