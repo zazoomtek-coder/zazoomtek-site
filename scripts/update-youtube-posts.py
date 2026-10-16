@@ -1698,6 +1698,16 @@ def post_category(p):
     return "review" if is_review(p) else "news"
 
 
+def special_community_section(p):
+    """Explicit first-line routing for isolated Tech Impact / Gaming Inside."""
+    raw=p.get("text") or ""
+    heading=next((clean_site_title(x) for x in raw.splitlines() if clean_site_title(x)), "")
+    match=re.match(r"^news\\s+(tech\\s+impact|gaming\\s+inside)\\s*:",heading,re.I)
+    if match:
+        return "tech-impact" if match.group(1).lower().startswith("tech") else "gaming-inside"
+    return None
+
+
 def visible_news_heading(line):
     """Remove only the leading editorial routing token; preserve the real title."""
     line=clean_site_title(line).strip()
@@ -2457,7 +2467,7 @@ def write_extra_archive(news,reviews):
 def write_news_archive(news,reviews):
     # A single chronological feed for manual + Community NEWS, including
     # pagination. Never pin manually authored articles ahead of newer posts.
-    combined=manual_news_entries()
+    combined=[entry for entry in manual_news_entries() if not entry[1].startswith(("tech-impact-","gaming-inside-"))]
     known={slug for _,slug,_ in combined}
     for p in news:
         if post_category(p)=="extra":
@@ -2620,7 +2630,7 @@ def render_home_latest_reviews(reviews, limit=5):
 
 def render_ticker(news):
     rows=[]
-    allowed=[p for p in news if post_category(p)!="extra"]
+    allowed=[p for p in news if post_category(p)!="extra" and not special_community_section(p)]
     for i,p in enumerate(reversed(allowed[:10])):
         cls=' class="active"' if i==0 else ""
         rows.append(f'    <a{cls} href="{news_slug(p)}">{html.escape(news_title(p))}</a>')
@@ -2725,8 +2735,8 @@ def render_article_feed(posts, home_guide_inset=""):
     rows=[]
     # Backward-compatible optional parameter deliberately does not insert Guides.
     for p in posts:
-        if is_review(p) or post_category(p)=="extra":
-            continue  # EXTRA and reviews must never enter Tech or Gaming columns.
+        if is_review(p) or post_category(p)=="extra" or special_community_section(p):
+            continue  # EXTRA, special editorial articles and reviews never enter normal News.
         kind=post_kind(p)
         title=post_title(p)
         slug=post_slug(p)
@@ -2758,7 +2768,7 @@ def render_home_chronological_feed(posts, limit=15):
     ranked=[]
     seen=set()
     for post in posts:
-        if is_review(post) or post_category(post)=="extra":
+        if is_review(post) or post_category(post)=="extra" or special_community_section(post):
             continue
         slug=news_slug(post)
         published=news_publication_timestamp(post.get("published_iso") or post.get("published"))
@@ -2772,7 +2782,7 @@ def render_home_chronological_feed(posts, limit=15):
                 for item in json.loads(registry.read_text(encoding="utf-8")).get("items",[])
                 if isinstance(item,dict)}
         for published,slug,_ in manual_news_entries():
-            if slug in seen:
+            if slug in seen or slug.startswith(("tech-impact-","gaming-inside-")):
                 continue
             item=manual[slug]
             category=str(item.get("featured_section") or "").lower()
@@ -3091,7 +3101,7 @@ def main():
     except (OSError,ValueError,TypeError):
         built_manual_hash=""
     manually_changed=bool(manual_hash) and manual_hash!=built_manual_hash
-    current_home_renderer="chronological-manual-home-v1"
+    current_home_renderer="isolated-regular-tech-gaming-v2"
     try:
         last_renderer=json.loads(manual_state.read_text(encoding="utf-8")).get("home_renderer","")
     except (OSError,ValueError,TypeError):
@@ -3111,7 +3121,7 @@ def main():
     news=[p for p in posts if not is_review(p)]
     # Strict editorial isolation: EXTRA never appears in Tech/Gaming feeds,
     # the generic News archive, Home pagination or the Home news ticker.
-    general_news=[p for p in news if post_category(p)!="extra"]
+    general_news=[p for p in news if post_category(p)!="extra" and not special_community_section(p)]
     if not news:
         raise RuntimeError("Community safety check failed: zero news parsed.")
     editorial_rows=manual_review_rows(published_reviews,old_archive)
