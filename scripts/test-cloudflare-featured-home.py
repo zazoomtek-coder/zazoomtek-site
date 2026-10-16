@@ -18,6 +18,13 @@ def run():
             '\nOLD TWO SPECIAL ARTICLES\n'+module.END+
             '\n<footer>ZazoomTek</footer></body></html>', encoding="utf-8")
         sample = json.loads((root/"featured-carousel.json").read_text(encoding="utf-8"))
+        # The mock fixture stays fresh regardless of when this CI runs.
+        import datetime as dt
+        from zoneinfo import ZoneInfo
+        today=dt.datetime.now(ZoneInfo("Europe/Rome")).date()
+        for item in sample["items"]:
+            if item["section"] in ("tech","gaming"):
+                item["published_date"]=(today-dt.timedelta(days=1)).isoformat()
         (p/"featured-carousel.json").write_text(json.dumps(sample), encoding="utf-8")
         (p/"featured-editorial-pins.json").write_text('{"items":[]}', encoding="utf-8")
         for item in sample["items"]:
