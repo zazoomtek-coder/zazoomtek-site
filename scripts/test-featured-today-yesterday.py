@@ -41,9 +41,10 @@ def main():
             candidates=[old,future,unknown,*yesterday,today_g,*today,yesterday_g]
             selected=mod.pick(candidates,on_date=reference)
             assert len(selected)==6,selected
-            assert [x["section"] for x in selected]==["tech"]*5+["gaming"]
-            assert [x["published_date"] for x in selected[:5]]==["2026-10-16"]*4+["2026-10-15"]
-            assert selected[5]["url"]==today_g["url"]
+            assert sorted(x["section"] for x in selected)==["gaming"]+["tech"]*5
+            assert [x["published_date"] for x in selected[:5]]==["2026-10-16"]*5
+            assert today_g["url"] in {x["url"] for x in selected}
+            assert selected[-1]["published_date"]=="2026-10-15"
             assert mod.valid_featured_sections(selected)
             assert len({x["url"] for x in selected})==6
 
@@ -59,11 +60,37 @@ def main():
             assert not mod.allowed_featured_date({"published_date":""},reference)
             assert not mod.allowed_featured_date({"published_date":"2026-10-17"},reference)
             assert mod.local_publication_date({"published_at":"2026-10-15T23:50:00Z"})==reference
-            assert not mod.valid_featured_sections([{"section":"gaming"}]*2)
+            # Reject stale articles even if an archive card falsely says "yesterday".
+            stale_page=story(root,"tech-false-yesterday","2026-10-15","tech",1000)
+            (root/stale_page["url"][1:]).write_text(
+                '<meta property="article:published_time" content="2026-10-14T16:07:27Z">',encoding="utf-8")
+            assert not mod.allowed_featured_date(stale_page,reference)
+            assert stale_page["url"] not in {x["url"] for x in mod.pick([stale_page],on_date=reference)}
+
+            # When fewer true Tech are available, real Gaming posts fill gaps.
+            more_gaming=[story(root,"game-fill-"+str(i),"2026-10-16","gaming",i) for i in range(3)]
+            selection=mod.pick(yesterday[:2]+[today_g,yesterday_g,*more_gaming],on_date=reference)
+            assert len(selection)==6,selection
+            assert [x["section"] for x in selection].count("tech")==2
+            assert [x["section"] for x in selection].count("gaming")==4
+            assert all(x["published_date"]=="2026-10-16" for x in selection[:4])
+            assert all(x["published_date"]=="2026-10-15" for x in selection[-2:])
+            assert mod.valid_featured_sections(selection)
+            assert not mod.valid_featured_sections([{"section":"gaming"}]*7)
+
+            # Chronological publication time within the same day, not trend score.
+            timed_new=story(root,"tech-later","2026-10-16","tech",score=0)
+            timed_old=story(root,"tech-earlier","2026-10-16","tech",score=120)
+            (root/timed_new["url"][1:]).write_text(
+                '<meta property="article:published_time" content="2026-10-16T11:30:00Z">',encoding="utf-8")
+            (root/timed_old["url"][1:]).write_text(
+                '<meta property="article:published_time" content="2026-10-16T09:00:00Z">',encoding="utf-8")
+            ordered=mod.pick([timed_old,timed_new],on_date=reference)
+            assert [x["url"] for x in ordered]==[timed_new["url"],timed_old["url"]],ordered
         finally:
             mod.ROOT=saved
     print("PASS: Today's dates beat yesterday's even against higher trend score; no earlier fallback.")
-    print("PASS: Fewer cards remain empty; unavailable, unknown and future dates are never promoted.")
+    print("PASS: Gaming fallback fills all six when fresh Technology news are scarce; correct publication-hour order.")
 
 if __name__=="__main__":
     main()
