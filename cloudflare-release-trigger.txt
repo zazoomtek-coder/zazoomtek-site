@@ -1,4 +1,4 @@
-ZazoomTek Cloudflare deployment trigger
-source_commit=
-created_utc=
-priority=initial
+ZazoomTek verified scheduled release
+source_commit=56d5d49551316e64c726828ae1220f02a3784d65
+created_utc=2026-10-16T10:15:00Z
+priority=urgent
