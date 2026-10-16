@@ -1,8 +1,48 @@
 {
-  "checked_at": "2026-10-16T10:40:31.011060+00:00",
+  "checked_at": "2026-10-16T11:15:27.029284+00:00",
   "source_sites": 15,
-  "matches": 4,
+  "matches": 5,
   "selected": [
+    {
+      "title": "Acts of Blood arriva su PC il 4 dicembre, versioni PS5 e Xbox Series X|S nel 2027",
+      "section": "gaming",
+      "url": "/news-UgkxanA_bg3ewHe8h6QlwNX-x68h4g3KFnJl.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "Wreckfest 2, l’aggiornamento 9 aggiunge Deathloop 2, nuove auto e modalità",
+      "section": "gaming",
+      "url": "/news-UgkxnO7wMKAA5-asrOgA4z9nFwqxPBaShPTz.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "Forge of the Fae arriva a marzo 2027 con un JRPG ispirato all’Irlanda del XIX secolo",
+      "section": "gaming",
+      "url": "/news-Ugkx5hB09T4oM2Oph87ieWwY9aaVQvh3ucFS.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "It Takes Two arriva su Nintendo Switch 2 con upgrade gratuito e cross-play tramite Pass amici",
+      "section": "gaming",
+      "url": "/news-UgkxmhTWoKHgoMFRBVCVwarDzbQ13biS-HcH.html",
+      "trend_score": 0,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
+      "sources": []
+    },
     {
       "title": "Sony presenta i nuovi Walkman NW-WM1ZM3 e NW-WM1AM3 con audio premium, DSD e fino a 35 ore di autonomia",
       "section": "tech",
@@ -21,26 +61,6 @@
       "published_date": "2026-10-15",
       "freshness_bonus": 62,
       "selection_score": 62.0,
-      "sources": []
-    },
-    {
-      "title": "Sony presenta ECM-W5, microfono wireless con audio 32-bit float e portata fino a 500 metri",
-      "section": "tech",
-      "url": "/news-UgkxY6L5CMugYZWxCHQIvKQ2DMoO-CL15L4b.html",
-      "trend_score": 0,
-      "published_date": "2026-10-15",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
-      "sources": []
-    },
-    {
-      "title": "GTA VI, Rockstar pubblica il trailer di lancio con la musica dei Justice",
-      "section": "gaming",
-      "url": "/news-gta-vi-trailer-lancio-justice-15-ottobre-2026.html",
-      "trend_score": 120,
-      "published_date": "2026-10-15",
-      "freshness_bonus": 0,
-      "selection_score": 78.0,
       "sources": []
     }
   ]
