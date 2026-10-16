@@ -1,0 +1,32 @@
+name: Verify fast YouTube Tech/Gaming imports without Cloudflare builds
+on:
+  push:
+    branches: [fix-youtube-multi-post-discovery-20261016]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test missing Tech when Gaming is discovered first
+        run: |
+          python3 -m py_compile scripts/update-youtube-posts.py scripts/test_community_freshness.py
+          python3 scripts/test_community_freshness.py
+          python3 scripts/test_community_category_routing.py
+      - name: Check latest public Community posts without any deploy or git push
+        run: |
+          python3 scripts/update-youtube-posts.py
+          python3 scripts/validate-sync-output.py community
+          python3 - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          records=json.loads(Path('.youtube-posts.json').read_text(encoding='utf-8'))
+          for p in records[:15]:
+              text=(p.get('text') or '').strip().splitlines()
+              print('LATEST POST:',p['id'],p.get('published_iso',''),(text[0][:135] if text else 'NO CONTENT'))
+          print('SOURCE VERIFIED:',len(records),'posts; first page post categories:',Counter(
+              (p.get('text') or '').split(':')[0][:25] for p in records[:20]))
+          PY
