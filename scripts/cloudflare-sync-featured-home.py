@@ -40,9 +40,12 @@ def render(root: Path) -> str:
     ordinary=[x.get("section") for x in regular]
     tech_count=ordinary.count("tech")
     game_count=ordinary.count("gaming")
-    if (tech_count > 5-len(pinned) or game_count > 1 or
-            ordinary != ["tech"]*tech_count+["gaming"]*game_count):
-        raise RuntimeError("Featured JSON violates the 5 Tech + 1 Gaming maximum")
+    # Preserve original editorial categories: more than one Gaming story is
+    # allowed ONLY when fresh Tech does not fill the six visible cards.
+    if (tech_count > 5-len(pinned)
+            or game_count > 6-len(pinned)-tech_count
+            or len(ordinary) != tech_count+game_count):
+        raise RuntimeError("Featured JSON contains invalid Tech/Gaming fallback quotas")
     if [(x.get("section"),x.get("url")) for x in items[len(regular):]] != [
             (x.get("section"),x.get("url")) for x in pinned]:
         raise RuntimeError("Editorial special pin was removed without permission")
