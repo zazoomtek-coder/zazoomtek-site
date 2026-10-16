@@ -1,17 +1,6 @@
 {
   "items": [
     {
-      "slug": "news-gta-vi-trailer-lancio-justice-15-ottobre-2026.html",
-      "title": "GTA VI, Rockstar pubblica il trailer di lancio con la musica dei Justice",
-      "image": "https://i.ytimg.com/vi/rz1B4B2yBZY/maxresdefault.jpg",
-      "excerpt": "Rockstar Games presenta il trailer di lancio di GTA VI con un brano dei Justice: video, colonna sonora e dettagli sul gioco.",
-      "date": "15 ottobre 2026",
-      "published_at": "2026-10-15T13:40:00Z",
-      "kind": "standard",
-      "featured_section": "gaming",
-      "featured_until": "2026-10-18T23:59:59Z"
-    },
-    {
       "slug": "news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
       "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
       "image": "/assets/special/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.webp",
@@ -46,6 +35,17 @@
       "date": "2026-10-09",
       "published_at": "2026-10-09T11:20:47Z",
       "kind": "standard"
+    },
+    {
+      "slug": "news-gta-vi-trailer-lancio-justice-15-ottobre-2026.html",
+      "title": "GTA VI, Rockstar pubblica il trailer di lancio con la musica dei Justice",
+      "image": "https://i.ytimg.com/vi/rz1B4B2yBZY/maxresdefault.jpg",
+      "excerpt": "Rockstar Games presenta il trailer di lancio di GTA VI con un brano dei Justice: video, colonna sonora e dettagli sul gioco.",
+      "date": "15 ottobre 2026",
+      "published_at": "2026-10-15T13:40:00Z",
+      "kind": "standard",
+      "featured_section": "gaming",
+      "featured_until": "2026-10-18T23:59:59Z"
     },
     {
       "slug": "news-two-point-museum-attrazioni-da-museo-dlc-2026.html",
