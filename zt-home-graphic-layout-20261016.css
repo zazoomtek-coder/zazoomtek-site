@@ -45,3 +45,6 @@ main.page #ztpGamingReviews .ztp-gaming-review-cards{display:grid!important;grid
  main.page #ztp-guide-extra .ztp-extra-card:first-child img{max-height:none!important}
  main.page #ztpGamingReviews .ztp-gaming-review-cards{grid-template-columns:1fr!important}
 }
+/* Publication dates come exclusively from the already-published Guide and Extra archives. */
+main.page #ztp-guide-extra .zt-guide-published-date{display:block!important;color:#777!important;font:600 11px/1.4 Arial,sans-serif!important;margin:0 2px 8px!important}
+main.page #ztp-guide-extra .zt-extra-published-date{display:block!important;color:#777!important;font:600 10px/1.4 Arial,sans-serif!important;margin-top:7px!important}
