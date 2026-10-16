@@ -1,0 +1,46 @@
+name: Cloudflare staging static snapshot
+# Manual preview only: NEVER changes DNS or production Firebase/Cloudflare.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-staging-preview
+  cancel-in-progress: false
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Cloudflare release quota protections offline
+        run: python3 scripts/test-cloudflare-quota-guard.py
+      - name: Test editorial import and category safety
+        run: |
+          python3 scripts/test_review_dedup.py
+          python3 scripts/test_community_category_routing.py
+          python3 scripts/validate-sync-output.py community
+          python3 scripts/validate-sync-output.py videos
+      - name: Generate the same public design and editorial sidebars as Firebase
+        run: |
+          python3 scripts/apply-site-design.py
+          python3 scripts/zt_sidebar_mix.py
+          python3 scripts/build-related-content.py
+      - name: Build Cloudflare static distribution
+        run: python3 scripts/build-cloudflare-pages.py
+      - name: Confirm comments and private operations are absent
+        run: |
+          test ! -f dist/comments.js
+          test ! -f dist/comments.css
+          test ! -f dist/firebase.json
+          test ! -d dist/functions
+          test ! -d dist/.github
+          test -f dist/404.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zazoomtek-cloudflare-staging
+          path: dist/
+          retention-days: 7
