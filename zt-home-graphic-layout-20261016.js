@@ -15,18 +15,20 @@
    const grid=document.getElementById("ztFeaturedGrid");
    if(!grid)return;
    const cards=[...grid.children].filter(el=>el.matches("a[href]"));
-   if(cards.length>5){
-     function gaming(card){
-       const category=(card.dataset.featureSection||"").toLowerCase();
-       if(category==="gaming"||category==="gaming-inside")return true;
-       if(category==="tech"||category==="tech-impact")return false;
-       const label=((card.title||"")+" "+(card.getAttribute("href")||"")).toLowerCase();
-       return /gaming-inside|gta|grand theft auto|videogioch|videogam|playstation|ps5|xbox|nintendo|steam|castlevania|gameplay/.test(label);
-     }
-     const tech=cards.filter(card=>!gaming(card)).slice(0,4);
-     const game=cards.find(gaming);
-     const chosen=tech.length===4&&game?[...tech,game]:cards.slice(0,5);
-     if(cards.length!==chosen.length||chosen.some((card,i)=>card!==cards[i]))grid.replaceChildren(...chosen);
+   // Never display Tech Impact / Gaming Inside outside their dedicated boxes.
+   const eligible=cards.filter(card=>{
+     const url=card.getAttribute("href")||"";
+     const title=card.getAttribute("title")||"";
+     const category=(card.dataset.featureSection||"").toLowerCase();
+     return category!=="tech-impact"&&category!=="gaming-inside"&&
+       !/^\/(?:tech-impact|gaming-inside)-/.test(url)&&
+       !/^news\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(title);
+   });
+   const tech=eligible.filter(card=>card.dataset.featureSection==="tech"||!/\b(gaming|gameplay|videogioch|playstation|ps5|xbox|nintendo|steam)\b/i.test(card.title||"")).slice(0,4);
+   const gaming=eligible.find(card=>card.dataset.featureSection==="gaming"||/\b(gaming|gameplay|videogioch|playstation|ps5|xbox|nintendo|steam)\b/i.test(card.title||""));
+   const chosen=(tech.length===4&&gaming)?[...tech,gaming]:eligible.slice(0,5);
+   if(chosen.length!==cards.length||chosen.some((card,i)=>card!==cards[i])){
+     grid.replaceChildren(...chosen);
    }
    grid.setAttribute("aria-label","Cinque news ZazoomTek in evidenza");
  }
