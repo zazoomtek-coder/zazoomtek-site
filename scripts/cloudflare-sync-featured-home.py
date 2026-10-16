@@ -19,17 +19,17 @@ ROOT = Path(__file__).resolve().parents[1]
 START = "<!-- FEATURED_NEWS_START -->"
 END = "<!-- FEATURED_NEWS_END -->"
 URL = re.compile(r"/[A-Za-z0-9_.-]+\.html\Z")
-SECTION = {"tech", "gaming", "tech-impact", "gaming-inside"}
+SECTION = {"tech", "gaming"}
 
 def render(root: Path) -> str:
     data = json.loads((root / "featured-carousel.json").read_text(encoding="utf-8"))
     pins = json.loads((root / "featured-editorial-pins.json").read_text(encoding="utf-8"))
     items = data.get("items")
     pinned = pins.get("items")
-    if not isinstance(items, list) or len(items) > 6:
-        raise RuntimeError("Featured carousel cannot exceed six cards")
-    if not isinstance(pinned, list) or len(pinned) > 2:
-        raise RuntimeError("Invalid editorial featured pins")
+    if not isinstance(items, list) or len(items) > 5:
+        raise RuntimeError("Featured carousel cannot exceed five ordinary Tech/Gaming cards")
+    if not isinstance(pinned, list) or pinned:
+        raise RuntimeError("Tech Impact and Gaming Inside are reserved for dedicated editorial boxes")
     pin_sections = [x.get("section") for x in pinned if isinstance(x, dict)]
     if len(pin_sections) != len(pinned) or len(set(pin_sections)) != len(pin_sections):
         raise RuntimeError("Duplicate or malformed editorial pins")
@@ -42,8 +42,8 @@ def render(root: Path) -> str:
     game_count=ordinary.count("gaming")
     # Preserve original editorial categories: more than one Gaming story is
     # allowed ONLY when fresh Tech does not fill the six visible cards.
-    if (tech_count > 5-len(pinned)
-            or game_count > 6-len(pinned)-tech_count
+    if (tech_count > 4
+            or game_count > 5-tech_count
             or len(ordinary) != tech_count+game_count):
         raise RuntimeError("Featured JSON contains invalid Tech/Gaming fallback quotas")
     if [(x.get("section"),x.get("url")) for x in items[len(regular):]] != [
@@ -62,6 +62,10 @@ def render(root: Path) -> str:
 
     cards = []
     for n, item in enumerate(items):
+        if item.get("section") not in SECTION or str(item.get("url","")).startswith(("/tech-impact-","/gaming-inside-")):
+            raise RuntimeError("Special editorial story prohibited in ordinary featured carousel")
+        if re.match(r"^News\s+(?:Tech\s+Impact|Gaming\s+Inside)\s*:",str(item.get("title","")),re.I):
+            raise RuntimeError("Special editorial headline prohibited in ordinary featured carousel")
         title = item.get("title")
         url = item.get("url")
         image = item.get("image")
