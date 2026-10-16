@@ -11,6 +11,7 @@ on:
     paths:
       - '.github/workflows/refresh-static-news-in-evidenza.yml'
       - 'scripts/trending-crosscheck.py'
+      - 'featured-editorial-pins.json'
 permissions:
   contents: write
   actions: write
@@ -46,26 +47,28 @@ jobs:
           state=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))
           articles=state.get('items',[])
           assert len(articles)==6
-          assert [a['section'] for a in articles]==[
-              'tech','tech','tech','gaming','tech-impact','gaming-inside']
+          import importlib.util
+          spec=importlib.util.spec_from_file_location('zt_trending',Path('scripts/trending-crosscheck.py'))
+          zt=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(zt)
+          assert [a['section'] for a in articles]==zt.expected_featured_sections()
           assert len({x['url'] for x in articles})==6
           # Category labels alone are insufficient: check the actual headlines.
-          import sys
-          sys.path.insert(0,'scripts')
-          from trending_crosscheck import classify, community_explicit_categories
-          explicit=community_explicit_categories()
-          for article in articles[:4]:
-              actual=explicit.get(article['url']) or classify(article['title'])
+          explicit=zt.community_explicit_categories()
+          for article in articles:
+              if article['section'] not in ('tech','gaming'):
+                  continue
+              actual=explicit.get(article['url']) or zt.classify(article['title'])
               assert actual == article['section'], (
                   'Wrong featured category: '+article['title'])
-          assert classify('WWE 2K26 incontra Street Fighter') == 'gaming'
-          assert classify('VAULTBREAKERS apre l’alpha test pubblico con modalità PvPvE') == 'gaming'
+          assert zt.classify('WWE 2K26 incontra Street Fighter') == 'gaming'
+          assert zt.classify('VAULTBREAKERS apre l’alpha test pubblico con modalità PvPvE') == 'gaming'
           for article in articles:
               local=Path(article['url'].lstrip('/'))
               assert local.is_file(),article['url']
               if article['image'].startswith('/'):
                   assert Path(article['image'].lstrip('/')).is_file(),article['image']
-          print('STATIC FEATURED PASS: 3 Tech, 1 Gaming, 1 Impact, 1 Inside; valid article destinations')
+          print('STATIC FEATURED PASS: 5 Tech, 1 Gaming by default; optional manual special pins; valid article destinations')
           PY
             git add -- featured-carousel.json trending-sources.json trending-match-report.json
             if git diff --cached --quiet; then
