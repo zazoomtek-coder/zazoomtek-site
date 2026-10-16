@@ -48,3 +48,133 @@ main.page #ztpGamingReviews .ztp-gaming-review-cards{display:grid!important;grid
 /* Publication dates come exclusively from the already-published Guide and Extra archives. */
 main.page #ztp-guide-extra .zt-guide-published-date{display:block!important;color:#777!important;font:600 11px/1.4 Arial,sans-serif!important;margin:0 2px 8px!important}
 main.page #ztp-guide-extra .zt-extra-published-date{display:block!important;color:#777!important;font:600 10px/1.4 Arial,sans-serif!important;margin-top:7px!important}
+
+/* Editorial magazine layout: both Guide and Extra take a full-width row.
+   One real feature story + up to three smaller stories, three positions reserved. */
+main.page #ztp-guide-extra{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ grid-template-columns:none!important;gap:17px!important;
+ margin:18px 0 16px!important;width:100%!important;max-width:100%!important
+}
+main.page #ztp-guide-extra > #ztHomeGuide,
+main.page #ztp-guide-extra > #ztHomeExtra{
+ display:block!important;width:100%!important;max-width:100%!important;
+ min-width:0!important;height:auto!important;margin:0!important;
+ overflow:hidden!important;border:1px solid #dfe6ef!important;
+ border-radius:12px!important;background:#fff!important
+}
+main.page #ztp-guide-extra .zt-home-guide-heading,
+main.page #ztp-guide-extra .ztp-extra-head{
+ height:49px!important;min-height:49px!important;
+ display:flex!important;align-items:center!important;
+ background:#202020!important;border-radius:0!important
+}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-content.zt-magazine-content,
+main.page #ztp-guide-extra #ztHomeExtra .ztp-extra-cards.zt-magazine-content{
+ display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)!important;
+ grid-template-rows:1fr!important;gap:16px!important;
+ padding:13px!important;min-height:400px!important;height:auto!important;
+ background:#fff!important;align-items:stretch!important;
+}
+main.page #ztp-guide-extra .zt-magazine-primary{
+ display:flex!important;flex-direction:column!important;min-width:0!important;
+ color:#171717!important;text-decoration:none!important;
+ padding:0!important;margin:0!important;border:0!important;
+ background:#fff!important;border-radius:7px!important;overflow:hidden!important
+}
+main.page #ztp-guide-extra .zt-magazine-primary img{
+ display:block!important;width:100%!important;height:auto!important;
+ max-height:375px!important;aspect-ratio:16/9!important;object-fit:contain!important;
+ object-position:center center!important;background:#101b2b!important;
+ border-radius:6px!important;margin:0!important
+}
+main.page #ztp-guide-extra .zt-magazine-primary-copy{
+ display:block!important;padding:10px 3px 4px!important;min-width:0!important
+}
+main.page #ztp-guide-extra .zt-magazine-primary-copy strong{
+ display:block!important;font:900 clamp(19px,1.55vw,25px)/1.18 Arial,Helvetica,sans-serif!important;
+ color:#1c1d20!important;text-decoration:none!important
+}
+main.page #ztp-guide-extra .zt-magazine-primary:hover strong,
+main.page #ztp-guide-extra .zt-magazine-small:hover strong{color:#d51232!important}
+main.page #ztp-guide-extra .zt-magazine-primary-copy small{
+ display:block!important;margin-top:8px!important;
+ font:600 11px/1.4 Arial,Helvetica,sans-serif!important;color:#767676!important
+}
+main.page #ztp-guide-extra .zt-magazine-primary-copy p{
+ display:-webkit-box!important;-webkit-box-orient:vertical!important;
+ -webkit-line-clamp:2!important;overflow:hidden!important;
+ margin:8px 0 0!important;font:400 13px/1.45 Arial,Helvetica,sans-serif!important;color:#51565e!important
+}
+main.page #ztp-guide-extra .zt-magazine-side{
+ display:grid!important;grid-template-columns:1fr!important;
+ grid-template-rows:repeat(3,minmax(0,1fr))!important;
+ gap:11px!important;min-width:0!important;min-height:0!important
+}
+main.page #ztp-guide-extra .zt-magazine-small{
+ display:grid!important;grid-template-columns:minmax(115px,43%) minmax(0,1fr)!important;
+ gap:11px!important;min-width:0!important;min-height:0!important;
+ padding:9px!important;align-items:center!important;
+ border:1px solid #e4e8ee!important;border-radius:7px!important;
+ background:#fafafa!important;text-decoration:none!important;color:#1b1b1b!important
+}
+main.page #ztp-guide-extra .zt-magazine-small img{
+ display:block!important;width:100%!important;max-width:100%!important;
+ height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;
+ object-position:center!important;background:#121d2d!important;
+ border-radius:5px!important
+}
+main.page #ztp-guide-extra .zt-magazine-small-copy{
+ display:block!important;min-width:0!important
+}
+main.page #ztp-guide-extra .zt-magazine-small-copy strong{
+ display:-webkit-box!important;-webkit-box-orient:vertical!important;
+ -webkit-line-clamp:3!important;overflow:hidden!important;
+ font:800 clamp(13px,1.04vw,17px)/1.3 Arial,Helvetica,sans-serif!important;
+ color:#242424!important;overflow-wrap:anywhere!important
+}
+main.page #ztp-guide-extra .zt-magazine-small-copy small{
+ display:block!important;margin-top:7px!important;
+ font:600 10px/1.4 Arial,Helvetica,sans-serif!important;color:#777!important
+}
+/* Explore Video is intentionally AFTER the full-width magazine boxes and Gaming reviews. */
+main.page .maincol > #ztpGamingReviews{margin:0 0 18px!important;width:100%!important}
+main.page .maincol > #ztpVideosAnchor{
+ display:block!important;width:100%!important;max-width:100%!important;
+ min-width:0!important;clear:both!important;margin:0 0 25px!important
+}
+main.page #ztpVideosAnchor .zt-home-shelves{
+ margin:0!important;display:grid!important;gap:16px!important;
+ width:100%!important;max-width:100%!important;min-width:0!important
+}
+main.page #ztpVideosAnchor .zt-shelf-head{height:54px!important}
+main.page #ztpVideosAnchor .zt-shelf-head h2{
+ font-size:15px!important;padding:0 33px 0 15px!important
+}
+main.page #ztpVideosAnchor .zt-shelf-grid{
+ padding:12px!important;gap:10px!important
+}
+main.page #ztpVideosAnchor .zt-shelf-copy{
+ padding:9px 10px 11px!important;gap:6px!important
+}
+main.page #ztpVideosAnchor .zt-shelf-copy h3{
+ font-size:13px!important;line-height:1.3!important
+}
+@media(max-width:850px){
+ main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-content.zt-magazine-content,
+ main.page #ztp-guide-extra #ztHomeExtra .ztp-extra-cards.zt-magazine-content{
+  grid-template-columns:1fr!important;min-height:0!important
+ }
+ main.page #ztp-guide-extra .zt-magazine-side{
+  grid-template-rows:auto!important;gap:10px!important
+ }
+ main.page #ztp-guide-extra .zt-magazine-small{
+  grid-template-columns:minmax(115px,38%) minmax(0,1fr)!important;min-height:110px!important
+ }
+}
+@media(max-width:530px){
+ main.page #ztp-guide-extra .zt-magazine-small{grid-template-columns:minmax(100px,40%) minmax(0,1fr)!important}
+ main.page #ztp-guide-extra .zt-magazine-primary-copy strong{font-size:19px!important}
+ main.page #ztp-guide-extra .zt-magazine-small-copy strong{font-size:12px!important}
+ main.page #ztp-guide-extra .zt-magazine-primary-copy p{font-size:12px!important}
+}
