@@ -698,18 +698,37 @@ def augment_recent_posts(posts,previous,complete,force_full_scan=False):
     fresh={p.get("id") for p in posts if isinstance(p,dict) and p.get("id")}
     new_direct=fresh-known
     print(f"Primary Community check: {len(posts)} visible, {len(new_direct)} newly discovered IDs.")
-    if new_direct or not known:
+    if not known:
         return posts,complete
-    new=fetch_recent_alternate(known,fresh)
-    fresh.update(p["id"] for p in new)
-    if not new:
-        new=fetch_recent_invidious(known,fresh)
+    # CRITICAL: One newly visible Gaming post MUST NOT stop the scan before
+    # other official YouTube URLs expose recently published Tech posts.
+    # The different YouTube tabs often have inconsistent CDN snapshots.
+    extra_official=fetch_recent_alternate(known,set(fresh))
+    fresh.update(p["id"] for p in extra_official)
+    # Mirrors help when YouTube's official tabs are all temporarily cached.
+    # Query them only when official secondary tabs found nothing new. This
+    # never writes anything to Cloudflare or triggers a Pages deployment.
+    extra_mirror=(fetch_recent_invidious(known,fresh)
+                  if not extra_official else [])
+    new=extra_official+extra_mirror
     if new:
-        # Keep the original YouTube scan for all known post bodies/images;
-        # only prepend the missing post IDs so later merging retains history.
-        posts=new+posts
-        complete=False
-        print(f"RECOVERED {len(new)} new Community post(s) via independent recent-post check.")
+        # Protect rich primary source, preserve 100% of historical IDs.
+        # Combine only new, deduplicated IDs into the current scan.
+        unique=[];known_seen=set(fresh_id for fresh_id in (
+            p.get("id") for p in posts if isinstance(p,dict)) if fresh_id)
+        for item in new:
+            pid=item.get("id") if isinstance(item,dict) else None
+            if not pid or pid in known_seen:
+                continue
+            known_seen.add(pid)
+            unique.append(item)
+        if unique:
+            posts=unique+posts
+            complete=False
+            print(f"RECOVERED {len(unique)} additional Community post(s) "
+                  "despite other fresh posts already visible.")
+    else:
+        print("Secondary Community sources checked; no additional posts missing.")
     return posts,complete
 
 
@@ -2990,6 +3009,15 @@ def main():
         p.get("id"):p for p in previous
         if isinstance(p,dict) and p.get("id")
     }
+    new_items=[p for p in posts if isinstance(p,dict) and p.get("id") not in previous_by_id]
+    if new_items:
+        print(f"NEW COMMUNITY POSTS DETECTED: {len(new_items)}")
+        for item in new_items[:20]:
+            category=post_category(item)
+            title=news_title(item) if category!="review" else review_title(item)
+            print(f"  IMPORT {category.upper()}: {title[:125]} ({item['id']})")
+    else:
+        print("NO NEW COMMUNITY POST IDs: original sources and alternates checked.")
     sync_now=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
     for p in posts:
         if not isinstance(p,dict) or not p.get("id"):

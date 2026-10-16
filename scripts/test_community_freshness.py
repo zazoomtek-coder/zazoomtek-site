@@ -29,12 +29,24 @@ with patch.object(mod,"fetch_recent_alternate",return_value=[]) as alt, \
     alt.assert_called_once()
     mirror.assert_called_once()
 
-with patch.object(mod,"fetch_recent_alternate") as alt, \
-     patch.object(mod,"fetch_recent_invidious") as mirror:
-    posts,complete=mod.augment_recent_posts([dict(fresh),dict(a)],[dict(a)],False)
-    assert complete is False and len(posts)==2
-    alt.assert_not_called()
+# Regression for the real outage: the first tab had newly published
+# Gaming, so the importer skipped other URLs containing new Tech news.
+gaming={"id":"UgkxNewGamingPost1234567890","text":"News Gaming: Nuovo gioco"}
+tech={"id":"UgkxNewTechArticle1234567890","text":"News Tech: Nuovo router Wi-Fi"}
+with patch.object(mod,"fetch_recent_alternate",return_value=[tech]) as alt, \
+     patch.object(mod,"fetch_recent_invidious",return_value=[]) as mirror:
+    posts,complete=mod.augment_recent_posts([dict(gaming),dict(a)],[dict(a)],False)
+    assert complete is False and len(posts)==3,posts
+    assert [p["id"] for p in posts]==[tech["id"],gaming["id"],a["id"]]
+    alt.assert_called_once_with({a["id"]},{a["id"],gaming["id"]})
     mirror.assert_not_called()
+
+with patch.object(mod,"fetch_recent_alternate",return_value=[]) as alt, \
+     patch.object(mod,"fetch_recent_invidious",return_value=[]) as mirror:
+    posts,complete=mod.augment_recent_posts([dict(gaming),dict(a)],[dict(a)],False)
+    assert complete is False and len(posts)==2
+    alt.assert_called_once()
+    mirror.assert_called_once()
 
 with patch.object(mod,"fetch_recent_alternate") as alt, \
      patch.object(mod,"fetch_recent_invidious") as mirror:
@@ -88,4 +100,4 @@ with patch.object(mod,"invidious_instances",return_value=[
     actual=mod.fetch_recent_invidious({a["id"]},set())
     assert [x["id"] for x in actual]==[fresh["id"]],actual
 
-print("PASS: new post detection, fallback, no duplicates, no stale false positives, full-history safety")
+print("PASS: new Gaming post never masks fresh Tech on alternate YouTube tabs; no duplicates; history safe")
