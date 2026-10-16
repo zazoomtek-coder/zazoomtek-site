@@ -429,8 +429,52 @@ def prefer_latest_verified_special(selected,eligible):
     return newest if selected is None or (fresh and (previous is None or fresh>previous or (fresh==previous and (newest.get("trend_score",0),newest.get("freshness",0)) > (selected.get("trend_score",0),selected.get("freshness",0))))) else selected
 
 
+def editorial_pins():
+    """Only explicitly requested Tech Impact / Gaming Inside articles enter featured.
+
+    Missing or invalid pin data is an error, never grounds to silently
+    unpin existing editorial choices.
+    """
+    path=ROOT/"featured-editorial-pins.json"
+    state=json.loads(path.read_text(encoding="utf-8"))
+    items=state.get("items")
+    if not isinstance(items,list) or len(items)>2:
+        raise RuntimeError("Curated featured pins must be a list of at most two")
+    sections=set()
+    urls=set()
+    selected=[]
+    for item in items:
+        if not isinstance(item,dict):
+            raise RuntimeError("Invalid editorial pin")
+        section=item.get("section")
+        url=item.get("url")
+        title=item.get("title")
+        image=item.get("image")
+        if section not in ("tech-impact","gaming-inside") or section in sections:
+            raise RuntimeError("Only one pin per authorized special section")
+        if not isinstance(url,str) or not re.fullmatch(
+                r"/"+re.escape(section)+r"-[a-z0-9-]+\\.html",url):
+            raise RuntimeError("Invalid curated special URL")
+        if url in urls or not (ROOT/url.lstrip("/")).is_file():
+            raise RuntimeError("Curated featured article is missing or duplicated: "+url)
+        if not isinstance(title,str) or len(title.strip())<12:
+            raise RuntimeError("Editorial pin lacks a verified title")
+        if not isinstance(image,str) or not image.startswith("/assets/") or not (
+                ROOT/image.lstrip("/")).is_file():
+            raise RuntimeError("Editorial pin cover must be an existing local asset")
+        sections.add(section);urls.add(url)
+        selected.append({"section":section,"url":url,"title":title.strip(),
+                         "image":image,"trend_score":0,"freshness":0,
+                         "matched_sources":[],"summary":""})
+    return selected
+
+def expected_featured_sections(pins=None):
+    pins=editorial_pins() if pins is None else pins
+    return ["tech"]*(5-len(pins))+["gaming"]+[x["section"] for x in pins]
+
+
 def pick(articles,on_date=None):
-    """Homepage: 3 Tech NEWS, 1 Gaming NEWS, 1 separate Impact and 1 separate Inside."""
+    """Five Tech + one Gaming by default; user-requested special pins displace Tech."""\n    pins=editorial_pins()
     chosen=[];seen=set()
     def add(article):
         if article["url"] in seen:
@@ -451,7 +495,7 @@ def pick(articles,on_date=None):
             auto_selected=[]
     standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
     for kind in ("tech","gaming"):
-        quota = 3 if kind == "tech" else 1
+        quota = 5-len(pins) if kind == "tech" else 1
         # Reuse already-published ZazoomTek pages whenever the same lead was
         # imported from YouTube; never create or display duplicate stories.
         count=0
@@ -518,66 +562,14 @@ def pick(articles,on_date=None):
                         "matched_sources":[],"summary":""})
         if count!=quota:
             raise RuntimeError(f"Missing {quota} verified {kind} standard NEWS")
-    special_feed=json.loads((ROOT/"special-featured.json").read_text(encoding="utf-8")).get("items",[])
-    approvals=json.loads((ROOT/"approved-special-articles.json").read_text(encoding="utf-8")).get("articles",[])
-    for kind,section in (("tech","tech-impact"),("gaming","gaming-inside")):
-        prefix="/"+section+"-"
-        eligible=[a for a in articles if a["section"]==section
-                  and a["url"].startswith(prefix)
-                  and (ROOT/a["url"].lstrip("/")).is_file()
-                  and a.get("image","").startswith("/assets/special/")
-                  and (ROOT/a["image"].lstrip("/")).is_file()]
-        selected=None
-        # A matching policy/rights article already imported from Community or
-        # written manually is the preferred feature. Its existing URL and
-        # original ZazoomTek cover are kept instead of making a duplicate.
-        reuse=[a for a in articles
-               if a["section"]==section and a["url"].startswith("/news-")
-               and a["url"] not in seen and a.get("trend_score",0)>=54
-               and (ROOT/a["url"].lstrip("/")).is_file()
-               and (a.get("image","").startswith("https://") or
-                    (ROOT/a.get("image","").lstrip("/")).is_file())]
-        if reuse:
-            selected=dict(sorted(reuse,key=lambda a:ordinary_priority(a,on_date),
-                                 reverse=True)[0])
-            selected["section"]=section
-        for item in (special_feed if selected is None else []):
-            slug=item.get("slug","");img=item.get("image","")
-            if (item.get("section")!=kind or not slug.startswith(section+"-")
-                or not slug.endswith(".html") or not img.startswith("/assets/special/")
-                or not (ROOT/slug).is_file() or not (ROOT/img.lstrip("/")).is_file()):
-                continue
-            selected=next((a for a in eligible if a["url"]=="/"+slug),None)
-            if selected is None:
-                selected={"url":"/"+slug,"title":item.get("title",""),"image":img,
-                          "section":section,"trend_score":0,"freshness":0,
-                          "matched_sources":[],"summary":""}
-            break
-        if selected is None:
-            # Honor explicitly editor-promoted, published and documented stories.
-            promoted=[a for a in eligible if any(
-                v.get("home_featured") is True and
-                v.get("section")==kind and
-                a["url"]=="/"+section+"-"+v.get("slug","")+".html"
-                for v in approvals)]
-            promoted.sort(key=lambda a:a.get("freshness",0),reverse=True)
-            if promoted:selected=promoted[0]
-        if selected is None and eligible:
-            selected=sorted(eligible,key=lambda a:(a.get("trend_score",0),
-                a.get("freshness",0)),reverse=True)[0]
-        # A curator's old nominee is a fallback, not a permanent pin.
-        # The section refreshes as soon as a NEWER source-checked article
-        # actually exists in the published archive, even if nomination lagged.
-        selected=prefer_latest_verified_special(selected,eligible)
-        if selected is None:
-            raise RuntimeError("No published special article for "+section)
-        if not add(selected):
-            raise RuntimeError("Duplicate highlighted special news")
+    # Special articles are NEVER selected by trend score, category scan,
+    # publication date or independent workflows. Only editorial pins survive.
+    for pin in pins:
+        if not add(pin):
+            raise RuntimeError("Curated special news conflicts with existing feature")
     assert len(chosen)==6
-    assert [x["section"] for x in chosen]==[
-        "tech","tech","tech","gaming","tech-impact","gaming-inside"]
+    assert [x["section"] for x in chosen]==expected_featured_sections(pins)
     return chosen
-
 
 def slide_markup(chosen):
     """Six-image 3x2 editorial mosaic, clickable covers without overlays."""
@@ -727,12 +719,13 @@ def selftest():
     assert prefer_latest_verified_special(old,[old,newer])["url"]==newer["url"]
     assert prefer_latest_verified_special(newer,[old])["url"]==newer["url"]
     assert prefer_latest_verified_special(old,[])["url"]==old["url"]
-    # Two curated editorial highlights alongside four standard NEWS.
+    # Five ordinary Tech + one Gaming; special pins only when requested.
     existing=matches(owned_candidates(),{"items":[]})
     sample=pick(existing,on_date=dt.date(2026,10,11))
-    assert len(sample)==6 and [x["section"] for x in sample]==[
-        "tech","tech","tech","gaming","tech-impact","gaming-inside"]
+    assert len(sample)==6
+    assert [x["section"] for x in sample]==expected_featured_sections()
     assert len({x["url"] for x in sample})==6
+    assert all(x["section"] in ("tech","gaming") for x in sample)
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
         {"source":"hdblog","name":"HDblog","kind":"tech",
