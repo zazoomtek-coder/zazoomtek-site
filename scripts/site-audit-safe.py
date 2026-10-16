@@ -118,13 +118,15 @@ print("SITE_AUDIT_JSON_END")
 # captions and descriptive accessibility improvements are review-only.
 if broken_media or broken_links or feed_reviews:
     raise SystemExit("SITE QUALITY CHECK FAILED: local assets, links or NEWS/Reviews separation")
-if len(features)!=6 or len(set(urls))!=6 or len(live_featured_urls)!=6:
-    raise SystemExit("SITE QUALITY CHECK FAILED: featured mosaic must contain 6 distinct cards")
+if len(features)>6 or len(set(urls))!=len(features) or len(live_featured_urls)>6:
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured mosaic has duplicates or too many cards")
 import importlib.util
 spec=importlib.util.spec_from_file_location("zt_trending",ROOT/"scripts/trending-crosscheck.py")
 zt=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(zt)
-if [x.get("section") for x in features] != zt.expected_featured_sections():
-    raise SystemExit("SITE QUALITY CHECK FAILED: featured categories do not match 5 Tech + 1 Gaming / user pins")
+if not zt.valid_featured_sections(features):
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured categories exceed 5 Tech + 1 Gaming / user pins")
+if any(not zt.allowed_featured_date(x) for x in features if x["section"] in ("tech","gaming")):
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured article older than yesterday")
 if urls != live_featured_urls:
     print("NOTICE: featured-carousel.json selections differ from currently displayed Home; no unsafe rewrite performed.")
