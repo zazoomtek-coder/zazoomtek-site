@@ -191,12 +191,12 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     suggested = choose([item for item in ordinary if item["category"] == "tech"], 6, today)
     selected = {item["url"] for item in suggested}
     left = distinct(ordinary, published_home | special_urls | selected)
-    editorial = choose([item for item in left if item["category"] == "gaming"], 6, today, keep_latest=2)
+    editorial = choose([item for item in left if item["category"] == "gaming"], 12, today, keep_latest=2)
     if any(item["category"] != "tech" for item in suggested):
         raise RuntimeError("Non-Tech article reached DA NON PERDERE")
     if any(item["category"] != "gaming" for item in editorial):
         raise RuntimeError("Non-Gaming article reached DALLA REDAZIONE")
-    if len(set(item["url"] for item in tech + gaming + suggested + editorial)) != 20:
+    if len(set(item["url"] for item in tech + gaming + suggested + editorial)) != 26:
         raise RuntimeError("Editorial box duplicate detected")
 
     homepage = replace_once(
@@ -259,7 +259,7 @@ def main() -> None:
     if opts.self_test:
         a, b, _ = build(date)
         assert a == index and b == javascript, "Refresh must be deterministic and idempotent"
-        assert sum(len(report[key]) for key in ("suggested", "tech_impact", "gaming_inside", "dalla_redazione")) == 20
+        assert sum(len(report[key]) for key in ("suggested", "tech_impact", "gaming_inside", "dalla_redazione")) == 26
         print("PASS: every refreshed card uses a real existing ZazoomTek article + validated thumbnail")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if not opts.self_test and not opts.dry_run:
