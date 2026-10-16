@@ -46,15 +46,16 @@ jobs:
           state=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))
           articles=state.get('items',[])
           assert len(articles)==6
-          assert [a['section'] for a in articles]==[
-              'tech','tech','tech','gaming','tech-impact','gaming-inside']
-          assert len({x['url'] for x in articles})==6
-          # Category labels alone are insufficient: check the actual headlines.
           import sys
           sys.path.insert(0,'scripts')
-          from trending_crosscheck import classify, community_explicit_categories
+          from trending_crosscheck import expected_featured_sections, classify, community_explicit_categories
+          assert [a['section'] for a in articles]==expected_featured_sections()
+          assert len({x['url'] for x in articles})==6
+          # Category labels alone are insufficient: check the actual headlines.
           explicit=community_explicit_categories()
-          for article in articles[:4]:
+          for article in articles:
+              if article['section'] not in ('tech','gaming'):
+                  continue
               actual=explicit.get(article['url']) or classify(article['title'])
               assert actual == article['section'], (
                   'Wrong featured category: '+article['title'])
@@ -65,7 +66,7 @@ jobs:
               assert local.is_file(),article['url']
               if article['image'].startswith('/'):
                   assert Path(article['image'].lstrip('/')).is_file(),article['image']
-          print('STATIC FEATURED PASS: 3 Tech, 1 Gaming, 1 Impact, 1 Inside; valid article destinations')
+          print('STATIC FEATURED PASS: 5 Tech, 1 Gaming by default; optional manual special pins; valid article destinations')
           PY
             git add -- featured-carousel.json trending-sources.json trending-match-report.json
             if git diff --cached --quiet; then
