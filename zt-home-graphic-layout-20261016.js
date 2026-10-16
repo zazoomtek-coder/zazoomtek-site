@@ -149,7 +149,15 @@
          }
          card.appendChild(copy);side.appendChild(card);
        });
-       target.replaceChildren(primary,side);
+       function applyMagazineLayout(){
+         // Legacy Extra loader may finish its HEAD checks after this archive fetch.
+         // Keep the genuine magazine cards instead of letting that older renderer overwrite them.
+         if(target.childElementCount!==2||target.firstElementChild!==primary||target.lastElementChild!==side){
+           target.replaceChildren(primary,side);
+         }
+       }
+       applyMagazineLayout();
+       new MutationObserver(applyMagazineLayout).observe(target,{childList:true});
        target.dataset.archiveCount=String(Math.min(records.length,4));
        target.dataset.sourceArchive=config.url;
      }).catch(function(error){
