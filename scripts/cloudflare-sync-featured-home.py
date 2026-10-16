@@ -8,9 +8,11 @@ the deployment before visitors can see stale/missing cards. No runtime JS added.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 from html import escape
 import json
 from pathlib import Path
+from zoneinfo import ZoneInfo
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,8 +26,8 @@ def render(root: Path) -> str:
     pins = json.loads((root / "featured-editorial-pins.json").read_text(encoding="utf-8"))
     items = data.get("items")
     pinned = pins.get("items")
-    if not isinstance(items, list) or len(items) != 6:
-        raise RuntimeError("Featured carousel must have precisely six cards")
+    if not isinstance(items, list) or len(items) > 6:
+        raise RuntimeError("Featured carousel cannot exceed six cards")
     if not isinstance(pinned, list) or len(pinned) > 2:
         raise RuntimeError("Invalid editorial featured pins")
     pin_sections = [x.get("section") for x in pinned if isinstance(x, dict)]
@@ -33,11 +35,27 @@ def render(root: Path) -> str:
         raise RuntimeError("Duplicate or malformed editorial pins")
     if any(x not in ("tech-impact", "gaming-inside") for x in pin_sections):
         raise RuntimeError("Only special articles can be manually pinned")
-    expected = ["tech"] * (5 - len(pinned)) + ["gaming"] + pin_sections
-    if [x.get("section") for x in items] != expected:
-        raise RuntimeError("Featured JSON no longer matches the approved categories / fixed pins")
-    if len({x.get("url") for x in items}) != 6:
+    sections=[x.get("section") for x in items]
+    regular=items[:-len(pinned)] if pinned else items
+    ordinary=[x.get("section") for x in regular]
+    tech_count=ordinary.count("tech")
+    game_count=ordinary.count("gaming")
+    if (tech_count > 5-len(pinned) or game_count > 1 or
+            ordinary != ["tech"]*tech_count+["gaming"]*game_count):
+        raise RuntimeError("Featured JSON violates the 5 Tech + 1 Gaming maximum")
+    if [(x.get("section"),x.get("url")) for x in items[len(regular):]] != [
+            (x.get("section"),x.get("url")) for x in pinned]:
+        raise RuntimeError("Editorial special pin was removed without permission")
+    if len({x.get("url") for x in items}) != len(items):
         raise RuntimeError("Featured articles are duplicated")
+    today=dt.datetime.now(ZoneInfo("Europe/Rome")).date()
+    for item in regular:
+        try:
+            day=dt.date.fromisoformat(item.get("published_date",""))
+        except (TypeError,ValueError):
+            raise RuntimeError("Featured regular article has no verified publication date")
+        if day not in (today,today-dt.timedelta(days=1)):
+            raise RuntimeError("Outdated featured article: "+str(item.get("url")))
 
     cards = []
     for n, item in enumerate(items):
@@ -64,7 +82,7 @@ def render(root: Path) -> str:
                      ("eager" if n == 0 else "lazy") +
                      '" decoding="async"></a>')
     return ('<div class="zt-featured-grid" id="ztFeaturedGrid" '
-            'aria-label="Sei news ZazoomTek in evidenza">' + "".join(cards) + "</div>")
+            'aria-label="News ZazoomTek in evidenza">' + "".join(cards) + "</div>")
 
 def sync(root: Path, check: bool = False) -> bool:
     root = Path(root)

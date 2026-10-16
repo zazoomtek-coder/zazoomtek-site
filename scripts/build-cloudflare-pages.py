@@ -76,8 +76,8 @@ def main() -> None:
         import json
         featured = json.loads((OUT / "featured-carousel.json").read_text(encoding="utf-8"))
         chosen = featured.get("items", [])
-        if len(chosen) != 6 or len({x["url"] for x in chosen}) != 6:
-            failures.append("Invalid six-card featured manifest")
+        if not isinstance(chosen, list) or len(chosen)>6 or len({x["url"] for x in chosen}) != len(chosen):
+            failures.append("Invalid featured manifest: duplicate or too many cards")
         for item in chosen:
             for field in ("url", "image"):
                 value = item.get(field, "")

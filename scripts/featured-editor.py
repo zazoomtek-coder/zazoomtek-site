@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single entry point for the ZazoomTek six-slot featured editor.
+"""ZazoomTek featured editor; no stale fillers when fewer than six stories.
 
 Owns only the carousel selection. Reuses verified published articles, never
 copies source content, never changes article publication dates or archives.
@@ -24,8 +24,11 @@ def load_matcher():
 
 def validate():
     items=json.loads((ROOT/"featured-carousel.json").read_text(encoding="utf-8"))["items"]
-    assert [x["section"] for x in items]==load_matcher().expected_featured_sections()
-    assert len(set(x["url"] for x in items))==6
+    matcher=load_matcher()
+    assert matcher.valid_featured_sections(items)
+    assert len(set(x["url"] for x in items))==len(items)
+    assert all(matcher.allowed_featured_date(x) for x in items
+               if x["section"] in ("tech","gaming"))
     for row in items:
         assert (ROOT/row["url"].lstrip("/")).is_file(),row["url"]
         if row["image"].startswith("/"):

@@ -22,7 +22,9 @@ def main() -> None:
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
     run("apply-site-design.py")
-    # The curator edits JSON, not Home. Apply approved 5 Tech + 1 Gaming here.
+    # Re-evaluate freshness offline at build time; 4h portal checks remain separate.
+    # Never publish an expired card while waiting for the next curator run.
+    run("trending-crosscheck.py", "--apply")
     run("cloudflare-sync-featured-home.py")
     # Public video pages are HTML with YouTube embeds, not downloaded movies.
     run("seo_watch_pages_safe.py")

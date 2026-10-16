@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Update six static highlights from published verified ZazoomTek articles
+      - name: Refresh up to six featured articles published today or yesterday
         id: publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -46,13 +46,15 @@ jobs:
           from pathlib import Path
           state=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))
           articles=state.get('items',[])
-          assert len(articles)==6
+          assert isinstance(articles,list) and len(articles)<=6
           import importlib.util
           spec=importlib.util.spec_from_file_location('zt_trending',Path('scripts/trending-crosscheck.py'))
           zt=importlib.util.module_from_spec(spec)
           spec.loader.exec_module(zt)
-          assert [a['section'] for a in articles]==zt.expected_featured_sections()
-          assert len({x['url'] for x in articles})==6
+          assert zt.valid_featured_sections(articles)
+          assert len({x['url'] for x in articles})==len(articles)
+          assert all(zt.allowed_featured_date(a) for a in articles
+                     if a['section'] in ('tech','gaming')), 'Older than yesterday in featured'
           # Category labels alone are insufficient: check the actual headlines.
           explicit=zt.community_explicit_categories()
           for article in articles:
@@ -68,11 +70,11 @@ jobs:
               assert local.is_file(),article['url']
               if article['image'].startswith('/'):
                   assert Path(article['image'].lstrip('/')).is_file(),article['image']
-          print('STATIC FEATURED PASS: 5 Tech, 1 Gaming by default; optional manual special pins; valid article destinations')
+          print('STATIC FEATURED PASS: today first then yesterday only, max 5 Tech + 1 Gaming; optional manual special pins')
           PY
             git add -- featured-carousel.json trending-sources.json trending-match-report.json
             if git diff --cached --quiet; then
-              echo "No change to six verified static stories or portal research."
+              echo "No change to available fresh featured articles or portal research."
               exit 0
             fi
             if git diff --cached --quiet -- featured-carousel.json; then

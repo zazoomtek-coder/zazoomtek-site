@@ -2,8 +2,9 @@
 """Compare ZazoomTek with its own Community and sixteen international/Italian news sources.
 
 --sources: read public homepage headlines and RSS fallbacks (no article bodies).
---apply: use cached trend headlines to select 3 Tech + 1 Gaming regular NEWS;
-         import 1 Tech Impact + 1 Gaming Inside from their independent feed.
+--apply: select today's Technology/Gaming articles first; use yesterday ONLY
+         if today's verified published articles cannot fill the slots.
+         User-pinned special stories are exempt from automatic rotation.
 --test:   deterministic matcher and placement checks, no network or writes.
 
 No third-party content/images are imported into published pages.
@@ -16,6 +17,7 @@ import html
 from html.parser import HTMLParser
 import json
 from pathlib import Path
+from zoneinfo import ZoneInfo
 import re
 import unicodedata
 from urllib.parse import urljoin, urlsplit
@@ -468,109 +470,173 @@ def editorial_pins():
                          "matched_sources":[],"summary":""})
     return selected
 
+ITALY_TIMEZONE=ZoneInfo("Europe/Rome")
+
+def local_publication_date(article):
+    """Article source metadata is authoritative; do not use scrape or scan time."""
+    value=article.get("published_at") or article.get("published_date") or article.get("date")
+    if isinstance(value,str):
+        timestamp=value.strip().replace("Z","+00:00")
+        if "T" in timestamp:
+            try:
+                parsed=dt.datetime.fromisoformat(timestamp)
+                if parsed.tzinfo is not None:
+                    return parsed.astimezone(ITALY_TIMEZONE).date()
+            except ValueError:
+                pass
+    return published_date(value)
+
+def allowed_featured_date(article,on_date=None):
+    """ONLY today or yesterday, using the local Italian calendar."""
+    reference=on_date or NOW().astimezone(ITALY_TIMEZONE).date()
+    if isinstance(reference,dt.datetime):
+        reference=reference.astimezone(ITALY_TIMEZONE).date() if reference.tzinfo else reference.date()
+    day=local_publication_date(article)
+    return day is not None and reference-dt.timedelta(days=1)<=day<=reference
+
 def expected_featured_sections(pins=None):
+    """Maximum possible slots, NOT an instruction to fill with old content."""
     pins=editorial_pins() if pins is None else pins
     return ["tech"]*(5-len(pins))+["gaming"]+[x["section"] for x in pins]
 
+def valid_featured_sections(items,pins=None):
+    """At most five Tech and one Gaming; fewer slots remain empty safely."""
+    pins=editorial_pins() if pins is None else pins
+    sections=[x.get("section") for x in items]
+    special=[x["section"] for x in pins]
+    ordinary=sections[:len(sections)-len(special)] if special else sections
+    if special and sections[-len(special):]!=special:
+        return False
+    tech_count=ordinary.count("tech")
+    gaming_count=ordinary.count("gaming")
+    if (tech_count>5-len(special) or gaming_count>1
+            or ordinary!=["tech"]*tech_count+["gaming"]*gaming_count):
+        return False
+    return len(items)<=6 and len(items)>=len(special)
+
+def verified_public_article(article):
+    """Never display unpublished articles or a missing/invalid cover."""
+    url=article.get("url")
+    image=article.get("image")
+    if not isinstance(url,str) or not re.fullmatch(r"/news-[a-zA-Z0-9_-]+\.html",url):
+        return False
+    if not (ROOT/url.lstrip("/")).is_file():
+        return False
+    if not isinstance(image,str) or not image:
+        return False
+    return (image.startswith("https://") or
+            (image.startswith("/assets/") and (ROOT/image.lstrip("/")).is_file()))
 
 def pick(articles,on_date=None):
-    """Five Tech + one Gaming by default; user-requested special pins displace Tech."""
+    """Prefer today's ZazoomTek NEWS, then yesterday's, NEVER older."""
+    reference=on_date or NOW().astimezone(ITALY_TIMEZONE).date()
+    if isinstance(reference,dt.datetime):
+        reference=reference.astimezone(ITALY_TIMEZONE).date() if reference.tzinfo else reference.date()
     pins=editorial_pins()
-    chosen=[];seen=set()
-    def add(article):
-        if article["url"] in seen:
-            return False
-        seen.add(article["url"]);chosen.append(article)
-        return True
-    # Automatically verified stories and existing Community imports are promoted
-    # before older fallback headlines, but only while their selection is fresh.
-    auto_selected=[]
+    selected=[];seen=set()
+    # Keep the categories from verified ZazoomTek publications, including
+    # the original Community labels, never guesses from source-site headlines.
+    candidates=[]
+    for x in articles:
+        if x.get("section") not in ("tech","gaming"):
+            continue
+        if not verified_public_article(x) or not allowed_featured_date(x,reference):
+            continue
+        if not (x.get("editorial_category") or classify(x.get("title",""))==x["section"]):
+            continue
+        candidates.append(x)
+
     auto_path=ROOT/"featured-auto-news.json"
-    if auto_path.exists():
+    if auto_path.is_file():
         try:
             state=json.loads(auto_path.read_text(encoding="utf-8"))
-            age=NOW()-dt.datetime.fromisoformat(state["generated_utc"])
-            if dt.timedelta(0)<=age<=dt.timedelta(hours=8):
-                auto_selected=state.get("selected",[])
+            stamp=dt.datetime.fromisoformat(state["generated_utc"].replace("Z","+00:00"))
+            stamp=stamp if stamp.tzinfo else stamp.replace(tzinfo=dt.timezone.utc)
+            autos=state.get("selected",[]) if dt.timedelta(0)<=NOW()-stamp<=dt.timedelta(hours=8) else []
         except (OSError,ValueError,KeyError,TypeError):
-            auto_selected=[]
-    standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get("articles",[])
-    for kind in ("tech","gaming"):
-        quota = 5-len(pins) if kind == "tech" else 1
-        # Reuse already-published ZazoomTek pages whenever the same lead was
-        # imported from YouTube; never create or display duplicate stories.
+            autos=[]
+        for x in autos:
+            if not isinstance(x,dict):
+                continue
+            kind=x.get("section")
+            item={"url":x.get("url"),"title":x.get("title"),"image":x.get("image"),
+                  "section":kind,"published_date":x.get("date"),
+                  "trend_score":120,"freshness":100,"matched_sources":[],
+                  "summary":x.get("summary",""),"selection_boost":1}
+            if (kind in ("tech","gaming") and classify(item["title"] or "")==kind
+                    and verified_public_article(item) and allowed_featured_date(item,reference)):
+                candidates.append(item)
+
+    manual_path=ROOT/"manual-news.json"
+    manual=json.loads(manual_path.read_text(encoding="utf-8")).get("items",[]) if manual_path.is_file() else []
+    for x in manual:
+        if not isinstance(x,dict):continue
+        slug=x.get("slug")
+        url="/"+slug if isinstance(slug,str) else ""
+        title=x.get("title","")
+        kind=classify(title)
+        if kind not in ("tech","gaming"):continue
+        try:
+            expiry=dt.datetime.fromisoformat(str(x.get("featured_until","")).replace("Z","+00:00"))
+            active=expiry.tzinfo is not None and expiry>NOW() and x.get("featured_section")==kind
+        except ValueError:
+            active=False
+        item={"url":url,"title":title,"image":x.get("image",""),
+              "section":kind,"published_at":x.get("published_at"),
+              "published_date":x.get("date"),"trend_score":120 if active else 0,
+              "freshness":100 if active else 0,"matched_sources":[],
+              "summary":x.get("excerpt",""),"selection_boost":2 if active else 0}
+        if verified_public_article(item) and allowed_featured_date(item,reference):
+            candidates.append(item)
+
+    standard_path=ROOT/"standard-news.json"
+    standard=json.loads(standard_path.read_text(encoding="utf-8")).get("articles",[]) if standard_path.is_file() else []
+    for x in standard:
+        if not isinstance(x,dict):continue
+        kind=x.get("kind")
+        title=x.get("title","")
+        slug=x.get("slug")
+        if kind not in ("tech","gaming") or classify(title)!=kind or not isinstance(slug,str):continue
+        item={"url":"/news-"+slug+".html","title":title,
+              "image":"/assets/special/news-"+slug+".webp","section":kind,
+              "published_at":x.get("published_at"),"published_date":x.get("date"),
+              "trend_score":0,"freshness":0,"matched_sources":[],"summary":""}
+        if verified_public_article(item) and allowed_featured_date(item,reference):
+            candidates.append(item)
+
+    # Strict priority: ALL verified today's articles beat ALL yesterday's.
+    # Trend matches and explicit editorial boosts rank only within each day.
+    def priority(item):
+        publication=local_publication_date(item)
+        return (publication==reference,
+                bool(item.get("selection_boost")),
+                ordinary_priority(item,reference),
+                item.get("freshness",0))
+    for kind,quota in (("tech",5-len(pins)),("gaming",1)):
         count=0
-        # Respect a verified editorial promotion for a short, explicitly dated
-        # window. News must exist and be recorded in manual-news.json; expired
-        # promotions automatically yield to the ordinary trending selection.
-        for promoted in json.loads((ROOT/"manual-news.json").read_text(encoding="utf-8")).get("items", []):
-            if count == quota:
-                break
-            if (promoted.get("featured_section") or promoted.get("kind")) != kind or not promoted.get("featured_until"):
-                continue
-            try:
-                expiration = dt.datetime.fromisoformat(promoted["featured_until"].replace("Z","+00:00"))
-            except (TypeError, ValueError):
-                continue
-            if expiration.tzinfo is None or NOW() >= expiration:
-                continue
-            url = "/" + str(promoted.get("slug", ""))
-            image = str(promoted.get("image", ""))
-            title = str(promoted.get("title", ""))
-            if not (re.fullmatch(r"/news-[a-z0-9-]+\.html", url)
-                    and (ROOT/url.lstrip("/")).is_file()
-                    and classify(title) == kind
-                    and (image.startswith("https://") or
-                         (image.startswith("/") and (ROOT/image.lstrip("/")).is_file()))):
-                continue
-            count += add({"url": url, "title": title, "image": image,
-                          "section": kind, "trend_score": 120, "freshness": 100,
-                          "published_date": promoted.get("date"),
-                          "matched_sources": [], "summary": promoted.get("excerpt", "")})
-        for x in auto_selected:
-            if count==quota:break
-            if x.get("section")!=kind:continue
-            # Never trust an upstream category when the headline is clearly a game.
-            if classify(x.get("title",""))!=kind:continue
-            url=x.get("url","");image=x.get("image","")
-            if not (url.startswith("/news-") and (ROOT/url.lstrip("/")).is_file()
-                    and (image.startswith("https://") or
-                         (image.startswith("/") and (ROOT/image.lstrip("/")).is_file()))):
-                continue
-            item={"url":url,"image":image,"title":x.get("title",""),
-                  "section":kind,"trend_score":120,"freshness":100,
-                  "published_date":x.get("date"),
-                  "matched_sources":[],"summary":x.get("summary","")}
-            count+=add(item)
-        regular=sorted((a for a in articles
-                        if a["section"]==kind and (a.get("editorial_category") or classify(a.get("title",""))==kind) and a["url"].startswith("/news-")
-                        and (ROOT/a["url"].lstrip("/")).is_file()
-                        and (a["image"].startswith("https://") or
-                             (ROOT/a["image"].lstrip("/")).is_file())),
-                       key=lambda a:ordinary_priority(a,on_date),
-                       reverse=True)
-        for article in regular:
-            if count==quota:break
-            count+=add(article)
-        for x in standard:
-            if count==quota:break
-            if x.get("kind")!=kind or classify(x.get("title",""))!=kind:continue
-            url="/news-"+x["slug"]+".html"
-            image="/assets/special/news-"+x["slug"]+".webp"
-            if not (ROOT/url.lstrip("/")).is_file() or not (ROOT/image.lstrip("/")).is_file():continue
-            count+=add({"url":url,"title":x["title"],"image":image,
-                        "section":kind,"trend_score":0,"freshness":0,
-                        "matched_sources":[],"summary":""})
-        if count!=quota:
-            raise RuntimeError(f"Missing {quota} verified {kind} standard NEWS")
-    # Special articles are NEVER selected by trend score, category scan,
-    # publication date or independent workflows. Only editorial pins survive.
+        for item in sorted((x for x in candidates if x["section"]==kind),
+                           key=priority,reverse=True):
+            if count>=quota:break
+            if item["url"] in seen:continue
+            seen.add(item["url"])
+            row=dict(item)
+            row["published_date"]=local_publication_date(item).isoformat()
+            selected.append(row)
+            count+=1
+        if count<quota:
+            print(f"Only {count}/{quota} fresh {kind} stories for {reference}; "+
+                  "remaining slots stay empty. No stale article backfill.")
     for pin in pins:
-        if not add(pin):
+        if pin["url"] in seen:
             raise RuntimeError("Curated special news conflicts with existing feature")
-    assert len(chosen)==6
-    assert [x["section"] for x in chosen]==expected_featured_sections(pins)
-    return chosen
+        selected.append(pin)
+        seen.add(pin["url"])
+    if not valid_featured_sections(selected,pins):
+        raise RuntimeError("Feature selection exceeds the strict editorial quotas")
+    if any(not allowed_featured_date(x,reference) for x in selected
+           if x["section"] in ("tech","gaming")):
+        raise RuntimeError("Old article reached the featured grid")
+    return selected
 
 def slide_markup(chosen):
     """Six-image 3x2 editorial mosaic, clickable covers without overlays."""
@@ -639,19 +705,20 @@ def apply():
     articles=matches(owned_candidates(),state)
     matched=[x for x in articles if x["trend_score"]>0]
     if not matched:
-        print("NO RELIABLE TREND MATCHES: using latest own published standard news and the independent special feed")
+        print("NO RELIABLE TREND MATCHES: use only today's or yesterday's verified own NEWS")
     chosen=pick(articles)
     for item in chosen:
         if item["section"] in ("tech","gaming"):
             item["freshness_bonus"]=recency_bonus(item)
             item["selection_score"]=ordinary_priority(item)[0]
-    if len(chosen) != 6:
-        raise RuntimeError("Featured mosaic must contain exactly 6 articles")
+    if not valid_featured_sections(chosen):
+        raise RuntimeError("Featured mosaic violates fresh article quota")
     # STRICT OWNERSHIP: the carousel updates its own JSON only.
     # index.html, the Community News archive and YouTube review/video pages are
     # exclusively owned by YouTube sync. Never modify or commit them here.
     carousel={"generated_utc":NOW().isoformat(),"items":[
-        {"section":a["section"],"url":a["url"],"title":a["title"],"image":a["image"]}
+        {"section":a["section"],"url":a["url"],"title":a["title"],"image":a["image"],
+         **({"published_date":a["published_date"]} if a["section"] in ("tech","gaming") else {})}
         for a in chosen]}
     target=ROOT/"featured-carousel.json"
     # Do not redeploy identical six news merely because the scan timestamp moved.
@@ -720,13 +787,16 @@ def selftest():
     assert prefer_latest_verified_special(old,[old,newer])["url"]==newer["url"]
     assert prefer_latest_verified_special(newer,[old])["url"]==newer["url"]
     assert prefer_latest_verified_special(old,[])["url"]==old["url"]
-    # Five ordinary Tech + one Gaming; special pins only when requested.
+    # Current archived content is changing daily; these tests must remain stable.
+    reference=NOW().astimezone(ITALY_TIMEZONE).date()
     existing=matches(owned_candidates(),{"items":[]})
-    sample=pick(existing,on_date=dt.date(2026,10,11))
-    assert len(sample)==6
-    assert [x["section"] for x in sample]==expected_featured_sections()
-    assert len({x["url"] for x in sample})==6
-    assert all(x["section"] in ("tech","gaming") for x in sample)
+    sample=pick(existing,on_date=reference)
+    assert valid_featured_sections(sample)
+    assert len(set(x["url"] for x in sample))==len(sample)
+    assert all(allowed_featured_date(x,reference) for x in sample
+               if x["section"] in ("tech","gaming"))
+    older=pick(existing,on_date=reference+dt.timedelta(days=10))
+    assert not [x for x in older if x["section"] in ("tech","gaming")]
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
         {"source":"hdblog","name":"HDblog","kind":"tech",
