@@ -1,0 +1,38 @@
+name: Temporary five-Tech featured staging validation
+on:
+  push:
+    branches:
+      - featured-5tech-1gaming-manual-20261016
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python syntax
+        run: python3 -m py_compile scripts/trending-crosscheck.py scripts/featured-editor.py scripts/site-audit-safe.py
+      - name: Regression test 5 Tech 1 Gaming and manual pin policy
+        run: |
+          python3 scripts/trending-crosscheck.py --test
+          python3 scripts/featured-editor.py --test
+      - name: Verify six published-card source references
+        run: |
+          python3 - <<'PY'
+          import importlib.util,json
+          from pathlib import Path
+          spec=importlib.util.spec_from_file_location('matcher',Path('scripts/trending-crosscheck.py'))
+          m=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(m)
+          selected=json.loads(Path('featured-carousel.json').read_text(encoding='utf-8'))['items']
+          assert [x['section'] for x in selected]==['tech']*5+['gaming']
+          assert len(set(x['url'] for x in selected))==6
+          for item in selected:
+              assert Path(item['url'].lstrip('/')).is_file()
+              if item['image'].startswith('/'):
+                  assert Path(item['image'].lstrip('/')).is_file()
+          assert m.editorial_pins()==[]
+          print('PASS: Six valid highlights, no automatic specials')
+          PY
