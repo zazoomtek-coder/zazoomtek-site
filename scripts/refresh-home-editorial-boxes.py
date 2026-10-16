@@ -164,7 +164,7 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     for file in ("news.html", "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html"):
         ordinary.extend(item for item in extract(file)
                         if not item["url"].startswith(("/tech-impact-","/gaming-inside-"))
-                        and not re.match(r"^News\\s+(?:Tech\\s+Impact|Gaming\\s+Inside)\\s*:",
+                        and not re.match(r"^News\s+(?:Tech\s+Impact|Gaming\s+Inside)\s*:",
                                          item["title"],re.I))
     if any(item["url"].startswith(("/tech-impact-","/gaming-inside-")) for item in ordinary):
         raise RuntimeError("Special article leaked into ordinary Home boxes")
