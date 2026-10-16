@@ -367,6 +367,10 @@ def community_explicit_categories():
             continue
         lines=[x.strip() for x in (post.get("text") or "").splitlines() if x.strip()]
         if not lines:continue
+        special_header=re.match(r"^news\s+(tech\s+impact|gaming\s+inside)\s*:",lines[0],re.I)
+        if special_header:
+            result["/news-"+post["id"]+".html"]="tech-impact" if special_header.group(1).lower().startswith("tech") else "gaming-inside"
+            continue
         header=re.match(r"^news\s+(tech|game|gaming|extra)\s*(?::|$)",lines[0],re.I)
         if header:
             kind=header.group(1).lower()
@@ -392,6 +396,8 @@ def owned_candidates():
     for i,x in enumerate(regular+special):
         if x["url"] in by_url:continue
         x["section"]=x.get("section") or explicit.get(x["url"]) or classify(x["title"])
+        if re.match(r"^News\s+(?:Tech\s+Impact|Gaming\s+Inside)\s*:",x["title"],re.I):
+            x["section"]="tech-impact" if re.match(r"^News\s+Tech\s+Impact",x["title"],re.I) else "gaming-inside"
         x["editorial_category"]=x["url"] in explicit
         x["freshness"]=max(0,80-i)
         by_url[x["url"]]=x
@@ -453,6 +459,8 @@ def editorial_pins():
     items=state.get("items")
     if not isinstance(items,list) or len(items)>2:
         raise RuntimeError("Curated featured pins must be a list of at most two")
+    if items:
+        raise RuntimeError("Tech Impact and Gaming Inside are reserved for their editorial boxes and archive pages")
     sections=set()
     urls=set()
     selected=[]
@@ -528,7 +536,7 @@ def allowed_featured_date(article,on_date=None):
 def expected_featured_sections(pins=None):
     """Maximum possible slots, NOT an instruction to fill with old content."""
     pins=editorial_pins() if pins is None else pins
-    return ["tech"]*(5-len(pins))+["gaming"]+[x["section"] for x in pins]
+    return ["tech"]*(4-len(pins))+["gaming"]+[x["section"] for x in pins]
 
 def valid_featured_sections(items,pins=None):
     """Six unique dated cards: 5 Tech+1 Gaming target; fresh Gaming fills gaps.
@@ -538,7 +546,7 @@ def valid_featured_sections(items,pins=None):
     dated today/yesterday, rather than leaving blank cells or reclassifying them.
     """
     pins=editorial_pins() if pins is None else pins
-    if not isinstance(items,list) or len(items)>6 or len(items)<len(pins):
+    if not isinstance(items,list) or len(items)>5 or len(items)<len(pins):
         return False
     sections=[x.get("section") for x in items]
     special=[x["section"] for x in pins]
@@ -547,7 +555,7 @@ def valid_featured_sections(items,pins=None):
     ordinary=sections[:len(sections)-len(special)] if special else sections
     tech_count=ordinary.count("tech")
     game_count=ordinary.count("gaming")
-    return (tech_count<=5-len(pins) and game_count<=6-len(pins)-tech_count
+    return (tech_count<=4-len(pins) and game_count<=5-len(pins)-tech_count
             and len(ordinary)==tech_count+game_count)
 
 
@@ -667,18 +675,18 @@ def pick(articles,on_date=None):
         return count
 
     # Target: five truly Tech articles and one truly Gaming article.
-    required_tech=5-len(pins)
+    required_tech=4-len(pins)
     tech_count=add_best("tech",required_tech)
     add_best("gaming",1)
     # Never hide a fresh headline or lie about categories merely because the
     # archive doesn't contain five technology articles in the last two days.
-    gaps=6-len(pins)-len(selected)
+    gaps=5-len(pins)-len(selected)
     if gaps:
         add_best("gaming",gaps)
     # If there aren't enough fresh stories of any category, show fewer cards,
     # and make the grid responsive. No articles older than yesterday allowed.
-    if len(selected)<6-len(pins):
-        print(f"Only {len(selected)}/{6-len(pins)} fresh items today/yesterday; "
+    if len(selected)<5-len(pins):
+        print(f"Only {len(selected)}/{5-len(pins)} fresh items today/yesterday; "
               "no outdated cards will be used.")
     if tech_count<required_tech:
         print(f"FRESH CATEGORY FALLBACK: {tech_count}/{required_tech} Technology "
