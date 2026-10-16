@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-16T10:23:12.085437+00:00",
+  "checked_at": "2026-10-16T10:40:31.011060+00:00",
   "source_sites": 15,
   "matches": 4,
   "selected": [
@@ -34,33 +34,13 @@
       "sources": []
     },
     {
-      "title": "Microsoft Surface Laptop Ultra, preordini aperti: RTX Spark e prezzi da 2.599 dollari",
-      "section": "tech",
-      "url": "/news-microsoft-surface-laptop-ultra-preordini-rtx-spark-ottobre-2026.html",
-      "trend_score": 0,
-      "published_date": null,
-      "freshness_bonus": 0,
-      "selection_score": 0.0,
-      "sources": []
-    },
-    {
-      "title": "Apple annuncia Welcome Home per il 13 ottobre: novità in arrivo per la casa intelligente",
-      "section": "tech",
-      "url": "/news-apple-welcome-home-evento-13-ottobre-2026-smart-home.html",
-      "trend_score": 0,
-      "published_date": null,
-      "freshness_bonus": 0,
-      "selection_score": 0.0,
-      "sources": []
-    },
-    {
       "title": "GTA VI, Rockstar pubblica il trailer di lancio con la musica dei Justice",
       "section": "gaming",
       "url": "/news-gta-vi-trailer-lancio-justice-15-ottobre-2026.html",
       "trend_score": 120,
-      "published_date": "15 ottobre 2026",
-      "freshness_bonus": 62,
-      "selection_score": 140.0,
+      "published_date": "2026-10-15",
+      "freshness_bonus": 0,
+      "selection_score": 78.0,
       "sources": []
     }
   ]
