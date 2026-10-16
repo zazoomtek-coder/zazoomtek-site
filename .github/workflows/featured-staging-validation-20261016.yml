@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Python syntax
-        run: python3 -m py_compile scripts/trending-crosscheck.py scripts/featured-editor.py scripts/site-audit-safe.py
+        run: python3 -m py_compile scripts/trending-crosscheck.py scripts/featured-editor.py scripts/site-audit-safe.py scripts/apply-standard-news-featured.py
+      - name: Check ordinary-news daily publisher leaves featured grid untouched
+        run: python3 scripts/apply-standard-news-featured.py
       - name: Regression test 5 Tech 1 Gaming and manual pin policy
         run: |
           python3 scripts/trending-crosscheck.py --test
