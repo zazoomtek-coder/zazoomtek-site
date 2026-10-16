@@ -30,7 +30,7 @@ def run():
         assert module.sync(p) is True
         assert module.sync(p) is False
         changed = (p/"index.html").read_text(encoding="utf-8")
-        assert changed.count('class="zt-feature-card')==6
+        assert changed.count('class="zt-feature-card')==len(sample["items"])
         assert "OLD TWO SPECIAL ARTICLES" not in changed
         assert changed.count("Tech Impact")==0
         assert changed.count("<footer>ZazoomTek</footer>")==1
@@ -45,6 +45,18 @@ def run():
         else:
             raise AssertionError("Category mismatch must block the build")
         sample["items"][0]["section"]="tech"
+        sample["items"][0]["published_date"]="2026-10-09"
+        (p/"featured-carousel.json").write_text(json.dumps(sample), encoding="utf-8")
+        try:
+            module.sync(p)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("Older-than-yesterday news must block the build")
+        sample["items"][0]["published_date"]=(__import__("datetime").datetime.now(
+            __import__("zoneinfo").ZoneInfo("Europe/Rome")).date()
+            - __import__("datetime").timedelta(days=1)).isoformat()
+
         sample["items"][0]["url"]="/news-missing.html"
         (p/"featured-carousel.json").write_text(json.dumps(sample), encoding="utf-8")
         try:
