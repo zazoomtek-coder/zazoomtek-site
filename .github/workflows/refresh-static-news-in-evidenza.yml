@@ -83,7 +83,7 @@ jobs:
             git commit -m "News in evidenza: independently update six verified static highlights"
             if git push origin HEAD:main; then
               if [ "$grid_changed" = true ]; then
-                gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+                echo "Cloudflare Pages batches published articles; no Firebase deployment."
               fi
               echo "Static grid updated; AI availability does not block this workflow."
               exit 0
