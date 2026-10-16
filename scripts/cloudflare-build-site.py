@@ -22,6 +22,8 @@ def main() -> None:
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
     run("apply-site-design.py")
+    # The curator edits JSON, not Home. Apply approved 5 Tech + 1 Gaming here.
+    run("cloudflare-sync-featured-home.py")
     # Public video pages are HTML with YouTube embeds, not downloaded movies.
     run("seo_watch_pages_safe.py")
     run("zt_sidebar_mix.py")
