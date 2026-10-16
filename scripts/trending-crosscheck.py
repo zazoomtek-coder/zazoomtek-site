@@ -787,14 +787,15 @@ def selftest():
     assert prefer_latest_verified_special(old,[old,newer])["url"]==newer["url"]
     assert prefer_latest_verified_special(newer,[old])["url"]==newer["url"]
     assert prefer_latest_verified_special(old,[])["url"]==old["url"]
-    # Only today/yesterday's editorial news can be selected. Older posts never backfill.
+    # Current archived content is changing daily; these tests must remain stable.
+    reference=NOW().astimezone(ITALY_TIMEZONE).date()
     existing=matches(owned_candidates(),{"items":[]})
-    sample=pick(existing,on_date=dt.date(2026,10,16))
+    sample=pick(existing,on_date=reference)
     assert valid_featured_sections(sample)
     assert len(set(x["url"] for x in sample))==len(sample)
-    assert all(allowed_featured_date(x,dt.date(2026,10,16)) for x in sample
+    assert all(allowed_featured_date(x,reference) for x in sample
                if x["section"] in ("tech","gaming"))
-    older=pick(existing,on_date=dt.date(2026,10,22))
+    older=pick(existing,on_date=reference+dt.timedelta(days=10))
     assert not [x for x in older if x["section"] in ("tech","gaming")]
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
