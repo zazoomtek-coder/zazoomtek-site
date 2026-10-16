@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "dist"
 ALLOWED = {".html", ".css", ".js", ".json", ".xml", ".txt", ".svg",
            ".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".avif",
-           ".woff", ".woff2", ".mp4", ".webm", ".pdf"}
+           ".woff", ".woff2", ".pdf"}
 SKIP_FILES = {"comments.js", "comments.css", "commenti-policy.html",
               "firebase.json", "firestore.rules"}
 SKIP_PREFIXES = ("preview-", "anteprima-", "audit-", "test-", "check-")
@@ -25,7 +25,11 @@ MAX_FILE_BYTES = 25 * 1024 * 1024
 def tracked_files() -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "-z"], cwd=ROOT, check=True, stdout=subprocess.PIPE)
-    return [Path(os.fsdecode(name)) for name in result.stdout.split(b"\0") if name]
+    published = [Path(os.fsdecode(name)) for name in result.stdout.split(b"\\0") if name]
+    # Watch pages are produced at build time, not stored or synced as videos.
+    # Include only the verified HTML player pages, never media bytes.
+    generated_watch = list((ROOT / "watch").glob("*.html")) if (ROOT / "watch").is_dir() else []
+    return published + [p.relative_to(ROOT) for p in generated_watch]
 
 def eligible(path: Path) -> bool:
     parts = path.parts
@@ -36,7 +40,7 @@ def eligible(path: Path) -> bool:
     if path.suffix.lower() not in ALLOWED:
         return False
     # Keep site pages, public metadata and web media; exclude automation data.
-    if len(parts) > 1 and parts[0] != "assets":
+    if len(parts) > 1 and parts[0] not in ("assets", "watch"):
         return False
     if path.name.endswith(("-report.json", "-state.json", "-manifest.json")):
         return False
@@ -65,6 +69,32 @@ def main() -> None:
                      "zt-design.css", "zt-home-live.js", "featured-carousel.json"):
         if not (OUT / required).is_file():
             failures.append("Missing core public file: " + required)
+    if not (OUT / "watch/index.html").is_file():
+        failures.append("Missing verified YouTube video player directory")
+    # Verify actual featured articles and local images are delivered.
+    try:
+        import json
+        featured = json.loads((OUT / "featured-carousel.json").read_text(encoding="utf-8"))
+        chosen = featured.get("items", [])
+        if len(chosen) != 6 or len({x["url"] for x in chosen}) != 6:
+            failures.append("Invalid six-card featured manifest")
+        for item in chosen:
+            for field in ("url", "image"):
+                value = item.get(field, "")
+                if not isinstance(value, str) or not value:
+                    failures.append("Featured card missing " + field)
+                elif value.startswith("/") and not (OUT / value.lstrip("/")).is_file():
+                    failures.append("Missing featured " + field + ": " + value)
+    except (OSError, ValueError, TypeError, KeyError) as err:
+        failures.append("Cannot validate featured carousel: " + str(err))
+    # No copied videos: YouTube remains responsible for storage and streaming.
+    if any(p.suffix.lower() in (".mp4", ".webm", ".mov", ".mkv") for p in copied):
+        failures.append("Video bytes detected in static Cloudflare output")
+    # Build-only secrets and automation must NEVER become public assets.
+    for forbidden in ("functions", "scripts", ".github", "firebase.json",
+                      "comments.js", "comments.css", "firestore.rules"):
+        if (OUT / forbidden).exists():
+            failures.append("Private/retired resource unexpectedly public: " + forbidden)
     # Do not cache editorial feeds or content HTML. Static media can be cached.
     (OUT / "_headers").write_text(
         "/*.html\n  Cache-Control: public, max-age=0, must-revalidate\n"
