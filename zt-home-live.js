@@ -417,15 +417,15 @@
     function rebalance() {
       var featured=new Set([].slice.call(document.querySelectorAll("#ztFeaturedGrid a[href]"))
         .map(function(a){try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(e){return "";}}));
-      // Match the visual rhythm of the two news columns: four real feature articles each,
-      // instead of three Tech versus four Gaming, which left a void under Tech.
-      [[tech,4],[gaming,4]].forEach(function(pair){
+      // Different column widths require different feature counts.
+      // Three real Tech and four real Gaming feature cards maintain near-equal heights.
+      [[tech,3],[gaming,4]].forEach(function(pair){
         var col=pair[0],maxBig=pair[1];
         var rows=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
         rows.forEach(function(r,i){r.hidden=i>=10;r.classList.remove("zt-mag-big","ztp-gaming-feature");});
         var firstTen=rows.slice(0,10);
         var chosen=firstTen.map(function(r,i){return featured.has(hrefOf(r))?i:-1;}).filter(function(i){return i>=0;}).slice(0,maxBig);
-        var fallback=[0,3,6,9];
+        var fallback=maxBig===3?[0,4,8]:[0,3,6,9];
         fallback.forEach(function(i){if(chosen.length<maxBig&&i<firstTen.length&&!chosen.includes(i))chosen.push(i);});
         firstTen.forEach(function(r,i){r.classList.toggle("zt-mag-big",chosen.includes(i));});
         var n=col.closest(".ztp-news-column").querySelector(".ztp-news-head small");
