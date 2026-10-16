@@ -25,7 +25,7 @@ MAX_FILE_BYTES = 25 * 1024 * 1024
 def tracked_files() -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "-z"], cwd=ROOT, check=True, stdout=subprocess.PIPE)
-    published = [Path(os.fsdecode(name)) for name in result.stdout.split(b"\\0") if name]
+    published = [Path(os.fsdecode(name)) for name in result.stdout.split(b"\0") if name]
     # Watch pages are produced at build time, not stored or synced as videos.
     # Include only the verified HTML player pages, never media bytes.
     generated_watch = list((ROOT / "watch").glob("*.html")) if (ROOT / "watch").is_dir() else []
