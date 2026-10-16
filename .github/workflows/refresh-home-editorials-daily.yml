@@ -53,5 +53,5 @@ jobs:
             echo "::error::Unable to update Home without overwriting another workflow"
             exit 1
           fi
-          gh workflow run deploy-site-live.yml --ref main --repo "$GITHUB_REPOSITORY"
+          echo "Cloudflare Pages batches published articles; no Firebase deployment."
           echo "Queued serialized Firebase live deploy; site styles and video widgets unchanged."
