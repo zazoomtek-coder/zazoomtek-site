@@ -73,21 +73,109 @@
      }).catch(function(err){console.info("Publication dates not available:",err.message);});
    });
  }
+ /* Build genuine magazine boxes from the site's own Guide and Extra archives.
+    First article is prominent, next up to three are compact; empty slots remain empty.
+    Importers own the archives: there are no frozen article titles or fake records. */
+ function renderMagazines(){
+   [
+     {url:"/guide.html", selector:"#ztHomeGuide", content:".zt-home-guide-content", kind:"Guida"},
+     {url:"/extra.html", selector:"#ztHomeExtra", content:".ztp-extra-cards", kind:"Extra"}
+   ].forEach(function(config){
+     fetch(config.url,{cache:"no-store"}).then(function(response){
+       if(!response.ok)throw new Error("Archive HTTP "+response.status);
+       return response.text();
+     }).then(function(markup){
+       const doc=new DOMParser().parseFromString(markup,"text/html");
+       const records=[], seen=new Set();
+       doc.querySelectorAll(".news-row").forEach(function(row){
+         const titleLink=row.querySelector(".news-copy h2 a[href]");
+         const picture=row.querySelector("img");
+         if(!titleLink||!picture)return;
+         let link;
+         try{link=new URL(titleLink.getAttribute("href"),location.origin);}catch(_){return;}
+         if(link.origin!==location.origin || !link.pathname.endsWith(".html") || seen.has(link.pathname))return;
+         seen.add(link.pathname);
+         let src=picture.getAttribute("src")||"";
+         try{
+           const srcUrl=new URL(src,location.origin);
+           if(srcUrl.protocol!=="https:" && srcUrl.origin!==location.origin)return;
+           src=srcUrl.href;
+         }catch(_){return;}
+         records.push({
+           href:link.pathname,title:titleLink.textContent.trim(),img:src,
+           meta:row.querySelector(".news-meta")?.textContent.trim()||"",
+           excerpt:row.querySelector(".news-copy p")?.textContent.trim()||""
+         });
+       });
+       const target=document.querySelector(config.selector+" "+config.content);
+       if(!target||!records.length)return;
+       target.classList.add("zt-magazine-content");
+       const feature=records[0];
+       function makeImage(item){
+         const image=document.createElement("img");
+         image.src=item.img; image.alt=item.title;
+         image.loading="lazy"; image.decoding="async";
+         return image;
+       }
+       const primary=document.createElement("a");
+       primary.className="zt-magazine-primary"; primary.href=feature.href;
+       primary.appendChild(makeImage(feature));
+       const primaryText=document.createElement("div");
+       primaryText.className="zt-magazine-primary-copy";
+       const title=document.createElement("strong");title.textContent=feature.title;
+       primaryText.appendChild(title);
+       if(feature.meta){
+         const meta=document.createElement("small");meta.textContent=feature.meta;
+         primaryText.appendChild(meta);
+       }
+       if(feature.excerpt){
+         const excerpt=document.createElement("p");excerpt.textContent=feature.excerpt;
+         primaryText.appendChild(excerpt);
+       }
+       primary.appendChild(primaryText);
+       const side=document.createElement("div");
+       side.className="zt-magazine-side";
+       records.slice(1,4).forEach(function(item){
+         const card=document.createElement("a");
+         card.className="zt-magazine-small";card.href=item.href;
+         card.appendChild(makeImage(item));
+         const copy=document.createElement("span");
+         copy.className="zt-magazine-small-copy";
+         const heading=document.createElement("strong");heading.textContent=item.title;
+         copy.appendChild(heading);
+         if(item.meta){
+           const date=document.createElement("small");date.textContent=item.meta;
+           copy.appendChild(date);
+         }
+         card.appendChild(copy);side.appendChild(card);
+       });
+       target.replaceChildren(primary,side);
+       target.dataset.archiveCount=String(Math.min(records.length,4));
+       target.dataset.sourceArchive=config.url;
+     }).catch(function(error){
+       console.warn("ZazoomTek "+config.kind+" archive not available; preserving published cards:",error);
+     });
+   });
+ }
  function relocate(){
    const area=document.getElementById("articoli");
    const panel=document.getElementById("ztp-guide-extra");
    const gamingReviews=document.getElementById("ztpGamingReviews");
+   const video=document.getElementById("ztpVideosAnchor");
    const main=area&&area.closest(".maincol");
-   if(!area||!main||!panel||!gamingReviews)return false;
+   if(!area||!main||!panel||!gamingReviews||!video)return false;
+   // Keep the whole blocks full-width, exactly before Esplora Ultimi Video.
+   // Do not move or reclassify any news/article cards.
    if(panel.previousElementSibling!==area)area.insertAdjacentElement("afterend",panel);
    if(gamingReviews.previousElementSibling!==panel)panel.insertAdjacentElement("afterend",gamingReviews);
+   if(video.previousElementSibling!==gamingReviews)gamingReviews.insertAdjacentElement("afterend",video);
    document.documentElement.classList.add("zt-home-graphics-20261016");
-   return true;
+   return video.previousElementSibling===gamingReviews&&gamingReviews.previousElementSibling===panel;
  }
  function init(){
    installStyles();
    normalizeFeatured();
-   enhanceDates();
+   renderMagazines();
    const grid=document.getElementById("ztFeaturedGrid");
    if(grid)new MutationObserver(normalizeFeatured).observe(grid,{childList:true});
    if(relocate())return;
