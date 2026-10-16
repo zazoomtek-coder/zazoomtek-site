@@ -166,23 +166,38 @@
    });
  }
  function relocate(){
-   const area=document.getElementById("articoli");
+   const area=document.querySelector("#articoli.ztp-news-area");
+   const feed=area?.querySelector(".ztp-primary-feed");
+   const pager=feed?.querySelector("#ztpNewsPager");
+   const newsColumns=feed?.querySelector(".ztp-two-news-columns");
    const panel=document.getElementById("ztp-guide-extra");
-   const guideAll=document.querySelector("#ztHomeGuide .zt-home-guide-heading a");
-   const extraAll=document.querySelector("#ztHomeExtra .ztp-extra-head a");
-   if(guideAll)guideAll.textContent="VEDI TUTTO →";
-   if(extraAll)extraAll.textContent="VEDI TUTTO →";
    const gamingReviews=document.getElementById("ztpGamingReviews");
    const video=document.getElementById("ztpVideosAnchor");
-   const main=area&&area.closest(".maincol");
-   if(!area||!main||!panel||!gamingReviews||!video)return false;
-   // Keep the whole blocks full-width, exactly before Esplora Ultimi Video.
-   // Do not move or reclassify any news/article cards.
-   if(panel.previousElementSibling!==area)area.insertAdjacentElement("afterend",panel);
-   if(gamingReviews.previousElementSibling!==panel)panel.insertAdjacentElement("afterend",gamingReviews);
-   if(video.previousElementSibling!==gamingReviews)gamingReviews.insertAdjacentElement("afterend",video);
-   document.documentElement.classList.add("zt-home-graphics-20261016");
-   return video.previousElementSibling===gamingReviews&&gamingReviews.previousElementSibling===panel;
+   if(!feed||!panel||!gamingReviews||!video||(!pager&&!newsColumns))return false;
+   // Final editorial order INSIDE the left 80% column: news / page numbers /
+   // two side-by-side magazine boxes / three gaming reviews / Explore Videos.
+   // The right-hand editorial rail remains in the SAME grid throughout.
+   const preceding=(pager?.parentElement===feed)?pager:newsColumns;
+   if(panel.parentElement!==feed||panel.previousElementSibling!==preceding)
+     preceding.insertAdjacentElement("afterend",panel);
+   if(gamingReviews.parentElement!==feed||gamingReviews.previousElementSibling!==panel)
+     panel.insertAdjacentElement("afterend",gamingReviews);
+   if(video.parentElement!==feed||video.previousElementSibling!==gamingReviews)
+     gamingReviews.insertAdjacentElement("afterend",video);
+   // Keep all three call-to-action links in Italian, even after rebuilding.
+   [
+     "#ztHomeGuide .zt-home-guide-heading a",
+     "#ztHomeExtra .ztp-extra-head a",
+     "#ztpGamingReviews .ztp-review-all"
+   ].forEach(function(selector){
+     const link=document.querySelector(selector);
+     if(link)link.textContent="VEDI TUTTO →";
+   });
+   document.documentElement.classList.add("zt-home-graphics-20261016","zt-home-final-editorial-layout");
+   return panel.parentElement===feed &&
+     panel.previousElementSibling===preceding &&
+     gamingReviews.previousElementSibling===panel &&
+     video.previousElementSibling===gamingReviews;
  }
  function init(){
    installStyles();
