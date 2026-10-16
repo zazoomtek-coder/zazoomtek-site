@@ -11,6 +11,7 @@ on:
     paths:
       - '.github/workflows/refresh-static-news-in-evidenza.yml'
       - 'scripts/trending-crosscheck.py'
+      - 'featured-editorial-pins.json'
 permissions:
   contents: write
   actions: write
