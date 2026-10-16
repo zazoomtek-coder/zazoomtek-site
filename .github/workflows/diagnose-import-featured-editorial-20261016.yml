@@ -1,0 +1,50 @@
+name: Diagnose ZazoomTek YouTube imports and featured cards
+on:
+  push:
+    branches: [repair-youtube-featured-editorial-20261016]
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inspect today and yesterday verified imported news (read only)
+        run: |
+          python3 - <<'PY'
+          import datetime,json,importlib.util
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          s=importlib.util.spec_from_file_location('zt','scripts/trending-crosscheck.py')
+          mod=importlib.util.module_from_spec(s);s.loader.exec_module(mod)
+          posts=json.loads(Path('.youtube-posts.json').read_text(encoding='utf-8'))
+          titles={}
+          for post in posts:
+            if not isinstance(post,dict):continue
+            title=(post.get('text') or '').splitlines()[0][:125] if post.get('text') else ''
+            titles['/news-'+str(post.get('id'))+'.html']=title
+          today=datetime.datetime.now(ZoneInfo('Europe/Rome')).date()
+          print('Source Community post count:',len(posts),'today',today)
+          articles=mod.owned_candidates()
+          for p in articles:
+            d=mod.local_publication_date(p)
+            if d in (today,today-datetime.timedelta(days=1)) and p.get('url','').startswith('/news-'):
+              print('CANDIDATE',json.dumps({'date':str(d),'category':p['section'],'inferred':mod.classify(p['title']),'heading':p['title'],'original':titles.get(p['url'],'')[:105],'url':p['url']},ensure_ascii=False))
+          proposed=mod.pick(mod.matches(articles,{'items':[]}))
+          print('SELECTED count:',len(proposed))
+          for p in proposed:print('SELECTED',p.get('section'),p.get('published_date'),p['title'])
+          PY
+      - name: Editorial boxes dry run with latest Community import (read only)
+        run: |
+          python3 scripts/refresh-home-editorial-boxes.py --self-test
+          python3 scripts/refresh-home-editorial-boxes.py --dry-run
+      - name: Validate recently imported Community and video pages
+        run: |
+          python3 scripts/validate-sync-output.py community
+          python3 scripts/validate-sync-output.py videos
