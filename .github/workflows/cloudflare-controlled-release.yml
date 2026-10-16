@@ -5,10 +5,11 @@ name: Cloudflare Pages - hourly batched publishing
 #   Exclude: (none)
 on:
   schedule:
-    # Check once every hour at minute :44 (UTC, also :44 in Italy).
-    # Zero public changes = zero Pages builds.
-    # GitHub schedule is best-effort and may start later than :44.
-    - cron: '44 * * * *'
+    # One hourly check from 07:44 through 21:44 Europe/Rome local time.
+    # GitHub cron uses UTC; 05:44-20:44 UTC covers both CET and CEST.
+    # The runtime Europe/Rome guard skips out-of-window UTC entries.
+    # GitHub schedule is best-effort and may run late.
+    - cron: '44 5-20 * * *'
   workflow_dispatch:
     inputs:
       urgent:
@@ -26,10 +27,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
+      - name: Check local Italy publishing window (handles DST automatically)
+        id: rome_window
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python3 - <<'PY'
+          import datetime as dt
+          import os
+          from zoneinfo import ZoneInfo
+          local_now = dt.datetime.now(ZoneInfo("Europe/Rome"))
+          # A manual urgent correction remains possible by explicit dispatch.
+          allowed = os.environ["EVENT_NAME"] == "workflow_dispatch" or 7 <= local_now.hour <= 21
+          print(f"Europe/Rome time: {local_now.isoformat()}, publish allowed: {allowed}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("allowed=" + str(allowed).lower() + "\n")
+          PY
       - uses: actions/checkout@v4
+        if: steps.rome_window.outputs.allowed == 'true'
         with:
           fetch-depth: 0
       - name: Stage one atomic Cloudflare publish only when public content changed
+        if: steps.rome_window.outputs.allowed == 'true'
         run: |
           set -euo pipefail
           git config user.name "ZazoomTek Editorial Publisher"
