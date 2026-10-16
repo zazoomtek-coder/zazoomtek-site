@@ -23,6 +23,8 @@ H2_RE = re.compile(r'<h2[^>]*>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>\s*</h2>', 
 H3_RE = re.compile(r'<h3[^>]*>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>\s*</h3>', re.S)
 IMAGE_RE = re.compile(r'<img\b[^>]*\bsrc="([^"]+)"[^>]*>', re.S)
 META_RE = re.compile(r'(?:news-meta|article-meta)"[^>]*>(.*?)</div>', re.S)
+POST_CATEGORY_RE = re.compile(r'data-post-category="(gaming|tech)"', re.I)
+NEWS_CATEGORY_RE = re.compile(r'news\s+(gaming|tech)(?:\s+(?:impact|inside))?\s*:', re.I)
 STRIP_TAGS = re.compile(r'<[^>]*>')
 CATEGORIES = ("tech", "gaming")
 
@@ -70,7 +72,11 @@ def extract(page: str) -> list[dict]:
         seen.add(href)
         meta = META_RE.search(chunk)
         date = readable(meta.group(1)) if meta else ""
-        output.append({"url": href, "title": title, "image": photo, "date": date})
+        category_tag = POST_CATEGORY_RE.search(chunk)
+        category_text = NEWS_CATEGORY_RE.search(chunk[:1800])
+        category = (category_tag or category_text)
+        category = category.group(1).lower() if category else None
+        output.append({"url": href, "title": title, "image": photo, "date": date, "category": category})
     return output
 
 def home_urls(source: str) -> set[str]:
@@ -126,7 +132,7 @@ def popular_cards(items: list[dict]) -> str:
     out = []
     for item in items:
         title = esc(item["title"])
-        category = editorial_category(item)
+        category = "GAMING" if item.get("category") == "gaming" else "TECNOLOGIA" if item.get("category") == "tech" else editorial_category(item)
         out.append(
             f'<a class="zt-popular-article" href="{esc(item["url"])}" title="{title}">\n'
             f'  <img src="{esc(item["image"])}" alt="{title}" loading="lazy" decoding="async">\n'
@@ -155,7 +161,7 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         raise RuntimeError("Approved Home layout missing; refusing editorial overwrite")
     published_home = home_urls(homepage)
     ordinary = []
-    for file in ("news.html", "pagina-2.html", "pagina-3.html", "pagina-4.html"):
+    for file in ("news.html", "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html"):
         ordinary.extend(extract(file))
     ordinary = distinct(ordinary, published_home)
     if len(ordinary) < 12:
@@ -179,10 +185,17 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     gaming = choose(distinct(extract("gaming-today.html"), published_home | special_urls), 4, today)
     special_urls.update(item["url"] for item in gaming)
     ordinary = distinct(ordinary, published_home | special_urls)
-    suggested = choose(ordinary, 6, today)
+    # Permanent editorial separation: DA NON PERDERE is TECH only and
+    # DALLA REDAZIONE is GAMING only. Rely on explicit published category metadata,
+    # not on guesses from cover artwork or ambiguous headlines.
+    suggested = choose([item for item in ordinary if item["category"] == "tech"], 6, today)
     selected = {item["url"] for item in suggested}
     left = distinct(ordinary, published_home | special_urls | selected)
-    editorial = choose(left, 6, today, keep_latest=2)
+    editorial = choose([item for item in left if item["category"] == "gaming"], 6, today, keep_latest=2)
+    if any(item["category"] != "tech" for item in suggested):
+        raise RuntimeError("Non-Tech article reached DA NON PERDERE")
+    if any(item["category"] != "gaming" for item in editorial):
+        raise RuntimeError("Non-Gaming article reached DALLA REDAZIONE")
     if len(set(item["url"] for item in tech + gaming + suggested + editorial)) != 20:
         raise RuntimeError("Editorial box duplicate detected")
 
