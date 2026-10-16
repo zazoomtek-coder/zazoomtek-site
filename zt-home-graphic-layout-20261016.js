@@ -122,6 +122,10 @@
        primary.appendChild(makeImage(feature));
        const primaryText=document.createElement("div");
        primaryText.className="zt-magazine-primary-copy";
+       const kicker=document.createElement("span");
+       kicker.className="zt-magazine-kicker";
+       kicker.textContent=config.kind==="Guida"?"GUIDA":"EXTRA";
+       primaryText.appendChild(kicker);
        const title=document.createElement("strong");title.textContent=feature.title;
        primaryText.appendChild(title);
        if(feature.meta){
