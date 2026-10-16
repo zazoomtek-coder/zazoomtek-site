@@ -55,4 +55,4 @@ jobs:
         if: steps.standard_push.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-site-live.yml --ref main
+        run: echo "Cloudflare Pages batches published articles; no Firebase deployment."

@@ -1,4 +1,4 @@
-name: Serialized live site publishing
+name: Retired Firebase live publisher (disabled)
 # This is the ONLY Firebase publisher for YouTube imports and editorial carousel.
 # Neither news import nor trend discovery runs here: deploy a validated snapshot.
 on:
@@ -13,6 +13,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    if: false # Firebase Hosting retired; production is Cloudflare Pages
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
