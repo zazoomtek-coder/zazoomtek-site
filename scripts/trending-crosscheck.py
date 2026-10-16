@@ -375,7 +375,14 @@ def community_explicit_categories():
 
 def owned_candidates():
     explicit=community_explicit_categories()
-    regular=extract_cards((ROOT/"news.html").read_text(encoding="utf-8"))
+    # Pages are already ordered chronologically by the YouTube importer.
+    # Read the next archive pages as well: a shortage of Tech on page one is
+    # NOT a reason to leave a gap when fresh Tech exists slightly below.
+    regular=[]
+    for page in ("news.html","news-2.html","news-3.html","news-4.html","news-5.html"):
+        archive=ROOT/page
+        if archive.is_file():
+            regular.extend(extract_cards(archive.read_text(encoding="utf-8")))
     special=[]
     for kind,page in (("tech-impact","tech-today.html"),("gaming-inside","gaming-today.html")):
         for x in extract_cards((ROOT/page).read_text(encoding="utf-8")):
@@ -489,6 +496,33 @@ def local_publication_date(article):
             except ValueError:
                 pass
     return published_date(value)
+
+def publication_instant(article):
+    """Read real publication time from the linked article; never the build time.
+
+    Home/News cards only store calendar day. For descending publication *hours*
+    use the NewsArticle meta from the already-existing local HTML file.
+    Un-timed entries sort after timed stories on the same day.
+    """
+    meta=article.get("published_at")
+    if not meta:
+        url=article.get("url","")
+        path=ROOT/str(url).lstrip("/")
+        if path.is_file() and path.suffix==".html":
+            body=path.read_text(encoding="utf-8",errors="replace")
+            match=re.search(
+                r'<meta\\s+property=["\\\']article:published_time["\\\']\\s+content=["\\\']([^"\\\']+)["\\\']',
+                body,re.I)
+            if match:meta=html.unescape(match.group(1))
+    if isinstance(meta,str):
+        try:
+            instant=dt.datetime.fromisoformat(meta.strip().replace("Z","+00:00"))
+            if instant.tzinfo:
+                return instant.astimezone(ITALY_TIMEZONE)
+        except ValueError:
+            pass
+    day=local_publication_date(article)
+    return dt.datetime.combine(day,dt.time.min,tzinfo=ITALY_TIMEZONE) if day else None
 
 def allowed_featured_date(article,on_date=None):
     """ONLY today or yesterday, using the local Italian calendar."""
@@ -617,8 +651,12 @@ def pick(articles,on_date=None):
     # Strict priority: ALL verified today's articles beat ALL yesterday's.
     # Trend matches and explicit editorial boosts rank only within each day.
     def priority(item):
-        publication=local_publication_date(item)
-        return (publication==reference,
+        # The original article publication timestamp determines which story
+        # appeared first today or yesterday. Source portal trend score only
+        # breaks ties: older stories can never outrank fresh ones.
+        instant=publication_instant(item)
+        return (instant is not None and instant.date()==reference,
+                instant or dt.datetime.min.replace(tzinfo=ITALY_TIMEZONE),
                 bool(item.get("selection_boost")),
                 ordinary_priority(item,reference),
                 item.get("freshness",0))
@@ -652,7 +690,8 @@ def pick(articles,on_date=None):
     if tech_count<required_tech:
         print(f"FRESH CATEGORY FALLBACK: {tech_count}/{required_tech} Technology "
               "cards available; remaining slots filled by real Gaming posts.")
-    # Headline order must put today's articles visibly before yesterday's.
+    # The public mosaic shows the newest posting hour first, exactly as the
+    # reader expects, not 3 old Tech ahead of 3 newer Gaming.
     selected.sort(key=priority,reverse=True)
     for pin in pins:
         if pin["url"] in seen:
