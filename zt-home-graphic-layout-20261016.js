@@ -30,6 +30,49 @@
    }
    grid.setAttribute("aria-label","Cinque news ZazoomTek in evidenza");
  }
+ function enhanceDates(){
+   function pathname(href){try{return new URL(href,location.href).pathname;}catch(_){return "";}}
+   [
+     {archive:"/guide.html",home:"#ztHomeGuide"},
+     {archive:"/extra.html",home:"#ztHomeExtra"}
+   ].forEach(function(config){
+     fetch(config.archive,{cache:"no-store"}).then(function(res){
+       if(!res.ok)throw Error("Archive unavailable");
+       return res.text();
+     }).then(function(markup){
+       const doc=new DOMParser().parseFromString(markup,"text/html");
+       const dates=new Map();
+       doc.querySelectorAll(".news-row").forEach(function(row){
+         const a=row.querySelector(".news-copy h2 a[href]");
+         const meta=row.querySelector(".news-meta");
+         if(a&&meta&&meta.textContent.trim())dates.set(pathname(a.getAttribute("href")),meta.textContent.trim());
+       });
+       const root=document.querySelector(config.home);
+       if(!root)return;
+       function sync(){
+         root.querySelectorAll("a[href]").forEach(function(a){
+           const date=dates.get(pathname(a.getAttribute("href")));
+           if(!date)return;
+           if(config.archive==="/guide.html"){
+             const existing=a.querySelector(".zt-home-guide-next > div:last-child span");
+             if(existing){existing.textContent=date;return;}
+             if(a.classList.contains("zt-home-guide-primary")&&!a.querySelector(".zt-guide-published-date")){
+               const label=document.createElement("small");label.className="zt-guide-published-date";label.textContent=date;a.appendChild(label);
+             }
+           }else if(a.classList.contains("ztp-extra-card")){
+             const title=a.querySelector("strong");
+             if(title&&!title.querySelector(".zt-extra-published-date")){
+               const label=document.createElement("small");label.className="zt-extra-published-date";label.textContent=date;title.appendChild(label);
+             }
+           }
+         });
+       }
+       sync();
+       const list=root.querySelector(".ztp-extra-cards");
+       if(list)new MutationObserver(sync).observe(list,{childList:true});
+     }).catch(function(err){console.info("Publication dates not available:",err.message);});
+   });
+ }
  function relocate(){
    const area=document.getElementById("articoli");
    const panel=document.getElementById("ztp-guide-extra");
@@ -44,6 +87,7 @@
  function init(){
    installStyles();
    normalizeFeatured();
+   enhanceDates();
    const grid=document.getElementById("ztFeaturedGrid");
    if(grid)new MutationObserver(normalizeFeatured).observe(grid,{childList:true});
    if(relocate())return;
