@@ -120,10 +120,11 @@ if broken_media or broken_links or feed_reviews:
     raise SystemExit("SITE QUALITY CHECK FAILED: local assets, links or NEWS/Reviews separation")
 if len(features)!=6 or len(set(urls))!=6 or len(live_featured_urls)!=6:
     raise SystemExit("SITE QUALITY CHECK FAILED: featured mosaic must contain 6 distinct cards")
-import sys
-sys.path.insert(0, str(ROOT/"scripts"))
-from trending_crosscheck import expected_featured_sections
-if [x.get("section") for x in features] != expected_featured_sections():
+import importlib.util
+spec=importlib.util.spec_from_file_location("zt_trending",ROOT/"scripts/trending-crosscheck.py")
+zt=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(zt)
+if [x.get("section") for x in features] != zt.expected_featured_sections():
     raise SystemExit("SITE QUALITY CHECK FAILED: featured categories do not match 5 Tech + 1 Gaming / user pins")
 if urls != live_featured_urls:
     print("NOTICE: featured-carousel.json selections differ from currently displayed Home; no unsafe rewrite performed.")
