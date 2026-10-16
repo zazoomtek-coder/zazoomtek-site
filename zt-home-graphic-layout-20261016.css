@@ -1,0 +1,47 @@
+/* ZazoomTek Home graphic layout approved October 16, 2026. */
+#ztFeaturedGrid{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;aspect-ratio:16/5!important;gap:10px!important}
+#ztFeaturedGrid>.zt-feature-card:first-child{grid-column:1!important;grid-row:1 / span 2!important}
+#ztFeaturedGrid>.zt-feature-card:nth-child(n+6){display:none!important}
+@media(min-width:1150px){
+ main.page #articoli .ztp-final-three .ztp-two-news-columns{grid-template-columns:minmax(0,3fr) minmax(0,5fr)!important}
+ main.page #articoli .ztp-final-three .ztp-news-gaming{order:-1!important}
+ main.page #articoli .ztp-final-three .ztp-news-tech{order:0!important}
+}
+@media(min-width:821px) and (max-width:1149px){
+ main.page #articoli .ztp-final-three .ztp-two-news-columns{grid-template-columns:minmax(0,3fr) minmax(0,5fr)!important}
+ main.page #articoli .ztp-final-three .ztp-news-gaming{order:-1!important}
+ main.page #articoli .ztp-final-three .ztp-news-tech{order:0!important}
+}
+/* Guide and Extra are moved intact beneath the existing news / video section. */
+main.page #ztp-guide-extra{width:100%!important;max-width:100%!important;display:grid!important;grid-template-columns:minmax(0,2fr) minmax(0,1fr)!important;gap:16px!important;align-items:stretch!important;margin:20px 0 16px!important}
+main.page #ztp-guide-extra #ztHomeGuide{width:100%!important;min-width:0!important;margin:0!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-content{display:grid!important;grid-template-columns:1fr!important;height:auto!important;min-height:0!important;gap:12px!important;padding:13px!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-primary{display:grid!important;grid-template-rows:auto auto!important;min-width:0!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-photo{display:block!important;width:100%!important;height:auto!important;max-height:360px!important;aspect-ratio:16/9!important;object-fit:contain!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-primary h3{min-height:0!important;padding:9px 2px!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-upcoming{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto!important;gap:10px!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-next{grid-template-columns:minmax(75px,35%) minmax(0,1fr)!important;min-height:100px!important;gap:10px!important;padding:9px!important}
+main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-side-photo{width:100%!important;height:100%!important;aspect-ratio:16/9!important;object-fit:contain!important}
+main.page #ztp-guide-extra .ztp-extra{min-width:0!important}
+main.page #ztp-guide-extra .ztp-extra-cards{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:auto auto!important;height:auto!important;gap:12px!important;padding:12px!important}
+main.page #ztp-guide-extra .ztp-extra-card:first-child{display:block!important;padding:10px!important}
+main.page #ztp-guide-extra .ztp-extra-card:first-child img{display:block!important;width:100%!important;max-height:280px!important;aspect-ratio:16/9!important;object-fit:contain!important;margin-bottom:9px!important}
+main.page #ztp-guide-extra .ztp-extra-card:not(:first-child){display:grid!important;grid-template-columns:minmax(80px,39%) minmax(0,1fr)!important;gap:10px!important;min-height:96px!important}
+main.page #ztp-guide-extra .ztp-extra-card img{width:100%!important;aspect-ratio:16/9!important;object-fit:contain!important}
+main.page #ztp-guide-extra .ztp-extra-card strong{font-size:clamp(12px,1vw,15px)!important;line-height:1.28!important}
+main.page #ztpGamingReviews{width:100%!important;max-width:100%!important;display:block!important;margin:0 0 22px!important}
+main.page #ztpGamingReviews .ztp-gaming-review-cards{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+@media(max-width:850px){
+ #ztFeaturedGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto!important;aspect-ratio:auto!important}
+ #ztFeaturedGrid>.zt-feature-card{aspect-ratio:16/9!important}
+ #ztFeaturedGrid>.zt-feature-card:first-child{grid-column:1 / -1!important;grid-row:auto!important}
+ main.page #ztp-guide-extra{grid-template-columns:1fr!important}
+ main.page #ztpGamingReviews .ztp-gaming-review-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:540px){
+ #ztFeaturedGrid{grid-template-columns:1fr!important}
+ #ztFeaturedGrid>.zt-feature-card:first-child{grid-column:1!important}
+ main.page #ztp-guide-extra #ztHomeGuide .zt-home-guide-upcoming{grid-template-columns:1fr!important}
+ main.page #ztp-guide-extra .ztp-extra-card:first-child img{max-height:none!important}
+ main.page #ztpGamingReviews .ztp-gaming-review-cards{grid-template-columns:1fr!important}
+}
