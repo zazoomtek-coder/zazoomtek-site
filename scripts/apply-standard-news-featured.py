@@ -316,9 +316,13 @@ def main():
 
     manifest = json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))
     items = manifest.get("items",[])
-    expected = ["tech","tech","gaming","gaming","tech-impact","gaming-inside"]
+    import importlib.util
+    spec=importlib.util.spec_from_file_location("zt_trending",ROOT/"scripts/trending-crosscheck.py")
+    matcher=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(matcher)
+    expected=matcher.expected_featured_sections()
     if len(items) != 6 or [x.get("section") for x in items] != expected:
-        raise RuntimeError("Featured manifest violates the 2+2+1+1 contract")
+        raise RuntimeError("Featured manifest violates the editorial 5 Tech + 1 Gaming / pinned special contract")
 
     # This job owns only the ordinary-news chronological Home stream.
     # The independent featured publisher retains all six editorial positions.
@@ -359,7 +363,7 @@ def main():
         print("Refreshed ordinary NEWS chronological feed; existing featured grid unchanged.")
     else:
         print("No NEWS chronology changes; skipping Home regeneration.")
-    print("VALIDATED: 15 latest NEWS; six-card featured grid preserved; 2 Tech + 2 Gaming + 1 Impact + 1 Inside.")
+    print("VALIDATED: 15 latest NEWS; six-card featured grid preserved; category choices owned by featured workflow.")
 
 
 if __name__ == "__main__":
