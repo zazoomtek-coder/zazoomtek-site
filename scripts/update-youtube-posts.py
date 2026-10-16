@@ -3009,6 +3009,15 @@ def main():
         p.get("id"):p for p in previous
         if isinstance(p,dict) and p.get("id")
     }
+    new_items=[p for p in posts if isinstance(p,dict) and p.get("id") not in previous_by_id]
+    if new_items:
+        print(f"NEW COMMUNITY POSTS DETECTED: {len(new_items)}")
+        for item in new_items[:20]:
+            category=post_category(item)
+            title=news_title(item) if category!="review" else review_title(item)
+            print(f"  IMPORT {category.upper()}: {title[:125]} ({item['id']})")
+    else:
+        print("NO NEW COMMUNITY POST IDs: original sources and alternates checked.")
     sync_now=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
     for p in posts:
         if not isinstance(p,dict) or not p.get("id"):
