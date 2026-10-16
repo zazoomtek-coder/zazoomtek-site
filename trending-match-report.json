@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-16T13:08:21.130085+00:00",
+  "checked_at": "2026-10-16T16:55:54.904080+00:00",
   "source_sites": 15,
-  "matches": 5,
+  "matches": 6,
   "selected": [
     {
-      "title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh",
+      "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
       "section": "tech",
-      "url": "/news-UgkxBK8ILfL_RZz8exfFznI391GfZ3PgP_3-.html",
+      "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
       "freshness_bonus": 72,
@@ -14,9 +14,19 @@
       "sources": []
     },
     {
-      "title": "Galaxies Autumn Showcase 2026 presenta oltre 50 giochi tra Castlevania, THE FINALS, inZOI e Planet Zoo 2",
+      "title": "Tales of Eternia Remastered è disponibile ora su PC e console",
       "section": "gaming",
-      "url": "/news-UgkxmeHWU7RwhPehvkplGPHZSjz6XYDe4E4O.html",
+      "url": "/news-UgkxHKjqDM_6w4x_d1JfWv0MwO8uWY5mvxdT.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh",
+      "section": "tech",
+      "url": "/news-UgkxBK8ILfL_RZz8exfFznI391GfZ3PgP_3-.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
       "freshness_bonus": 72,
@@ -37,11 +47,17 @@
       "title": "MSI lancia la GeForce RTX 5080 16G COD MW4 EDITION OC in edizione limitata",
       "section": "tech",
       "url": "/news-UgkxkNT_iXfSvzktCf-oWW62lCCIJ33bxvdP.html",
-      "trend_score": 0,
+      "trend_score": 62.92,
       "published_date": "2026-10-16",
       "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
+      "selection_score": 112.9,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "MSI RTX 5080 COD MW4 Edition e Ghost sul backplate",
+          "score": 0.6292
+        }
+      ]
     },
     {
       "title": "Razer presenta Barracuda V2 Pro con THX Spatial Audio+, ANC e autonomia fino a 70 ore",
@@ -51,16 +67,6 @@
       "published_date": "2026-10-16",
       "freshness_bonus": 72,
       "selection_score": 72.0,
-      "sources": []
-    },
-    {
-      "title": "Sony presenta i nuovi Walkman NW-WM1ZM3 e NW-WM1AM3 con audio premium, DSD e fino a 35 ore di autonomia",
-      "section": "tech",
-      "url": "/news-UgkxCaBCCHmRcCjF6K2cVN4r2exsKqM2tGlx.html",
-      "trend_score": 0,
-      "published_date": "2026-10-15",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
       "sources": []
     }
   ]
