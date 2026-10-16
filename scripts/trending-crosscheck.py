@@ -87,6 +87,10 @@ def classify(title,hint=""):
     # A legal, political, consumer-rights or cyber topic, not a routine release.
     politics=bool(words&POLICY)
     gaming=bool(words&GAMING) or bool(re.search(r"\b(acornia|nba\s+bounce|expeditions\s+samurai|fire emblem|grand theft auto|gta\s*(?:vi|6)|call of duty|playstation|video game|videogioc\w*|game pass|steam|fortnite|pubg mobile|pubg|battlefield|ace combat|talos principle|elden ring|resident evil|gran turismo|metal gear|arc raiders|silent hill|the witcher|god of war|the last of us|yakuza|ghost of tsushima|dragons dogma|dragon s dogma|beyond the dark|nightwatch|horror cooperativo|skate|two point museum|mafia iii|risk of rain|cosmic invasion)\b",original))
+    # Recognize specific named videogames even when the headline only says
+    # "update", "release" or "JRPG", without platform/gameplay keywords.
+    if re.search(r"\b(wreckfest(?:\s*2)?|forge of the fae|acts of blood)\b", original):
+        return "gaming"
     if politics and gaming and (bool(words&GAMING_POLICY) or "norme" in words):return "gaming-inside"
     if politics and not gaming:return "tech-impact"
     # Gaming-branded hardware is still technology, not video-game news.
@@ -363,7 +367,7 @@ def community_explicit_categories():
             continue
         lines=[x.strip() for x in (post.get("text") or "").splitlines() if x.strip()]
         if not lines:continue
-        header=re.match(r"^news\\s+(tech|game|gaming|extra)\\s*(?::|$)",lines[0],re.I)
+        header=re.match(r"^news\s+(tech|game|gaming|extra)\s*(?::|$)",lines[0],re.I)
         if header:
             kind=header.group(1).lower()
             result["/news-"+post["id"]+".html"]="gaming" if kind in ("game","gaming") else kind
@@ -500,19 +504,25 @@ def expected_featured_sections(pins=None):
     return ["tech"]*(5-len(pins))+["gaming"]+[x["section"] for x in pins]
 
 def valid_featured_sections(items,pins=None):
-    """At most five Tech and one Gaming; fewer slots remain empty safely."""
+    """Six unique dated cards: 5 Tech+1 Gaming target; fresh Gaming fills gaps.
+
+    Editorial tags are never faked. When the archive contains fewer than five
+    genuinely Tech news from today/yesterday, reuse additional *Gaming* posts
+    dated today/yesterday, rather than leaving blank cells or reclassifying them.
+    """
     pins=editorial_pins() if pins is None else pins
+    if not isinstance(items,list) or len(items)>6 or len(items)<len(pins):
+        return False
     sections=[x.get("section") for x in items]
     special=[x["section"] for x in pins]
-    ordinary=sections[:len(sections)-len(special)] if special else sections
     if special and sections[-len(special):]!=special:
         return False
+    ordinary=sections[:len(sections)-len(special)] if special else sections
     tech_count=ordinary.count("tech")
-    gaming_count=ordinary.count("gaming")
-    if (tech_count>5-len(special) or gaming_count>1
-            or ordinary!=["tech"]*tech_count+["gaming"]*gaming_count):
-        return False
-    return len(items)<=6 and len(items)>=len(special)
+    game_count=ordinary.count("gaming")
+    return (tech_count<=5-len(pins) and game_count<=6-len(pins)-tech_count
+            and len(ordinary)==tech_count+game_count)
+
 
 def verified_public_article(article):
     """Never display unpublished articles or a missing/invalid cover."""
@@ -612,7 +622,7 @@ def pick(articles,on_date=None):
                 bool(item.get("selection_boost")),
                 ordinary_priority(item,reference),
                 item.get("freshness",0))
-    for kind,quota in (("tech",5-len(pins)),("gaming",1)):
+    def add_best(kind,quota):
         count=0
         for item in sorted((x for x in candidates if x["section"]==kind),
                            key=priority,reverse=True):
@@ -623,9 +633,27 @@ def pick(articles,on_date=None):
             row["published_date"]=local_publication_date(item).isoformat()
             selected.append(row)
             count+=1
-        if count<quota:
-            print(f"Only {count}/{quota} fresh {kind} stories for {reference}; "+
-                  "remaining slots stay empty. No stale article backfill.")
+        return count
+
+    # Target: five truly Tech articles and one truly Gaming article.
+    required_tech=5-len(pins)
+    tech_count=add_best("tech",required_tech)
+    add_best("gaming",1)
+    # Never hide a fresh headline or lie about categories merely because the
+    # archive doesn't contain five technology articles in the last two days.
+    gaps=6-len(pins)-len(selected)
+    if gaps:
+        add_best("gaming",gaps)
+    # If there aren't enough fresh stories of any category, show fewer cards,
+    # and make the grid responsive. No articles older than yesterday allowed.
+    if len(selected)<6-len(pins):
+        print(f"Only {len(selected)}/{6-len(pins)} fresh items today/yesterday; "
+              "no outdated cards will be used.")
+    if tech_count<required_tech:
+        print(f"FRESH CATEGORY FALLBACK: {tech_count}/{required_tech} Technology "
+              "cards available; remaining slots filled by real Gaming posts.")
+    # Headline order must put today's articles visibly before yesterday's.
+    selected.sort(key=priority,reverse=True)
     for pin in pins:
         if pin["url"] in seen:
             raise RuntimeError("Curated special news conflicts with existing feature")
@@ -743,7 +771,7 @@ def apply():
                         for a in chosen]}
     REPORT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("MATCHED OWN NEWS:",len(matched))
-    print("FEATURED GRID 6:",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
+    print("FEATURED GRID",len(chosen),":",json.dumps([{k:a[k] for k in ("section","title","trend_score")}
                                     for a in chosen],ensure_ascii=False))
 
 def selftest():
