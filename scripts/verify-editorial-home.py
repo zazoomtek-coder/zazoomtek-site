@@ -133,7 +133,7 @@ def check() -> None:
     # and tested against actual browser screenshots.
     if ('ztp-two-news-columns' not in js
             or 'ztp-news-tech' not in js or 'ztp-news-gaming' not in js
-            or 'var topTen=all.slice(0,10)' not in js):
+            or 'all.slice(10).forEach(function(row){row.remove();})' not in js):
         raise RuntimeError("Stable Tech/Gaming Home columns are missing")
     if 'reservedEditorialPaths()' in js:
         raise RuntimeError("Regressed Home dynamic reordering was reintroduced")
