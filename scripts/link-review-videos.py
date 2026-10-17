@@ -18,6 +18,8 @@ END="<!-- ZT_REVIEW_VIDEO_END -->"
 # Editorially checked alternative-language titles and one-word series.
 # The referenced video MUST still exist in the official categorized video feed.
 EXPLICIT={
+  # Official ThermoMate 2500W review; never infer this link from a fuzzy title match.
+  "thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html":("e7rAYQprXTM",("thermomate","2500w")),
   "sesame-street-amici-e-risate-recensione-ps5.html":("WwGAaKGfoGY",("sesame","street")),
   "recensione-Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1.html":("fKiuvUW5eKI",("walto",)),
 }
