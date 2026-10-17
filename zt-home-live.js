@@ -440,8 +440,11 @@
       [[tech,3],[gaming,4]].forEach(function(pair){
         var col=pair[0],maxBig=pair[1];
         var all=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
-        // Already sorted by publication time in the source and archive.
-        var topTen=all.slice(0,10);
+        // Preserve exactly ten visible and DOM-backed cards in each Home
+        // column. Extra news remain available on their canonical archive pages.
+        all.slice(10).forEach(function(row){row.remove();});
+        all=all.slice(0,10);
+        var topTen=all;
         all.forEach(function(row){
           row.hidden=true;
           row.classList.remove("zt-mag-big","ztp-gaming-feature");
