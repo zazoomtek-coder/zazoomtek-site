@@ -33,7 +33,7 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert '/zt-home-live.js?v=20261017stableColumnsRollback2' in src
+          assert '/zt-home-live.js?v=20261017stableColumnsRollback3' in src
           assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
           assert r'\g<1>' not in src and r'\g<2>' not in src
           live_js=pathlib.Path("zt-home-live.js").read_text()
