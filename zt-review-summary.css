@@ -1,0 +1,14 @@
+/* ZazoomTek recensioni: scheda di sintesi uniforme, miniatura 16:9. */
+.article-side .zt-review-summary,
+.news-sidebar .zt-review-summary{background:#fff;border:1px solid #dedede;border-left:4px solid #d51232;overflow:hidden;margin-bottom:16px}
+.article-side .zt-review-summary>h3,
+.news-sidebar .zt-review-summary>h3{display:block;margin:0;background:#181818;color:#fff;font-size:14px;line-height:1.35;font-weight:800;text-transform:uppercase;padding:12px 14px;border:0;border-left:0}
+.article-side .zt-review-summary .zt-review-summary-body,
+.news-sidebar .zt-review-summary .zt-review-summary-body{display:block;padding:12px}
+.article-side .zt-review-summary img,
+.news-sidebar .zt-review-summary img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;object-position:center center;background:#131b29;border-radius:5px;max-width:100%;margin:0 0 12px}
+.article-side .zt-review-summary p,
+.news-sidebar .zt-review-summary p{font-size:13px;line-height:1.5;color:#333;margin:0 0 9px;overflow-wrap:anywhere}
+.article-side .zt-review-summary a.action,
+.news-sidebar .zt-review-summary a.action{display:inline-block;margin-top:6px}
+@media(max-width:800px){.article-side .zt-review-summary,.news-sidebar .zt-review-summary{width:100%}}
