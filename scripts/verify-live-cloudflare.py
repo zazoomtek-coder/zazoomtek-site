@@ -64,7 +64,7 @@ def verify_once(base: str, expected: str) -> str:
     js = get_public_page(base, "/zt-home-live.js", expected)
     if ("ztp-two-news-columns" not in js
             or "ztp-news-tech" not in js or "ztp-news-gaming" not in js
-            or "var topTen=all.slice(0,10)" not in js
+            or "all.slice(10).forEach(function(row){row.remove();})" not in js
             or "reservedEditorialPaths()" in js):
         raise RuntimeError("Published Home did not restore the stable Tech/Gaming columns")
     home = get_public_page(base, "/", expected)
