@@ -1,4 +1,4 @@
 ZazoomTek verified scheduled release
-source_commit=1b91b7de09ff587f22aeffd972996b09c9585c0d
-created_utc=2026-10-17T06:03:06+00:00
+source_commit=dfb5e23883f7c40da656459411b2dab4f58139d7
+created_utc=2026-10-17T08:03:04+00:00
 priority=news
