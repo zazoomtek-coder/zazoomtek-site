@@ -66,9 +66,7 @@
     date:homePublicationTime(node.getAttribute("data-published-at")||
        node.querySelector(".article-meta")?.textContent||"")}));
   ranked.sort((a,b)=>b.date-a.date || a.index-b.index);
-  ranked.forEach((entry,i)=>{
-    if(column.children[i]!==entry.node)column.insertBefore(entry.node,column.children[i]||null);
-  });
+  for(const entry of ranked)column.appendChild(entry.node);
   return ranked.map(x=>x.node);
  }
  // HOME_PUBLICATION_ORDER_END
@@ -130,9 +128,10 @@
    }else{techCount++;tech.appendChild(row);}
   }
 
-  // Featured articles remain in the canonical archive but are temporarily
-  // hidden from their category column while promoted in the Home carousel.
-  // When replaced, their original publication date restores their position.
+  // Recent articles must stay visible in their actual category column even if
+  // they are promoted to News in evidenza. Otherwise the newest Tech posts
+  // (e.g. 16 October) silently vanish and the column shows older news.
+  // Every article URL appears only once WITHIN each column.
   // Live Tech and Gaming are derived exclusively from the latest canonical Community feed.
   // Never reinsert a static Gaming archive above new articles.
   orderHomeColumn(tech);
@@ -274,18 +273,13 @@
   // Three large and real editorial images; keep article links, never inject placeholders.
   function reconcileRight(){
     if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
-    // Do not remove editorial cards merely because a news story exists below.
-    // Featured and other editorial boxes get priority before the news columns.
-    const linked=new Set([...document.querySelectorAll(
-      "#ztFeaturedGrid a[href],#articoli #zt-popular-box .zt-popular-article[href],#articoli .zt-special-item h3 a[href]"
-    )].map(a=>{
+    const linked=new Set([...area.querySelectorAll(".ztp-news-item h3 a")].map(a=>{
       try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
     }));
     const eligible=editorialCards.filter(card=>!linked.has(new URL(card.href).pathname));
     const selected=new Set(eligible.slice(0,3));
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
-    window.dispatchEvent(new Event("zt-home-editorial-updated"));
   }
 
   balance();
@@ -329,7 +323,6 @@
       "#articoli .ztp-news-items{padding:6px 11px 10px!important}",
       "#articoli .ztp-news-items>.article-row{display:grid!important;grid-template-columns:minmax(0,46%) minmax(0,1fr)!important;gap:10px!important;align-items:center!important;padding:12px 0!important;min-height:0!important;margin:0!important}",
       "#articoli .ztp-news-items>.article-row[hidden]{display:none!important}",
-      "#articoli .ztp-news-rail [data-zt-home-dedupe-hidden=yes]{display:none!important}",
       "#articoli .ztp-news-items>.article-row.zt-mag-big{display:block!important;padding:12px 0 16px!important;grid-template-columns:none!important}",
       "#articoli .ztp-news-items>.article-row>a:first-child{margin:0!important;display:block!important;overflow:hidden!important}",
       "#articoli .ztp-news-items>.article-row .article-image{width:100%!important;height:auto!important;aspect-ratio:16/9!important;max-height:none!important;object-fit:contain!important;object-position:center center!important;border-radius:9px!important;background:#131b29!important}",
@@ -428,7 +421,7 @@
     }
     function alignBottoms(){
       // On mobile and tablets do not force card counts or fixed heights.
-      var candidates=orderHomeColumn(gaming).filter(function(row){return !reservedEditorialPaths().has(hrefOf(row));});
+      var candidates=[].slice.call(gaming.querySelectorAll(":scope > article.article-row"));
       candidates.slice(10).forEach(function(row){row.hidden=true;});
       if(!window.matchMedia("(min-width:1150px)").matches)return;
       var techHeight=renderedHeight(tech);
@@ -450,63 +443,12 @@
       queuedAlignment=true;
       requestAnimationFrame(function(){queuedAlignment=false;alignBottoms();});
     }
-    // One story has one visible Home placement. Featured takes precedence,
-    // then already-selected editorial cards, then chronological category news.
-    function reservedEditorialPaths(){
-      var reserved=featuredPaths();
-      // Refill the two visible "Da non perdere" positions from other real
-      // published cards when one of their stories is promoted to Featured.
-      // Retain the original editorial ordering when the promotion ends.
-      var popular=document.querySelector("#articoli #zt-popular-box .zt-popular-list");
-      if(popular){
-        var options=[].slice.call(popular.querySelectorAll(":scope > .zt-popular-article"));
-        options.forEach(function(card,i){
-          if(!card.hasAttribute("data-zt-original-order"))
-            card.setAttribute("data-zt-original-order",String(i));
-        });
-        options.sort(function(a,b){
-          var path=function(card){
-            try{return new URL(card.getAttribute("href"),location.origin).pathname;}
-            catch(_){return "";}
-          };
-          return Number(reserved.has(path(a)))-Number(reserved.has(path(b)))||
-            Number(a.getAttribute("data-zt-original-order"))-Number(b.getAttribute("data-zt-original-order"));
-        });
-        options.forEach(function(card,i){
-          if(popular.children[i]!==card)popular.insertBefore(card,popular.children[i]||null);
-        });
-      }
-      [
-        "#articoli .ztp-news-rail #zt-popular-box .zt-popular-article",
-        "#articoli .ztp-news-rail .zt-special-item",
-        "#articoli .ztp-news-rail .ztp-editorial-story",
-        "#articoli .ztp-news-rail .zt-final-rail-article"
-      ].forEach(function(selector){
-        document.querySelectorAll(selector).forEach(function(card){
-          var link=card.matches("a[href]")?card:card.querySelector("a[href]");
-          if(!link)return;
-          var path="";
-          try{path=new URL(link.getAttribute("href"),location.origin).pathname;}catch(_){return;}
-          var ours=card.dataset.ztHomeDedupeHidden==="yes";
-          if(card.hidden&&!ours)return; // Respect the widget's own hidden state.
-          if(reserved.has(path)){
-            card.hidden=true;
-            card.dataset.ztHomeDedupeHidden="yes";
-            return;
-          }
-          if(ours){card.hidden=false;delete card.dataset.ztHomeDedupeHidden;}
-          if(!card.hidden&&getComputedStyle(card).display!=="none")reserved.add(path);
-        });
-      });
-      return reserved;
-    }
     function rebalance(){
-      var excluded=reservedEditorialPaths();
       [[tech,3],[gaming,4]].forEach(function(pair){
         var col=pair[0],maxBig=pair[1];
-        var all=orderHomeColumn(col);
+        var all=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
         // Already sorted by publication time in the source and archive.
-        var topTen=all.filter(function(row){return !excluded.has(hrefOf(row));}).slice(0,10);
+        var topTen=all.slice(0,10);
         all.forEach(function(row){
           row.hidden=true;
           row.classList.remove("zt-mag-big","ztp-gaming-feature");
@@ -535,10 +477,6 @@
     // Respond to actual image loading and window resizing, not artificial spacers.
     area.addEventListener("load",function(e){if(e.target && e.target.tagName==="IMG")requestAlignment();},true);
     window.addEventListener("resize",function(){rebalance();},{passive:true});
-    // JSON-driven featured replacements trigger this observer without a reload.
-    var featuredGrid=document.getElementById("ztFeaturedGrid");
-    if(featuredGrid)new MutationObserver(rebalance).observe(featuredGrid,{childList:true});
-    window.addEventListener("zt-home-editorial-updated",rebalance);
     rebalance();
     // The canonical news feed stays unchanged. Only archived, published,
     // explicitly categorised Gaming stories are eligible to fill an extra slot.
@@ -553,9 +491,7 @@
           var route=explicitArchiveCategory(src);
           if(!route)return;
           var section=route==="gaming"?gaming:tech;
-          // Collect enough older genuine stories to replace currently
-          // promoted cards, while keeping the visible limit at ten.
-          var limit=route==="gaming"?55:50;
+          var limit=route==="gaming"?11:10;
           var count=section.querySelectorAll(":scope > article.article-row").length;
           if(count>=limit)return;
           var articlePath=new URL(link.getAttribute("href"),location.origin).pathname;
@@ -563,10 +499,8 @@
           if(row)section.appendChild(row);
         });
         rebalance();
-        var excluded=reservedEditorialPaths();
         var ready=function(section,limit){
-          return [].slice.call(section.querySelectorAll(":scope > article.article-row"))
-            .filter(function(row){return !excluded.has(hrefOf(row));}).length>=limit;
+          return section.querySelectorAll(":scope > article.article-row").length>=limit;
         };
         return ready(tech,10)&&ready(gaming,11);
       });
@@ -578,7 +512,7 @@
         return full?true:fetchUntilReady(i+1);
       });
     }
-    fetchUntilReady(0).then(function(){rebalance();requestAlignment();}).catch(function(err){
+    fetchUntilReady(0).then(requestAlignment).catch(function(err){
       console.info("Home archive alignment preserved:",err.message);
       rebalance();
     });
