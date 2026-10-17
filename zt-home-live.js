@@ -427,16 +427,9 @@
       var techHeight=renderedHeight(tech);
       var gamingHeight=renderedHeight(gaming);
       if(!techHeight||!gamingHeight)return;
-      // Try just one extra published Gaming article when the white gap is visible.
-      var candidate=candidates[10];
-      if(!candidate || techHeight-gamingHeight<110)return;
-      candidate.hidden=false;
-      candidate.style.removeProperty("display");
-      var newHeight=renderedHeight(gaming);
-      // Reject a card if it would create a worse overhang than the original gap.
-      if(Math.abs(techHeight-newHeight)>=Math.abs(techHeight-gamingHeight)+15){
-        candidate.hidden=true;
-      }
+      // Stable public Home: ten real Gaming news, never an eleventh card
+      // or artificial spacers that distort the original three columns.
+      return;
     }
     function requestAlignment(){
       if(queuedAlignment)return;
@@ -491,7 +484,7 @@
           var route=explicitArchiveCategory(src);
           if(!route)return;
           var section=route==="gaming"?gaming:tech;
-          var limit=route==="gaming"?11:10;
+          var limit=10;
           var count=section.querySelectorAll(":scope > article.article-row").length;
           if(count>=limit)return;
           var articlePath=new URL(link.getAttribute("href"),location.origin).pathname;
@@ -502,7 +495,7 @@
         var ready=function(section,limit){
           return section.querySelectorAll(":scope > article.article-row").length>=limit;
         };
-        return ready(tech,10)&&ready(gaming,11);
+        return ready(tech,10)&&ready(gaming,10);
       });
     }
     var archivePages=["/news.html","/news-2.html","/news-3.html","/news-4.html","/news-5.html"];
