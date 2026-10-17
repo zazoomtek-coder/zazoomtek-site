@@ -127,14 +127,18 @@ def check() -> None:
         raise RuntimeError("Tech shelf does not place ThermoMate first")
     if 'fetch("/recensioni-scritte.html",{cache:"no-store"})' not in js:
         raise RuntimeError("Tech reviews are not refreshed automatically")
-    # Invariant: featured Home items disappear temporarily from both news
-    # columns, then return in the ORIGINAL date order when replaced.
-    if ('var topTen=all.filter(function(row){return !excluded.has(hrefOf(row));})'
-            not in js or 'new MutationObserver(rebalance).observe(featuredGrid' not in js
-            or 'var all=orderHomeColumn(col)' not in js):
-        raise RuntimeError("Home news feature-exclusion/reentry automation missing")
-    if 'var limit=route==="gaming"?55:50' not in js:
-        raise RuntimeError("Home cannot backfill columns with non-featured news")
+    # Home recovery: protect the approved two-column Tech + Gaming layout.
+    # The post-release dynamic de-duplication/reordering corrupted the visible
+    # columns. Keep the stable ten-news-per-column rendering until redesigned
+    # and tested against actual browser screenshots.
+    if ('ztp-two-news-columns' not in js
+            or 'ztp-news-tech' not in js or 'ztp-news-gaming' not in js
+            or 'var topTen=all.slice(0,10)' not in js):
+        raise RuntimeError("Stable Tech/Gaming Home columns are missing")
+    if 'reservedEditorialPaths()' in js:
+        raise RuntimeError("Regressed Home dynamic reordering was reintroduced")
+    if '20261017stableColumnsRollback2' not in home:
+        raise RuntimeError("Home is not loading the stable column layout")
     # Manual Tech reviews must use the complete ZazoomTek editorial template.
     thermo=read(THERMO)
     if ('zt-thermo-full-editorial' not in thermo
