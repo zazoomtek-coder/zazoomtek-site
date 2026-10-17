@@ -39,6 +39,10 @@ def main() -> None:
     # videos in the verified ZazoomTek YouTube catalog. No unverified links.
     run("link-review-videos.py")
     run("verify-review-video-links.py")
+    # Normalize existing and future written review pages with a factual
+    # summary and a 16:9 thumbnail. Never touch the locked Home layout.
+    run("ensure-review-summaries.py")
+    run("ensure-review-summaries.py", "--check")
     # Generators may refresh content, but must never rewrite locked Home layout.
     run("verify-home-layout-lock.py")
     run("build-cloudflare-pages.py")
