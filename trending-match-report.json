@@ -1,12 +1,32 @@
 {
-  "checked_at": "2026-10-17T12:57:47.951574+00:00",
+  "checked_at": "2026-10-17T13:13:15.541009+00:00",
   "source_sites": 15,
-  "matches": 7,
+  "matches": 8,
   "selected": [
     {
-      "title": "Quarantine Zone: The Last Check si espande con Miami Zero, DLC gratuito disponibile ora su PC e Xbox",
+      "title": "LEGO Harry Potter Collection è disponibile ora su Nintendo Switch 2 con tutti i DLC inclusi",
       "section": "gaming",
-      "url": "/news-UgkxWPyvf95j1OEU2XGY9FsZhxP0ngjcYyJB.html",
+      "url": "/news-Ugkx4n9zqt-mBBVbGx98IYs8SV2NtjFLqa9q.html",
+      "trend_score": 0,
+      "published_date": "2026-10-17",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "FINAL FANTASY VII arriva allo Square Enix Cafe di Los Angeles con un menu speciale a tempo limitato",
+      "section": "gaming",
+      "url": "/news-Ugkxsiqp-GBlZ1aLmbEAorgPMkGy5gQFnVli.html",
+      "trend_score": 0,
+      "published_date": "2026-10-17",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "Flipping Is Hard è disponibile su Steam con una scalata 3D pensata per mettere alla prova la pazienza",
+      "section": "gaming",
+      "url": "/news-Ugkx5KR5LlC0cBr-9bpWfsQK8u5Eu--thENN.html",
       "trend_score": 0,
       "published_date": "2026-10-17",
       "freshness_bonus": 72,
@@ -27,32 +47,6 @@
       "title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh",
       "section": "tech",
       "url": "/news-UgkxBK8ILfL_RZz8exfFznI391GfZ3PgP_3-.html",
-      "trend_score": 0,
-      "published_date": "2026-10-16",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
-      "sources": []
-    },
-    {
-      "title": "MSI lancia la GeForce RTX 5080 16G COD MW4 EDITION OC in edizione limitata",
-      "section": "tech",
-      "url": "/news-UgkxkNT_iXfSvzktCf-oWW62lCCIJ33bxvdP.html",
-      "trend_score": 62.92,
-      "published_date": "2026-10-16",
-      "freshness_bonus": 62,
-      "selection_score": 102.9,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "MSI RTX 5080 COD MW4 Edition e Ghost sul backplate",
-          "score": 0.6292
-        }
-      ]
-    },
-    {
-      "title": "Razer presenta Barracuda V2 Pro con THX Spatial Audio+, ANC e autonomia fino a 70 ore",
-      "section": "tech",
-      "url": "/news-UgkxtRknJZGjXPKTtnhDQrev1PCJdW5xRjdl.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
       "freshness_bonus": 62,
