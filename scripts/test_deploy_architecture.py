@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only architecture guard: one live Firebase Hosting publisher only."""
+"""Read-only hosting guard: Cloudflare production, retired Firebase cannot deploy."""
 from pathlib import Path
 import json
 import re
@@ -47,9 +47,20 @@ for required in (
 ):
     if required not in canonical:
         errors.append(f'Canonical deploy missing safety step: {required}')
-merge=(WORKFLOWS/'firebase-hosting-merge.yml').read_text(encoding='utf-8')
-if 'gh workflow run deploy-site-live.yml' not in merge:
-    errors.append('GitHub push routing no longer queues canonical Firebase deploy')
+# Production moved to Cloudflare Pages. The obsolete Firebase merge router was
+# intentionally removed; do not fail every site audit for that retired file.
+merge_path=WORKFLOWS/'firebase-hosting-merge.yml'
+retired='if: false # Firebase Hosting retired; production is Cloudflare Pages' in canonical
+if merge_path.is_file():
+    merge=merge_path.read_text(encoding='utf-8')
+    if not retired and 'gh workflow run deploy-site-live.yml' not in merge:
+        errors.append('GitHub push routing no longer queues canonical Firebase deploy')
+elif not retired:
+    errors.append('Active Firebase publishing requires a canonical push router')
+if retired and merge_path.is_file():
+    errors.append('Retired Firebase merge router unexpectedly restored')
+if not (WORKFLOWS/'cloudflare-controlled-release.yml').is_file():
+    errors.append('Missing Cloudflare production publisher workflow')
 firebase=json.loads((ROOT/'firebase.json').read_text(encoding='utf-8'))
 hosting=firebase.get('hosting',{})
 if hosting.get('target')!='zazoomtek' or hosting.get('public')!='.':
@@ -58,6 +69,6 @@ if not any(x=='.github/**' for x in hosting.get('ignore',[])):
     errors.append('Firebase ignore list does not exclude GitHub workflows')
 if errors:
     raise SystemExit('FIREBASE ARCHITECTURE CHECK FAILED:\n'+'\n'.join('- '+x for x in errors))
-print('PASS: only deploy-site-live.yml can deploy Firebase Hosting live')
+print('PASS: legacy Firebase live workflow remains gated and retired')
 print('PASS: PR previews and maintenance jobs cannot deploy live')
 print('PASS: serialized, current-main checked, canonical layout and Firebase config protected')
