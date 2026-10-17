@@ -10,6 +10,10 @@ on:
     # The runtime Europe/Rome guard skips out-of-window UTC entries.
     # GitHub schedule is best-effort: runner starts and builds cannot be guaranteed at :44.
     - cron: '39,44,54 5-20 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/site-publish-request.txt'
   workflow_dispatch:
     inputs:
       urgent:
@@ -73,7 +77,7 @@ jobs:
             # Build exactly the same static snapshot as Cloudflare before
             # spending a Pages build. A failure must block the trigger commit.
             python3 scripts/cloudflare-build-site.py
-            if [ "${{ inputs.urgent || false }}" = "true" ]; then
+            if [ "${{ inputs.urgent || false }}" = "true" ] || [ "${{ github.event_name }}" = "push" ]; then
               python3 scripts/cloudflare-release-control.py --urgent
             else
               python3 scripts/cloudflare-release-control.py --dedupe-hour
