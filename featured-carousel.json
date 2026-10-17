@@ -2,13 +2,6 @@
   "generated_utc": "2026-10-17T13:24:00+00:00",
   "items": [
     {
-      "section": "gaming",
-      "url": "/news-Ugkxo3isjD7St5R9-Wsekg0mNavQvW93OuVi.html",
-      "title": "Delve Survivors porta il gameplay Survivors a turni allo Steam Next Fest con una demo ampliata",
-      "image": "https://yt3.ggpht.com/CRgck0lpq7cX8CVCVCaBWV2ABGNTLjXo2vvuSShM6qoAsHrSGcbhyNJzSp-usNS6bHZpe6hhxtaY=s1600-rw-nd-v1",
-      "published_date": "2026-10-17"
-    },
-    {
       "section": "tech",
       "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
       "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
@@ -35,6 +28,13 @@
       "title": "Razer presenta Barracuda V2 Pro con THX Spatial Audio+, ANC e autonomia fino a 70 ore",
       "image": "https://yt3.ggpht.com/pBv5j32ov1ALoedB7vWxiC_bYntY9JZxweD5vZs7udL88-wCwntH31GPVEM1HX6ILtpRa_eEGEjBlg=s1600-rw-nd-v1",
       "published_date": "2026-10-16"
+    },
+    {
+      "section": "gaming",
+      "url": "/news-Ugkxo3isjD7St5R9-Wsekg0mNavQvW93OuVi.html",
+      "title": "Delve Survivors porta il gameplay Survivors a turni allo Steam Next Fest con una demo ampliata",
+      "image": "https://yt3.ggpht.com/CRgck0lpq7cX8CVCVCaBWV2ABGNTLjXo2vvuSShM6qoAsHrSGcbhyNJzSp-usNS6bHZpe6hhxtaY=s1600-rw-nd-v1",
+      "published_date": "2026-10-17"
     }
   ]
 }

@@ -36,6 +36,8 @@ def check() -> None:
         raise RuntimeError("Featured 4 Tech + 1 Gaming quota or uniqueness violation")
     if any(a.get("section") not in ("tech","gaming") for a in items):
         raise RuntimeError("Tech Impact/Gaming Inside leaked into ordinary carousel")
+    if len(items)==5 and [a["section"] for a in items]!=["tech"]*4+["gaming"]:
+        raise RuntimeError("Featured: big card must be Tech and bottom-right must be Gaming")
     for row in items:
         url = row["url"]
         if not re.fullmatch(r"/news-[\w-]+\.html", url) or not (ROOT / url[1:]).is_file():
@@ -54,8 +56,17 @@ def check() -> None:
         raise RuntimeError("Server-rendered Tech carousel differs from manifest")
     if featured.count('data-feature-section="gaming"') != sections.get("gaming", 0):
         raise RuntimeError("Server-rendered Gaming carousel differs from manifest")
+    rendered_categories=re.findall(r'data-feature-section="(tech|gaming)"',featured)
+    if len(rendered_categories)==5 and rendered_categories!=["tech"]*4+["gaming"]:
+        raise RuntimeError("Home featured lead or bottom-right Gaming slot changed")
     if "function chooseFive(items)" not in home or "tech.length===4 && gaming.length===1" not in home:
         raise RuntimeError("Client carousel fallback no longer enforces four Tech and one Gaming")
+    layout_js=read("zt-home-graphic-layout-20261016.js")
+    layout_css=read("zt-home-graphic-layout-20261016.css")
+    if 'const chosen=tech.concat(gaming)' not in layout_js:
+        raise RuntimeError("Frontend must enforce Tech first and Gaming last")
+    if 'data-feature-section="gaming"]:last-child' not in layout_css:
+        raise RuntimeError("Grid must reserve bottom-right location for Gaming")
     if "suppressFeaturedDuplicates();" in js or "featured.has(articlePath)" in js:
         raise RuntimeError("Featured promotions still hide newest posts from Tech/Gaming columns")
     for path in ("/news.html","/news-2.html","/news-3.html","/news-4.html","/news-5.html"):

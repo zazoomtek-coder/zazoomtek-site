@@ -687,9 +687,18 @@ def pick(articles,on_date=None):
     if tech_count<required_tech:
         print(f"TECH SHORTFALL: {tech_count}/{required_tech} fresh Technology "
               "cards available; no Gaming substitution.")
-    # The public mosaic shows the newest posting hour first, exactly as the
-    # reader expects, not 3 old Tech ahead of 3 newer Gaming.
-    selected.sort(key=priority,reverse=True)
+    # Editorial rule: among the FOUR freshest verified Tech stories, lead
+    # with the most significant one, using independently verified trend matches
+    # and editorial selection boosts. With equal relevance the newest wins.
+    # One Gaming story is always LAST, in the bottom-right small card.
+    tech_news=[x for x in selected if x["section"]=="tech"]
+    gaming_news=[x for x in selected if x["section"]=="gaming"]
+    tech_news.sort(key=lambda x:(
+        bool(x.get("selection_boost")),
+        ordinary_priority(x,reference)[0],
+        priority(x)),reverse=True)
+    gaming_news.sort(key=priority,reverse=True)
+    selected=tech_news+gaming_news
     for pin in pins:
         if pin["url"] in seen:
             raise RuntimeError("Curated special news conflicts with existing feature")
@@ -710,8 +719,9 @@ def slide_markup(chosen):
         image=html.escape(str(a["image"]),quote=True)
         url=html.escape(str(a["url"]),quote=True)
         class_name="zt-feature-small"
+        section=html.escape(str(a["section"]),quote=True)
         cards.append('<a class="zt-feature-card '+class_name+'" href="'+url+
-            '" aria-label="'+title+'" title="'+title+'"><img src="'+image+
+            '" data-feature-section="'+section+'" aria-label="'+title+'" title="'+title+'"><img src="'+image+
             '" alt="'+title+'" loading="'+("eager" if n==0 else "lazy")+
             '" decoding="async"></a>')
     return '<div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Cinque news ZazoomTek in evidenza">'+"".join(cards)+"</div>"

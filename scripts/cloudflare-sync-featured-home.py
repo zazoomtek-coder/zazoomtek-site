@@ -51,6 +51,8 @@ def render(root: Path) -> str:
         raise RuntimeError("Editorial special pin was removed without permission")
     if len({x.get("url") for x in items}) != len(items):
         raise RuntimeError("Featured articles are duplicated")
+    if len(items)==5 and (tech_count!=4 or game_count!=1):
+        raise RuntimeError("Full featured mosaic needs 4 Tech and 1 Gaming")
     today=dt.datetime.now(ZoneInfo("Europe/Rome")).date()
     for item in regular:
         try:
@@ -60,6 +62,10 @@ def render(root: Path) -> str:
         if day not in (today,today-dt.timedelta(days=1)):
             raise RuntimeError("Outdated featured article: "+str(item.get("url")))
 
+    # Force final visual placement even if an upstream producer stores
+    # the items in chronological order across Tech and Gaming.
+    items=([x for x in items if x.get("section")=="tech"]
+           +[x for x in items if x.get("section")=="gaming"])
     cards = []
     for n, item in enumerate(items):
         if item.get("section") not in SECTION or str(item.get("url","")).startswith(("/tech-impact-","/gaming-inside-")):

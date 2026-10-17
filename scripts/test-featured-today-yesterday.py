@@ -41,7 +41,9 @@ def main():
             candidates=[old,future,unknown,*yesterday,today_g,*today,yesterday_g]
             selected=mod.pick(candidates,on_date=reference)
             assert len(selected)==5,selected
-            assert sorted(x["section"] for x in selected)==["gaming"]+["tech"]*4
+            assert [x["section"] for x in selected]==["tech"]*4+["gaming"]
+            assert selected[0]["section"]=="tech"
+            assert selected[-1]["url"]==today_g["url"]
             assert [x["published_date"] for x in selected[:5]]==["2026-10-16"]*5
             assert today_g["url"] in {x["url"] for x in selected}
             assert selected[-1]["published_date"]=="2026-10-16"
@@ -76,7 +78,8 @@ def main():
             assert mod.valid_featured_sections(selection)
             assert not mod.valid_featured_sections([{"section":"gaming"}]*2)
 
-            # Chronological publication time within the same day, not trend score.
+            # Highest editorial trend among the four newest Tech receives
+            # the main large card, even when a less important one is newer.
             timed_new=story(root,"tech-later","2026-10-16","tech",score=0)
             timed_old=story(root,"tech-earlier","2026-10-16","tech",score=120)
             (root/timed_new["url"][1:]).write_text(
@@ -84,7 +87,7 @@ def main():
             (root/timed_old["url"][1:]).write_text(
                 '<meta property="article:published_time" content="2026-10-16T09:00:00Z">',encoding="utf-8")
             ordered=mod.pick([timed_old,timed_new],on_date=reference)
-            assert [x["url"] for x in ordered]==[timed_new["url"],timed_old["url"]],ordered
+            assert [x["url"] for x in ordered]==[timed_old["url"],timed_new["url"]],ordered
         finally:
             mod.ROOT=saved
     print("PASS: Today's dates beat yesterday's even against higher trend score; no earlier fallback.")

@@ -1,6 +1,16 @@
 /* ZazoomTek Home graphic layout approved October 16, 2026. */
 #ztFeaturedGrid{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;aspect-ratio:16/5!important;gap:10px!important}
 #ztFeaturedGrid>.zt-feature-card:first-child{grid-column:1!important;grid-row:1 / span 2!important}
+@media(min-width:821px){
+  /* Defensive guarantee: the largest card is reserved for Tech only. */
+  #ztFeaturedGrid>.zt-feature-card[data-feature-section="tech"]:first-child{
+    grid-column:1!important;grid-row:1 / span 2!important
+  }
+  /* Desktop editorial grid: last Gaming is always the bottom-right tile. */
+  #ztFeaturedGrid>.zt-feature-card[data-feature-section="gaming"]:last-child{
+    grid-column:3!important;grid-row:2!important
+  }
+}
 #ztFeaturedGrid>.zt-feature-card:nth-child(n+6){display:none!important}
 @media(min-width:1150px){
  main.page #articoli .ztp-final-three .ztp-two-news-columns{grid-template-columns:minmax(0,3fr) minmax(0,5fr)!important}

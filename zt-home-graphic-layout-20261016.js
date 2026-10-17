@@ -8,7 +8,7 @@
    const link=document.createElement("link");
    link.id="zt-home-graphic-approved-20261016";
    link.rel="stylesheet";
-   link.href="/zt-home-graphic-layout-20261016.css?v=4";
+   link.href="/zt-home-graphic-layout-20261016.css?v=5";
    document.head.appendChild(link);
  }
  function normalizeFeatured(){
@@ -24,9 +24,18 @@
        !/^\/(?:tech-impact|gaming-inside)-/.test(url)&&
        !/^news\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(title);
    });
-   // Category selection is performed by the verified editorial manifest.
-   // Preserve that chronological order; do not guess a section from title words.
-   const chosen=eligible.slice(0,5);
+   // Permanent editorial layout: four genuine Tech cards first;
+   // one genuine Gaming card ALWAYS fifth (the bottom-right grid tile).
+   // Sorting globally by publication date used to make a Gaming card large.
+   const tech=eligible.filter(card=>card.dataset.featureSection==="tech").slice(0,4);
+   const gaming=eligible.filter(card=>card.dataset.featureSection==="gaming").slice(0,1);
+   if(tech.length!==4||gaming.length!==1){
+     // Incomplete or unidentified metadata: preserve the existing DOM rather
+     // than incorrectly promote an unverified Gaming story to the lead tile.
+     console.warn("Featured: preserve source because 4 Tech + 1 Gaming is unavailable");
+     return;
+   }
+   const chosen=tech.concat(gaming);
    if(chosen.length!==cards.length||chosen.some((card,i)=>card!==cards[i])){
      grid.replaceChildren(...chosen);
    }
