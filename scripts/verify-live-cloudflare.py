@@ -62,9 +62,14 @@ def verify_once(base: str, expected: str) -> str:
             or "youtube.com/watch?v=" + EXPECTED_REVIEW_VIDEO not in review):
         raise RuntimeError("Published ThermoMate page lacks its verified YouTube review video")
     js = get_public_page(base, "/zt-home-live.js", expected)
-    if ("reservedEditorialPaths()" not in js
-            or "new MutationObserver(rebalance)" not in js):
-        raise RuntimeError("Published Home script lacks automatic no-duplicates/reentry logic")
+    if ("ztp-two-news-columns" not in js
+            or "ztp-news-tech" not in js or "ztp-news-gaming" not in js
+            or "var topTen=all.slice(0,10)" not in js
+            or "reservedEditorialPaths()" in js):
+        raise RuntimeError("Published Home did not restore the stable Tech/Gaming columns")
+    home = get_public_page(base, "/", expected)
+    if "20261017stableColumnsRollback2" not in home:
+        raise RuntimeError("Published Home is still loading the broken JS version")
     return expected
 
 
