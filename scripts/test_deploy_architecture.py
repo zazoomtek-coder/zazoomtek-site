@@ -28,29 +28,26 @@ for path in sorted(WORKFLOWS.glob('*.yml')):
         errors.append(f'{path.name}: direct Firebase Hosting action is forbidden')
     if path.name==ALLOWED_PREVIEW and live_action:
         errors.append('PR previews must never deploy to live')
-    if path.name=='prune-firebase-news-previews-once.yml' and (
-        re.search(r'^\s*schedule:\s*$',body,re.M)
-        or re.search(r'^\s*push:\s*$',body,re.M)
-    ):
-        errors.append('Expired preview cleanup must be manually triggered')
+    # The retired Firebase cleanup job is isolated from production and may
+    # run on its own schedule to purge expired preview resources. A production
+    # Hosting deploy remains forbidden.
 if live_workflows!=[CANON]:
     errors.append(f'Exactly one canonical Firebase live publisher required, got {live_workflows}')
 canonical=(WORKFLOWS/CANON).read_text(encoding='utf-8')
-for required in (
-    'zazoomtek-firebase-live-publishing','cancel-in-progress: false',
-    'git fetch origin main','git reset --hard origin/main',
-    'Refuse stale main snapshot just before deployment',
-    "if: steps.freshness.outputs.current == 'true'",
-    'Validate existing YouTube news, reviews and video pages',
-    'Verify no unstyled or wrapping navigation reaches Firebase',
-    'Verify editorial box thumbnails and typography on all article pages',
-):
-    if required not in canonical:
-        errors.append(f'Canonical deploy missing safety step: {required}')
+retired='if: false # Firebase Hosting retired; production is Cloudflare Pages' in canonical
+if not retired:
+    errors.append('Firebase canonical publisher MUST remain retired while Cloudflare is production')
+    for required in (
+        'zazoomtek-firebase-live-publishing','cancel-in-progress: false',
+        'git fetch origin main','git reset --hard origin/main',
+        'Refuse stale main snapshot just before deployment',
+        "if: steps.freshness.outputs.current == 'true'",
+    ):
+        if required not in canonical:
+            errors.append(f'Canonical Firebase deploy missing safety step: {required}')
 # Production moved to Cloudflare Pages. The obsolete Firebase merge router was
 # intentionally removed; do not fail every site audit for that retired file.
 merge_path=WORKFLOWS/'firebase-hosting-merge.yml'
-retired='if: false # Firebase Hosting retired; production is Cloudflare Pages' in canonical
 if merge_path.is_file():
     merge=merge_path.read_text(encoding='utf-8')
     if not retired and 'gh workflow run deploy-site-live.yml' not in merge:
@@ -71,4 +68,4 @@ if errors:
     raise SystemExit('FIREBASE ARCHITECTURE CHECK FAILED:\n'+'\n'.join('- '+x for x in errors))
 print('PASS: legacy Firebase live workflow remains gated and retired')
 print('PASS: PR previews and maintenance jobs cannot deploy live')
-print('PASS: serialized, current-main checked, canonical layout and Firebase config protected')
+print('PASS: Cloudflare production publisher present; retired Firebase safety and config protected')
