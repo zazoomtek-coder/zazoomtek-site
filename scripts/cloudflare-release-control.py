@@ -50,6 +50,7 @@ BUILD_INPUTS={
     "scripts/zt_sidebar_mix.py",
     "scripts/build-related-content.py",
     "scripts/link-review-videos.py",
+    "scripts/ensure-review-summaries.py",
     "scripts/seo_watch_pages_safe.py",
     "scripts/validate-sync-output.py",
 }
