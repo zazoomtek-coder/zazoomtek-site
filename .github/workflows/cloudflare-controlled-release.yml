@@ -1,15 +1,13 @@
-name: Cloudflare Pages - hourly batched publishing
-# Only changes to the guarded trigger file may start a Cloudflare Pages build.
-# Cloudflare Pages Settings > Build > Build watch paths:
-#   Include: cloudflare-release-trigger.txt
-#   Exclude: (none)
+name: Cloudflare Pages - hourly controlled publishing
+# Deploy source: GitHub main. Production should watch ONLY
+# cloudflare-release-trigger.txt in Cloudflare Pages Build watch paths.
+# Scheduled checks are twice hourly for missed-run recovery, but the
+# rolling 50-minute cooldown caps normal releases at about one/hour.
+# GitHub Actions cron is best effort, not an exact-time SLA.
+
 on:
   schedule:
-    # Warm-up :39, target :44, fallback :54; 30m rolling cooldown plus 450/31-day budget.
-    # GitHub cron uses UTC; 05-20 UTC covers Italy's 07-21 local window.
-    # The runtime Europe/Rome guard skips out-of-window UTC entries.
-    # GitHub schedule is best-effort: runner starts and builds cannot be guaranteed at :44.
-    - cron: '39,44,54 5-20 * * *'
+    - cron: '17,47 * * * *'
   push:
     branches: [main]
     paths:
@@ -21,52 +19,26 @@ on:
         required: false
         type: boolean
         default: false
+
 permissions:
   contents: write
+
 concurrency:
   group: zazoomtek-controlled-cloudflare-pages-releases
   cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 24
+    timeout-minutes: 25
     steps:
-      - name: Check local Italy publishing window (handles DST automatically)
-        id: rome_window
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          python3 - <<'PY'
-          import datetime as dt
-          import os
-          from zoneinfo import ZoneInfo
-          local_now = dt.datetime.now(ZoneInfo("Europe/Rome"))
-          # A manual urgent correction remains possible by explicit dispatch.
-          allowed = os.environ["EVENT_NAME"] == "workflow_dispatch" or 7 <= local_now.hour <= 21
-          print(f"Europe/Rome time: {local_now.isoformat()}, publish allowed: {allowed}")
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              output.write("allowed=" + str(allowed).lower() + "\n")
-          PY
-      - name: Hold early runner until minute :44 local (best effort)
-        if: steps.rome_window.outputs.allowed == 'true' && github.event_name == 'schedule'
-        run: |
-          python3 - <<'PY'
-          import datetime as dt
-          import time
-          from zoneinfo import ZoneInfo
-          now=dt.datetime.now(ZoneInfo("Europe/Rome"))
-          wait=(44-now.minute)*60-now.second
-          if 0 < wait <= 5*60:
-              print(f"Pre-warmed runner ready; waiting {wait}s until :44.")
-              time.sleep(wait)
-          PY
       - uses: actions/checkout@v4
-        if: steps.rome_window.outputs.allowed == 'true'
         with:
           fetch-depth: 0
-      - name: Stage one atomic Cloudflare publish only when public content changed
+      - name: Stage at most one release, only after validated content changes
         id: stage_release
-        if: steps.rome_window.outputs.allowed == 'true'
+        env:
+          URGENT: ${{ inputs.urgent || false }}
         run: |
           set -euo pipefail
           git config user.name "ZazoomTek Editorial Publisher"
@@ -74,43 +46,65 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
+
             python3 scripts/cloudflare-release-control.py --self-test
             python3 scripts/verify-live-cloudflare.py --self-test
-            # Build exactly the same static snapshot as Cloudflare before
-            # spending a Pages build. A failure must block the trigger commit.
-            python3 scripts/cloudflare-build-site.py
-            if [ "${{ inputs.urgent || false }}" = "true" ]; then
+
+            # Decide FIRST. No change, recent release, or exhausted budget =
+            # no expensive offline rebuild and no Cloudflare Pages build.
+            if [ "$URGENT" = "true" ]; then
               python3 scripts/cloudflare-release-control.py --urgent
             else
               python3 scripts/cloudflare-release-control.py --dedupe-hour
             fi
             git add -- cloudflare-release-trigger.txt
             if git diff --cached --quiet; then
-              echo "No Cloudflare build needed (no new public content or reserve active)."
-              exit 0
-            fi
-            git commit -m "Cloudflare release: batch approved ZazoomTek articles"
-            if git push origin HEAD:main; then
-              # The commit is NOT proof of deployment; the next step must
-              # see this exact source revision on the public domain.
-              SOURCE_COMMIT="$(sed -n 's/^source_commit=//p' cloudflare-release-trigger.txt)"
-              if ! [[ "$SOURCE_COMMIT" =~ ^[a-f0-9]{40}$ ]]; then
-                echo "::error::Cloudflare trigger missing valid source SHA."
+              echo "No new Cloudflare Pages build needed (no changes, cooldown or quota guard)."
+              last_source="$(sed -n 's/^source_commit=//p' cloudflare-release-trigger.txt)"
+              if ! [[ "$last_source" =~ ^[a-f0-9]{40}$ ]]; then
+                echo "::error::Existing release trigger has no valid source SHA"
                 exit 1
               fi
-              echo "source_commit=$SOURCE_COMMIT" >> "$GITHUB_OUTPUT"
-              echo "One Pages build REQUESTED (not yet verified)."
+              echo "source_commit=$last_source" >> "$GITHUB_OUTPUT"
+              echo "new_release=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
+
+            # Validate with the NEW source receipt before touching production.
+            # All generated pages, thumbnails and review links must pass.
+            python3 scripts/cloudflare-build-site.py
+            git commit -m "Cloudflare release: hourly validated editorial batch"
+            if git push origin HEAD:main; then
+              source="$(sed -n 's/^source_commit=//p' cloudflare-release-trigger.txt)"
+              if ! [[ "$source" =~ ^[a-f0-9]{40}$ ]]; then
+                echo "::error::Release source SHA missing after push"
+                exit 1
+              fi
+              echo "source_commit=$source" >> "$GITHUB_OUTPUT"
+              echo "new_release=true" >> "$GITHUB_OUTPUT"
+              echo "New Pages release REQUESTED; waiting for verified public result."
+              exit 0
+            fi
+            echo "Concurrent Git push detected; rechecking fresh main before retry $attempt."
             sleep "$((attempt * 4))"
           done
-          echo "::error::Could not safely request the controlled Pages release."
+          echo "::error::Could not safely push a validated Cloudflare release."
           exit 1
-      - name: Verify public Cloudflare deployment (no extra build)
-        if: steps.stage_release.outputs.source_commit != ''
+
+      - name: Confirm requested new Cloudflare release is actually public
+        if: steps.stage_release.outputs.new_release == 'true'
         env:
           SOURCE_COMMIT: ${{ steps.stage_release.outputs.source_commit }}
         run: |
           python3 scripts/verify-live-cloudflare.py --source-commit "$SOURCE_COMMIT" \
             --base-url "https://zazoomtek.it" --timeout-seconds 420 --interval-seconds 20
-          echo "Published and verified: $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Production verified (new release): $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify existing production on no-change hourly checks
+        if: steps.stage_release.outputs.new_release == 'false'
+        env:
+          SOURCE_COMMIT: ${{ steps.stage_release.outputs.source_commit }}
+        run: |
+          python3 scripts/verify-live-cloudflare.py --source-commit "$SOURCE_COMMIT" \
+            --base-url "https://zazoomtek.it" --timeout-seconds 80 --interval-seconds 20
+          echo "Production verified (no new Pages build needed): $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
