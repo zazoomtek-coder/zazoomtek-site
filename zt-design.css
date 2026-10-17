@@ -1662,3 +1662,8 @@ aside.zt-side-mix[data-zt-large-editorial="three-cards"] > .zt-amazon-partner{
     font-size:11px!important;
   }
 }
+
+/* ZazoomTek: verified official video review banner */
+.zt-review-video-banner{margin:15px 0 26px;border:1px solid #e1e1e1;background:#f8f8f8;box-sizing:border-box;width:100%}
+.zt-review-video-banner>a{display:block!important;padding:14px 17px!important;font:900 clamp(13px,1.1vw,18px)/1.45 Arial,Helvetica,sans-serif!important;letter-spacing:.02em;color:#bb1235!important;text-decoration:none!important;overflow-wrap:anywhere}
+.zt-review-video-banner>a:hover,.zt-review-video-banner>a:focus-visible{background:#fff2f4!important;color:#8c0828!important;outline-offset:2px}

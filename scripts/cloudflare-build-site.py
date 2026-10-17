@@ -33,6 +33,10 @@ def main() -> None:
     run("seo_watch_pages_safe.py")
     run("zt_sidebar_mix.py")
     run("build-related-content.py")
+    # Cross-check review article titles against genuine full-length review
+    # videos in the verified ZazoomTek YouTube catalog. No unverified links.
+    run("link-review-videos.py")
+    run("verify-review-video-links.py")
     run("build-cloudflare-pages.py")
     output = ROOT / "dist"
     assert (output / "watch" / "index.html").is_file()
