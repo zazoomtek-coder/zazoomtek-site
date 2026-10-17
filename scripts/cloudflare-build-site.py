@@ -41,7 +41,25 @@ def main() -> None:
     output = ROOT / "dist"
     assert (output / "watch" / "index.html").is_file()
     assert (output / "news.html").is_file()
-    print("CLOUDFLARE SITE READY; all operations were build-time only.", flush=True)
+    # Public receipt written ONLY after every editorial and artifact check
+    # succeeded. Used by GitHub to verify actual Cloudflare production.
+    import json
+    import re
+    from datetime import datetime, timezone
+    release_file = ROOT / "cloudflare-release-trigger.txt"
+    marker = release_file.read_text(encoding="utf-8")
+    match = re.search(r"^source_commit=([a-f0-9]{40})$", marker, re.M)
+    if not match:
+        raise RuntimeError("Cloudflare release source SHA is missing or invalid")
+    receipt = {
+        "source_commit": match.group(1),
+        "validated": True,
+        "built_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    (output / "zt-release-status.json").write_text(
+        json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8")
+    print("CLOUDFLARE SITE READY; release receipt:", match.group(1), flush=True)
 
 if __name__ == "__main__":
     main()

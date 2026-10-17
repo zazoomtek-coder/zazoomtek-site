@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Confirm that a requested Cloudflare Pages release is REALLY live.
+
+This makes public GET requests only: it does not trigger extra Pages builds,
+does not need an API token and never marks a release successful from git push
+alone. Fails the GitHub Actions job on timeout with a diagnostic message.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import time
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+REVIEW = "/thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html"
+EXPECTED_REVIEW_VIDEO = "e7rAYQprXTM"
+
+
+def get_public_page(base: str, path: str, expected: str) -> str:
+    stamp = str(int(time.time()))
+    separator = "&" if "?" in path else "?"
+    url = base.rstrip("/") + path + separator + "zt-check=" + expected[:12] + "-" + stamp
+    request = Request(url, headers={
+        "User-Agent": "ZazoomTek-Release-Verification/1.0",
+        "Cache-Control": "no-cache, no-store",
+        "Pragma": "no-cache",
+        "Accept": "application/json, text/html, */*",
+    })
+    with urlopen(request, timeout=12) as response:
+        if response.status != 200:
+            raise RuntimeError(f"{path}: HTTP {response.status}")
+        return response.read(2 * 1024 * 1024).decode("utf-8", "replace")
+
+
+def verify_once(base: str, expected: str) -> str:
+    receipt = json.loads(get_public_page(base, "/zt-release-status.json", expected))
+    if (not isinstance(receipt, dict) or receipt.get("validated") is not True
+            or receipt.get("source_commit") != expected):
+        seen = receipt.get("source_commit", "missing") if isinstance(receipt, dict) else "malformed"
+        raise RuntimeError(f"Live release receipt is old: expected {expected[:12]}, found {str(seen)[:12]}")
+    # Check key outputs, not just the receipt. These are existing mandatory
+    # ZazoomTek publishing rules that were previously missed in production.
+    review = get_public_page(base, REVIEW, expected)
+    if ("zt-thermo-full-editorial" not in review
+            or "zt-review-video-banner" not in review
+            or "youtube.com/watch?v=" + EXPECTED_REVIEW_VIDEO not in review):
+        raise RuntimeError("Published ThermoMate page lacks full editorial boxes or verified YouTube video")
+    js = get_public_page(base, "/zt-home-live.js", expected)
+    if ("reservedEditorialPaths()" not in js
+            or "new MutationObserver(rebalance)" not in js):
+        raise RuntimeError("Published Home script lacks automatic no-duplicates/reentry logic")
+    return expected
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-commit")
+    parser.add_argument("--base-url", default="https://zazoomtek.it")
+    parser.add_argument("--timeout-seconds", type=int, default=420)
+    parser.add_argument("--interval-seconds", type=int, default=20)
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args()
+    if args.self_test:
+        sample = {"validated": True, "source_commit": "a" * 40}
+        assert sample["validated"] is True and re.fullmatch(r"[a-f0-9]{40}", sample["source_commit"])
+        assert "zt-check=" in args.base_url + "?zt-check=test"
+        print("LIVE RELEASE VERIFY SELF TEST PASSED", flush=True)
+        return
+    if not args.source_commit or not re.fullmatch(r"[a-f0-9]{40}", args.source_commit):
+        parser.error("--source-commit must be the 40-character SHA in the release trigger")
+    if not args.base_url.startswith("https://"):
+        parser.error("Public verification requires HTTPS")
+    if not 20 <= args.timeout_seconds <= 900 or not 10 <= args.interval_seconds <= 120:
+        parser.error("Unsupported polling settings")
+    deadline = time.monotonic() + args.timeout_seconds
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            verified = verify_once(args.base_url, args.source_commit)
+            print(f"PASS: Cloudflare public site is serving verified release {verified}", flush=True)
+            return
+        except (HTTPError, URLError, OSError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
+            print(f"Not live yet (attempt {attempt}): {exc}", flush=True)
+        if time.monotonic() >= deadline:
+            print("::error::Cloudflare release was requested but NOT verified on public "
+                  "zazoomtek.it within the allowed window. Check Cloudflare build logs, "
+                  "Pages build watch paths, and Git integration.", file=sys.stderr, flush=True)
+            raise SystemExit(1)
+        time.sleep(min(args.interval_seconds, max(0, deadline - time.monotonic())))
+
+
+if __name__ == "__main__":
+    main()

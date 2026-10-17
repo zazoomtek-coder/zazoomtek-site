@@ -29,7 +29,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 24
     steps:
       - name: Check local Italy publishing window (handles DST automatically)
         id: rome_window
@@ -65,6 +65,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Stage one atomic Cloudflare publish only when public content changed
+        id: stage_release
         if: steps.rome_window.outputs.allowed == 'true'
         run: |
           set -euo pipefail
@@ -74,10 +75,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python3 scripts/cloudflare-release-control.py --self-test
+            python3 scripts/verify-live-cloudflare.py --self-test
             # Build exactly the same static snapshot as Cloudflare before
             # spending a Pages build. A failure must block the trigger commit.
             python3 scripts/cloudflare-build-site.py
-            if [ "${{ inputs.urgent || false }}" = "true" ] || [ "${{ github.event_name }}" = "push" ]; then
+            if [ "${{ inputs.urgent || false }}" = "true" ]; then
               python3 scripts/cloudflare-release-control.py --urgent
             else
               python3 scripts/cloudflare-release-control.py --dedupe-hour
@@ -89,10 +91,26 @@ jobs:
             fi
             git commit -m "Cloudflare release: batch approved ZazoomTek articles"
             if git push origin HEAD:main; then
-              echo "One Pages build requested via watched trigger file."
+              # The commit is NOT proof of deployment; the next step must
+              # see this exact source revision on the public domain.
+              SOURCE_COMMIT="$(sed -n 's/^source_commit=//p' cloudflare-release-trigger.txt)"
+              if ! [[ "$SOURCE_COMMIT" =~ ^[a-f0-9]{40}$ ]]; then
+                echo "::error::Cloudflare trigger missing valid source SHA."
+                exit 1
+              fi
+              echo "source_commit=$SOURCE_COMMIT" >> "$GITHUB_OUTPUT"
+              echo "One Pages build REQUESTED (not yet verified)."
               exit 0
             fi
             sleep "$((attempt * 4))"
           done
           echo "::error::Could not safely request the controlled Pages release."
           exit 1
+      - name: Verify public Cloudflare deployment (no extra build)
+        if: steps.stage_release.outputs.source_commit != ''
+        env:
+          SOURCE_COMMIT: ${{ steps.stage_release.outputs.source_commit }}
+        run: |
+          python3 scripts/verify-live-cloudflare.py --source-commit "$SOURCE_COMMIT" \
+            --base-url "https://zazoomtek.it" --timeout-seconds 420 --interval-seconds 20
+          echo "Published and verified: $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
