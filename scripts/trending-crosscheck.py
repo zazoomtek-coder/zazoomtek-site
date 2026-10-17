@@ -536,10 +536,10 @@ def allowed_featured_date(article,on_date=None):
 def expected_featured_sections(pins=None):
     """Maximum possible slots, NOT an instruction to fill with old content."""
     pins=editorial_pins() if pins is None else pins
-    return ["tech"]*(4-len(pins))+["gaming"]+[x["section"] for x in pins]
+    return ["tech"]*min(2,4-len(pins))+["gaming"]*min(3,5-len(pins))+[x["section"] for x in pins]
 
 def valid_featured_sections(items,pins=None):
-    """Six unique dated cards: 5 Tech+1 Gaming target; fresh Gaming fills gaps.
+    """Five unique dated cards: favor latest Tech/Gaming without stale fillers.
 
     Editorial tags are never faked. When the archive contains fewer than five
     genuinely Tech news from today/yesterday, reuse additional *Gaming* posts
@@ -674,12 +674,16 @@ def pick(articles,on_date=None):
             count+=1
         return count
 
-    # Target: five truly Tech articles and one truly Gaming article.
-    required_tech=4-len(pins)
+    # Balance the five slots around the freshest real articles: aim for
+    # 2 Tech + 3 Gaming, never 4 older Tech at the expense of today's Gaming.
+    # When one desk has fewer fresh posts, fill only with the OTHER desk's
+    # genuine, published items from today or yesterday.
+    required_tech=min(2,4-len(pins))
     tech_count=add_best("tech",required_tech)
-    add_best("gaming",1)
-    # Never hide a fresh headline or lie about categories merely because the
-    # archive doesn't contain five technology articles in the last two days.
+    add_best("gaming",min(3,5-len(pins)-len(selected)))
+    gaps=5-len(pins)-len(selected)
+    if gaps:
+        add_best("tech",min(4-tech_count,gaps))
     gaps=5-len(pins)-len(selected)
     if gaps:
         add_best("gaming",gaps)
@@ -707,7 +711,7 @@ def pick(articles,on_date=None):
     return selected
 
 def slide_markup(chosen):
-    """Six-image 3x2 editorial mosaic, clickable covers without overlays."""
+    """Five-image editorial mosaic, clickable covers without overlays."""
     cards=[]
     for n,a in enumerate(chosen):
         title=html.escape(re.sub(r"(?i)^news\s*:\s*","",str(a["title"])),quote=True)
@@ -718,7 +722,7 @@ def slide_markup(chosen):
             '" aria-label="'+title+'" title="'+title+'"><img src="'+image+
             '" alt="'+title+'" loading="'+("eager" if n==0 else "lazy")+
             '" decoding="async"></a>')
-    return '<div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Sei news ZazoomTek in evidenza">'+"".join(cards)+"</div>"
+    return '<div class="zt-featured-grid" id="ztFeaturedGrid" aria-label="Cinque news ZazoomTek in evidenza">'+"".join(cards)+"</div>"
 
 
 def set_featured(index,chosen):

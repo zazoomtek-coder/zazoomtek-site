@@ -88,6 +88,8 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--urgent",action="store_true")
     parser.add_argument("--self-test",action="store_true")
+    parser.add_argument("--dedupe-hour",action="store_true",
+                        help="Do not request a second scheduled Pages build in the same Italian hour")
     args=parser.parse_args()
     if args.self_test:
         assert decide(["news-X.html"],350)=="publish"
@@ -111,6 +113,24 @@ def main():
         print("RELEASE SELF TEST PASSED")
         return
     previous=""
+    # The :39, :44 and :54 scheduled attempts must not create 3 Pages builds.
+    if args.dedupe_hour and not args.urgent and TRIGGER.is_file():
+        for row in TRIGGER.read_text(encoding="utf-8").splitlines():
+            if not row.startswith("created_utc="):
+                continue
+            try:
+                last=dt.datetime.fromisoformat(row.split("=",1)[1].replace("Z","+00:00"))
+                if last.tzinfo is None:
+                    last=last.replace(tzinfo=dt.timezone.utc)
+                from zoneinfo import ZoneInfo
+                italy=ZoneInfo("Europe/Rome")
+                last_local=last.astimezone(italy)
+                current=dt.datetime.now(italy)
+                if (last_local.date(),last_local.hour)==(current.date(),current.hour):
+                    print("RELEASE CONTROL: current Italy hour already released; skip duplicate build")
+                    return
+            except (ValueError,TypeError):
+                raise ReleaseError("Invalid release timestamp; refusing uncounted duplicate")
     if TRIGGER.is_file():
         for line in TRIGGER.read_text(encoding="utf-8").splitlines():
             if line.startswith("source_commit="):

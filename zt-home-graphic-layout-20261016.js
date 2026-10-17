@@ -24,9 +24,9 @@
        !/^\/(?:tech-impact|gaming-inside)-/.test(url)&&
        !/^news\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(title);
    });
-   const tech=eligible.filter(card=>card.dataset.featureSection==="tech"||!/\b(gaming|gameplay|videogioch|playstation|ps5|xbox|nintendo|steam)\b/i.test(card.title||"")).slice(0,4);
-   const gaming=eligible.find(card=>card.dataset.featureSection==="gaming"||/\b(gaming|gameplay|videogioch|playstation|ps5|xbox|nintendo|steam)\b/i.test(card.title||""));
-   const chosen=(tech.length===4&&gaming)?[...tech,gaming]:eligible.slice(0,5);
+   // Category selection is performed by the verified editorial manifest.
+   // Preserve that chronological order; do not guess a section from title words.
+   const chosen=eligible.slice(0,5);
    if(chosen.length!==cards.length||chosen.some((card,i)=>card!==cards[i])){
      grid.replaceChildren(...chosen);
    }

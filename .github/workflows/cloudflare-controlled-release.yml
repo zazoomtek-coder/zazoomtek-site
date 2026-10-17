@@ -5,11 +5,11 @@ name: Cloudflare Pages - hourly batched publishing
 #   Exclude: (none)
 on:
   schedule:
-    # One hourly check from 07:44 through 21:44 Europe/Rome local time.
-    # GitHub cron uses UTC; 05:44-20:44 UTC covers both CET and CEST.
+    # Warm-up :39, target :44, fallback :54, only one Pages build/hour.
+    # GitHub cron uses UTC; 05-20 UTC covers Italy's 07-21 local window.
     # The runtime Europe/Rome guard skips out-of-window UTC entries.
-    # GitHub schedule is best-effort and may run late.
-    - cron: '44 5-20 * * *'
+    # GitHub schedule is best-effort: runner starts and builds cannot be guaranteed at :44.
+    - cron: '39,44,54 5-20 * * *'
   workflow_dispatch:
     inputs:
       urgent:
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 14
     steps:
       - name: Check local Italy publishing window (handles DST automatically)
         id: rome_window
@@ -42,6 +42,19 @@ jobs:
           print(f"Europe/Rome time: {local_now.isoformat()}, publish allowed: {allowed}")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               output.write("allowed=" + str(allowed).lower() + "\n")
+          PY
+      - name: Hold early runner until minute :44 local (best effort)
+        if: steps.rome_window.outputs.allowed == 'true' && github.event_name == 'schedule'
+        run: |
+          python3 - <<'PY'
+          import datetime as dt
+          import time
+          from zoneinfo import ZoneInfo
+          now=dt.datetime.now(ZoneInfo("Europe/Rome"))
+          wait=(44-now.minute)*60-now.second
+          if 0 < wait <= 5*60:
+              print(f"Pre-warmed runner ready; waiting {wait}s until :44.")
+              time.sleep(wait)
           PY
       - uses: actions/checkout@v4
         if: steps.rome_window.outputs.allowed == 'true'
@@ -60,7 +73,7 @@ jobs:
             if [ "${{ inputs.urgent || false }}" = "true" ]; then
               python3 scripts/cloudflare-release-control.py --urgent
             else
-              python3 scripts/cloudflare-release-control.py
+              python3 scripts/cloudflare-release-control.py --dedupe-hour
             fi
             git add -- cloudflare-release-trigger.txt
             if git diff --cached --quiet; then

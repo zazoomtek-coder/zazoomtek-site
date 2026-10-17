@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synchronize the actual homepage six-card grid with approved featured JSON.
+"""Synchronize the actual homepage five-card grid with approved featured JSON.
 
 Build-time only. The four-hour curator exclusively owns featured-carousel.json;
 this script never selects stories or changes article text. A bad manifest stops
@@ -84,7 +84,7 @@ def render(root: Path) -> str:
         path = escape(url, quote=True)
         cover = escape(image, quote=True)
         cards.append('<a class="zt-feature-card zt-feature-small" href="' + path +
-                     '" aria-label="' + label + '" title="' + label +
+                     '" data-feature-section="' + item["section"] + '" aria-label="' + label + '" title="' + label +
                      '"><img src="' + cover + '" alt="' + label + '" loading="' +
                      ("eager" if n == 0 else "lazy") +
                      '" decoding="async"></a>')
