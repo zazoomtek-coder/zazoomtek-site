@@ -3,7 +3,7 @@
 
 Only the trigger file causes a Pages build. You MUST configure Pages Build
 watch paths -> Includes: cloudflare-release-trigger.txt, Excludes: (none).
-All new public content is batched into at most one scheduled release per hour.
+Public changes are batched with a 30-minute rolling cooldown and a 450/31-day cap.
 If nothing public changed, the hourly check starts zero Cloudflare builds.
 Scheduled releases stop after 450 trigger changes in the previous 31 days,
 preserving a separate urgent reserve to 475 (and another 25 as contingency).
@@ -89,7 +89,7 @@ def main():
     parser.add_argument("--urgent",action="store_true")
     parser.add_argument("--self-test",action="store_true")
     parser.add_argument("--dedupe-hour",action="store_true",
-                        help="Do not request a second scheduled Pages build in the same Italian hour")
+                        help="Legacy flag: only suppress scheduled builds within 30 minutes of the last release")
     args=parser.parse_args()
     if args.self_test:
         assert decide(["news-X.html"],350)=="publish"
@@ -113,7 +113,12 @@ def main():
         print("RELEASE SELF TEST PASSED")
         return
     previous=""
-    # The :39, :44 and :54 scheduled attempts must not create 3 Pages builds.
+    # GitHub Actions may deliver the prior :44 run at :04 of the NEXT hour.
+    # Blocking by the local hour then silently drops this hour’s new articles:
+    # e.g. a delayed release at 16:04 blocked the scheduled 16:44.
+    # Instead use a short rolling cooldown so :44 and :54 retries do not
+    # produce duplicate builds, while a delayed old run cannot block :44.
+    # The independent rolling 31-day 450-build budget cap remains authoritative.
     if args.dedupe_hour and not args.urgent and TRIGGER.is_file():
         for row in TRIGGER.read_text(encoding="utf-8").splitlines():
             if not row.startswith("created_utc="):
@@ -121,16 +126,17 @@ def main():
             try:
                 last=dt.datetime.fromisoformat(row.split("=",1)[1].replace("Z","+00:00"))
                 if last.tzinfo is None:
-                    last=last.replace(tzinfo=dt.timezone.utc)
-                from zoneinfo import ZoneInfo
-                italy=ZoneInfo("Europe/Rome")
-                last_local=last.astimezone(italy)
-                current=dt.datetime.now(italy)
-                if (last_local.date(),last_local.hour)==(current.date(),current.hour):
-                    print("RELEASE CONTROL: current Italy hour already released; skip duplicate build")
+                    raise ReleaseError("Release timestamp lacks timezone; refusing uncounted build")
+                elapsed=(dt.datetime.now(dt.timezone.utc)-
+                         last.astimezone(dt.timezone.utc)).total_seconds()
+                if elapsed < 0:
+                    raise ReleaseError("Release timestamp is in the future")
+                if elapsed < 30*60:
+                    print(f"RELEASE CONTROL: last release was {elapsed/60:.1f}m ago; "
+                          "defer within 30m cooldown to avoid duplicate Pages builds")
                     return
-            except (ValueError,TypeError):
-                raise ReleaseError("Invalid release timestamp; refusing uncounted duplicate")
+            except ValueError as exc:
+                raise ReleaseError("Invalid release timestamp; refusing uncounted duplicate") from exc
     if TRIGGER.is_file():
         for line in TRIGGER.read_text(encoding="utf-8").splitlines():
             if line.startswith("source_commit="):

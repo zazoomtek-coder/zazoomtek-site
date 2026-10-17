@@ -5,7 +5,7 @@ name: Cloudflare Pages - hourly batched publishing
 #   Exclude: (none)
 on:
   schedule:
-    # Warm-up :39, target :44, fallback :54, only one Pages build/hour.
+    # Warm-up :39, target :44, fallback :54; 30m rolling cooldown plus 450/31-day budget.
     # GitHub cron uses UTC; 05-20 UTC covers Italy's 07-21 local window.
     # The runtime Europe/Rome guard skips out-of-window UTC entries.
     # GitHub schedule is best-effort: runner starts and builds cannot be guaranteed at :44.
