@@ -127,6 +127,22 @@ def check() -> None:
         raise RuntimeError("Tech shelf does not place ThermoMate first")
     if 'fetch("/recensioni-scritte.html",{cache:"no-store"})' not in js:
         raise RuntimeError("Tech reviews are not refreshed automatically")
+    # Invariant: featured Home items disappear temporarily from both news
+    # columns, then return in the ORIGINAL date order when replaced.
+    if ('var topTen=all.filter(function(row){return !excluded.has(hrefOf(row));})'
+            not in js or 'new MutationObserver(rebalance).observe(featuredGrid' not in js
+            or 'var all=orderHomeColumn(col)' not in js):
+        raise RuntimeError("Home news feature-exclusion/reentry automation missing")
+    if 'var limit=route==="gaming"?55:50' not in js:
+        raise RuntimeError("Home cannot backfill columns with non-featured news")
+    # Manual Tech reviews must use the complete ZazoomTek editorial template.
+    thermo=read(THERMO)
+    if ('zt-thermo-full-editorial' not in thermo
+            or thermo.count('<section class="side-box') < 10
+            or 'zt-mix-recent' not in thermo or 'zt-mix-feature' not in thermo
+            or 'zt-amazon-partner' not in thermo or 'zt-sidebar-editorial' not in thermo
+            or 'Gaming Inside' not in thermo or 'Tech Impact' not in thermo):
+        raise RuntimeError("ThermoMate review is missing complete editorial side boxes")
     print("EDITORIAL PREFLIGHT PASSED: 4 Tech + 1 Gaming, archive pagination, "
           "10+ authentic stories per column, ThermoMate in both Home shelves and review archive")
 
