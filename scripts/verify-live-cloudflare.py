@@ -77,7 +77,8 @@ def verify_once(base: str, expected: str) -> str:
     if "aspect-ratio:16/9" not in style or "object-fit:contain" not in style:
         raise RuntimeError("Live review thumbnail stylesheet lacks 16:9 frame")
     root = Path(__file__).resolve().parents[1]
-    reviews = sorted({*root.glob("recensione-*.html"), *root.glob("*-recensione-*.html")})
+    reviews = sorted(p for p in {*root.glob("recensione-*.html"), *root.glob("*-recensione-*.html")}
+                     if p.is_file() and not p.name.startswith(("preview-", "anteprima-", "test-")))
     if not reviews:
         raise RuntimeError("No local review inventory available for live checks")
     for page in reviews:
