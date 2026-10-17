@@ -9,6 +9,9 @@ on:
       - 'scripts/cloudflare-release-control.py'
       - 'scripts/cloudflare-build-site.py'
       - 'scripts/verify-live-cloudflare.py'
+      - 'scripts/link-review-videos.py'
+      - 'scripts/verify-review-video-links.py'
+      - 'home-video-feed.json'
       - 'scripts/build-cloudflare-pages.py'
   pull_request:
     paths:
@@ -16,12 +19,15 @@ on:
       - 'scripts/cloudflare-release-control.py'
       - 'scripts/cloudflare-build-site.py'
       - 'scripts/verify-live-cloudflare.py'
+      - 'scripts/link-review-videos.py'
+      - 'scripts/verify-review-video-links.py'
+      - 'home-video-feed.json'
 permissions:
   contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - name: Compile release scripts without creating any Pages build
@@ -32,3 +38,8 @@ jobs:
           python3 scripts/cloudflare-release-control.py --self-test
           python3 scripts/verify-live-cloudflare.py --self-test
           echo "Release script syntax and budget guard validated; NO deployment requested."
+      - name: Build and validate full production snapshot OFFLINE (zero Cloudflare builds)
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          test -f dist/zt-release-status.json
+          echo "Full Cloudflare-equivalent build preflight passed; NO deployment requested."
