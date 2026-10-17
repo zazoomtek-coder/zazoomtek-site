@@ -415,51 +415,131 @@
       copy.append(h3,date,p,read);article.append(imageLink,copy);
       return article;
     }
-    function rebalance() {
-      var featured=new Set([].slice.call(document.querySelectorAll("#ztFeaturedGrid a[href]"))
-        .map(function(a){try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(e){return "";}}));
-      // Different column widths require different feature counts.
-      // Three real Tech and four real Gaming feature cards maintain near-equal heights.
-      [[tech,3],[gaming,4]].forEach(function(pair){
-        var col=pair[0],maxBig=pair[1];
-        var rows=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
-        rows.forEach(function(r,i){r.hidden=i>=10;r.classList.remove("zt-mag-big","ztp-gaming-feature");});
-        var firstTen=rows.slice(0,10);
-        var chosen=firstTen.map(function(r,i){return featured.has(hrefOf(r))?i:-1;}).filter(function(i){return i>=0;}).slice(0,maxBig);
-        var fallback=maxBig===3?[0,4,8]:[0,3,6,9];
-        fallback.forEach(function(i){if(chosen.length<maxBig&&i<firstTen.length&&!chosen.includes(i))chosen.push(i);});
-        firstTen.forEach(function(r,i){r.classList.toggle("zt-mag-big",chosen.includes(i));});
-        var n=col.closest(".ztp-news-column").querySelector(".ztp-news-head small");
-        if(n) n.textContent=Math.min(10,firstTen.length)+" news";
+
+    // Revision 17 ottobre: ridimensionare la seconda card Tech in evidenza.
+    // Gaming può usare un undicesimo articolo *reale* solo quando chiude
+    // sensibilmente prima di Tech. Non riempire con contenuto inventato.
+    var queuedAlignment=false;
+    function featuredPaths(){
+      return new Set([].slice.call(document.querySelectorAll("#ztFeaturedGrid a[href]"))
+        .map(function(a){try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}}));
+    }
+    function shownRows(column){
+      return [].slice.call(column.querySelectorAll(":scope > article.article-row")).filter(function(row){
+        return !row.hidden && getComputedStyle(row).display!=="none";
       });
     }
+    function renderedHeight(column){
+      var shown=shownRows(column);
+      return shown.length
+        ? shown[shown.length-1].getBoundingClientRect().bottom-column.getBoundingClientRect().top
+        : 0;
+    }
+    function alignBottoms(){
+      // On mobile and tablets do not force card counts or fixed heights.
+      var candidates=[].slice.call(gaming.querySelectorAll(":scope > article.article-row"))
+        .filter(function(row){return !featuredPaths().has(hrefOf(row));});
+      candidates.slice(10).forEach(function(row){row.hidden=true;});
+      if(!window.matchMedia("(min-width:1150px)").matches)return;
+      var techHeight=renderedHeight(tech);
+      var gamingHeight=renderedHeight(gaming);
+      if(!techHeight||!gamingHeight)return;
+      // Try just one extra published Gaming article when the white gap is visible.
+      var candidate=candidates[10];
+      if(!candidate || techHeight-gamingHeight<110)return;
+      candidate.hidden=false;
+      candidate.style.removeProperty("display");
+      var newHeight=renderedHeight(gaming);
+      // Reject a card if it would create a worse overhang than the original gap.
+      if(Math.abs(techHeight-newHeight)>=Math.abs(techHeight-gamingHeight)+15){
+        candidate.hidden=true;
+      }
+    }
+    function requestAlignment(){
+      if(queuedAlignment)return;
+      queuedAlignment=true;
+      requestAnimationFrame(function(){queuedAlignment=false;alignBottoms();});
+    }
+    function rebalance(){
+      var featured=featuredPaths();
+      [[tech,3],[gaming,4]].forEach(function(pair){
+        var col=pair[0],maxBig=pair[1];
+        var all=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
+        var eligible=all.filter(function(row){return !featured.has(hrefOf(row));});
+        var topTen=eligible.slice(0,10);
+        all.forEach(function(row){
+          row.hidden=true;
+          row.classList.remove("zt-mag-big","ztp-gaming-feature");
+        });
+        topTen.forEach(function(row){
+          row.hidden=false;
+          row.style.removeProperty("display");
+        });
+        var indexes=(maxBig===3?[0,4,8]:[0,3,6,9]).filter(function(i){return i<topTen.length;});
+        indexes.slice(0,maxBig).forEach(function(i){topTen[i].classList.add("zt-mag-big");});
+        if(col===tech){
+          // The second large Tech image (e.g. Midea in the screenshot)
+          // becomes a compact horizontal article, preserving the full image.
+          var large=topTen.filter(function(row){return row.classList.contains("zt-mag-big");});
+          var specific=large.find(function(row){
+            return /midea.*powerinfi|powerinfi.*midea/i.test(row.querySelector(".article-copy h3")?.textContent||"");
+          });
+          var compact=specific || large[1];
+          if(compact)compact.classList.remove("zt-mag-big");
+        }
+        var count=col.closest(".ztp-news-column").querySelector(".ztp-news-head small");
+        if(count)count.textContent=topTen.length+" news";
+      });
+      requestAlignment();
+    }
+    // Respond to actual image loading and window resizing, not artificial spacers.
+    area.addEventListener("load",function(e){if(e.target && e.target.tagName==="IMG")requestAlignment();},true);
+    window.addEventListener("resize",function(){rebalance();},{passive:true});
+    var featuredGrid=document.getElementById("ztFeaturedGrid");
+    if(featuredGrid)new MutationObserver(rebalance).observe(featuredGrid,{childList:true});
     rebalance();
-    // The canonical 15 home articles remain untouched. Only published archive cards may fill missing slots.
-    function fillArchive(path) {
+    // The canonical news feed stays unchanged. Only archived, published,
+    // explicitly categorised Gaming stories are eligible to fill an extra slot.
+    function fillArchive(path){
       return fetch(path,{cache:"force-cache",credentials:"same-origin"})
       .then(function(resp){if(!resp.ok)throw new Error("Archive unavailable");return resp.text();})
-      .then(function(html){
-        var doc=new DOMParser().parseFromString(html,"text/html");
+      .then(function(markup){
+        var doc=new DOMParser().parseFromString(markup,"text/html");
+        var featured=featuredPaths();
         [].slice.call(doc.querySelectorAll(".news-list article.news-row")).forEach(function(src){
           var link=src.querySelector(".news-copy h2 a");
-          if(!link) return;
-          var name=link.textContent.trim();
+          if(!link)return;
           var route=explicitArchiveCategory(src);
           if(!route)return;
           var section=route==="gaming"?gaming:tech;
-          if(section.querySelectorAll(":scope > article.article-row").length>=10)return;
+          var limit=route==="gaming"?11:10;
+          var count=[].slice.call(section.querySelectorAll(":scope > article.article-row"))
+            .filter(function(row){return !featured.has(hrefOf(row));}).length;
+          if(count>=limit)return;
+          var articlePath=new URL(link.getAttribute("href"),location.origin).pathname;
+          if(featured.has(articlePath))return;
           var row=makeArticle(src);
           if(row)section.appendChild(row);
         });
         rebalance();
-        return tech.querySelectorAll(":scope > article.article-row").length>=10 &&
-               gaming.querySelectorAll(":scope > article.article-row").length>=10;
+        var ready=function(section,limit){
+          return [].slice.call(section.querySelectorAll(":scope > article.article-row"))
+            .filter(function(row){return !featured.has(hrefOf(row));}).length>=limit;
+        };
+        return ready(tech,10)&&ready(gaming,11);
       });
     }
-    fillArchive("/news.html").then(function(full){
-      if(!full)return fillArchive("/news-2.html");
-      return true;
-    }).catch(function(){rebalance();});
+    var archivePages=["/news.html","/news-2.html","/news-3.html"];
+    function fetchUntilReady(i){
+      if(i>=archivePages.length)return Promise.resolve(false);
+      return fillArchive(archivePages[i]).then(function(full){
+        return full?true:fetchUntilReady(i+1);
+      });
+    }
+    fetchUntilReady(0).then(requestAlignment).catch(function(err){
+      console.info("Home archive alignment preserved:",err.message);
+      rebalance();
+    });
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enhance,{once:true});
   else enhance();
