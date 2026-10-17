@@ -137,7 +137,7 @@ def check() -> None:
         raise RuntimeError("Stable Tech/Gaming Home columns are missing")
     if 'reservedEditorialPaths()' in js:
         raise RuntimeError("Regressed Home dynamic reordering was reintroduced")
-    if '20261017stableColumnsRollback3' not in home:
+    if '20261017stableColumnsRollback4' not in home:
         raise RuntimeError("Home is not loading the stable column layout")
     # Manual Tech reviews must use the complete ZazoomTek editorial template.
     thermo=read(THERMO)
