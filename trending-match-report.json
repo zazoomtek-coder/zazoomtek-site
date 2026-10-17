@@ -1,22 +1,22 @@
 {
-  "checked_at": "2026-10-17T08:50:35.697475+00:00",
+  "checked_at": "2026-10-17T12:57:47.951574+00:00",
   "source_sites": 15,
-  "matches": 6,
+  "matches": 7,
   "selected": [
+    {
+      "title": "Quarantine Zone: The Last Check si espande con Miami Zero, DLC gratuito disponibile ora su PC e Xbox",
+      "section": "gaming",
+      "url": "/news-UgkxWPyvf95j1OEU2XGY9FsZhxP0ngjcYyJB.html",
+      "trend_score": 0,
+      "published_date": "2026-10-17",
+      "freshness_bonus": 72,
+      "selection_score": 72.0,
+      "sources": []
+    },
     {
       "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
       "section": "tech",
       "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
-      "trend_score": 0,
-      "published_date": "2026-10-16",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
-      "sources": []
-    },
-    {
-      "title": "Tales of Eternia Remastered è disponibile ora su PC e console",
-      "section": "gaming",
-      "url": "/news-UgkxHKjqDM_6w4x_d1JfWv0MwO8uWY5mvxdT.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
       "freshness_bonus": 62,
