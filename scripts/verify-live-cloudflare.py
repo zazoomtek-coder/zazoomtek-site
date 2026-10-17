@@ -44,10 +44,23 @@ def verify_once(base: str, expected: str) -> str:
     # Check key outputs, not just the receipt. These are existing mandatory
     # ZazoomTek publishing rules that were previously missed in production.
     review = get_public_page(base, REVIEW, expected)
-    if ("zt-thermo-full-editorial" not in review
-            or "zt-review-video-banner" not in review
+    # A CSS rule can contain the class name even if the sidebar was omitted.
+    # Verify the actual rendered sidebar structure and all 11 editorial boxes.
+    sidebar = re.search(
+        r'<aside\b[^>]*\bzt-thermo-full-editorial\b[^>]*>(.*?)</aside>',
+        review, re.I | re.S,
+    )
+    module_count = (
+        len(re.findall(r'<section\b[^>]*\bside-box\b', sidebar.group(1), re.I))
+        if sidebar else 0
+    )
+    if module_count < 11:
+        raise RuntimeError(
+            f"Published ThermoMate sidebar incomplete: {module_count}/11 editorial modules"
+        )
+    if ("zt-review-video-banner" not in review
             or "youtube.com/watch?v=" + EXPECTED_REVIEW_VIDEO not in review):
-        raise RuntimeError("Published ThermoMate page lacks full editorial boxes or verified YouTube video")
+        raise RuntimeError("Published ThermoMate page lacks its verified YouTube review video")
     js = get_public_page(base, "/zt-home-live.js", expected)
     if ("reservedEditorialPaths()" not in js
             or "new MutationObserver(rebalance)" not in js):
