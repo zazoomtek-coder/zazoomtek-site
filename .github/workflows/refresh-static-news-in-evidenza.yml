@@ -4,8 +4,9 @@ name: News in evidenza - aggiornamento statico indipendente
 on:
   workflow_dispatch:
   schedule:
-    # Refresh independently every four hours, avoiding the top of the hour.
-    - cron: '23 */4 * * *'
+    # Refresh the five featured News every two hours, not only every four.
+    # This runs separately from the hourly Cloudflare publishing budget.
+    - cron: '23 */2 * * *'
   push:
     branches: [main]
     paths:
