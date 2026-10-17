@@ -3,7 +3,7 @@
 
 Only the trigger file causes a Pages build. You MUST configure Pages Build
 watch paths -> Includes: cloudflare-release-trigger.txt, Excludes: (none).
-Public changes are batched with a 30-minute rolling cooldown and a 450/31-day cap.
+Public changes are batched with a 50-minute rolling cooldown and a 450/31-day cap.
 If nothing public changed, the hourly check starts zero Cloudflare builds.
 Scheduled releases stop after 450 trigger changes in the previous 31 days,
 preserving a separate urgent reserve to 475 (and another 25 as contingency).
@@ -23,6 +23,7 @@ import subprocess
 ROOT=Path(__file__).resolve().parents[1]
 TRIGGER=ROOT/"cloudflare-release-trigger.txt"
 HORIZON="31 days ago"
+COOLDOWN_MINUTES=50
 RESERVE_SCHEDULED=450
 RESERVE_URGENT=475
 # If 350 builds or more are used, skip changes solely to homepage boxes;
@@ -35,6 +36,23 @@ NONPUBLIC_DIR={".github","scripts","functions","editorial","includes","node_modu
 NONPUBLIC_SUFFIX=("-report.json","-manifest.json","-state.json")
 LOW_EDITORIAL={"index.html","zt-home-live.js"}
 LOW_FEATURED={"featured-carousel.json","trending-sources.json","trending-match-report.json"}
+# Build-time generators are real production inputs even when they have not
+# changed an .html/.js file in the repository yet. Without this list, a fix to
+# the build pipeline could remain unpublished forever while the gate says
+# "no changed public content". Never include the release workflow itself.
+BUILD_INPUTS={
+    "scripts/cloudflare-build-site.py",
+    "scripts/build-cloudflare-pages.py",
+    "scripts/apply-site-design.py",
+    "scripts/trending-crosscheck.py",
+    "scripts/cloudflare-sync-featured-home.py",
+    "scripts/refresh-home-latest-reviews.py",
+    "scripts/zt_sidebar_mix.py",
+    "scripts/build-related-content.py",
+    "scripts/link-review-videos.py",
+    "scripts/seo_watch_pages_safe.py",
+    "scripts/validate-sync-output.py",
+}
 class ReleaseError(RuntimeError): pass
 
 def git(*args: str) -> str:
@@ -54,6 +72,8 @@ def public(path: str) -> bool:
     p=Path(path)
     if not p.parts or p.parts[0].startswith("."):
         return False
+    if path in BUILD_INPUTS:
+        return True
     if p.parts[0] in NONPUBLIC_DIR or p.name in OMIT:
         return False
     if p.name.startswith(("preview-","anteprima-","audit-","test-","check-")):
@@ -89,7 +109,7 @@ def main():
     parser.add_argument("--urgent",action="store_true")
     parser.add_argument("--self-test",action="store_true")
     parser.add_argument("--dedupe-hour",action="store_true",
-                        help="Legacy flag: only suppress scheduled builds within 30 minutes of the last release")
+                        help="Suppress ordinary releases within 50 minutes of last trigger")
     args=parser.parse_args()
     if args.self_test:
         assert decide(["news-X.html"],350)=="publish"
@@ -109,6 +129,8 @@ def main():
         assert public("assets/special/example.webp") and public("news-example.html")
         assert not public(".github/workflows/main.yml")
         assert not public("scripts/private.py")
+        assert public("scripts/link-review-videos.py")
+        assert public("scripts/cloudflare-build-site.py")
         assert not public("cloudflare-release-trigger.txt")
         print("RELEASE SELF TEST PASSED")
         return
@@ -116,8 +138,8 @@ def main():
     # GitHub Actions may deliver the prior :44 run at :04 of the NEXT hour.
     # Blocking by the local hour then silently drops this hour’s new articles:
     # e.g. a delayed release at 16:04 blocked the scheduled 16:44.
-    # Instead use a short rolling cooldown so :44 and :54 retries do not
-    # produce duplicate builds, while a delayed old run cannot block :44.
+    # Instead use a 50-minute rolling cooldown so the :17 and :47 runs
+    # check every hour but create at most one normal release per hour.
     # The independent rolling 31-day 450-build budget cap remains authoritative.
     if args.dedupe_hour and not args.urgent and TRIGGER.is_file():
         for row in TRIGGER.read_text(encoding="utf-8").splitlines():
@@ -131,9 +153,9 @@ def main():
                          last.astimezone(dt.timezone.utc)).total_seconds()
                 if elapsed < 0:
                     raise ReleaseError("Release timestamp is in the future")
-                if elapsed < 30*60:
+                if elapsed < COOLDOWN_MINUTES*60:
                     print(f"RELEASE CONTROL: last release was {elapsed/60:.1f}m ago; "
-                          "defer within 30m cooldown to avoid duplicate Pages builds")
+                          f"defer within {COOLDOWN_MINUTES}m cooldown to avoid duplicate Pages builds")
                     return
             except ValueError as exc:
                 raise ReleaseError("Invalid release timestamp; refusing uncounted duplicate") from exc
