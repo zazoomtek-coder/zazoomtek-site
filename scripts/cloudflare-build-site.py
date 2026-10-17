@@ -18,6 +18,8 @@ def run(script: str, *args: str) -> None:
                    cwd=ROOT, check=True, timeout=180)
 
 def main() -> None:
+    # Refuse unauthorized Home structural changes before any publication.
+    run("verify-home-layout-lock.py")
     run("validate-sync-output.py", "community")
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
@@ -37,7 +39,10 @@ def main() -> None:
     # videos in the verified ZazoomTek YouTube catalog. No unverified links.
     run("link-review-videos.py")
     run("verify-review-video-links.py")
+    # Generators may refresh content, but must never rewrite locked Home layout.
+    run("verify-home-layout-lock.py")
     run("build-cloudflare-pages.py")
+    run("verify-home-layout-lock.py", "--packaged")
     output = ROOT / "dist"
     assert (output / "watch" / "index.html").is_file()
     assert (output / "news.html").is_file()
