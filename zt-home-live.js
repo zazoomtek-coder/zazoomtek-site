@@ -128,26 +128,10 @@
    }else{techCount++;tech.appendChild(row);}
   }
 
-  // Featured stories live ONLY in the six-card mosaic while selected.
-  // Remove them from the homepage feeds (archive pages remain chronological).
-  const featuredUrls=new Set([...document.querySelectorAll('#ztFeaturedGrid > a[href]')].map(a=>new URL(a.getAttribute('href'),location.href).pathname));
-  function suppressFeaturedDuplicates(){
-    const cards=[...tech.querySelectorAll('article.article-row'),...gaming.querySelectorAll('article.article-row')];
-    for(const card of cards){
-      const href=card.querySelector('h3 a[href]')?.getAttribute('href');
-      if(!href)continue;
-      const isFeatured=featuredUrls.has(new URL(href,location.href).pathname);
-      card.hidden=isFeatured;
-      card.style.display=isFeatured?'none':'';
-    }
-  }
-  suppressFeaturedDuplicates();
-  const featuredGrid=document.getElementById('ztFeaturedGrid');
-  if(featuredGrid)new MutationObserver(function(){
-    featuredUrls.clear();
-    featuredGrid.querySelectorAll('a[href]').forEach(a=>featuredUrls.add(new URL(a.getAttribute('href'),location.href).pathname));
-    suppressFeaturedDuplicates();
-  }).observe(featuredGrid,{childList:true});
+  // Recent articles must stay visible in their actual category column even if
+  // they are promoted to News in evidenza. Otherwise the newest Tech posts
+  // (e.g. 16 October) silently vanish and the column shows older news.
+  // Every article URL appears only once WITHIN each column.
   // Live Tech and Gaming are derived exclusively from the latest canonical Community feed.
   // Never reinsert a static Gaming archive above new articles.
   orderHomeColumn(tech);
@@ -437,8 +421,7 @@
     }
     function alignBottoms(){
       // On mobile and tablets do not force card counts or fixed heights.
-      var candidates=[].slice.call(gaming.querySelectorAll(":scope > article.article-row"))
-        .filter(function(row){return !featuredPaths().has(hrefOf(row));});
+      var candidates=[].slice.call(gaming.querySelectorAll(":scope > article.article-row"));
       candidates.slice(10).forEach(function(row){row.hidden=true;});
       if(!window.matchMedia("(min-width:1150px)").matches)return;
       var techHeight=renderedHeight(tech);
@@ -461,12 +444,11 @@
       requestAnimationFrame(function(){queuedAlignment=false;alignBottoms();});
     }
     function rebalance(){
-      var featured=featuredPaths();
       [[tech,3],[gaming,4]].forEach(function(pair){
         var col=pair[0],maxBig=pair[1];
         var all=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
-        var eligible=all.filter(function(row){return !featured.has(hrefOf(row));});
-        var topTen=eligible.slice(0,10);
+        // Already sorted by publication time in the source and archive.
+        var topTen=all.slice(0,10);
         all.forEach(function(row){
           row.hidden=true;
           row.classList.remove("zt-mag-big","ztp-gaming-feature");
@@ -495,17 +477,14 @@
     // Respond to actual image loading and window resizing, not artificial spacers.
     area.addEventListener("load",function(e){if(e.target && e.target.tagName==="IMG")requestAlignment();},true);
     window.addEventListener("resize",function(){rebalance();},{passive:true});
-    var featuredGrid=document.getElementById("ztFeaturedGrid");
-    if(featuredGrid)new MutationObserver(rebalance).observe(featuredGrid,{childList:true});
     rebalance();
     // The canonical news feed stays unchanged. Only archived, published,
     // explicitly categorised Gaming stories are eligible to fill an extra slot.
     function fillArchive(path){
-      return fetch(path,{cache:"force-cache",credentials:"same-origin"})
+      return fetch(path,{cache:"no-store",credentials:"same-origin"})
       .then(function(resp){if(!resp.ok)throw new Error("Archive unavailable");return resp.text();})
       .then(function(markup){
         var doc=new DOMParser().parseFromString(markup,"text/html");
-        var featured=featuredPaths();
         [].slice.call(doc.querySelectorAll(".news-list article.news-row")).forEach(function(src){
           var link=src.querySelector(".news-copy h2 a");
           if(!link)return;
@@ -513,23 +492,20 @@
           if(!route)return;
           var section=route==="gaming"?gaming:tech;
           var limit=route==="gaming"?11:10;
-          var count=[].slice.call(section.querySelectorAll(":scope > article.article-row"))
-            .filter(function(row){return !featured.has(hrefOf(row));}).length;
+          var count=section.querySelectorAll(":scope > article.article-row").length;
           if(count>=limit)return;
           var articlePath=new URL(link.getAttribute("href"),location.origin).pathname;
-          if(featured.has(articlePath))return;
           var row=makeArticle(src);
           if(row)section.appendChild(row);
         });
         rebalance();
         var ready=function(section,limit){
-          return [].slice.call(section.querySelectorAll(":scope > article.article-row"))
-            .filter(function(row){return !featured.has(hrefOf(row));}).length>=limit;
+          return section.querySelectorAll(":scope > article.article-row").length>=limit;
         };
         return ready(tech,10)&&ready(gaming,11);
       });
     }
-    var archivePages=["/news.html","/news-2.html","/news-3.html"];
+    var archivePages=["/news.html","/news-2.html","/news-3.html","/news-4.html","/news-5.html"];
     function fetchUntilReady(i){
       if(i>=archivePages.length)return Promise.resolve(false);
       return fillArchive(archivePages[i]).then(function(full){
@@ -580,11 +556,39 @@
    }
    if(track){
      track.replaceChildren(
+       reviewCard({href:"/thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html",title:"ThermoMate 2500W | Recensione riscaldatore a infrarossi",img:"/assets/recensioni/thermomate-2500w/cover.webp",kind:"17 ottobre 2026"}),
        reviewCard({href:"/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html",title:"70mai Dash Cam 4K A900 | Recensione",img:"https://yt3.ggpht.com/_Dt3qOg45HgYDTfEAyPaMIcIFyrOaQLiH8WoY2GfoAvX7uaU1uc9OUTBBBqKuTgWNnWAGeV-aoFx4Ug=s1600-rw-nd-v1",kind:"Recensione scritta"}),
-       reviewCard({href:"/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html",title:"IIFACTOR M08E AI Smart Glasses | Recensione",img:"https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1600-rw-nd-v1",kind:"Recensione scritta"}),
-       reviewCard({href:"https://www.youtube.com/watch?v=6hLJq9njq5o",title:"realme Buds T500 Pro Harry Potter Edition | Recensione",img:"https://i.ytimg.com/vi/6hLJq9njq5o/hqdefault.jpg",kind:"Video recensione"})
+       reviewCard({href:"/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html",title:"IIFACTOR M08E AI Smart Glasses | Recensione",img:"https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1600-rw-nd-v1",kind:"Recensione scritta"})
      );
    }
+   // Auto-refresh the TECH shelf from the official dated review archive.
+   // Static cards above remain a safe fallback if the archive is unreachable.
+   if(track)fetch("/recensioni-scritte.html",{cache:"no-store"}).then(function(r){
+     if(!r.ok)throw new Error("archive HTTP "+r.status);
+     return r.text();
+   }).then(function(markup){
+     const doc=new DOMParser().parseFromString(markup,"text/html");
+     const months={gennaio:1,febbraio:2,marzo:3,aprile:4,maggio:5,giugno:6,
+       luglio:7,agosto:8,settembre:9,ottobre:10,novembre:11,dicembre:12};
+     const entries=[...doc.querySelectorAll("#reviewList .news-row")].map(function(row){
+       const link=row.querySelector(".news-copy h2 a"), image=row.querySelector("img");
+       if(!link||!image)return null;
+       const href=link.getAttribute("href")||"";
+       if(!href.startsWith("/")||!href.endsWith(".html"))return null;
+       const title=link.textContent.trim();
+       const techTag=(row.getAttribute("data-review-category")||"").toLowerCase();
+       if(techTag!=="tech" && !/thermomate|70mai.*dash|iifactor.*smart|smartphone|smart glasses|mini pc|router|riscaldatore|aspirapolvere/i.test(title))return null;
+       const meta=row.querySelector(".news-meta")?.textContent||"";
+       const m=meta.toLowerCase().match(/(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(\d{4})/);
+       if(!m)return null;
+       return {href,title,img:image.getAttribute("src"),kind:m[1]+" "+m[2]+" "+m[3],
+         order:Number(m[3])*10000+months[m[2]]*100+Number(m[1])};
+     }).filter(Boolean).sort(function(a,b){return b.order-a.order;});
+     // Never downgrade the shelf when the feed is incomplete.
+     if(entries.length<3 || !entries.some(e=>e.href.includes("thermomate-2500w")))return;
+     const unique=[...new Map(entries.map(e=>[e.href,e])).values()];
+     track.replaceChildren(...unique.slice(0,3).map(reviewCard));
+   }).catch(function(e){console.info("Tech reviews fallback retained",e.message);});
    const h=review.querySelector(".module-head h2");if(h)h.textContent="RECENSIONI TECH";
    const label=review.querySelector(".module-head span");if(label)label.textContent="Tre recensioni Tech";
 

@@ -70,6 +70,9 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python3 scripts/cloudflare-release-control.py --self-test
+            # Build exactly the same static snapshot as Cloudflare before
+            # spending a Pages build. A failure must block the trigger commit.
+            python3 scripts/cloudflare-build-site.py
             if [ "${{ inputs.urgent || false }}" = "true" ]; then
               python3 scripts/cloudflare-release-control.py --urgent
             else

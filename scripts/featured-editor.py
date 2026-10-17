@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-QUOTA=None  # Categories are computed from editor pins, not fixed slots.
+QUOTA=(4,1)  # Permanent editorial policy: four Tech and one Gaming.
 
 def load_matcher():
     p=ROOT/"scripts/trending-crosscheck.py"

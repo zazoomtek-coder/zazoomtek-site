@@ -71,6 +71,23 @@ def main() -> None:
             failures.append("Missing core public file: " + required)
     if not (OUT / "watch/index.html").is_file():
         failures.append("Missing verified YouTube video player directory")
+    # If an editorial review is in the repository, it must reach the public
+    # snapshot with its cover, full page, and official review archive link.
+    review_slug = "thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html"
+    if (ROOT / review_slug).is_file():
+        review_page = OUT / review_slug
+        review_cover = OUT / "assets/recensioni/thermomate-2500w/cover.webp"
+        review_archive = OUT / "recensioni-scritte.html"
+        if not review_page.is_file() or not review_cover.is_file():
+            failures.append("ThermoMate review or cover missing from Cloudflare artifact")
+        if (review_archive.is_file()
+                and review_slug not in review_archive.read_text(encoding="utf-8")):
+            failures.append("ThermoMate review missing from official archive")
+        if review_page.is_file():
+            reviewed = review_page.read_text(encoding="utf-8")
+            if "Voto finale" not in reviewed and "8.5/10" not in reviewed:
+                failures.append("ThermoMate full review/vote missing from Cloudflare artifact")
+
     # Verify actual featured articles and local images are delivered.
     try:
         import json

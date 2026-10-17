@@ -70,7 +70,7 @@ jobs:
               assert local.is_file(),article['url']
               if article['image'].startswith('/'):
                   assert Path(article['image'].lstrip('/')).is_file(),article['image']
-          print('STATIC FEATURED PASS: today first then yesterday only, up to five verified Tech/Gaming, dated today/yesterday; optional manual special pins')
+          print('STATIC FEATURED PASS: today first then yesterday only, up to four verified Tech plus one Gaming, dated today/yesterday; no cross-category replacements')
           PY
             git add -- featured-carousel.json trending-sources.json trending-match-report.json
             if git diff --cached --quiet; then

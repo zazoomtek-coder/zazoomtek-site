@@ -40,10 +40,10 @@ def render(root: Path) -> str:
     ordinary=[x.get("section") for x in regular]
     tech_count=ordinary.count("tech")
     game_count=ordinary.count("gaming")
-    # Preserve original editorial categories: more than one Gaming story is
-    # allowed ONLY when fresh Tech does not fill the six visible cards.
+    # Preserve original editorial categories: never substitute Gaming for unavailable Tech. The one Gaming slot
+    # is reserved for the newest eligible gaming news.
     if (tech_count > 4
-            or game_count > 5-tech_count
+            or game_count > 1
             or len(ordinary) != tech_count+game_count):
         raise RuntimeError("Featured JSON contains invalid Tech/Gaming fallback quotas")
     if [(x.get("section"),x.get("url")) for x in items[len(regular):]] != [

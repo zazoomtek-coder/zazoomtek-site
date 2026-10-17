@@ -67,16 +67,14 @@ def main():
             assert not mod.allowed_featured_date(stale_page,reference)
             assert stale_page["url"] not in {x["url"] for x in mod.pick([stale_page],on_date=reference)}
 
-            # When fewer true Tech are available, real Gaming posts fill gaps.
+            # Never fill missing Tech quota with additional Gaming posts.
             more_gaming=[story(root,"game-fill-"+str(i),"2026-10-16","gaming",i) for i in range(3)]
             selection=mod.pick(yesterday[:2]+[today_g,yesterday_g,*more_gaming],on_date=reference)
-            assert len(selection)==5,selection
-            assert [x["section"] for x in selection].count("tech")==2
-            assert [x["section"] for x in selection].count("gaming")==3
-            assert all(x["published_date"]=="2026-10-16" for x in selection[:3])
-            assert all(x["published_date"]=="2026-10-15" for x in selection[-2:])
+            assert len(selection)==3,selection
+            assert sum(x["section"]=="tech" for x in selection)==2
+            assert sum(x["section"]=="gaming" for x in selection)==1
             assert mod.valid_featured_sections(selection)
-            assert not mod.valid_featured_sections([{"section":"gaming"}]*6)
+            assert not mod.valid_featured_sections([{"section":"gaming"}]*2)
 
             # Chronological publication time within the same day, not trend score.
             timed_new=story(root,"tech-later","2026-10-16","tech",score=0)
@@ -90,7 +88,7 @@ def main():
         finally:
             mod.ROOT=saved
     print("PASS: Today's dates beat yesterday's even against higher trend score; no earlier fallback.")
-    print("PASS: Gaming fallback fills at most five when fresh Technology news are scarce; correct publication-hour order.")
+    print("PASS: Tech shortfall never filled with extra Gaming, and publication-hour order is correct.")
 
 if __name__=="__main__":
     main()

@@ -1009,6 +1009,18 @@ def manual_review_rows(pages, archived):
                     f'<div class="news-meta">ZazoomTek · Recensione</div>'
                     f'<p>{excerpt}</p><a class="news-read" href="/{slug}">'
                     'Leggi la recensione ›</a></div></article>')
+    # Sort manual editorial reviews by real date, never alphabetically by filename.
+    # ThermoMate (17 Oct) must precede Poly Fighter (13 Oct) and Sesame (12 Oct).
+    months="gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre".split()
+    def review_date(card):
+        meta=re.search(r'<div class="news-meta">([^<]*)</div>',card,re.I)
+        label=html.unescape(meta.group(1)) if meta else ""
+        match=re.search(r'(\d{1,2})\s+('+"|".join(months)+r')\s+(\d{4})',label,re.I)
+        if not match:
+            return ""
+        day,month,year=match.groups()
+        return f"{int(year):04d}-{months.index(month.lower())+1:02d}-{int(day):02d}"
+    rows.sort(key=review_date,reverse=True)
     return rows
 
 
@@ -1503,7 +1515,23 @@ def build_review_archive_page(review_chunk,page_num,total_pages,reviews):
 def write_review_archive(reviews, curated_rows=None):
     # Merge approved editorial reviews with the YouTube-imported review list.
     # This also preserves handcrafted cards when Community sync runs.
-    entries=list(curated_rows or [])+[render_review_rows([p]) for p in reviews]
+    # Sort ALL verified reviews by actual publication date, regardless of
+    # whether imported from Community or written directly for ZazoomTek.it.
+    entries=[]
+    for row in (curated_rows or []):
+        meta=re.search(r'<div class="news-meta">([^<]*)</div>',row,re.I)
+        label=html.unescape(meta.group(1)) if meta else ""
+        # The archive meta contains "ZazoomTek · 17 ottobre 2026 · Tech".
+        # Extract the date; the ISO parser intentionally rejects surrounding text.
+        match=re.search(r'\b\d{1,2}\s+(?:gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+\d{4}\b',label,re.I)
+        date_label=match.group(0) if match else label.split("·")[-1].strip()
+        entries.append((published_iso_from_label(date_label) or "",row))
+    for p in reviews:
+        iso=(p.get("published_iso") or p.get("published_at") or p.get("publishedAt")
+             or published_iso_from_label(p.get("published") or "") or "")
+        entries.append((str(iso),render_review_rows([p])))
+    entries.sort(key=lambda pair:pair[0],reverse=True)
+    entries=[row for _,row in entries]
     total_pages=max(1,(len(entries)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
 
     # Remove obsolete numbered archive pages before rebuilding the complete set.
@@ -2005,7 +2033,23 @@ def build_review_archive_page(review_chunk,page_num,total_pages,reviews):
 def write_review_archive(reviews, curated_rows=None):
     # Merge approved editorial reviews with the YouTube-imported review list.
     # This also preserves handcrafted cards when Community sync runs.
-    entries=list(curated_rows or [])+[render_review_rows([p]) for p in reviews]
+    # Sort ALL verified reviews by actual publication date, regardless of
+    # whether imported from Community or written directly for ZazoomTek.it.
+    entries=[]
+    for row in (curated_rows or []):
+        meta=re.search(r'<div class="news-meta">([^<]*)</div>',row,re.I)
+        label=html.unescape(meta.group(1)) if meta else ""
+        # The archive meta contains "ZazoomTek · 17 ottobre 2026 · Tech".
+        # Extract the date; the ISO parser intentionally rejects surrounding text.
+        match=re.search(r'\b\d{1,2}\s+(?:gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+\d{4}\b',label,re.I)
+        date_label=match.group(0) if match else label.split("·")[-1].strip()
+        entries.append((published_iso_from_label(date_label) or "",row))
+    for p in reviews:
+        iso=(p.get("published_iso") or p.get("published_at") or p.get("publishedAt")
+             or published_iso_from_label(p.get("published") or "") or "")
+        entries.append((str(iso),render_review_rows([p])))
+    entries.sort(key=lambda pair:pair[0],reverse=True)
+    entries=[row for _,row in entries]
     total_pages=max(1,(len(entries)+REVIEW_PAGE_SIZE-1)//REVIEW_PAGE_SIZE)
 
     # Remove obsolete numbered archive pages before rebuilding the complete set.

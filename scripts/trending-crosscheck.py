@@ -536,14 +536,13 @@ def allowed_featured_date(article,on_date=None):
 def expected_featured_sections(pins=None):
     """Maximum possible slots, NOT an instruction to fill with old content."""
     pins=editorial_pins() if pins is None else pins
-    return ["tech"]*min(2,4-len(pins))+["gaming"]*min(3,5-len(pins))+[x["section"] for x in pins]
+    return ["tech"]*(4-len(pins))+["gaming"]+[x["section"] for x in pins]
 
 def valid_featured_sections(items,pins=None):
-    """Five unique dated cards: favor latest Tech/Gaming without stale fillers.
+    """Four real Tech plus one real Gaming, always preserve original category.
 
-    Editorial tags are never faked. When the archive contains fewer than five
-    genuinely Tech news from today/yesterday, reuse additional *Gaming* posts
-    dated today/yesterday, rather than leaving blank cells or reclassifying them.
+    Editorial tags are never faked. When fewer than four dated real Tech stories exist, leave available
+    slots empty; never substitute extra Gaming or fake Tech categories.
     """
     pins=editorial_pins() if pins is None else pins
     if not isinstance(items,list) or len(items)>5 or len(items)<len(pins):
@@ -555,7 +554,7 @@ def valid_featured_sections(items,pins=None):
     ordinary=sections[:len(sections)-len(special)] if special else sections
     tech_count=ordinary.count("tech")
     game_count=ordinary.count("gaming")
-    return (tech_count<=4-len(pins) and game_count<=5-len(pins)-tech_count
+    return (tech_count<=4-len(pins) and game_count<=1
             and len(ordinary)==tech_count+game_count)
 
 
@@ -674,27 +673,20 @@ def pick(articles,on_date=None):
             count+=1
         return count
 
-    # Balance the five slots around the freshest real articles: aim for
-    # 2 Tech + 3 Gaming, never 4 older Tech at the expense of today's Gaming.
-    # When one desk has fewer fresh posts, fill only with the OTHER desk's
-    # genuine, published items from today or yesterday.
-    required_tech=min(2,4-len(pins))
+    # Editorial policy: always select four latest verified Tech and
+    # exactly one latest Gaming. Never promote extra Gaming to Tech slots.
+    # If not enough Tech exist today/yesterday, leave unused slots empty.
+    required_tech=4-len(pins)
     tech_count=add_best("tech",required_tech)
-    add_best("gaming",min(3,5-len(pins)-len(selected)))
-    gaps=5-len(pins)-len(selected)
-    if gaps:
-        add_best("tech",min(4-tech_count,gaps))
-    gaps=5-len(pins)-len(selected)
-    if gaps:
-        add_best("gaming",gaps)
+    add_best("gaming",1)
     # If there aren't enough fresh stories of any category, show fewer cards,
     # and make the grid responsive. No articles older than yesterday allowed.
     if len(selected)<5-len(pins):
         print(f"Only {len(selected)}/{5-len(pins)} fresh items today/yesterday; "
               "no outdated cards will be used.")
     if tech_count<required_tech:
-        print(f"FRESH CATEGORY FALLBACK: {tech_count}/{required_tech} Technology "
-              "cards available; remaining slots filled by real Gaming posts.")
+        print(f"TECH SHORTFALL: {tech_count}/{required_tech} fresh Technology "
+              "cards available; no Gaming substitution.")
     # The public mosaic shows the newest posting hour first, exactly as the
     # reader expects, not 3 old Tech ahead of 3 newer Gaming.
     selected.sort(key=priority,reverse=True)
