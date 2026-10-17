@@ -68,7 +68,7 @@ def verify_once(base: str, expected: str) -> str:
             or "reservedEditorialPaths()" in js):
         raise RuntimeError("Published Home did not restore the stable Tech/Gaming columns")
     home = get_public_page(base, "/", expected)
-    if "20261017stableColumnsRollback2" not in home:
+    if "20261017stableColumnsRollback3" not in home:
         raise RuntimeError("Published Home is still loading the broken JS version")
     return expected
 
