@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
       - name: Count published authentic Tech and Gaming articles in saved Community data
         run: |
           python3 - <<'PY'
@@ -25,7 +26,6 @@ jobs:
               items=[p for p in rows if isinstance(p,dict) and module['post_category'](p)==cat and not module['is_review'](p)]
               print(cat,'verified published items:',len(items),'local pages:',sum(Path(module['news_slug'](p)).is_file() for p in items))
           PY
-      - uses: actions/checkout@v4
       - name: Inspect live Home runtime and archive fallbacks without deployment
         run: |
           mkdir -p /tmp/zt-debug
