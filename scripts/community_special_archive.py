@@ -112,7 +112,7 @@ def sync(root:Path=ROOT):
         if file.read_text(encoding="utf-8")!=text:
             file.write_text(text,encoding="utf-8")
             print(f"UPDATED {file.name}: Community special articles included")
-    return {section:counts for section,counts in zip(SECTIONS,(row[2] for row in staged))}
+    return {category:row[2] for (_, (category,_)),row in zip(SECTIONS.items(),staged)}
 
 if __name__=="__main__":
     try:
