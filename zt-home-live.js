@@ -442,16 +442,47 @@
         : 0;
     }
     function alignBottoms(){
-      // On mobile and tablets do not force card counts or fixed heights.
-      var candidates=[].slice.call(gaming.querySelectorAll(":scope > article.article-row"));
-      candidates.slice(10).forEach(function(row){row.hidden=true;});
-      if(!window.matchMedia("(min-width:1150px)").matches)return;
-      var techHeight=renderedHeight(tech);
-      var gamingHeight=renderedHeight(gaming);
-      if(!techHeight||!gamingHeight)return;
-      // Stable public Home: ten real Gaming news, never an eleventh card
-      // or artificial spacers that distort the original three columns.
-      return;
+      // Update editorial cards only: the Home HTML, CSS, widths and templates
+      // are protected. Extend the shorter column with the next real stories.
+      if(!window.matchMedia("(min-width:1150px)").matches || !archivesReady)return;
+      const featured=featuredPaths();
+      for(const column of [tech,gaming]){
+        [...column.querySelectorAll(":scope > article[data-zt-align-fill='yes']")]
+          .forEach(row=>{row.remove();delete row.dataset.ztAlignFill;});
+      }
+      const present=new Set([...tech.querySelectorAll(":scope > article.article-row"),
+                             ...gaming.querySelectorAll(":scope > article.article-row")]
+                            .map(archiveHref).filter(Boolean));
+      function spare(category){
+        return candidates[category].filter(row=>{
+          const href=archiveHref(row);
+          return href && !present.has(href) && !featured.has(href)
+            && !row.matches("[data-post-category='extra']")
+            && Number.isFinite(sourcePublishedAt(row));
+        }).map((row,index)=>({row,index,time:sourcePublishedAt(row)}))
+          .sort((a,b)=>b.time-a.time||a.index-b.index)
+          .map(item=>item.row);
+      }
+      const spareTech=spare("tech"), spareGaming=spare("gaming");
+      for(let i=0;i<20;i++){
+        const difference=renderedHeight(tech)-renderedHeight(gaming);
+        if(Math.abs(difference)<=32)break;
+        const shorter=difference>0?gaming:tech;
+        const queue=difference>0?spareGaming:spareTech;
+        const next=queue.shift();
+        if(!next)break;
+        const before=Math.abs(difference);
+        next.classList.remove("zt-mag-big","ztp-gaming-feature");
+        next.hidden=false;
+        next.style.removeProperty("display");
+        next.dataset.ztAlignFill="yes";
+        shorter.appendChild(next);
+        const after=Math.abs(renderedHeight(tech)-renderedHeight(gaming));
+        if(after>=before){
+          next.remove();delete next.dataset.ztAlignFill;
+          break;
+        }
+      }
     }
     function requestAlignment(){
       if(queuedAlignment)return;
@@ -767,68 +798,8 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();
 })();
 
-/* ZT_HOME_GAMING_THREE_EXTRA_20261014
-   Keep the ten canonical Gaming articles. Add at most three linked, real archive
-   articles to the empty space (the existing story plus two more). No placeholders. */
-(function(){
- "use strict";
- if(!["/","/index.html"].includes(location.pathname))return;
- function init(){
-  const root=document.querySelector("#articoli.ztp-news-area");
-  const tech=root?.querySelector(".ztp-news-tech .ztp-news-items");
-  const gaming=root?.querySelector(".ztp-news-gaming .ztp-news-items");
-  if(!root||!tech||!gaming)return;
-  const verified=[
-   {href:"/news-Ugkxjafwnrw9O14Zgh1LkgQ-Qz61uHxbVzsr.html",title:"TEKKEN 8: Roger Jr. mostrato a EVO France, gameplay e data di uscita",img:"https://yt3.ggpht.com/CYkB_BV0hfpkrJptq3XgtBqqAcQiAJCTuOm9km7zzxQP9X9QCOT5VpqhVD5oVvZiOyRLHchgZ-Ow=s1600-rw-nd-v1"},
-   {href:"/news-UgkxnLATplzUfYdizRa8iHxQEbXjxXQtWNTO.html",title:"Game Ground 2026 celebra i 40 anni di Castlevania con Michiru Yamane",img:"https://yt3.ggpht.com/snQpfRxzG3mI7g-r-wuX8OgCKR2pJp4La95d3wh6hmgf0PLRlKdlZKCBJUOzr-RjXM_4qevUl5rC-6w=s1600-rw-nd-v1"},
-   {href:"/news-UgkxoPvqPweD4Q959Hlr2MgIasRETc4ISSua.html",title:"Street Fighter 6: Arjun arriva con Yoga Breathing e nuove trappole",img:"https://yt3.ggpht.com/nzdrx4GuLtp478BpnSld8kmWdQ_JuS_LLjsFEsqTprxa3dZ6UMYCNSNHyNaB8GosyfBNa2_sNds=s1600-rw-nd-v1"},
-   {href:"/news-Ugkxi-JLntnVeff9hYO0L1UTscTuSEVSgl3a.html",title:"Sonic Racing: CrossWorlds, campione mondiale e novità dell'Anno 2",img:"https://yt3.ggpht.com/En_bo_SxmwM82TlOVYa1Wucu4jzNsDUgG0uO6GlsAG2G0MZCEA_WP3GSnprZv-ssibweCCKRVkNJCOg=s1600-rw-nd-v1"},
-   {href:"/news-Ugkxa3g7XI5HXDvwAHFN4InsegWz1CbulplP.html",title:"Chivalware arriva su PC e Nintendo Switch 2: disponibile la demo",img:"https://yt3.ggpht.com/AhZN49_Z1SvI-SzvlzB_HkK-hq44BUgAFNjHbezXLrFUjobQsV79_IOBNijyDxCirlW0jzwDheNnHw=s1600-rw-nd-v1"}
-  ];
-  const pathOf=url=>{try{return new URL(url,location.origin).pathname;}catch(_){return "";}};
-  let queued=false,lastSignature="";
-  function render(){
-   queued=false;
-   const old=[...gaming.querySelectorAll(":scope > .ztp-gaming-bottom-fill")];
-   if(window.innerWidth<1150){old.forEach(e=>e.hidden=true);return;}
-   const techRows=[...tech.querySelectorAll(":scope > article.article-row:not([hidden])")];
-   const gamingRows=[...gaming.querySelectorAll(":scope > article.article-row:not([hidden])")];
-   if(techRows.length<10||gamingRows.length<10)return;
-   const available=Math.max(0,techRows[techRows.length-1].getBoundingClientRect().bottom-
-                           gamingRows[gamingRows.length-1].getBoundingClientRect().bottom);
-   // Each compact row is approximately 120px; never create another white block.
-   const needed=Math.min(3,Math.max(0,Math.floor((available+8)/112)));
-   const used=new Set([...root.querySelectorAll(".ztp-news-item h3 a, .ztp-editorial-story:not([hidden])")].map(a=>pathOf(a.href)));
-   const chosen=verified.filter(item=>!used.has(item.href)).slice(0,needed);
-   const signature=chosen.map(i=>i.href).join("|");
-   if(lastSignature===signature && old.length===chosen.length){
-     old.forEach(e=>e.hidden=false);
-     return;
-   }
-   lastSignature=signature;
-   old.forEach(el=>el.remove());
-   chosen.forEach((item,index)=>{
-      const card=document.createElement("article");
-      card.className="ztp-gaming-bottom-fill";
-      card.dataset.extraGaming="yes";
-      card.id="ztpGamingGapFiller"+(index+1);
-      const thumb=document.createElement("a");thumb.href=item.href;thumb.className="ztp-gaming-bottom-thumb";
-      const img=document.createElement("img");img.src=item.img;img.alt=item.title;img.loading="lazy";img.decoding="async";thumb.appendChild(img);
-      const copy=document.createElement("div");copy.className="ztp-gaming-bottom-copy";
-      const category=document.createElement("span");category.textContent="GAMING";
-      const heading=document.createElement("a");heading.href=item.href;heading.textContent=item.title;
-      copy.append(category,heading);card.append(thumb,copy);gaming.appendChild(card);
-   });
-  }
-  function schedule(){if(!queued){queued=true;requestAnimationFrame(render);}}
-  new MutationObserver(schedule).observe(tech,{childList:true});
-  new MutationObserver(schedule).observe(gaming,{childList:true});
-  window.addEventListener("resize",schedule,{passive:true});
-  window.addEventListener("load",schedule,{once:true});
-  schedule();
- }
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
-})();
+/* Hardcoded outdated Gaming gap fillers replaced by dated archive candidates.
+   Editorial content can move; approved Home layout remains unchanged. */
 
 /* ZT_REVIEW_TECH_ARTWORK_16_9_20261014
    Make review covers readable as complete art in a wide frame with natural-color
