@@ -1,24 +1,8 @@
 {
-  "checked_at": "2026-10-18T10:46:53.863681+00:00",
+  "checked_at": "2026-10-18T12:30:59.346115+00:00",
   "source_sites": 15,
   "matches": 9,
   "selected": [
-    {
-      "title": "MSI lancia la GeForce RTX 5080 16G COD MW4 EDITION OC in edizione limitata",
-      "section": "tech",
-      "url": "/news-UgkxkNT_iXfSvzktCf-oWW62lCCIJ33bxvdP.html",
-      "trend_score": 62.92,
-      "published_date": "2026-10-16",
-      "freshness_bonus": 40,
-      "selection_score": 80.9,
-      "sources": [
-        {
-          "site": "Gamesurf",
-          "title": "MSI RTX 5080 COD MW4 Edition e Ghost sul backplate",
-          "score": 0.6292
-        }
-      ]
-    },
     {
       "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
       "section": "tech",
@@ -38,6 +22,22 @@
       "freshness_bonus": 40,
       "selection_score": 40.0,
       "sources": []
+    },
+    {
+      "title": "MSI lancia la GeForce RTX 5080 16G COD MW4 EDITION OC in edizione limitata",
+      "section": "tech",
+      "url": "/news-UgkxkNT_iXfSvzktCf-oWW62lCCIJ33bxvdP.html",
+      "trend_score": 62.92,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 40,
+      "selection_score": 80.9,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "MSI RTX 5080 COD MW4 Edition e Ghost sul backplate",
+          "score": 0.6292
+        }
+      ]
     },
     {
       "title": "Razer presenta Barracuda V2 Pro con THX Spatial Audio+, ANC e autonomia fino a 70 ore",
