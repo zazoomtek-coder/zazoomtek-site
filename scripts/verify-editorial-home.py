@@ -146,7 +146,7 @@ def check() -> None:
         raise RuntimeError("Stable Tech/Gaming Home columns are missing")
     if 'reservedEditorialPaths()' in js:
         raise RuntimeError("Regressed Home dynamic reordering was reintroduced")
-    if ('data-zt-align-fill' not in js
+    if ('row.dataset.ztAlignFill="yes"' not in js
             or 'remaining={tech:reserve("tech"),gaming:reserve("gaming")}' not in js
             or 'new ResizeObserver(requestAlignment)' not in js
             or 'sourcePublishedAt(row)' not in js
