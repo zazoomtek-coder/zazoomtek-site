@@ -77,9 +77,14 @@ def page_parts(root):
     footer=re.search(r'<footer\b[^>]*>[\s\S]*?</footer\s*>',existing,re.I)
     if not header or not footer:
         raise RuntimeError('Approved site masthead/footer missing; refusing to publish watch pages')
-    if 'zt-header' not in header.group(0):
-        raise RuntimeError('Approved ZazoomTek header signature missing')
-    return header.group(0),footer.group(0)
+    # Cloudflare already normalized news.html to the actual locked Home masthead.
+    # Watch pages reuse both its exact header HTML and its scoped header CSS.
+    if 'id="zt-site-home-header"' not in header.group(0):
+        raise RuntimeError('Home-sourced ZazoomTek header missing')
+    style=re.search(r'<style\b[^>]*id="zt-site-home-header-style"[^>]*>[\s\S]*?</style>',existing,re.I)
+    if not style:
+        raise RuntimeError('Home masthead stylesheet missing')
+    return header.group(0),footer.group(0),style.group(0)
 
 def description(item):
     kind=item['category'].lower()
@@ -88,7 +93,7 @@ def description(item):
             datetime.fromisoformat(item['publishedAt'].replace('Z','+00:00')).strftime('%d/%m/%Y')+
             '. Il player integrato riproduce il video originale di YouTube.')
 
-def make_video(root,item,header,footer):
+def make_video(root,item,header,footer,header_style):
     ident=item['id']
     title=item['title']
     url=ORIGIN+'/watch/'+ident+'.html'
@@ -127,6 +132,7 @@ def make_video(root,item,header,footer):
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{json.dumps(data,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c')}</script>
 <style>.zt-watch-shell{{max-width:1100px;width:min(94%,1100px);margin:24px auto 40px;background:#fff;padding:clamp(16px,3vw,28px);border-top:5px solid #d51232;box-shadow:0 3px 14px #00000012;color:#222}}.zt-watch-shell h1{{font:800 clamp(23px,3.3vw,36px)/1.25 Arial,Helvetica,sans-serif;overflow-wrap:anywhere;margin:10px 0 18px;color:#181818}}.zt-watch-frame{{margin:0 auto 16px;width:{width};aspect-ratio:{ratio};background:#111;overflow:hidden;position:relative}}.zt-watch-frame iframe{{border:0;position:absolute;inset:0;width:100%;height:100%}}.zt-watch-shell p{{font:16px/1.65 Arial,sans-serif;margin:14px 0}}.zt-watch-back{{font:700 14px Arial,sans-serif;display:inline-block;margin-bottom:10px;color:#a91029}}@media(max-width:640px){{.zt-watch-shell{{margin:12px auto;padding:14px}}}}</style>
+{header_style}
 </head><body>
 {header}
 <main class="zt-watch-shell">
@@ -141,7 +147,7 @@ def make_video(root,item,header,footer):
 {footer}
 </body></html>'''
 
-def make_directory(items,header,footer):
+def make_directory(items,header,footer,header_style):
     url=ORIGIN+'/watch/'
     links=[]
     for item in items:
@@ -160,6 +166,7 @@ def make_directory(items,header,footer):
 <meta property="og:description" content="{escape(desc,quote=True)}">
 <meta property="og:type" content="website"><meta property="og:url" content="{url}">
 <style>.zt-watch-list{{max-width:1100px;width:min(94%,1100px);margin:24px auto 40px;padding:26px;background:#fff;color:#222;border-top:5px solid #d51232}}.zt-watch-list h1{{font:800 clamp(23px,4vw,34px)/1.3 Arial,sans-serif}}.zt-watch-list li{{margin:0 0 9px;line-height:1.55}}.zt-watch-list small{{color:#666}}@media(max-width:640px){{.zt-watch-list{{padding:14px}}}}</style>
+{header_style}
 </head><body>{header}<main class="zt-watch-list"><h1>Video ZazoomTek</h1>
 <p>{desc} Ogni collegamento apre una pagina dedicata con il video originale in primo piano.</p>
 <ul>{rows}</ul></main>{footer}</body></html>'''
@@ -167,7 +174,7 @@ def make_directory(items,header,footer):
 def build(root):
     root=Path(root).resolve()
     items=feed_items(root)
-    header,footer=page_parts(root)
+    header,footer,header_style=page_parts(root)
     output={}
     from collections import Counter
     name_counts=Counter(x['title'].casefold() for x in items)
@@ -186,8 +193,8 @@ def build(root):
             item['seo_title']=prefix+'…'
         item['seo_title']+=suffix
         name=WATCH_DIR+'/'+item['id']+'.html'
-        output[name]=make_video(root,item,header,footer)
-    output[WATCH_DIR+'/index.html']=make_directory(items,header,footer)
+        output[name]=make_video(root,item,header,footer,header_style)
+    output[WATCH_DIR+'/index.html']=make_directory(items,header,footer,header_style)
     for name,html in output.items():
         assert html.count('<h1')==1,(name,'heading')
         assert html.count('</head>')==1
