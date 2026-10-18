@@ -40,6 +40,10 @@ def eligible(path: Path) -> bool:
     if path.suffix.lower() not in ALLOWED:
         return False
     # Keep site pages, public metadata and web media; exclude automation data.
+    # Studio is a standalone publishing interface; permit only its reviewed
+    # two static files. Never ship its local drafts or build-only support files.
+    if len(parts) > 1 and parts[0] == "studio":
+        return len(parts) == 2 and path.name in {"index.html", "publisher.js"}
     if len(parts) > 1 and parts[0] not in ("assets", "watch"):
         return False
     if path.name.endswith(("-report.json", "-state.json", "-manifest.json")):
@@ -71,6 +75,10 @@ def main() -> None:
             failures.append("Missing core public file: " + required)
     if not (OUT / "watch/index.html").is_file():
         failures.append("Missing verified YouTube video player directory")
+    # A Studio release must never contain an HTML shell without its JS publisher.
+    for studio_file in ("studio/index.html", "studio/publisher.js"):
+        if not (OUT / studio_file).is_file():
+            failures.append("Missing Studio online editor file: " + studio_file)
     # If an editorial review is in the repository, it must reach the public
     # snapshot with its cover, full page, and official review archive link.
     review_slug = "thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html"
