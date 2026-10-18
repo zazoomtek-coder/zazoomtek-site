@@ -20,6 +20,7 @@ def run(script: str, *args: str) -> None:
 def main() -> None:
     # Refuse unauthorized Home structural changes before any publication.
     run("verify-home-layout-lock.py")
+    run("test_home_10x10_release.py")
     run("validate-sync-output.py", "community")
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
@@ -51,6 +52,7 @@ def main() -> None:
     run("verify-home-layout-lock.py")
     run("build-cloudflare-pages.py")
     run("verify-home-layout-lock.py", "--packaged")
+    run("test_home_10x10_release.py", "dist")
     run("verify-packaged-home.py", "--root", "dist")
     output = ROOT / "dist"
     assert (output / "watch" / "index.html").is_file()
