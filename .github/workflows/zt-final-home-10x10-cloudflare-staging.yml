@@ -4,6 +4,9 @@ on:
     branches: [fix/stable-10x10-home-cloudflare-gate-20261018]
 permissions:
   contents: read
+concurrency:
+  group: zt-final-home-1010-staging
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-latest
