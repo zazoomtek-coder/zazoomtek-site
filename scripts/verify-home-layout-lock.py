@@ -45,7 +45,7 @@ def safe_editorial_js_sha(data: bytes) -> str | None:
     try:
         source=data.decode("utf-8")
         matches=list(re.finditer(
-            r"const sidebarEditorials=(\\[[^\\r\\n]*\\]);(?=\\s*const editorialBox=)",
+            r"const sidebarEditorials=(\[[^\r\n]*\]);(?=\s*const editorialBox=)",
             source))
         if len(matches)!=1 or source.count("const sidebarEditorials=")!=1:
             return None
@@ -60,7 +60,7 @@ def safe_editorial_js_sha(data: bytes) -> str | None:
                 return None
             url=item["url"]
             img=item["image"]
-            if not isinstance(url,str) or not re.fullmatch(r"/[a-zA-Z0-9_.-]+\\.html",url) or url in urls:
+            if not isinstance(url,str) or not re.fullmatch(r"/[a-zA-Z0-9_.-]+\.html",url) or url in urls:
                 return None
             if not isinstance(img,str) or not (
                 img.startswith("https://") or
