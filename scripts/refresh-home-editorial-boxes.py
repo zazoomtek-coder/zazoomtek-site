@@ -2,7 +2,7 @@
 """Refresh Home editorial cards from articles actually published by ZazoomTek.
 
 No AI drafting, no fabricated news, no metric-free "most read" ranking.
-Daily rotation takes place only among real, link-checked published articles.
+Editorial boxes always select the newest real, link-checked published articles.
 The original three-column design, reviews, YouTube widgets and import markers
 are not changed. Idempotent within the same day when sources do not change.
 """
@@ -56,6 +56,21 @@ def valid_image(value: str) -> bool:
         return asset.is_relative_to(ROOT) and asset.is_file()
     return False
 
+def publication_key(item: dict) -> tuple[int, int, int, int, int, int]:
+    """Use original ISO publication timestamps; otherwise the Italian date label."""
+    raw = str(item.get("published_at") or item.get("date") or "").lower()
+    iso = re.search(r"(20\\d{2})-(\\d{1,2})-(\\d{1,2})(?:[t ](\\d{2}):(\\d{2})(?::(\\d{2}))?)?", raw)
+    if iso:
+        return tuple(int(x or 0) for x in iso.groups())
+    months = {name: n for n, name in enumerate(
+        "gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre".split(), 1)}
+    italian = re.search(r"(\\d{1,2})\\s+("+ "|".join(months) +r")\\s+(20\\d{2})", raw)
+    if italian:
+        day, month, year = italian.groups()
+        return (int(year), months[month], int(day), 0, 0, 0)
+    return (0, 0, 0, 0, 0, 0)
+
+
 def extract(page: str) -> list[dict]:
     text = (ROOT / page).read_text(encoding="utf-8")
     output: list[dict] = []
@@ -76,7 +91,10 @@ def extract(page: str) -> list[dict]:
         category_text = NEWS_CATEGORY_RE.search(chunk[:1800])
         category = (category_tag or category_text)
         category = category.group(1).lower() if category else None
-        output.append({"url": href, "title": title, "image": photo, "date": date, "category": category})
+        published_attr = re.search(r'data-published-at="([^"]+)"', chunk)
+        output.append({"url": href, "title": title, "image": photo, "date": date,
+                       "published_at": html.unescape(published_attr.group(1)) if published_attr else "",
+                       "category": category})
     return output
 
 def home_urls(source: str) -> set[str]:
@@ -105,18 +123,16 @@ def distinct(items: list[dict], avoid: set[str]) -> list[dict]:
     return result
 
 def choose(items: list[dict], count: int, today: dt.date, keep_latest: int = 2) -> list[dict]:
-    """Always show fresh first; rotate the rest once per Rome calendar day."""
+    """Never promote yesterday/older above newer published editorial stories.
+
+    The scheduled refresh still runs daily; its content changes only when a
+    newer published article is available, not because an older one was rotated.
+    Stable sorting retains archive order for articles sharing the same date.
+    """
     if len(items) < count:
         raise RuntimeError(f"Insufficient distinct published content: need {count}, have {len(items)}")
-    fixed = items[:min(keep_latest, count)]
-    pool = items[len(fixed):min(len(items), 20)]
-    count_rest = count - len(fixed)
-    if count_rest <= 0:
-        return fixed
-    # Stable per day, changing the selection without misrepresenting publication dates.
-    offset = today.toordinal() % max(1, len(pool))
-    rotated = pool[offset:] + pool[:offset]
-    return fixed + rotated[:count_rest]
+    ranked = sorted(items, key=publication_key, reverse=True)
+    return ranked[:count]
 
 def esc(value: str) -> str:
     return html.escape(value, quote=True)
