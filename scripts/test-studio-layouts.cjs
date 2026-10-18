@@ -11,6 +11,7 @@ const review=get("studio/template-review.html");
 assert.match(studio,/<script src="\/studio\/layouts\.js" defer><\/script>/);
 assert.ok(studio.indexOf("/studio/layouts.js")<studio.indexOf("/studio/publisher.js"),"Libreria deve precedere il pubblicatore");
 assert.match(publisher,/await window\.ZTStudioLayouts\.build\(/);
+assert.match(publisher,/recensione-studio-/);
 assert.doesNotMatch(publisher,/const html=articleHTML\(/);
 assert.match(layouts,/function preview\(/);
 assert.match(layouts,/cache:"no-store"/);
