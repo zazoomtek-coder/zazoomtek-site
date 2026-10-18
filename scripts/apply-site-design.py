@@ -456,7 +456,7 @@ js_path=home_js_ref.group(1)
 js_tag=f'<script src="{js_path}" defer></script>'
 changed=0
 for path in root.rglob('*.html'):
-    if any(p in {'.git','node_modules','functions'} for p in path.relative_to(root).parts):
+    if any(p in {'.git','node_modules','functions','studio'} for p in path.relative_to(root).parts):
         continue
     html=path.read_text(encoding='utf-8')
     if '</head>' not in html.lower():
