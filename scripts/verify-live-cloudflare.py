@@ -42,6 +42,26 @@ def verify_once(base: str, expected: str) -> str:
             or receipt.get("source_commit") != expected):
         seen = receipt.get("source_commit", "missing") if isinstance(receipt, dict) else "malformed"
         raise RuntimeError(f"Live release receipt is old: expected {expected[:12]}, found {str(seen)[:12]}")
+    # STUDIO PUBLIC RELEASE GATE: for every NEW release after the first
+    # deployed Studio baseline, verify the real public files rather than merely
+    # trusting a GitHub commit or Cloudflare receipt. Do not modify Home.
+    first_studio_baseline = "dd585cd6c018150b9d0d283c04219b578f69a288"
+    if expected != first_studio_baseline:
+        studio_html = get_public_page(base, "/studio/index.html", expected)
+        studio_js = get_public_page(base, "/studio/publisher.js", expected)
+        if ('src="/studio/publisher.js"' not in studio_html
+                or 'id="publishBtn"' not in studio_html
+                or 'id="ztVault"' not in studio_js
+                or 'ZT_STUDIO_ENCRYPTED_VAULT_1' not in studio_js
+                or 'ZT_STUDIO_TRUSTED_DEVICE_V1' not in studio_js
+                or 'ztRememberSave' not in studio_js
+                or 'ztRememberUnlock' not in studio_js
+                or 'restoreTrustedDevice();' not in studio_js
+                or 'async function publish(){' not in studio_js):
+            raise RuntimeError(
+                "Public Studio is missing password vault, trusted-PC auto-login, "
+                "publisher script or its editor HTML; deployment is NOT complete"
+            )
     # Check key outputs, not just the receipt. These are existing mandatory
     # ZazoomTek publishing rules that were previously missed in production.
     review = get_public_page(base, REVIEW, expected)
