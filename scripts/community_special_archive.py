@@ -77,7 +77,7 @@ def merge_category(root:Path,category:str,archive:str,additions,routes):
     start=src.index(start_tag)+len(start_tag)
     # Close the WHOLE archive list, not the first nested news-copy <div>.
     # The independent publisher guarantees this exact banner boundary.
-    finish=re.search(r'</div>(?=\\s*(?:<!-- ZT_COMMUNITY_BANNER_START -->|</section>))',src[start:],re.I)
+    finish=re.search(r'</div>(?=\s*(?:<!-- ZT_COMMUNITY_BANNER_START -->|</section>))',src[start:],re.I)
     if not finish:
         raise RuntimeError(f"Archive / Community banner structure invalid: {archive}")
     end=start+finish.start()
