@@ -23,7 +23,7 @@ def check(root: Path) -> None:
     assert "left.length!==10||right.length!==10" in alignment, "Column limit is not enforced"
     assert "shorter.appendChild" not in alignment and "appendChild(" not in alignment, "Filler articles reintroduced"
     assert "data-zt-align-fill" not in script, "Legacy filler-card code reintroduced"
-    assert "padding-bottom" in alignment, "Non-destructive modest height balancing lost"
+    assert "padding-bottom" in alignment and "min-width:821px" in alignment, "Non-destructive desktop/tablet height balancing lost"
     assert "ztp-two-news-columns" in script, "Home two-column structure missing"
     assert home.count("<!-- ARTICLE_FEED_START -->")==1, "Canonical news import markers missing"
     print("PASS: exactly ten dated TECH plus ten dated GAMING; no carousel duplicates/filler articles; cache revision current")
