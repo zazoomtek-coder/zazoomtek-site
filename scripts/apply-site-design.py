@@ -538,10 +538,7 @@ for nav_path in sorted(root.glob('*.html')):
     if not first:
         continue
     header=first.group()
-    if nav_path.name=="index.html" or re.fullmatch(r'pagina-\d+\.html',nav_path.name):
-        match=re.search(r'<nav\s+class=["\']nav["\'][^>]*>([\s\S]*?)</nav>',header,re.I)
-    else:
-        match=nav_pattern.search(header)
+    match=nav_pattern.search(header)
     if not match:
         if "ZAZOOM" in header.upper() or "ChatGPT.png" in header:
             raise RuntimeError(f"{nav_path.name}: missing full navigation header")
