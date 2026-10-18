@@ -59,12 +59,12 @@ def valid_image(value: str) -> bool:
 def publication_key(item: dict) -> tuple[int, int, int, int, int, int]:
     """Use original ISO publication timestamps; otherwise the Italian date label."""
     raw = str(item.get("published_at") or item.get("date") or "").lower()
-    iso = re.search(r"(20\\d{2})-(\\d{1,2})-(\\d{1,2})(?:[t ](\\d{2}):(\\d{2})(?::(\\d{2}))?)?", raw)
+    iso = re.search(r"(20\d{2})-(\d{1,2})-(\d{1,2})(?:[t ](\d{2}):(\d{2})(?::(\d{2}))?)?", raw)
     if iso:
         return tuple(int(x or 0) for x in iso.groups())
     months = {name: n for n, name in enumerate(
         "gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre".split(), 1)}
-    italian = re.search(r"(\\d{1,2})\\s+("+ "|".join(months) +r")\\s+(20\\d{2})", raw)
+    italian = re.search(r"(\d{1,2})\s+("+ "|".join(months) +r")\s+(20\d{2})", raw)
     if italian:
         day, month, year = italian.groups()
         return (int(year), months[month], int(day), 0, 0, 0)
