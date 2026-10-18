@@ -35,6 +35,9 @@
    if(!technologyProduct.test(heading) && /(?:^|[/._\s-])(gaming|videogame|gameplay|esports|video-game)(?:[/._\s-]|$)/.test(artwork))return "gaming";
    return "tech";
  }
+ // Reuse the already approved text classifier ONLY for legacy general NEWS
+ // in the Tech/Gaming column backfill; editorial labels always win.
+ window.ztHomeTopicClassifier=categorizeHomeArticle;
  // HOME_TOPIC_CLASSIFIER_END
 
  // HOME_PUBLICATION_ORDER_START
@@ -374,11 +377,19 @@
       const url=from.querySelector(".news-copy h2 a")?.getAttribute("href")||"";
       const signature=String(from.getAttribute("data-news-search")||"").slice(0,600);
       if(/\/(?:tech-impact|gaming-inside)-/.test(url)
-         || /^news\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(heading)
-         || /\bnews\s+(?:tech\s+impact|gaming\s+inside)\s*:/i.test(signature))return null;
+         || /^news\s+(?:tech\s+impact|gaming\s+inside|extra)\s*:/i.test(heading)
+         || /\bnews\s+(?:tech\s+impact|gaming\s+inside|extra)\s*:/i.test(signature)
+         || route==="extra")return null;
       if(route==="tech"||route==="gaming")return route;
       const label=signature.match(/\bnews\s+(tech|gaming)\s*:/i);
-      return label?label[1].toLowerCase():null;
+      if(label)return label[1].toLowerCase();
+      // Generic historical "News" posts were never explicitly routed.
+      // Use the EXISTING site classifier on real headline, lead and image,
+      // without inventing categories, rewriting archived posts or links.
+      if(typeof window.ztHomeTopicClassifier!=="function")return null;
+      const excerpt=from.querySelector(".news-copy p")?.textContent||"";
+      const img=from.querySelector("img");
+      return window.ztHomeTopicClassifier(heading,excerpt,img?.alt||"",img?.getAttribute("src")||"");
     }
     function makeArticle(from) {
       var link=from.querySelector(".news-copy h2 a");
