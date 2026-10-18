@@ -2409,19 +2409,6 @@ def build_extra_archive_page(items,page_num,pages,reviews):
     description=("News Extra su lifestyle, giocattoli, sport, cultura, eventi e "
                  "intrattenimento: articoli della Community ZazoomTek, senza "
                  "mescolarli alle notizie tech e gaming.")
-    introduction=(
-        '<div class="zt-extra-intro"><p><strong>Extra</strong> raccoglie le notizie '
-        'di ZazoomTek che escono dal mondo della tecnologia e dei videogiochi: '
-        'lifestyle, cultura, giocattoli, cosmetici, sport, gastronomia, eventi '
-        'e curiosità. Una sezione editoriale autonoma in cui scoprire '
-        'storie e novità di interesse generale, con gli stessi criteri '
-        'di chiarezza e approfondimento delle altre pagine del sito.</p>'
-        '<p>Gli articoli importati dalla Community YouTube vengono selezionati '
-        'in base alla categoria editoriale <em>News Extra</em>, che non appare '
-        'nei titoli delle notizie. Le recensioni sono invece consultabili '
-        'nell’archivio Recensioni e le notizie su software, hardware e videogiochi '
-        'continuano a essere pubblicate nelle sezioni corrispondenti.</p></div>'
-    )
     if items:
         listing='<div class="news-list" id="extraList">'+render_news_rows(items)+'</div>'
     else:
@@ -2484,7 +2471,7 @@ def build_extra_archive_page(items,page_num,pages,reviews):
         +'<section class="news-main"><div class="news-main-head"><h1>Extra</h1>'
         '<div class="news-filter"><span>Lifestyle</span><span>Cultura</span>'
         '<span>Sport</span><span>Giocattoli</span><span>Eventi</span></div></div>'
-        +introduction+listing
+        +listing
         +render_extra_pagination(page_num,pages)
         +render_extra_related()
         +'</section><aside class="news-sidebar">'+news_video_sidebar(reviews)
