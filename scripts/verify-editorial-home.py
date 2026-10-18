@@ -70,8 +70,12 @@ def check() -> None:
     # A story belongs to the featured carousel OR to its Tech/Gaming column,
     # never both. Old stories return at their ORIGINAL timestamp when replaced.
     if ('featuredOnHome.has(articlePath)' not in js
-            or 'featuredPaths().has(new URL(url,location.origin).pathname)' not in js
+            or 'const featured=featuredPaths();' not in js
+            or '!featured.has(url)' not in js
             or 'sourcePublishedAt(row)' not in js
+            or 'b.time-a.time' not in js
+            or 'column.replaceChildren(...ranked.slice(0,10)' not in js
+            or 'MutationObserver(paintCurrentColumns)' not in js
             or 'data-published-at' not in read("scripts/update-youtube-posts.py")):
         raise RuntimeError("Featured/column exclusivity or original timestamps are missing")
     for path in ("/news.html","/news-2.html","/news-3.html","/news-4.html","/news-5.html"):

@@ -1,0 +1,51 @@
+name: Home Tech Gaming chronology safe staging
+on:
+  push:
+    branches: [fix/home-chronological-column-selection-20261018]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source integrity and Home layout protection
+        run: |
+          node --check zt-home-live.js
+          python3 scripts/verify-home-layout-lock.py
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path("zt-home-live.js").read_text(encoding="utf-8")
+          assert "Promise.all(sources.map(async" in source
+          assert 'const featured=featuredPaths();' in source
+          assert 'column.replaceChildren(...ranked.slice(0,10)' in source
+          assert 'b.time-a.time' in source
+          assert "archivesReady=true;" in source
+          assert "MutationObserver(paintCurrentColumns)" in source
+          assert 'function fetchUntilReady(' not in source
+          assert 'function fetchChronologicalPage(' not in source
+          assert 'sourcePublishedAt(row)' in source
+          assert source.count("data-published-at") >= 3
+          assert source.count('"/news.html"')>=1
+          assert source.count('"/pagina-5.html"')>=1
+          print("PASS: complete 9-archive chronology and featured dedupe")
+          PY
+          git diff --exit-code HEAD -- index.html zt-home-graphic-layout-20261016.js zt-home-graphic-layout-20261016.css zt-home-gap-fix-20261014.css
+      - name: Full offline Cloudflare publishing safety build
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-home-layout-lock.py --packaged
+          node --check dist/zt-home-live.js
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('dist/zt-home-live.js').read_text()
+          assert "Promise.all(sources.map(async" in text
+          assert "function fetchUntilReady(" not in text
+          print("PASS: packaged site uses all published candidates, fresh dates and no featured duplicates")
+          PY
