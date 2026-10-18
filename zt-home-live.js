@@ -399,7 +399,7 @@
       if(!explicitArchiveCategory(from)||/^news\s+extra\s*:/i.test(title)||from.getAttribute("data-post-category")==="extra")return null;
       var url=link.getAttribute("href");
       if (!url||!/^\/(news-|tech-impact-|gaming-inside-)[\w-]+\.html$/.test(url)||seen.has(url)
-          || featuredPaths().has(new URL(url,location.origin).pathname))return null;
+          )return null;
       seen.add(url);
       var article=document.createElement("article");
       article.className="article-row ztp-news-item zt-mag-archive";
@@ -512,86 +512,88 @@
     area.addEventListener("load",function(e){if(e.target && e.target.tagName==="IMG")requestAlignment();},true);
     window.addEventListener("resize",function(){rebalance();},{passive:true});
     rebalance();
-    // The canonical news feed stays unchanged. The five featured article URLs
-    // are excluded also from archive backfill, without deleting any archive.
-    function fillArchive(path){
-      return fetch(path,{cache:"no-store",credentials:"same-origin"})
-      .then(function(resp){if(!resp.ok)throw new Error("Archive unavailable");return resp.text();})
-      .then(function(markup){
-        var doc=new DOMParser().parseFromString(markup,"text/html");
-        [].slice.call(doc.querySelectorAll(".news-list article.news-row")).forEach(function(src){
-          var link=src.querySelector(".news-copy h2 a");
-          if(!link)return;
-          var route=explicitArchiveCategory(src);
-          if(!route)return;
-          var section=route==="gaming"?gaming:tech;
-          var limit=10;
-          var count=section.querySelectorAll(":scope > article.article-row").length;
-          if(count>=limit)return;
-          var articlePath=new URL(link.getAttribute("href"),location.origin).pathname;
-          var row=makeArticle(src);
-          if(row)section.appendChild(row);
-        });
-        rebalance();
-        var ready=function(section,limit){
-          return section.querySelectorAll(":scope > article.article-row").length>=limit;
-        };
-        return ready(tech,10)&&ready(gaming,10);
-      });
+    // Load every existing published source BEFORE selecting the newest ten
+    // TECH and GAMING articles. Stopping at ten while browsing individual
+    // archive pages used to omit newer items and create unsynchronised columns.
+    // The canonical 15-news feed, page structure and original timestamps stay.
+    const candidates={tech:[...tech.querySelectorAll(":scope > article.article-row")],
+                      gaming:[...gaming.querySelectorAll(":scope > article.article-row")]};
+    let archivesReady=false;
+    function archiveHref(row){
+      const anchor=row.querySelector(".article-copy h3 a[href]");
+      try{return new URL(anchor?.getAttribute("href")||"",location.origin).pathname;}
+      catch(_){return "";}
     }
-    var archivePages=["/news.html","/news-2.html","/news-3.html","/news-4.html","/news-5.html"];
-    function fetchUntilReady(i){
-      if(i>=archivePages.length)return Promise.resolve(false);
-      return fillArchive(archivePages[i]).then(function(full){
-        return full?true:fetchUntilReady(i+1);
-      });
-    }
-    // In the newest 100 NEWS archive items, four currently featured Tech
-    // articles may leave fewer than ten non-featured Tech stories. Use the
-    // ALREADY published, dated Home pagination pages as a read-only backfill.
-    // No new news, layouts, URL changes, or duplicate featured articles.
-    var chronologicalPages=["/pagina-2.html","/pagina-3.html","/pagina-4.html","/pagina-5.html"];
-    function fillPublishedHomePage(path){
-      return fetch(path,{cache:"no-store",credentials:"same-origin"})
-        .then(function(resp){if(!resp.ok)throw Error("Archive unavailable");return resp.text();})
-        .then(function(markup){
-          var doc=new DOMParser().parseFromString(markup,"text/html");
-          [].slice.call(doc.querySelectorAll("#articleList > article.article-row")).forEach(function(src){
-            const sectionName=(src.getAttribute("data-post-category")||"").toLowerCase();
-            if(sectionName!=="tech"&&sectionName!=="gaming")return;
-            const link=src.querySelector(".article-copy h3 a[href]");
-            const image=src.querySelector("img.article-image");
-            if(!link||!image)return;
-            let url;
-            try{url=new URL(link.getAttribute("href"),location.origin);}catch(_){return;}
-            if(url.origin!==location.origin||!/^\/news-[\w-]+\.html$/.test(url.pathname)
-               ||seen.has(url.pathname)||featuredPaths().has(url.pathname))return;
-            const section=sectionName==="tech"?tech:gaming;
-            if(section.querySelectorAll(":scope > article.article-row").length>=10)return;
-            const row=src.cloneNode(true);
-            row.classList.add("ztp-news-item","zt-mag-archive");
-            row.classList.remove("zt-mag-big","ztp-gaming-feature");
-            row.hidden=false;
-            row.style.removeProperty("display");
-            section.appendChild(row);
-            seen.add(url.pathname);
-          });
-          rebalance();
-          return tech.querySelectorAll(":scope > article.article-row").length>=10
-            && gaming.querySelectorAll(":scope > article.article-row").length>=10;
-        });
-    }
-    function fetchChronologicalPage(i){
-      if(i>=chronologicalPages.length)return Promise.resolve(false);
-      return fillPublishedHomePage(chronologicalPages[i]).then(function(full){
-        return full?true:fetchChronologicalPage(i+1);
-      });
-    }
-    fetchUntilReady(0).then(function(full){
-      return full?true:fetchChronologicalPage(0);
-    }).then(requestAlignment).catch(function(err){
-      console.info("Home archive alignment preserved:",err.message);
+    function paintCurrentColumns(){
+      if(!archivesReady)return;
+      const featured=featuredPaths();
+      for(const [name,column] of [["tech",tech],["gaming",gaming]]){
+        const ranked=candidates[name].filter(row=>{
+          const url=archiveHref(row);
+          return url && !featured.has(url) && !row.matches("[data-post-category='extra']");
+        }).map((row,index)=>({row,index,time:sourcePublishedAt(row)}));
+        ranked.sort((a,b)=>b.time-a.time||a.index-b.index);
+        // Keep references to older published articles in candidates, not DOM.
+        // They can return to their original publication position when the
+        // featured carousel rotates without needing to republish an article.
+        column.replaceChildren(...ranked.slice(0,10).map(item=>item.row));
+      }
       rebalance();
+    }
+    function addPublishedNews(src){
+      const route=explicitArchiveCategory(src);
+      if(route!=="tech"&&route!=="gaming")return;
+      const row=makeArticle(src);
+      if(row)candidates[route].push(row);
+    }
+    function addChronologicalHome(src){
+      const category=(src.getAttribute("data-post-category")||"").toLowerCase();
+      if(category!=="tech"&&category!=="gaming")return;
+      const link=src.querySelector(".article-copy h3 a[href]");
+      const photo=src.querySelector("img.article-image");
+      if(!link||!photo)return;
+      let url;
+      try{url=new URL(link.getAttribute("href"),location.origin);}catch(_){return;}
+      if(url.origin!==location.origin||!/^\\/news-[\\w-]+\\.html$/.test(url.pathname)||
+         seen.has(url.pathname))return;
+      const row=src.cloneNode(true);
+      row.classList.add("ztp-news-item","zt-mag-archive");
+      row.classList.remove("zt-mag-big","ztp-gaming-feature");
+      row.hidden=false;
+      row.style.removeProperty("display");
+      candidates[category].push(row);
+      seen.add(url.pathname);
+    }
+    const sources=[
+      ["/news.html","news"],["/news-2.html","news"],["/news-3.html","news"],
+      ["/news-4.html","news"],["/news-5.html","news"],
+      ["/pagina-2.html","home"],["/pagina-3.html","home"],
+      ["/pagina-4.html","home"],["/pagina-5.html","home"]
+    ];
+    Promise.all(sources.map(async ([path,kind])=>{
+      try{
+        const response=await fetch(path,{cache:"no-store",credentials:"same-origin"});
+        if(!response.ok)throw new Error("HTTP "+response.status);
+        const documentSource=new DOMParser().parseFromString(await response.text(),"text/html");
+        const selector=kind==="news"?".news-list article.news-row":"#articleList > article.article-row";
+        documentSource.querySelectorAll(selector).forEach(source=>
+          kind==="news"?addPublishedNews(source):addChronologicalHome(source));
+      }catch(error){
+        console.info("Home archive read skipped:",path,error.message);
+      }
+    })).then(()=>{
+      archivesReady=true;
+      paintCurrentColumns();
+      const grid=document.getElementById("ztFeaturedGrid");
+      if(grid && typeof MutationObserver==="function")
+        new MutationObserver(paintCurrentColumns).observe(grid,{
+          childList:true,subtree:true,attributes:true,attributeFilter:["href"]
+        });
+      requestAlignment();
+    }).catch(error=>{
+      console.warn("Preserved the existing Tech/Gaming columns:",error);
+      archivesReady=true;
+      paintCurrentColumns();
     });
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enhance,{once:true});
