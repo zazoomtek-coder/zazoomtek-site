@@ -8,7 +8,7 @@
   // workflow and must never acquire a duplicate featured-news block.
   if(location.pathname==="/" || location.pathname==="/index.html")return;
 
-  const SIDEBAR_SLOT_MS=2*60*60*1000;
+  const SIDEBAR_SLOT_MS=24*60*60*1000;
   const path=location.pathname;
   const slot=Math.floor(Date.now()/SIDEBAR_SLOT_MS);
   const used=new Set([path]);
@@ -442,7 +442,7 @@
     const asides=document.querySelectorAll("aside.zt-side-mix, aside.sidebar");
     for(const aside of asides){
       if(upgradeEditorialRail(aside,feed)){
-        aside.dataset.ztSidebarLive="2h";
+        aside.dataset.ztSidebarLive="24h";
         continue;
       }
       // Featured first, never move the Amazon affiliate widget or the box order.
@@ -453,7 +453,7 @@
                           !s.classList.contains("zt-sidebar-editorial")).forEach(s=>editorial(s,feed));
       sections.filter(s=>s.classList.contains("zt-mix-video")).forEach(s=>video(s,feed));
       sections.filter(s=>s.classList.contains("zt-sidebar-editorial")).forEach(s=>editorial(s,feed));
-      aside.dataset.ztSidebarLive="2h";
+      aside.dataset.ztSidebarLive="24h";
     }
   }
   if(!document.querySelector("aside.zt-side-mix, aside.sidebar"))return;

@@ -1,0 +1,54 @@
+name: All categories 24h editorial rotation safety staging
+on:
+  push:
+    branches: [fix/all-editorial-boxes-daily-rotation-20261018]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check every sidebar runtime and future-page builder
+        run: |
+          python3 -m py_compile scripts/zt_sidebar_mix.py scripts/build-related-content.py
+          node --check zt-sidebar-live.js
+          python3 scripts/verify-home-layout-lock.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,"scripts")
+          from zt_sidebar_mix import SIDEBAR_PERIOD_SECONDS,rotated
+          assert SIDEBAR_PERIOD_SECONDS==86400
+          js=Path("zt-sidebar-live.js").read_text()
+          assert "const SIDEBAR_SLOT_MS=24*60*60*1000;" in js
+          assert 'aside.dataset.ztSidebarLive="24h";' in js
+          assert 'aside.dataset.ztSidebarLive="2h";' not in js
+          related=Path("scripts/build-related-content.py").read_text()
+          assert 'editorial_slot=int(datetime.now(timezone.utc).timestamp()//86400)' in related
+          assert 'timestamp()//7200' not in related
+          workflow=Path(".github/workflows/refresh-home-editorials-daily.yml").read_text()
+          assert "cron: '12 7 * * *'" in workflow
+          cards=[{"url":"/alpha.html"},{"url":"/bravo.html"},{"url":"/charlie.html"}]
+          assert rotated(cards,"guide-legacy.html","editorial",bucket=100)!=rotated(cards,"guide-legacy.html","editorial",bucket=101)
+          print("PASS: daily editorial rotation for existing/new page categories, stable within 24h.")
+          PY
+          git diff --exit-code HEAD -- index.html zt-home-live.js zt-home-graphic-layout-20261016.js
+      - name: Full production-equivalent no-deploy build
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-home-layout-lock.py --packaged
+          node --check dist/zt-sidebar-live.js
+          python3 - <<'PY'
+          from pathlib import Path
+          js=Path("dist/zt-sidebar-live.js").read_text()
+          assert "const SIDEBAR_SLOT_MS=24*60*60*1000;" in js
+          assert 'aside.dataset.ztSidebarLive="24h";' in js
+          print("PASS: packaged all-category editorial boxes rotate daily")
+          PY
