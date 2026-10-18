@@ -1,5 +1,5 @@
 /* ZazoomTek — dynamic editorial sidebars, 2026.
-   Rotates only real published stories/videos from /zt-sidebar-feed.json.
+   Always selects newest verified stories/videos from /zt-sidebar-feed.json.
    The HTML assembled on Firebase remains a complete SEO-accessible fallback.
    No cookies, visitor identifiers or tracking; never changes article content. */
 (function(){
@@ -30,12 +30,9 @@
     if(!Array.isArray(pool) || !count)return [];
     const available=pool.filter(x=>isStory(x)&&!used.has(x.url));
     if(!available.length)return [];
-    const start=(hash(path+"|"+key)+slot)%available.length;
-    const picks=[];
-    for(let i=0;i<available.length && picks.length<count;i++){
-      const item=available[(start+i)%available.length];
-      if(!picks.some(x=>x.url===item.url))picks.push(item);
-    }
+    // The feed is sorted newest first at publication time. Never wrap around
+    // and show a 15 October item ahead of a still-eligible 16 October item.
+    const picks=available.slice(0,count);
     for(const pick of picks)used.add(pick.url);
     return picks;
   }
@@ -119,8 +116,7 @@
     if(!Array.isArray(videos)||!videos.length)return;
     const available=videos.filter(v=>v&&/^[A-Za-z0-9_-]{11}$/.test(v.id)&&v.title);
     if(!available.length)return;
-    const index=(hash(path+"|"+category+"-video")+slot)%available.length;
-    const clip=available[index];
+    const clip=available[0];
     const link=section.querySelector("a.zt-mix-video-row");
     if(!link)return;
     link.href="https://www.youtube.com/watch?v="+clip.id;
@@ -295,8 +291,8 @@
         for(const item of all)if(!seen.has(item.url)){
           seen.add(item.url);unique.push(item);
         }
-        const shift=unique.length?(hash(path+"|"+key)+slot)%unique.length:0;
-        pool[key]=unique.slice(shift).concat(unique.slice(0,shift));
+        // Preserve original publication ranking while removing duplicates.
+        pool[key]=unique;
       }
       function next(key){
         return pool[key].find(item=>!usedLinks.has(item.url))||null;
