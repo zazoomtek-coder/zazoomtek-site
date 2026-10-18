@@ -18,7 +18,7 @@ const intro=document.querySelector(".intro");if(intro)intro.innerHTML='<span sty
 const locks=document.querySelectorAll(".locked");locks.forEach(n=>{const t=n.textContent||"";if(/automatic|automatici|SEO|correlati/i.test(t))n.title="Le nuove pagine hanno i propri metadati SEO e un riquadro notizie; non vengono aggiunte automaticamente agli archivi storici."});
 const btn=$("publishBtn");if(btn){btn.textContent="Pubblica articolo";btn.onclick=publish;}
 const state=(t,error=false)=>{const n=$("ztConnection");n.textContent=t;n.className="zt-state "+(error?"error":token?"ok":"");};
-const endpoint=p=>"https://api.github.com/repos/"+REPO+"/contents/"+p.split("/").map(encodeURIComponent).join("/");
+const endpoint=p=>{const parts=p.split("?");return "https://api.github.com/repos/"+REPO+"/contents/"+parts[0].split("/").map(encodeURIComponent).join("/")+(parts[1]?"?"+parts.slice(1).join("?"):"");};
 async function req(method,p,body){
 const res=await fetch(endpoint(p),{method,headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28",...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined,cache:"no-store"});
 if(res.status===404&&method==="GET")return null;
