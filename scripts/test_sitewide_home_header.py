@@ -8,7 +8,7 @@ import re
 
 NAV=("Home","News","Recensioni","Guide","Tech Impact","Gaming Inside","Extra","Community","Video")
 HEADER=re.compile(r"<header\b[^>]*>[\s\S]*?</header>",re.I)
-NAV_RE=re.compile(r'<nav\b[^>]*class=["\\']nav["\\'][^>]*>[\s\S]*?</nav>',re.I)
+NAV_RE=re.compile(r'<nav\b[^>]*class=["\']nav["\'][^>]*>[\s\S]*?</nav>',re.I)
 
 class Nav(HTMLParser):
     def __init__(self):
