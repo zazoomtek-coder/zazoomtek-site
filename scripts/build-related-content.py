@@ -811,9 +811,9 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
             and 'content="noindex' not in item["raw"].lower()
         ]
         # Different but reproducible editorial suggestions on each page and
-        # in each two-hour window. The live feed refreshes between deploys.
+        # in each 24-hour window. The live feed refreshes between deploys.
         from datetime import datetime, timezone
-        editorial_slot=int(datetime.now(timezone.utc).timestamp()//7200)
+        editorial_slot=int(datetime.now(timezone.utc).timestamp()//86400)
         rng = random.Random(record["name"]+"|"+str(editorial_slot))
         pool.sort(key=lambda item: item["name"])
         rng.shuffle(pool)
