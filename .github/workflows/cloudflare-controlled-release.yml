@@ -73,6 +73,17 @@ jobs:
             # Validate with the NEW source receipt before touching production.
             # All generated pages, thumbnails and review links must pass.
             python3 scripts/cloudflare-build-site.py
+            # No release may pass with old, duplicated, undated or unbalanced
+            # Tech/Gaming columns. Browser-test exactly what Cloudflare ships.
+            command -v google-chrome
+            node --check scripts/verify-home-browser-columns.cjs
+            mkdir -p /tmp/zt-release-gate
+            npm install --prefix /tmp/zt-release-gate --no-save --silent playwright-core@1.56.0
+            nohup python3 -m http.server 8877 --directory dist --bind 127.0.0.1 >/tmp/zt-release-gate/http.log 2>&1 &
+            browser_server_pid=$!
+            sleep 2
+            NODE_PATH=/tmp/zt-release-gate/node_modules node scripts/verify-home-browser-columns.cjs
+            kill "$browser_server_pid" || true
             git commit -m "Cloudflare release: hourly validated editorial batch"
             if git push origin HEAD:main; then
               source="$(sed -n 's/^source_commit=//p' cloudflare-release-trigger.txt)"
