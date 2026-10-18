@@ -287,7 +287,8 @@ const exported=cleanArticle($("coverPreview").getAttribute("src"),slug);
 if(exported.upload.some(x=>x.b64.length>9000000))throw Error("Un file supera il limite consigliato di caricamento. Riduci le dimensioni.");
 const description=($("editor").innerText||"").replace(/\s+/g," ").trim().slice(0,155);
 const date=new Date().toISOString();
-const html=articleHTML(title,category,exported.cover,exported.content,description,date,filename);
+if(!window.ZTStudioLayouts?.build)throw Error("Modello editoriale non caricato: pubblicazione interrotta senza modificare nulla.");
+ const html=await window.ZTStudioLayouts.build({title,category,cover:exported.cover,body:exported.content,description,date,url:filename});
 window.ZTStudio?.saveDraft?.(true);
 for(let i=0;i<exported.upload.length;i++){
 finish("Caricamento immagini e allegati "+(i+1)+"/"+exported.upload.length+"…");
