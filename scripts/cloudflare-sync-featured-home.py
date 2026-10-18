@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """Synchronize the actual homepage five-card grid with approved featured JSON.
 
-Build-time only. The four-hour curator exclusively owns featured-carousel.json;
+Build-time only. The independent curator exclusively owns featured-carousel.json;
 this script never selects stories or changes article text. A bad manifest stops
 the deployment before visitors can see stale/missing cards. No runtime JS added.
 """
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 from html import escape
 import json
 from pathlib import Path
-from zoneinfo import ZoneInfo
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,8 +24,8 @@ def render(root: Path) -> str:
     pins = json.loads((root / "featured-editorial-pins.json").read_text(encoding="utf-8"))
     items = data.get("items")
     pinned = pins.get("items")
-    if not isinstance(items, list) or len(items) > 5:
-        raise RuntimeError("Featured carousel cannot exceed five ordinary Tech/Gaming cards")
+    if not isinstance(items, list) or len(items) != 5:
+        raise RuntimeError("Must retain exactly five real featured news: 4 Tech + 1 Gaming")
     if not isinstance(pinned, list) or pinned:
         raise RuntimeError("Tech Impact and Gaming Inside are reserved for dedicated editorial boxes")
     pin_sections = [x.get("section") for x in pinned if isinstance(x, dict)]
@@ -51,16 +49,18 @@ def render(root: Path) -> str:
         raise RuntimeError("Editorial special pin was removed without permission")
     if len({x.get("url") for x in items}) != len(items):
         raise RuntimeError("Featured articles are duplicated")
-    if len(items)==5 and (tech_count!=4 or game_count!=1):
+    if tech_count!=4 or game_count!=1:
         raise RuntimeError("Full featured mosaic needs 4 Tech and 1 Gaming")
-    today=dt.datetime.now(ZoneInfo("Europe/Rome")).date()
+    # A story keeps its place through weekends/holidays without new posts.
+    # Dates are required for verification, not an automatic expiration timer.
+    import datetime as dt
     for item in regular:
         try:
             day=dt.date.fromisoformat(item.get("published_date",""))
         except (TypeError,ValueError):
             raise RuntimeError("Featured regular article has no verified publication date")
-        if day not in (today,today-dt.timedelta(days=1)):
-            raise RuntimeError("Outdated featured article: "+str(item.get("url")))
+        if day>dt.datetime.now(dt.timezone.utc).date()+dt.timedelta(days=1):
+            raise RuntimeError("Future-dated featured story: "+str(item.get("url")))
 
     # Force final visual placement even if an upstream producer stores
     # the items in chronological order across Tech and Gaming.
