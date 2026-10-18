@@ -187,6 +187,10 @@ def main():
         updated,count=re.subn(pattern,lambda match:replacement,s,count=1,flags=re.S)
         if count!=1:raise RuntimeError("Archive marker missing: "+archive)
         save_if_changed(path,updated)
+    # Shared archive merger is idempotent: a special-news rebuild may never
+    # erase an already imported Tech Impact / Gaming Inside Community post.
+    from community_special_archive import sync as sync_community_special
+    sync_community_special(ROOT)
     # Every verified article stays in its archive. Carousel placements are an
     # additional promotion: one independently fact-checked original report is
     # enough for a strong feature; corroboration remains a relevance signal.

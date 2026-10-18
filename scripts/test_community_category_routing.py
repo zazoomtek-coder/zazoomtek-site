@@ -37,6 +37,12 @@ for item, expected in [
     assert module.post_category(item) == expected, (expected, item["text"])
     assert module.is_review(item) == (expected == "review"), item["text"]
 
+assert module.special_community_section(post(
+    "UgkxSpecialTech", "News Tech Impact: Videogiochi e terapia nel percorso clinico"
+)) == "tech-impact"
+assert module.special_community_section(post(
+    "UgkxSpecialGaming", "News Gaming Inside: Norme UE sul gaming e tutela dei giocatori"
+)) == "gaming-inside"
 assert module.news_title(extra) == "Festival del cibo e della cultura"
 assert module.news_title(extra_standalone) == "Festival dello sport e dei giocattoli"
 assert module.news_title(tech) == "Nuovo smartphone con chip IA"

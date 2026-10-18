@@ -1,0 +1,48 @@
+name: ZazoomTek - fix YouTube special archive routing (staging only)
+on:
+  push:
+    branches: [zt-fix-community-special-routing-20261018]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Community / special routing without deploying
+        run: |
+          python3 -m py_compile scripts/*.py
+          python3 scripts/test-community-special-archive.py
+          python3 scripts/test_community_category_routing.py
+          python3 scripts/zt-import-transaction-guard.py --self-test
+          python3 scripts/verify-home-layout-lock.py
+          python3 scripts/community_special_archive.py
+          python3 - <<'PY'
+          from pathlib import Path
+          key='Ugkx9FTLi4RyOu6-kk1A1I1Acj6na5FKh-8c'
+          tech=Path('tech-today.html').read_text()
+          gaming=Path('gaming-today.html').read_text()
+          ordinary=Path('news.html').read_text()
+          assert key in tech,'Missing real Tech Impact Community post from archive'
+          assert key not in gaming and key not in ordinary,'Special article leaked into wrong category'
+          print('PASS: real user post linked from Tech Impact, not Gaming Inside or News')
+          PY
+      - name: Full production-equivalent Cloudflare build, offline
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+          grep -q 'Ugkx9FTLi4RyOu6-kk1A1I1Acj6na5FKh-8c' dist/tech-today.html
+      - name: Save final staging
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zt-special-community-staging
+          path: dist/
+          retention-days: 5

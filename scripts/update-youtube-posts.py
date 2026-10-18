@@ -3154,7 +3154,11 @@ def main():
                    or not migrated_extra or outdated_titles or manually_changed
                    or last_renderer!=current_home_renderer)
     if source_unchanged and not force_full_scan and not force_rebuild:
-        print("No YouTube Community content changes; skipping HTML regeneration.")
+        # Even without a new post, recover any special Community article that
+        # older importers wrote as HTML but omitted from Tech Impact/Inside.
+        from community_special_archive import sync as sync_special
+        sync_special(Path("."))
+        print("No YouTube Community content changes; special category archives verified.")
         return
 
     published_reviews,old_archive=existing_review_pages()
@@ -3176,6 +3180,10 @@ def main():
     for p in news: write_news_page(p,news)
     write_news_archive(general_news,reviews)
     write_extra_archive(news,reviews)
+    # All Community specials have genuine published news-*.html pages; add
+    # them only to their OWN sections, never to ordinary Home/news lists.
+    from community_special_archive import sync as sync_special
+    sync_special(Path("."))
     update_sitemap()
     # Home and article pagination contain NEWS only; dedicated Reviews remain unchanged.
     # Calculate pagination now; generate pages only AFTER Home is finalized.
