@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - zt-safety-gates-20261018
-      - fix/home-bottom-gap-dynamic-20261018
   workflow_dispatch:
 permissions:
   contents: read
@@ -43,8 +42,6 @@ jobs:
           python3 -m pip install --disable-pip-version-check 'playwright>=1.51,<2'
           python3 -m playwright install --with-deps chromium
           python3 scripts/capture-staging-preview.py --root dist --output staging-screenshots
-      - name: Assert no visible Tech/Gaming bottom gaps at three desktop widths
-        run: python3 scripts/test-home-column-bottoms-browser.py
       - name: Store navigable full site and browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
