@@ -51,6 +51,11 @@ jobs:
         continue-on-error: true
         run: python3 -m pip install --quiet pillow
 
+      - name: Protect every staged YouTube import transaction
+        run: |
+          python3 -m py_compile scripts/zt-import-transaction-guard.py
+          python3 scripts/zt-import-transaction-guard.py --self-test
+
       - name: Validate sync programs (diagnostic, never block imports)
         continue-on-error: true
         run: |
@@ -76,7 +81,7 @@ jobs:
           # Each attempt re-reads YouTube; only validated results are committed.
           imported=false
           for attempt in 1 2 3; do
-            if python3 scripts/update-youtube-posts.py && python3 scripts/validate-sync-output.py community; then
+            if python3 scripts/update-youtube-posts.py && python3 scripts/validate-sync-output.py community && python3 scripts/verify-home-layout-lock.py; then
               imported=true
               break
             fi
@@ -109,6 +114,7 @@ jobs:
         continue-on-error: true
         run: |
           git add -A
+          python3 scripts/zt-import-transaction-guard.py --kind community
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -139,7 +145,9 @@ jobs:
               git reset --hard origin/main
               python3 scripts/update-youtube-posts.py
               python3 scripts/validate-sync-output.py community
+              python3 scripts/verify-home-layout-lock.py
               git add -A
+              python3 scripts/zt-import-transaction-guard.py --kind community
               if git diff --cached --quiet; then
                 echo "Community already up to date on main."
                 echo "published=false" >> "$GITHUB_OUTPUT"
@@ -179,7 +187,7 @@ jobs:
         run: |
           videos_imported=false
           for attempt in 1 2 3; do
-            if python3 scripts/update-youtube.py && python3 scripts/validate-sync-output.py videos; then
+            if python3 scripts/update-youtube.py && python3 scripts/validate-sync-output.py videos && python3 scripts/verify-home-layout-lock.py; then
               videos_imported=true
               break
             fi
@@ -212,6 +220,7 @@ jobs:
         continue-on-error: true
         run: |
           git add -A
+          python3 scripts/zt-import-transaction-guard.py --kind videos
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -241,7 +250,9 @@ jobs:
               git reset --hard origin/main
               python3 scripts/update-youtube.py
               python3 scripts/validate-sync-output.py videos
+              python3 scripts/verify-home-layout-lock.py
               git add -A
+              python3 scripts/zt-import-transaction-guard.py --kind videos
               if git diff --cached --quiet; then
                 echo "published=false" >> "$GITHUB_OUTPUT"
                 exit 0
@@ -385,6 +396,7 @@ jobs:
               python3 scripts/inject-analytics.py || echo 'Analytics refresh postponed.'
               python3 scripts/build-search-index.py || echo 'Search index postponed.'
               git add -A
+              python3 scripts/zt-import-transaction-guard.py --kind auxiliary
               if git diff --cached --quiet; then
                 echo "Latest remote already contains the imported content."
                 echo "published=false" >> "$GITHUB_OUTPUT"

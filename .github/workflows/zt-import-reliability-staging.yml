@@ -1,0 +1,44 @@
+name: ZazoomTek importer transaction reliability - staging only
+on:
+  push:
+    branches: [zt-import-pipeline-reliability-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: zt-import-staging
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test import ownership, deduplication and sections
+        run: |
+          python3 -m py_compile scripts/*.py
+          python3 scripts/zt-import-transaction-guard.py --self-test
+          python3 scripts/test_review_dedup.py
+          python3 scripts/test_community_category_routing.py
+          python3 scripts/test_community_freshness.py
+          python3 scripts/test_video_sync_reliability.py
+          node scripts/test-home-news-categories.cjs
+          python3 scripts/test-featured-today-yesterday.py
+          python3 scripts/verify-home-layout-lock.py
+      - name: Offline full Cloudflare-equivalent production build
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+      - name: Preserve staging snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zt-import-staging-snapshot
+          path: dist/
+          retention-days: 5
