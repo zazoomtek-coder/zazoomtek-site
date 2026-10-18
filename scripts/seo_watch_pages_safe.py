@@ -81,7 +81,7 @@ def page_parts(root):
     # Watch pages reuse both its exact header HTML and its scoped header CSS.
     if 'id="zt-site-home-header"' not in header.group(0):
         raise RuntimeError('Home-sourced ZazoomTek header missing')
-    style=re.search(r'<style\\b[^>]*id="zt-site-home-header-style"[^>]*>[\\s\\S]*?</style>',existing,re.I)
+    style=re.search(r'<style\b[^>]*id="zt-site-home-header-style"[^>]*>[\s\S]*?</style>',existing,re.I)
     if not style:
         raise RuntimeError('Home masthead stylesheet missing')
     return header.group(0),footer.group(0),style.group(0)
