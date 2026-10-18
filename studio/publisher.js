@@ -18,6 +18,101 @@ const intro=document.querySelector(".intro");if(intro)intro.innerHTML='<span sty
 const locks=document.querySelectorAll(".locked");locks.forEach(n=>{const t=n.textContent||"";if(/automatic|automatici|SEO|correlati/i.test(t))n.title="Le nuove pagine hanno i propri metadati SEO e un riquadro notizie; non vengono aggiunte automaticamente agli archivi storici."});
 const btn=$("publishBtn");if(btn){btn.textContent="Pubblica articolo";btn.onclick=publish;}
 const state=(t,error=false)=>{const n=$("ztConnection");n.textContent=t;n.className="zt-state "+(error?"error":token?"ok":"");};
+
+// ZT_STUDIO_ENCRYPTED_VAULT_1. The GitHub PAT is never stored unencrypted.
+const VAULT_STORAGE_KEY="zazoomtek.studio.github.vault.v1";
+const VAULT_ITERATIONS=600000;
+const vaultBox=document.createElement("section");
+vaultBox.id="ztVault";
+vaultBox.className="zt-vault";
+vaultBox.innerHTML='<h3>Accesso persistente protetto</h3><p>Salva il collegamento GitHub su questo computer, cifrato con una password scelta da te. Ai prossimi accessi userai solo questa password, non il codice GitHub.</p><div id="ztVaultSave"><label for="ztVaultPass">Crea una password di sblocco (minimo 12 caratteri)</label><input type="password" id="ztVaultPass" autocomplete="new-password" minlength="12" placeholder="Password di almeno 12 caratteri"><label for="ztVaultRepeat">Ripeti la password</label><input type="password" id="ztVaultRepeat" autocomplete="new-password" minlength="12" placeholder="Ripeti la password"><div class="zt-row"><button type="button" class="btn mini" id="ztVaultSaveBtn">Salva accesso cifrato</button></div></div><div id="ztVaultUnlock" hidden><label for="ztVaultUnlockPass">Password di sblocco</label><input type="password" id="ztVaultUnlockPass" autocomplete="current-password" placeholder="La password scelta in precedenza"><div class="zt-row"><button type="button" class="btn mini" id="ztVaultUnlockBtn">Sblocca GitHub</button></div></div><div id="ztVaultStatus" class="zt-vault-message" role="status"></div><div class="zt-row"><button type="button" id="ztVaultForget" class="btn mini" hidden>Elimina accesso salvato</button></div><p class="zt-vault-note">Il token è cifrato AES-GCM con una chiave derivata dalla password (PBKDF2). Nessun token in chiaro né password viene salvato. Il salvataggio è valido solo su questo browser; in modalità privata o cancellando i dati del sito potrebbe scomparire. Il token GitHub continua a scadere secondo la data scelta su GitHub.</p>';
+panel.insertBefore(vaultBox,panel.querySelector("#ztPublished"));
+style.textContent+='.zt-vault{border-top:1px solid #e5e8ee;margin-top:15px;padding-top:12px}.zt-vault h3{margin-bottom:6px}.zt-vault p{font-size:12px}.zt-vault label{margin-top:9px}.zt-vault input{background:#fff}.zt-vault [hidden]{display:none!important}.zt-vault-message{padding-top:6px;font-size:12px;line-height:1.5;color:#136f41}.zt-vault-message.error{color:#b51e38}.zt-vault-note{color:#757e8e!important;font-size:11px!important;line-height:1.55!important}';
+let vaultBusy=false;
+const vaultEls={save:$("ztVaultSave"),unlock:$("ztVaultUnlock"),forget:$("ztVaultForget"),message:$("ztVaultStatus")};
+function vaultMessage(s,error=false){vaultEls.message.textContent=s;vaultEls.message.className="zt-vault-message"+(error?" error":"");}
+function getSavedVault(){try{const raw=localStorage.getItem(VAULT_STORAGE_KEY);return raw?JSON.parse(raw):null;}catch{return null;}}
+function renderVault(){
+  const saved=!!getSavedVault();
+  vaultEls.save.hidden=!token;
+  vaultEls.unlock.hidden=!saved||!!token;
+  vaultEls.forget.hidden=!saved;
+  if(saved&&token)vaultMessage("Accesso cifrato salvato sul dispositivo. Pronto per pubblicare.");
+  else if(saved)vaultMessage("Accesso salvato: inserisci la password per sbloccare GitHub.");
+  else if(token)vaultMessage("Collegato: crea adesso una password per evitare di incollare il token nei prossimi accessi.");
+  else vaultMessage("Collega GitHub una sola volta, poi proteggi l'accesso con una password.");
+}
+function toBase64(bytes){let out="";for(let i=0;i<bytes.length;i+=8192)out+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(out);}
+function fromBase64(value){if(typeof value!=="string"||value.length>12000||!/^[A-Za-z0-9+/]*={0,2}$/.test(value))throw Error("Archivio salvato non valido");const binary=atob(value);return Uint8Array.from(binary,c=>c.charCodeAt(0));}
+function vaultAAD(){return new TextEncoder().encode("ZazoomTek Studio encrypted GitHub token v1|"+location.origin);}
+async function keyFromPassword(password,salt){
+  const secret=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:VAULT_ITERATIONS,hash:"SHA-256"},secret,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function saveCredential(){
+  if(vaultBusy)return;
+  if(!token){vaultMessage("Prima verifica il collegamento GitHub.",true);return;}
+  if(!globalThis.crypto?.subtle||!globalThis.isSecureContext){vaultMessage("Per la cifratura serve HTTPS e un browser aggiornato.",true);return;}
+  const pass=$("ztVaultPass").value,repeat=$("ztVaultRepeat").value;
+  if(pass.length<12){vaultMessage("La password deve avere almeno 12 caratteri.",true);return;}
+  if(pass!==repeat){vaultMessage("Le due password non coincidono.",true);return;}
+  vaultBusy=true;$("ztVaultSaveBtn").disabled=true;
+  try{
+    const salt=crypto.getRandomValues(new Uint8Array(16));
+    const iv=crypto.getRandomValues(new Uint8Array(12));
+    const key=await keyFromPassword(pass,salt);
+    const encrypted=await crypto.subtle.encrypt({name:"AES-GCM",iv,additionalData:vaultAAD()},key,new TextEncoder().encode(token));
+    const record={v:1,iterations:VAULT_ITERATIONS,salt:toBase64(salt),iv:toBase64(iv),ciphertext:toBase64(new Uint8Array(encrypted))};
+    localStorage.setItem(VAULT_STORAGE_KEY,JSON.stringify(record));
+    $("ztVaultPass").value="";$("ztVaultRepeat").value="";
+    renderVault();state("Collegato a "+REPO+" · accesso protetto salvato.");
+  }catch(e){vaultMessage("Impossibile salvare l'accesso protetto su questo browser. Controlla se sono consentiti i dati dei siti.",true);}
+  finally{vaultBusy=false;$("ztVaultSaveBtn").disabled=false;}
+}
+async function unlockCredential(){
+  if(vaultBusy)return;
+  if(!globalThis.crypto?.subtle||!globalThis.isSecureContext){vaultMessage("Per sbloccare il token occorre HTTPS e un browser aggiornato.",true);return;}
+  const pass=$("ztVaultUnlockPass").value;
+  const saved=getSavedVault();
+  if(!saved||!pass){vaultMessage("Inserisci la password di sblocco.",true);return;}
+  vaultBusy=true;$("ztVaultUnlockBtn").disabled=true;
+  try{
+    if(saved.v!==1||saved.iterations!==VAULT_ITERATIONS)throw Error("Formato non supportato");
+    const salt=fromBase64(saved.salt),iv=fromBase64(saved.iv),ciphertext=fromBase64(saved.ciphertext);
+    if(salt.length!==16||iv.length!==12||ciphertext.length<16)throw Error("Formato non valido");
+    const key=await keyFromPassword(pass,salt);
+    const decrypted=await crypto.subtle.decrypt({name:"AES-GCM",iv,additionalData:vaultAAD()},key,ciphertext);
+    const candidate=new TextDecoder("utf-8",{fatal:true}).decode(decrypted);
+    if(!/^(github_pat_|ghp_)[A-Za-z0-9_]+$/.test(candidate))throw Error("Token non valido");
+    token=candidate;
+    $("ztVaultUnlockPass").value="";
+    // A successful decryption is insufficient: verify the token still works.
+    try{
+      const verified=await req("GET","firebase.json?ref="+BRANCH);
+      if(!verified)throw Error("Repository non accessibile");
+      state("Collegato a "+REPO+" · accesso protetto sbloccato.");
+      renderVault();
+    }catch(e){
+      token="";
+      renderVault();
+      vaultMessage("La password è corretta, ma GitHub ha rifiutato l'accesso. Se il token è scaduto, creane uno nuovo e salvalo qui.",true);
+      state("GitHub non collegato: token salvato scaduto o non autorizzato.",true);
+    }
+  }catch(e){vaultMessage("Password errata oppure dati cifrati non leggibili. Riprova o elimina l'accesso salvato.",true);}
+  finally{vaultBusy=false;$("ztVaultUnlockBtn").disabled=false;}
+}
+$("ztVaultSaveBtn").addEventListener("click",saveCredential);
+$("ztVaultUnlockBtn").addEventListener("click",unlockCredential);
+$("ztVaultUnlockPass").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();unlockCredential();}});
+$("ztVaultForget").addEventListener("click",()=>{
+  if(!confirm("Eliminare il codice GitHub cifrato da questo browser? Dovrai collegarti di nuovo con il token."))return;
+  try{localStorage.removeItem(VAULT_STORAGE_KEY);}catch(e){vaultMessage("Non riesco ad eliminare i dati dal browser.",true);return;}
+  $("ztVaultUnlockPass").value="";
+  $("ztVaultPass").value="";$("ztVaultRepeat").value="";
+  renderVault();
+  vaultMessage("Accesso salvato eliminato. Il collegamento già attivo rimane valido fino a quando chiudi la pagina.");
+});
+renderVault();
 const endpoint=p=>{const parts=p.split("?");return "https://api.github.com/repos/"+REPO+"/contents/"+parts[0].split("/").map(encodeURIComponent).join("/")+(parts[1]?"?"+parts.slice(1).join("?"):"");};
 async function req(method,p,body){
 const res=await fetch(endpoint(p),{method,headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28",...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined,cache:"no-store"});
@@ -132,9 +227,9 @@ finally{working=false;btn.disabled=false;}
 $("ztConnect").addEventListener("click",async()=>{
 const v=$("ztToken").value.trim();if(!/^((github_pat_|ghp_)[A-Za-z0-9_]+)$/.test(v)){state("Inserisci un token GitHub valido, fine-grained e limitato al repository.",true);return;}
 token=v;$("ztToken").value="";
-try{state("Verifica accesso al repository…");const x=await req("GET","firebase.json?ref="+BRANCH);if(!x)throw Error("Repository non accessibile.");state("Collegato a "+REPO+" · pronto per pubblicare.");}catch(e){token="";state("Collegamento non riuscito: "+e.message,true);}
+try{state("Verifica accesso al repository…");const x=await req("GET","firebase.json?ref="+BRANCH);if(!x)throw Error("Repository non accessibile.");state("Collegato a "+REPO+" · pronto per pubblicare.");renderVault();}catch(e){token="";state("Collegamento non riuscito: "+e.message,true);renderVault();}
 });
-$("ztDisconnect").addEventListener("click",()=>{token="";$("ztToken").value="";state("Disconnesso. Nessun token salvato.");});
+$("ztDisconnect").addEventListener("click",()=>{token="";$("ztToken").value="";state("Sessione bloccata. Il token in memoria è stato cancellato.");renderVault();});
 const fileInput=$("attachFile"),old=fileInput.onchange;
 fileInput.onchange=e=>{
 const file=e.target.files&&e.target.files[0];if(!file)return;
