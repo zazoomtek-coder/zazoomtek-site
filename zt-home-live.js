@@ -100,6 +100,11 @@
   // Build directly from the fifteen canonical, auto-updated Community news.
   // Nothing is retyped or guessed; same image, excerpt, title and actual link.
   // Classify from the headline plus actual article lead and artwork metadata.
+  // Carousel owns these exact article URLs while they are featured.
+  // The canonical feed and its original timestamps stay untouched.
+  const featuredOnHome=new Set([...document.querySelectorAll("#ztFeaturedGrid > a[href]")].map(a=>{
+    try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
+  }).filter(Boolean));
   let techCount=0,gamingCount=0;
   for(const row of rows){
    const title=row.querySelector('h3 a')?.textContent||"";
@@ -117,6 +122,10 @@
      row.hidden=true;
      continue;
    }
+   const articleLink=row.querySelector(".article-copy h3 a[href]");
+   let articlePath="";
+   try{articlePath=new URL(articleLink?.getAttribute("href")||"",location.origin).pathname;}catch(_){}
+   if(!articlePath || featuredOnHome.has(articlePath))continue;
    const isGaming=route==="gaming";
    row.classList.add("ztp-news-item");
    if(isGaming){
@@ -128,12 +137,10 @@
    }else{techCount++;tech.appendChild(row);}
   }
 
-  // Recent articles must stay visible in their actual category column even if
-  // they are promoted to News in evidenza. Otherwise the newest Tech posts
-  // (e.g. 16 October) silently vanish and the column shows older news.
-  // Every article URL appears only once WITHIN each column.
-  // Live Tech and Gaming are derived exclusively from the latest canonical Community feed.
-  // Never reinsert a static Gaming archive above new articles.
+  // Only non-featured articles appear in the columns. Once the independent
+  // featured curator replaces an item, the next public build automatically
+  // restores the old article to its category at its ORIGINAL publication time.
+  // Keep its full canonical news entry and URL so no article gets deleted.
   orderHomeColumn(tech);
   const orderedGaming=orderHomeColumn(gaming);
   let currentOrder=0;
@@ -380,10 +387,14 @@
       var title=String(link.textContent||"").trim();
       if(!explicitArchiveCategory(from)||/^news\s+extra\s*:/i.test(title)||from.getAttribute("data-post-category")==="extra")return null;
       var url=link.getAttribute("href");
-      if (!url||!/^\/(news-|tech-impact-|gaming-inside-)[\w-]+\.html$/.test(url)||seen.has(url)) return null;
+      if (!url||!/^\/(news-|tech-impact-|gaming-inside-)[\w-]+\.html$/.test(url)||seen.has(url)
+          || featuredPaths().has(new URL(url,location.origin).pathname))return null;
       seen.add(url);
       var article=document.createElement("article");
       article.className="article-row ztp-news-item zt-mag-archive";
+      // Original ISO timestamp comes directly from the editorial archive.
+      // Never use the re-entry time or the day-only label for ordering.
+      article.dataset.publishedAt=from.getAttribute("data-published-at")||"";
       var imageLink=document.createElement("a");imageLink.href=url;
       var photo=document.createElement("img");photo.className="article-image";
       photo.src=img.getAttribute("src");photo.alt=img.alt||link.textContent.trim();
@@ -436,12 +447,28 @@
       queuedAlignment=true;
       requestAnimationFrame(function(){queuedAlignment=false;alignBottoms();});
     }
+    function sourcePublishedAt(row){
+      const raw=row.getAttribute("data-published-at")||"";
+      const timestamp=Date.parse(raw);
+      if(raw && Number.isFinite(timestamp))return timestamp;
+      const label=(row.querySelector(".article-meta")?.textContent||"").toLowerCase();
+      const months={gennaio:0,febbraio:1,marzo:2,aprile:3,maggio:4,
+        giugno:5,luglio:6,agosto:7,settembre:8,ottobre:9,novembre:10,dicembre:11};
+      const date=label.match(/(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(20\d{2})/);
+      return date?Date.UTC(+date[3],months[date[2]],+date[1]):-Infinity;
+    }
     function rebalance(){
       [[tech,3],[gaming,4]].forEach(function(pair){
         var col=pair[0],maxBig=pair[1];
         var all=[].slice.call(col.querySelectorAll(":scope > article.article-row"));
-        // Preserve exactly ten visible and DOM-backed cards in each Home
-        // column. Extra news remain available on their canonical archive pages.
+        // The archive and canonical feed share the ORIGINAL publication time.
+        // Re-sort after each archive page, before truncating, so a story that
+        // leaves the carousel returns between the correct older/newer stories.
+        all=all.map(function(row,index){return {row,index,time:sourcePublishedAt(row)};})
+          .sort(function(a,b){return b.time-a.time||a.index-b.index;})
+          .map(function(entry){return entry.row;});
+        all.forEach(function(row){col.appendChild(row);});
+        // Preserve exactly ten column cards; older entries stay in archives.
         all.slice(10).forEach(function(row){row.remove();});
         all=all.slice(0,10);
         var topTen=all;
@@ -474,8 +501,8 @@
     area.addEventListener("load",function(e){if(e.target && e.target.tagName==="IMG")requestAlignment();},true);
     window.addEventListener("resize",function(){rebalance();},{passive:true});
     rebalance();
-    // The canonical news feed stays unchanged. Only archived, published,
-    // explicitly categorised Gaming stories are eligible to fill an extra slot.
+    // The canonical news feed stays unchanged. The five featured article URLs
+    // are excluded also from archive backfill, without deleting any archive.
     function fillArchive(path){
       return fetch(path,{cache:"no-store",credentials:"same-origin"})
       .then(function(resp){if(!resp.ok)throw new Error("Archive unavailable");return resp.text();})
