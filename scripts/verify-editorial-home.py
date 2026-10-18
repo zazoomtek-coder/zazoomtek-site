@@ -67,8 +67,13 @@ def check() -> None:
         raise RuntimeError("Frontend must enforce Tech first and Gaming last")
     if 'data-feature-section="gaming"]:last-child' not in layout_css:
         raise RuntimeError("Grid must reserve bottom-right location for Gaming")
-    if "suppressFeaturedDuplicates();" in js or "featured.has(articlePath)" in js:
-        raise RuntimeError("Featured promotions still hide newest posts from Tech/Gaming columns")
+    # A story belongs to the featured carousel OR to its Tech/Gaming column,
+    # never both. Old stories return at their ORIGINAL timestamp when replaced.
+    if ('featuredOnHome.has(articlePath)' not in js
+            or 'featuredPaths().has(new URL(url,location.origin).pathname)' not in js
+            or 'sourcePublishedAt(row)' not in js
+            or 'data-published-at' not in read("scripts/update-youtube-posts.py")):
+        raise RuntimeError("Featured/column exclusivity or original timestamps are missing")
     for path in ("/news.html","/news-2.html","/news-3.html","/news-4.html","/news-5.html"):
         if path not in js:
             raise RuntimeError("Home lacks archive pagination: " + path)

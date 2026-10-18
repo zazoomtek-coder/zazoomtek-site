@@ -2258,8 +2258,12 @@ def render_news_rows(posts):
         title=news_title(p); slug=news_slug(p)
         img=html.escape(p.get("image") or "/ChatGPT.png")
         excerpt=html.escape(post_excerpt(p,250))
+        # Preserve hour/minute from the original verified Community timestamp.
+        published_iso=html.escape(published_iso_from_label(
+            p.get("published_iso") or p.get("published") or ""),quote=True)
         rows.append(
-            f'<article class="news-row" data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
+            f'<article class="news-row" data-published-at="{published_iso}" data-post-category="{post_category(p)}" '
+            f'data-news-search="{html.escape((title+" "+(p.get("text") or "")).lower(),quote=True)}">'
             f'<a href="/{slug}"><img src="{img}" alt="{html.escape(title)}" loading="lazy"></a>'
             f'<div class="news-copy"><h2><a href="/{slug}">{html.escape(title)}</a></h2>'
             f'<div class="news-meta">ZazoomTek · {html.escape(p.get("published") or "")}</div>'
@@ -2326,7 +2330,8 @@ def manual_news_entries():
         excerpt=html.escape(str(p.get("excerpt") or ""))
         date=html.escape(str(p.get("date") or ""))
         row=(
-          f'<article class="news-row" data-news-search="{title.lower()}">'
+          f'<article class="news-row" data-published-at="{html.escape(datetime.fromtimestamp(when,timezone.utc).isoformat(),quote=True)}" '
+          f'data-news-search="{title.lower()}">'
           f'<a href="/{slug}"><img src="{image}" alt="{title}" loading="lazy"></a>'
           f'<div class="news-copy"><h2><a href="/{slug}">{title}</a></h2>'
           f'<div class="news-meta">ZazoomTek · {date}</div>'

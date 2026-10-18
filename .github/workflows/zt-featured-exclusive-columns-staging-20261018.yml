@@ -1,0 +1,68 @@
+name: Featured vs Tech Gaming columns - staging only
+on:
+  push:
+    branches: [fix/featured-news-exclusive-columns-20261018]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax, original-hour sorting, and Home lock
+        run: |
+          python3 -m py_compile scripts/update-youtube-posts.py scripts/verify-editorial-home.py scripts/verify-home-layout-lock.py
+          node --check zt-home-live.js
+          python3 scripts/verify-home-layout-lock.py
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const fs=require('node:fs');
+          const js=fs.readFileSync('zt-home-live.js','utf8');
+          const at=js.indexOf('function sourcePublishedAt(row){');
+          const stop=js.indexOf('    function rebalance()',at);
+          assert.ok(at>=0&&stop>at);
+          const sourcePublishedAt=new Function(js.slice(at,stop)+';return sourcePublishedAt;')();
+          const sample=(iso,label)=>({
+            getAttribute:()=>iso,querySelector:()=>({textContent:label})
+          });
+          const before=sample('2026-10-16T10:05:00Z','ZazoomTek · 16 ottobre 2026');
+          const after=sample('2026-10-16T15:45:00Z','ZazoomTek · 16 ottobre 2026');
+          const older=sample('2026-10-15T18:25:00Z','ZazoomTek · 15 ottobre 2026');
+          assert.ok(sourcePublishedAt(after)>sourcePublishedAt(before));
+          assert.ok(sourcePublishedAt(before)>sourcePublishedAt(older));
+          assert.equal(sourcePublishedAt(before),Date.parse('2026-10-16T10:05:00Z'));
+          assert.ok(js.includes('featuredOnHome.has(articlePath)'));
+          assert.ok(js.includes('featuredPaths().has(new URL(url,location.origin).pathname)'));
+          assert.ok(js.includes('all=all.map(function(row,index){return {row,index,time:sourcePublishedAt(row)};})'));
+          assert.ok(js.includes('all.slice(10).forEach(function(row){row.remove();})'));
+          assert.ok(!js.includes('featured.has(articlePath)'));
+          const importer=fs.readFileSync('scripts/update-youtube-posts.py','utf8');
+          assert.ok(importer.includes("data-published-at=\"{published_iso}\""));
+          assert.ok(importer.includes("datetime.fromtimestamp(when,timezone.utc).isoformat()"));
+          const home=fs.readFileSync('index.html','utf8');
+          assert.ok(home.includes('<!-- FEATURED_NEWS_START -->'));
+          assert.ok(home.includes('<!-- HOME_GUIDES_INSET_START -->'));
+          console.log('PASS: Carousel exclusivity, original ISO hour ordering, and unchanged Home structures');
+          JS
+      - name: Full production-equivalent Cloudflare build, without deployment
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 scripts/verify-packaged-home.py --root dist
+          node --check dist/zt-home-live.js
+          python3 - <<'PY'
+          from pathlib import Path
+          assert Path('dist/news.html').exists()
+          js=Path('dist/zt-home-live.js').read_text()
+          assert 'featuredOnHome.has(articlePath)' in js
+          assert 'featuredPaths().has(new URL(url,location.origin).pathname)' in js
+          assert 'sourcePublishedAt(row)' in js
+          assert 'records.slice(1,3)' in Path('dist/zt-home-graphic-layout-20261016.js').read_text()
+          print('PASS: packaged 3-card Guide/Extra and exclusive featured Tech/Gaming columns')
+          PY
