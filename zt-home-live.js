@@ -442,46 +442,44 @@
         : 0;
     }
     function alignBottoms(){
-      // Update editorial cards only: the Home HTML, CSS, widths and templates
-      // are protected. Extend the shorter column with the next real stories.
+      // Editorial content only: never modify CSS, column width or approved
+      // article markup. Reconcile on every change in the *actual* row heights.
       if(!window.matchMedia("(min-width:1150px)").matches || !archivesReady)return;
       const featured=featuredPaths();
-      for(const column of [tech,gaming]){
-        [...column.querySelectorAll(":scope > article[data-zt-align-fill='yes']")]
-          .forEach(row=>{row.remove();delete row.dataset.ztAlignFill;});
-      }
-      const present=new Set([...tech.querySelectorAll(":scope > article.article-row"),
-                             ...gaming.querySelectorAll(":scope > article.article-row")]
-                            .map(archiveHref).filter(Boolean));
-      function spare(category){
-        return candidates[category].filter(row=>{
-          const href=archiveHref(row);
-          return href && !present.has(href) && !featured.has(href)
-            && !row.matches("[data-post-category='extra']")
-            && Number.isFinite(sourcePublishedAt(row));
-        }).map((row,index)=>({row,index,time:sourcePublishedAt(row)}))
-          .sort((a,b)=>b.time-a.time||a.index-b.index)
-          .map(item=>item.row);
-      }
-      const spareTech=spare("tech"), spareGaming=spare("gaming");
-      for(let i=0;i<20;i++){
+      const currentlyShown=[...tech.querySelectorAll(":scope > article.article-row"),
+                            ...gaming.querySelectorAll(":scope > article.article-row")];
+      const present=new Set(currentlyShown.map(archiveHref).filter(Boolean));
+      // Preserve correctly placed filler cards on reflow. Removing/reinserting
+      // them at every image load caused the shorter column to reopen a gap.
+      const reserve=(category)=>candidates[category].filter(row=>{
+        const href=archiveHref(row);
+        return href && !present.has(href) && !featured.has(href)
+          && !row.matches("[data-post-category='extra']")
+          && Number.isFinite(sourcePublishedAt(row));
+      }).map((row,index)=>({row,index,time:sourcePublishedAt(row)}))
+        .sort((a,b)=>b.time-a.time || a.index-b.index).map(item=>item.row);
+      const remaining={tech:reserve("tech"),gaming:reserve("gaming")};
+      // At a fixed pixel width, never leave a column hundreds of pixels short.
+      // A compact news card has variable height; the target is within one row.
+      for(let iteration=0;iteration<32;iteration++){
         const difference=renderedHeight(tech)-renderedHeight(gaming);
-        if(Math.abs(difference)<=32)break;
-        const shorter=difference>0?gaming:tech;
-        const queue=difference>0?spareGaming:spareTech;
-        const next=queue.shift();
-        if(!next)break;
-        const before=Math.abs(difference);
-        next.classList.remove("zt-mag-big","ztp-gaming-feature");
-        next.hidden=false;
-        next.style.removeProperty("display");
-        next.dataset.ztAlignFill="yes";
-        shorter.appendChild(next);
-        const after=Math.abs(renderedHeight(tech)-renderedHeight(gaming));
-        if(after>=before){
-          next.remove();delete next.dataset.ztAlignFill;
+        if(Math.abs(difference)<=92)break;
+        const category=difference>0?"gaming":"tech";
+        const row=remaining[category].shift();
+        if(!row){
+          console.info("Home latest-news archive has no more",category,
+                       "stories for height balancing");
           break;
         }
+        const target=category==="tech"?tech:gaming;
+        row.classList.remove("zt-mag-big","ztp-gaming-feature");
+        row.hidden=false;
+        row.style.removeProperty("display");
+        row.dataset.ztAlignFill="yes";
+        target.appendChild(row);
+        present.add(archiveHref(row));
+        // An overshoot isn't a reason to restore a large white hole.
+        // If necessary the next iteration extends the opposite column.
       }
     }
     function requestAlignment(){
@@ -539,8 +537,15 @@
       });
       requestAlignment();
     }
-    // Respond to actual image loading and window resizing, not artificial spacers.
+    // Recheck after images, font metrics, resized columns and lazy loading.
+    // The observer is idempotent: stable content does not create more rows.
     area.addEventListener("load",function(e){if(e.target && e.target.tagName==="IMG")requestAlignment();},true);
+    if(typeof ResizeObserver==="function"){
+      const observer=new ResizeObserver(requestAlignment);
+      observer.observe(tech);
+      observer.observe(gaming);
+    }
+    window.addEventListener("scroll",requestAlignment,{passive:true});
     window.addEventListener("resize",function(){rebalance();},{passive:true});
     rebalance();
     // Load every existing published source BEFORE selecting the newest ten
