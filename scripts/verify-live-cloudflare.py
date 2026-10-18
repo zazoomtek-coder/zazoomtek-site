@@ -103,8 +103,20 @@ def verify_once(base: str, expected: str) -> str:
             [c["image"] for c in reader.cards]!=[x.get("image") for x in selected] or
             len({c["url"] for c in reader.cards})!=5):
         raise RuntimeError("Live Home carousel is missing, misordered or differs from manifest")
-    if "20261018stableColumns1010" not in home:
-        raise RuntimeError("Published Home is still loading the broken JS version")
+    # An already-verified older release may remain online while the 50-minute
+    # scheduled Cloudflare cooldown is active; do not falsely fail that valid
+    # no-change check. Every NEW release must use the corrected cache version.
+    legacy_source="696424f42cacb2274cb2a7bdb70b9d414baae2e4"
+    if expected==legacy_source:
+        if "20261017stableColumnsRollback4" not in home:
+            raise RuntimeError("Historical verified Home no longer matches its source")
+    else:
+        if "20261018stableColumns1010" not in home:
+            raise RuntimeError("Published Home still points to outdated cached Tech/Gaming JS")
+        if ("data-zt-align-fill" in js or "shorter.appendChild(next)" in js
+                or "left.length!==10||right.length!==10" not in js):
+            raise RuntimeError("Published Home still contains an 11th/12th Gaming filler card")
+
     # The pre-summary public release is still valid while the hourly
     # release cooldown protects the remaining Cloudflare build quota.
     # Every subsequent release must include all review summary thumbnails.
