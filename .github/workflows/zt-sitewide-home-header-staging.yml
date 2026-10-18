@@ -1,0 +1,38 @@
+name: ZazoomTek sitewide Home header - staging safety
+on:
+  push:
+    branches: [fix/canonical-home-header-sitewide-20261018]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax, unchanged Home, and standalone masthead
+        run: |
+          python3 -m py_compile scripts/apply-site-design.py scripts/test_sitewide_home_header.py
+          python3 scripts/verify-home-layout-lock.py
+          git diff --exit-code HEAD -- index.html
+      - name: Full offline production-equivalent Cloudflare build
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/test_sitewide_home_header.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+      - name: Save staging output summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zt-sitewide-home-header-validation
+          path: |
+            dist/news.html
+            dist/tech-today.html
+            dist/gaming-today.html
+            dist/extra.html
+          retention-days: 3
