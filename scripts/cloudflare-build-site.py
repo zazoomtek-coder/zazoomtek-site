@@ -48,6 +48,7 @@ def main() -> None:
     run("verify-home-layout-lock.py")
     run("build-cloudflare-pages.py")
     run("verify-home-layout-lock.py", "--packaged")
+    run("verify-packaged-home.py", "--root", "dist")
     output = ROOT / "dist"
     assert (output / "watch" / "index.html").is_file()
     assert (output / "news.html").is_file()

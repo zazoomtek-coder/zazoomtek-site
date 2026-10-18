@@ -467,7 +467,7 @@ def eligible_paths():
         with path.open("r", encoding="utf-8", errors="replace") as stream:
             page = stream.read()
         is_detail = (
-            re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid', page, re.I)
+            re.search(r'<(?:div|main)\b[^>]*class=["\'][^"\']*\bdetail-grid\b', page, re.I)
             and re.search(r'<article\b[^>]*class=["\'][^"\']*article-main', page, re.I)
         )
         # Support alternate two-column editorial layouts, including the approved

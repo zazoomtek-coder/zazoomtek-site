@@ -1,46 +1,53 @@
-name: Cloudflare staging static snapshot
-# Manual preview only: NEVER changes DNS or production Firebase/Cloudflare.
+name: ZazoomTek safety staging - exact Cloudflare build, no deploy
 on:
+  push:
+    branches:
+      - zt-safety-gates-20261018
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: cloudflare-staging-preview
-  cancel-in-progress: false
+  group: zazoomtek-safety-staging
+  cancel-in-progress: true
 jobs:
-  validate-and-package:
+  validate-preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify Cloudflare release quota protections offline
-        run: python3 scripts/test-cloudflare-quota-guard.py
-      - name: Test editorial import and category safety
+      - name: Preliminary static and unit checks
         run: |
+          python3 -m py_compile scripts/*.py
+          python3 scripts/test-verify-packaged-home.py
+          python3 scripts/test_deploy_architecture.py
           python3 scripts/test_review_dedup.py
           python3 scripts/test_community_category_routing.py
-          python3 scripts/validate-sync-output.py community
-          python3 scripts/validate-sync-output.py videos
-      - name: Generate the same public design and editorial sidebars as Firebase
+          python3 scripts/test_community_freshness.py
+          python3 scripts/test_video_sync_reliability.py
+          python3 scripts/verify-home-layout-lock.py
+      - name: Build full production-equivalent site OFFLINE (no Cloudflare build)
+        run: python3 scripts/cloudflare-build-site.py
+      - name: Validate actual packaged home and locked layout
         run: |
-          python3 scripts/apply-site-design.py
-          python3 scripts/zt_sidebar_mix.py
-          python3 scripts/build-related-content.py
-      - name: Build Cloudflare static distribution
-        run: python3 scripts/build-cloudflare-pages.py
-      - name: Confirm comments and private operations are absent
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 scripts/site-audit-safe.py
+      - name: Screenshots actual home desktop, tablet and mobile
         run: |
-          test ! -f dist/comments.js
-          test ! -f dist/comments.css
-          test ! -f dist/firebase.json
-          test ! -d dist/functions
-          test ! -d dist/.github
-          test -f dist/404.html
-      - uses: actions/upload-artifact@v4
+          python3 -m pip install --disable-pip-version-check 'playwright>=1.51,<2'
+          python3 -m playwright install --with-deps chromium
+          python3 scripts/capture-staging-preview.py --root dist --output staging-screenshots
+      - name: Store navigable full site and browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: zazoomtek-cloudflare-staging
-          path: dist/
+          name: zazoomtek-safety-staging-full-site
+          path: |
+            dist/
+            staging-screenshots/
           retention-days: 7
