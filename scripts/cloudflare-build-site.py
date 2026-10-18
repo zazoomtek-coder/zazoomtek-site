@@ -24,8 +24,8 @@ def main() -> None:
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
     run("apply-site-design.py")
-    # Re-evaluate freshness offline at build time; 4h portal checks remain separate.
-    # Never publish an expired card while waiting for the next curator run.
+    # Refresh rankings from already published ZazoomTek news; portal checks are separate.
+    # Never expire existing verified cards just because no new post was published.
     run("trending-crosscheck.py", "--apply")
     run("cloudflare-sync-featured-home.py")
     # Mandatory offline regression gate: fail BEFORE any Cloudflare Pages build.
