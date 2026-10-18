@@ -1,0 +1,45 @@
+name: ZT final safe Home 10-10 and Cloudflare pipeline staging
+on:
+  push:
+    branches: [fix/stable-10x10-home-cloudflare-gate-20261018]
+permissions:
+  contents: read
+concurrency:
+  group: zt-final-home-1010-staging
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source, JS, and protected Home checks
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/test_home_10x10_release.py scripts/cloudflare-build-site.py scripts/verify-live-cloudflare.py
+          node --check zt-home-live.js
+          node --check scripts/verify-home-browser-columns.cjs
+          python3 scripts/verify-home-layout-lock.py
+          python3 scripts/test_home_10x10_release.py
+          git diff --exit-code HEAD -- zt-home-graphic-layout-20261016.css zt-home-graphic-layout-20261016.js zt-home-gap-fix-20261014.css
+      - name: Full Cloudflare build, without publishing
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/test_home_10x10_release.py dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+      - name: Browser checks on rendered production artifact
+        run: |
+          set -euo pipefail
+          command -v google-chrome
+          mkdir -p /tmp/zt-check
+          cd /tmp/zt-check
+          npm install --no-save --silent playwright-core@1.56.0
+          cd "$GITHUB_WORKSPACE"
+          nohup python3 -m http.server 8877 --directory dist --bind 127.0.0.1 >/tmp/zt-check/server.log 2>&1 &
+          sleep 2
+          NODE_PATH=/tmp/zt-check/node_modules node scripts/verify-home-browser-columns.cjs

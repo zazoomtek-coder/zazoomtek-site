@@ -146,12 +146,18 @@ def check() -> None:
         raise RuntimeError("Stable Tech/Gaming Home columns are missing")
     if 'reservedEditorialPaths()' in js:
         raise RuntimeError("Regressed Home dynamic reordering was reintroduced")
-    if ('data-zt-align-fill' not in js or 'const spareTech=spare("tech")' not in js
-            or 'spareGaming=spare("gaming")' not in js):
-        raise RuntimeError("Home must fill Tech/Gaming using real dated archive articles")
+    # Exactly ten TECH plus ten GAMING. Earlier release checks required
+    # adding 11th/12th filler cards and therefore blocked the safe fix.
+    if ('left.length!==10||right.length!==10' not in js
+            or 'column.replaceChildren(...ranked.slice(0,10)' not in js
+            or '!featured.has(url)' not in js
+            or 'b.time-a.time' not in js
+            or 'data-zt-align-fill' in js
+            or 'shorter.appendChild(next)' in js):
+        raise RuntimeError("Home must use ten newest dated non-featured articles per category, no extra fillers")
     if 'ZT_HOME_GAMING_THREE_EXTRA_20261014' in js:
         raise RuntimeError("Old hardcoded Gaming article fillers remain enabled")
-    if '20261017stableColumnsRollback4' not in home:
+    if '20261018stableColumns1010' not in home:
         raise RuntimeError("Home is not loading the stable column layout")
     # Manual Tech reviews must use the complete ZazoomTek editorial template.
     thermo=read(THERMO)
