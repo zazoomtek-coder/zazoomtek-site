@@ -75,9 +75,14 @@ def merge_category(root:Path,category:str,archive:str,additions,routes):
     if src.count(start_tag)!=1:
         raise RuntimeError(f"Archive marker missing or duplicated: {archive}")
     start=src.index(start_tag)+len(start_tag)
-    end=src.find("</div>",start)
-    if end<0 or SENTINEL not in src[end:]:
+    # Close the WHOLE archive list, not the first nested news-copy <div>.
+    # The independent publisher guarantees this exact banner boundary.
+    finish=re.search(r'</div>(?=\\s*(?:<!-- ZT_COMMUNITY_BANNER_START -->|</section>))',src[start:],re.I)
+    if not finish:
         raise RuntimeError(f"Archive / Community banner structure invalid: {archive}")
+    end=start+finish.start()
+    if SENTINEL not in src[end:]:
+        raise RuntimeError(f"Archive lost its Community banner: {archive}")
     old=src[start:end]
     rows={}
     for position,row in enumerate(ARTICLE.findall(old)):
