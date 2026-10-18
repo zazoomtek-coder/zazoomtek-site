@@ -7,8 +7,8 @@ from pathlib import Path
 import re
 
 NAV=("Home","News","Recensioni","Guide","Tech Impact","Gaming Inside","Extra","Community","Video")
-HEADER=re.compile(r"<header\\b[^>]*>[\\s\\S]*?</header>",re.I)
-NAV_RE=re.compile(r'<nav\\b[^>]*class=["\\\']nav["\\\'][^>]*>[\\s\\S]*?</nav>',re.I)
+HEADER=re.compile(r"<header\b[^>]*>[\s\S]*?</header>",re.I)
+NAV_RE=re.compile(r'<nav\b[^>]*class=["\\']nav["\\'][^>]*>[\s\S]*?</nav>',re.I)
 
 class Nav(HTMLParser):
     def __init__(self):
@@ -46,10 +46,10 @@ def validate(root:Path):
         assert header.group().count('class="ticker-video-links"')==1,path.name
         assert 'class="brand-logo-img"' in header.group(),path.name
         assert "zt-unified-header.js" not in text,path.name+" still has obsolete async swap"
-        if path.name not in ("index.html",) and not re.fullmatch(r"pagina-\\d+\\.html",path.name):
+        if path.name not in ("index.html",) and not re.fullmatch(r"pagina-\d+\.html",path.name):
             assert header.group().startswith('<header id="zt-site-home-header">'),path.name
             assert text.count('id="zt-site-home-header-style"')==1,path.name
-            assert not re.match(r"\\s*<div\\b[^>]*class=[^>]*zt-strip",
+            assert not re.match(r"\s*<div\b[^>]*class=[^>]*zt-strip",
                                 text[header.end():],re.I),path.name+" duplicate ticker"
             # Keep page bodies/sidebars and one static root-absolute masthead.
             assert 'href="/news.html"' in header.group(),path.name
