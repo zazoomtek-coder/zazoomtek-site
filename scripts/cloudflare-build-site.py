@@ -59,6 +59,9 @@ def main() -> None:
     assert (output / "news.html").is_file()
     assert (output / "studio/index.html").is_file()
     assert (output / "studio/publisher.js").is_file()
+    assert (output / "studio/layouts.js").is_file()
+    assert (output / "studio/template-news.html").is_file()
+    assert (output / "studio/template-review.html").is_file()
     # Public receipt written ONLY after every editorial and artifact check
     # succeeded. Used by GitHub to verify actual Cloudflare production.
     import json
