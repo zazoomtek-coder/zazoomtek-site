@@ -442,46 +442,23 @@
         : 0;
     }
     function alignBottoms(){
-      // Update editorial cards only: the Home HTML, CSS, widths and templates
-      // are protected. Extend the shorter column with the next real stories.
-      if(!window.matchMedia("(min-width:1150px)").matches || !archivesReady)return;
-      const featured=featuredPaths();
-      for(const column of [tech,gaming]){
-        [...column.querySelectorAll(":scope > article[data-zt-align-fill='yes']")]
-          .forEach(row=>{row.remove();delete row.dataset.ztAlignFill;});
-      }
-      const present=new Set([...tech.querySelectorAll(":scope > article.article-row"),
-                             ...gaming.querySelectorAll(":scope > article.article-row")]
-                            .map(archiveHref).filter(Boolean));
-      function spare(category){
-        return candidates[category].filter(row=>{
-          const href=archiveHref(row);
-          return href && !present.has(href) && !featured.has(href)
-            && !row.matches("[data-post-category='extra']")
-            && Number.isFinite(sourcePublishedAt(row));
-        }).map((row,index)=>({row,index,time:sourcePublishedAt(row)}))
-          .sort((a,b)=>b.time-a.time||a.index-b.index)
-          .map(item=>item.row);
-      }
-      const spareTech=spare("tech"), spareGaming=spare("gaming");
-      for(let i=0;i<20;i++){
-        const difference=renderedHeight(tech)-renderedHeight(gaming);
-        if(Math.abs(difference)<=32)break;
-        const shorter=difference>0?gaming:tech;
-        const queue=difference>0?spareGaming:spareTech;
-        const next=queue.shift();
-        if(!next)break;
-        const before=Math.abs(difference);
-        next.classList.remove("zt-mag-big","ztp-gaming-feature");
-        next.hidden=false;
-        next.style.removeProperty("display");
-        next.dataset.ztAlignFill="yes";
-        shorter.appendChild(next);
-        const after=Math.abs(renderedHeight(tech)-renderedHeight(gaming));
-        if(after>=before){
-          next.remove();delete next.dataset.ztAlignFill;
-          break;
-        }
+      // The columns show EXACTLY the ten newest non-featured real stories
+      // each. Never insert an 11th/12th "filler" article for visual balance.
+      // Preserve the existing 16:9 cards and spread only small height
+      // differences through the existing card padding on wide desktop.
+      const left=shownRows(tech),right=shownRows(gaming);
+      for(const row of left.concat(right))row.style.removeProperty("padding-bottom");
+      if(!archivesReady||!window.matchMedia("(min-width:1150px)").matches)return;
+      if(left.length!==10||right.length!==10)return;
+      const difference=renderedHeight(tech)-renderedHeight(gaming);
+      if(!Number.isFinite(difference)||Math.abs(difference)<2)return;
+      // Too-large differences must never distort thumbnails or typography.
+      if(Math.abs(difference)>180)return;
+      const shorter=difference>0?right:left;
+      const extra=Math.abs(difference)/shorter.length;
+      for(const row of shorter){
+        const current=parseFloat(getComputedStyle(row).paddingBottom)||12;
+        row.style.setProperty("padding-bottom",(current+extra).toFixed(2)+"px","important");
       }
     }
     function requestAlignment(){
