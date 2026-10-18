@@ -87,12 +87,12 @@ def rotation_bucket():
 def publication_key(item):
     """Recognize original ISO or Italian archive publication labels."""
     raw=str(item.get("published_at") or item.get("date") or "").lower()
-    iso=re.search(r"(20\\d{2})-(\\d{1,2})-(\\d{1,2})(?:[t ](\\d{2}):(\\d{2})(?::(\\d{2}))?)?",raw)
+    iso=re.search(r"(20\d{2})-(\d{1,2})-(\d{1,2})(?:[t ](\d{2}):(\d{2})(?::(\d{2}))?)?",raw)
     if iso:
         return tuple(int(x or 0) for x in iso.groups())
     months={month:i for i,month in enumerate(
         "gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre".split(),1)}
-    italian=re.search(r"(\\d{1,2})\\s+("+ "|".join(months) +r")\\s+(20\\d{2})",raw)
+    italian=re.search(r"(\d{1,2})\s+("+ "|".join(months) +r")\s+(20\d{2})",raw)
     if italian:
         day,month,year=italian.groups()
         return (int(year),months[month],int(day),0,0,0)
