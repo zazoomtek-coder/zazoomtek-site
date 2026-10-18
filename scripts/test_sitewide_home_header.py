@@ -62,6 +62,15 @@ def validate(root:Path):
         assert (root/sample).is_file(),sample+" absent"
         page=(root/sample).read_text(encoding="utf-8")
         assert 'id="zt-site-home-header"' in page,sample+" not normalized"
+    watch_dir=root/"watch"
+    video_pages=sorted(watch_dir.glob("*.html"))
+    assert len(video_pages)>=10,("Missing generated video watch pages",len(video_pages))
+    for video in video_pages:
+        markup=video.read_text(encoding="utf-8")
+        assert 'id="zt-site-home-header"' in markup,video.name
+        assert markup.count('id="zt-site-home-header-style"')==1,video.name
+        assert 'class="ticker-video-links"' in markup,video.name
+    print("PASS:",len(video_pages),"generated video watch pages use the same static Home header")
     print("PASS: static Home logo, nine menu links, search/ticker and no async swap on",checked,"pages")
 
 if __name__=="__main__":
