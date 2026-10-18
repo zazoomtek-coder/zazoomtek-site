@@ -1,17 +1,69 @@
 {
-  "checked_at": "2026-10-18T07:00:28.220093+00:00",
+  "checked_at": "2026-10-18T07:58:35.271711+00:00",
   "source_sites": 15,
   "matches": 9,
   "selected": [
     {
-      "title": "Delve Survivors porta il gameplay Survivors a turni allo Steam Next Fest con una demo ampliata",
-      "section": "gaming",
-      "url": "/news-Ugkxo3isjD7St5R9-Wsekg0mNavQvW93OuVi.html",
+      "title": "MSI lancia la GeForce RTX 5080 16G COD MW4 EDITION OC in edizione limitata",
+      "section": "tech",
+      "url": "/news-UgkxkNT_iXfSvzktCf-oWW62lCCIJ33bxvdP.html",
+      "trend_score": 62.92,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 40,
+      "selection_score": 80.9,
+      "sources": [
+        {
+          "site": "Gamesurf",
+          "title": "MSI RTX 5080 COD MW4 Edition e Ghost sul backplate",
+          "score": 0.6292
+        }
+      ]
+    },
+    {
+      "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
+      "section": "tech",
+      "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
       "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
+      "sources": []
+    },
+    {
+      "title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh",
+      "section": "tech",
+      "url": "/news-UgkxBK8ILfL_RZz8exfFznI391GfZ3PgP_3-.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
+      "sources": []
+    },
+    {
+      "title": "Razer presenta Barracuda V2 Pro con THX Spatial Audio+, ANC e autonomia fino a 70 ore",
+      "section": "tech",
+      "url": "/news-UgkxtRknJZGjXPKTtnhDQrev1PCJdW5xRjdl.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
+      "sources": []
+    },
+    {
+      "title": "EA SPORTS FC 27 svela il Team 2 Stelle del Futuro guidato da Gisele Thompson",
+      "section": "gaming",
+      "url": "/news-Ugkxiika4Am7Cir2m7qNEA4NwaBY92Z_cU9W.html",
+      "trend_score": 84.55,
       "published_date": "2026-10-17",
       "freshness_bonus": 62,
-      "selection_score": 62.0,
-      "sources": []
+      "selection_score": 116.96,
+      "sources": [
+        {
+          "site": "SpazioGames",
+          "title": "EA Sports FC 27 svela il Team 2 di Stelle del Futuro",
+          "score": 0.8455
+        }
+      ]
     }
   ]
 }
