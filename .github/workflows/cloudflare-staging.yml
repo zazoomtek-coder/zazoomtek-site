@@ -25,6 +25,7 @@ jobs:
         run: |
           python3 -m py_compile scripts/*.py
           python3 scripts/test-editorial-recency.py
+          node --check zt-sidebar-live.js
           python3 scripts/refresh-home-editorial-boxes.py --self-test
           python3 scripts/test-verify-packaged-home.py
           python3 scripts/test_deploy_architecture.py
