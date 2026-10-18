@@ -30,6 +30,7 @@ def main() -> None:
     run("cloudflare-sync-featured-home.py")
     # Mandatory offline regression gate: fail BEFORE any Cloudflare Pages build.
     run("test-featured-today-yesterday.py")
+    run("test-cloudflare-featured-home.py")
     run("verify-editorial-home.py")
     # Public video pages are HTML with YouTube embeds, not downloaded movies.
     run("seo_watch_pages_safe.py")
