@@ -22,7 +22,8 @@ def main():
             cards.append(f'<a title="{title}" data-feature-section="{section}" href="{link}" aria-label="{title}" class="zt-feature-card"><img src="{img}"></a>')
         marks=mod.MARKERS
         fragment="<!-- FEATURED_NEWS_START -->"+''.join(cards)+"<!-- FEATURED_NEWS_END -->"
-        home="<html><h2>RECENSIONI TECH</h2>"+fragment+''.join("<!-- "+m+" -->" for m in marks[2:])+"</html>"
+        reviews='<!-- HOME_LATEST_REVIEWS_MAIN_START --><article class="video-card zt-review-card"></article><!-- HOME_LATEST_REVIEWS_MAIN_END -->'
+        home="<html>"+fragment+'<!-- ARTICLE_FEED_START --><!-- ARTICLE_FEED_END -->'+reviews+"</html>"
         (root/"index.html").write_text(home,encoding="utf-8")
         for asset in ("zt-home-live.js","zt-home-graphic-layout-20261016.js","zt-home-graphic-layout-20261016.css"):
             (root/asset).write_text("approved",encoding="utf-8")
