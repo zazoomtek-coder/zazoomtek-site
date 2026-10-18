@@ -8,18 +8,8 @@
   // workflow and must never acquire a duplicate featured-news block.
   if(location.pathname==="/" || location.pathname==="/index.html")return;
 
-  const SIDEBAR_SLOT_MS=24*60*60*1000;
   const path=location.pathname;
-  const slot=Math.floor(Date.now()/SIDEBAR_SLOT_MS);
   const used=new Set([path]);
-  function hash(value){
-    let n=2166136261;
-    for(let i=0;i<value.length;i++){
-      n^=value.charCodeAt(i);
-      n=Math.imul(n,16777619);
-    }
-    return n>>>0;
-  }
   function isStory(item){
     return item && typeof item.url==="string" &&
       /^\/[a-zA-Z0-9_%-]+\.html$/.test(item.url) &&
