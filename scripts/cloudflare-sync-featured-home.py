@@ -11,6 +11,7 @@ import argparse
 from html import escape
 import json
 from pathlib import Path
+from zoneinfo import ZoneInfo
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,7 +60,7 @@ def render(root: Path) -> str:
             day=dt.date.fromisoformat(item.get("published_date",""))
         except (TypeError,ValueError):
             raise RuntimeError("Featured regular article has no verified publication date")
-        if day>dt.datetime.now(dt.timezone.utc).date()+dt.timedelta(days=1):
+        if day>dt.datetime.now(ZoneInfo("Europe/Rome")).date():
             raise RuntimeError("Future-dated featured story: "+str(item.get("url")))
 
     # Force final visual placement even if an upstream producer stores
