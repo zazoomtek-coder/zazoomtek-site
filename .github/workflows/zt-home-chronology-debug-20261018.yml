@@ -2,7 +2,7 @@ name: Debug Home chronology fallback - staging only
 on:
   push:
     branches: [fix/featured-archive-original-hours-20261018]
-    paths: ['.github/workflows/zt-home-chronology-debug-20261018.yml']
+    paths: ['.github/workflows/zt-home-chronology-debug-20261018.yml', 'zt-home-live.js']
 permissions:
   contents: read
 jobs:
