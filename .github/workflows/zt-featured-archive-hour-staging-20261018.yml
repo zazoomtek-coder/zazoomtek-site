@@ -1,0 +1,104 @@
+name: Featured chronology original-hour archive - staging only
+on:
+  push:
+    branches: [fix/featured-archive-original-hours-20261018]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify no invented times, one safe archive-only change
+        run: |
+          python3 -m py_compile scripts/enrich-news-archive-publication-times.py scripts/cloudflare-build-site.py
+          python3 scripts/enrich-news-archive-publication-times.py --self-test
+          node --check zt-home-live.js
+          python3 scripts/verify-home-layout-lock.py
+          python3 - <<'PY'
+          from pathlib import Path
+          build=Path('scripts/cloudflare-build-site.py').read_text()
+          assert build.count('run("enrich-news-archive-publication-times.py")')==1
+          assert build.index('run("apply-site-design.py")')<build.index('run("enrich-news-archive-publication-times.py")')<build.index('run("test-featured-today-yesterday.py")')
+          print('PASS: static Home structure unchanged, archive metadata only')
+          PY
+      - name: Full offline Cloudflare publication snapshot - NO deploy
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('dist/news.html').read_text()
+          cards=re.findall(r'<article\b[^>]*class="news-row"[^>]*>',html)
+          stamped=[c for c in cards if re.search(r'data-published-at="20\d\d-\d\d-\d\dT\d\d:\d\d:',c)]
+          assert len(stamped)>=10,(len(stamped),len(cards))
+          assert Path('dist/zt-home-live.js').read_text().count('featuredOnHome.has(articlePath)')==1
+          print('PASS:',len(stamped),'news cards have original UTC hour in delivered snapshot')
+          PY
+      - name: Browser check Tech and Gaming really show 10 distinct non-featured articles
+        run: |
+          command -v google-chrome
+          mkdir -p /tmp/zt-chrome
+          npm install --no-save --silent --prefix /tmp/zt-chrome playwright-core@1.56.0
+          nohup python3 -m http.server 8899 --directory dist --bind 127.0.0.1 >/tmp/zt-chrome/http.log 2>&1 &
+          sleep 2
+          NODE_PATH=/tmp/zt-chrome/node_modules node <<'JS'
+          const {chromium}=require('playwright-core');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',
+              args:['--no-sandbox','--disable-dev-shm-usage']});
+            try{
+              for(const width of [1600,1100,390]){
+                const page=await browser.newPage({viewport:{width,height:900}});
+                const errors=[];page.on('pageerror',err=>errors.push(err.message));
+                await page.goto('http://127.0.0.1:8899/',{waitUntil:'domcontentloaded',timeout:45000});
+                await page.waitForFunction(()=>{
+                  const t=document.querySelectorAll('.ztp-news-tech .ztp-news-items > article.article-row:not([hidden])');
+                  const g=document.querySelectorAll('.ztp-news-gaming .ztp-news-items > article.article-row:not([hidden])');
+                  return t.length===10&&g.length===10;
+                },{timeout:45000}).catch(()=>{});
+                const data=await page.evaluate(()=>{
+                  const paths=selector=>[...document.querySelectorAll(selector)].filter(el=>!el.hidden)
+                    .map(el=>new URL(el.getAttribute('href')||el.querySelector('h3 a[href]')?.getAttribute('href')||'',location.origin).pathname);
+                  const stamps=selector=>[...document.querySelectorAll(selector)].filter(el=>!el.hidden)
+                    .map(el=>el.getAttribute('data-published-at')||'');
+                  return {featured:paths('#ztFeaturedGrid > a[href]'),
+                    tech:paths('.ztp-news-tech .ztp-news-items > article.article-row'),
+                    gaming:paths('.ztp-news-gaming .ztp-news-items > article.article-row'),
+                    techTimes:stamps('.ztp-news-tech .ztp-news-items > article.article-row'),
+                    gameTimes:stamps('.ztp-news-gaming .ztp-news-items > article.article-row'),
+                    guide:document.querySelectorAll('#ztHomeGuide .zt-magazine-primary,#ztHomeGuide .zt-magazine-small').length,
+                    extra:document.querySelectorAll('#ztHomeExtra .zt-magazine-primary,#ztHomeExtra .zt-magazine-small').length,
+                    overflow:document.documentElement.scrollWidth-innerWidth};
+                });
+                console.log('VIEWPORT',width,JSON.stringify({tech:data.tech.length,gaming:data.gaming.length,
+                  featured:data.featured.length,guide:data.guide,extra:data.extra,overflow:data.overflow,errors}));
+                assert.equal(data.tech.length,10,'Tech must remain at 10 without carousel duplicates');
+                assert.equal(data.gaming.length,10,'Gaming must remain at 10 without carousel duplicates');
+                assert.equal(new Set(data.tech).size,10);
+                assert.equal(new Set(data.gaming).size,10);
+                assert.equal(data.featured.length,5);
+                for(const url of data.featured){
+                  assert.ok(!data.tech.includes(url)&&!data.gaming.includes(url),'Featured leaked into column: '+url);
+                }
+                for(const stamps of [data.techTimes,data.gameTimes]){
+                  const values=stamps.map(t=>Date.parse(t)).filter(Number.isFinite);
+                  assert.ok(values.every((v,i)=>i===0||v<=values[i-1]),'Time ordering broken');
+                }
+                assert.equal(data.guide,3);
+                assert.equal(data.extra,3);
+                assert.ok(data.overflow<=8,'Unexpected horizontal overflow');
+                assert.deepEqual(errors,[],'Browser JavaScript exceptions');
+                await page.close();
+              }
+            }finally{await browser.close();}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
