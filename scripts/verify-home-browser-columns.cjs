@@ -60,6 +60,7 @@ async function main(){
        failures.push(name+" is not newest-to-oldest by original date");
    }
    if(info.overflow>8)failures.push("Horizontal overflow "+info.overflow+"px");
+   if(name!=="mobile"&&Math.abs(info.techBottom-info.gamingBottom)>32)failures.push("Tech/Gaming columns not bottom-aligned");
    if(info.guides!==3||info.extras!==3)failures.push("GUIDE/EXTRA not exactly three");
    if(pageErrors.length)failures.push("Browser errors: "+pageErrors.slice(0,3).join("; "));
    console.log("RELEASE BROWSER",name,JSON.stringify({
