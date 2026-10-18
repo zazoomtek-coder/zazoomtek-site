@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""No stale featured coverage: strictly today, then yesterday, then stop."""
+"""Featured stories survive idle days; only newer verified posts replace them."""
 from __future__ import annotations
 import datetime as dt
 import importlib.util
@@ -8,18 +8,25 @@ from pathlib import Path
 import tempfile
 
 ROOT=Path(__file__).resolve().parents[1]
-spec=importlib.util.spec_from_file_location("zt_news_fresh", ROOT/"scripts/trending-crosscheck.py")
+spec=importlib.util.spec_from_file_location("zt_news_persistent", ROOT/"scripts/trending-crosscheck.py")
 mod=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 
-def story(root,slug,day,kind,score=0):
+def story(root,slug,day,kind,score=0,matched=False):
     url="/news-"+slug+".html"
     (root/url[1:]).write_text("<html>Verified published article</html>",encoding="utf-8")
     title=("Smartphone Tech "+slug if kind=="tech" else "Nintendo Switch gioco Zelda "+slug)
     return {"url":url,"title":title,"section":kind,
             "image":"https://images.example.com/thumb.jpg",
             "published_date":day,"trend_score":score,"freshness":score,
-            "matched_sources":[],"summary":""}
+            "match_count":1 if matched else 0,"matched_sources":[],"summary":""}
+
+def blocked(callback):
+    try:
+        callback()
+    except RuntimeError:
+        return
+    raise AssertionError("Partial or invalid featured update must be rejected")
 
 def main():
     reference=dt.date(2026,10,16)
@@ -40,58 +47,56 @@ def main():
             unknown=story(root,"tech-undated","not-a-date","tech",1000)
             candidates=[old,future,unknown,*yesterday,today_g,*today,yesterday_g]
             selected=mod.pick(candidates,on_date=reference)
-            assert len(selected)==5,selected
+            assert len(selected)==5 and mod.valid_featured_sections(selected)
             assert [x["section"] for x in selected]==["tech"]*4+["gaming"]
-            assert selected[0]["section"]=="tech"
+            assert all(x["published_date"]=="2026-10-16" for x in selected)
             assert selected[-1]["url"]==today_g["url"]
-            assert [x["published_date"] for x in selected[:5]]==["2026-10-16"]*5
-            assert today_g["url"] in {x["url"] for x in selected}
-            assert selected[-1]["published_date"]=="2026-10-16"
-            assert mod.valid_featured_sections(selected)
             assert len({x["url"] for x in selected})==5
 
-            only_yesterday=mod.pick(yesterday[:2]+[yesterday_g,old],on_date=reference)
-            assert len(only_yesterday)==3,only_yesterday
-            assert [x["section"] for x in only_yesterday]==["tech","tech","gaming"]
-            assert all(x["published_date"]=="2026-10-15" for x in only_yesterday)
+            # Publication ages are never a reason to erase the last five cards.
+            after_ten_days=mod.pick(candidates,on_date=reference+dt.timedelta(days=10))
+            assert [x["url"] for x in after_ten_days]==[x["url"] for x in selected]
+            after_thirty_days=mod.pick(candidates,on_date=reference+dt.timedelta(days=30))
+            assert [x["url"] for x in after_thirty_days]==[x["url"] for x in selected]
 
-            assert mod.pick([old,future,unknown],on_date=reference)==[]
-            assert mod.allowed_featured_date({"published_date":"2026-10-16"},reference)
-            assert mod.allowed_featured_date({"published_date":"2026-10-15"},reference)
-            assert not mod.allowed_featured_date({"published_date":"2026-10-14"},reference)
+            # Four Tech can span three days and still fill the approved mosaic.
+            fallback=mod.pick([*yesterday,yesterday_g,old],on_date=reference)
+            assert len(fallback)==5 and fallback[-1]["url"]==yesterday_g["url"]
+            assert old["url"] in {x["url"] for x in fallback}
+            assert mod.allowed_featured_date({"published_date":"2026-10-14"},reference)
             assert not mod.allowed_featured_date({"published_date":""},reference)
             assert not mod.allowed_featured_date({"published_date":"2026-10-17"},reference)
             assert mod.local_publication_date({"published_at":"2026-10-15T23:50:00Z"})==reference
-            # Reject stale articles even if an archive card falsely says "yesterday".
-            stale_page=story(root,"tech-false-yesterday","2026-10-15","tech",1000)
-            (root/stale_page["url"][1:]).write_text(
-                '<meta property="article:published_time" content="2026-10-14T16:07:27Z">',encoding="utf-8")
-            assert not mod.allowed_featured_date(stale_page,reference)
-            assert stale_page["url"] not in {x["url"] for x in mod.pick([stale_page],on_date=reference)}
+            blocked(lambda: mod.pick([old,future,unknown],on_date=reference))
 
-            # Never fill missing Tech quota with additional Gaming posts.
+            # The actual timestamp of a published article overrides a stale
+            # or misleading archive date, but age alone does not disqualify it.
+            actual_old=story(root,"tech-real-date","2026-10-15","tech",1000)
+            (root/actual_old["url"][1:]).write_text(
+                '<meta property="article:published_time" content="2026-10-14T16:07:27Z">',encoding="utf-8")
+            assert mod.allowed_featured_date(actual_old,reference)
+            assert actual_old["url"] in {x["url"] for x in
+                mod.pick([*yesterday,actual_old,yesterday_g],on_date=reference)}
+
+            # Insufficient Tech stories MUST NOT replace old valid carousel with
+            # fewer cards or fill missing Tech slots with additional Gaming.
             more_gaming=[story(root,"game-fill-"+str(i),"2026-10-16","gaming",i) for i in range(3)]
-            selection=mod.pick(yesterday[:2]+[today_g,yesterday_g,*more_gaming],on_date=reference)
-            assert len(selection)==3,selection
-            assert sum(x["section"]=="tech" for x in selection)==2
-            assert sum(x["section"]=="gaming" for x in selection)==1
-            assert mod.valid_featured_sections(selection)
+            blocked(lambda: mod.pick(yesterday[:2]+[today_g,yesterday_g,*more_gaming],on_date=reference))
             assert not mod.valid_featured_sections([{"section":"gaming"}]*2)
 
-            # Highest editorial trend among the four newest Tech receives
-            # the main large card, even when a less important one is newer.
-            timed_new=story(root,"tech-later","2026-10-16","tech",score=0)
-            timed_old=story(root,"tech-earlier","2026-10-16","tech",score=120)
-            (root/timed_new["url"][1:]).write_text(
-                '<meta property="article:published_time" content="2026-10-16T11:30:00Z">',encoding="utf-8")
-            (root/timed_old["url"][1:]).write_text(
-                '<meta property="article:published_time" content="2026-10-16T09:00:00Z">',encoding="utf-8")
-            ordered=mod.pick([timed_old,timed_new],on_date=reference)
-            assert [x["url"] for x in ordered]==[timed_old["url"],timed_new["url"]],ordered
+            # Among the newest publication day, verified matching coverage on
+            # independent major sites takes priority over non-matching news.
+            trend=story(root,"tech-viral","2026-10-16","tech",score=90,matched=True)
+            unmatched=story(root,"tech-unmatched","2026-10-16","tech",score=0)
+            same_day=mod.pick([*today[:3],unmatched,trend,today_g],on_date=reference)
+            assert trend["url"] in {x["url"] for x in same_day}
+            assert unmatched["url"] not in {x["url"] for x in same_day}
+            assert same_day[0]["url"]==trend["url"]
+            assert same_day[-1]["section"]=="gaming"
         finally:
             mod.ROOT=saved
-    print("PASS: Today's dates beat yesterday's even against higher trend score; no earlier fallback.")
-    print("PASS: Tech shortfall never filled with extra Gaming, and publication-hour order is correct.")
+    print("PASS: featured five persist for 10/30 days without new posts.")
+    print("PASS: 4 Tech + 1 Gaming, no future dates, matching viral stories prioritized.")
 
 if __name__=="__main__":
     main()
