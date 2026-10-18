@@ -24,6 +24,9 @@ def main() -> None:
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
     run("apply-site-design.py")
+    # Add original ISO times ONLY to already-published archive cards; safe even
+    # when the YouTube importer skips a cycle with no new Community posts.
+    run("enrich-news-archive-publication-times.py")
     # Refresh rankings from already published ZazoomTek news; portal checks are separate.
     # Never expire existing verified cards just because no new post was published.
     run("trending-crosscheck.py", "--apply")
