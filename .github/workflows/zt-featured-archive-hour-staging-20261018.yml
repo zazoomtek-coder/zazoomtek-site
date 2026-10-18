@@ -1,0 +1,43 @@
+name: Featured chronology original-hour archive - staging only
+on:
+  push:
+    branches: [fix/featured-archive-original-hours-20261018]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify no invented times, one safe archive-only change
+        run: |
+          python3 -m py_compile scripts/enrich-news-archive-publication-times.py scripts/cloudflare-build-site.py
+          python3 scripts/enrich-news-archive-publication-times.py --self-test
+          python3 scripts/verify-home-layout-lock.py
+          python3 - <<'PY'
+          from pathlib import Path
+          build=Path('scripts/cloudflare-build-site.py').read_text()
+          assert build.count('run("enrich-news-archive-publication-times.py")')==1
+          assert build.index('run("apply-site-design.py")')<build.index('run("enrich-news-archive-publication-times.py")')<build.index('run("test-featured-today-yesterday.py")')
+          print('PASS: static Home structure unchanged, archive metadata only')
+          PY
+      - name: Full offline Cloudflare publication snapshot - NO deploy
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('dist/news.html').read_text()
+          cards=re.findall(r'<article\b[^>]*class="news-row"[^>]*>',html)
+          stamped=[c for c in cards if re.search(r'data-published-at="20\d\d-\d\d-\d\dT\d\d:\d\d:',c)]
+          assert len(stamped)>=10,(len(stamped),len(cards))
+          assert Path('dist/zt-home-live.js').read_text().count('featuredOnHome.has(articlePath)')==1
+          print('PASS:',len(stamped),'news cards have original UTC hour in delivered snapshot')
+          PY
