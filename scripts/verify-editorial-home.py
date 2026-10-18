@@ -151,7 +151,7 @@ def check() -> None:
         raise RuntimeError("Home must fill Tech/Gaming using real dated archive articles")
     if 'ZT_HOME_GAMING_THREE_EXTRA_20261014' in js:
         raise RuntimeError("Old hardcoded Gaming article fillers remain enabled")
-    if '20261017stableColumnsRollback4' not in home:
+    if '20261018stableColumns1010' not in home:
         raise RuntimeError("Home is not loading the stable column layout")
     # Manual Tech reviews must use the complete ZazoomTek editorial template.
     thermo=read(THERMO)
