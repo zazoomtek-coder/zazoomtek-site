@@ -25,9 +25,11 @@ jobs:
             const page=await browser.newPage({viewport:{width:1600,height:900}});
             page.on('console',m=>console.log('CONSOLE',m.type(),m.text().slice(0,300)));
             page.on('pageerror',e=>console.log('PAGEERROR',e.message));
+            page.on('request',r=>{if(/\/(?:news(?:-\d+)?|pagina-\d+)\.html/.test(r.url()))console.log('ARCHIVE_REQUEST',r.url());});
+            page.on('response',r=>{if(/\/(?:news(?:-\d+)?|pagina-\d+)\.html/.test(r.url()))console.log('ARCHIVE_RESPONSE',r.status(),r.url());});
             page.on('requestfailed',r=>console.log('NETWORKFAIL',r.url().slice(0,160),r.failure()?.errorText));
             await page.goto('http://127.0.0.1:8879/',{waitUntil:'domcontentloaded'});
-            await page.waitForTimeout(12000);
+            await page.waitForTimeout(30000);
             const diagnostics=await page.evaluate(async()=>{
               const counts=()=>({tech:document.querySelectorAll('.ztp-news-tech .ztp-news-items>article.article-row').length,
                 gaming:document.querySelectorAll('.ztp-news-gaming .ztp-news-items>article.article-row').length});
