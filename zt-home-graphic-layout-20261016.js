@@ -85,7 +85,7 @@
    });
  }
  /* Build genuine magazine boxes from the site's own Guide and Extra archives.
-    First article is prominent, next up to three are compact; empty slots remain empty.
+    Exactly three real stories: one prominent and two compact; no fourth story.
     Importers own the archives: there are no frozen article titles or fake records. */
  function renderMagazines(){
    [
@@ -150,7 +150,7 @@
        primary.appendChild(primaryText);
        const side=document.createElement("div");
        side.className="zt-magazine-side";
-       records.slice(1,4).forEach(function(item){
+       records.slice(1,3).forEach(function(item){
          const card=document.createElement("a");
          card.className="zt-magazine-small";card.href=item.href;
          card.appendChild(makeImage(item));
@@ -173,7 +173,7 @@
        }
        applyMagazineLayout();
        new MutationObserver(applyMagazineLayout).observe(target,{childList:true});
-       target.dataset.archiveCount=String(Math.min(records.length,4));
+       target.dataset.archiveCount=String(Math.min(records.length,3));
        target.dataset.sourceArchive=config.url;
      }).catch(function(error){
        console.warn("ZazoomTek "+config.kind+" archive not available; preserving published cards:",error);
