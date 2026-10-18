@@ -40,12 +40,12 @@ if tuple(label for label,_ in home_items)!=required_nav:
 # ONE fixed masthead source: the locked, approved Home, NOT news.html.
 # Each page receives the actual Home header at build time (no browser fetch,
 # no duplicate scripts, no second header, no page-specific menu sizes).
-header_pattern=re.compile(r'<header\\b[^>]*>[\\s\\S]*?</header>',re.I)
+header_pattern=re.compile(r'<header\b[^>]*>[\s\S]*?</header>',re.I)
 home_header_match=header_pattern.search(home_source)
 if not home_header_match or 'class="shell topbar"' not in home_header_match.group():
     raise RuntimeError("Approved Home header missing; deployment blocked")
 header_template=home_header_match.group()
-nav_pattern=re.compile(r'<nav\\b[^>]*class=["\\\']nav["\\\'][^>]*>[\\s\\S]*?</nav>',re.I)
+nav_pattern=re.compile(r'<nav\b[^>]*class=["\\']nav["\\'][^>]*>[\s\S]*?</nav>',re.I)
 if not nav_pattern.search(header_template) or 'ticker-video-links' not in header_template:
     raise RuntimeError("Locked Home navigation/ticker incomplete")
 
@@ -87,15 +87,15 @@ def nav_markup(filename):
     def change_link(match):
         attrs=match.group(1)
         label=html_utils.unescape(re.sub(r'<[^>]*>', '', match.group(2))).strip()
-        href=re.search(r'\\bhref=["\\\']([^"\\\']+)["\\\']',attrs,re.I)
+        href=re.search(r'\bhref=["\\']([^"\\']+)["\\']',attrs,re.I)
         if not href:
             return match.group()
         # Preserve Home-only semantic classes, then toggle just its active state.
-        classes=re.search(r'\\bclass=["\\\']([^"\\\']*)["\\\']',attrs,re.I)
+        classes=re.search(r'\bclass=["\\']([^"\\']*)["\\']',attrs,re.I)
         remaining=[name for name in (classes.group(1).split() if classes else [])
                    if name!='active']
-        attrs=re.sub(r'\\s+class=["\\\'][^"\\\']*["\\\']','',attrs,count=1,flags=re.I)
-        attrs=re.sub(r'\\s+aria-current=["\\\'][^"\\\']*["\\\']','',attrs,flags=re.I)
+        attrs=re.sub(r'\s+class=["\\'][^"\\']*["\\']','',attrs,count=1,flags=re.I)
+        attrs=re.sub(r'\s+aria-current=["\\'][^"\\']*["\\']','',attrs,flags=re.I)
         if label==active:
             remaining.append("active")
         if remaining:
@@ -103,7 +103,7 @@ def nav_markup(filename):
         if label==active:
             attrs+=' aria-current="page"'
         return '<a'+attrs+'>'+match.group(2)+'</a>'
-    nav=re.sub(r'<a\\b([^>]*)>([\\s\\S]*?)</a>',change_link,original.group(),flags=re.I)
+    nav=re.sub(r'<a\b([^>]*)>([\s\S]*?)</a>',change_link,original.group(),flags=re.I)
     # Home uses relative links; normalize to root on any article URL.
     nav=re.sub(r'(?<=href=")(?!/|https?://|#|mailto:)([^"]+)(?=")',
                lambda m:'/'+m.group(1).lstrip('./'),nav,flags=re.I)
@@ -413,7 +413,7 @@ def unify_site_navigation(page, filename):
     if filename=="index.html":
         return page
     # Pagination pages are complete Home copies already; keep their locked shell.
-    if re.fullmatch(r'pagina-\\d+\\.html',filename):
+    if re.fullmatch(r'pagina-\d+\.html',filename):
         canonical_home=nav_pattern.search(home_source)
         actual=nav_pattern.search(page)
         if not canonical_home or not actual:
@@ -433,18 +433,18 @@ def unify_site_navigation(page, filename):
     # adjacent to the replaced header; never touch article content or sidebars.
     end=page.index('</header>',first.start())+len('</header>')
     tail=page[end:]
-    strip=re.match(r'\\s*<div\\b[^>]*class=["\\\'][^"\\\']*\\b(?:zt-strip|news-ticker)\\b[^"\\\']*["\\\'][^>]*>',tail,re.I)
+    strip=re.match(r'\s*<div\b[^>]*class=["\\'][^"\\']*\b(?:zt-strip|news-ticker)\b[^"\\']*["\\'][^>]*>',tail,re.I)
     if strip:
         close=_matching_close(tail,strip.end(),"div")+len('</div>')
         page=page[:end]+tail[close:]
     # The previous async header swap is obsolete and can produce flashes and
     # mismatched menu widths. Remove only that script from the built page.
-    page=re.sub(r'<script\\b[^>]*src=["\\\'][^"\\\']*zt-unified-header\\.js(?:\\?[^"\\\']*)?["\\\'][^>]*>\\s*</script>\\s*',
+    page=re.sub(r'<script\b[^>]*src=["\\'][^"\\']*zt-unified-header\.js(?:\?[^"\\']*)?["\\'][^>]*>\s*</script>\s*',
                 '',page,flags=re.I)
     # This scoped style controls only the Home header clone, never the page.
-    page=re.sub(r'<style\\b[^>]*id=["\\\']zt-site-home-header-style["\\\'][^>]*>[\\s\\S]*?</style>\\s*',
+    page=re.sub(r'<style\b[^>]*id=["\\']zt-site-home-header-style["\\'][^>]*>[\s\S]*?</style>\s*',
                 '',page,flags=re.I)
-    return re.sub(r'</head>',lambda m:FIXED_HEADER_STYLE+'\\n'+m.group(),page,count=1,flags=re.I)
+    return re.sub(r'</head>',lambda m:FIXED_HEADER_STYLE+'\n'+m.group(),page,count=1,flags=re.I)
 
 css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarFix5" data-zt-design="20261010">'
 # The Home owns the CURRENT Javascript URL. Never force an outdated query
