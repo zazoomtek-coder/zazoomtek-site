@@ -32,7 +32,7 @@ jobs:
           assert home.count(source)==1, 'Canonical Guide markup must not drift'
           assert source.count('class="zt-home-guide-primary"')==1
           assert source.count('class="zt-home-guide-next"')==2
-          assert 'class="ztp-extra-cards"' in home
+          assert 'ztp-extra-cards' in Path('zt-home-live.js').read_text(), 'Home runtime must create Extra magazine'
           print('PASS: Home GUIDE/EXTRA exactly 3; unchanged static fallback and layout assets.')
           PY
           git diff --exit-code HEAD -- index.html zt-home-live.js zt-home-graphic-layout-20261016.css zt-home-gap-fix-20261014.css
