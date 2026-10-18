@@ -146,9 +146,12 @@ def check() -> None:
         raise RuntimeError("Stable Tech/Gaming Home columns are missing")
     if 'reservedEditorialPaths()' in js:
         raise RuntimeError("Regressed Home dynamic reordering was reintroduced")
-    if ('data-zt-align-fill' not in js or 'const spareTech=spare("tech")' not in js
-            or 'spareGaming=spare("gaming")' not in js):
-        raise RuntimeError("Home must fill Tech/Gaming using real dated archive articles")
+    if ('data-zt-align-fill' not in js
+            or 'remaining={tech:reserve("tech"),gaming:reserve("gaming")}' not in js
+            or 'new ResizeObserver(requestAlignment)' not in js
+            or 'sourcePublishedAt(row)' not in js
+            or 'const featured=featuredPaths();' not in js):
+        raise RuntimeError("Home must fill columns from unique dated archive articles after lazy image loads")
     if 'ZT_HOME_GAMING_THREE_EXTRA_20261014' in js:
         raise RuntimeError("Old hardcoded Gaming article fillers remain enabled")
     if '20261017stableColumnsRollback4' not in home:
