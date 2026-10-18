@@ -21,6 +21,9 @@ LOCKED_BLOBS={
     "zt-home-graphic-layout-20261016.js":"634a124898f22e40aa817b2d143c410c330c071d",
     "zt-home-gap-fix-20261014.css":"8db90af3c1bfb273b53f81c0ad7f1631cd82aacf",
 }
+# The daily editorial job may refresh this one JSON list in an otherwise locked JS file.
+# Its structure is verified and the entire rest of the JS must retain the approved digest.
+LOCKED_HOME_LIVE_TEMPLATE_SHA="686f536b7f84edffb86e46c351b1c482937d7f37"
 INLINE_STYLE_FNV64="df1fab8ffc145811"
 HOME_ASSET_REVISION="20261017stableColumnsRollback4"
 
@@ -35,6 +38,42 @@ def fnv64(text:str)->str:
     for ch in text:
         value=((value^ord(ch))*0x100000001b3)&0xffffffffffffffff
     return f"{value:016x}"
+
+def safe_editorial_js_sha(data: bytes) -> str | None:
+    """Ignore *only* the valid sidebar article JSON, never executable JS changes."""
+    import json
+    try:
+        source=data.decode("utf-8")
+        matches=list(re.finditer(
+            r"const sidebarEditorials=(\\[[^\\r\\n]*\\]);(?=\\s*const editorialBox=)",
+            source))
+        if len(matches)!=1 or source.count("const sidebarEditorials=")!=1:
+            return None
+        items=json.loads(matches[0].group(1))
+        if not isinstance(items,list) or not 1<=len(items)<=12:
+            return None
+        urls=set()
+        for item in items:
+            if not isinstance(item,dict) or set(item)!={"title","url","image"}:
+                return None
+            if not isinstance(item["title"],str) or not item["title"].strip():
+                return None
+            url=item["url"]
+            img=item["image"]
+            if not isinstance(url,str) or not re.fullmatch(r"/[a-zA-Z0-9_.-]+\\.html",url) or url in urls:
+                return None
+            if not isinstance(img,str) or not (
+                img.startswith("https://") or
+                re.fullmatch(r"/assets/[a-zA-Z0-9_./-]+",img)
+            ):
+                return None
+            urls.add(url)
+        # Replacing exactly the data list also protects the layout, handlers and code
+        # surrounding it. This fingerprint is fixed to the last approved Home script.
+        cleaned=source[:matches[0].start(1)]+"__EDITORIAL_DATA_ONLY__"+source[matches[0].end(1):]
+        return blob_sha(cleaned.encode("utf-8"))
+    except (UnicodeError,ValueError,TypeError,KeyError):
+        return None
 
 class HomeElements(HTMLParser):
     def __init__(self):
@@ -57,6 +96,9 @@ def verify(root:Path=ROOT, packaged:bool=False)->None:
         path=root/name
         if not path.is_file():
             errors.append("Missing locked Home asset: "+name)
+        elif name=="zt-home-live.js":
+            if safe_editorial_js_sha(path.read_bytes())!=LOCKED_HOME_LIVE_TEMPLATE_SHA:
+                errors.append("Unauthorized Home layout/code change: "+name)
         elif blob_sha(path.read_bytes())!=expected:
             errors.append("Unauthorized Home layout change: "+name)
     source=root/"index.html"
