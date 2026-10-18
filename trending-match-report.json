@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-17T22:42:56.164926+00:00",
+  "checked_at": "2026-10-18T01:02:54.943012+00:00",
   "source_sites": 15,
   "matches": 9,
   "selected": [
@@ -9,8 +9,8 @@
       "url": "/news-Ugkxo3isjD7St5R9-Wsekg0mNavQvW93OuVi.html",
       "trend_score": 0,
       "published_date": "2026-10-17",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
       "sources": []
     }
   ]

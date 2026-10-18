@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-17T22:42:51.637914+00:00",
+  "generated_utc": "2026-10-18T01:02:50.986703+00:00",
   "sites": {
     "hdblog": {
       "headlines": 20,
@@ -83,7 +83,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T14:45:20.908646+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -96,7 +96,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -109,7 +109,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -122,7 +122,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -135,7 +135,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -148,7 +148,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -161,7 +161,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -174,7 +174,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-16T13:08:17.475412+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -187,7 +187,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -200,7 +200,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-15T14:21:28.346974+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -213,7 +213,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-13T16:27:44.846288+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -226,7 +226,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:33:10.334980+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -239,7 +239,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -252,7 +252,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -265,7 +265,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -278,7 +278,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -291,7 +291,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -304,7 +304,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -317,7 +317,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hdblog",
@@ -330,7 +330,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -343,7 +343,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -356,7 +356,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-16T13:08:17.475412+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -369,7 +369,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -382,7 +382,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -395,7 +395,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -408,7 +408,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-15T16:12:51.479265+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -421,7 +421,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -434,7 +434,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-14T07:02:47.871324+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -447,7 +447,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -460,7 +460,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-16T11:15:23.265612+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -473,7 +473,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -486,7 +486,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -499,7 +499,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-15T16:12:51.479265+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -512,7 +512,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-14T08:52:08.256456+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -525,7 +525,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -538,7 +538,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -551,7 +551,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-15T14:17:10.771683+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -564,7 +564,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -577,7 +577,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "dday",
@@ -590,7 +590,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -603,7 +603,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -616,7 +616,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:40:27.692756+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -629,7 +629,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:40:27.692756+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -642,7 +642,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -655,7 +655,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -668,7 +668,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -681,7 +681,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-14T07:02:47.871324+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -694,7 +694,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-13T16:27:44.846288+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -707,7 +707,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -720,7 +720,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-13T06:33:21.616139+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -733,7 +733,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-11T05:51:24.146140+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -746,7 +746,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -759,7 +759,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -772,7 +772,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-16T11:15:23.265612+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -785,7 +785,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -798,7 +798,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-15T14:55:34.342925+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -811,7 +811,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:48:53.954894+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -824,7 +824,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:43:24.378527+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -837,7 +837,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-17T04:52:26.025665+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "smartworld",
@@ -850,7 +850,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-17T04:52:26.025665+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -863,7 +863,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -876,7 +876,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -889,7 +889,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -902,7 +902,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -915,7 +915,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -928,7 +928,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-17T14:45:20.908646+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -941,7 +941,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -954,7 +954,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -967,7 +967,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -980,7 +980,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -993,7 +993,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1006,7 +1006,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1019,7 +1019,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1032,7 +1032,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1045,7 +1045,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1058,7 +1058,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1071,7 +1071,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1084,7 +1084,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1097,7 +1097,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-14T10:50:11.764031+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "tomshw",
@@ -1110,7 +1110,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1123,7 +1123,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1136,7 +1136,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1149,7 +1149,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1162,7 +1162,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1175,7 +1175,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1188,7 +1188,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1201,7 +1201,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1214,7 +1214,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1227,7 +1227,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1240,7 +1240,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-17T14:01:18.202364+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1253,7 +1253,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:13:11.120788+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1266,7 +1266,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1279,7 +1279,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1292,7 +1292,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1305,7 +1305,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1318,7 +1318,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1331,7 +1331,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1344,7 +1344,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1357,7 +1357,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "hwupgrade",
@@ -1370,7 +1370,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1383,7 +1383,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T04:52:26.025665+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1396,7 +1396,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:03:17.793372+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1409,7 +1409,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1422,7 +1422,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-13T17:29:12.417278+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1435,7 +1435,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1448,7 +1448,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1461,7 +1461,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-17T04:52:26.025665+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1474,7 +1474,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-16T13:08:17.475412+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1487,7 +1487,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-16T13:08:17.475412+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1500,7 +1500,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1513,7 +1513,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1526,7 +1526,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1539,7 +1539,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1552,7 +1552,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1565,7 +1565,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1578,7 +1578,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1591,7 +1591,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1604,7 +1604,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1617,7 +1617,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "multiplayer",
@@ -1630,7 +1630,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-17T14:45:20.908646+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1643,7 +1643,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1656,7 +1656,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1669,7 +1669,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1682,7 +1682,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1695,7 +1695,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1708,7 +1708,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1721,7 +1721,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1734,7 +1734,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1747,7 +1747,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1760,7 +1760,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:43:24.378527+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1773,7 +1773,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-17T22:42:51.637914+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1786,7 +1786,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1799,7 +1799,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-16T13:08:17.475412+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1812,7 +1812,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-16T20:53:14.336660+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1825,7 +1825,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1838,7 +1838,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:22:25.615446+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1851,7 +1851,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1864,20 +1864,20 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-10T11:50:39.084757+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
       "name": "Everyeye.it",
       "kind": "gaming",
-      "title": "Red Dead Redemption 2 Red Dead Redemption 2 USCITO 9",
+      "title": "Red Dead Redemption 2 Red Dead Redemption 2 USCITO 8",
       "url": "https://www.everyeye.it/giochi/red-dead-redemption-2/",
       "rank": 19,
       "homepage": true,
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-11T09:36:22.050473+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "everyeye",
@@ -1890,7 +1890,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-16T11:15:23.265612+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1903,7 +1903,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1916,7 +1916,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1929,7 +1929,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1942,7 +1942,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1955,7 +1955,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T14:55:34.342925+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1968,7 +1968,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1981,7 +1981,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -1994,7 +1994,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-10T10:34:29.408075+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2007,7 +2007,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2020,7 +2020,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2033,7 +2033,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2046,7 +2046,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2059,7 +2059,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-17T14:45:20.908646+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2072,7 +2072,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:13:11.120788+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2085,7 +2085,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2098,7 +2098,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2111,7 +2111,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2124,7 +2124,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2137,7 +2137,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "spaziogames",
@@ -2150,7 +2150,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:57:00.512275+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2163,7 +2163,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:43:24.378527+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2176,7 +2176,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2189,7 +2189,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2202,7 +2202,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2215,7 +2215,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2228,7 +2228,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-12T20:25:58.406530+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2241,7 +2241,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-13T08:29:28.465221+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2254,7 +2254,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2267,7 +2267,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2280,7 +2280,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2293,7 +2293,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2306,7 +2306,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2319,7 +2319,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2332,7 +2332,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2345,7 +2345,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2358,7 +2358,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2371,7 +2371,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2384,7 +2384,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-12T15:06:28.819744+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2397,7 +2397,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-13T10:27:40.249577+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "ign",
@@ -2410,7 +2410,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-13T14:28:42.643773+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2423,7 +2423,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2436,7 +2436,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2449,7 +2449,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2462,7 +2462,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2475,7 +2475,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2488,7 +2488,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2501,7 +2501,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-14T16:52:09.725252+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2514,7 +2514,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2527,7 +2527,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2540,7 +2540,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2553,7 +2553,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2566,7 +2566,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2579,7 +2579,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-16T11:15:23.265612+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2592,7 +2592,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2605,7 +2605,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2618,7 +2618,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2631,7 +2631,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2644,7 +2644,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2657,7 +2657,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamesurf",
@@ -2670,7 +2670,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2683,7 +2683,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-14T08:52:08.256456+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2696,7 +2696,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2709,20 +2709,20 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-14T08:52:08.256456+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
       "name": "IGN.com",
       "kind": "gaming",
-      "title": "1d Rockstar Mods Real Life Vehicles to Look Like GTA 6 Cars Before Driving Them Through Miami 15",
+      "title": "1d Rockstar Mods Real Life Vehicles to Look Like GTA 6 Cars Before Driving Them Through Miami 16",
       "url": "https://www.ign.com/articles/rockstar-mods-real-life-vehicles-gta-6-cars-miami",
       "rank": 4,
       "homepage": true,
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2735,7 +2735,20 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "igncom",
+      "name": "IGN.com",
+      "kind": "gaming",
+      "title": "Dev Behind Russian Roulette Drinking Game Cancels Steam Demo Plans Following AI Copycat Concerns",
+      "url": "https://www.ign.com/articles/dev-behind-russian-roulette-drinking-game-cancels-steam-demo-plans-following-ai-copycat-concerns",
+      "rank": 6,
+      "homepage": false,
+      "featured_priority": 0,
+      "rss_fallback": true,
+      "first_seen": "2026-10-18T01:02:50.986703+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2743,12 +2756,12 @@
       "kind": "gaming",
       "title": "Battlefield 6 Devs Respond After Players Take Aim at 'Secuty' Typo and Cosmetic With 5 Pistols",
       "url": "https://www.ign.com/articles/battlefield-6-devs-respond-after-players-take-aim-at-secuty-typo-and-cosmetic-with-5-pistols",
-      "rank": 6,
+      "rank": 7,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T22:42:51.637914+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2756,12 +2769,12 @@
       "kind": "gaming",
       "title": "James Cameron Congratulates Marvel After Avengers: Endgame Beats Avatar at the Box Office Yet Again",
       "url": "https://www.ign.com/articles/james-cameron-congratulates-marvel-after-avengers-endgame-beats-avatar-at-the-box-office-yet-again",
-      "rank": 7,
+      "rank": 8,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T22:42:51.637914+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2769,12 +2782,12 @@
       "kind": "gaming",
       "title": "Ben Affleck's Batman Movie Would Have Featured Arkham Asylum-Inspired Deathstroke Fight and DCEU Batgirl, Joe Manganiello Reveals",
       "url": "https://www.ign.com/articles/ben-afflecks-batman-movie-would-have-featured-arkham-asylum-inspired-deathstroke-fight-and-dceu-batgirl-joe-manganiello-reveals",
-      "rank": 8,
+      "rank": 9,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2782,12 +2795,12 @@
       "kind": "gaming",
       "title": "The Best Deals Today: Cyberpunk 2077 for Switch 2, Pikmin 4, Star Wars Zero Company, and More",
       "url": "https://www.ign.com/articles/best-deals-for-october-17-2026",
-      "rank": 9,
+      "rank": 10,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2795,12 +2808,12 @@
       "kind": "gaming",
       "title": "Captain Price Actor Sends Message to Fans as Call of Duty: Modern Warfare 4 Campaign Praise Rolls in",
       "url": "https://www.ign.com/articles/captain-price-actor-sends-message-to-fans-as-call-of-duty-modern-warfare-4-campaign-praise-rolls-in",
-      "rank": 10,
+      "rank": 11,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2808,12 +2821,12 @@
       "kind": "gaming",
       "title": "7 Crazy Movie Premises That Actually Worked",
       "url": "https://www.ign.com/articles/crazy-movie-premises-that-actually-worked",
-      "rank": 11,
+      "rank": 12,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T14:01:18.202364+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2821,12 +2834,12 @@
       "kind": "gaming",
       "title": "We Sat Down with D&D Game Designer James Wyatt to Talk Dungeons & Dragons: World of Warcraft",
       "url": "https://www.ign.com/articles/we-sat-down-with-dd-game-designer-james-wyatt-to-talk-dungeons-and-dragons-world-of-warcraft",
-      "rank": 12,
+      "rank": 13,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T14:01:18.202364+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2834,12 +2847,12 @@
       "kind": "gaming",
       "title": "The Street Fighter Movie Makes a Mistake Mortal Kombat Already Learned From",
       "url": "https://www.ign.com/articles/the-street-fighter-movie-makes-a-mistake-mortal-kombat-already-learned-from",
-      "rank": 13,
+      "rank": 14,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T13:13:11.120788+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2847,12 +2860,12 @@
       "kind": "gaming",
       "title": "Red Rising Greenlit for Movie Adaptation With Author Pierce Brown to Produce",
       "url": "https://www.ign.com/articles/red-rising-greenlit-for-movie-adaptation-with-author-pierce-brown-to-produce",
-      "rank": 14,
+      "rank": 15,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2860,12 +2873,12 @@
       "kind": "gaming",
       "title": "James Gunn Shoots Down Milly Alcock Supergirl Rumors, Shares Man of Tomorrow Update",
       "url": "https://www.ign.com/articles/james-gunn-shoots-down-milly-alcock-supergirl-rumors-shares-man-of-tomorrow-update",
-      "rank": 15,
+      "rank": 16,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2873,12 +2886,12 @@
       "kind": "gaming",
       "title": "[UPDATE] Super Smash Bros. Player Mew2King Responds After Tournament Bans Him Over Bug Bite Concerns",
       "url": "https://www.ign.com/articles/super-smash-bros-player-mew2king-banned-from-tournament-after-bug-bites-spark-health-concerns",
-      "rank": 16,
+      "rank": 17,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2886,12 +2899,12 @@
       "kind": "gaming",
       "title": "Street Fighter: How Can There Be an Ending Explained When There Is No Ending?",
       "url": "https://www.ign.com/articles/street-fighter-how-can-there-be-an-ending-explained-when-there-is-no-ending",
-      "rank": 17,
+      "rank": 18,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2899,12 +2912,12 @@
       "kind": "gaming",
       "title": "Save 45% Off the Stylish MFish E-Rhino 140W USB-C Charger",
       "url": "https://www.ign.com/articles/mfish-usb-c-charger-deal-october-2026",
-      "rank": 18,
+      "rank": 19,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2912,12 +2925,12 @@
       "kind": "gaming",
       "title": "‘There Should be a Game Award for Hot Dads’ — Castlevania: Belmont’s Curse Devs Are Fully Aware and Loving the ‘Horny’ Fanart for Their Game",
       "url": "https://www.ign.com/articles/there-should-be-a-game-award-for-hot-dads-castlevania-belmonts-curse-devs-are-fully-aware-and-loving-the-horny-fanart-for-their-game",
-      "rank": 19,
+      "rank": 20,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2925,12 +2938,12 @@
       "kind": "gaming",
       "title": "Save 20% Off the LEGO Star Wars Ultimate Collector Series AT-ST Walker With Exclusive Mini-Fig",
       "url": "https://www.ign.com/articles/save-20-off-the-lego-star-wars-ultimate-collector-series-at-st-walker-with-exclusive-mini-fig",
-      "rank": 20,
+      "rank": 21,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2938,12 +2951,12 @@
       "kind": "gaming",
       "title": "Get a 2-Pack of 6.6ft Right Angle USB-C Cables for $5 (Just $2.50 Per Cable)",
       "url": "https://www.ign.com/articles/best-right-angle-usb-cable-deals-october-2026",
-      "rank": 21,
+      "rank": 22,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2951,12 +2964,12 @@
       "kind": "gaming",
       "title": "True Detective Season 5 Confirms Antonio Banderas and Nicolas Cage as Its Leads",
       "url": "https://www.ign.com/articles/true-detective-season-5-confirms-antonio-banderas-and-nicolas-cage-as-its-leads",
-      "rank": 22,
+      "rank": 23,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2964,12 +2977,12 @@
       "kind": "gaming",
       "title": "What Happened to Modern Technology in Avatar: Seven Havens?",
       "url": "https://www.ign.com/articles/what-happened-to-modern-technology-in-avatar-seven-havens",
-      "rank": 23,
+      "rank": 24,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "igncom",
@@ -2977,25 +2990,12 @@
       "kind": "gaming",
       "title": "Pokémon Reveals New 'Holiday Helper’ Plush Collection With a Christmas Tree Pikachu and Clodsire Sled",
       "url": "https://www.ign.com/articles/pokemon-holiday-helper-plush-reveal",
-      "rank": 24,
-      "homepage": false,
-      "featured_priority": 0,
-      "rss_fallback": true,
-      "first_seen": "2026-10-16T20:53:14.336660+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "igncom",
-      "name": "IGN.com",
-      "kind": "gaming",
-      "title": "Dragon Ball’s Goku Voice Actor 'Furious' Over AI Videos Using Her Voice Without Permission",
-      "url": "https://www.ign.com/articles/dragon-balls-goku-voice-actor-furious-over-ai-videos-using-her-voice-without-permission",
       "rank": 25,
       "homepage": false,
       "featured_priority": 0,
       "rss_fallback": true,
-      "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "first_seen": "2026-10-16T20:53:14.336660+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3008,7 +3008,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T20:53:14.336660+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3021,7 +3021,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3034,7 +3034,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3047,7 +3047,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3060,7 +3060,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3073,7 +3073,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3086,7 +3086,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3099,7 +3099,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3112,7 +3112,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3125,7 +3125,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T14:55:34.342925+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3138,7 +3138,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3151,7 +3151,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3164,7 +3164,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3177,7 +3177,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3190,7 +3190,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3203,7 +3203,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3216,7 +3216,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T16:07:13.468965+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3229,7 +3229,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T16:07:13.468965+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3242,7 +3242,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "gamespot",
@@ -3255,7 +3255,7 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T16:07:13.468965+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3268,7 +3268,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3281,7 +3281,7 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3294,7 +3294,7 @@
       "featured_priority": 18,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3307,7 +3307,7 @@
       "featured_priority": 17,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3320,7 +3320,7 @@
       "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-15T13:55:06.654356+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3333,7 +3333,7 @@
       "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3346,7 +3346,7 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3359,7 +3359,7 @@
       "featured_priority": 13,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3372,7 +3372,7 @@
       "featured_priority": 12,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3385,7 +3385,7 @@
       "featured_priority": 11,
       "rss_fallback": false,
       "first_seen": "2026-10-17T13:13:11.120788+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3398,7 +3398,7 @@
       "featured_priority": 10,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3411,7 +3411,7 @@
       "featured_priority": 9,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3424,7 +3424,7 @@
       "featured_priority": 8,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3437,7 +3437,7 @@
       "featured_priority": 7,
       "rss_fallback": false,
       "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3450,7 +3450,7 @@
       "featured_priority": 6,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3463,7 +3463,7 @@
       "featured_priority": 5,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3476,7 +3476,7 @@
       "featured_priority": 4,
       "rss_fallback": false,
       "first_seen": "2026-10-16T11:15:23.265612+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3489,7 +3489,7 @@
       "featured_priority": 3,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3502,7 +3502,7 @@
       "featured_priority": 2,
       "rss_fallback": false,
       "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "eurogamer",
@@ -3515,7 +3515,7 @@
       "featured_priority": 1,
       "rss_fallback": false,
       "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "polygon",
@@ -3528,7 +3528,7 @@
       "featured_priority": 20,
       "rss_fallback": false,
       "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "polygon",
@@ -3541,7 +3541,33 @@
       "featured_priority": 19,
       "rss_fallback": false,
       "first_seen": "2026-10-17T01:04:01.260376+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Carl “CJ” Johnson, of the Grove Street Families, aboard a motorcycle with flames blazing behind him, in Grand Theft Auto: San Andreas",
+      "url": "https://www.polygon.com/gta-san-andreas-bigfoot-myth/",
+      "rank": 3,
+      "homepage": true,
+      "featured_priority": 18,
+      "rss_fallback": false,
+      "first_seen": "2026-10-18T01:02:50.986703+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Steven Spielberg's scariest movie ever is officially back on streaming",
+      "url": "https://www.polygon.com/poltergeist-tobe-hooper-steven-spielberg-on-hbo-max/",
+      "rank": 4,
+      "homepage": true,
+      "featured_priority": 17,
+      "rss_fallback": false,
+      "first_seen": "2026-10-18T01:02:50.986703+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "polygon",
@@ -3549,12 +3575,12 @@
       "kind": "gaming",
       "title": "Forget Wildwood, Laika's first stop-motion movie is streaming now on HBO Max",
       "url": "https://www.polygon.com/forget-wildwood-tim-burton-corpse-bride/",
-      "rank": 3,
+      "rank": 5,
       "homepage": true,
-      "featured_priority": 18,
+      "featured_priority": 16,
       "rss_fallback": false,
       "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "polygon",
@@ -3562,12 +3588,12 @@
       "kind": "gaming",
       "title": "Young Link draws the Master Sword from its stone",
       "url": "https://www.polygon.com/switchboard-zelda-ocarina-of-time-previews/",
-      "rank": 4,
+      "rank": 6,
       "homepage": true,
-      "featured_priority": 17,
+      "featured_priority": 15,
       "rss_fallback": false,
       "first_seen": "2026-10-17T18:49:29.170080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
     },
     {
       "source": "polygon",
@@ -3575,11 +3601,453 @@
       "kind": "gaming",
       "title": "Castlevania Symphony of the Night's cover art",
       "url": "https://www.polygon.com/best-castlevania-games-ranked/",
+      "rank": 7,
+      "homepage": true,
+      "featured_priority": 14,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T16:47:44.162520+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "The 2026 Halloween Countdown: 31 days of horror to watch and play",
+      "url": "https://www.polygon.com/best-halloween-horror-movies-tv-watch-2026/",
+      "rank": 8,
+      "homepage": true,
+      "featured_priority": 13,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "A still from Channel Zero: The Dream Door",
+      "url": "https://www.polygon.com/horror-anthology-creepypasta-halloween-countdown/",
+      "rank": 9,
+      "homepage": true,
+      "featured_priority": 12,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T12:57:44.304611+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Tom Cruise as Lestat in Interview With the Vampire, with long curly blond hair and blood dripping from his fangs",
+      "url": "https://www.polygon.com/bury-our-bones-in-midnight-soil-horror-books-to-read/",
+      "rank": 10,
+      "homepage": true,
+      "featured_priority": 11,
+      "rss_fallback": false,
+      "first_seen": "2026-10-16T10:23:08.546080+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Penguin Colony rips Lovecraft's horror from his racist hands",
+      "url": "https://www.polygon.com/penguin-colony-review/",
+      "rank": 11,
+      "homepage": true,
+      "featured_priority": 10,
+      "rss_fallback": false,
+      "first_seen": "2026-10-16T13:08:17.475412+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "A painting of Jessse Faden and a person sitting in front of it in Control Resonant.",
+      "url": "https://www.polygon.com/control-resonant-beginners-guide-tips-tricks/",
+      "rank": 12,
+      "homepage": true,
+      "featured_priority": 9,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Dylan charging up his hammer in Control Resonant.",
+      "url": "https://www.polygon.com/control-resonant-weapon-combat-ability-primary-secondary/",
+      "rank": 13,
+      "homepage": true,
+      "featured_priority": 8,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:26:17.643388+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Dylan Faden standing in front of a window showing the bizarre scenery of Manhattan in Control Resonant.",
+      "url": "https://www.polygon.com/control-resonant-zone-central-west-incursion-evacuation-park-which-first/",
+      "rank": 14,
+      "homepage": true,
+      "featured_priority": 7,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:26:17.643388+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "The Artist resonant, which looks like a severed head, in Control Resonant.",
+      "url": "https://www.polygon.com/control-resonant-boss-locations-combat-ability-list/",
+      "rank": 15,
+      "homepage": true,
+      "featured_priority": 6,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:26:17.643388+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "5 years later, one game’s blood sacrifice mechanic still haunts me",
+      "url": "https://www.polygon.com/inscryption-retrospective-blood-sacrifice/",
+      "rank": 16,
+      "homepage": true,
+      "featured_priority": 5,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T20:45:49.176494+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "8 best Cyberpunk 2077 replacement games",
+      "url": "https://www.polygon.com/best-games-like-cyberpunk-2077/",
+      "rank": 17,
+      "homepage": true,
+      "featured_priority": 4,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:26:17.643388+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "3 essential Remedy games to play after Control Resonant",
+      "url": "https://www.polygon.com/control-resonant-games-to-play/",
+      "rank": 18,
+      "homepage": true,
+      "featured_priority": 3,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:26:17.643388+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "The 7 best racing games like Star Wars: Galactic Racer",
+      "url": "https://www.polygon.com/best-racing-games-like-star-wars-galactic-racer/",
+      "rank": 19,
+      "homepage": true,
+      "featured_priority": 2,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:26:17.643388+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "polygon",
+      "name": "Polygon.com",
+      "kind": "gaming",
+      "title": "Fire Emblem fans need to play 2017's stellar revenge-saga RPG",
+      "url": "https://www.polygon.com/fire-emblem-tales-of-berseria/",
+      "rank": 20,
+      "homepage": true,
+      "featured_priority": 1,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T12:57:44.304611+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "The Blood of Dawnwalker, la patch 1.1 aggiunge una modalità più facile e il reset delle abilità",
+      "url": "https://www.zazoom.it/news-notizia/post/987567/2026-10-17-the-blood-of-dawnwalker-patch-1-1-aggiunge-modalita-piu-facile-reset-abilita-13-22/",
+      "rank": 1,
+      "homepage": true,
+      "featured_priority": 20,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T12:57:44.304611+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Tessera sanitaria, false e-mail sul rinnovo: il ministero avverte del furto di dati",
+      "url": "https://www.zazoom.it/news-notizia/post/987566/2026-10-17-tessera-sanitaria-false-mail-rinnovo-ministero-avverte-furto-dati-13-17/",
+      "rank": 2,
+      "homepage": true,
+      "featured_priority": 19,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T12:57:44.304611+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "iPhone Duo, preordini in Italia con consegne già rinviate al 25 gennaio 2027",
+      "url": "https://www.zazoom.it/news-notizia/post/987517/2026-10-17-iphone-duo-preordini-italia-con-consegne-gia-rinviate-25-gennaio-2027-08-38/",
+      "rank": 3,
+      "homepage": true,
+      "featured_priority": 18,
+      "rss_fallback": false,
+      "first_seen": "2026-10-17T08:50:31.514606+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "WhatsApp, problemi con l'invio dei messaggi il 16 ottobre anche dalla versione web",
+      "url": "https://www.zazoom.it/news-notizia/post/987475/2026-10-16-whatsapp-problemi-con-invio-messaggi-16-ottobre-anche-versione-web-20-21/",
+      "rank": 4,
+      "homepage": true,
+      "featured_priority": 17,
+      "rss_fallback": false,
+      "first_seen": "2026-10-16T19:26:21.842673+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Googlebook, hardware da oltre 1.000 dollari ma Android fatica ancora a diventare un vero desktop",
+      "url": "https://www.zazoom.it/news-notizia/post/987397/2026-10-16-googlebook-hardware-oltre-1-000-dollari-ma-android-fatica-ancora-diventare-vero-desktop-14-18/",
       "rank": 5,
       "homepage": true,
       "featured_priority": 16,
       "rss_fallback": false,
-      "first_seen": "2026-10-17T16:47:44.162520+00:00",
+      "first_seen": "2026-10-16T16:55:51.532050+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Tesla Roadster, volo dimostrativo in Texas e prenotazione Rocket da 250.000 dollari",
+      "url": "https://www.zazoom.it/news-notizia/post/987328/2026-10-16-tesla-roadster-volo-dimostrativo-texas-prenotazione-rocket-250-000-dollari-09-40/",
+      "rank": 6,
+      "homepage": true,
+      "featured_priority": 15,
+      "rss_fallback": false,
+      "first_seen": "2026-10-16T09:09:51.022532+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Rivoluzione eSIM: come cambia la connettività in viaggio e nella vita quotidiana",
+      "url": "https://www.zazoom.it/news-notizia/post/987082/2026-10-15-rivoluzione-esim-come-cambia-connettivita-viaggio-vita-quotidiana-12-30/",
+      "rank": 7,
+      "homepage": true,
+      "featured_priority": 14,
+      "rss_fallback": false,
+      "first_seen": "2026-10-15T10:51:11.473825+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "gaming",
+      "title": "Il vero motivo per cui l'IA generativa sta trasformando lo sviluppo dei videogiochi",
+      "url": "https://www.zazoom.it/news-notizia/post/987006/2026-10-15-vero-motivo-per-cui-ia-generativa-sta-trasformando-sviluppo-videogiochi-09-04/",
+      "rank": 8,
+      "homepage": true,
+      "featured_priority": 13,
+      "rss_fallback": false,
+      "first_seen": "2026-10-15T08:53:37.112759+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "gaming",
+      "title": "Epic Games Launcher sfida Steam, la nuova versione sviluppata con l'IA è già in Preview",
+      "url": "https://www.zazoom.it/news-notizia/post/986998/2026-10-15-epic-games-launcher-sfida-steam-nuova-versione-sviluppata-con-ia-gia-preview-08-35/",
+      "rank": 9,
+      "homepage": true,
+      "featured_priority": 12,
+      "rss_fallback": false,
+      "first_seen": "2026-10-15T07:04:12.278131+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "gaming",
+      "title": "PlayStation Plus ottobre 2026, nove giochi in arrivo e Dino Crisis 2 esclusivo Premium",
+      "url": "https://www.zazoom.it/news-notizia/post/986895/2026-10-14-playstation-plus-ottobre-2026-nove-giochi-arrivo-dino-crisis-2-esclusivo-premium-19-25/",
+      "rank": 10,
+      "homepage": true,
+      "featured_priority": 11,
+      "rss_fallback": false,
+      "first_seen": "2026-10-14T18:58:40.548094+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "iPhone Duo, Apple alza gli ordini del 30% prima dei preordini: obiettivo quasi 10 milioni",
+      "url": "https://www.zazoom.it/news-notizia/post/986743/2026-10-14-iphone-duo-apple-alza-ordini-30-prima-preordini-obiettivo-quasi-10-milioni-15-00/",
+      "rank": 11,
+      "homepage": true,
+      "featured_priority": 10,
+      "rss_fallback": false,
+      "first_seen": "2026-10-14T14:50:20.595902+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "OpenAI, cimice da 14 dollari nella sala dei dirigenti: arrestato un ingegnere a San Francisco",
+      "url": "https://www.zazoom.it/news-notizia/post/986659/2026-10-14-openai-cimice-14-dollari-sala-dirigenti-arrestato-ingegnere-san-francisco-13-33/",
+      "rank": 12,
+      "homepage": true,
+      "featured_priority": 9,
+      "rss_fallback": false,
+      "first_seen": "2026-10-14T13:00:12.837326+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Gemini 4 Argon arriva a pagamento, accesso ad Antigravity limitato agli abbonati Ultra",
+      "url": "https://www.zazoom.it/news-notizia/post/986591/2026-10-13-gemini-4-argon-arriva-pagamento-accesso-ad-antigravity-limitato-abbonati-ultra-21-59/",
+      "rank": 13,
+      "homepage": true,
+      "featured_priority": 8,
+      "rss_fallback": false,
+      "first_seen": "2026-10-13T22:46:57.092400+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Castlevania: Belmont's Curse, gli Arcani e la mappa rilanciano la saga Konami",
+      "url": "https://www.zazoom.it/news-notizia/post/986585/2026-10-13-castlevania-belmont-s-curse-arcani-mappa-rilanciano-saga-konami-21-48/",
+      "rank": 14,
+      "homepage": true,
+      "featured_priority": 7,
+      "rss_fallback": false,
+      "first_seen": "2026-10-13T22:46:57.092400+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Supermercati Fotex, in Danimarca i robot riordinano gli scaffali dopo la chiusura",
+      "url": "https://www.zazoom.it/news-notizia/post/985874/2026-10-12-supermercati-fotex-danimarca-robot-riordinano-scaffali-dopo-chiusura-22-03/",
+      "rank": 15,
+      "homepage": true,
+      "featured_priority": 6,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T22:23:46.004776+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Jeff Bezos e il lavoro con l'IA, tre giorni a settimana e un solo reddito per famiglia",
+      "url": "https://www.zazoom.it/news-notizia/post/985729/2026-10-12-jeff-bezos-lavoro-con-ia-tre-giorni-settimana-solo-reddito-per-famiglia-15-51/",
+      "rank": 16,
+      "homepage": true,
+      "featured_priority": 5,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:12:25.394011+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "gaming",
+      "title": "Nintendo Switch 2, nessun addio alle cartucce: confermato il sostegno ai giochi fisici",
+      "url": "https://www.zazoom.it/news-notizia/post/985724/2026-10-12-nintendo-switch-2-nessun-addio-cartucce-confermato-sostegno-giochi-fisici-15-32/",
+      "rank": 17,
+      "homepage": true,
+      "featured_priority": 4,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:12:25.394011+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "gaming",
+      "title": "Steam, nuovo record con 43,5 milioni di utenti simultanei e oltre 14 milioni in gioco",
+      "url": "https://www.zazoom.it/news-notizia/post/985717/2026-10-12-steam-nuovo-record-con-43-5-milioni-utenti-simultanei-oltre-14-milioni-gioco-15-03/",
+      "rank": 18,
+      "homepage": true,
+      "featured_priority": 3,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:12:25.394011+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "tech",
+      "title": "Galaxy S27 Pro e Ultra, il DC dimming potrebbe ridurre lo sfarfallio del display",
+      "url": "https://www.zazoom.it/news-notizia/post/985409/2026-10-10-galaxy-s27-pro-ultra-dc-dimming-potrebbe-ridurre-sfarfallio-display-22-49/",
+      "rank": 19,
+      "homepage": true,
+      "featured_priority": 2,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "zazoom",
+      "name": "Zazoom.it",
+      "kind": "gaming",
+      "title": "GTA 6, CyberLeek minaccia di diffondere il gioco completo se la sua criptovaluta raggiunge 30 milioni",
+      "url": "https://www.zazoom.it/news-notizia/post/985406/2026-10-10-gta-6-cyberleek-minaccia-diffondere-gioco-completo-se-sua-criptovaluta-raggiunge-30-milioni-22-36/",
+      "rank": 20,
+      "homepage": true,
+      "featured_priority": 1,
+      "rss_fallback": false,
+      "first_seen": "2026-10-12T14:09:36.017281+00:00",
+      "last_seen": "2026-10-18T01:02:50.986703+00:00"
+    },
+    {
+      "source": "igncom",
+      "name": "IGN.com",
+      "kind": "gaming",
+      "title": "Dragon Ball’s Goku Voice Actor 'Furious' Over AI Videos Using Her Voice Without Permission",
+      "url": "https://www.ign.com/articles/dragon-balls-goku-voice-actor-furious-over-ai-videos-using-her-voice-without-permission",
+      "rank": 25,
+      "homepage": false,
+      "featured_priority": 0,
+      "rss_fallback": true,
+      "first_seen": "2026-10-17T01:04:01.260376+00:00",
       "last_seen": "2026-10-17T22:42:51.637914+00:00"
     },
     {
@@ -3606,435 +4074,6 @@
       "featured_priority": 14,
       "rss_fallback": false,
       "first_seen": "2026-10-17T16:47:44.162520+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "The 2026 Halloween Countdown: 31 days of horror to watch and play",
-      "url": "https://www.polygon.com/best-halloween-horror-movies-tv-watch-2026/",
-      "rank": 8,
-      "homepage": true,
-      "featured_priority": 13,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "A still from Channel Zero: The Dream Door",
-      "url": "https://www.polygon.com/horror-anthology-creepypasta-halloween-countdown/",
-      "rank": 9,
-      "homepage": true,
-      "featured_priority": 12,
-      "rss_fallback": false,
-      "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "Tom Cruise as Lestat in Interview With the Vampire, with long curly blond hair and blood dripping from his fangs",
-      "url": "https://www.polygon.com/bury-our-bones-in-midnight-soil-horror-books-to-read/",
-      "rank": 10,
-      "homepage": true,
-      "featured_priority": 11,
-      "rss_fallback": false,
-      "first_seen": "2026-10-16T10:23:08.546080+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "Penguin Colony rips Lovecraft's horror from his racist hands",
-      "url": "https://www.polygon.com/penguin-colony-review/",
-      "rank": 11,
-      "homepage": true,
-      "featured_priority": 10,
-      "rss_fallback": false,
-      "first_seen": "2026-10-16T13:08:17.475412+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "A painting of Jessse Faden and a person sitting in front of it in Control Resonant.",
-      "url": "https://www.polygon.com/control-resonant-beginners-guide-tips-tricks/",
-      "rank": 12,
-      "homepage": true,
-      "featured_priority": 9,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "Dylan charging up his hammer in Control Resonant.",
-      "url": "https://www.polygon.com/control-resonant-weapon-combat-ability-primary-secondary/",
-      "rank": 13,
-      "homepage": true,
-      "featured_priority": 8,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "Dylan Faden standing in front of a window showing the bizarre scenery of Manhattan in Control Resonant.",
-      "url": "https://www.polygon.com/control-resonant-zone-central-west-incursion-evacuation-park-which-first/",
-      "rank": 14,
-      "homepage": true,
-      "featured_priority": 7,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "The Artist resonant, which looks like a severed head, in Control Resonant.",
-      "url": "https://www.polygon.com/control-resonant-boss-locations-combat-ability-list/",
-      "rank": 15,
-      "homepage": true,
-      "featured_priority": 6,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "5 years later, one game’s blood sacrifice mechanic still haunts me",
-      "url": "https://www.polygon.com/inscryption-retrospective-blood-sacrifice/",
-      "rank": 16,
-      "homepage": true,
-      "featured_priority": 5,
-      "rss_fallback": false,
-      "first_seen": "2026-10-17T20:45:49.176494+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "8 best Cyberpunk 2077 replacement games",
-      "url": "https://www.polygon.com/best-games-like-cyberpunk-2077/",
-      "rank": 17,
-      "homepage": true,
-      "featured_priority": 4,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "3 essential Remedy games to play after Control Resonant",
-      "url": "https://www.polygon.com/control-resonant-games-to-play/",
-      "rank": 18,
-      "homepage": true,
-      "featured_priority": 3,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "The 7 best racing games like Star Wars: Galactic Racer",
-      "url": "https://www.polygon.com/best-racing-games-like-star-wars-galactic-racer/",
-      "rank": 19,
-      "homepage": true,
-      "featured_priority": 2,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:26:17.643388+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "polygon",
-      "name": "Polygon.com",
-      "kind": "gaming",
-      "title": "Fire Emblem fans need to play 2017's stellar revenge-saga RPG",
-      "url": "https://www.polygon.com/fire-emblem-tales-of-berseria/",
-      "rank": 20,
-      "homepage": true,
-      "featured_priority": 1,
-      "rss_fallback": false,
-      "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "The Blood of Dawnwalker, la patch 1.1 aggiunge una modalità più facile e il reset delle abilità",
-      "url": "https://www.zazoom.it/news-notizia/post/987567/2026-10-17-the-blood-of-dawnwalker-patch-1-1-aggiunge-modalita-piu-facile-reset-abilita-13-22/",
-      "rank": 1,
-      "homepage": true,
-      "featured_priority": 20,
-      "rss_fallback": false,
-      "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Tessera sanitaria, false e-mail sul rinnovo: il ministero avverte del furto di dati",
-      "url": "https://www.zazoom.it/news-notizia/post/987566/2026-10-17-tessera-sanitaria-false-mail-rinnovo-ministero-avverte-furto-dati-13-17/",
-      "rank": 2,
-      "homepage": true,
-      "featured_priority": 19,
-      "rss_fallback": false,
-      "first_seen": "2026-10-17T12:57:44.304611+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "iPhone Duo, preordini in Italia con consegne già rinviate al 25 gennaio 2027",
-      "url": "https://www.zazoom.it/news-notizia/post/987517/2026-10-17-iphone-duo-preordini-italia-con-consegne-gia-rinviate-25-gennaio-2027-08-38/",
-      "rank": 3,
-      "homepage": true,
-      "featured_priority": 18,
-      "rss_fallback": false,
-      "first_seen": "2026-10-17T08:50:31.514606+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "WhatsApp, problemi con l'invio dei messaggi il 16 ottobre anche dalla versione web",
-      "url": "https://www.zazoom.it/news-notizia/post/987475/2026-10-16-whatsapp-problemi-con-invio-messaggi-16-ottobre-anche-versione-web-20-21/",
-      "rank": 4,
-      "homepage": true,
-      "featured_priority": 17,
-      "rss_fallback": false,
-      "first_seen": "2026-10-16T19:26:21.842673+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Googlebook, hardware da oltre 1.000 dollari ma Android fatica ancora a diventare un vero desktop",
-      "url": "https://www.zazoom.it/news-notizia/post/987397/2026-10-16-googlebook-hardware-oltre-1-000-dollari-ma-android-fatica-ancora-diventare-vero-desktop-14-18/",
-      "rank": 5,
-      "homepage": true,
-      "featured_priority": 16,
-      "rss_fallback": false,
-      "first_seen": "2026-10-16T16:55:51.532050+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Tesla Roadster, volo dimostrativo in Texas e prenotazione Rocket da 250.000 dollari",
-      "url": "https://www.zazoom.it/news-notizia/post/987328/2026-10-16-tesla-roadster-volo-dimostrativo-texas-prenotazione-rocket-250-000-dollari-09-40/",
-      "rank": 6,
-      "homepage": true,
-      "featured_priority": 15,
-      "rss_fallback": false,
-      "first_seen": "2026-10-16T09:09:51.022532+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Rivoluzione eSIM: come cambia la connettività in viaggio e nella vita quotidiana",
-      "url": "https://www.zazoom.it/news-notizia/post/987082/2026-10-15-rivoluzione-esim-come-cambia-connettivita-viaggio-vita-quotidiana-12-30/",
-      "rank": 7,
-      "homepage": true,
-      "featured_priority": 14,
-      "rss_fallback": false,
-      "first_seen": "2026-10-15T10:51:11.473825+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "gaming",
-      "title": "Il vero motivo per cui l'IA generativa sta trasformando lo sviluppo dei videogiochi",
-      "url": "https://www.zazoom.it/news-notizia/post/987006/2026-10-15-vero-motivo-per-cui-ia-generativa-sta-trasformando-sviluppo-videogiochi-09-04/",
-      "rank": 8,
-      "homepage": true,
-      "featured_priority": 13,
-      "rss_fallback": false,
-      "first_seen": "2026-10-15T08:53:37.112759+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "gaming",
-      "title": "Epic Games Launcher sfida Steam, la nuova versione sviluppata con l'IA è già in Preview",
-      "url": "https://www.zazoom.it/news-notizia/post/986998/2026-10-15-epic-games-launcher-sfida-steam-nuova-versione-sviluppata-con-ia-gia-preview-08-35/",
-      "rank": 9,
-      "homepage": true,
-      "featured_priority": 12,
-      "rss_fallback": false,
-      "first_seen": "2026-10-15T07:04:12.278131+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "gaming",
-      "title": "PlayStation Plus ottobre 2026, nove giochi in arrivo e Dino Crisis 2 esclusivo Premium",
-      "url": "https://www.zazoom.it/news-notizia/post/986895/2026-10-14-playstation-plus-ottobre-2026-nove-giochi-arrivo-dino-crisis-2-esclusivo-premium-19-25/",
-      "rank": 10,
-      "homepage": true,
-      "featured_priority": 11,
-      "rss_fallback": false,
-      "first_seen": "2026-10-14T18:58:40.548094+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "iPhone Duo, Apple alza gli ordini del 30% prima dei preordini: obiettivo quasi 10 milioni",
-      "url": "https://www.zazoom.it/news-notizia/post/986743/2026-10-14-iphone-duo-apple-alza-ordini-30-prima-preordini-obiettivo-quasi-10-milioni-15-00/",
-      "rank": 11,
-      "homepage": true,
-      "featured_priority": 10,
-      "rss_fallback": false,
-      "first_seen": "2026-10-14T14:50:20.595902+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "OpenAI, cimice da 14 dollari nella sala dei dirigenti: arrestato un ingegnere a San Francisco",
-      "url": "https://www.zazoom.it/news-notizia/post/986659/2026-10-14-openai-cimice-14-dollari-sala-dirigenti-arrestato-ingegnere-san-francisco-13-33/",
-      "rank": 12,
-      "homepage": true,
-      "featured_priority": 9,
-      "rss_fallback": false,
-      "first_seen": "2026-10-14T13:00:12.837326+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Gemini 4 Argon arriva a pagamento, accesso ad Antigravity limitato agli abbonati Ultra",
-      "url": "https://www.zazoom.it/news-notizia/post/986591/2026-10-13-gemini-4-argon-arriva-pagamento-accesso-ad-antigravity-limitato-abbonati-ultra-21-59/",
-      "rank": 13,
-      "homepage": true,
-      "featured_priority": 8,
-      "rss_fallback": false,
-      "first_seen": "2026-10-13T22:46:57.092400+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Castlevania: Belmont's Curse, gli Arcani e la mappa rilanciano la saga Konami",
-      "url": "https://www.zazoom.it/news-notizia/post/986585/2026-10-13-castlevania-belmont-s-curse-arcani-mappa-rilanciano-saga-konami-21-48/",
-      "rank": 14,
-      "homepage": true,
-      "featured_priority": 7,
-      "rss_fallback": false,
-      "first_seen": "2026-10-13T22:46:57.092400+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Supermercati Fotex, in Danimarca i robot riordinano gli scaffali dopo la chiusura",
-      "url": "https://www.zazoom.it/news-notizia/post/985874/2026-10-12-supermercati-fotex-danimarca-robot-riordinano-scaffali-dopo-chiusura-22-03/",
-      "rank": 15,
-      "homepage": true,
-      "featured_priority": 6,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T22:23:46.004776+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Jeff Bezos e il lavoro con l'IA, tre giorni a settimana e un solo reddito per famiglia",
-      "url": "https://www.zazoom.it/news-notizia/post/985729/2026-10-12-jeff-bezos-lavoro-con-ia-tre-giorni-settimana-solo-reddito-per-famiglia-15-51/",
-      "rank": 16,
-      "homepage": true,
-      "featured_priority": 5,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "gaming",
-      "title": "Nintendo Switch 2, nessun addio alle cartucce: confermato il sostegno ai giochi fisici",
-      "url": "https://www.zazoom.it/news-notizia/post/985724/2026-10-12-nintendo-switch-2-nessun-addio-cartucce-confermato-sostegno-giochi-fisici-15-32/",
-      "rank": 17,
-      "homepage": true,
-      "featured_priority": 4,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "gaming",
-      "title": "Steam, nuovo record con 43,5 milioni di utenti simultanei e oltre 14 milioni in gioco",
-      "url": "https://www.zazoom.it/news-notizia/post/985717/2026-10-12-steam-nuovo-record-con-43-5-milioni-utenti-simultanei-oltre-14-milioni-gioco-15-03/",
-      "rank": 18,
-      "homepage": true,
-      "featured_priority": 3,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:12:25.394011+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "tech",
-      "title": "Galaxy S27 Pro e Ultra, il DC dimming potrebbe ridurre lo sfarfallio del display",
-      "url": "https://www.zazoom.it/news-notizia/post/985409/2026-10-10-galaxy-s27-pro-ultra-dc-dimming-potrebbe-ridurre-sfarfallio-display-22-49/",
-      "rank": 19,
-      "homepage": true,
-      "featured_priority": 2,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
-      "last_seen": "2026-10-17T22:42:51.637914+00:00"
-    },
-    {
-      "source": "zazoom",
-      "name": "Zazoom.it",
-      "kind": "gaming",
-      "title": "GTA 6, CyberLeek minaccia di diffondere il gioco completo se la sua criptovaluta raggiunge 30 milioni",
-      "url": "https://www.zazoom.it/news-notizia/post/985406/2026-10-10-gta-6-cyberleek-minaccia-diffondere-gioco-completo-se-sua-criptovaluta-raggiunge-30-milioni-22-36/",
-      "rank": 20,
-      "homepage": true,
-      "featured_priority": 1,
-      "rss_fallback": false,
-      "first_seen": "2026-10-12T14:09:36.017281+00:00",
       "last_seen": "2026-10-17T22:42:51.637914+00:00"
     },
     {
@@ -7181,45 +7220,6 @@
       "featured_priority": 0,
       "rss_fallback": true,
       "first_seen": "2026-10-15T16:07:13.468965+00:00",
-      "last_seen": "2026-10-16T16:55:51.532050+00:00"
-    },
-    {
-      "source": "gamespot",
-      "name": "GameSpot.com",
-      "kind": "gaming",
-      "title": "GTA 5 Will Be Removed From PS Plus Just Before GTA 6 Releases, It Seems",
-      "url": "https://www.gamespot.com/articles/gta-5-will-be-removed-from-ps-plus-just-before-gta-6-releases-it-seems/",
-      "rank": 18,
-      "homepage": false,
-      "featured_priority": 0,
-      "rss_fallback": true,
-      "first_seen": "2026-10-15T15:50:30.224956+00:00",
-      "last_seen": "2026-10-16T16:55:51.532050+00:00"
-    },
-    {
-      "source": "gamespot",
-      "name": "GameSpot.com",
-      "kind": "gaming",
-      "title": "This Week’s Epic Games Store Freebie Is Nightmare Fuel For Animation Fans",
-      "url": "https://www.gamespot.com/articles/free-games-epic-games-store/1100-6476419/",
-      "rank": 19,
-      "homepage": false,
-      "featured_priority": 0,
-      "rss_fallback": true,
-      "first_seen": "2026-10-15T15:40:43.209126+00:00",
-      "last_seen": "2026-10-16T16:55:51.532050+00:00"
-    },
-    {
-      "source": "gamespot",
-      "name": "GameSpot.com",
-      "kind": "gaming",
-      "title": "GTA 6 Helps Modern Warfare 4, Actually, Activision Says",
-      "url": "https://www.gamespot.com/articles/gta-6-helps-modern-warfare-4-actually-activision-says/",
-      "rank": 20,
-      "homepage": false,
-      "featured_priority": 0,
-      "rss_fallback": true,
-      "first_seen": "2026-10-15T15:40:43.209126+00:00",
       "last_seen": "2026-10-16T16:55:51.532050+00:00"
     }
   ]
