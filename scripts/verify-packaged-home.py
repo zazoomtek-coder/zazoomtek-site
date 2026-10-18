@@ -82,7 +82,12 @@ def errors_for(root:Path):
     for asset in ("zt-home-live.js","zt-home-graphic-layout-20261016.js",
                   "zt-home-graphic-layout-20261016.css"):
         if not (root/asset).is_file():fail("Missing approved Home asset: "+asset)
-    if "RECENSIONI TECH" not in home.upper():fail("Tech review section missing")
+    # The visual "Recensioni Tech" heading is rendered client-side; check the
+    # actual server-rendered review cards, not a label absent from source HTML.
+    reviews=home.split("<!-- HOME_LATEST_REVIEWS_MAIN_START -->",1)[1].split(
+        "<!-- HOME_LATEST_REVIEWS_MAIN_END -->",1)[0]
+    if '<article class="video-card zt-review-card">' not in reviews:
+        fail("Latest written review cards missing from built Home")
     return bad
 
 def main():
