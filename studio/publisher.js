@@ -278,7 +278,7 @@ if(!categories[category]){state("Categoria non riconosciuta.",true);return;}
 if(!confirm("Pubblicare un nuovo articolo sul repository principale? La home e gli archivi esistenti non verranno modificati."))return;
 working=true;btn.disabled=true;const finish=(s,bad=false)=>state(s,bad);
 try{
-const slug="studio-"+normalize(category).slice(0,22)+"-"+normalize(title);
+const slug=(/^Recensioni /.test(category)?"recensione-studio-":"studio-")+normalize(category).slice(0,22)+"-"+normalize(title);
 if(slug.length<25)throw Error("Titolo non adatto a creare un indirizzo leggibile.");
 const filename=slug+".html";
 finish("Controllo duplicati su GitHub…");
