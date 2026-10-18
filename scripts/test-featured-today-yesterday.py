@@ -54,9 +54,12 @@ def main():
             assert len({x["url"] for x in selected})==5
 
             # Publication ages are never a reason to erase the last five cards.
-            after_ten_days=mod.pick(candidates,on_date=reference+dt.timedelta(days=10))
+            # Future-dated test fixtures do NOT stand for a publication event.
+            # When there are no new posts, the original eligible archive stays unchanged.
+            idle_candidates=[x for x in candidates if x is not future]
+            after_ten_days=mod.pick(idle_candidates,on_date=reference+dt.timedelta(days=10))
             assert [x["url"] for x in after_ten_days]==[x["url"] for x in selected]
-            after_thirty_days=mod.pick(candidates,on_date=reference+dt.timedelta(days=30))
+            after_thirty_days=mod.pick(idle_candidates,on_date=reference+dt.timedelta(days=30))
             assert [x["url"] for x in after_thirty_days]==[x["url"] for x in selected]
 
             # Four Tech can span three days and still fill the approved mosaic.
