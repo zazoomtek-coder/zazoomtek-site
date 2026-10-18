@@ -417,7 +417,7 @@ def refresh_sidebars():
         # A genuine two-column article (News, Reviews, Tests, Guides, Gaming,
         # Tech Impact, Gaming Inside, and future editorial categories).
         standard_detail = (
-            re.search(r'<div\b[^>]*class=["\'][^"\']*detail-grid[^"\']*["\']', original, re.I)
+            re.search(r'<(?:div|main)\b[^>]*class=["\'][^"\']*\bdetail-grid\b[^"\']*["\']', original, re.I)
             and re.search(r'<article\b[^>]*class=["\'][^"\']*article-main[^"\']*["\']', original, re.I)
         )
         # Some approved review layouts (e.g. Sesame Street) use
@@ -449,6 +449,16 @@ def refresh_sidebars():
         current = article_aside.search(original)
         if current:
             inner = current.group(0)
+            # Restore the full editorial right rail on custom Guide pages, but
+            # preserve a useful in-page navigation table instead of discarding it.
+            if path.name.startswith(("guida-","guide-")):
+                toc = re.search(r'<div\b[^>]*class=["\'][^"\']*\bside-card\b[^"\']*\btoc\b[^"\']*["\'][^>]*>[\s\S]*?</div>', inner, re.I)
+                if toc:
+                    first_end = sidebar.find("</section>")
+                    if first_end < 0:
+                        raise RuntimeError(f"{path.name}: canonical featured sidebar missing")
+                    first_end += len("</section>")
+                    sidebar = sidebar[:first_end] + "\n" + toc.group(0) + sidebar[first_end:]
             # Preserve already-populated sidebars of old article templates.
             has_boxes = (inner.count('<section') >= 2
                          and ('compact-box' in inner or 'side-box' in inner
