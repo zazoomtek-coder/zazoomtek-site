@@ -23,9 +23,9 @@ LOCKED_BLOBS={
 }
 # The daily editorial job may refresh this one JSON list in an otherwise locked JS file.
 # Its structure is verified and the entire rest of the JS must retain the approved digest.
-LOCKED_HOME_LIVE_TEMPLATE_SHA="86ab048af5d9a8bd24b89d0317be6a8dfb5f76ba"
+LOCKED_HOME_LIVE_TEMPLATE_SHA="b1fb6e7f04a85ff28fd3f91d97b41767947c895e"
 INLINE_STYLE_FNV64="df1fab8ffc145811"
-HOME_ASSET_REVISION="20261017stableColumnsRollback4"
+HOME_ASSET_REVISION="20261018stableColumns1010"
 
 class HomeLockError(RuntimeError):
     pass
