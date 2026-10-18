@@ -1,1 +1,7 @@
-Editorial corrective publish request: enforce 4 Tech + 1 Gaming, complete home columns, dated Tech reviews and ThermoMate. Run full offline preflight before changing watched Cloudflare trigger. Requested 2026-10-17.
+ZazoomTek normal controlled release request – PS5 guide under 20 euro
+Publish at the earliest allowed ordinary Cloudflare batch (no urgent flag).
+Public content: guida-ps5-10-migliori-giochi-sotto-20-euro-ottobre-2026.html
+Confirm cover, archive entry, 10 games, editorial right sidebar and related articles.
+DO NOT modify or restructure index.html, homepage sections, layout CSS or carousel.
+Use the existing cloudflare-controlled-release workflow: homepage layout lock, full offline build and public source SHA verification must pass before claiming publication.
+Queued after guide finalization at source 672d5596e46742648527493093e901ee503c074b.
