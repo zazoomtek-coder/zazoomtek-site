@@ -76,15 +76,15 @@ def video_cache():
 def e(value):
     return escape(str(value or ""), quote=True)
 
-# Two-hour editorial refresh: different, real stories on different pages.
+# 24-hour editorial refresh: verified published stories across all page categories.
 # No traffic tracking, cookies, personal identifiers or random client metrics.
-SIDEBAR_PERIOD_SECONDS=7200
+SIDEBAR_PERIOD_SECONDS=86400
 
 def rotation_bucket():
     return int(datetime.now(timezone.utc).timestamp()//SIDEBAR_PERIOD_SECONDS)
 
 def rotated(items, page, section, count=1, excluded=(), bucket=None):
-    """Recent, distinct published entries, varied by page and two-hour period."""
+    """Recent, distinct published entries, varied by page and 24-hour period."""
     candidates=[]
     seen=set(excluded)
     for item in items:
@@ -274,7 +274,7 @@ def amazon():
 def build_sidebar(kind, news, tech, gaming, videos, article_count=None, page_key=""):
     if not news:
         return None  # Never wipe the sidebar after a partial import.
-    # Server-rendered fallback rotates on every two-hour publication. Client
+    # Server-rendered fallback rotates daily. Client
     # selects updated verified items as well, without redeploying between slots.
     page=page_key or kind
     excluded={"/"+page}
