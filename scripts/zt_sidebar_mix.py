@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Keep internal archive sidebars editorially mixed, using real published content.
 
-Reads the current News, Tech Impact, Gaming Inside HTML archives plus the
-verified local YouTube cache. Changes only <aside class="news-sidebar">,
-never homepage/video shelf, article copy or article-detail sidebars.
+Reads current News, Tech Impact, Gaming Inside HTML archives plus the
+verified local YouTube cache. Changes only approved editorial content slots,
+never homepage layout, article copy or videos.
 Run after Community sync and before each Firebase publish.
 """
 from html import escape, unescape
@@ -57,7 +57,8 @@ def news_rows(filename, max_count=10):
         result.append(dict(
             url=link, title=name,
             image=source,
-            date=unescape(CLEAN.sub("", meta.group(1))).strip() if meta else ""
+            date=unescape(CLEAN.sub("", meta.group(1))).strip() if meta else "",
+            published_at=(re.search(r'data-published-at="([^"]+)"',body) or [None,""])[1]
         ))
         if len(result) >= max_count:
             break
@@ -83,8 +84,27 @@ SIDEBAR_PERIOD_SECONDS=86400
 def rotation_bucket():
     return int(datetime.now(timezone.utc).timestamp()//SIDEBAR_PERIOD_SECONDS)
 
+def publication_key(item):
+    """Recognize original ISO or Italian archive publication labels."""
+    raw=str(item.get("published_at") or item.get("date") or "").lower()
+    iso=re.search(r"(20\d{2})-(\d{1,2})-(\d{1,2})(?:[t ](\d{2}):(\d{2})(?::(\d{2}))?)?",raw)
+    if iso:
+        return tuple(int(x or 0) for x in iso.groups())
+    months={month:i for i,month in enumerate(
+        "gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre".split(),1)}
+    italian=re.search(r"(\d{1,2})\s+("+ "|".join(months) +r")\s+(20\d{2})",raw)
+    if italian:
+        day,month,year=italian.groups()
+        return (int(year),months[month],int(day),0,0,0)
+    return (0,0,0,0,0,0)
+
+
 def rotated(items, page, section, count=1, excluded=(), bucket=None):
-    """Recent, distinct published entries, varied by page and 24-hour period."""
+    """Choose newest distinct published entries, never randomly resurrect older ones.
+
+    Existing callers retain their interface. A 24-hour refresh does not change
+    editorial ranking unless new content was published in that section.
+    """
     candidates=[]
     seen=set(excluded)
     for item in items:
@@ -93,12 +113,7 @@ def rotated(items, page, section, count=1, excluded=(), bucket=None):
             continue
         seen.add(link)
         candidates.append(item)
-    if not candidates:
-        return []
-    stamp=rotation_bucket() if bucket is None else bucket
-    digest=int.from_bytes(hashlib.sha256((page+"|"+section).encode("utf-8")).digest()[:8],"big")
-    start=(digest+stamp)%len(candidates)
-    return [candidates[(start+i)%len(candidates)] for i in range(min(count,len(candidates)))]
+    return sorted(candidates, key=publication_key, reverse=True)[:count]
 
 def filtered_current(items, filename):
     """Do not recommend the article currently being read."""
@@ -203,7 +218,7 @@ def all_published_news():
             if item["url"] not in seen:
                 results.append(item)
                 seen.add(item["url"])
-    return results
+    return sorted(results, key=publication_key, reverse=True)
 
 
 def recent_list(items, kind="news", max_items=6):
