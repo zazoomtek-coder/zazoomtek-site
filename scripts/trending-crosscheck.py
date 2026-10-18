@@ -649,7 +649,7 @@ def pick(articles,on_date=None):
         if verified_public_article(item) and allowed_featured_date(item,reference):
             candidates.append(item)
 
-    # Always prefer newer publication DAYS, without any expiry window.
+    # Prefer the latest publication TIMES; only use older days to fill empty slots.
     # Among a day's published ZazoomTek articles, independent portal matches
     # determine which four Tech stories are the most newsworthy.
     # Never promote an older article merely because the external coverage is viral.
@@ -658,11 +658,10 @@ def pick(articles,on_date=None):
         # appeared first today or yesterday. Source portal trend score only
         # breaks ties: older stories can never outrank fresh ones.
         instant=publication_instant(item)
-        return (instant.date() if instant else dt.date.min,
+        return (instant or dt.datetime.min.replace(tzinfo=ITALY_TIMEZONE),
                 item.get("match_count",0)>0,
                 ordinary_priority(item,reference)[0],
                 bool(item.get("selection_boost")),
-                instant or dt.datetime.min.replace(tzinfo=ITALY_TIMEZONE),
                 item.get("freshness",0))
     def add_best(kind,quota):
         count=0
@@ -689,16 +688,12 @@ def pick(articles,on_date=None):
         raise RuntimeError(
             f"Refusing partial featured update: {tech_count}/{required_tech} Tech "
             f"and {len(selected)-tech_count}/1 Gaming; keep last published five.")
-    # Editorial rule: among the FOUR freshest verified Tech stories, lead
-    # with the most significant one, using independently verified trend matches
-    # and editorial selection boosts. With equal relevance the newest wins.
+    # Four newest real Tech stories by original publication time.
+    # Keep the newest real Gaming article in its dedicated fifth slot.
     # One Gaming story is always LAST, in the bottom-right small card.
     tech_news=[x for x in selected if x["section"]=="tech"]
     gaming_news=[x for x in selected if x["section"]=="gaming"]
-    tech_news.sort(key=lambda x:(
-        bool(x.get("selection_boost")),
-        ordinary_priority(x,reference)[0],
-        priority(x)),reverse=True)
+    tech_news.sort(key=priority,reverse=True)
     gaming_news.sort(key=priority,reverse=True)
     selected=tech_news+gaming_news
     for pin in pins:
