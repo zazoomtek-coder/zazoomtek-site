@@ -1,4 +1,4 @@
-name: Verify live rotating sidebars
+name: Verify latest-first editorial sidebars
 on:
   push:
     branches: [main]
@@ -48,8 +48,14 @@ jobs:
           if len(feed['news'])>1:
               a=rotated(feed['news'],'news-UgkxExample.html','featured',bucket=0)[0]['url']
               b=rotated(feed['news'],'news-UgkxExample.html','featured',bucket=1)[0]['url']
-              if a==b:
-                  raise SystemExit('Rotation did not change across two-hour periods')
+              if a!=b:
+                  raise SystemExit('Newest sidebar article changed without a new publication')
+          # Date-only rotation must never promote an older story.
+          newer=[{'url':'/recent.html','date':'ZazoomTek · 17 ottobre 2026'},
+                 {'url':'/older.html','date':'ZazoomTek · 15 ottobre 2026'},
+                 {'url':'/middle.html','date':'ZazoomTek · 16 ottobre 2026'}]
+          assert [x['url'] for x in rotated(newer,'test','news',3)] == [
+              '/recent.html','/middle.html','/older.html']
           print('Sidebar VERIFIED:',{k:len(v) for k,v in feed.items() if k!='videos'})
           PY
       - name: Publish verified live sidebar feed alongside the website
