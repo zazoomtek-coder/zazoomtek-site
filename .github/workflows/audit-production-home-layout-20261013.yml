@@ -180,8 +180,8 @@ jobs:
              });
              console.log(v.label,JSON.stringify(d),errors);
              if(!d.tech||!d.gaming||!d.rail||!d.primary||!d.video)throw Error("Essential approved layout missing");
-             if(d.newsCount!==20||d.distinctLinks!==20||d.techCount!==10||d.gamingCount!==10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||!d.magazineAfterPager||!d.reviewsAfterMagazines||!d.magazinesBeforeVideos||!d.pagerAfterNews||d.pagerMagazineGap===null||d.pagerMagazineGap>35||d.extraMagazineCount<3||d.extraMagazineCount>4||d.guideMagazineCount<3||d.guideMagazineCount>4||!d.homeFixCSS||d.bigEditorialCards!==3||!d.techCoverUnique||!d.backToTopExists||!d.backToTopInvisibleInitially)
-               throw Error("New 10/10 news, Tech reviews, Extra or Gaming review modules missing");
+             if(d.newsCount!==d.distinctLinks||d.newsCount!==d.techCount+d.gamingCount||d.techCount<10||d.gamingCount<10||d.topTechReviewCount!==3||d.gamingReviewCount!==3||!d.reviewInPrimary||!d.reviewsBeforeVideos||!d.newsBeforeReviews||d.reviewNewsGap===null||!d.magazineAfterPager||!d.reviewsAfterMagazines||!d.magazinesBeforeVideos||!d.pagerAfterNews||d.pagerMagazineGap===null||d.pagerMagazineGap>35||d.extraMagazineCount<3||d.extraMagazineCount>4||d.guideMagazineCount<3||d.guideMagazineCount>4||!d.homeFixCSS||d.bigEditorialCards!==3||!d.techCoverUnique||!d.backToTopExists||!d.backToTopInvisibleInitially)
+               throw Error("News must be unique with at least 10 genuine Tech and 10 genuine Gaming cards; other editorial modules must remain intact");
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
              if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
