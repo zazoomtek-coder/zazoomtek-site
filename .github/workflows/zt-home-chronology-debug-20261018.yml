@@ -1,0 +1,53 @@
+name: Debug Home chronology fallback - staging only
+on:
+  push:
+    branches: [fix/featured-archive-original-hours-20261018]
+    paths: ['.github/workflows/zt-home-chronology-debug-20261018.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect live Home runtime and archive fallbacks without deployment
+        run: |
+          mkdir -p /tmp/zt-debug
+          npm install --no-save --silent --prefix /tmp/zt-debug playwright-core@1.56.0
+          nohup python3 -m http.server 8879 --bind 127.0.0.1 >/tmp/zt-debug/http.log 2>&1 &
+          sleep 2
+          NODE_PATH=/tmp/zt-debug/node_modules node <<'JS'
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',
+              args:['--no-sandbox','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:1600,height:900}});
+            page.on('console',m=>console.log('CONSOLE',m.type(),m.text().slice(0,300)));
+            page.on('pageerror',e=>console.log('PAGEERROR',e.message));
+            page.on('requestfailed',r=>console.log('NETWORKFAIL',r.url().slice(0,160),r.failure()?.errorText));
+            await page.goto('http://127.0.0.1:8879/',{waitUntil:'domcontentloaded'});
+            await page.waitForTimeout(12000);
+            const diagnostics=await page.evaluate(async()=>{
+              const counts=()=>({tech:document.querySelectorAll('.ztp-news-tech .ztp-news-items>article.article-row').length,
+                gaming:document.querySelectorAll('.ztp-news-gaming .ztp-news-items>article.article-row').length});
+              const out={rendered:counts(),pages:{}};
+              for(const path of ['/news.html','/news-2.html','/news-5.html','/pagina-2.html','/pagina-3.html']){
+                try{
+                  const response=await fetch(path);
+                  const markup=await response.text();
+                  const doc=new DOMParser().parseFromString(markup,'text/html');
+                  const rows=[...doc.querySelectorAll('#articleList > article.article-row')];
+                  const news=[...doc.querySelectorAll('.news-list article.news-row')];
+                  out.pages[path]={status:response.status,homeRows:rows.length,
+                    homeCategories:rows.reduce((acc,row)=>(acc[row.dataset.postCategory]=(acc[row.dataset.postCategory]||0)+1,acc),{}),
+                    newsRows:news.length,firstHomeHref:rows[0]?.querySelector('.article-copy h3 a')?.getAttribute('href'),
+                    techHomeHref:rows.find(r=>r.dataset.postCategory==='tech')?.querySelector('.article-copy h3 a')?.getAttribute('href')};
+                }catch(e){out.pages[path]={error:e.message};}
+              }
+              return out;
+            });
+            console.log('DIAGNOSTICS',JSON.stringify(diagnostics));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
