@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/refresh-home-editorials-daily.yml'
+      - 'scripts/refresh-home-editorial-boxes.py'
+      - 'scripts/zt_sidebar_mix.py'
 permissions:
   contents: write
   actions: write
@@ -56,4 +58,4 @@ jobs:
             exit 1
           fi
           echo "Cloudflare Pages batches published articles; no Firebase deployment."
-          echo "Queued serialized Firebase live deploy; site styles and video widgets unchanged."
+          echo "Cloudflare-only editorial data refresh complete; graphics and HTML layout preserved."
