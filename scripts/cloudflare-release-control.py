@@ -53,6 +53,7 @@ BUILD_INPUTS={
     "scripts/ensure-review-summaries.py",
     "scripts/seo_watch_pages_safe.py",
     "scripts/validate-sync-output.py",
+    "scripts/verify-packaged-home.py",
 }
 class ReleaseError(RuntimeError): pass
 

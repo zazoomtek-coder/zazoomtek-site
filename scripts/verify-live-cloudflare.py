@@ -69,6 +69,40 @@ def verify_once(base: str, expected: str) -> str:
             or "reservedEditorialPaths()" in js):
         raise RuntimeError("Published Home did not restore the stable Tech/Gaming columns")
     home = get_public_page(base, "/", expected)
+    # Public receipt and HTTP 200 do not prove that the Home mosaic is intact.
+    from html.parser import HTMLParser
+    class FeaturedReader(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.cards=[]
+            self.active=None
+        def handle_starttag(self,tag,attrs):
+            a=dict(attrs)
+            if tag=="a" and "zt-feature-card" in (a.get("class") or "").split():
+                self.active={"section":a.get("data-feature-section"),"url":a.get("href"),
+                             "image":None}
+                self.cards.append(self.active)
+            elif tag=="img" and self.active is not None:
+                self.active["image"]=a.get("src")
+        def handle_endtag(self,tag):
+            if tag=="a":
+                self.active=None
+    left="<!-- FEATURED_NEWS_START -->"
+    right="<!-- FEATURED_NEWS_END -->"
+    if home.count(left)!=1 or home.count(right)!=1:
+        raise RuntimeError("Public home featured markers missing or duplicated")
+    reader=FeaturedReader()
+    reader.feed(home.split(left,1)[1].split(right,1)[0])
+    data=json.loads(get_public_page(base,"/featured-carousel.json",expected))
+    selected=data.get("items",[]) if isinstance(data,dict) else []
+    expected_sections=["tech"]*4+["gaming"]
+    if (len(reader.cards)!=5 or len(selected)!=5 or
+            [c["section"] for c in reader.cards]!=expected_sections or
+            [x.get("section") for x in selected]!=expected_sections or
+            [c["url"] for c in reader.cards]!=[x.get("url") for x in selected] or
+            [c["image"] for c in reader.cards]!=[x.get("image") for x in selected] or
+            len({c["url"] for c in reader.cards})!=5):
+        raise RuntimeError("Live Home carousel is missing, misordered or differs from manifest")
     if "20261017stableColumnsRollback4" not in home:
         raise RuntimeError("Published Home is still loading the broken JS version")
     # The pre-summary public release is still valid while the hourly

@@ -90,7 +90,18 @@ standard=json.loads((ROOT/"standard-news.json").read_text(encoding="utf-8")).get
 urls=[x.get("url","") for x in features]
 home_markup=(ROOT/"index.html").read_text(encoding="utf-8")
 feature_fragment=home_markup.split("<!-- FEATURED_NEWS_START -->",1)[1].split("<!-- FEATURED_NEWS_END -->",1)[0]
-live_featured_urls=re.findall(r'<a class="zt-feature-card[^"]*" href="([^"]+)"',feature_fragment)
+class FeaturedCards(html.parser.HTMLParser):
+    """Parse actual card elements independently of HTML attribute ordering."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.cards=[]
+    def handle_starttag(self,tag,attrs):
+        a=dict(attrs)
+        if tag=="a" and "zt-feature-card" in (a.get("class") or "").split():
+            self.cards.append({"url":a.get("href"),"section":a.get("data-feature-section")})
+featured_dom=FeaturedCards()
+featured_dom.feed(feature_fragment)
+live_featured_urls=[card["url"] for card in featured_dom.cards]
 counts=collections.Counter(x.get("section") for x in features)
 report={
     "pages":len(PAGES),"file_total":len(FILES),
@@ -118,8 +129,10 @@ print("SITE_AUDIT_JSON_END")
 # captions and descriptive accessibility improvements are review-only.
 if broken_media or broken_links or feed_reviews:
     raise SystemExit("SITE QUALITY CHECK FAILED: local assets, links or NEWS/Reviews separation")
-if len(features)>6 or len(set(urls))!=len(features) or len(live_featured_urls)>6:
-    raise SystemExit("SITE QUALITY CHECK FAILED: featured mosaic has duplicates or too many cards")
+if (len(features)!=5 or len(set(urls))!=5 or len(live_featured_urls)!=5
+        or len(set(live_featured_urls))!=5
+        or [card["section"] for card in featured_dom.cards]!=["tech"]*4+["gaming"]):
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured must have five distinct visible cards (4 Tech + 1 Gaming)")
 import importlib.util
 spec=importlib.util.spec_from_file_location("zt_trending",ROOT/"scripts/trending-crosscheck.py")
 zt=importlib.util.module_from_spec(spec)
@@ -127,6 +140,6 @@ spec.loader.exec_module(zt)
 if not zt.valid_featured_sections(features):
     raise SystemExit("SITE QUALITY CHECK FAILED: featured categories exceed 5 Tech + 1 Gaming / user pins")
 if any(not zt.allowed_featured_date(x) for x in features if x["section"] in ("tech","gaming")):
-    raise SystemExit("SITE QUALITY CHECK FAILED: featured article older than yesterday")
+    raise SystemExit("SITE QUALITY CHECK FAILED: featured article has a missing or future publication date")
 if urls != live_featured_urls:
     print("NOTICE: featured-carousel.json selections differ from currently displayed Home; no unsafe rewrite performed.")
