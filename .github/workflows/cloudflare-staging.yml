@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - zt-safety-gates-20261018
+      - fix/home-no-gaps-real-news-20261018
   workflow_dispatch:
 permissions:
   contents: read
