@@ -10,6 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Count published authentic Tech and Gaming articles in saved Community data
+        run: |
+          python3 - <<'PY'
+          import json,runpy,sys
+          from pathlib import Path
+          from collections import Counter
+          sys.path.insert(0,'scripts')
+          module=runpy.run_path('scripts/update-youtube-posts.py',run_name='zt_categories_for_diagnostic')
+          rows=json.loads(Path('.youtube-posts.json').read_text(encoding='utf-8'))
+          kinds=Counter(module['post_category'](p) for p in rows if isinstance(p,dict) and not module['is_review'](p))
+          print('AVAILABLE VERIFIED CATEGORY COUNTS:',dict(kinds))
+          for cat in ('tech','gaming'):
+              items=[p for p in rows if isinstance(p,dict) and module['post_category'](p)==cat and not module['is_review'](p)]
+              print(cat,'verified published items:',len(items),'local pages:',sum(Path(module['news_slug'](p)).is_file() for p in items))
+          PY
       - uses: actions/checkout@v4
       - name: Inspect live Home runtime and archive fallbacks without deployment
         run: |
