@@ -103,7 +103,7 @@ def verify_once(base: str, expected: str) -> str:
             [c["image"] for c in reader.cards]!=[x.get("image") for x in selected] or
             len({c["url"] for c in reader.cards})!=5):
         raise RuntimeError("Live Home carousel is missing, misordered or differs from manifest")
-    if "20261017stableColumnsRollback4" not in home:
+    if "20261018stableColumns1010" not in home:
         raise RuntimeError("Published Home is still loading the broken JS version")
     # The pre-summary public release is still valid while the hourly
     # release cooldown protects the remaining Cloudflare build quota.
