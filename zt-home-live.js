@@ -448,12 +448,12 @@
       // differences through the existing card padding on wide desktop.
       const left=shownRows(tech),right=shownRows(gaming);
       for(const row of left.concat(right))row.style.removeProperty("padding-bottom");
-      if(!archivesReady||!window.matchMedia("(min-width:1150px)").matches)return;
+      if(!archivesReady||!window.matchMedia("(min-width:821px)").matches)return;
       if(left.length!==10||right.length!==10)return;
       const difference=renderedHeight(tech)-renderedHeight(gaming);
       if(!Number.isFinite(difference)||Math.abs(difference)<2)return;
       // Too-large differences must never distort thumbnails or typography.
-      if(Math.abs(difference)>180)return;
+      if(Math.abs(difference)>320)return;
       const shorter=difference>0?right:left;
       const extra=Math.abs(difference)/shorter.length;
       for(const row of shorter){
