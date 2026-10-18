@@ -35,6 +35,8 @@ jobs:
             git reset --hard origin/main
             python3 scripts/refresh-home-editorial-boxes.py --self-test
             python3 scripts/refresh-home-editorial-boxes.py
+            # Editorial cards may change, but layout, handlers and CSS are immutable.
+            python3 scripts/verify-home-layout-lock.py
             git add index.html zt-home-live.js
             if git diff --cached --quiet; then
               echo "Editorial Home is already fresh for Italy's current date."
