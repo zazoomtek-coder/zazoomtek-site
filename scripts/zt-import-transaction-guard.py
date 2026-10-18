@@ -30,7 +30,7 @@ def allowed(kind,path):
             or path.startswith("scripts/") or path.startswith("dist/")):
         return False
     if kind=="community":
-        return bool(COMMUNITY_HTML.fullmatch(path)) or path in COMMUNITY_STATE|META|COMMUNITY_COMMANDS
+        return bool(COMMUNITY_HTML.fullmatch(path)) or path in COMMUNITY_STATE|META|COMMUNITY_COMMANDS or path in ("tech-today.html","gaming-today.html")
     if kind=="videos":
         return bool(VIDEO_HTML.fullmatch(path)) or path in VIDEO_STATE
     return bool(PUBLIC_HTML.fullmatch(path)) or path=="search-index.json"
@@ -82,6 +82,8 @@ def main():
     if args.self_test:
         assert allowed("community","news-Ugkx123_abc.html")
         assert allowed("community","index.html")
+        assert allowed("community","tech-today.html")
+        assert allowed("community","gaming-today.html")
         assert allowed("community",".manual-news-build-state.json")
         assert allowed("community",".force-community-full-scan")
         assert allowed("videos","home-video-feed.json")
