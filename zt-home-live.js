@@ -554,7 +554,7 @@
       if(!link||!photo)return;
       let url;
       try{url=new URL(link.getAttribute("href"),location.origin);}catch(_){return;}
-      if(url.origin!==location.origin||!/^\\/news-[\\w-]+\\.html$/.test(url.pathname)||
+      if(url.origin!==location.origin||!/^\/news-[\w-]+\.html$/.test(url.pathname)||
          seen.has(url.pathname))return;
       const row=src.cloneNode(true);
       row.classList.add("ztp-news-item","zt-mag-archive");
