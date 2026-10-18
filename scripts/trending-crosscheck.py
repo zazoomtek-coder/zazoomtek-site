@@ -2,8 +2,9 @@
 """Compare ZazoomTek with its own Community and sixteen international/Italian news sources.
 
 --sources: read public homepage headlines and RSS fallbacks (no article bodies).
---apply: select today's Technology/Gaming articles first; use yesterday ONLY
-         if today's verified published articles cannot fill the slots.
+--apply: keep four latest published Tech and one latest Gaming even after
+         days without posts; prioritize editorial matches at major portals
+         within the freshest publication day.
          User-pinned special stories are exempt from automatic rotation.
 --test:   deterministic matcher and placement checks, no network or writes.
 
@@ -526,12 +527,12 @@ def local_publication_date(article):
     return stamp.date() if stamp is not None else None
 
 def allowed_featured_date(article,on_date=None):
-    """ONLY today or yesterday, using the local Italian calendar."""
+    """Any genuinely published article is eligible until newer articles replace it."""
     reference=on_date or NOW().astimezone(ITALY_TIMEZONE).date()
     if isinstance(reference,dt.datetime):
         reference=reference.astimezone(ITALY_TIMEZONE).date() if reference.tzinfo else reference.date()
     day=local_publication_date(article)
-    return day is not None and reference-dt.timedelta(days=1)<=day<=reference
+    return day is not None and day<=reference
 
 def expected_featured_sections(pins=None):
     """Maximum possible slots, NOT an instruction to fill with old content."""
@@ -545,7 +546,7 @@ def valid_featured_sections(items,pins=None):
     slots empty; never substitute extra Gaming or fake Tech categories.
     """
     pins=editorial_pins() if pins is None else pins
-    if not isinstance(items,list) or len(items)>5 or len(items)<len(pins):
+    if not isinstance(items,list) or len(items)!=5 or len(pins)!=0:
         return False
     sections=[x.get("section") for x in items]
     special=[x["section"] for x in pins]
@@ -554,8 +555,8 @@ def valid_featured_sections(items,pins=None):
     ordinary=sections[:len(sections)-len(special)] if special else sections
     tech_count=ordinary.count("tech")
     game_count=ordinary.count("gaming")
-    return (tech_count<=4-len(pins) and game_count<=1
-            and len(ordinary)==tech_count+game_count)
+    return (tech_count==4 and game_count==1
+            and ordinary==["tech"]*4+["gaming"])
 
 
 def verified_public_article(article):
@@ -572,7 +573,7 @@ def verified_public_article(article):
             (image.startswith("/assets/") and (ROOT/image.lstrip("/")).is_file()))
 
 def pick(articles,on_date=None):
-    """Prefer today's ZazoomTek NEWS, then yesterday's, NEVER older."""
+    """Keep the newest five verified ZazoomTek posts; never expire on idle days."""
     reference=on_date or NOW().astimezone(ITALY_TIMEZONE).date()
     if isinstance(reference,dt.datetime):
         reference=reference.astimezone(ITALY_TIMEZONE).date() if reference.tzinfo else reference.date()
@@ -648,17 +649,20 @@ def pick(articles,on_date=None):
         if verified_public_article(item) and allowed_featured_date(item,reference):
             candidates.append(item)
 
-    # Strict priority: ALL verified today's articles beat ALL yesterday's.
-    # Trend matches and explicit editorial boosts rank only within each day.
+    # Always prefer newer publication DAYS, without any expiry window.
+    # Among a day's published ZazoomTek articles, independent portal matches
+    # determine which four Tech stories are the most newsworthy.
+    # Never promote an older article merely because the external coverage is viral.
     def priority(item):
         # The original article publication timestamp determines which story
         # appeared first today or yesterday. Source portal trend score only
         # breaks ties: older stories can never outrank fresh ones.
         instant=publication_instant(item)
-        return (instant is not None and instant.date()==reference,
-                instant or dt.datetime.min.replace(tzinfo=ITALY_TIMEZONE),
+        return (instant.date() if instant else dt.date.min,
+                item.get("match_count",0)>0,
+                ordinary_priority(item,reference)[0],
                 bool(item.get("selection_boost")),
-                ordinary_priority(item,reference),
+                instant or dt.datetime.min.replace(tzinfo=ITALY_TIMEZONE),
                 item.get("freshness",0))
     def add_best(kind,quota):
         count=0
@@ -679,14 +683,12 @@ def pick(articles,on_date=None):
     required_tech=4-len(pins)
     tech_count=add_best("tech",required_tech)
     add_best("gaming",1)
-    # If there aren't enough fresh stories of any category, show fewer cards,
-    # and make the grid responsive. No articles older than yesterday allowed.
-    if len(selected)<5-len(pins):
-        print(f"Only {len(selected)}/{5-len(pins)} fresh items today/yesterday; "
-              "no outdated cards will be used.")
-    if tech_count<required_tech:
-        print(f"TECH SHORTFALL: {tech_count}/{required_tech} fresh Technology "
-              "cards available; no Gaming substitution.")
+    # Fail closed on a broken/partial import: never overwrite the last
+    # complete approved carousel with 0-4 cards, and never put Gaming in Tech.
+    if tech_count!=required_tech or len(selected)!=5:
+        raise RuntimeError(
+            f"Refusing partial featured update: {tech_count}/{required_tech} Tech "
+            f"and {len(selected)-tech_count}/1 Gaming; keep last published five.")
     # Editorial rule: among the FOUR freshest verified Tech stories, lead
     # with the most significant one, using independently verified trend matches
     # and editorial selection boosts. With equal relevance the newest wins.
@@ -773,20 +775,21 @@ def omit_from_home_feed(index,chosen):
 
 def apply():
     if not STATE.exists():
-        print("NO SOURCE CACHE: preserving previously published carousel")
-        return
-    state=json.loads(STATE.read_text(encoding="utf-8"))
+        print("NO SOURCE CACHE: ranking owned published news without portal matches")
+        state={"items":[]}
+    else:
+        state=json.loads(STATE.read_text(encoding="utf-8"))
     articles=matches(owned_candidates(),state)
     matched=[x for x in articles if x["trend_score"]>0]
     if not matched:
-        print("NO RELIABLE TREND MATCHES: use only today's or yesterday's verified own NEWS")
+        print("NO RELIABLE TREND MATCHES: preserve latest verified own Tech/Gaming NEWS")
     chosen=pick(articles)
     for item in chosen:
         if item["section"] in ("tech","gaming"):
             item["freshness_bonus"]=recency_bonus(item)
             item["selection_score"]=ordinary_priority(item)[0]
     if not valid_featured_sections(chosen):
-        raise RuntimeError("Featured mosaic violates fresh article quota")
+        raise RuntimeError("Featured mosaic must always have 4 Tech then 1 Gaming")
     # STRICT OWNERSHIP: the carousel updates its own JSON only.
     # index.html, the Community News archive and YouTube review/video pages are
     # exclusively owned by YouTube sync. Never modify or commit them here.
@@ -870,7 +873,8 @@ def selftest():
     assert all(allowed_featured_date(x,reference) for x in sample
                if x["section"] in ("tech","gaming"))
     older=pick(existing,on_date=reference+dt.timedelta(days=10))
-    assert not [x for x in older if x["section"] in ("tech","gaming")]
+    assert len(older)==5 and [a["url"] for a in older]==[a["url"] for a in sample], (
+        "Featured news may not disappear after ten days without new posts")
     # Only special slots require two distinct independent publisher matches.
     same_news = {"items":[
         {"source":"hdblog","name":"HDblog","kind":"tech",
