@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/audit-production-home-layout-20261013.yml'
       - 'zt-home-live.js'
+      - 'featured-carousel.json'
       - 'zt-home-gap-fix-20261014.css'
       - 'zt-visual.js'
       - 'scripts/test-home-news-categories.cjs'
@@ -74,7 +75,7 @@ jobs:
            const browser=await chromium.launch({headless:true,executablePath:"/usr/bin/google-chrome",args:["--no-sandbox","--disable-dev-shm-usage"]});
            try{
             const url="http://127.0.0.1:8877/";
-            for(const v of [{label:"desktop",width:1600,height:900},{label:"tablet",width:1100,height:900},{label:"mobile",width:390,height:844}]){
+            for(const v of [{label:"desktop",width:1770,height:900},{label:"tablet",width:1100,height:900},{label:"mobile",width:390,height:844}]){
              const page=await browser.newPage({viewport:{width:v.width,height:v.height}});
              let errors=[];page.on("pageerror",e=>errors.push(e.message));
              let visible=false;
@@ -87,13 +88,29 @@ jobs:
              // Lazy thumbnails below the fold must first be requested before evaluating them.
              await page.evaluate(()=>document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image, #zt-special-tech .zt-special-item:nth-child(-n+3) img").forEach(img=>img.loading="eager"));
              await page.waitForTimeout(3500);
+             if(v.label==="desktop"){
+              // Trigger bottom-of-page lazy images before the white-space check.
+              await page.locator(".ztp-news-gaming .ztp-news-items > article").last.scrollIntoViewIfNeeded();
+              await page.waitForTimeout(900);
+              await page.locator(".ztp-news-tech .ztp-news-items > article").last.scrollIntoViewIfNeeded();
+              await page.waitForTimeout(900);
+             }
              const d=await page.evaluate(()=>{
                const bounds=q=>{const el=document.querySelector(q);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom};};
                const photos=[...document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image")];
                const links=[...document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) h3 a")].map(a=>a.getAttribute("href"));
                const newsTech=bounds(".ztp-news-tech"),newsGaming=bounds(".ztp-news-gaming"),newsRail=bounds(".ztp-news-rail");
+               const lastVisibleBottom=q=>{
+                 const rows=[...document.querySelectorAll(q)].filter(row=>
+                   !row.hidden && row.getBoundingClientRect().height>0);
+                 return rows.length?rows[rows.length-1].getBoundingClientRect().bottom:0;
+               };
+               const actualColumnGap=Math.abs(
+                 lastVisibleBottom(".ztp-news-tech .ztp-news-items > article.article-row") -
+                 lastVisibleBottom(".ztp-news-gaming .ztp-news-items > article.article-row")
+               );
                return {
-                tech:newsTech,gaming:newsGaming,rail:newsRail,
+                tech:newsTech,gaming:newsGaming,rail:newsRail,techGamingBottomGap:actualColumnGap,
                 primary:bounds(".ztp-primary-feed"),video:bounds("#ztpVideosAnchor .zt-shelf"),
                 newsCount:links.length,distinctLinks:new Set(links).size,
                 techCount:document.querySelectorAll(".ztp-news-tech .ztp-news-items > .ztp-news-item").length,
@@ -196,6 +213,8 @@ jobs:
               const r=[d.gaming.w,d.tech.w,d.rail.w],sum=r.reduce((a,b)=>a+b,0);
               if(r.some((w,i)=>Math.abs(w/sum-[.30,.50,.20][i])>.018))throw Error("Wrong 30/50/20 ratio");
               if(d.gamingMaxGap>26)throw Error("Excess empty spaces between Gaming news cards: "+d.gamingMaxGap+"px");
+              if(!Number.isFinite(d.techGamingBottomGap)||d.techGamingBottomGap>180)
+               throw Error("Visible Home Tech/Gaming white bottom gap: "+d.techGamingBottomGap+"px");
              }else if(v.label==="tablet"){
               if(!(d.gaming.x<d.tech.x&&d.rail.y>d.tech.y))throw Error("Tablet Gaming/Tech columns broken");
              }else if(!(d.tech.y<d.gaming.y&&d.gaming.y<d.rail.y))throw Error("Mobile stacked layout broken");
