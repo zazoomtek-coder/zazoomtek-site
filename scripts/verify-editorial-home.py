@@ -28,15 +28,15 @@ def check() -> None:
     js = read("zt-home-live.js")
     manifest = json.loads(read("featured-carousel.json"))
     items = manifest.get("items", [])
-    if not isinstance(items, list) or len(items) > 5:
-        raise RuntimeError("Featured must not contain more than 5 real articles")
+    if not isinstance(items, list) or len(items) != 5:
+        raise RuntimeError("Featured must always contain exactly 5 real articles")
     urls = [a.get("url", "") for a in items]
     sections = Counter(a.get("section") for a in items)
     if len(set(urls)) != len(urls) or sections.get("tech", 0) > 4 or sections.get("gaming", 0) > 1:
         raise RuntimeError("Featured 4 Tech + 1 Gaming quota or uniqueness violation")
     if any(a.get("section") not in ("tech","gaming") for a in items):
         raise RuntimeError("Tech Impact/Gaming Inside leaked into ordinary carousel")
-    if len(items)==5 and [a["section"] for a in items]!=["tech"]*4+["gaming"]:
+    if [a["section"] for a in items]!=["tech"]*4+["gaming"]:
         raise RuntimeError("Featured: big card must be Tech and bottom-right must be Gaming")
     for row in items:
         url = row["url"]
