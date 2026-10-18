@@ -37,15 +37,17 @@ required_nav=("Home","News","Recensioni","Guide","Tech Impact",
 if tuple(label for label,_ in home_items)!=required_nav:
     raise RuntimeError("Home main navigation must contain all nine approved buttons in order")
 
-reference_source=(root / "news.html").read_text(encoding="utf-8")
-header_pattern=re.compile(r'<header\b[^>]*>[\s\S]*?</header>',re.I)
-reference_header=header_pattern.search(reference_source)
-if not reference_header or 'class="zt-header"' not in reference_header.group():
-    raise RuntimeError("Approved shared ZazoomTek header unavailable")
-header_template=reference_header.group()
-nav_pattern=re.compile(r'<nav\b[^>]*class=["\']zt-nav["\'][^>]*>[\s\S]*?</nav>',re.I)
-if not nav_pattern.search(header_template):
-    raise RuntimeError("Approved header is missing its navigation")
+# ONE fixed masthead source: the locked, approved Home, NOT news.html.
+# Each page receives the actual Home header at build time (no browser fetch,
+# no duplicate scripts, no second header, no page-specific menu sizes).
+header_pattern=re.compile(r'<header\\b[^>]*>[\\s\\S]*?</header>',re.I)
+home_header_match=header_pattern.search(home_source)
+if not home_header_match or 'class="shell topbar"' not in home_header_match.group():
+    raise RuntimeError("Approved Home header missing; deployment blocked")
+header_template=home_header_match.group()
+nav_pattern=re.compile(r'<nav\\b[^>]*class=["\\\']nav["\\\'][^>]*>[\\s\\S]*?</nav>',re.I)
+if not nav_pattern.search(header_template) or 'ticker-video-links' not in header_template:
+    raise RuntimeError("Locked Home navigation/ticker incomplete")
 
 def active_nav_key(filename):
     name=filename.lower()
@@ -77,13 +79,110 @@ def active_nav_key(filename):
     return None
 
 def nav_markup(filename):
+    """Exact Home menu HTML with only the current page state changed."""
     active=active_nav_key(filename)
-    output=[]
-    for label,href in home_items:
-        css=' class="active" aria-current="page"' if label==active else ""
-        extra=' target="_blank" rel="noopener"' if href.startswith("https://") else ""
-        output.append(f'<a{css} href="{html_utils.escape(href,quote=True)}"{extra}>{html_utils.escape(label)}</a>')
-    return '<nav class="zt-nav" aria-label="Navigazione principale">'+"".join(output)+'</nav>'
+    original=nav_pattern.search(header_template)
+    if not original:
+        raise RuntimeError("Home navigation no longer exists")
+    def change_link(match):
+        attrs=match.group(1)
+        label=html_utils.unescape(re.sub(r'<[^>]*>', '', match.group(2))).strip()
+        href=re.search(r'\\bhref=["\\\']([^"\\\']+)["\\\']',attrs,re.I)
+        if not href:
+            return match.group()
+        # Preserve Home-only semantic classes, then toggle just its active state.
+        classes=re.search(r'\\bclass=["\\\']([^"\\\']*)["\\\']',attrs,re.I)
+        remaining=[name for name in (classes.group(1).split() if classes else [])
+                   if name!='active']
+        attrs=re.sub(r'\\s+class=["\\\'][^"\\\']*["\\\']','',attrs,count=1,flags=re.I)
+        attrs=re.sub(r'\\s+aria-current=["\\\'][^"\\\']*["\\\']','',attrs,flags=re.I)
+        if label==active:
+            remaining.append("active")
+        if remaining:
+            attrs+=' class="'+html_utils.escape(" ".join(remaining),quote=True)+'"'
+        if label==active:
+            attrs+=' aria-current="page"'
+        return '<a'+attrs+'>'+match.group(2)+'</a>'
+    nav=re.sub(r'<a\\b([^>]*)>([\\s\\S]*?)</a>',change_link,original.group(),flags=re.I)
+    # Home uses relative links; normalize to root on any article URL.
+    nav=re.sub(r'(?<=href=")(?!/|https?://|#|mailto:)([^"]+)(?=")',
+               lambda m:'/'+m.group(1).lstrip('./'),nav,flags=re.I)
+    return nav
+
+def home_masthead(filename):
+    """Copy the REAL Home banner/logo/menu/ticker, unchanged except links/active."""
+    source=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
+    source=source.replace('<header>','<header id="zt-site-home-header">',1)
+    source=source.replace('src="ChatGPT.png"','src="/ChatGPT.png"')
+    # A single ticker is allowed per document; Home keeps its original ID.
+    source=source.replace('id="tickerTrack"','id="zt-page-tickerTrack"',1)
+    source=re.sub(r'(?<=href=")(?!/|https?://|#|mailto:)([^"]+)(?=")',
+                  lambda m:'/'+m.group(1).lstrip('./'),source,flags=re.I)
+    return source
+
+# Header-only reset for the Home markup on pages with old local header styles.
+# Other elements of the page, including all editorial layouts, are untouched.
+FIXED_HEADER_STYLE="""<style id="zt-site-home-header-style">
+#zt-site-home-header{display:block!important;position:relative!important;width:100%!important;
+ margin:0!important;padding:0!important;background:#171717!important;color:#fff!important;
+ border-top:3px solid #d51232!important;box-sizing:border-box!important}
+#zt-site-home-header *,#zt-site-home-header *:before,#zt-site-home-header *:after{box-sizing:border-box}
+#zt-site-home-header .shell{width:min(1460px,calc(100% - 28px));margin:0 auto}
+#zt-site-home-header .topbar{min-height:78px;display:grid;
+ grid-template-columns:max-content minmax(0,1fr) minmax(190px,265px);align-items:stretch}
+#zt-site-home-header .brand{display:flex;align-items:center;gap:10px;
+ padding:8px 12px 8px 0;border-right:1px solid #333;min-width:0;text-decoration:none}
+#zt-site-home-header .brand-logo-img{display:block;width:54px;height:54px;max-width:54px;
+ flex:0 0 54px;object-fit:contain;border-radius:8px}
+#zt-site-home-header .zt-brand-copy{display:flex;flex-direction:column;justify-content:center;gap:5px;white-space:nowrap}
+#zt-site-home-header strong.zt-wordmark{display:block;font:900 clamp(19px,1.55vw,23px)/1.05 Arial,Helvetica,sans-serif;
+ letter-spacing:-.045em;white-space:nowrap}
+#zt-site-home-header .zt-mark-blue{color:#58a8f0}
+#zt-site-home-header .zt-mark-red{color:#e41b45}
+#zt-site-home-header .zt-brand-tagline{display:block;color:#eee;
+ font:400 10px/1.3 Arial,Helvetica,sans-serif;letter-spacing:.045em;white-space:nowrap}
+#zt-site-home-header nav.nav{display:flex;align-items:stretch;min-height:78px;
+ min-width:0;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;white-space:nowrap}
+#zt-site-home-header nav.nav>a{display:flex;flex:0 0 auto;align-items:center;justify-content:center;
+ min-height:78px;padding:0 8px;border-right:1px solid #303030;
+ font:800 11px/1.1 Arial,Helvetica,sans-serif;text-transform:uppercase;
+ text-decoration:none;color:#fff;white-space:nowrap}
+#zt-site-home-header nav.nav>a.active,#zt-site-home-header nav.nav>a:hover{background:#d51232;color:white}
+#zt-site-home-header .search-wrap{min-width:0;display:flex;flex-direction:column;justify-content:center;padding:8px 0 8px 8px}
+#zt-site-home-header .search-box{width:100%;display:flex;background:#303030;border:1px solid #444}
+#zt-site-home-header .search-box input{flex:1;min-width:0;width:100%;background:transparent;border:0;color:#fff;padding:12px 14px}
+#zt-site-home-header .search-box button{min-width:46px;background:#d51232;color:#fff;border:0}
+#zt-site-home-header .top-socials{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+#zt-site-home-header .top-socials a{display:grid;place-items:center;width:40px;height:40px;
+ border-radius:50%;border:1px solid #353535;background:#181818}
+#zt-site-home-header .top-socials img{display:block;width:27px;height:27px;object-fit:contain}
+#zt-site-home-header .ticker{display:block;background:#222;border-top:1px solid #2c2c2c}
+#zt-site-home-header .ticker-inner{display:flex;align-items:center;min-height:46px;overflow:hidden}
+#zt-site-home-header .ticker-label{background:#d51232;font-weight:900;padding:14px 20px;white-space:nowrap}
+#zt-site-home-header .ticker-track{position:relative;flex:1;min-width:0;height:46px;overflow:hidden}
+#zt-site-home-header .ticker-track a{position:absolute;inset:0;display:flex;align-items:center;
+ padding:0 16px;opacity:0;color:#ddd;font-size:.86rem;text-decoration:none}
+#zt-site-home-header .ticker-track a.active{opacity:1}
+#zt-site-home-header .ticker-video-links{display:flex;align-items:center;justify-content:flex-end;
+ gap:22px;flex:0 0 auto;margin-left:auto;white-space:nowrap}
+#zt-site-home-header .ticker-video-links a{display:flex;align-items:center;height:46px;
+ padding:0 2px;text-decoration:none;color:#fff;font:900 clamp(.82rem,.95vw,.96rem)/1.1 Arial,Helvetica,sans-serif;
+ text-transform:uppercase}
+@media(max-width:1330px){
+ #zt-site-home-header .topbar{grid-template-columns:max-content minmax(0,1fr)}
+ #zt-site-home-header .search-wrap{grid-column:1/-1;padding:8px 0}
+ #zt-site-home-header .ticker-inner{flex-wrap:wrap}
+ #zt-site-home-header .ticker-video-links{flex:0 0 100%;justify-content:flex-end;gap:14px}
+}
+@media(max-width:820px){
+ #zt-site-home-header .topbar{display:flex;flex-direction:column}
+ #zt-site-home-header .brand{justify-content:center;border-right:0;padding:10px 0}
+ #zt-site-home-header nav.nav{width:100%;min-height:44px;max-width:100%}
+ #zt-site-home-header nav.nav>a{min-height:44px;padding:12px 11px;font-size:11px}
+ #zt-site-home-header .search-wrap{padding:8px 0}
+ #zt-site-home-header .ticker-video-links{justify-content:flex-start;overflow-x:auto;gap:14px}
+}
+</style>"""
 
 # REVIEW_LAYOUT_SESAME_20261012: every completed review adopts the approved
 # 1460px/350px two-column layout during ALL publishing workflows.
@@ -310,29 +409,42 @@ def split_editorial_title_h1(page, filename):
 
 
 def unify_site_navigation(page, filename):
-    # Preserve the approved Home layout, but update pagination mastheads to
-    # the same nine buttons; otherwise an old page blocks every Firebase deploy.
+    """Static shared Home masthead on all editorial pages, never rewrite Home."""
     if filename=="index.html":
         return page
-    if re.fullmatch(r'pagina-\d+\.html',filename):
-        canonical_home=re.search(r'<nav\s+class=["\']nav["\'][^>]*>[\s\S]*?</nav>',home_source,re.I)
-        actual=re.search(r'<nav\s+class=["\']nav["\'][^>]*>[\s\S]*?</nav>',page,re.I)
-        if canonical_home and actual:
-            new_nav=canonical_home.group().replace('class="active" href="/"','href="/"')
-            return page[:actual.start()]+new_nav+page[actual.end():]
-        raise RuntimeError(filename+": missing Home pagination menu")
+    # Pagination pages are complete Home copies already; keep their locked shell.
+    if re.fullmatch(r'pagina-\\d+\\.html',filename):
+        canonical_home=nav_pattern.search(home_source)
+        actual=nav_pattern.search(page)
+        if not canonical_home or not actual:
+            raise RuntimeError(filename+": missing Home pagination menu")
+        nav=nav_markup(filename)
+        return page[:actual.start()]+nav+page[actual.end():]
 
     first=header_pattern.search(page)
     if not first:
         return page
     old=first.group()
-    # Even legacy pages with a logo but NO navigation (404, older guides,
-    # custom review templates) receive the same complete Home menu.
     if not ("/ChatGPT.png" in old or "ChatGPT.png" in old or
             "ZAZOOM" in old.upper()):
-        return page
-    canonical=nav_pattern.sub(lambda _:nav_markup(filename),header_template,count=1)
-    return page[:first.start()]+canonical+page[first.end():]
+        return page  # not a ZazoomTek site header
+    page=page[:first.start()]+home_masthead(filename)+page[first.end():]
+    # Remove only the superseded standalone category/news strip, if directly
+    # adjacent to the replaced header; never touch article content or sidebars.
+    end=page.index('</header>',first.start())+len('</header>')
+    tail=page[end:]
+    strip=re.match(r'\\s*<div\\b[^>]*class=["\\\'][^"\\\']*\\b(?:zt-strip|news-ticker)\\b[^"\\\']*["\\\'][^>]*>',tail,re.I)
+    if strip:
+        close=_matching_close(tail,strip.end(),"div")+len('</div>')
+        page=page[:end]+tail[close:]
+    # The previous async header swap is obsolete and can produce flashes and
+    # mismatched menu widths. Remove only that script from the built page.
+    page=re.sub(r'<script\\b[^>]*src=["\\\'][^"\\\']*zt-unified-header\\.js(?:\\?[^"\\\']*)?["\\\'][^>]*>\\s*</script>\\s*',
+                '',page,flags=re.I)
+    # This scoped style controls only the Home header clone, never the page.
+    page=re.sub(r'<style\\b[^>]*id=["\\\']zt-site-home-header-style["\\\'][^>]*>[\\s\\S]*?</style>\\s*',
+                '',page,flags=re.I)
+    return re.sub(r'</head>',lambda m:FIXED_HEADER_STYLE+'\\n'+m.group(),page,count=1,flags=re.I)
 
 css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261012sidebarFix5" data-zt-design="20261010">'
 # The Home owns the CURRENT Javascript URL. Never force an outdated query
