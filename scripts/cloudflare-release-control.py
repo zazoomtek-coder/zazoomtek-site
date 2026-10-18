@@ -82,6 +82,8 @@ def public(path: str) -> bool:
         return False
     if p.name.endswith(NONPUBLIC_SUFFIX):
         return False
+    if len(p.parts)>1 and p.parts[0]=="studio":
+        return len(p.parts)==2 and p.name in {"index.html","publisher.js"}
     if len(p.parts)>1 and p.parts[0] not in ("assets","watch"):
         return False
     return p.suffix.lower() in CONTENT_EXT
@@ -129,6 +131,8 @@ def main():
         assert decide(["scripts/editorial-only.py"],0)=="publish"  # Only direct public diffs may be passed to decide().
         assert not public("scripts/editorial-only.py")
         assert public("assets/special/example.webp") and public("news-example.html")
+        assert public("studio/index.html") and public("studio/publisher.js")
+        assert not public("studio/drafts.json")
         assert not public(".github/workflows/main.yml")
         assert not public("scripts/private.py")
         assert public("scripts/link-review-videos.py")
