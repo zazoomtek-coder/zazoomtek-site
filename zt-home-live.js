@@ -553,7 +553,7 @@
             if(!link||!image)return;
             let url;
             try{url=new URL(link.getAttribute("href"),location.origin);}catch(_){return;}
-            if(url.origin!==location.origin||!/^\\/news-[\\w-]+\\.html$/.test(url.pathname)
+            if(url.origin!==location.origin||!/^\/news-[\w-]+\.html$/.test(url.pathname)
                ||seen.has(url.pathname)||featuredPaths().has(url.pathname))return;
             const section=sectionName==="tech"?tech:gaming;
             if(section.querySelectorAll(":scope > article.article-row").length>=10)return;
