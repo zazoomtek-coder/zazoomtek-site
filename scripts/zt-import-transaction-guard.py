@@ -19,7 +19,8 @@ LOCKED={"featured-carousel.json","featured-editorial-pins.json","special-feature
         "standard-news.json","cloudflare-release-trigger.txt","zt-home-live.js",
         "zt-visual.js","zt-design.css","firebase.json",".firebaserc"}
 META={"sitemap.xml","google-sitemap.xml","sitemap.txt","robots.txt"}
-COMMUNITY_STATE={".youtube-posts.json","manual-news.json"}
+COMMUNITY_STATE={".youtube-posts.json","manual-news.json",".manual-news-build-state.json"}
+COMMUNITY_COMMANDS={".force-community-full-scan"}
 VIDEO_STATE={".youtube-latest.json","home-video-feed.json"}
 PRIMARY_PAGE=re.compile(r"(?:news-Ugkx[^/]*|recensione-Ugkx[^/]*)\.html",re.I)
 MIN_KEEP=.70
@@ -29,7 +30,7 @@ def allowed(kind,path):
             or path.startswith("scripts/") or path.startswith("dist/")):
         return False
     if kind=="community":
-        return bool(COMMUNITY_HTML.fullmatch(path)) or path in COMMUNITY_STATE|META
+        return bool(COMMUNITY_HTML.fullmatch(path)) or path in COMMUNITY_STATE|META|COMMUNITY_COMMANDS
     if kind=="videos":
         return bool(VIDEO_HTML.fullmatch(path)) or path in VIDEO_STATE
     return bool(PUBLIC_HTML.fullmatch(path)) or path=="search-index.json"
@@ -81,6 +82,8 @@ def main():
     if args.self_test:
         assert allowed("community","news-Ugkx123_abc.html")
         assert allowed("community","index.html")
+        assert allowed("community",".manual-news-build-state.json")
+        assert allowed("community",".force-community-full-scan")
         assert allowed("videos","home-video-feed.json")
         assert allowed("auxiliary","news-foo.html")
         assert not allowed("videos","news-Ugkx123.html")
