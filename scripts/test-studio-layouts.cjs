@@ -26,4 +26,11 @@ assert.match(review,/class="proscons"/);
 assert.match(review,/class="article-body article-main"/);
 assert.match(news,/<meta name="robots" content="noindex,nofollow">/);
 assert.match(review,/<meta name="robots" content="noindex,nofollow">/);
+const cloudflare=get("scripts/build-cloudflare-pages.py");
+const build=get("scripts/cloudflare-build-site.py");
+for(const file of ["layouts.js","template-news.html","template-review.html"]){
+  assert.ok(cloudflare.includes('"'+file+'"'),"Cloudflare whitelist missing "+file);
+  assert.ok(build.includes('studio/'+file),"Cloudflare build missing "+file);
+}
+
 console.log("Studio layout checks OK: modelli di News e Recensioni approvati, nessuna modifica alla Home.");
