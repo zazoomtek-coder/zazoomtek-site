@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - zt-safety-gates-20261018
+      - fix/editorial-boxes-strict-newest-20261018
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,6 +24,8 @@ jobs:
       - name: Preliminary static and unit checks
         run: |
           python3 -m py_compile scripts/*.py
+          python3 scripts/test-editorial-recency.py
+          python3 scripts/refresh-home-editorial-boxes.py --self-test
           python3 scripts/test-verify-packaged-home.py
           python3 scripts/test_deploy_architecture.py
           python3 scripts/test_review_dedup.py
