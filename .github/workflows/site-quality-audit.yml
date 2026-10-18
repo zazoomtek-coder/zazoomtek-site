@@ -29,6 +29,7 @@ jobs:
       - name: Verify importer safeguards without publishing
         run: |
           python3 -m py_compile scripts/*.py
+          python3 scripts/zt-import-transaction-guard.py --self-test
           python3 scripts/test_review_dedup.py
           python3 scripts/test_video_sync_reliability.py
           python3 scripts/test_community_freshness.py
