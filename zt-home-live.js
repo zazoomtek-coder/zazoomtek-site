@@ -535,7 +535,50 @@
         return full?true:fetchUntilReady(i+1);
       });
     }
-    fetchUntilReady(0).then(requestAlignment).catch(function(err){
+    // In the newest 100 NEWS archive items, four currently featured Tech
+    // articles may leave fewer than ten non-featured Tech stories. Use the
+    // ALREADY published, dated Home pagination pages as a read-only backfill.
+    // No new news, layouts, URL changes, or duplicate featured articles.
+    var chronologicalPages=["/pagina-2.html","/pagina-3.html","/pagina-4.html","/pagina-5.html"];
+    function fillPublishedHomePage(path){
+      return fetch(path,{cache:"no-store",credentials:"same-origin"})
+        .then(function(resp){if(!resp.ok)throw Error("Archive unavailable");return resp.text();})
+        .then(function(markup){
+          var doc=new DOMParser().parseFromString(markup,"text/html");
+          [].slice.call(doc.querySelectorAll("#articleList > article.article-row")).forEach(function(src){
+            const sectionName=(src.getAttribute("data-post-category")||"").toLowerCase();
+            if(sectionName!=="tech"&&sectionName!=="gaming")return;
+            const link=src.querySelector(".article-copy h3 a[href]");
+            const image=src.querySelector("img.article-image");
+            if(!link||!image)return;
+            let url;
+            try{url=new URL(link.getAttribute("href"),location.origin);}catch(_){return;}
+            if(url.origin!==location.origin||!/^\\/news-[\\w-]+\\.html$/.test(url.pathname)
+               ||seen.has(url.pathname)||featuredPaths().has(url.pathname))return;
+            const section=sectionName==="tech"?tech:gaming;
+            if(section.querySelectorAll(":scope > article.article-row").length>=10)return;
+            const row=src.cloneNode(true);
+            row.classList.add("ztp-news-item","zt-mag-archive");
+            row.classList.remove("zt-mag-big","ztp-gaming-feature");
+            row.hidden=false;
+            row.style.removeProperty("display");
+            section.appendChild(row);
+            seen.add(url.pathname);
+          });
+          rebalance();
+          return tech.querySelectorAll(":scope > article.article-row").length>=10
+            && gaming.querySelectorAll(":scope > article.article-row").length>=10;
+        });
+    }
+    function fetchChronologicalPage(i){
+      if(i>=chronologicalPages.length)return Promise.resolve(false);
+      return fillPublishedHomePage(chronologicalPages[i]).then(function(full){
+        return full?true:fetchChronologicalPage(i+1);
+      });
+    }
+    fetchUntilReady(0).then(function(full){
+      return full?true:fetchChronologicalPage(0);
+    }).then(requestAlignment).catch(function(err){
       console.info("Home archive alignment preserved:",err.message);
       rebalance();
     });
