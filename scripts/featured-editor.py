@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ZazoomTek featured editor; no stale fillers when fewer than six stories.
+"""ZazoomTek featured editor; preserve last five genuine stories until replaced.
 
 Owns only the carousel selection. Reuses verified published articles, never
 copies source content, never changes article publication dates or archives.
@@ -48,7 +48,7 @@ def main():
     if a.test:
         mod.selftest()
         validate()
-        print("Featured editor: 5 technology, 1 gaming by default; manual pins only")
+        print("Featured editor: 4 technology + 1 gaming, persistent until replaced; no expired slots")
         return
     if a.apply:
         mod.apply()
