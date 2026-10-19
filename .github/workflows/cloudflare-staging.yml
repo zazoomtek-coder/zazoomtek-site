@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - zt-safety-gates-20261018
+      - fix/tg-inside-speciali-canonical-20261019
   workflow_dispatch:
 permissions:
   contents: read
