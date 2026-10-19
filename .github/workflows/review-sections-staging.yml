@@ -1,0 +1,43 @@
+name: Review sections isolated staging checks
+on:
+  push:
+    branches: [feature/reviews-tech-gaming-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and safe categorization
+        run: |
+          python3 -m py_compile scripts/build-review-categories.py scripts/update-youtube-posts.py scripts/cloudflare-build-site.py scripts/test-review-categories.py
+          node --check zt-visual.js
+          node --check studio/publisher.js
+          python3 scripts/test-review-categories.py
+          python3 scripts/verify-home-layout-lock.py
+      - name: Full offline Cloudflare production build and checks
+        run: |
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 scripts/test-review-categories.py
+          python3 - <<'PY'
+          from pathlib import Path
+          for name in ('tech','gaming'):
+              page=Path('dist/recensioni-'+name+'.html').read_text()
+              assert 'zt-sidebar-editorial' in page or 'zt-mix-recent' in page
+              assert 'zt-visual.js' in page
+              assert 'zt-design.css' in page
+          print('PASS: both packaged sections have masthead, sidebar and menu assets')
+          PY
