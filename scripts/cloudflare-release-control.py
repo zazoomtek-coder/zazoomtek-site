@@ -260,10 +260,10 @@ def main():
                {"items":[{"target":"a.html","status":"approved"},
                          {"target":"b.html","status":"draft"}]})=={"a.html"}
         slot=dt.datetime(2026,10,19,10,45,tzinfo=utc)
-        assert already_released_in_slot({"slot_utc":"2026-10-19T10:17:00Z"},slot)
-        assert not already_released_in_slot({"slot_utc":"2026-10-19T08:17:00Z"},slot)
-        assert already_released_in_slot({"created_utc":"2026-10-19T10:28:00+00:00"},slot)
-        assert not already_released_in_slot({"created_utc":"2026-10-19T10:10:00+00:00"},slot)
+        assert already_released_in_slot({"slot_utc":"2026-10-19T10:45:00Z"},slot)
+        assert not already_released_in_slot({"slot_utc":"2026-10-19T08:15:00Z"},slot)
+        assert already_released_in_slot({"created_utc":"2026-10-19T10:47:00+00:00"},slot)
+        assert not already_released_in_slot({"created_utc":"2026-10-19T10:40:00+00:00"},slot)
         print("RELEASE SELF TEST PASSED")
         return
     meta=release_metadata()
