@@ -3169,6 +3169,13 @@ def main():
     STATE.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     for p in reviews: write_review_page(p,reviews)
     write_review_archive(reviews,editorial_rows)
+    # Isolated category publisher: a category error must never block a healthy
+    # Community news/review import or rewrite the protected Home layout.
+    try:
+        import runpy
+        runpy.run_path(str(Path(__file__).with_name("build-review-categories.py")),run_name="__main__")
+    except Exception as exc:
+        print("::warning::Review category rebuild deferred:",exc)
     for p in news: write_news_page(p,news)
     write_news_archive(general_news,reviews)
     write_extra_archive(news,reviews)
