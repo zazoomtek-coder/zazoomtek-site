@@ -50,7 +50,7 @@ jobs:
           node-version: '22'
       - name: Verify orchestrator source and five-slot logic
         run: |
-          python3 -m py_compile scripts/master-orchestrator.py
+          python3 -m py_compile scripts/master-orchestrator.py scripts/master-production-gateway.py
           python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/update-youtube.py scripts/trending-crosscheck.py
           python3 scripts/master-orchestrator.py --self-test
           python3 scripts/master-json-renderer.py --self-test
@@ -61,11 +61,11 @@ jobs:
           python3 scripts/test_review_dedup.py
       - name: Run all modules in an isolated Git worktree
         env:
-          YOUTUBE_API_KEY: ${{ github.event_name == 'workflow_dispatch' && secrets.YOUTUBE_API_KEY || '' }}
-          WITH_IMPORTS: ${{ github.event_name == 'workflow_dispatch' && inputs.with_imports || false }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          WITH_IMPORTS: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'cutover/master-20261019-safe') || (github.event_name == 'workflow_dispatch' && inputs.with_imports) || false }}
         run: |
           if [ "$WITH_IMPORTS" = 'true' ]; then
-            python3 scripts/master-orchestrator.py --with-imports
+            python3 scripts/master-orchestrator.py --with-imports --simulate-production-render
           else
             python3 scripts/master-orchestrator.py --simulate-production-render
           fi
