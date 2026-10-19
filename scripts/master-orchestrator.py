@@ -296,6 +296,7 @@ def run(args: argparse.Namespace) -> int:
         source = Path(scratch) / "source"
         command(ROOT, "git", "worktree", "add", "--detach", str(source), "HEAD", timeout=120)
         try:
+            original_commit = command(source, "git", "rev-parse", "HEAD")
             baseline = snapshot(source)
             verify_source(source, baseline)
             records.append({"module": "preflight-home-css-nav", "status": "ok"})
@@ -353,6 +354,38 @@ def run(args: argparse.Namespace) -> int:
             (target / "carousel-five.json").write_text(
                 json.dumps(five_slot_manifest(source), ensure_ascii=False, indent=2) + "\n",
                 encoding="utf-8")
+            if args.export_json_dir:
+                # DATA-ONLY handoff to the separate production gateway.
+                # Export everything committed by successful import modules,
+                # never any generated layout, CSS, JS, media or HTML.
+                dest = Path(args.export_json_dir).resolve()
+                dest.mkdir(parents=True, exist_ok=True)
+                changes = command(source, "git", "diff", "--name-only",
+                                  original_commit, "HEAD").splitlines()
+                paths = sorted(set(x for x in changes if x.endswith(".json")))
+                if len(paths) != len(set(changes)):
+                    raise RuntimeError("Non-JSON production export prohibited")
+                allowed = {
+                    ".youtube-posts.json", ".youtube-latest.json",
+                    ".youtube-master-render-cache.json", "home-video-feed.json",
+                    "featured-carousel.json", "trending-match-report.json",
+                    "trending-sources.json", "master-staging/reviews-due.json",
+                    "master-staging/editorial-boxes.json",
+                    "master-staging/carousel-five.json",
+                }
+                if any(x not in allowed for x in paths):
+                    raise RuntimeError("Unexpected production export file: " + str(paths))
+                for relative in paths:
+                    file = source / relative
+                    if not file.is_file():
+                        raise RuntimeError("Missing approved JSON export: " + relative)
+                    payload = json_bytes(file)
+                    target_file = dest / relative
+                    target_file.parent.mkdir(parents=True, exist_ok=True)
+                    target_file.write_bytes(payload)
+                (dest / "manifest.json").write_text(
+                    json.dumps({"paths": paths, "base_commit": original_commit},
+                               ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             status = ("staging-validated-with-fallbacks" if any(x["status"] == "fallback-last-good" for x in records)
                       else "staging-validated")
         except Exception as exc:
@@ -369,6 +402,7 @@ def main() -> None:
     parser.add_argument("--with-imports", action="store_true",
                         help="Explicitly test external YouTube/portal feeds, still no deploy")
     parser.add_argument("--output-dir", default="artifacts/master-orchestrator")
+    parser.add_argument("--export-json-dir", help="Export only validated JSON for guarded production gateway")
     args = parser.parse_args()
     if args.self_test:
         self_test()
