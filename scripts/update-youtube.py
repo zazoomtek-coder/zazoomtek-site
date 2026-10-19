@@ -826,7 +826,8 @@ def main():
                 "analogiktek": sorted(ANALOGIKTEK_VIDEO_IDS)},
             "short_ids": sorted(short_ids),
         }
-        cache_file.write_text(json.dumps(cache_payload,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
+        # Commit cache only on meaningful video/playlist/Short changes.
+        # Live view counts and other API volatility must not cause a deploy.
     # Use the verified API/playlist state to determine whether any video,
     # category, Short, or completed livestream actually changed. Rebuilding
     # all category pages on an unchanged poll needlessly consumes Hosting quota.
@@ -840,6 +841,10 @@ def main():
         "live": is_live_upload(v),
         "completedLive": is_completed_broadcast(v)
     } for v in vids]
+    if not replay and (not cache_file.is_file() or new_state != previous):
+        cache_file.write_text(
+            json.dumps(cache_payload, ensure_ascii=False, separators=(",", ":")) + "\n",
+            encoding="utf-8")
     force_rebuild=os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
     if previous and new_state==previous and not force_rebuild:
         print("No YouTube video/playlist changes; skipping HTML regeneration.")
