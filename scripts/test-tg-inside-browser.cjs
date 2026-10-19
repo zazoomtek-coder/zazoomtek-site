@@ -15,7 +15,7 @@ async function main(){
    const pageErrors=[];
    page.on('pageerror',e=>pageErrors.push(e.message));
    await page.goto(BASE+"?tg-inside-test="+name,{waitUntil:"domcontentloaded",timeout:45000});
-   await page.waitForSelector('#zt-tg-menu',{timeout:15000});
+   await page.waitForSelector('#zt-tg-menu',{state:'attached',timeout:15000});
    const link=page.locator('header .topbar nav.nav > a').filter({hasText:'TG INSIDE'});
    if(await link.count()!==1)throw Error(name+': missing exactly one TG Inside button');
    if(await page.locator('header .topbar nav.nav > a.zt-tg-hidden-link').count()!==1)
