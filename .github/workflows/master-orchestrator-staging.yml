@@ -7,6 +7,7 @@ on:
       - 'scripts/master-json-renderer.py'
       - 'scripts/master-cutover-audit.py'
       - 'scripts/master-production-gateway.py'
+      - 'scripts/cloudflare-build-site.py'
       - '.github/workflows/master-orchestrator-production.yml'
       - 'master-production-enabled.json'
       - 'scripts/master-production-gateway.py'
@@ -53,6 +54,7 @@ jobs:
           node-version: '22'
       - name: Verify orchestrator source and five-slot logic
         run: |
+          python3 -m py_compile scripts/cloudflare-build-site.py scripts/master-production-gateway.py
           python3 -m py_compile scripts/master-orchestrator.py
           python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/update-youtube.py scripts/trending-crosscheck.py
           python3 scripts/master-orchestrator.py --self-test
@@ -66,6 +68,7 @@ jobs:
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           WITH_IMPORTS: ${{ (github.event_name == 'workflow_dispatch' && inputs.with_imports) || (github.event_name == 'pull_request' && github.head_ref == 'fix/master-cutover-youtube-gate-20261019') }}
+          ZT_MASTER_STAGING_TEST: ${{ github.event_name == 'pull_request' && github.head_ref == 'fix/master-cutover-youtube-gate-20261019' && '1' || '0' }}
         run: |
           if [ "$WITH_IMPORTS" = 'true' ]; then
             python3 scripts/master-orchestrator.py --with-imports
