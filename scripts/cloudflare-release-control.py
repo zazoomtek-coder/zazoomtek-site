@@ -31,6 +31,14 @@ SLOT_HOURS=2
 SLOT_START_MINUTE=17
 CONTENT_EXT={".html",".css",".js",".json",".xml",".txt",".png",".jpg",".jpeg",".webp",".svg",".avif",".gif",".woff",".woff2",".ico"}
 OMIT={"cloudflare-release-trigger.txt"}
+# Data-only master publishes are public build inputs; none of these JSON
+# files may change HTML/CSS directly in the import stage.
+MASTER_DATA_INPUTS={
+    ".youtube-posts.json", ".youtube-latest.json",
+    ".youtube-master-render-cache.json", "home-video-feed.json",
+    "featured-carousel.json", "master-staging/reviews-due.json",
+    "master-staging/editorial-boxes.json", "master-staging/carousel-five.json",
+}
 NONPUBLIC_DIR={".github","scripts","functions","editorial","includes","node_modules","dist"}
 NONPUBLIC_SUFFIX=("-report.json","-manifest.json","-state.json")
 # Build-time generators are real production inputs even when they have not
@@ -51,6 +59,10 @@ BUILD_INPUTS={
     "scripts/seo_watch_pages_safe.py",
     "scripts/validate-sync-output.py",
     "scripts/verify-packaged-home.py",
+    "scripts/master-json-renderer.py",
+    "scripts/master-orchestrator.py",
+    "scripts/update-youtube-posts.py",
+    "scripts/update-youtube.py",
 }
 class ReleaseError(RuntimeError): pass
 
@@ -68,6 +80,8 @@ def build_count() -> int:
     return len(set(commits))
 
 def public(path: str) -> bool:
+    if path in MASTER_DATA_INPUTS:
+        return True
     p=Path(path)
     if not p.parts or p.parts[0].startswith("."):
         return False
@@ -173,6 +187,9 @@ def main():
         assert not public("scripts/private.py")
         assert public("scripts/link-review-videos.py")
         assert public("scripts/cloudflare-build-site.py")
+        assert public(".youtube-posts.json")
+        assert public("master-staging/editorial-boxes.json")
+        assert public("master-staging/reviews-due.json")
         assert not public("cloudflare-release-trigger.txt")
         utc=dt.timezone.utc
         assert release_slot(dt.datetime(2026,10,19,10,16,tzinfo=utc))==dt.datetime(2026,10,19,8,17,tzinfo=utc)
