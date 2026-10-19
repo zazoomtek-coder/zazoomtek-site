@@ -55,8 +55,8 @@ def check():
         assert mod.build(root)==2
         output=(root/'speciali.html').read_text(encoding='utf-8')
         assert output.count('data-zt-special="approved"')==2
-        assert output.count('href="/studio-speciali-tech-analisi.html"')==2
-        assert output.count('href="/studio-speciali-gaming-diritti.html"')==2
+        assert output.count('href="/studio-speciali-tech-analisi.html"')==3
+        assert output.count('href="/studio-speciali-gaming-diritti.html"')==3
         assert 'Da ignorare' not in output and 'Duplicato' not in output
         schema=output.split('<script id="zt-specials-ld" type="application/ld+json">')[1].split('</script>')[0]
         data=json.loads(schema)
