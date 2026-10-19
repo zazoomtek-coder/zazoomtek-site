@@ -128,6 +128,8 @@
    const articleLink=row.querySelector(".article-copy h3 a[href]");
    let articlePath="";
    try{articlePath=new URL(articleLink?.getAttribute("href")||"",location.origin).pathname;}catch(_){}
+   // Guide articles belong only in Guide shelves, not regular news columns.
+   if(/^\/guida[-/]/i.test(articlePath) || /10 giochi PS5 a meno di 20 euro/i.test(title)){row.hidden=true;continue;}
    if(!articlePath || featuredOnHome.has(articlePath))continue;
    const isGaming=route==="gaming";
    row.classList.add("ztp-news-item");
@@ -769,6 +771,11 @@
    }).catch(function(e){console.info("Tech reviews fallback retained",e.message);});
    const h=review.querySelector(".module-head h2");if(h)h.textContent="RECENSIONI TECH";
    const label=review.querySelector(".module-head span");if(label)label.textContent="Tre recensioni Tech";
+   const techHead=review.querySelector(".module-head");
+   if(techHead&&!techHead.querySelector(".ztp-review-all")){
+     const seeAll=document.createElement("a");seeAll.className="ztp-review-all ztp-tech-review-all";
+     seeAll.href="/recensioni-tech.html";seeAll.textContent="VEDI TUTTE →";techHead.appendChild(seeAll);
+   }
 
    // Attach the approved Extra section next to Guides, using real article URLs.
    const panel=document.createElement("div");panel.id="ztp-guide-extra";guide.parentNode.insertBefore(panel,guide);panel.appendChild(guide);
