@@ -26,6 +26,15 @@ def list_boundary(text: str, start: int) -> int:
             if (i := text.find(token, start)) >= 0]
     return min(ends) if ends else -1
 PAGES = {'tech': 'recensioni-tech.html', 'gaming': 'recensioni-gaming.html'}
+# Immutable editorially approved covers (19 October 2026). The YouTube
+# source may still carry an older thumbnail; do not restore it at rebuild time.
+REVIEW_COVER_OVERRIDES = {
+    "recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html":
+        "/assets/recensioni/70mai-a900-cover-20261019.webp",
+    "recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html":
+        "/assets/recensioni/iifactor-m08e-cover-20261019.webp",
+}
+
 
 # The title of a game need not contain "PS5" or "PC"; product-specific
 # indicators take precedence over generic mentions of gaming.
@@ -162,6 +171,16 @@ def build(root: Path = ROOT) -> dict[str, int]:
             if not slug or slug in seen:
                 continue
             seen.add(slug)
+            override = REVIEW_COVER_OVERRIDES.get(slug)
+            if override:
+                if not (root / override.lstrip('/')).is_file():
+                    raise RuntimeError('Missing approved review cover: ' + override)
+                card, replaced = re.subn(
+                    r'(<img\\b[^>]*\\bsrc=")[^"]+(")',
+                    lambda match: match.group(1) + override + match.group(2),
+                    card, count=1, flags=re.I)
+                if replaced != 1:
+                    raise RuntimeError('Approved review card image missing: ' + slug)
             cat = review_category(card, root)
             if cat:
                 cards[cat].append(card)
