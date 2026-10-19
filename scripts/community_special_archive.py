@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from html import escape, unescape
 from pathlib import Path
+import json
 import re
 import sys
 
@@ -36,9 +37,26 @@ def instant(value:str)->float:
     except (ValueError,TypeError,OverflowError):
         return 0.0
 
+def curated_special_urls(root:Path)->set[str]:
+    """Curated Speciali articles cannot also appear in Tech Impact/Gaming Inside."""
+    path=root/"speciali-community-curated.json"
+    if not path.is_file():
+        return set()
+    data=json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data,dict) or not isinstance(data.get("articles"),list):
+        raise RuntimeError("Invalid curated Speciali manifest")
+    urls=set()
+    for name in data["articles"]:
+        if not isinstance(name,str) or not re.fullmatch(r"news-Ugkx[a-zA-Z0-9_-]+\.html",name):
+            raise RuntimeError("Invalid curated Speciali article URL")
+        urls.add("/"+name)
+    return urls
+
+
 def community_rows(root:Path):
     result={"tech":[],"gaming":[]}
     routes={}
+    curated=curated_special_urls(root)
     for page in sorted(root.glob("news-Ugkx*.html")):
         src=page.read_text(encoding="utf-8",errors="replace")
         header=H1.search(src)
@@ -47,6 +65,10 @@ def community_rows(root:Path):
         if not match:continue
         section=("tech" if match.group(1).lower().startswith("tech") else "gaming")
         url="/"+page.name
+        if url in curated:
+            # Remove even a previously published category card on the next sync.
+            routes[url]="speciali"
+            continue
         title=match.group(2).strip()
         date_match=META_TIME.search(src)
         hero=HERO.search(src)
