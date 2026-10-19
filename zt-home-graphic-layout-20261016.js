@@ -239,7 +239,12 @@
        }
        a.append(img,copy);a.hidden=true;module.append(a);items.push(a);
      });
-     module.hidden=true;rail.appendChild(module);
+     // Put existing ALTRE NOTIZIE directly above ULTIMI SHORTS.
+      // Do not recreate cards, change data, or alter rail dimensions.
+      module.hidden=true;
+      const shortsCompanion=rail.querySelector(":scope > .ztp-shorts-companion");
+      if(shortsCompanion)rail.insertBefore(module,shortsCompanion);
+      else rail.appendChild(module);
      let pending=false;
      function rebalance(){
        if(pending)return;pending=true;
