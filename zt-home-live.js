@@ -281,16 +281,68 @@
   else rail.appendChild(editorialBox);
   editorialBox.insertAdjacentElement("afterend",shortsSlot);
   // Three large and real editorial images; keep article links, never inject placeholders.
+  // One article may appear in ONE visible Home news module only.
+  // Priority: featured carousel, ten Tech/Gaming news per column, then
+  // Tech Impact / Gaming Inside / Da non perdere / Dalla redazione.
+  // Existing backup cards are promoted into the first two slots: do not
+  // delete articles, alter SEO, insert filler or change the approved layout.
   function reconcileRight(){
     if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
-    const linked=new Set([...area.querySelectorAll(".ztp-news-item h3 a")].map(a=>{
-      try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
-    }));
-    const eligible=editorialCards.filter(card=>!linked.has(new URL(card.href).pathname));
-    const selected=new Set(eligible.slice(0,3));
+    function articlePath(node){
+      if(!node)return "";
+      try{
+        const u=new URL(node.getAttribute("href")||"",location.origin);
+        return u.origin===location.origin?u.pathname:"";
+      }catch(_){return "";}
+    }
+    const used=new Set();
+    for(const link of document.querySelectorAll("#ztFeaturedGrid > a[href]")){
+      const path=articlePath(link);if(path)used.add(path);
+    }
+    for(const link of area.querySelectorAll(".ztp-news-column .ztp-news-items > article .article-copy h3 a[href]")){
+      const card=link.closest("article");
+      if(card && !card.hidden && getComputedStyle(card).display!=="none"){
+        const path=articlePath(link);if(path)used.add(path);
+      }
+    }
+    function fillModule(root,selector,max,linkSelector){
+      if(!root)return;
+      const cards=[...root.querySelectorAll(selector)];
+      if(!cards.length)return;
+      // Keep the original newest-first ranking, even after previous repairs.
+      cards.forEach((card,i)=>{
+        if(card.dataset.ztUniqueOriginalOrder===undefined)
+          card.dataset.ztUniqueOriginalOrder=String(i);
+      });
+      cards.sort((a,b)=>Number(a.dataset.ztUniqueOriginalOrder)-Number(b.dataset.ztUniqueOriginalOrder));
+      const chosen=[],rest=[];
+      for(const card of cards){
+        const path=articlePath(card.matches("a[href]")?card:card.querySelector(linkSelector));
+        if(path && !used.has(path) && chosen.length<max){
+          used.add(path);chosen.push(card);
+        }else rest.push(card);
+      }
+      const parent=cards[0].parentElement;
+      // Existing CSS shows the first two items; move unique backups into
+      // those positions so no empty space is created by hidden duplicates.
+      for(const card of chosen.concat(rest))parent.appendChild(card);
+      for(const card of chosen)card.style.removeProperty("display");
+      for(const card of rest)card.style.setProperty("display","none","important");
+      root.style.display=chosen.length?"":"none";
+    }
+    fillModule(impact,".zt-special-item",2,"a.zt-special-thumb[href]");
+    fillModule(inside,".zt-special-item",2,"a.zt-special-thumb[href]");
+    fillModule(pop,".zt-popular-article",2,"");
+    const chosen=[];
+    for(const card of editorialCards){
+      const path=articlePath(card);
+      if(path && !used.has(path) && chosen.length<3){chosen.push(card);used.add(path);}
+    }
+    const selected=new Set(chosen);
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
   }
+  window.addEventListener("zt:home-columns-repainted",()=>requestAnimationFrame(reconcileRight));
 
   balance();
   window.addEventListener("load",()=>{balance();requestAnimationFrame(reconcileRight)},{once:true});
@@ -547,6 +599,9 @@
         column.replaceChildren(...ranked.slice(0,10).map(item=>item.row));
       }
       rebalance();
+      // Sidebar cards must be rechecked whenever archived news or featured
+      // carousel changes. Only visible, real article links count as duplicates.
+      window.dispatchEvent(new Event("zt:home-columns-repainted"));
     }
     function addPublishedNews(src){
       const route=explicitArchiveCategory(src);
