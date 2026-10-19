@@ -438,6 +438,10 @@ def kind_for(path):
     name = path.name.lower()
     if name.startswith(("guida-", "guide-")):
         return "Guida"
+    if name.startswith("studio-speciali-tech-"):
+        return "Speciale Tech"
+    if name.startswith("studio-speciali-gaming-"):
+        return "Speciale Gaming"
     if name.startswith("tech-impact-"):
         return "Tech Impact"
     if name.startswith("gaming-inside-"):

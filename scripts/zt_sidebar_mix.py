@@ -323,6 +323,7 @@ def build_sidebar(kind, news, tech, gaming, videos, article_count=None, page_key
         "gaming": [tech_module, gaming_video, all_news, reviews],
         "guides": [all_news, tech_module, unboxing, gaming_module, reviews],
         "extra": [all_news, tech_module, gaming_module, reviews],
+        "specials": [all_news, tech_module, gaming_module, reviews],
     }
     # A short archive (for example Guide with only three articles) cannot
     # carry a taller seven-widget sidebar: its height creates a huge empty
@@ -334,7 +335,8 @@ def build_sidebar(kind, news, tech, gaming, videos, article_count=None, page_key
     elif article_count is not None and 4 < article_count <= 7:
         primary = {"tech": gaming_module, "gaming": tech_module,
                    "news": last_reviews, "reviews": tests,
-                   "guides": tech_module, "extra": tech_module}[kind]
+                   "guides": tech_module, "extra": tech_module,
+                   "specials": last_reviews}[kind]
         choices[kind] = [primary, recent_list(other_news, max_items=3)]
     # Feature always on top, Amazon immediately below, then proportional boxes.
     return ('<aside class="news-sidebar zt-side-mix">'
@@ -346,6 +348,7 @@ def page_kind(filename):
         return "news"
     if re.fullmatch(r'recensioni-scritte(?:-\d+)?\.html',filename):
         return "reviews"
+    if filename == "speciali.html": return "specials"
     if filename == "tech-today.html": return "tech"
     if filename == "gaming-today.html": return "gaming"
     if filename == "guide.html": return "guides"

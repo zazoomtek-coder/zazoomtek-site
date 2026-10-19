@@ -1689,3 +1689,26 @@ aside.zt-side-mix[data-zt-large-editorial="three-cards"] > .zt-amazon-partner{
 #zt-review-dropdown > a:hover,#zt-review-dropdown > a:focus-visible{
   background:#d51232;color:#fff!important;outline:2px solid #fff;outline-offset:-2px;
 }
+
+
+/* ZT_TG_INSIDE_20261019. A grouped dropdown without touching locked Home shell. */
+.zt-tg-hidden-link{display:none!important}
+#zt-tg-menu{
+  display:none;position:fixed;z-index:2147483000;
+  box-sizing:border-box;width:212px;max-width:calc(100vw - 16px);
+  background:#191919;color:#fff;border:1px solid #414141;
+  border-top:3px solid #d51232;border-radius:0 0 3px 3px;
+  box-shadow:0 12px 26px rgba(0,0,0,.32);font-family:Arial,Helvetica,sans-serif;
+}
+#zt-tg-menu.is-open{display:block}
+#zt-tg-menu>a{
+  box-sizing:border-box;display:block;padding:15px 17px;
+  color:#fff!important;background:#202020;text-decoration:none!important;
+  font:800 12px/1.2 Arial,Helvetica,sans-serif;
+  letter-spacing:.025em;border-bottom:1px solid #393939;white-space:nowrap;
+}
+#zt-tg-menu>a:last-child{border-bottom:0}
+#zt-tg-menu>a:hover,#zt-tg-menu>a:focus-visible{
+  background:#d51232!important;color:#fff!important;
+  outline:2px solid #fff;outline-offset:-2px;
+}
