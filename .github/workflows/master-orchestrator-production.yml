@@ -35,11 +35,11 @@ jobs:
         run: python3 -m pip install --quiet pillow
       - name: Verify exclusive writer ownership; block if not cut over
         env:
-          YOUTUBE_API_KEY: \${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
       - name: Validate and publish only via single Git + Pages gateway
         env:
-          YOUTUBE_API_KEY: \${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --publish
