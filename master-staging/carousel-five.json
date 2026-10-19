@@ -1,0 +1,42 @@
+{
+  "mode": "STAGING_ONLY",
+  "layout_unchanged": true,
+  "policy": "4-tech-1-gaming",
+  "items": [
+    {
+      "section": "tech",
+      "url": "/news-UgkxXhA_nA53_EpjKVaJtVdrcn1tdqYQFv0I.html",
+      "title": "iRobot presenta i nuovi Roomba Combo 115, 415, 515 e 575, più compatti e potenti",
+      "image": "https://yt3.ggpht.com/eoUpN-pqHJXgKX1B8XwlLmBfBtypEsb0s6ztBd7tXSXz2rXWLZGmAHBhXXX2pnG8Hm31pEoviTia_w=s1600-rw-nd-v1",
+      "published_date": "2026-10-19"
+    },
+    {
+      "section": "tech",
+      "url": "/news-UgkxQnyZ_3Qv-X5igTpP62iNghRMMquqf9AK.html",
+      "title": "Dyson porta in Italia i robot R1 Nurovi Dry e R2 Nurovi Wash+Dry con pulizia automatizzata e stazione ciclonica",
+      "image": "https://yt3.ggpht.com/u0IKKYseW4rAXhXAd1WAm1XZd6OXFaFxn2hnMhaJrrrt1kZeqRfYEvh0Dirh6cJv1s_qAP_ygyVYdw=s1600-rw-nd-v1",
+      "published_date": "2026-10-19"
+    },
+    {
+      "section": "tech",
+      "url": "/news-UgkxDGgP7IWYNGCwxWwbLtvHpRrb7IPSPxJa.html",
+      "title": "Cisco Talos scopre campagne ClickFix che sfruttano Google Docs per rubare criptovalute e credenziali",
+      "image": "https://yt3.ggpht.com/XKxqmyVtYuyod3DWcSp-wMEsdryfyK1uL8wouEVs7-YbVNu0Pp7PH2hr3FQrTs-075x5qppVtVddDvo=s1600-rw-nd-v1",
+      "published_date": "2026-10-19"
+    },
+    {
+      "section": "tech",
+      "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
+      "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
+      "image": "https://yt3.ggpht.com/vPyauA74ElFi761jZsFZVjFWwPP2a-2IgdXU8w7xvhP9EKdoiNzJTPpRUx98rWpY4X-BtUzB-TA6tQ=s1600-rw-nd-v1",
+      "published_date": "2026-10-16"
+    },
+    {
+      "section": "gaming",
+      "url": "/news-UgkxH5BL42iGXVvyBNeYA-PjX07cSZ1eEvQk.html",
+      "title": "Amazon Luna arriva su Prime Video in Italia, giochi inclusi per gli abbonati Prime su Fire TV",
+      "image": "https://yt3.ggpht.com/SLlAdRxLpZNvEpnQkUwltN-e4G47-aNGbEoMFTLfBFDIGAj7rieVhiyGYo6ttf0NHTZDzp6DG5Sr0Ig=s1600-rw-nd-v1",
+      "published_date": "2026-10-19"
+    }
+  ]
+}
