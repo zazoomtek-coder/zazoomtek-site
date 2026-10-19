@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/master-orchestrator.py'
       - 'scripts/master-json-renderer.py'
+      - 'scripts/master-cutover-audit.py'
       - 'scripts/trending-crosscheck.py'
       - 'scripts/refresh-home-editorial-boxes.py'
       - 'scripts/update-youtube-posts.py'
@@ -48,6 +49,7 @@ jobs:
           python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/trending-crosscheck.py
           python3 scripts/master-orchestrator.py --self-test
           python3 scripts/master-json-renderer.py --self-test
+          python3 scripts/master-cutover-audit.py --self-test
           python3 scripts/trending-crosscheck.py --test
           python3 scripts/refresh-home-editorial-boxes.py --self-test
           python3 scripts/test_review_dedup.py
@@ -61,6 +63,9 @@ jobs:
           else
             python3 scripts/master-orchestrator.py
           fi
+      - name: Inventory concurrent legacy writers (report only)
+        if: always()
+        run: python3 scripts/master-cutover-audit.py
       - name: Create visual preview of five cards (desktop / tablet / mobile)
         if: success()
         run: |
@@ -85,6 +90,12 @@ jobs:
                         '| Modulo | Risultato |', '|---|---|']
               for x in r.get('modules', []):
                   lines.append(f"| {x['module']} | {x['status']} |")
+              inventory=Path('artifacts/master-orchestrator/cutover-audit.json')
+              if inventory.exists():
+                  audit=json.loads(inventory.read_text(encoding='utf-8'))
+                  lines+=['',f"**Legacy writers:** {audit['legacy_writer_count']} workflow potenzialmente scriventi.",
+                          f"**Pronto al cutover:** {audit['cutover_ready']}",
+                          '**Merge:** NON ESEGUIRE finché tutti gli adattatori e il writer di produzione non sono verificati.']
               lines+=['', 'Le immagini desktop/tablet/mobile e il report JSON sono negli Artifacts del run.']
           else: lines.append('Nessun report: errore di avvio del processo.')
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
