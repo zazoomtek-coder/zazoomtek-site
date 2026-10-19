@@ -37,7 +37,7 @@ jobs:
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
-          python3 -c 'import os,sys; key=os.environ.get("YOUTUBE_API_KEY", ""); sys.exit("Missing/malformed YouTube secret") if not key or key.startswith(chr(92)) or "${{" in key else print("PASS: YouTube secret resolved")'
+          python3 -c 'import os,sys; key=os.environ.get("YOUTUBE_API_KEY", ""); sys.exit("Missing/malformed YouTube secret") if not key or key.startswith(chr(92)) or ("$"+"{{") in key else print("PASS: YouTube secret resolved")'
       - name: Verify exclusive writer ownership; block if not cut over
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
