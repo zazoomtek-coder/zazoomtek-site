@@ -275,9 +275,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     links.forEach(a=>{
       a.setAttribute('aria-haspopup','true');
       a.setAttribute('aria-expanded','false');
-      a.addEventListener('mouseenter',()=>open(a));
+      a.addEventListener('mouseenter',()=>{if(matchMedia('(hover: hover)').matches)open(a);});
       a.addEventListener('mouseleave',delayedClose);
-      a.addEventListener('focus',()=>open(a));
+      a.addEventListener('focus',()=>{if(matchMedia('(hover: hover)').matches)open(a);});
       a.addEventListener('keydown',e=>{
         if(e.key==='ArrowDown'||e.key===' '){e.preventDefault();open(a);menu.querySelector('a')?.focus();}
       });
