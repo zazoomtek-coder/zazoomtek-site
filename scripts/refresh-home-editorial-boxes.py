@@ -112,6 +112,33 @@ def home_urls(source: str) -> set[str]:
         raise RuntimeError(f"Expected 15 canonical unique Home news; found {len(urls)}")
     return urls
 
+def likely_home_column_urls() -> set[str]:
+    """Reserve the newest genuine Tech/Gaming URLs before sidebar selection.
+
+    The Home browser restores 10 per category from published archives and may
+    load pages asynchronously. Exclude their newest candidates up front, so
+    the sidebar receives OLDER news rather than six soon-to-be-hidden cards.
+    The browser still performs final visible-page dedup after carousel rotation.
+    """
+    buckets: dict[str, dict[str, dict]] = {"tech": {}, "gaming": {}}
+    pages=("index.html", "news.html", "news-2.html", "news-3.html",
+           "news-4.html", "news-5.html",
+           "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html")
+    for page in pages:
+        for item in extract(page):
+            category=item.get("category")
+            if category not in buckets:
+                continue
+            previous=buckets[category].get(item["url"])
+            if previous is None or publication_key(item)>publication_key(previous):
+                buckets[category][item["url"]]=item
+    return {
+        item["url"]
+        for pool in buckets.values()
+        for item in sorted(pool.values(),key=publication_key,reverse=True)[:12]
+    }
+
+
 def distinct(items: list[dict], avoid: set[str]) -> list[dict]:
     result: list[dict] = []
     used = set(avoid)
@@ -184,7 +211,7 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     featured_urls = {clean_url(x.get("url", "")) for x in manifest.get("items", [])}
     if len(featured_urls) != 5 or None in featured_urls:
         raise RuntimeError("Cannot refresh editorial boxes with invalid featured URLs")
-    reserved = published_home | featured_urls
+    reserved = published_home | featured_urls | likely_home_column_urls()
     ordinary = []
     # More archive pages allow older real articles to fill the boxes when
     # the newest ones are already in the carousel or Tech/Gaming columns.
@@ -293,6 +320,8 @@ def main() -> None:
         a, b, _ = build(date)
         assert a == index and b == javascript, "Refresh must be deterministic and idempotent"
         assert sum(len(report[key]) for key in ("suggested", "tech_impact", "gaming_inside", "dalla_redazione")) == 26
+        assert not (set(report["suggested"]) & likely_home_column_urls()), "Popular sidebar reused a Tech/Gaming column article"
+        assert not (set(report["suggested"]) & featured_urls), "Popular sidebar reused a carousel article"
         print("PASS: every refreshed card uses a real existing ZazoomTek article + validated thumbnail")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if not opts.self_test and not opts.dry_run:
