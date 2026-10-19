@@ -2,7 +2,8 @@ name: Automatic expired Firebase Hosting version cleanup
 # Only versions already marked EXPIRED are eligible. Never remove live or preview channels.
 on:
   schedule:
-    - cron: '17 3 * * *'
+    - cron: '17 14 * * *'
+      timezone: 'Europe/Rome'
   workflow_dispatch:
   push:
     branches: [main]

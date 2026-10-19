@@ -2,7 +2,8 @@ name: ZazoomTek read-only uptime monitoring
 on:
   workflow_dispatch:
   schedule:
-    - cron: '37 * * * *'
+    - cron: '37 10-19 * * *'
+      timezone: 'Europe/Rome'
 permissions:
   contents: read
 concurrency:

@@ -2,7 +2,8 @@ name: ZazoomTek whole-site quality audit
 on:
   workflow_dispatch:
   schedule:
-    - cron: '27 4 * * *'
+    - cron: '27 12 * * *'
+      timezone: 'Europe/Rome'
   push:
     branches: [main]
     paths:

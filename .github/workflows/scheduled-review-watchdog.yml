@@ -2,7 +2,8 @@ name: Approved review queue watchdog for Cloudflare Pages
 # This validates the editorial source, never bypasses the scheduled Pages deploy.
 on:
   schedule:
-    - cron: '33 * * * *'
+    - cron: '33 10-19 * * *'
+      timezone: 'Europe/Rome'
   workflow_dispatch:
 permissions:
   contents: read
