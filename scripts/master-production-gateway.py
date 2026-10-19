@@ -125,7 +125,9 @@ def one_attempt() -> tuple[bool, str]:
                  "commit", "-m", "master: verified JSON-only editorial batch")
     # A release trigger is necessary ONLY at the existing controlled window,
     # and exactly one extra Git commit lets it contain the real source SHA.
-    call(sys.executable, "scripts/cloudflare-release-control.py", "--scheduled-slot", timeout=120)
+    emergency=os.environ.get("ZT_MASTER_URGENT", "").lower()=="true"
+    call(sys.executable, "scripts/cloudflare-release-control.py",
+         "--urgent" if emergency else "--scheduled-slot", timeout=120)
     trigger_changed = bool(call("git", "status", "--porcelain", "--", "cloudflare-release-trigger.txt"))
     trigger_source = ""
     if trigger_changed:
