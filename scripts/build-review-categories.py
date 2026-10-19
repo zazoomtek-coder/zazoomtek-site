@@ -184,7 +184,7 @@ def build(root: Path = ROOT) -> dict[str, int]:
                             description, 1)
         # The complete original right rail, ticker, header and footer are reused.
         if (not all(k in page for k in ('class="news-sidebar', 'class="zt-mix-feature"',
-                                       'class="zt-mix-recent"', 'class="legal-footer"'))
+                                       'zt-mix-recent', 'class="legal-footer"'))
                 or len(CARD.findall(page[list_start:page.find(END_BANNER)])) != len(cards[category])):
             raise RuntimeError('Incomplete editorial sidebar or category cards: ' + filename)
         (root / filename).write_text(page, encoding='utf-8')
