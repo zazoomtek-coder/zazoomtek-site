@@ -19,6 +19,9 @@ LOCKED={"featured-carousel.json","featured-editorial-pins.json","special-feature
         "standard-news.json","cloudflare-release-trigger.txt","zt-home-live.js",
         "zt-visual.js","zt-design.css","firebase.json",".firebaserc"}
 META={"sitemap.xml","google-sitemap.xml","sitemap.txt","robots.txt"}
+# Legitimate review archive outputs from the Community importer. These are
+# content lists, not authorization to change the protected Home structure.
+REVIEW_CATEGORY_ARCHIVES={"recensioni-tech.html","recensioni-gaming.html"}
 COMMUNITY_STATE={".youtube-posts.json","manual-news.json",".manual-news-build-state.json"}
 COMMUNITY_COMMANDS={".force-community-full-scan"}
 VIDEO_STATE={".youtube-latest.json","home-video-feed.json"}
@@ -30,7 +33,9 @@ def allowed(kind,path):
             or path.startswith("scripts/") or path.startswith("dist/")):
         return False
     if kind=="community":
-        return bool(COMMUNITY_HTML.fullmatch(path)) or path in COMMUNITY_STATE|META|COMMUNITY_COMMANDS or path in ("tech-today.html","gaming-today.html")
+        return (bool(COMMUNITY_HTML.fullmatch(path))
+                or path in COMMUNITY_STATE|META|COMMUNITY_COMMANDS|REVIEW_CATEGORY_ARCHIVES
+                or path in ("tech-today.html","gaming-today.html"))
     if kind=="videos":
         return bool(VIDEO_HTML.fullmatch(path)) or path in VIDEO_STATE
     return bool(PUBLIC_HTML.fullmatch(path)) or path=="search-index.json"
@@ -46,6 +51,8 @@ def validate_scope(kind,items):
     errors=[]
     for status,path in items:
         if not allowed(kind,path):errors.append(f"Unowned file in {kind} transaction: {path}")
+        if status=="D" and path in REVIEW_CATEGORY_ARCHIVES:
+            errors.append(f"Do not delete review category archive during import: {path}")
         if status=="D" and PRIMARY_PAGE.fullmatch(path):
             errors.append(f"Do not delete already published YouTube article: {path}")
         if status=="D" and path in COMMUNITY_STATE|VIDEO_STATE:
@@ -84,12 +91,19 @@ def main():
         assert allowed("community","index.html")
         assert allowed("community","tech-today.html")
         assert allowed("community","gaming-today.html")
+        assert allowed("community","recensioni-tech.html")
+        assert allowed("community","recensioni-gaming.html")
         assert allowed("community",".manual-news-build-state.json")
         assert allowed("community",".force-community-full-scan")
         assert allowed("videos","home-video-feed.json")
         assert allowed("auxiliary","news-foo.html")
         assert not allowed("videos","news-Ugkx123.html")
         assert not allowed("community","zt-home-live.js")
+        assert not allowed("community","recensioni-gaming.css")
+        assert not validate_scope("community",[
+            ("M","recensioni-tech.html"),("M","recensioni-gaming.html"),
+            ("M","index.html"),("A","news-UgkxNewExample.html")])
+        assert validate_scope("community",[("D","recensioni-tech.html")])
         assert not allowed("auxiliary","featured-carousel.json")
         assert validate_scope("community",[("D","news-Ugkx123.html")])
         assert not validate_scope("videos",[("M","index.html"),("M",".youtube-latest.json")])
@@ -97,7 +111,7 @@ def main():
         assert not inventory_errors(baseline,baseline,"test")
         assert inventory_errors(baseline,baseline[:10],"test")
         assert inventory_errors(baseline,[{"id":str(i+1000)} for i in range(100)],"test")
-        print("PASS: importer ownership, immutable scripts, no article deletion, last-good inventory")
+        print("PASS: harmless Community updates (incl. review categories), protected Home, no archive deletion, last-good inventory")
         return
     if not args.kind:ap.error("--kind is required")
     staged=changes()

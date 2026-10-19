@@ -20,22 +20,32 @@ home_source=(root / "index.html").read_text(encoding="utf-8")
 home_match=re.search(r'<nav\s+class=["\']nav["\'][^>]*>([\s\S]*?)</nav>',home_source,re.I)
 if not home_match:
     raise RuntimeError("Home main navigation missing; deployment blocked")
-home_items=[]
-for anchor in re.finditer(r'<a\b([^>]*)>([\s\S]*?)</a>',home_match.group(1),re.I):
-    href_match=re.search(r'\bhref=["\']([^"\']+)["\']',anchor.group(1),re.I)
-    if not href_match:
-        continue
-    label=html_utils.unescape(re.sub(r'<[^>]*>',"",anchor.group(2))).strip()
-    if not label:
-        continue
-    href=href_match.group(1)
-    if not href.startswith(("http://","https://","/","#","mailto:")):
-        href="/"+href.lstrip("./")
-    home_items.append((label,href))
+def nav_labels(markup):
+    """Read actual link and dropdown-button labels in DOM order."""
+    labels=[]
+    for element in re.finditer(
+        r'<(?:a|button)\b[^>]*>([\s\S]*?)</(?:a|button)>',
+        markup,re.I,
+    ):
+        label=html_utils.unescape(re.sub(r'<[^>]*>',"",element.group(1))).strip()
+        if label:
+            labels.append(label)
+    return tuple(labels)
+
+def preserves_approved_routes(labels,required):
+    """Existing routes must remain in order; extra safe menus are allowed."""
+    position=0
+    for label in labels:
+        if position<len(required) and label==required[position]:
+            position+=1
+    return position==len(required)
+
+home_labels=nav_labels(home_match.group(1))
 required_nav=("Home","News","Recensioni","Guide","Tech Impact",
               "Gaming Inside","Extra","Community","Video")
-if tuple(label for label,_ in home_items)!=required_nav:
-    raise RuntimeError("Home main navigation must contain all nine approved buttons in order")
+if (not preserves_approved_routes(home_labels,required_nav)
+        or len(home_labels)!=len(set(home_labels))):
+    raise RuntimeError("Home main navigation lost, reordered or duplicated an approved route")
 
 # ONE fixed masthead source: the locked, approved Home, NOT news.html.
 # Each page receives the actual Home header at build time (no browser fetch,
@@ -545,21 +555,19 @@ for nav_path in sorted(root.glob('*.html')):
         if "ZAZOOM" in header.upper() or "ChatGPT.png" in header:
             raise RuntimeError(f"{nav_path.name}: missing full navigation header")
         continue
-    # Exactly the nine Home links, in the correct order, on EVERY page.
-    labels=[
-        html_utils.unescape(re.sub('<[^>]+>', '', group)).strip()
-        for group in re.findall('<a[^>]*>(.*?)</a>',match.group(),re.I|re.S)
-    ]
-    if tuple(labels)!=required_nav:
+    # An authorized menu/box may be added if the approved routes survive.
+    # Every published page must inherit exactly the SAME real Home menu.
+    labels=nav_labels(match.group())
+    if labels!=home_labels:
         raise RuntimeError(
-            f"{nav_path.name}: expected nine Home buttons in order; got {labels}")
+            f"{nav_path.name}: navigation differs from the verified Home: {labels}")
     if 'href="/zt-design.css?v=20261012sidebarFix5"' not in nav_content:
         raise RuntimeError(
             f"{nav_path.name}: shared stylesheet absent or outdated")
     nav_checked+=1
 if nav_checked<20:
     raise RuntimeError(f"Only {nav_checked} pages with full site navigation verified")
-print(f"Verified all nine Home navigation buttons on {nav_checked} site pages")
+print(f"Verified preserved Home routes and all {len(home_labels)} current navigation controls on {nav_checked} site pages")
 
 # Make it impossible to deploy a new complete review in the old narrow layout.
 reviews_checked=0
