@@ -234,3 +234,73 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
+
+/* ZT_REVIEW_SUBMENU_20261019 — one visible Recensioni button,
+   accessible Tech/Gaming choices, no alteration to protected Home nav HTML. */
+(function(){
+  'use strict';
+  function ready(){
+    const links=Array.from(document.querySelectorAll('header .topbar nav.nav > a, header .zt-headrow nav.zt-nav > a'))
+      .filter(a=>a.textContent.trim().toLowerCase()==='recensioni');
+    if(!links.length||document.getElementById('zt-review-dropdown'))return;
+    const menu=document.createElement('div');
+    menu.id='zt-review-dropdown';
+    menu.setAttribute('aria-label','Scegli le recensioni');
+    menu.innerHTML='<a href="/recensioni-tech.html">TECH</a><a href="/recensioni-gaming.html">GAMING</a>';
+    document.body.appendChild(menu);
+    let active=null, timer=null;
+    const cancel=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
+    const close=()=>{
+      cancel();
+      menu.classList.remove('is-open');
+      links.forEach(a=>a.setAttribute('aria-expanded','false'));
+      active=null;
+    };
+    const position=()=>{
+      if(!active)return;
+      const b=active.getBoundingClientRect();
+      if(b.bottom<0||b.top>innerHeight){close();return;}
+      const width=menu.offsetWidth||176;
+      menu.style.left=Math.round(Math.max(8,Math.min(b.left,innerWidth-width-8)))+'px';
+      menu.style.top=Math.round(b.bottom+2)+'px';
+    };
+    const open=(link)=>{
+      cancel();
+      active=link;
+      links.forEach(a=>a.setAttribute('aria-expanded',a===link?'true':'false'));
+      menu.classList.add('is-open');
+      position();
+    };
+    const delayedClose=()=>{cancel();timer=setTimeout(close,170);};
+    links.forEach(a=>{
+      a.setAttribute('aria-haspopup','true');
+      a.setAttribute('aria-expanded','false');
+      a.addEventListener('mouseenter',()=>open(a));
+      a.addEventListener('mouseleave',delayedClose);
+      a.addEventListener('focus',()=>open(a));
+      a.addEventListener('keydown',e=>{
+        if(e.key==='ArrowDown'||e.key===' '){e.preventDefault();open(a);menu.querySelector('a')?.focus();}
+      });
+      a.addEventListener('click',e=>{
+        if(matchMedia('(hover: none)').matches){
+          e.preventDefault();
+          if(active===a&&menu.classList.contains('is-open'))close();else open(a);
+        }
+      });
+    });
+    menu.addEventListener('mouseenter',cancel);
+    menu.addEventListener('mouseleave',delayedClose);
+    menu.addEventListener('focusin',cancel);
+    menu.addEventListener('focusout',e=>{if(!menu.contains(e.relatedTarget))delayedClose();});
+    document.addEventListener('pointerdown',e=>{
+      if(!menu.contains(e.target)&&!links.includes(e.target))close();
+    });
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape'&&active){const old=active;close();old.focus();}
+    });
+    addEventListener('resize',position,{passive:true});
+    addEventListener('scroll',()=>{if(active)position();},{passive:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
+  else ready();
+})();
