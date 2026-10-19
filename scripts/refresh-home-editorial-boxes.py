@@ -135,7 +135,7 @@ def likely_home_column_urls() -> set[str]:
     return {
         item["url"]
         for pool in buckets.values()
-        for item in sorted(pool.values(),key=publication_key,reverse=True)[:12]
+        for item in sorted(pool.values(),key=publication_key,reverse=True)[:8]
     }
 
 
