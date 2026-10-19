@@ -5,7 +5,9 @@ const assert=require("assert").strict;
 const source=fs.readFileSync("zt-home-live.js","utf8");
 const part=source.split("// HOME_TOPIC_CLASSIFIER_START")[1]?.split("// HOME_TOPIC_CLASSIFIER_END")[0];
 assert(part&&part.includes("function categorizeHomeArticle"),"topic classifier must exist");
-// The extracted browser classifier sets a window property; supply its browser global\n// without executing the complete Home script or relaxing classifier assertions.\nconst classify=vm.runInNewContext(part+"\ncategorizeHomeArticle",{window:{}},{timeout:1500});
+// The extracted browser classifier sets a window property; supply its browser global
+// without executing the complete Home script or relaxing classifier assertions.
+const classify=vm.runInNewContext(part+"\ncategorizeHomeArticle",{window:{}},{timeout:1500});
 const samples=[
  ["Battlefield 6 Stagione 5 parte oggi con Las Vegas, Area 51, Rapid Royale e crossover Dead Space","gaming"],
  ["PUBG Mobile Global Open 2026 Season 2, nuovo formato e montepremi da 500.000 dollari","gaming"],
