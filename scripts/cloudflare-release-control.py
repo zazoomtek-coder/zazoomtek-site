@@ -3,8 +3,8 @@
 
 Only the trigger file causes a Pages build. You MUST configure Pages Build
 watch paths -> Includes: cloudflare-release-trigger.txt, Excludes: (none).
-Validated public changes are published in fixed two-hour UTC release windows
-(opening at even hours :17), with :47 and odd-hour checks as recovery opportunities.
+Validated public changes are published in fixed hourly UTC release windows
+(opening at minute :17), with :47 checks as recovery opportunities.
 One triggered release per window, no rolling 50-minute delay and no arbitrary
 editorial/carousel hold. The 450/31-day budget leaves an urgent reserve to 475
 (and another 25 as contingency). External GitHub/Cloudflare delays remain possible.
@@ -27,7 +27,7 @@ TRIGGER=ROOT/"cloudflare-release-trigger.txt"
 HORIZON="31 days ago"
 RESERVE_SCHEDULED=450
 RESERVE_URGENT=475
-SLOT_HOURS=2
+SLOT_HOURS=1
 SLOT_START_MINUTE=17
 CONTENT_EXT={".html",".css",".js",".json",".xml",".txt",".png",".jpg",".jpeg",".webp",".svg",".avif",".gif",".woff",".woff2",".ico"}
 OMIT={"cloudflare-release-trigger.txt"}
@@ -106,13 +106,13 @@ def decide(changed: list[str],used: int,urgent: bool=False) -> str:
 
 
 def release_slot(now: dt.datetime) -> dt.datetime:
-    """Latest fixed two-hour window start, UTC (00:17, 02:17, ...)."""
+    """Latest fixed hourly window start, UTC (00:17, 01:17, ...)."""
     if now.tzinfo is None:
         raise ReleaseError("A timezone-aware clock is required")
     now=now.astimezone(dt.timezone.utc)
     shifted=now-dt.timedelta(minutes=SLOT_START_MINUTE)
-    even_hour=shifted.hour-(shifted.hour%SLOT_HOURS)
-    return shifted.replace(hour=even_hour,minute=SLOT_START_MINUTE,
+    slot_hour=shifted.hour-(shifted.hour%SLOT_HOURS)
+    return shifted.replace(hour=slot_hour,minute=SLOT_START_MINUTE,
                            second=0,microsecond=0)
 
 
@@ -151,7 +151,7 @@ def main():
     parser.add_argument("--urgent",action="store_true")
     parser.add_argument("--self-test",action="store_true")
     parser.add_argument("--scheduled-slot",action="store_true",
-                        help="Publish once per fixed two-hour UTC window, recover on later checks")
+                        help="Publish once per fixed hourly UTC window, recover on later checks")
     args=parser.parse_args()
     if args.self_test:
         assert decide(["news-X.html"],350)=="publish"
@@ -175,11 +175,11 @@ def main():
         assert public("scripts/cloudflare-build-site.py")
         assert not public("cloudflare-release-trigger.txt")
         utc=dt.timezone.utc
-        assert release_slot(dt.datetime(2026,10,19,10,16,tzinfo=utc))==dt.datetime(2026,10,19,8,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,10,16,tzinfo=utc))==dt.datetime(2026,10,19,9,17,tzinfo=utc)
         assert release_slot(dt.datetime(2026,10,19,10,17,tzinfo=utc))==dt.datetime(2026,10,19,10,17,tzinfo=utc)
-        assert release_slot(dt.datetime(2026,10,19,11,47,tzinfo=utc))==dt.datetime(2026,10,19,10,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,11,47,tzinfo=utc))==dt.datetime(2026,10,19,11,17,tzinfo=utc)
         assert release_slot(dt.datetime(2026,10,19,12,17,tzinfo=utc))==dt.datetime(2026,10,19,12,17,tzinfo=utc)
-        assert release_slot(dt.datetime(2026,10,20,0,5,tzinfo=utc))==dt.datetime(2026,10,19,22,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,20,0,5,tzinfo=utc))==dt.datetime(2026,10,19,23,17,tzinfo=utc)
         slot=dt.datetime(2026,10,19,10,17,tzinfo=utc)
         assert already_released_in_slot({"slot_utc":"2026-10-19T10:17:00Z"},slot)
         assert not already_released_in_slot({"slot_utc":"2026-10-19T08:17:00Z"},slot)

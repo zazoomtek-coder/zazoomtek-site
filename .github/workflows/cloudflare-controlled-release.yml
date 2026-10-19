@@ -1,8 +1,8 @@
 name: Cloudflare Pages - hourly controlled publishing
 # Deploy source: GitHub main. Production should watch ONLY
 # cloudflare-release-trigger.txt in Cloudflare Pages Build watch paths.
-# Fixed publication windows open every two hours at even UTC hours :17.
-# :47 and the odd-hour :17/:47 runs are recovery checks for missed windows.
+# Fixed publication windows open every hour at :17 UTC.
+# :47 is a recovery check for missed hourly windows, not another release slot.
 # Each window publishes at most once; no rolling cooldown may postpone it.
 # GitHub Actions cron and Cloudflare deployment remain best effort, not exact-time SLAs.
 
