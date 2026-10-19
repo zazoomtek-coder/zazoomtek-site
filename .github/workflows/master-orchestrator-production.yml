@@ -1,0 +1,45 @@
+name: ZazoomTek MASTER - sole production writer (CUTOVER GATED)
+# DO NOT add a schedule or activate this workflow until the existing 14
+# potential writers are retired in the SAME reviewed atomic cutover.
+# During staging, manual dispatch is blocked by master-production-enabled.json.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: zazoomtek-master-sole-repository-and-pages-writer
+  cancel-in-progress: false
+
+jobs:
+  master:
+    if: github.ref == 'refs/heads/main'
+    name: Verified editorial JSON to Cloudflare release gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare existing image and rendering dependencies
+        run: python3 -m pip install --quiet pillow
+      - name: Verify exclusive writer ownership; block if not cut over
+        env:
+          YOUTUBE_API_KEY: \${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          python3 scripts/master-production-gateway.py --check-cutover
+      - name: Validate and publish only via single Git + Pages gateway
+        env:
+          YOUTUBE_API_KEY: \${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          python3 scripts/master-production-gateway.py --publish
