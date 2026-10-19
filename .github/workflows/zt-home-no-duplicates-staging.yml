@@ -34,7 +34,8 @@ jobs:
           from pathlib import Path
           h=Path('zt-home-live.js').read_text()
           assert 'function reconcileRight()' in h
-          assert 'window.dispatchEvent(new Event("zt:home-columns-repainted"));' in h
+          assert 'new CustomEvent("zt:home-columns-repainted"' in h
+          assert 'olderTechForPopular' in h and 'techBackups=candidates.tech' in h
           assert 'fillModule(impact' in h and 'fillModule(inside' in h and 'fillModule(pop' in h
           assert 'new MutationObserver(paintCurrentColumns)' in h
           gate=Path('scripts/verify-home-browser-columns.cjs').read_text()
