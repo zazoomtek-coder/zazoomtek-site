@@ -397,3 +397,98 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});
   else setup();
 })();
+
+/* ZT_SITE_MENU_FLYOUT_20261019
+   The existing Home menu is the only source of routes. Render its exact
+   dropdown links as a fixed, keyboard/touch-accessible flyout everywhere. */
+(function(){
+  'use strict';
+  function ready(){
+    const drops=Array.from(document.querySelectorAll('header nav.nav > .nav-drop'));
+    if(!drops.length||document.getElementById('zt-site-menu-flyout'))return;
+    const flyout=document.createElement('nav');
+    flyout.id='zt-site-menu-flyout';
+    flyout.setAttribute('aria-label','Sottomenu del sito');
+    document.body.appendChild(flyout);
+    let active=null;
+    let closeTimer=null;
+    function cancel(){
+      if(closeTimer!==null){clearTimeout(closeTimer);closeTimer=null;}
+    }
+    function close(){
+      cancel();active=null;flyout.classList.remove('is-open');
+      drops.forEach(drop=>{
+        drop.classList.remove('zt-nav-open');
+        const button=drop.querySelector(':scope > .nav-drop-trigger');
+        if(button)button.setAttribute('aria-expanded','false');
+      });
+    }
+    function position(){
+      if(!active)return;
+      const btn=active.querySelector(':scope > .nav-drop-trigger');
+      if(!btn)return close();
+      const rect=btn.getBoundingClientRect();
+      if(rect.bottom<0||rect.top>innerHeight)return close();
+      const width=flyout.offsetWidth||215;
+      flyout.style.left=Math.max(8,Math.min(Math.round(rect.left),innerWidth-width-8))+'px';
+      flyout.style.top=Math.min(innerHeight-8,Math.round(rect.bottom))+'px';
+    }
+    function open(drop){
+      cancel();
+      const source=drop.querySelectorAll(':scope > .nav-submenu a[href]');
+      if(!source.length)return;
+      flyout.replaceChildren(...Array.from(source,link=>link.cloneNode(true)));
+      active=drop;
+      drops.forEach(item=>{
+        item.classList.toggle('zt-nav-open',item===drop);
+        const button=item.querySelector(':scope > .nav-drop-trigger');
+        if(button)button.setAttribute('aria-expanded',item===drop?'true':'false');
+      });
+      flyout.classList.add('is-open');
+      position();
+    }
+    function delayedClose(){cancel();closeTimer=setTimeout(close,230);}
+    drops.forEach(drop=>{
+      const btn=drop.querySelector(':scope > .nav-drop-trigger');
+      if(!btn)return;
+      btn.setAttribute('aria-haspopup','true');
+      btn.setAttribute('aria-expanded','false');
+      btn.setAttribute('aria-controls','zt-site-menu-flyout');
+      drop.addEventListener('mouseenter',()=>{if(matchMedia('(hover:hover)').matches)open(drop);});
+      drop.addEventListener('mouseleave',delayedClose);
+      btn.addEventListener('click',event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        if(active===drop&&flyout.classList.contains('is-open'))close();
+        else open(drop);
+      });
+      btn.addEventListener('keydown',event=>{
+        if(event.key==='ArrowDown'||event.key===' '){
+          event.preventDefault();open(drop);
+          flyout.querySelector('a')?.focus();
+        }
+      });
+      btn.addEventListener('focus',()=>{if(matchMedia('(hover:hover)').matches)open(drop);});
+    });
+    flyout.addEventListener('mouseenter',cancel);
+    flyout.addEventListener('mouseleave',delayedClose);
+    flyout.addEventListener('focusin',cancel);
+    flyout.addEventListener('focusout',event=>{
+      if(!flyout.contains(event.relatedTarget))delayedClose();
+    });
+    document.addEventListener('pointerdown',event=>{
+      if(active&&!flyout.contains(event.target)&&!active.contains(event.target))close();
+    });
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&active){
+        const btn=active.querySelector(':scope > .nav-drop-trigger');
+        close();btn?.focus();
+      }
+    });
+    addEventListener('resize',position,{passive:true});
+    addEventListener('scroll',position,{passive:true});
+    document.documentElement.classList.add('zt-site-menu-enhanced');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
+  else ready();
+})();
