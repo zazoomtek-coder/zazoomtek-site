@@ -341,7 +341,12 @@ def run(args: argparse.Namespace) -> int:
                 if videos.get("status") == "ok" and ".youtube-master-render-cache.json" in videos.get("json_updated", []):
                     command(folder, sys.executable, "scripts/update-youtube.py",
                             "--render-from-cache", timeout=600)
-                command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
+                if args.simulate_production_render and os.getenv("GITHUB_EVENT_NAME") == "pull_request":
+                    os.environ["ZT_MASTER_STAGING_TEST"] = "1"
+                try:
+                    command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
+                finally:
+                    os.environ.pop("ZT_MASTER_STAGING_TEST", None)
                 if (folder / "master-staging/editorial-boxes.json").is_file():
                     command(folder, sys.executable, "scripts/master-json-renderer.py",
                             "--postbuild-editorial", timeout=180)
@@ -399,6 +404,7 @@ def run(args: argparse.Namespace) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--simulate-production-render", action="store_true", help="CI-only, test Cloudflare JSON→HTML renderer without arming production")
     parser.add_argument("--with-imports", action="store_true",
                         help="Explicitly test external YouTube/portal feeds, still no deploy")
     parser.add_argument("--output-dir", default="artifacts/master-orchestrator")
