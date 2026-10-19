@@ -37,6 +37,13 @@ def main() -> None:
         if (ROOT / ".youtube-master-render-cache.json").is_file():
             run("update-youtube.py", "--render-from-cache")
         run("master-json-renderer.py", "--prebuild-reviews")
+        # Preserve the existing publisher's approved NEWS, Impact/Inside,
+        # and Guides within the throwaway Cloudflare build checkout.
+        # These are data-to-page renderers, NOT extra writers to main.
+        run("build-standard-news.py")
+        run("apply-standard-news-featured.py")
+        run("publish-special-news.py")
+        run("build-guide-archive.py")
         run("verify-home-layout-lock.py")
     run("test_home_10x10_release.py")
     run("validate-sync-output.py", "community")
