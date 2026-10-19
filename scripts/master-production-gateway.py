@@ -65,8 +65,9 @@ def preflight() -> None:
         raise ReleaseBlocked("Production is not explicitly armed; no Git or Cloudflare changes")
     if os.environ.get("GITHUB_REF") != "refs/heads/main":
         raise ReleaseBlocked("Only main may publish")
-    if not os.environ.get("YOUTUBE_API_KEY"):
-        raise ReleaseBlocked("YouTube secret unavailable: do not degrade the 5-minute feed")
+    key=os.environ.get("YOUTUBE_API_KEY", "")
+    if not key or key.startswith(chr(92)) or "${{" in key:
+        raise ReleaseBlocked("YouTube secret missing/escaped: do not degrade the import pipeline")
     audit_cutover()
     if call("git", "status", "--porcelain"):
         raise ReleaseBlocked("Checkout contains uncommitted files")
