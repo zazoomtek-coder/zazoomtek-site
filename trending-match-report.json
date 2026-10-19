@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-18T22:44:14.578700+00:00",
+  "checked_at": "2026-10-19T01:04:11.090483+00:00",
   "source_sites": 15,
   "matches": 7,
   "selected": [
@@ -9,8 +9,8 @@
       "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
-      "freshness_bonus": 40,
-      "selection_score": 40.0,
+      "freshness_bonus": 23,
+      "selection_score": 23.0,
       "sources": []
     },
     {
@@ -19,8 +19,8 @@
       "url": "/news-UgkxBK8ILfL_RZz8exfFznI391GfZ3PgP_3-.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
-      "freshness_bonus": 40,
-      "selection_score": 40.0,
+      "freshness_bonus": 23,
+      "selection_score": 23.0,
       "sources": []
     },
     {
@@ -29,8 +29,8 @@
       "url": "/news-UgkxkNT_iXfSvzktCf-oWW62lCCIJ33bxvdP.html",
       "trend_score": 62.92,
       "published_date": "2026-10-16",
-      "freshness_bonus": 40,
-      "selection_score": 80.9,
+      "freshness_bonus": 23,
+      "selection_score": 63.9,
       "sources": [
         {
           "site": "Gamesurf",
@@ -45,8 +45,8 @@
       "url": "/news-UgkxtRknJZGjXPKTtnhDQrev1PCJdW5xRjdl.html",
       "trend_score": 0,
       "published_date": "2026-10-16",
-      "freshness_bonus": 40,
-      "selection_score": 40.0,
+      "freshness_bonus": 23,
+      "selection_score": 23.0,
       "sources": []
     },
     {
@@ -55,8 +55,8 @@
       "url": "/news-Ugkx-HXxboW8wSTg4t9rGruXOlJsHNZXBl0Y.html",
       "trend_score": 0,
       "published_date": "2026-10-18",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
+      "freshness_bonus": 62,
+      "selection_score": 62.0,
       "sources": []
     }
   ]
