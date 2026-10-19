@@ -35,9 +35,42 @@ async function main(){
       }
       const featured=new Set([...document.querySelectorAll("#ztFeaturedGrid a[href]")]
         .map(a=>new URL(a.getAttribute("href"),location.origin).pathname));
+      function visibleLink(path,sel){
+        const link=document.querySelector(sel);
+        return link && new URL(link.getAttribute('href'),location.origin).pathname===path;
+      }
+      function visibleCard(card){
+        if(!card||card.hidden)return false;
+        const style=getComputedStyle(card);
+        return style.display!=="none"&&style.visibility!=="hidden";
+      }
+      function paths(selector,linkSelector){
+        return [...document.querySelectorAll(selector)].filter(visibleCard).map(card=>{
+          const link=linkSelector?card.querySelector(linkSelector):card;
+          if(!link?.getAttribute("href"))return "";
+          const url=new URL(link.getAttribute("href"),location.origin);
+          return url.origin===location.origin?url.pathname:"";
+        }).filter(Boolean);
+      }
+      const newsModules={
+        featured:paths("#ztFeaturedGrid > a[href]",""),
+        techImpact:paths('#ztpNewsRail .zt-special-box[data-special-section="tech"] .zt-special-item','a.zt-special-thumb'),
+        gamingInside:paths('#ztpNewsRail .zt-special-box[data-special-section="gaming"] .zt-special-item','a.zt-special-thumb'),
+        popular:paths("#ztpNewsRail #zt-popular-box .zt-popular-article",""),
+        editorial:paths("#ztpNewsRail .ztp-editorial-story","")
+      };
+      // Every selected story appears only once across the actual VISIBLE Home.
+      // Independent carousel updates must not duplicate news in editorial rails.
+      const seenNews=new Map(),duplicateNews=[];
+      for(const [section,urls] of Object.entries(newsModules)){
+        for(const path of urls){
+          if(seenNews.has(path))duplicateNews.push(path+" ("+seenNews.get(path)+" / "+section+")");
+          else seenNews.set(path,section);
+        }
+      }
       const rect=name=>document.querySelector(".ztp-news-"+name)?.getBoundingClientRect();
       const tech=rect("tech"),gaming=rect("gaming");
-      return {tech:read("tech"),gaming:read("gaming"),featured:[...featured],
+      return {tech:read("tech"),gaming:read("gaming"),featured:[...featured],newsModules,duplicateNews,
         techBottom:tech?.bottom||0,gamingBottom:gaming?.bottom||0,
         overflow:document.documentElement.scrollWidth-innerWidth,
         guides:document.querySelectorAll("#ztHomeGuide .zt-magazine-primary,#ztHomeGuide .zt-magazine-small").length,
@@ -53,6 +86,14 @@ async function main(){
    if(all.some(x=>!x.url||!x.shown))failures.push("Missing or invisible article");
    if(new Set(urls).size!==20)failures.push("Duplicate or missing canonical article URL");
    if(all.some(x=>info.featured.includes(x.url)))failures.push("Featured article duplicated in columns");
+   if(info.duplicateNews.length)failures.push("News repeated across Home boxes: "+info.duplicateNews.join(" | "));
+   for(const [section,items] of Object.entries(info.newsModules)){
+     if(section!=="featured"&&items.length<1)failures.push("Empty editorial module: "+section);
+     if(items.some(url=>urls.includes(url)))failures.push("Column story repeated in "+section+": "+items.filter(url=>urls.includes(url)).join(","));
+   }
+   if(info.newsModules.techImpact.length>2||info.newsModules.gamingInside.length>2||
+      info.newsModules.popular.length>2||info.newsModules.editorial.length>3)
+     failures.push("More visible news in an editorial box than the approved layout");
    for(const name of ["tech","gaming"]){
      const rows=info[name];
      if(rows.some(x=>x.date<=0))failures.push(name+" has an article without a valid original ISO date");
@@ -67,7 +108,8 @@ async function main(){
      tech:info.tech.length,gaming:info.gaming.length,unique:new Set(urls).size,
      dateTech:info.tech[0]?.date,dateGaming:info.gaming[0]?.date,
      bottomDelta:Math.round(Math.abs(info.techBottom-info.gamingBottom)),
-     guides:info.guides,extra:info.extras,overflow:info.overflow,failures}));
+     guides:info.guides,extra:info.extras,overflow:info.overflow,
+     modules:Object.fromEntries(Object.entries(info.newsModules).map(([key,items])=>[key,items.length])),failures}));
    if(failures.length)throw Error(name+": "+failures.join(" | "));
    await page.close();
   }

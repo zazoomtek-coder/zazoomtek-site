@@ -112,6 +112,33 @@ def home_urls(source: str) -> set[str]:
         raise RuntimeError(f"Expected 15 canonical unique Home news; found {len(urls)}")
     return urls
 
+def likely_home_column_urls() -> set[str]:
+    """Reserve the newest genuine Tech/Gaming URLs before sidebar selection.
+
+    The Home browser restores 10 per category from published archives and may
+    load pages asynchronously. Exclude their newest candidates up front, so
+    the sidebar receives OLDER news rather than six soon-to-be-hidden cards.
+    The browser still performs final visible-page dedup after carousel rotation.
+    """
+    buckets: dict[str, dict[str, dict]] = {"tech": {}, "gaming": {}}
+    pages=("index.html", "news.html", "news-2.html", "news-3.html",
+           "news-4.html", "news-5.html",
+           "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html")
+    for page in pages:
+        for item in extract(page):
+            category=item.get("category")
+            if category not in buckets:
+                continue
+            previous=buckets[category].get(item["url"])
+            if previous is None or publication_key(item)>publication_key(previous):
+                buckets[category][item["url"]]=item
+    return {
+        item["url"]
+        for pool in buckets.values()
+        for item in sorted(pool.values(),key=publication_key,reverse=True)[:8]
+    }
+
+
 def distinct(items: list[dict], avoid: set[str]) -> list[dict]:
     result: list[dict] = []
     used = set(avoid)
@@ -176,20 +203,32 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     if "ztp-final-balanced-live-20261013" not in homepage:
         raise RuntimeError("Approved Home layout missing; refusing editorial overwrite")
     published_home = home_urls(homepage)
+    # Featured cards are refreshed independently, so the chosen editorial
+    # backfill must also exclude the CURRENT verified carousel, not merely
+    # the 15 news in the canonical Home feed. Otherwise the next carousel
+    # rotation can reintroduce a duplicate into DA NON PERDERE.
+    manifest = json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))
+    featured_urls = {clean_url(x.get("url", "")) for x in manifest.get("items", [])}
+    if len(featured_urls) != 5 or None in featured_urls:
+        raise RuntimeError("Cannot refresh editorial boxes with invalid featured URLs")
+    reserved = published_home | featured_urls | likely_home_column_urls()
     ordinary = []
-    for file in ("news.html", "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html"):
+    # More archive pages allow older real articles to fill the boxes when
+    # the newest ones are already in the carousel or Tech/Gaming columns.
+    for file in ("news.html", "news-2.html", "news-3.html", "news-4.html", "news-5.html",
+                 "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html"):
         ordinary.extend(item for item in extract(file)
                         if not item["url"].startswith(("/tech-impact-","/gaming-inside-"))
                         and not re.match(r"^News\s+(?:Tech\s+Impact|Gaming\s+Inside)\s*:",
                                          item["title"],re.I))
     if any(item["url"].startswith(("/tech-impact-","/gaming-inside-")) for item in ordinary):
         raise RuntimeError("Special article leaked into ordinary Home boxes")
-    ordinary = distinct(ordinary, published_home)
+    ordinary = distinct(ordinary, reserved)
     if len(ordinary) < 12:
         raise RuntimeError("Too few independent published news for editorial freshness")
     # Prioritize each source's freshest published, category-correct stories.
     # Cross-section exclusion must happen BEFORE selection, not after it.
-    tech = choose(distinct(extract("tech-today.html"), published_home), 4, today)
+    tech = choose(distinct(extract("tech-today.html"), reserved), 4, today)
     # Keep distinct topic-specific homepage covers even when the category feed is regenerated.
     # These files are actual local SVG assets, not remote placeholders.
     tech_cover_overrides = {
@@ -203,15 +242,15 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         if cover and valid_image(cover):
             item["image"] = cover
     special_urls = {item["url"] for item in tech}
-    gaming = choose(distinct(extract("gaming-today.html"), published_home | special_urls), 4, today)
+    gaming = choose(distinct(extract("gaming-today.html"), reserved | special_urls), 4, today)
     special_urls.update(item["url"] for item in gaming)
-    ordinary = distinct(ordinary, published_home | special_urls)
+    ordinary = distinct(ordinary, reserved | special_urls)
     # Permanent editorial separation: DA NON PERDERE is TECH only and
     # DALLA REDAZIONE is GAMING only. Rely on explicit published category metadata,
     # not on guesses from cover artwork or ambiguous headlines.
     suggested = choose([item for item in ordinary if item["category"] == "tech"], 6, today)
     selected = {item["url"] for item in suggested}
-    left = distinct(ordinary, published_home | special_urls | selected)
+    left = distinct(ordinary, reserved | special_urls | selected)
     editorial = choose([item for item in left if item["category"] == "gaming"], 12, today, keep_latest=2)
     if any(item["category"] != "tech" for item in suggested):
         raise RuntimeError("Non-Tech article reached DA NON PERDERE")
@@ -281,6 +320,8 @@ def main() -> None:
         a, b, _ = build(date)
         assert a == index and b == javascript, "Refresh must be deterministic and idempotent"
         assert sum(len(report[key]) for key in ("suggested", "tech_impact", "gaming_inside", "dalla_redazione")) == 26
+        assert not (set(report["suggested"]) & likely_home_column_urls()), "Popular sidebar reused a Tech/Gaming column article"
+        assert not (set(report["suggested"]) & {clean_url(x["url"]) for x in json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))["items"]}), "Popular sidebar reused a carousel article"
         print("PASS: every refreshed card uses a real existing ZazoomTek article + validated thumbnail")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if not opts.self_test and not opts.dry_run:

@@ -1,0 +1,69 @@
+name: Home news deduplication — complete Cloudflare staging
+on:
+  push:
+    branches: [fix/home-cross-box-news-dedup-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: home-cross-box-dedup-staging
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test source selectors, lock and editorial backfill
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/refresh-home-editorial-boxes.py scripts/verify-home-layout-lock.py
+          node --check zt-home-live.js
+          node --check scripts/verify-home-browser-columns.cjs
+          python3 scripts/verify-home-layout-lock.py
+          python3 scripts/refresh-home-editorial-boxes.py --self-test
+          python3 - <<'PY'
+          from pathlib import Path
+          h=Path('zt-home-live.js').read_text()
+          assert 'function reconcileRight()' in h
+          assert 'new CustomEvent("zt:home-columns-repainted"' in h
+          assert 'olderTechForPopular' in h and 'techBackups=candidates.tech' in h
+          assert 'fillModule(impact' in h and 'fillModule(inside' in h and 'fillModule(pop' in h
+          assert 'new MutationObserver(paintCurrentColumns)' in h
+          gate=Path('scripts/verify-home-browser-columns.cjs').read_text()
+          assert 'News repeated across Home boxes:' in gate
+          print('PASS: cross-module runtime dedup and fail-closed browser gate')
+          PY
+      - name: Build exact Cloudflare public site with all original checks
+        run: |
+          set -euo pipefail
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 scripts/protect-home-structure.py dist/index.html
+      - name: Browser verification — desktop, tablet and smartphone, no repeated news
+        run: |
+          set -euo pipefail
+          command -v google-chrome
+          npm install --prefix /tmp/zt-home-dedup-test --no-save --silent playwright-core@1.56.0
+          nohup python3 -m http.server 8877 --directory dist --bind 127.0.0.1 >/tmp/zt-home-dedup-test.log 2>&1 &
+          for i in {1..15}; do
+            if curl -fsS http://127.0.0.1:8877/ >/dev/null; then break; fi
+            sleep 1
+          done
+          NODE_PATH=/tmp/zt-home-dedup-test/node_modules node scripts/verify-home-browser-columns.cjs
+      - name: Preserve full site preview without deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-no-duplicate-staging
+          path: dist/
+          retention-days: 3

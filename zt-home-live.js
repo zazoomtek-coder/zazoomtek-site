@@ -281,16 +281,94 @@
   else rail.appendChild(editorialBox);
   editorialBox.insertAdjacentElement("afterend",shortsSlot);
   // Three large and real editorial images; keep article links, never inject placeholders.
+  // One article may appear in ONE visible Home news module only.
+  // Priority: featured carousel, ten Tech/Gaming news per column, then
+  // Tech Impact / Gaming Inside / Da non perdere / Dalla redazione.
+  // Existing backup cards are promoted into the first two slots: do not
+  // delete articles, alter SEO, insert filler or change the approved layout.
+  let olderTechForPopular=[];
   function reconcileRight(){
     if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
-    const linked=new Set([...area.querySelectorAll(".ztp-news-item h3 a")].map(a=>{
-      try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
-    }));
-    const eligible=editorialCards.filter(card=>!linked.has(new URL(card.href).pathname));
-    const selected=new Set(eligible.slice(0,3));
+    function articlePath(node){
+      if(!node)return "";
+      try{
+        const u=new URL(node.getAttribute("href")||"",location.origin);
+        return u.origin===location.origin?u.pathname:"";
+      }catch(_){return "";}
+    }
+    const used=new Set();
+    for(const link of document.querySelectorAll("#ztFeaturedGrid > a[href]")){
+      const path=articlePath(link);if(path)used.add(path);
+    }
+    for(const link of area.querySelectorAll(".ztp-news-column .ztp-news-items > article .article-copy h3 a[href]")){
+      const card=link.closest("article");
+      if(card && !card.hidden && getComputedStyle(card).display!=="none"){
+        const path=articlePath(link);if(path)used.add(path);
+      }
+    }
+    function fillModule(root,selector,max,linkSelector){
+      if(!root)return;
+      const cards=[...root.querySelectorAll(selector)];
+      if(!cards.length)return;
+      // Keep the original newest-first ranking, even after previous repairs.
+      cards.forEach((card,i)=>{
+        if(card.dataset.ztUniqueOriginalOrder===undefined)
+          card.dataset.ztUniqueOriginalOrder=String(i);
+      });
+      cards.sort((a,b)=>Number(a.dataset.ztUniqueOriginalOrder)-Number(b.dataset.ztUniqueOriginalOrder));
+      const chosen=[],rest=[];
+      for(const card of cards){
+        const path=articlePath(card.matches("a[href]")?card:card.querySelector(linkSelector));
+        if(path && !used.has(path) && chosen.length<max){
+          used.add(path);chosen.push(card);
+        }else rest.push(card);
+      }
+      const parent=cards[0].parentElement;
+      // Existing CSS shows the first two items; move unique backups into
+      // those positions so no empty space is created by hidden duplicates.
+      for(const card of chosen.concat(rest))parent.appendChild(card);
+      for(const card of chosen)card.style.removeProperty("display");
+      for(const card of rest)card.style.setProperty("display","none","important");
+      root.style.display=chosen.length?"":"none";
+    }
+    fillModule(impact,".zt-special-item",2,"a.zt-special-thumb[href]");
+    fillModule(inside,".zt-special-item",2,"a.zt-special-thumb[href]");
+    // Older, verified Tech articles backfill DA NON PERDERE AFTER the
+    // browser has finalized the ten newest Tech and Gaming columns.
+    // The daily snapshot alone can overlap those asynchronous columns.
+    if(pop && olderTechForPopular.length){
+      const holder=pop.querySelector(".zt-popular-list");
+      if(holder){
+        const existing=new Set([...holder.querySelectorAll(".zt-popular-article")].map(articlePath).filter(Boolean));
+        for(const item of olderTechForPopular){
+          if(!item || !/^\/news-[A-Za-z0-9_-]+\.html$/.test(item.url) ||
+             !item.title || !item.image || used.has(item.url) || existing.has(item.url))continue;
+          const card=document.createElement("a");
+          card.className="zt-popular-article";card.href=item.url;card.title=item.title;
+          const image=document.createElement("img");image.src=item.image;image.alt=item.title;image.loading="lazy";
+          const copy=document.createElement("span");copy.className="zt-popular-copy";
+          const category=document.createElement("span");category.className="zt-popular-category";category.textContent="TECNOLOGIA";
+          const title=document.createElement("strong");title.textContent=item.title;
+          copy.append(category,title);card.append(image,copy);holder.appendChild(card);
+          existing.add(item.url);
+          if(existing.size>=16)break;
+        }
+      }
+    }
+    fillModule(pop,".zt-popular-article",2,"");
+    const chosen=[];
+    for(const card of editorialCards){
+      const path=articlePath(card);
+      if(path && !used.has(path) && chosen.length<3){chosen.push(card);used.add(path);}
+    }
+    const selected=new Set(chosen);
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
   }
+  window.addEventListener("zt:home-columns-repainted",event=>{
+    olderTechForPopular=Array.isArray(event.detail?.techBackups)?event.detail.techBackups:[];
+    requestAnimationFrame(reconcileRight);
+  });
 
   balance();
   window.addEventListener("load",()=>{balance();requestAnimationFrame(reconcileRight)},{once:true});
@@ -547,6 +625,23 @@
         column.replaceChildren(...ranked.slice(0,10).map(item=>item.row));
       }
       rebalance();
+      // Sidebar cards must be rechecked whenever archived news or featured
+      // carousel changes. Only visible, real article links count as duplicates.
+      const visibleTech=new Set([...tech.querySelectorAll(".article-copy h3 a[href]")].map(a=>{
+        try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
+      }));
+      const techBackups=candidates.tech
+        .filter(row=>{
+          const url=archiveHref(row);
+          return url && !featured.has(url) && !visibleTech.has(url);
+        })
+        .sort((a,b)=>sourcePublishedAt(b)-sourcePublishedAt(a))
+        .slice(0,22).map(row=>({
+          url:archiveHref(row),
+          title:(row.querySelector(".article-copy h3 a")?.textContent||"").trim(),
+          image:row.querySelector("img.article-image")?.getAttribute("src")||""
+        }));
+      window.dispatchEvent(new CustomEvent("zt:home-columns-repainted",{detail:{techBackups}}));
     }
     function addPublishedNews(src){
       const route=explicitArchiveCategory(src);
