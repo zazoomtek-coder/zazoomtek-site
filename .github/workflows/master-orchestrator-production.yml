@@ -76,6 +76,11 @@ jobs:
             else
               mode=poll
             fi
+            # One final production push is requested tonight. Today's scheduled
+            # 20:15 release must NOT issue another Cloudflare build.
+            if [ "$(TZ=Europe/Rome date +%Y-%m-%d)" = "2026-10-19" ]; then
+              mode=poll
+            fi
           elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
             mode="${ZT_DISPATCH_MODE:-publish}"
           else

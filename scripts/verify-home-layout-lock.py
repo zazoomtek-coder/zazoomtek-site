@@ -18,12 +18,12 @@ ROOT=Path(__file__).resolve().parents[1]
 LOCKED_BLOBS={
     "zt-home-live.js":"4fa8b5e8dfd87964b8d791cad6c771bff635f1c5",
     "zt-home-graphic-layout-20261016.css":"81d674a512a6074e3942049f3e5fad2413ad748e",
-    "zt-home-graphic-layout-20261016.js":"d2f224d8eedf75b0ed711f5ba2ab106b5af6ed8f",
+    "zt-home-graphic-layout-20261016.js":"40ee278d0fbe810d5ea73c83f1e20c5d6a17a904",
     "zt-home-gap-fix-20261014.css":"8db90af3c1bfb273b53f81c0ad7f1631cd82aacf",
 }
 # The daily editorial job may refresh this one JSON list in an otherwise locked JS file.
 # Its structure is verified and the entire rest of the JS must retain the approved digest.
-LOCKED_HOME_LIVE_TEMPLATE_SHA="424761f0d44cb8e5b5fb55bcf021dab4e806d768"
+LOCKED_HOME_LIVE_TEMPLATE_SHA="2bb063c6d46d1fdb2bf7ad5125e9c001d3c0696a"
 INLINE_STYLE_FNV64="df1fab8ffc145811"
 HOME_ASSET_REVISION="20261018stableColumns1010"
 
