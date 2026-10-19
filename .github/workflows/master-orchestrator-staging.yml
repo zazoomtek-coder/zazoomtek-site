@@ -48,6 +48,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install image dependencies used by full news and special rendering
+        run: python3 -m pip install --quiet 'Pillow>=10,<13'
       - name: Verify orchestrator source and five-slot logic
         run: |
           python3 -m py_compile scripts/master-orchestrator.py scripts/master-production-gateway.py
