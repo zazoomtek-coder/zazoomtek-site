@@ -74,6 +74,56 @@ def render_row(item:dict)->str:
             +'<p>'+esc(item['desc'])+'</p>'
             +'<a class="news-read" href="/'+slug+'">Leggi lo speciale ›</a></div></article>')
 
+
+RELATED_START='<!-- ZT_SPECIALI_RELATED_START -->'
+RELATED_END='<!-- ZT_SPECIALI_RELATED_END -->'
+
+def context_articles(root:Path=ROOT)->str:
+    """Published contextual NEWS in a separate 'Articoli correlati' area.
+
+    Never labels these cards as Speciali. Their own category archives
+    remain the source of truth and their original article URLs are preserved.
+    """
+    selected=[]
+    seen=set()
+    for label,source in (('TECH IMPACT','tech-today.html'),('GAMING INSIDE','gaming-today.html')):
+        page=root/source
+        if not page.is_file():
+            continue
+        text=page.read_text(encoding='utf-8',errors='replace')
+        count=0
+        for match in re.finditer(r'<article class="news-row"[^>]*>.*?</article>',text,re.S|re.I):
+            card=match.group()
+            link=re.search(r'<h2>\s*<a[^>]*href="(/[^"]+)"[^>]*>(.*?)</a>',card,re.S|re.I)
+            image=re.search(r'<img\b[^>]*src="([^"]+)"',card,re.I)
+            if not link or not image:
+                continue
+            slug=link.group(1).lstrip('/')
+            if not SAFE_ARTICLE.fullmatch(slug) or slug in seen or not (root/slug).is_file():
+                continue
+            pic=html.unescape(image.group(1))
+            if not (pic.startswith('https://') or SAFE_IMAGE.fullmatch(pic)):
+                continue
+            title=html.unescape(re.sub(r'<[^>]+>','',link.group(2))).strip()
+            if not title:
+                continue
+            esc=lambda t:html.escape(t,quote=True)
+            selected.append('<a class="zt-specials-related-card" href="/'+esc(slug)+'">'
+                            +'<img loading="lazy" src="'+esc(pic)+'" alt="'+esc(title)+'">'
+                            +'<span class="zt-specials-related-copy"><small>'+label+'</small>'
+                            +'<strong>'+esc(title)+'</strong></span></a>')
+            seen.add(slug)
+            count+=1
+            if count>=3:
+                break
+    if not selected:
+        return ('<a class="zt-specials-related-category" href="/tech-today.html">'
+                'Scopri le news Tech Impact →</a>'
+                '<a class="zt-specials-related-category" href="/gaming-today.html">'
+                'Scopri le news Gaming Inside →</a>')
+    return '\n'.join(selected)
+
+
 def build(root:Path=ROOT)->int:
     target=root/'speciali.html'
     page=target.read_text(encoding='utf-8')
@@ -84,6 +134,11 @@ def build(root:Path=ROOT)->int:
     entries=approved_entries(root)
     body='\n'.join(map(render_row,entries)) if entries else SENTINEL
     updated=head+START+'\n'+body+'\n'+END+tail
+    if updated.count(RELATED_START)!=1 or updated.count(RELATED_END)!=1:
+        raise RuntimeError("SPECIALI contextual articles markers missing; refusing build")
+    prefix,rest=updated.split(RELATED_START,1)
+    _,suffix=rest.split(RELATED_END,1)
+    updated=prefix+RELATED_START+'\n'+context_articles(root)+'\n'+RELATED_END+suffix
     # Refresh schema.org ItemList only after verified, approved pages are known.
     graph={
         "@context":"https://schema.org",
