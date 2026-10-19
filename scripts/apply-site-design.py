@@ -62,7 +62,7 @@ if not nav_pattern.search(header_template) or 'ticker-video-links' not in header
 def active_nav_key(filename):
     name=filename.lower()
     if name=="speciali.html" or re.fullmatch(r"speciali-\d+[.]html",name):
-        return "Tech Impact"  # Shared TG INSIDE active button in enhanced navigation.
+        return "Tech Impact"  # Shared INSIGHTS active button in enhanced navigation.
     if name=="extra.html" or re.fullmatch(r"extra-\d+[.]html",name):
         return "Extra"
     # An Extra Community article keeps its stable news-ID URL, but belongs
