@@ -37,6 +37,15 @@ def main() -> None:
         if (ROOT / ".youtube-master-render-cache.json").is_file():
             run("update-youtube.py", "--render-from-cache")
         run("master-json-renderer.py", "--prebuild-reviews")
+        # Standalone NEWS/cover generation uses Pillow. In a fresh Cloudflare
+        # build environment install it only if unavailable; a failure blocks
+        # the build and leaves the previous live deployment intact.
+        try:
+            from PIL import Image as _Image
+        except ImportError:
+            subprocess.run([sys.executable, "-m", "pip", "install",
+                            "--disable-pip-version-check", "Pillow>=10,<13"],
+                           cwd=ROOT, check=True, timeout=180)
         # Preserve the existing publisher's approved NEWS, Impact/Inside,
         # and Guides within the throwaway Cloudflare build checkout.
         # These are data-to-page renderers, NOT extra writers to main.
