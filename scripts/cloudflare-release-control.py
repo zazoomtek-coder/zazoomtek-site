@@ -3,10 +3,9 @@
 
 Only the trigger file causes a Pages build. You MUST configure Pages Build
 watch paths -> Includes: cloudflare-release-trigger.txt, Excludes: (none).
-Validated public changes are published in fixed hourly UTC release windows
-(opening at minute :17), with :47 checks as recovery opportunities.
-One triggered release per window, no rolling 50-minute delay and no arbitrary
-editorial/carousel hold. The 450/31-day budget leaves an urgent reserve to 475
+Only new editorial stories since the previous public release trigger a build,
+at 10:15, 12:45, 15:15, 17:45, and 20:15 Europe/Rome.
+There are no scheduled overnight checks or empty Cloudflare builds. The 450/31-day budget leaves an urgent reserve to 475
 (and another 25 as contingency). External GitHub/Cloudflare delays remain possible.
 No public changes means no Pages build.
 
@@ -21,14 +20,15 @@ import fnmatch
 import json
 from pathlib import Path
 import subprocess
+from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
 TRIGGER=ROOT/"cloudflare-release-trigger.txt"
 HORIZON="31 days ago"
 RESERVE_SCHEDULED=450
 RESERVE_URGENT=475
-SLOT_HOURS=1
-SLOT_START_MINUTE=17
+ITALY=ZoneInfo("Europe/Rome")
+EDITORIAL_SLOTS=((10,15),(12,45),(15,15),(17,45),(20,15))
 CONTENT_EXT={".html",".css",".js",".json",".xml",".txt",".png",".jpg",".jpeg",".webp",".svg",".avif",".gif",".woff",".woff2",".ico"}
 OMIT={"cloudflare-release-trigger.txt"}
 # Data-only master publishes are public build inputs; none of these JSON
@@ -120,14 +120,69 @@ def decide(changed: list[str],used: int,urgent: bool=False) -> str:
 
 
 def release_slot(now: dt.datetime) -> dt.datetime:
-    """Latest fixed hourly window start, UTC (00:17, 01:17, ...)."""
+    """Last applicable Italian editorial publication window, converted to UTC."""
     if now.tzinfo is None:
         raise ReleaseError("A timezone-aware clock is required")
-    now=now.astimezone(dt.timezone.utc)
-    shifted=now-dt.timedelta(minutes=SLOT_START_MINUTE)
-    slot_hour=shifted.hour-(shifted.hour%SLOT_HOURS)
-    return shifted.replace(hour=slot_hour,minute=SLOT_START_MINUTE,
-                           second=0,microsecond=0)
+    local_now=now.astimezone(ITALY)
+    points=[]
+    for days_back in (0,1):
+        day=local_now.date()-dt.timedelta(days=days_back)
+        for hour,minute in EDITORIAL_SLOTS:
+            local=dt.datetime(day.year,day.month,day.day,hour,minute,tzinfo=ITALY)
+            point=local.astimezone(dt.timezone.utc)
+            if point<=now.astimezone(dt.timezone.utc):
+                points.append(point)
+    if not points:
+        raise ReleaseError("No applicable Italian publication window")
+    return max(points)
+
+
+def editorial_keys(path: str, payload: object) -> set[str]:
+    """Story identities, not cache mutations, justify paid Cloudflare builds."""
+    if path==".youtube-posts.json":
+        rows=payload if isinstance(payload,list) else []
+        key="id"
+    elif isinstance(payload,dict):
+        rows=payload.get("items" if path.endswith("review-publication-queue.json") else "articles",[])
+        key="target" if path.endswith("review-publication-queue.json") else "slug"
+    else:
+        rows=[]
+        key="id"
+    if not isinstance(rows,list):
+        raise ReleaseError("Invalid editorial item list: "+path)
+    return {row[key].strip() for row in rows if isinstance(row,dict)
+            and isinstance(row.get(key),str) and row[key].strip()
+            and (not path.endswith("review-publication-queue.json")
+                 or row.get("status")=="approved")}
+
+
+def newly_acquired_articles(previous: str) -> bool:
+    """Detect truly new Community, ordinary, special or approved-review items."""
+    if not previous:
+        return True
+    names=(".youtube-posts.json","standard-news.json",
+           "approved-special-articles.json","editorial/review-publication-queue.json")
+    for name in names:
+        file=ROOT/name
+        if not file.is_file():
+            continue
+        try:
+            current=json.loads(file.read_text(encoding="utf-8"))
+        except (OSError,ValueError) as exc:
+            raise ReleaseError("Invalid active editorial JSON: "+name) from exc
+        try:
+            old_raw=git("show",previous+":"+name)
+        except subprocess.CalledProcessError:
+            old_raw=""
+        try:
+            previous_data=json.loads(old_raw) if old_raw else ([] if name==".youtube-posts.json" else {})
+        except ValueError as exc:
+            raise ReleaseError("Invalid previous editorial release JSON: "+name) from exc
+        new=editorial_keys(name,current)-editorial_keys(name,previous_data)
+        if new:
+            print(f"RELEASE CONTROL: {len(new)} new articles in {name}")
+            return True
+    return False
 
 
 def release_metadata() -> dict[str,str]:
@@ -192,12 +247,19 @@ def main():
         assert public("master-staging/reviews-due.json")
         assert not public("cloudflare-release-trigger.txt")
         utc=dt.timezone.utc
-        assert release_slot(dt.datetime(2026,10,19,10,16,tzinfo=utc))==dt.datetime(2026,10,19,9,17,tzinfo=utc)
-        assert release_slot(dt.datetime(2026,10,19,10,17,tzinfo=utc))==dt.datetime(2026,10,19,10,17,tzinfo=utc)
-        assert release_slot(dt.datetime(2026,10,19,11,47,tzinfo=utc))==dt.datetime(2026,10,19,11,17,tzinfo=utc)
-        assert release_slot(dt.datetime(2026,10,19,12,17,tzinfo=utc))==dt.datetime(2026,10,19,12,17,tzinfo=utc)
-        assert release_slot(dt.datetime(2026,10,20,0,5,tzinfo=utc))==dt.datetime(2026,10,19,23,17,tzinfo=utc)
-        slot=dt.datetime(2026,10,19,10,17,tzinfo=utc)
+        # CEST (October, +02:00) and CET (December, +01:00).
+        assert release_slot(dt.datetime(2026,10,19,8,14,tzinfo=utc))==dt.datetime(2026,10,18,18,15,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,8,15,tzinfo=utc))==dt.datetime(2026,10,19,8,15,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,10,45,tzinfo=utc))==dt.datetime(2026,10,19,10,45,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,13,15,tzinfo=utc))==dt.datetime(2026,10,19,13,15,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,15,45,tzinfo=utc))==dt.datetime(2026,10,19,15,45,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,18,15,tzinfo=utc))==dt.datetime(2026,10,19,18,15,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,12,19,9,15,tzinfo=utc))==dt.datetime(2026,12,19,9,15,tzinfo=utc)
+        assert editorial_keys(".youtube-posts.json",[{"id":"new1"}])=={"new1"}
+        assert editorial_keys("editorial/review-publication-queue.json",
+               {"items":[{"target":"a.html","status":"approved"},
+                         {"target":"b.html","status":"draft"}]})=={"a.html"}
+        slot=dt.datetime(2026,10,19,10,45,tzinfo=utc)
         assert already_released_in_slot({"slot_utc":"2026-10-19T10:17:00Z"},slot)
         assert not already_released_in_slot({"slot_utc":"2026-10-19T08:17:00Z"},slot)
         assert already_released_in_slot({"created_utc":"2026-10-19T10:28:00+00:00"},slot)
@@ -212,6 +274,11 @@ def main():
               "keep new updates queued for next fixed window")
         return
     changed=changed_since(previous)
+    # An empty polling day never spends a Pages build. Pending CSS/layout
+    # updates are bundled automatically with the next new article.
+    if args.scheduled_slot and not args.urgent and changed and not newly_acquired_articles(previous):
+        print("RELEASE CONTROL: no new articles since last release; skip Cloudflare")
+        return
     used=build_count()
     outcome=decide(changed,used,args.urgent)
     print(f"RELEASE CONTROL: {outcome}, last 31 days Git-triggered releases={used}, "

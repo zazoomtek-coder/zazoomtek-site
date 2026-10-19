@@ -1,7 +1,7 @@
 name: ZazoomTek MASTER - sole production writer (CUTOVER GATED)
 # Enabled only by the one-commit atomic cutover, gated by master-production-enabled.json.
 # One concurrency group serializes both 5-minute JSON-only polls and the
-# 2-hour Cloudflare release. Any competing legacy writer blocks the run.
+# five fixed daytime Cloudflare release windows. Any competing legacy writer blocks the run.
 
 on:
   workflow_dispatch:
@@ -13,10 +13,19 @@ on:
         options: [poll, publish]
         default: publish
   schedule:
-    # Preserve the five-minute YouTube polling cadence without full rebuilds.
-    - cron: '1-59/5 * * * *'
-    # Publication only once per two-hour release window, budget checked.
-    - cron: '17 */2 * * *'
+    # Italian local time, with automatic DST. No overnight scheduled polls.
+    # Exact editorial releases: 10:15 12:45 15:15 17:45 20:15.
+    - cron: '15 10,15,20 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '45 12,17 * * *'
+      timezone: 'Europe/Rome'
+    # Five-minute import-only checks after first and before last release.
+    - cron: '20-55/5 10 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '2-57/5 11-19 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '2,7,12 20 * * *'
+      timezone: 'Europe/Rome'
   push:
     branches: [main]
     paths:
@@ -62,7 +71,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
-            if [ "${ZT_EVENT_SCHEDULE}" = "17 */2 * * *" ]; then
+            if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
               mode=publish
             else
               mode=poll
