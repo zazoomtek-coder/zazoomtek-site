@@ -1,6 +1,6 @@
 {
-  "enabled": false,
-  "cutover_requires": "one controlled commit retiring every concurrent legacy writer, production adapter smoke tests, real YouTube import checks and Cloudflare last-good rollback",
+  "enabled": true,
+  "cutover_requires": "Atomic commit retires 14 legacy writers and 2 dispatcher workflows; rollback via git revert of cutover commit",
   "cloudflare_release_strategy": "Git-connected Pages build watch: cloudflare-release-trigger.txt only",
   "carousel_policy": {
     "tech": 4,

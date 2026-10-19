@@ -33,9 +33,28 @@ def main() -> None:
     if os.environ.get("GITHUB_EVENT_NAME") == "pull_request" and os.environ.get("ZT_MASTER_STAGING_TEST") == "1":
         master_active = True
     if master_active:
+        # The Cloudflare build is a fresh environment, independent of GitHub
+        # Actions. Guarantee the same image-rendering dependency here, otherwise
+        # the first live build could fail despite staging green.
+        try:
+            from PIL import Image
+            assert Image is not None
+        except ImportError:
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", "--quiet",
+                 "--disable-pip-version-check", "Pillow>=10,<13"],
+                cwd=ROOT, check=True, timeout=180,
+            )
+        # Approved ordinary NEWS are generated only in temporary Cloudflare
+        # build workspace; their approved JSON remains the Git source of truth.
+        run("build-standard-news.py")
+        run("apply-standard-news-featured.py")
         run("update-youtube-posts.py", "--render-from-cache")
         if (ROOT / ".youtube-master-render-cache.json").is_file():
             run("update-youtube.py", "--render-from-cache")
+        # Editor-approved Impact/Inside pages and category archives share
+        # this same disposable build; no independent Git writer survives cutover.
+        run("publish-special-news.py")
         run("master-json-renderer.py", "--prebuild-reviews")
         run("verify-home-layout-lock.py")
     run("test_home_10x10_release.py")
