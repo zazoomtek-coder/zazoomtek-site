@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Isolated TG INSIDE / SPECIALI regression tests. Does not touch production."""
+"""Isolated INSIGHTS / SPECIALI regression tests. Does not touch production."""
 from __future__ import annotations
 import importlib.util
 import json
@@ -26,9 +26,15 @@ def check():
     assert 'link rel="canonical"' in special
     assert 'id="zt-specials-ld"' in special
     assert '<nav class="nav">' in home
-    assert 'TG INSIDE' not in home  # No risk to locked static Home navbar.
+    assert '>INSIGHTS</button>' in home and '>TG Inside</button>' not in home
+    assert home.count('>INSIGHTS</button>')==1
+    assert 'href="/tech-today.html">Tech Impact' in home
+    assert 'href="/gaming-today.html">Gaming Inside' in home
+    assert 'href="/speciali.html">Speciali' in home
+    assert 'href="/special.html">Speciali' not in home
+    assert 'TG Inside' not in special and 'INSIGHTS' in special
     visual=(ROOT/'zt-visual.js').read_text(encoding='utf-8')
-    assert 'ZT_TG_INSIDE_20261019' in visual
+    assert 'ZT_INSIGHTS_20261019' in visual
     assert 'tech-today.html' in visual and 'gaming-today.html' in visual and 'speciali.html' in visual
 
     with tempfile.TemporaryDirectory() as d:
@@ -65,7 +71,7 @@ def check():
         ET.fromstring((root/'sitemap.xml').read_text(encoding='utf-8'))
         assert mod.build(root)==2
         assert (root/'sitemap.xml').read_text(encoding='utf-8').count('/speciali.html')==1
-    print('PASS: TG Inside Home-safe; complete sidebar and SEO; approved-only deduped SPECIALI')
+    print('PASS: INSIGHTS Home-safe; complete sidebar and SEO; approved-only deduped SPECIALI')
 
 if __name__=='__main__':
     check()
