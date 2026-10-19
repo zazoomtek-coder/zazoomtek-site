@@ -89,6 +89,24 @@ jobs:
           assert steps['isolated-offline-build']=='ok', steps
           print('REAL IMPORT PASS: Community, videos and Cloudflare-compatible preview')
           PY
+      - name: Verify fast five-minute JSON-only polling and allowed export
+        if: success()
+        run: |
+          python3 scripts/master-orchestrator.py --no-preview \
+            --output-dir artifacts/master-fast \
+            --export-json-dir /tmp/zt-master-fast-export
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out=json.loads(Path('artifacts/master-fast/report.json').read_text())
+          assert out['status']=='data-validated',out
+          stages={x['module']:x['status'] for x in out['modules']}
+          assert stages['isolated-offline-build']=='deferred-to-release-gate'
+          assert stages['five-slot-carousel']=='ok'
+          manifest=json.loads(Path('/tmp/zt-master-fast-export/manifest.json').read_text())
+          assert all(path.endswith('.json') for path in manifest['paths'])
+          print('PASS: safe import-only export and deferred HTML release gate')
+          PY
       - name: Inventory concurrent legacy writers (report only)
         if: always()
         run: python3 scripts/master-cutover-audit.py
