@@ -1,18 +1,8 @@
 {
-  "checked_at": "2026-10-19T13:07:09.924621+00:00",
+  "checked_at": "2026-10-19T14:03:21.991558+00:00",
   "source_sites": 16,
-  "matches": 5,
+  "matches": 7,
   "selected": [
-    {
-      "title": "**ZAZOOMTEK SUPERA I 7.000 ISCRITTI! THANK YOU, EVERYONE! **",
-      "section": "tech",
-      "url": "/news-UgkxdUUg0FUoPqE3FS2am3hOs57RZGekyY2J.html",
-      "trend_score": 0,
-      "published_date": "2026-10-19",
-      "freshness_bonus": 72,
-      "selection_score": 72.0,
-      "sources": []
-    },
     {
       "title": "iRobot presenta i nuovi Roomba Combo 115, 415, 515 e 575, più compatti e potenti",
       "section": "tech",
@@ -41,6 +31,16 @@
       "published_date": "2026-10-19",
       "freshness_bonus": 72,
       "selection_score": 72.0,
+      "sources": []
+    },
+    {
+      "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro",
+      "section": "tech",
+      "url": "/news-UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I.html",
+      "trend_score": 0,
+      "published_date": "2026-10-16",
+      "freshness_bonus": 23,
+      "selection_score": 23.0,
       "sources": []
     },
     {
