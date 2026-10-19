@@ -1,10 +1,26 @@
 name: ZazoomTek MASTER - sole production writer (CUTOVER GATED)
-# DO NOT add a schedule or activate this workflow until the existing 14
-# potential writers are retired in the SAME reviewed atomic cutover.
-# During staging, manual dispatch is blocked by master-production-enabled.json.
+# Enabled only by the one-commit atomic cutover, gated by master-production-enabled.json.
+# One concurrency group serializes both 5-minute JSON-only polls and the
+# 2-hour Cloudflare release. Any competing legacy writer blocks the run.
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'poll = only verified JSON / publish = controlled full release'
+        required: true
+        type: choice
+        options: [poll, publish]
+        default: publish
+  schedule:
+    # Preserve the five-minute YouTube polling cadence without full rebuilds.
+    - cron: '1-59/5 * * * *'
+    # Publication only once per two-hour release window, budget checked.
+    - cron: '17 */2 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'master-production-enabled.json'
 
 permissions:
   contents: write
@@ -38,8 +54,26 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
-      - name: Validate and publish only via single Git + Pages gateway
+      - name: JSON-only poll or controlled publication
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
+          ZT_DISPATCH_MODE: ${{ inputs.mode }}
         run: |
-          python3 scripts/master-production-gateway.py --publish
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
+            if [ "${ZT_EVENT_SCHEDULE}" = "17 */2 * * *" ]; then
+              mode=publish
+            else
+              mode=poll
+            fi
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            mode="${ZT_DISPATCH_MODE:-publish}"
+          else
+            mode=publish
+          fi
+          if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ]; then
+            echo "::error::Unsupported Master mode"; exit 1
+          fi
+          echo "ZT Master mode: ${mode}"
+          python3 scripts/master-production-gateway.py "--${mode}"
