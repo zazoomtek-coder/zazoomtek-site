@@ -1,7 +1,7 @@
 name: ZazoomTek importer transaction reliability - staging only
 on:
   push:
-    branches: [zt-import-pipeline-reliability-20261018, fix/youtube-community-guard-20261019]
+    branches: [zt-import-pipeline-reliability-20261018, fix/youtube-community-guard-20261019, fix/cloudflare-home-carousel-guard-20261019]
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,6 +30,30 @@ jobs:
           node scripts/test-home-news-categories.cjs
           python3 scripts/test-featured-today-yesterday.py
           python3 scripts/verify-home-layout-lock.py
+      - name: Reject damaged carousel while accepting last verified Home
+        run: |
+          python3 scripts/protect-home-structure.py index.html
+          python3 - <<'PY'
+          import re, subprocess, tempfile, importlib.util
+          from pathlib import Path
+          spec=importlib.util.spec_from_file_location("zt_home_guard","scripts/protect-home-structure.py")
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          release=Path("cloudflare-release-trigger.txt").read_text()
+          source=next(line.split("=",1)[1] for line in release.splitlines() if line.startswith("source_commit="))
+          baseline=subprocess.check_output(["git","show",source+":index.html"]).decode()
+          assert 'id="ztFeaturedGrid"' in baseline
+          with tempfile.TemporaryDirectory() as tmp:
+              p=Path(tmp)/"index.html"
+              p.write_text(baseline)
+              mod.check(p)
+              p.write_text(baseline.replace('id="ztFeaturedGrid"','id="newsSlider"',1))
+              try: mod.check(p)
+              except SystemExit as exc:
+                  assert "news carousel" in str(exc)
+              else: raise AssertionError("Missing approved carousel was accepted")
+          print("PASS: real approved Home is safe; removed carousel is blocked")
+          PY
       - name: Offline full Cloudflare-equivalent production build
         run: |
           python3 scripts/cloudflare-build-site.py

@@ -10,7 +10,9 @@ import sys
 
 REQUIRED = {
     'main navigation': 'class="nav"',
-    'news carousel': 'id="newsSlider"',
+    # The approved 2026-10-18/19 Home uses #ztFeaturedGrid. #newsSlider
+    # is an obsolete element absent even from the last verified release.
+    'news carousel': 'id="ztFeaturedGrid"',
     'three-column home shell': 'ztp-three-home',
     'three-column news grid': 'ztp-three-columns',
     'tech column': 'ztp-news-tech',
