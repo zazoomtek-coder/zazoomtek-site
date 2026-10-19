@@ -9,6 +9,7 @@ on:
       - 'scripts/trending-crosscheck.py'
       - 'scripts/refresh-home-editorial-boxes.py'
       - 'scripts/update-youtube-posts.py'
+      - 'scripts/update-youtube.py'
       - 'featured-carousel.json'
       - '.github/workflows/master-orchestrator-staging.yml'
   workflow_dispatch:
@@ -46,7 +47,7 @@ jobs:
       - name: Verify orchestrator source and five-slot logic
         run: |
           python3 -m py_compile scripts/master-orchestrator.py
-          python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/trending-crosscheck.py
+          python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/update-youtube.py scripts/trending-crosscheck.py
           python3 scripts/master-orchestrator.py --self-test
           python3 scripts/master-json-renderer.py --self-test
           python3 scripts/master-cutover-audit.py --self-test
