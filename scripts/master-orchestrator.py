@@ -299,7 +299,7 @@ def run(args: argparse.Namespace) -> int:
                 ("youtube-community", exec_module("update-youtube-posts.py", timeout=360),
                  (".youtube-posts.json",), args.with_imports),
                 ("youtube-videos", exec_module("update-youtube.py", timeout=240),
-                 (".youtube-latest.json", "home-video-feed.json"),
+                 (".youtube-latest.json", "home-video-feed.json", ".youtube-master-render-cache.json"),
                  args.with_imports and bool(os.getenv("YOUTUBE_API_KEY"))),
                 ("approved-reviews", reports_from_dryrun("publish-approved-reviews.py", "reviews-due.json"),
                  ("master-staging/reviews-due.json",), True),
@@ -331,6 +331,10 @@ def run(args: argparse.Namespace) -> int:
                 community = next((x for x in records if x["module"] == "youtube-community"), {})
                 if community.get("status") == "ok" and ".youtube-posts.json" in community.get("json_updated", []):
                     command(folder, sys.executable, "scripts/update-youtube-posts.py",
+                            "--render-from-cache", timeout=600)
+                videos = next((x for x in records if x["module"] == "youtube-videos"), {})
+                if videos.get("status") == "ok" and ".youtube-master-render-cache.json" in videos.get("json_updated", []):
+                    command(folder, sys.executable, "scripts/update-youtube.py",
                             "--render-from-cache", timeout=600)
                 command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
                 if (folder / "master-staging/editorial-boxes.json").is_file():
