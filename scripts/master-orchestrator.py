@@ -266,7 +266,11 @@ def reports_from_dryrun(script: str, output: str) -> Callable[[Path], None]:
 
 def save_summary(output: Path, status: str, records: list[dict]) -> None:
     failed = [s["module"] for s in records if s["status"] == "fallback-last-good"]
-    discarded = [s["module"] for s in records if s.get("legacy_html_discarded")]
+    # HTML generated in the disposable BUILD is the expected JSON->site output,
+    # not an unsafe importer. Only data-stage HTML indicates a missing adapter.
+    discarded = [s["module"] for s in records
+                 if s.get("legacy_html_discarded")
+                 and s["module"] != "isolated-offline-build"]
     summary = {
         "status": status, "mode": "staging-only-no-push-no-deploy",
         "created_utc": datetime.now(timezone.utc).isoformat(),
