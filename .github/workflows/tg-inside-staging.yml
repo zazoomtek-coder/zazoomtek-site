@@ -1,0 +1,61 @@
+name: TG INSIDE speciali full-site staging verification
+on:
+  push:
+    branches: [feature/tg-inside-speciali-safe-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tg-inside-staging
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Check JS, syntax, Studio and Speciali builder
+        run: |
+          set -euo pipefail
+          node --check zt-visual.js
+          node --check studio/publisher.js
+          node --check studio/layouts.js
+          node scripts/test-studio-layouts.cjs
+          python3 -m py_compile scripts/build-speciali.py scripts/zt_sidebar_mix.py scripts/build-related-content.py scripts/apply-site-design.py scripts/cloudflare-build-site.py scripts/build-cloudflare-pages.py
+          python3 scripts/test-tg-inside.py
+          python3 scripts/verify-home-layout-lock.py
+      - name: Build entire Cloudflare site offline, check all original protections
+        run: |
+          set -euo pipefail
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 scripts/test_home_10x10_release.py dist
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,xml.etree.ElementTree as ET
+          src=Path('dist/speciali.html').read_text()
+          assert 'zt-mix-recent' in src and 'zt-mix-feature' in src
+          assert 'zt-sidebar-editorial' in src or 'zt-mix-video' in src
+          assert '<nav class="nav">' in src
+          assert 'zt-visual.js' in src and '/zt-design.css' in src
+          assert 'https://zazoomtek.it/speciali.html' in src
+          assert '<meta property="og:title"' in src
+          assert '<script id="zt-specials-ld"' in src
+          assert 'data-zt-special="approved"' not in src or 'studio-speciali-' in src
+          ET.parse('dist/sitemap.xml')
+          assert 'https://zazoomtek.it/speciali.html' in Path('dist/sitemap.xml').read_text()
+          print('PASS: Full Cloudflare dist, SPECIALI SEO, full related editorial rail, unchanged Home')
+          PY
+      - name: Archive staging snapshot for manual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tg-inside-staging-site
+          path: dist/
+          retention-days: 3
