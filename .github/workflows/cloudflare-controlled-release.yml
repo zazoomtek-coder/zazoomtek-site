@@ -58,6 +58,10 @@ jobs:
               echo "::warning::Candidate Home is damaged. Rolling index.html back to the last verified production Home."
               python3 scripts/restore-home-last-release.py
               python3 scripts/protect-home-structure.py index.html
+              git add -- index.html
+              if ! git diff --cached --quiet -- index.html; then
+                git commit -m "Protect Home: rollback destructive candidate"
+              fi
             fi
 
             # Decide FIRST. No change, recent release, or exhausted budget =
@@ -91,6 +95,14 @@ jobs:
             if ! python3 scripts/protect-home-structure.py dist/index.html; then
               echo "::warning::Built Home failed protection. Restoring last verified Home and rebuilding once."
               python3 scripts/restore-home-last-release.py
+              git add -- index.html
+              if ! git diff --cached --quiet -- index.html; then
+                git commit -m "Protect Home: rollback destructive build"
+                # release-control wrote its receipt before the build. Point it
+                # at the new rollback-safe source commit before publication.
+                safe_source="$(git rev-parse HEAD)"
+                sed -i "s/^source_commit=.*/source_commit=$safe_source/" cloudflare-release-trigger.txt
+              fi
               rm -rf dist
               python3 scripts/cloudflare-build-site.py
               python3 scripts/protect-home-structure.py dist/index.html
