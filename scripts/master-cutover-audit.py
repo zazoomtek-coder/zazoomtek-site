@@ -63,15 +63,13 @@ def report(root: Path) -> dict:
         blockers.append("No production release workflow with single-writer lock installed")
     indirect = []
     for name, target in INDIRECT_DISPATCHERS.items():
-        file = folder / name
-        if file.is_file():
-            raw = file.read_text(encoding="utf-8")
-            # The only accepted retirement is a code-free read-only audit.
-            # Never trust a text comment saying retired while a dispatch
-            # of the legacy writer remains executable.
-            if re.search(r"gh\\s+workflow\\s+run\\s+" + re.escape(target), raw):
-                indirect.append(name)
-                blockers.append(f"Indirect dispatcher still invokes old publisher: {name}")
+        # Both legacy dispatchers are disabled by deleting the workflows
+        # in the one reviewed cutover commit (Git history preserves rollback).
+        # Keep blocking if they are present, regardless of a comment saying
+        # retired or whether GitHub schedule is late to run.
+        if (folder / name).is_file():
+            indirect.append(name)
+            blockers.append(f"Indirect legacy dispatcher must be retired: {name} -> {target}")
     return {"generated_utc": datetime.now(timezone.utc).isoformat(),
             "legacy_writer_count": len(all_writers),
             "indirect_legacy_dispatchers": indirect,
