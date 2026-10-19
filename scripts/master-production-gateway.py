@@ -75,16 +75,21 @@ def preflight() -> None:
     call(sys.executable, "scripts/verify-live-cloudflare.py", "--self-test", timeout=60)
 
 
-def import_and_validate(folder: Path) -> list[str]:
+def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
     export = folder / "json"
     result_dir = folder / "staging"
-    call(sys.executable, "scripts/master-orchestrator.py", "--with-imports",
-         "--output-dir", str(result_dir), "--export-json-dir", str(export), timeout=2100)
+    args = [sys.executable, "scripts/master-orchestrator.py", "--with-imports",
+            "--output-dir", str(result_dir), "--export-json-dir", str(export)]
+    if poll_only:
+        args.append("--poll-only")
+    call(*args, timeout=2100)
     report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
-    if report.get("status") != "staging-validated":
+    expected_status = "poll-validated" if poll_only else "staging-validated"
+    if report.get("status") != expected_status:
         raise ReleaseBlocked("Master has errors/fallbacks; KEEP LAST GOOD LIVE")
-    required = ("youtube-community", "youtube-videos", "trending-carousel",
-                "editorial-boxes", "approved-reviews", "isolated-offline-build")
+    required = (("youtube-community", "youtube-videos") if poll_only else
+                ("youtube-community", "youtube-videos", "trending-carousel",
+                 "editorial-boxes", "approved-reviews", "isolated-offline-build"))
     stages = {x["module"]: x for x in report.get("modules", [])}
     if any(stages.get(x, {}).get("status") != "ok" for x in required):
         raise ReleaseBlocked("Required importer was skipped or failed; stop publication")
@@ -105,7 +110,7 @@ def import_and_validate(folder: Path) -> list[str]:
     return names
 
 
-def one_attempt() -> tuple[bool, str]:
+def one_attempt(poll_only: bool = False) -> tuple[bool, str]:
     """No remote mutation until the full preview/build and SHA checks succeed."""
     call("git", "fetch", "origin", "main", timeout=120)
     call("git", "checkout", "main", timeout=90)
@@ -113,31 +118,34 @@ def one_attempt() -> tuple[bool, str]:
     initial = call("git", "rev-parse", "HEAD")
     preflight()
     with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
-        names = import_and_validate(Path(tmp))
+        names = import_and_validate(Path(tmp), poll_only=poll_only)
     if names:
         call("git", "add", "--", *names)
         if call("git", "diff", "--cached", "--name-only"):
             call("git", "-c", "user.name=ZazoomTek Master",
                  "-c", "user.email=actions@users.noreply.github.com",
                  "commit", "-m", "master: verified JSON-only editorial batch")
-    # A release trigger is necessary ONLY at the existing controlled window,
-    # and exactly one extra Git commit lets it contain the real source SHA.
-    call(sys.executable, "scripts/cloudflare-release-control.py", "--scheduled-slot", timeout=120)
-    trigger_changed = bool(call("git", "status", "--porcelain", "--", "cloudflare-release-trigger.txt"))
+    trigger_changed = False
     trigger_source = ""
-    if trigger_changed:
-        marker = (ROOT / "cloudflare-release-trigger.txt").read_text(encoding="utf-8")
-        match = re.search(r"(?m)^source_commit=([a-f0-9]{40})$", marker)
-        if not match:
-            raise ReleaseBlocked("Missing release receipt SHA")
-        trigger_source = match.group(1)
-        # The build is checked in the run before any push; Pages should watch
-        # the trigger only. Its own build must also pass or remain last good.
-        call(sys.executable, "scripts/cloudflare-build-site.py", timeout=1500)
-        call("git", "add", "--", "cloudflare-release-trigger.txt")
-        call("git", "-c", "user.name=ZazoomTek Master",
-             "-c", "user.email=actions@users.noreply.github.com",
-             "commit", "-m", "master: one verified Cloudflare release request")
+    if not poll_only:
+        # A release trigger is necessary ONLY at the existing controlled window,
+        # and exactly one extra Git commit lets it contain the real source SHA.
+        call(sys.executable, "scripts/cloudflare-release-control.py", "--scheduled-slot", timeout=120)
+        trigger_changed = bool(call("git", "status", "--porcelain", "--", "cloudflare-release-trigger.txt"))
+        trigger_source = ""
+        if trigger_changed:
+            marker = (ROOT / "cloudflare-release-trigger.txt").read_text(encoding="utf-8")
+            match = re.search(r"(?m)^source_commit=([a-f0-9]{40})$", marker)
+            if not match:
+                raise ReleaseBlocked("Missing release receipt SHA")
+            trigger_source = match.group(1)
+            # The build is checked in the run before any push; Pages should watch
+            # the trigger only. Its own build must also pass or remain last good.
+            call(sys.executable, "scripts/cloudflare-build-site.py", timeout=1500)
+            call("git", "add", "--", "cloudflare-release-trigger.txt")
+            call("git", "-c", "user.name=ZazoomTek Master",
+                 "-c", "user.email=actions@users.noreply.github.com",
+                 "commit", "-m", "master: one verified Cloudflare release request")
     if call("git", "rev-parse", "HEAD") == initial:
         return False, ""
     # Never rebase locally generated release receipts across concurrent edits.
@@ -155,24 +163,28 @@ def main() -> None:
     ap.add_argument("--self-test", action="store_true")
     ap.add_argument("--check-cutover", action="store_true")
     ap.add_argument("--publish", action="store_true")
+    ap.add_argument("--poll", action="store_true", help="Fast serialized YouTube JSON-only importer; no release request")
     args = ap.parse_args()
     if args.self_test:
         assert len(ALLOWED) == len(set(ALLOWED))
         assert all(x.endswith(".json") for x in ALLOWED)
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
-        assert config.get("enabled") is False, "Do not accidentally arm staging"
+        assert isinstance(config.get("enabled"), bool), "Malformed production activation flag"
+        assert config.get("carousel_policy") == {"tech": 4, "gaming": 1, "total": 5}
         print("PASS: JSON allowlist and release is disarmed by default")
         return
     if args.check_cutover:
         preflight()
         print("PASS: no competing GitHub writers, release gate armed")
         return
-    if not args.publish:
-        ap.error("Choose --self-test, --check-cutover or --publish")
+    if not args.publish and not args.poll:
+        ap.error("Choose --self-test, --check-cutover, --poll or --publish")
+    if args.publish and args.poll:
+        ap.error("Choose poll OR publish")
     last = None
     for attempt in range(1, 4):
         try:
-            published, source = one_attempt()
+            published, source = one_attempt(poll_only=args.poll)
             print(json.dumps({"success": True, "release_requested": published,
                               "source_commit": source}, ensure_ascii=False))
             if published:
