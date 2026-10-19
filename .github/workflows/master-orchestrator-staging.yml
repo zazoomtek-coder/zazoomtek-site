@@ -6,6 +6,10 @@ on:
       - 'scripts/master-orchestrator.py'
       - 'scripts/master-json-renderer.py'
       - 'scripts/master-cutover-audit.py'
+      - 'scripts/master-production-gateway.py'
+      - 'scripts/cloudflare-build-site.py'
+      - 'master-production-enabled.json'
+      - '.github/workflows/master-orchestrator-production.yml'
       - 'scripts/trending-crosscheck.py'
       - 'scripts/refresh-home-editorial-boxes.py'
       - 'scripts/update-youtube-posts.py'
@@ -51,6 +55,7 @@ jobs:
           python3 scripts/master-orchestrator.py --self-test
           python3 scripts/master-json-renderer.py --self-test
           python3 scripts/master-cutover-audit.py --self-test
+          python3 scripts/master-production-gateway.py --self-test
           python3 scripts/trending-crosscheck.py --test
           python3 scripts/refresh-home-editorial-boxes.py --self-test
           python3 scripts/test_review_dedup.py
