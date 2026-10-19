@@ -24,7 +24,7 @@ def nav_labels(markup):
     """Read actual link and dropdown-button labels in DOM order."""
     labels=[]
     for element in re.finditer(
-        r'<(?:a|button)\\b[^>]*>([\\s\\S]*?)</(?:a|button)>',
+        r'<(?:a|button)\b[^>]*>([\s\S]*?)</(?:a|button)>',
         markup,re.I,
     ):
         label=html_utils.unescape(re.sub(r'<[^>]*>',"",element.group(1))).strip()
