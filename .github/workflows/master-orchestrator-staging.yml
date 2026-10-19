@@ -1,0 +1,62 @@
+name: ZazoomTek Master Orchestrator - STAGING ONLY
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/master-orchestrator.py'
+      - '.github/workflows/master-orchestrator-staging.yml'
+  workflow_dispatch:
+    inputs:
+      with_imports:
+        description: 'Run YouTube/portal network imports only in temporary staging'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zazoomtek-master-staging-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test-master:
+    name: Isolated pipeline / no production deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout read-only source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify orchestrator source and six-slot logic
+        run: |
+          python3 -m py_compile scripts/master-orchestrator.py
+          python3 scripts/master-orchestrator.py --self-test
+          python3 scripts/test_review_dedup.py
+      - name: Run all modules in an isolated Git worktree
+        env:
+          YOUTUBE_API_KEY: ${{ github.event_name == 'workflow_dispatch' && secrets.YOUTUBE_API_KEY || '' }}
+          WITH_IMPORTS: ${{ github.event_name == 'workflow_dispatch' && inputs.with_imports || false }}
+        run: |
+          if [ "$WITH_IMPORTS" = 'true' ]; then
+            python3 scripts/master-orchestrator.py --with-imports
+          else
+            python3 scripts/master-orchestrator.py
+          fi
+      - name: Publish staging report + preview artifact (NEVER deploy)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zazoomtek-master-staging-${{ github.run_id }}
+          path: artifacts/master-orchestrator/
+          if-no-files-found: warn
+          retention-days: 7
