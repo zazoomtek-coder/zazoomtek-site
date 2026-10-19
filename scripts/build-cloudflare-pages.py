@@ -32,7 +32,11 @@ def generated_approved_files() -> set[Path]:
     Arbitrary untracked HTML and drafts are NOT exposed.
     """
     config = ROOT / "master-production-enabled.json"
-    if not config.exists() or json.loads(config.read_text(encoding="utf-8")).get("enabled") is not True:
+    active = (config.is_file() and
+              json.loads(config.read_text(encoding="utf-8")).get("enabled") is True)
+    staging = (os.getenv("GITHUB_EVENT_NAME") == "pull_request"
+               and os.getenv("ZT_MASTER_STAGING_TEST") == "1")
+    if not active and not staging:
         return set()
     generated: set[Path] = set()
 
