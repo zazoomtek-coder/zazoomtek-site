@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""ZazoomTek Master Orchestrator - isolated STAGING / DRY-RUN only.
+"""ZazoomTek master pipeline -- safe JSON-only staging, no commits to main or deploy.
 
-Calls the existing site importers one at a time in a disposable Git worktree.
-All intermediate commits are LOCAL checkpoints; neither main nor Cloudflare is
-changed. Later production adoption requires a separate, reviewed release gate.
+Legacy importers run inside disposable detached Git worktrees. Only approved
+JSON files can leave a module sandbox. This is deliberately NOT a production
+publisher: HTML-based legacy importers need data/render separation before cutover.
 """
 from __future__ import annotations
 
 import argparse
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import hashlib
 import json
 import os
@@ -19,259 +19,338 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from typing import Callable
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED = ["tech", "tech", "tech", "tech", "gaming"]
 PROTECTED = (
-    "zt-design.css", "zt-visual.js", "firebase.json",
+    "index.html", "zt-design.css", "zt-visual.js", "firebase.json",
     "studio/publisher.js", "studio/layouts.js",
+    "zt-home-live.js",
     "zt-home-graphic-layout-20261016.css",
     "zt-home-graphic-layout-20261016.js",
     "zt-home-gap-fix-20261014.css",
 )
-NAV_DESTINATIONS = (
+NAV_LINKS = (
     "/recensioni-tech.html", "/recensioni-gaming.html",
     "/tech-today.html", "/gaming-today.html", "/speciali.html",
 )
 
 
-def command(cwd: Path, *args: str, timeout: int = 360) -> str:
+def command(cwd: Path, *argv: str, timeout: int = 360) -> str:
     try:
-        completed = subprocess.run(args, cwd=cwd, check=True, text=True,
-                                   capture_output=True, timeout=timeout)
-    except subprocess.CalledProcessError as exc:
-        details = ((exc.stdout or "") + "\n" + (exc.stderr or ""))[-1600:]
-        raise RuntimeError(f"Validation command failed (exit {exc.returncode}): {details}") from exc
-    return (completed.stdout + completed.stderr)[-1800:]
+        result = subprocess.run(argv, cwd=cwd, check=True, text=True,
+                                capture_output=True, timeout=timeout)
+        return (result.stdout + result.stderr).strip()
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(f"TIMEOUT after {timeout}s: {argv[0]} {argv[1] if len(argv)>1 else ''}") from error
+    except subprocess.CalledProcessError as error:
+        detail = ((error.stdout or "") + "\n" + (error.stderr or ""))[-1500:]
+        raise RuntimeError(f"Command failed (exit {error.returncode}): {detail}") from error
 
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def protected_snapshot(root: Path) -> dict[str, str]:
+def snapshot(root: Path) -> dict[str, str]:
     return {name: digest(root / name) for name in PROTECTED}
 
 
-def validate_core(root: Path, baseline: dict[str, str]) -> None:
-    for name, expected in baseline.items():
-        if not (root / name).is_file() or digest(root / name) != expected:
-            raise RuntimeError(f"Protected file changed: {name}")
+def verify_source(root: Path, baseline: dict[str, str]) -> None:
+    for name, original in baseline.items():
+        if not (root / name).is_file() or digest(root / name) != original:
+            raise RuntimeError("BLOCK: protected HTML/CSS/JS changed: " + name)
     command(root, sys.executable, "scripts/verify-home-layout-lock.py", timeout=90)
     home = (root / "index.html").read_text(encoding="utf-8")
-    nav = re.search(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', home, re.S | re.I)
-    if not nav or any(f'href="{target}"' not in nav.group(1) for target in NAV_DESTINATIONS):
-        raise RuntimeError("Canonical Home navigation or review/special destinations missing")
-    for target in NAV_DESTINATIONS:
-        if not (root / target.lstrip("/")).is_file():
-            raise RuntimeError(f"Navigation destination is missing: {target}")
+    match = re.search(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', home, re.I | re.S)
+    if not match or any(f'href="{href}"' not in match.group() for href in NAV_LINKS):
+        raise RuntimeError("BLOCK: canonical Home navigation missing links")
+    for href in NAV_LINKS:
+        if not (root / href[1:]).is_file():
+            raise RuntimeError("BLOCK: missing navigation page " + href)
 
 
-def validate_sitewide_navigation(root: Path) -> None:
-    """Validate the CURRENT two-dropdown navigation; legacy nine-label test is obsolete."""
-    header_pattern = re.compile(r"<header\b[^>]*>[\s\S]*?</header>", re.I)
-    nav_pattern = re.compile(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
-    checked = 0
+def verify_sitewide_nav(root: Path) -> int:
+    """Current menu (two dropdowns) rather than the obsolete nine-item check."""
+    header = re.compile(r"<header\b[^>]*>[\s\S]*?</header>", re.I)
+    nav = re.compile(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
+    count = 0
     for page in sorted(root.glob("*.html")):
         if page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
             continue
-        text = page.read_text(encoding="utf-8", errors="replace")
-        header = header_pattern.search(text)
-        if not header or not any(v in header.group().upper() for v in ("ZAZOOM", "CHATGPT.PNG")):
+        source = page.read_text(encoding="utf-8", errors="replace")
+        h = header.search(source)
+        if not h or not any(x in h.group().upper() for x in ("ZAZOOM", "CHATGPT.PNG")):
             continue
-        nav = nav_pattern.search(header.group())
-        if not nav:
-            raise RuntimeError(f"Missing canonical navigation on {page.name}")
-        if nav.group().count('class="nav-drop-trigger"') != 2:
-            raise RuntimeError(f"Expected Tech/Gaming dropdowns on {page.name}")
-        missing = [x for x in NAV_DESTINATIONS if f'href="{x}"' not in nav.group()]
-        if missing:
-            raise RuntimeError(f"Missing navigation links on {page.name}: {missing}")
-        if "zt-unified-header.js" in text:
-            raise RuntimeError(f"Obsolete asynchronous header on {page.name}")
-        checked += 1
-    if checked < 50:
-        raise RuntimeError(f"Insufficient canonical navigation coverage: {checked} pages")
+        n = nav.search(h.group())
+        if not n:
+            raise RuntimeError(f"Missing sitewide menu on {page.name}")
+        if n.group().count('class="nav-drop-trigger"') != 2:
+            raise RuntimeError(f"Missing two navigation dropdowns on {page.name}")
+        if any(f'href="{link}"' not in n.group() for link in NAV_LINKS):
+            raise RuntimeError(f"Missing submenu links on {page.name}")
+        if "zt-unified-header.js" in source:
+            raise RuntimeError(f"Obsolete async menu on {page.name}")
+        count += 1
+    if count < 50:
+        raise RuntimeError(f"Too few validated editorial pages: {count}")
+    return count
 
 
-def validate_link(root: Path, item: dict) -> None:
-    url, cover, title = (item.get("url"), item.get("image"), item.get("title"))
-    if (not isinstance(url, str) or not re.fullmatch(r"/[A-Za-z0-9_.-]+\.html", url)
-            or not (root / url.lstrip("/")).is_file()):
-        raise ValueError(f"Missing or unsafe carousel URL: {url}")
+def validate_featured(root: Path, item: dict) -> None:
+    url, image, title = item.get("url"), item.get("image"), item.get("title")
+    if (not isinstance(url, str) or not re.fullmatch(r"/news-[A-Za-z0-9_-]+\.html", url)
+            or not (root / url[1:]).is_file()):
+        raise ValueError("Invalid or missing featured article: " + str(url))
     if not isinstance(title, str) or len(title.strip()) < 12:
-        raise ValueError(f"Carousel title missing for {url}")
-    if not isinstance(cover, str) or not (cover.startswith("https://") or cover.startswith("/assets/")):
-        raise ValueError(f"Invalid carousel cover: {url}")
-    if cover.startswith("/assets/") and not (root / cover.lstrip("/")).is_file():
-        raise ValueError(f"Carousel cover not found: {cover}")
+        raise ValueError("Missing featured article title: " + str(url))
+    if not isinstance(image, str) or not image.startswith(("https://", "/assets/")):
+        raise ValueError("Invalid featured image: " + str(url))
+    if image.startswith("/assets/") and not (root / image[1:]).is_file():
+        raise ValueError("Missing local featured image: " + str(image))
+    try:
+        publication = date.fromisoformat(item["published_date"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("Missing valid featured article date: " + str(url)) from exc
+    if publication > datetime.now(ZoneInfo("Europe/Rome")).date():
+        raise ValueError("Future-dated featured article: " + str(url))
 
 
-def six_slot_manifest(root: Path) -> dict:
-    """Staging ONLY: 4 Tech + 1 Gaming + 1 Special, NEVER overwrite live 5-card UI."""
-    current = json.loads((root / "featured-carousel.json").read_text(encoding="utf-8"))
-    ordinary = current.get("items")
-    if (not isinstance(ordinary, list) or len(ordinary) != 5
-            or Counter(x.get("section") for x in ordinary if isinstance(x, dict)) !=
-               Counter({"tech": 4, "gaming": 1})):
-        raise ValueError("Last-good carousel must have exactly 4 Tech + 1 Gaming")
-    specials = json.loads((root / "special-featured.json").read_text(encoding="utf-8")).get("items", [])
-    last_good = []
-    for x in ordinary:
-        validate_link(root, x)
-        last_good.append({k: x[k] for k in ("section", "url", "title", "image", "published_date")})
-    for special in specials:
-        if not isinstance(special, dict):
-            continue
-        slug = special.get("slug", "")
-        section = ("tech-impact" if slug.startswith("tech-impact-") else
-                   "gaming-inside" if slug.startswith("gaming-inside-") else None)
-        if not section:
-            continue
-        candidate = {"section": section, "url": "/" + slug,
-                     "title": special.get("title"), "image": special.get("image")}
-        try:
-            validate_link(root, candidate)
-        except ValueError:
-            continue
-        if candidate["url"] not in {a["url"] for a in last_good}:
-            items = last_good + [candidate]
-            if len(items) != 6 or len({a["url"] for a in items}) != 6:
-                raise ValueError("Carousel contains duplicate links")
-            return {"mode": "STAGING_ONLY", "layout_unchanged": True,
-                    "policy": "4-tech-1-gaming-1-special", "items": items}
-    raise ValueError("Neither Tech Impact nor Gaming Inside has a valid special article")
+def five_slot_manifest(root: Path) -> dict:
+    """4 TECH + 1 GAMING exactly; Specials remain in their editorial boxes."""
+    content = json.loads((root / "featured-carousel.json").read_text(encoding="utf-8"))
+    items = content.get("items")
+    if not isinstance(items, list) or len(items) != 5 or not all(isinstance(x, dict) for x in items):
+        raise ValueError("Carousel must contain exactly 5 ordinary news")
+    sections = [x.get("section") for x in items]
+    if sections != EXPECTED or Counter(sections) != Counter({"tech": 4, "gaming": 1}):
+        raise ValueError("Carousel slots must be 4 Tech then 1 Gaming")
+    for item in items:
+        validate_featured(root, item)
+    if len({item["url"] for item in items}) != 5:
+        raise ValueError("Duplicate article in carousel")
+    keys = ("section", "url", "title", "image", "published_date")
+    return {"mode": "STAGING_ONLY", "layout_unchanged": True,
+            "policy": "4-tech-1-gaming", "items": [{k: x[k] for k in keys} for x in items]}
 
 
 def self_test() -> None:
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
+    with tempfile.TemporaryDirectory() as folder:
+        root = Path(folder)
         items = []
-        for n, section in enumerate(["tech"] * 4 + ["gaming"]):
-            url = f"/news-test-{n}.html"
-            (root / url.lstrip("/")).write_text("<html>news</html>", encoding="utf-8")
-            items.append({"section": section, "url": url, "title": "Test editorial article",
-                          "image": "https://example.org/cover.jpg", "published_date": "2026-10-19"})
-        (root / "featured-carousel.json").write_text(json.dumps({"items": items}), encoding="utf-8")
-        special = "tech-impact-example.html"
-        (root / special).write_text("<html>special</html>", encoding="utf-8")
-        (root / "special-featured.json").write_text(json.dumps({"items": [{"slug": special,
-            "title": "Test special editorial article", "image": "https://example.org/cover.jpg"}]}), encoding="utf-8")
-        assert [x["section"] for x in six_slot_manifest(root)["items"]] == ["tech"] * 4 + ["gaming", "tech-impact"]
-        (root / special).unlink()
+        for i, category in enumerate(EXPECTED):
+            url = f"/news-demo-{i}.html"
+            (root / url[1:]).write_text("<html>Demo</html>", encoding="utf-8")
+            items.append({"section": category, "url": url, "title": f"Verified demo news {i}",
+                          "image": "https://example.org/cover.png", "published_date": "2026-10-19"})
+        state = root / "featured-carousel.json"
+        state.write_text(json.dumps({"items": items}), encoding="utf-8")
+        assert [x["section"] for x in five_slot_manifest(root)["items"]] == EXPECTED
+        assert len(five_slot_manifest(root)["items"]) == 5
+        for wrong in [items[:4], items + [items[0]]]:
+            state.write_text(json.dumps({"items": wrong}), encoding="utf-8")
+            try:
+                five_slot_manifest(root)
+            except ValueError:
+                pass
+            else:
+                raise AssertionError("Incorrect carousel length accepted")
+        items[1]["url"] = items[0]["url"]
+        state.write_text(json.dumps({"items": items}), encoding="utf-8")
         try:
-            six_slot_manifest(root)
+            five_slot_manifest(root)
         except ValueError:
             pass
         else:
-            raise AssertionError("Broken special link must never create a six-card manifest")
-    print("PASS: six-slot staging logic, category quotas, no duplicates, missing-link fallback")
+            raise AssertionError("Duplicate carousel accepted")
+    print("PASS: carousel exactly 5, four Tech + one Gaming; rejected partial/duplicate feeds")
 
 
-def checkpoint(root: Path, name: str) -> None:
-    command(root, "git", "add", "-A")
-    status = command(root, "git", "diff", "--cached", "--name-only")
-    if status.strip():
+def json_bytes(path: Path) -> bytes:
+    payload = path.read_bytes()
+    if not payload or len(payload) > 8_000_000:
+        raise ValueError(f"Invalid JSON data size: {path.name}")
+    obj = json.loads(payload.decode("utf-8"))
+    if not isinstance(obj, (list, dict)) or not obj:
+        raise ValueError(f"Empty or malformed JSON: {path.name}")
+    return payload
+
+
+def checkpoint(root: Path, scope: tuple[str, ...], label: str) -> None:
+    if not scope:
+        return
+    command(root, "git", "add", "--", *scope)
+    changed = command(root, "git", "diff", "--cached", "--name-only")
+    allowed = set(scope)
+    if any(name not in allowed or not name.endswith(".json") for name in changed.splitlines()):
+        raise RuntimeError("BLOCK: attempted non-data commit")
+    if changed:
         command(root, "git", "-c", "user.name=ZT Staging", "-c",
-                "user.email=staging@users.noreply.github.com", "commit", "-m", f"local-checkpoint: {name}")
+                "user.email=staging@users.noreply.github.com",
+                "commit", "-m", f"staging-json-only: {label}")
 
 
 def rollback(root: Path) -> None:
-    # Only operates inside a disposable, detached worktree; NEVER on main.
     command(root, "git", "reset", "--hard", "HEAD")
     command(root, "git", "clean", "-fd")
 
 
-def stage(root: Path, baseline: dict[str, str], report: list[dict], name: str,
-          action, *, optional: bool = True) -> bool:
-    try:
-        action()
-        validate_core(root, baseline)
-        checkpoint(root, name)
-        report.append({"module": name, "status": "ok"})
-        return True
-    except Exception as exc:
-        rollback(root)
-        report.append({"module": name, "status": "fallback-last-good", "reason": str(exc)[-1400:]})
-        if not optional:
-            raise RuntimeError(f"Required stage {name} failed: {exc}") from exc
-        return False
+def stage(root: Path, baseline: dict[str, str], records: list[dict], name: str,
+          action: Callable[[Path], None], allowed_data: tuple[str, ...] = (),
+          mandatory: bool = False) -> bool:
+    """Each legacy module runs in ITS OWN disposable worktree; transfer JSON only.
+
+    No HTML/CSS/JS emitted by a legacy importer can reach our staging state.
+    Failed modules preserve their previous JSON and do not stop later modules.
+    A mandatory failure still blocks final approval/deploy.
+    """
+    with tempfile.TemporaryDirectory(prefix="zt-module-") as scratch:
+        module_root = Path(scratch) / "module"
+        command(ROOT, "git", "worktree", "add", "--detach", str(module_root),
+                command(root, "git", "rev-parse", "HEAD"), timeout=120)
+        try:
+            action(module_root)
+            transferred = {}
+            for relative in allowed_data:
+                if not relative.endswith(".json") or ".." in Path(relative).parts:
+                    raise RuntimeError("Invalid data scope: " + relative)
+                file = module_root / relative
+                if file.is_file():
+                    contents = json_bytes(file)
+                    destination = root / relative
+                    if not destination.exists() or destination.read_bytes() != contents:
+                        transferred[relative] = contents
+            changed = command(module_root, "git", "status", "--porcelain", "--untracked-files=normal")
+            legacy_html = any(".html" in row or ".css" in row or ".js " in row for row in changed.splitlines())
+            for rel, raw in transferred.items():
+                dest = root / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(raw)
+            verify_source(root, baseline)
+            if name == "trending-carousel":
+                five_slot_manifest(root)
+            checkpoint(root, tuple(transferred), name)
+            records.append({"module": name, "status": "ok", "json_updated": sorted(transferred),
+                            "legacy_html_discarded": legacy_html})
+            return True
+        except Exception as exc:
+            rollback(root)
+            records.append({"module": name, "status": "fallback-last-good", "error": str(exc)[-1200:]})
+            if mandatory:
+                raise RuntimeError(f"BLOCK: required module {name}: {exc}") from exc
+            return False
+        finally:
+            command(ROOT, "git", "worktree", "remove", "--force", str(module_root), timeout=120)
+
+
+def exec_module(script: str, *extra: str, timeout: int = 360) -> Callable[[Path], None]:
+    return lambda folder: command(folder, sys.executable, "scripts/" + script, *extra, timeout=timeout)
+
+
+def reports_from_dryrun(script: str, output: str) -> Callable[[Path], None]:
+    """Legacy HTML renderer runs DRY: output only a JSON editorial queue."""
+    def run(folder: Path) -> None:
+        raw = command(folder, sys.executable, "scripts/" + script, "--dry-run", timeout=180)
+        data = json.loads(raw)
+        path = folder / "master-staging" / output
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return run
+
+
+def save_summary(output: Path, status: str, records: list[dict]) -> None:
+    failed = [s["module"] for s in records if s["status"] == "fallback-last-good"]
+    discarded = [s["module"] for s in records if s.get("legacy_html_discarded")]
+    summary = {
+        "status": status, "mode": "staging-only-no-push-no-deploy",
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "carosello": "5 slot: 4 Tech + 1 Gaming",
+        "protected_source_html_css_js_unchanged": True,
+        "legacy_rendering_requires_json_adapters": bool(discarded),
+        "modules_with_fallback": failed,
+        "production_deploy_allowed": False,
+        "old_workflows_unchanged": True,
+        "modules": records,
+    }
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "report.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 
 def run(args: argparse.Namespace) -> int:
     target = Path(args.output_dir).resolve()
     target.mkdir(parents=True, exist_ok=True)
-    results: list[dict] = []
-    manifest = None
-    outcome = "blocked"
-    # Worktree is detached at the workflow's checked-out commit. Legacy bots may
-    # continue writing main; this test cannot race with or publish to that branch.
-    with tempfile.TemporaryDirectory(prefix="zt-master-") as temp:
-        work = Path(temp) / "site"
-        command(ROOT, "git", "worktree", "add", "--detach", str(work), "HEAD", timeout=120)
+    records: list[dict] = []
+    status = "blocked"
+    with tempfile.TemporaryDirectory(prefix="zt-master-") as scratch:
+        source = Path(scratch) / "source"
+        command(ROOT, "git", "worktree", "add", "--detach", str(source), "HEAD", timeout=120)
         try:
-            baseline = protected_snapshot(work)
-            validate_core(work, baseline)
-            results.append({"module": "preflight-home-css-nav", "status": "ok"})
-            stages = [
-                ("youtube-community", [sys.executable, "scripts/update-youtube-posts.py"], 360, args.with_imports),
-                ("youtube-videos", [sys.executable, "scripts/update-youtube.py"], 240,
+            baseline = snapshot(source)
+            verify_source(source, baseline)
+            records.append({"module": "preflight-home-css-nav", "status": "ok"})
+            steps = [
+                ("youtube-community", exec_module("update-youtube-posts.py", timeout=360),
+                 (".youtube-posts.json",), args.with_imports),
+                ("youtube-videos", exec_module("update-youtube.py", timeout=240),
+                 (".youtube-latest.json", "home-video-feed.json"),
                  args.with_imports and bool(os.getenv("YOUTUBE_API_KEY"))),
-                ("approved-reviews", [sys.executable, "scripts/publish-approved-reviews.py"], 150, True),
-                ("trending-source-scan", [sys.executable, "scripts/trending-crosscheck.py", "--sources"],
-                 240, args.with_imports),
-                ("trending-five-card-source", [sys.executable, "scripts/trending-crosscheck.py", "--apply"], 120, True),
-                ("home-editorial-boxes", [sys.executable, "scripts/refresh-home-editorial-boxes.py"], 160, True),
+                ("approved-reviews", reports_from_dryrun("publish-approved-reviews.py", "reviews-due.json"),
+                 ("master-staging/reviews-due.json",), True),
+                ("trending-scan", exec_module("trending-crosscheck.py", "--sources", timeout=240),
+                 ("trending-sources.json",), args.with_imports),
+                ("trending-carousel", exec_module("trending-crosscheck.py", "--apply", timeout=120),
+                 ("featured-carousel.json", "trending-match-report.json"), True),
+                ("editorial-boxes", reports_from_dryrun("refresh-home-editorial-boxes.py", "editorial-boxes.json"),
+                 ("master-staging/editorial-boxes.json",), True),
             ]
-            for name, cmd, timeout, enabled in stages:
-                if not enabled:
-                    results.append({"module": name, "status": "skipped-offline-or-missing-key"})
-                    continue
-                stage(work, baseline, results, name,
-                      lambda cmd=cmd, timeout=timeout: command(work, *cmd, timeout=timeout))
-            candidate = work / "master-staging" / "carousel-six.json"
-            def prepare_carousel() -> None:
-                nonlocal manifest
-                manifest = six_slot_manifest(work)
-                candidate.parent.mkdir(parents=True, exist_ok=True)
-                candidate.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            stage(work, baseline, results, "six-slot-carousel-isolated", prepare_carousel, optional=False)
-            # Cloudflare's CURRENT renderer and validators still require five cards.
-            # Do not alter them in a staging experiment; the sixth slot has no live effect.
-            def build() -> None:
-                command(work, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
-                validate_core(work, baseline)
-                command(work, sys.executable, "scripts/verify-home-layout-lock.py", "--packaged", timeout=90)
-                command(work, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
-                validate_sitewide_navigation(work / "dist")
-            stage(work, baseline, results, "production-equivalent-build", build, optional=False)
-            shutil.copytree(work / "dist", target / "preview-site", dirs_exist_ok=True)
-            if manifest:
-                (target / "carousel-six.json").write_text(
-                    json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            outcome = "staging-validated"
+            for name, operation, files, enabled in steps:
+                if enabled:
+                    stage(source, baseline, records, name, operation, files)
+                else:
+                    records.append({"module": name, "status": "skipped-in-test"})
+            stage(source, baseline, records, "five-slot-carousel",
+                  lambda folder: (folder / "master-staging").mkdir(parents=True, exist_ok=True)
+                    or (folder / "master-staging/carousel-five.json").write_text(
+                        json.dumps(five_slot_manifest(folder), ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8"),
+                  ("master-staging/carousel-five.json",), mandatory=True)
+            # Production-equivalent rendering occurs in its OWN throwaway worktree,
+            # never in the JSON-only parent source worktree.
+            def build_preview(folder: Path) -> None:
+                command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
+                command(folder, sys.executable, "scripts/verify-home-layout-lock.py", "--packaged", timeout=90)
+                command(folder, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
+                verify_sitewide_nav(folder / "dist")
+                shutil.copytree(folder / "dist", target / "preview-site", dirs_exist_ok=True)
+            stage(source, baseline, records, "isolated-offline-build", build_preview, mandatory=True)
+            verify_source(source, baseline)
+            (target / "carousel-five.json").write_text(
+                json.dumps(five_slot_manifest(source), ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8")
+            status = ("staging-validated-with-fallbacks" if any(x["status"] == "fallback-last-good" for x in records)
+                      else "staging-validated")
         except Exception as exc:
-            results.append({"module": "pipeline", "status": "blocked", "reason": str(exc)[-1400:]})
+            records.append({"module": "pipeline", "status": "blocked", "error": str(exc)[-1200:]})
         finally:
-            command(ROOT, "git", "worktree", "remove", "--force", str(work), timeout=90)
-    report = {"status": outcome, "mode": "test-only-no-push-no-deploy",
-              "created_utc": datetime.now(timezone.utc).isoformat(), "modules": results,
-              "live_carousel_unchanged": True, "live_workflows_unchanged": True}
-    (target / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(report, ensure_ascii=False, indent=2))
-    return 0 if outcome == "staging-validated" else 1
+            command(ROOT, "git", "worktree", "remove", "--force", str(source), timeout=120)
+    save_summary(target, status, records)
+    return 1 if status == "blocked" else 0
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--with-imports", action="store_true",
-                        help="Explicit manual staging run with network importers")
+                        help="Explicitly test external YouTube/portal feeds, still no deploy")
     parser.add_argument("--output-dir", default="artifacts/master-orchestrator")
     args = parser.parse_args()
     if args.self_test:
         self_test()
         return
-    raise SystemExit(run(args))
+    sys.exit(run(args))
 
 
 if __name__ == "__main__":
