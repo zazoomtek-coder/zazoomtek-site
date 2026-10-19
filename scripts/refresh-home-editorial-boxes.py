@@ -321,7 +321,7 @@ def main() -> None:
         assert a == index and b == javascript, "Refresh must be deterministic and idempotent"
         assert sum(len(report[key]) for key in ("suggested", "tech_impact", "gaming_inside", "dalla_redazione")) == 26
         assert not (set(report["suggested"]) & likely_home_column_urls()), "Popular sidebar reused a Tech/Gaming column article"
-        assert not (set(report["suggested"]) & featured_urls), "Popular sidebar reused a carousel article"
+        assert not (set(report["suggested"]) & {clean_url(x["url"]) for x in json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))["items"]}), "Popular sidebar reused a carousel article"
         print("PASS: every refreshed card uses a real existing ZazoomTek article + validated thumbnail")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if not opts.self_test and not opts.dry_run:
