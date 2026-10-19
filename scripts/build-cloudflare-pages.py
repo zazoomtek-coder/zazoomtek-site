@@ -88,7 +88,7 @@ def generated_approved_files() -> set[Path]:
             if not isinstance(item, dict) or item.get("status") != "approved":
                 continue
             target = item.get("target")
-            if isinstance(target, str) and re.fullmatch(r"[A-Za-z0-9_-]+\\.html", target):
+            if isinstance(target, str) and re.fullmatch(r"[A-Za-z0-9_-]+\.html", target):
                 add(target)
     return generated
 
@@ -96,7 +96,7 @@ def generated_approved_files() -> set[Path]:
 def tracked_files() -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "-z"], cwd=ROOT, check=True, stdout=subprocess.PIPE)
-    published = {Path(os.fsdecode(name)) for name in result.stdout.split(b"\\0") if name}
+    published = {Path(os.fsdecode(name)) for name in result.stdout.split(b"\0") if name}
     # Video watch pages use only official YouTube iframes, never media bytes.
     generated_watch = {p.relative_to(ROOT) for p in (ROOT / "watch").glob("*.html")} if (ROOT / "watch").is_dir() else set()
     return sorted(published | generated_watch | generated_approved_files(), key=str)
