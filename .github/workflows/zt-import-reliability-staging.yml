@@ -30,43 +30,29 @@ jobs:
           node scripts/test-home-news-categories.cjs
           python3 scripts/test-featured-today-yesterday.py
           python3 scripts/verify-home-layout-lock.py
-      - name: Ensure the real carousel survives and a missing carousel blocks release
+      - name: Reject damaged carousel while accepting last verified Home
         run: |
           python3 scripts/protect-home-structure.py index.html
           python3 - <<'PY'
-          import re, subprocess, tempfile
+          import re, subprocess, tempfile, importlib.util
           from pathlib import Path
-          import importlib.util
           spec=importlib.util.spec_from_file_location("zt_home_guard","scripts/protect-home-structure.py")
-          module=importlib.util.module_from_spec(spec)
-          spec.loader.exec_module(module)
-          check=module.check
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          release=Path("cloudflare-release-trigger.txt").read_text()
+          source=next(line.split("=",1)[1] for line in release.splitlines() if line.startswith("source_commit="))
+          baseline=subprocess.check_output(["git","show",source+":index.html"]).decode()
+          assert 'id="ztFeaturedGrid"' in baseline
           with tempfile.TemporaryDirectory() as tmp:
-              release=Path('cloudflare-release-trigger.txt').read_text()
-              source=re.search(r'^source_commit=([a-f0-9]{40})
-        run: |
-          python3 scripts/cloudflare-build-site.py
-          python3 scripts/verify-packaged-home.py --root dist
-          python3 scripts/verify-home-layout-lock.py --packaged
-      - name: Preserve staging snapshot
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: zt-import-staging-snapshot
-          path: dist/
-          retention-days: 5
-,release,re.M).group(1)
-              old=subprocess.check_output(['git','show',source+':index.html']).decode()
-              assert 'id="ztFeaturedGrid"' in old and 'id="newsSlider"' not in old
-              p=Path(tmp)/'last-good-index.html'
-              p.write_text(old)
-              check(p)
-              p.write_text(old.replace('id="ztFeaturedGrid"','id="newsSlider"',1))
-              try: check(p)
+              p=Path(tmp)/"index.html"
+              p.write_text(baseline)
+              mod.check(p)
+              p.write_text(baseline.replace('id="ztFeaturedGrid"','id="newsSlider"',1))
+              try: mod.check(p)
               except SystemExit as exc:
-                  assert 'news carousel' in str(exc)
-              else: raise AssertionError('Missing the real carousel must block release')
-          print('PASS: current and last-good Home use the real carousel; damaged Home is blocked')
+                  assert "news carousel" in str(exc)
+              else: raise AssertionError("Missing approved carousel was accepted")
+          print("PASS: real approved Home is safe; removed carousel is blocked")
           PY
       - name: Offline full Cloudflare-equivalent production build
         run: |
