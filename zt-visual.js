@@ -306,7 +306,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 
-/* ZT_TG_INSIDE_20261019
+/* ZT_INSIGHTS_20261019
    Single navigational group built from the two existing Home links.
    HTML fallback preserves both original links if JS is unavailable.
    The floating submenu cannot be clipped by the horizontally-scrolling navbar. */
@@ -324,11 +324,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const selected=tech.classList.contains('active')||gaming.classList.contains('active')
         ||/\/speciali\.html$/.test(location.pathname);
       if(selected){tech.classList.add('active');gaming.classList.remove('active');}
-      tech.textContent='TG INSIDE';
+      tech.textContent='INSIGHTS';
       tech.href='/speciali.html';
       tech.setAttribute('aria-haspopup','true');
       tech.setAttribute('aria-expanded','false');
-      tech.setAttribute('aria-label','TG Inside: Tech Impact, Gaming Inside e Speciali');
+      tech.setAttribute('aria-label','INSIGHTS: Tech Impact, Gaming Inside e Speciali');
       gaming.classList.add('zt-tg-hidden-link');
       gaming.setAttribute('aria-hidden','true');
       gaming.tabIndex=-1;
@@ -337,7 +337,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(!triggers.length||document.getElementById('zt-tg-menu'))return;
     const box=document.createElement('nav');
     box.id='zt-tg-menu';
-    box.setAttribute('aria-label','Sezioni TG Inside');
+    box.setAttribute('aria-label','Sezioni INSIGHTS');
     box.innerHTML='<a href="/tech-today.html">TECH IMPACT</a>'
       +'<a href="/gaming-today.html">GAMING INSIDE</a>'
       +'<a href="/speciali.html">SPECIALI</a>';
