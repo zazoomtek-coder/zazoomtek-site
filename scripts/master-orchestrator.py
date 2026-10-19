@@ -35,8 +35,12 @@ NAV_DESTINATIONS = (
 
 
 def command(cwd: Path, *args: str, timeout: int = 360) -> str:
-    completed = subprocess.run(args, cwd=cwd, check=True, text=True,
-                               capture_output=True, timeout=timeout)
+    try:
+        completed = subprocess.run(args, cwd=cwd, check=True, text=True,
+                                   capture_output=True, timeout=timeout)
+    except subprocess.CalledProcessError as exc:
+        details = ((exc.stdout or "") + "\n" + (exc.stderr or ""))[-1600:]
+        raise RuntimeError(f"Validation command failed (exit {exc.returncode}): {details}") from exc
     return (completed.stdout + completed.stderr)[-1800:]
 
 
@@ -160,7 +164,7 @@ def stage(root: Path, baseline: dict[str, str], report: list[dict], name: str,
         return True
     except Exception as exc:
         rollback(root)
-        report.append({"module": name, "status": "fallback-last-good", "reason": str(exc)[:400]})
+        report.append({"module": name, "status": "fallback-last-good", "reason": str(exc)[-1400:]})
         if not optional:
             raise RuntimeError(f"Required stage {name} failed: {exc}") from exc
         return False
@@ -219,7 +223,7 @@ def run(args: argparse.Namespace) -> int:
                     json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             outcome = "staging-validated"
         except Exception as exc:
-            results.append({"module": "pipeline", "status": "blocked", "reason": str(exc)[:600]})
+            results.append({"module": "pipeline", "status": "blocked", "reason": str(exc)[-1400:]})
         finally:
             command(ROOT, "git", "worktree", "remove", "--force", str(work), timeout=90)
     report = {"status": outcome, "mode": "test-only-no-push-no-deploy",
