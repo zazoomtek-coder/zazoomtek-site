@@ -341,7 +341,7 @@
       if(holder){
         const existing=new Set([...holder.querySelectorAll(".zt-popular-article")].map(articlePath).filter(Boolean));
         for(const item of olderTechForPopular){
-          if(!item || !/^\\/news-[A-Za-z0-9_-]+\\.html$/.test(item.url) ||
+          if(!item || !/^\/news-[A-Za-z0-9_-]+\.html$/.test(item.url) ||
              !item.title || !item.image || used.has(item.url) || existing.has(item.url))continue;
           const card=document.createElement("a");
           card.className="zt-popular-article";card.href=item.url;card.title=item.title;
