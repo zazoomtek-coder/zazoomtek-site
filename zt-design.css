@@ -1667,3 +1667,25 @@ aside.zt-side-mix[data-zt-large-editorial="three-cards"] > .zt-amazon-partner{
 .zt-review-video-banner{margin:15px 0 26px;border:1px solid #e1e1e1;background:#f8f8f8;box-sizing:border-box;width:100%}
 .zt-review-video-banner>a{display:block!important;padding:14px 17px!important;font:900 clamp(13px,1.1vw,18px)/1.45 Arial,Helvetica,sans-serif!important;letter-spacing:.02em;color:#bb1235!important;text-decoration:none!important;overflow-wrap:anywhere}
 .zt-review-video-banner>a:hover,.zt-review-video-banner>a:focus-visible{background:#fff2f4!important;color:#8c0828!important;outline-offset:2px}
+
+
+/* ZT_REVIEW_SUBMENU_20261019 — fixed overlay avoids the approved
+   horizontally scrolling navigation's overflow clipping on all viewports. */
+#zt-review-dropdown{
+  box-sizing:border-box;display:none;position:fixed;z-index:2147483000;
+  width:176px;max-width:calc(100vw - 16px);background:#171717;
+  color:#fff;border:1px solid #444;border-top:3px solid #d51232;
+  box-shadow:0 10px 25px rgba(0,0,0,.32);border-radius:0 0 3px 3px;
+  font-family:Arial,Helvetica,sans-serif;
+}
+#zt-review-dropdown.is-open{display:block}
+#zt-review-dropdown > a{
+  box-sizing:border-box;display:block;padding:15px 17px;
+  color:#fff!important;background:#202020;text-decoration:none!important;
+  font:800 13px/1.25 Arial,Helvetica,sans-serif;letter-spacing:.025em;
+  border-bottom:1px solid #393939;
+}
+#zt-review-dropdown > a:last-child{border-bottom:0}
+#zt-review-dropdown > a:hover,#zt-review-dropdown > a:focus-visible{
+  background:#d51232;color:#fff!important;outline:2px solid #fff;outline-offset:-2px;
+}
