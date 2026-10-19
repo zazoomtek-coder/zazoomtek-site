@@ -4,6 +4,11 @@ on:
   pull_request:
     paths:
       - 'scripts/master-orchestrator.py'
+      - 'scripts/master-json-renderer.py'
+      - 'scripts/trending-crosscheck.py'
+      - 'scripts/refresh-home-editorial-boxes.py'
+      - 'scripts/update-youtube-posts.py'
+      - 'featured-carousel.json'
       - '.github/workflows/master-orchestrator-staging.yml'
   workflow_dispatch:
     inputs:
@@ -40,7 +45,11 @@ jobs:
       - name: Verify orchestrator source and five-slot logic
         run: |
           python3 -m py_compile scripts/master-orchestrator.py
+          python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/trending-crosscheck.py
           python3 scripts/master-orchestrator.py --self-test
+          python3 scripts/master-json-renderer.py --self-test
+          python3 scripts/trending-crosscheck.py --test
+          python3 scripts/refresh-home-editorial-boxes.py --self-test
           python3 scripts/test_review_dedup.py
       - name: Run all modules in an isolated Git worktree
         env:
@@ -54,7 +63,6 @@ jobs:
           fi
       - name: Create visual preview of five cards (desktop / tablet / mobile)
         if: success()
-        continue-on-error: true
         run: |
           python3 -m pip install --quiet 'playwright>=1.51,<2'
           python3 -m playwright install --with-deps chromium
