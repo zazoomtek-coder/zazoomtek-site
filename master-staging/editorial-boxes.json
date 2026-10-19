@@ -9,10 +9,10 @@
     "/news-UgkxwiYLtGYe4u_rvHjHhrA8QM_KD32KcsEA.html"
   ],
   "tech_impact": [
-    "/news-Ugkx9FTLi4RyOu6-kk1A1I1Acj6na5FKh-8c.html",
     "/news-Ugkxen-5-Kun7OOspCirTy4yVeAgS-9Yxlb_.html",
     "/tech-impact-la-via-francese-all-intelligenza-artificiale-parigi-punta-sull-asse-nvidia-mistral.html",
-    "/tech-impact-data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale.html"
+    "/tech-impact-data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale.html",
+    "/tech-impact-corea-del-sud-forti-tensioni-e-carichi-normativi-elevati-sulla-privacy-per-le-aziende.html"
   ],
   "gaming_inside": [
     "/gaming-inside-xbox-e-the-coalition-tra-ristrutturazioni-nuove-strategie-e-incertezze-occupazionali.html",
@@ -75,11 +75,6 @@
     ],
     "tech_impact": [
       {
-        "title": "Videogiochi e terapia, come il gaming può entrare nei percorsi clinici",
-        "url": "/news-Ugkx9FTLi4RyOu6-kk1A1I1Acj6na5FKh-8c.html",
-        "image": "https://yt3.ggpht.com/kkt5kl3XQ7R5tUhilr0fuixA6onIk-uKzDnY4vzelE0jYDhjnlclVHE8loTlcmazPzaEcZNRBSV7FDI=s1600-rw-nd-v1"
-      },
-      {
         "title": "Check Point rileva 3.190 attacchi informatici a settimana in Italia, +46% su base annua",
         "url": "/news-Ugkxen-5-Kun7OOspCirTy4yVeAgS-9Yxlb_.html",
         "image": "https://yt3.ggpht.com/bTXtcbtsmXbXsuzl7gaFflHevh8AJjxK7azsRmiZF1xGVQOZKnlbd2th7XY3eWemiGFgFmT4pjUg=s1600-rw-nd-v1"
@@ -93,6 +88,11 @@
         "title": "Data center in Lombardia: richieste per 11 GW e ipotesi di stretta normativa regionale",
         "url": "/tech-impact-data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale.html",
         "image": "/assets/special/tech-impact-data-center-in-lombardia-richieste-per-11-gw-e-ipotesi-di-stretta-normativa-regionale.webp"
+      },
+      {
+        "title": "Corea del Sud: forti tensioni e carichi normativi elevati sulla privacy per le aziende di intelligenza artificiale",
+        "url": "/tech-impact-corea-del-sud-forti-tensioni-e-carichi-normativi-elevati-sulla-privacy-per-le-aziende.html",
+        "image": "/assets/special/tech-impact-corea-del-sud-forti-tensioni-e-carichi-normativi-elevati-sulla-privacy-per-le-aziende.webp"
       }
     ],
     "gaming_inside": [
