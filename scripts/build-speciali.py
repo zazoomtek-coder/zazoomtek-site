@@ -84,6 +84,31 @@ def build(root:Path=ROOT)->int:
     entries=approved_entries(root)
     body='\n'.join(map(render_row,entries)) if entries else SENTINEL
     updated=head+START+'\n'+body+'\n'+END+tail
+    # Refresh schema.org ItemList only after verified, approved pages are known.
+    graph={
+        "@context":"https://schema.org",
+        "@graph":[
+            {"@type":"CollectionPage","name":"Speciali Tech e Gaming",
+             "description":"Approfondimenti originali su tecnologia, gaming, società, politica, diritti, economia e industria digitale.",
+             "url":"https://zazoomtek.it/speciali.html",
+             "isPartOf":{"@type":"WebSite","name":"ZazoomTek","url":"https://zazoomtek.it/"},
+             "mainEntity":{"@type":"ItemList","itemListElement":[
+                {"@type":"ListItem","position":idx+1,"name":entry["title"],
+                 "url":"https://zazoomtek.it/"+entry["slug"]}
+                for idx,entry in enumerate(entries)]}},
+            {"@type":"BreadcrumbList","itemListElement":[
+                {"@type":"ListItem","position":1,"name":"Home","item":"https://zazoomtek.it/"},
+                {"@type":"ListItem","position":2,"name":"TG Inside","item":"https://zazoomtek.it/speciali.html"},
+                {"@type":"ListItem","position":3,"name":"Speciali","item":"https://zazoomtek.it/speciali.html"}
+            ]}
+        ]}
+    ld=json.dumps(graph,ensure_ascii=False).replace('<','\\u003c')
+    updated,count=re.subn(
+        r'(<script id="zt-specials-ld" type="application/ld\\+json">)[\\s\\S]*?(</script>)',
+        lambda m:m.group(1)+ld+m.group(2),
+        updated,count=1)
+    if count!=1:
+        raise RuntimeError("Speciali SEO JSON-LD missing; refusing incomplete build")
     if not all(key in updated for key in ('class="news-sidebar','zt-mix-feature','zt-mix-recent',
                                             'class="legal-footer','id="specialiList"')):
         raise RuntimeError('SPECIALI page lost editorial shell: refusing build')
