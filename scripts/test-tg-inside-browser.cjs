@@ -36,14 +36,15 @@ async function main(){
     canonical:document.querySelector('link[rel=canonical]')?.href,
     seo:!!document.getElementById('zt-specials-ld'),
     rail:!!document.querySelector('aside.news-sidebar.zt-side-mix'),
-    editorial:!!document.querySelector('.zt-mix-feature')&&!!document.querySelector('.zt-mix-recent'),
+    editorial:!!document.querySelector('aside.news-sidebar .zt-special-box, aside.news-sidebar .zt-mix-feature, aside.news-sidebar .zt-mix-recent'),
+    related:document.querySelectorAll('.zt-specials-related-card').length,
     footer:!!document.querySelector('footer.zt-unified-footer'),
     overflow:document.documentElement.scrollWidth-innerWidth,
     title:document.querySelector('h1')?.textContent?.trim(),
     nav:!![...document.querySelectorAll('header .topbar nav.nav > a')].find(x=>x.textContent.trim()==='TG INSIDE')
    }));
    if(!state.canonical?.endsWith('/speciali.html')||!state.seo||!state.rail||!state.editorial
-     ||!state.footer||state.overflow>8||state.title!=='Speciali'||!state.nav||pageErrors.length)
+     ||!state.footer||state.related<4||state.overflow>8||state.title!=='Speciali'||!state.nav||pageErrors.length)
      throw Error(name+': incomplete SPECIALI '+JSON.stringify({state,pageErrors}));
    console.log('PASS',name,JSON.stringify({links,state}));
    await page.close();
