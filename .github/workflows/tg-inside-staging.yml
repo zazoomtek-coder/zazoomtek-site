@@ -52,6 +52,16 @@ jobs:
           assert 'https://zazoomtek.it/speciali.html' in Path('dist/sitemap.xml').read_text()
           print('PASS: Full Cloudflare dist, SPECIALI SEO, full related editorial rail, unchanged Home')
           PY
+      - name: Real browser check — desktop hover, mobile tap, SEO and editorial sidebar
+        run: |
+          set -euo pipefail
+          npm install --prefix /tmp/zt-tg-browser --no-save --silent playwright-core@1.56.0
+          nohup python3 -m http.server 8877 --directory dist --bind 127.0.0.1 >/tmp/zt-tg-browser.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:8877/speciali.html >/dev/null; then break; fi
+            sleep 1
+          done
+          NODE_PATH=/tmp/zt-tg-browser/node_modules node scripts/test-tg-inside-browser.cjs
       - name: Archive staging snapshot for manual review
         if: always()
         uses: actions/upload-artifact@v4
