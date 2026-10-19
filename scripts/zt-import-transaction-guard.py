@@ -24,7 +24,7 @@ META={"sitemap.xml","google-sitemap.xml","sitemap.txt","robots.txt"}
 REVIEW_CATEGORY_ARCHIVES={"recensioni-tech.html","recensioni-gaming.html"}
 COMMUNITY_STATE={".youtube-posts.json","manual-news.json",".manual-news-build-state.json"}
 COMMUNITY_COMMANDS={".force-community-full-scan"}
-VIDEO_STATE={".youtube-latest.json","home-video-feed.json"}
+VIDEO_STATE={".youtube-latest.json","home-video-feed.json",".youtube-master-render-cache.json"}
 PRIMARY_PAGE=re.compile(r"(?:news-Ugkx[^/]*|recensione-Ugkx[^/]*)\.html",re.I)
 MIN_KEEP=.70
 
@@ -96,6 +96,8 @@ def main():
         assert allowed("community",".manual-news-build-state.json")
         assert allowed("community",".force-community-full-scan")
         assert allowed("videos","home-video-feed.json")
+        assert allowed("videos",".youtube-master-render-cache.json")
+        assert not allowed("community",".youtube-master-render-cache.json")
         assert allowed("auxiliary","news-foo.html")
         assert not allowed("videos","news-Ugkx123.html")
         assert not allowed("community","zt-home-live.js")
