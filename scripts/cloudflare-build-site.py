@@ -26,6 +26,8 @@ def main() -> None:
     run("refresh-home-latest-reviews.py")
     # Category lists are prebuilt; readers never scan or filter review content.
     run("build-review-categories.py")
+    # Studio-approved Tech/Gaming long-form SPECIALI, no runtime filtering.
+    run("build-speciali.py")
     run("apply-site-design.py")
     # Add original ISO times ONLY to already-published archive cards; safe even
     # when the YouTube importer skips a cycle with no new Community posts.
@@ -64,6 +66,7 @@ def main() -> None:
     assert (output / "studio/layouts.js").is_file()
     assert (output / "studio/template-news.html").is_file()
     assert (output / "studio/template-review.html").is_file()
+    assert (output / "speciali.html").is_file()
     # Public receipt written ONLY after every editorial and artifact check
     # succeeded. Used by GitHub to verify actual Cloudflare production.
     import json
