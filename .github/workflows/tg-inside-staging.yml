@@ -46,6 +46,8 @@ jobs:
           assert 'zt-visual.js' in src and '/zt-design.css' in src
           assert 'https://zazoomtek.it/speciali.html' in src
           assert '<meta property="og:title"' in src
+          assert src.count('class="zt-specials-related-card"')>=4
+          assert 'ZT_SPECIALI_RELATED_START' in src and 'ZT_SPECIALI_RELATED_END' in src
           assert '<script id="zt-specials-ld"' in src
           assert 'data-zt-special="approved"' not in src or 'studio-speciali-' in src
           ET.parse('dist/sitemap.xml')
