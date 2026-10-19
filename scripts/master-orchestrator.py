@@ -68,8 +68,8 @@ def validate_core(root: Path, baseline: dict[str, str]) -> None:
 
 def validate_sitewide_navigation(root: Path) -> None:
     """Validate the CURRENT two-dropdown navigation; legacy nine-label test is obsolete."""
-    header_pattern = re.compile(r"<header\\b[^>]*>[\\s\\S]*?</header>", re.I)
-    nav_pattern = re.compile(r'<nav\\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
+    header_pattern = re.compile(r"<header\b[^>]*>[\s\S]*?</header>", re.I)
+    nav_pattern = re.compile(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
     checked = 0
     for page in sorted(root.glob("*.html")):
         if page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
