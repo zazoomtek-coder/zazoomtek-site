@@ -306,6 +306,8 @@ def run(args: argparse.Namespace) -> int:
                 ("youtube-videos", exec_module("update-youtube.py", timeout=240),
                  (".youtube-latest.json", "home-video-feed.json", ".youtube-master-render-cache.json"),
                  args.with_imports and bool(os.getenv("YOUTUBE_API_KEY"))),
+                ("video-watch-archive", exec_module("seo_video_archive_safe.py", timeout=90),
+                 ("video-watch-archive.json",), True),
                 ("approved-reviews", reports_from_dryrun("publish-approved-reviews.py", "reviews-due.json"),
                  ("master-staging/reviews-due.json",), True),
                 ("trending-scan", exec_module("trending-crosscheck.py", "--sources", timeout=240),
