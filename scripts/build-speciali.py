@@ -114,6 +114,16 @@ def build(root:Path=ROOT)->int:
         raise RuntimeError('SPECIALI page lost editorial shell: refusing build')
     if updated!=page:
         target.write_text(updated,encoding='utf-8')
+    # Keep the canonical archive discoverable from Google sitemap.
+    sitemap=root/"sitemap.xml"
+    if sitemap.is_file():
+        xml=sitemap.read_text(encoding="utf-8")
+        url="https://zazoomtek.it/speciali.html"
+        if url not in xml:
+            if "</urlset>" not in xml:
+                raise RuntimeError("Invalid sitemap: SPECIALI cannot be indexed safely")
+            xml=xml.replace("</urlset>","  <url><loc>"+url+"</loc></url>\n</urlset>",1)
+            sitemap.write_text(xml,encoding="utf-8")
     print('Approved, unique SPECIALI indexed:',len(entries))
     return len(entries)
 
