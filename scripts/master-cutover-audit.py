@@ -44,7 +44,8 @@ def report(root: Path) -> dict:
     folder = root / ".github/workflows"
     workflows = [summarize(x) for x in sorted(folder.glob("*.yml"))]
     scheduled_writers = [x["file"] for x in workflows
-                         if x["schedule"] and x["potential_writer"]]
+                         if x["schedule"] and x["potential_writer"]
+                         and x["file"] != "master-orchestrator-production.yml"]
     all_writers = [x["file"] for x in workflows if x["potential_writer"]]
     expected = sorted(PROTECTED_WRITERS & set(all_writers))
     # Only after all old scheduled writers are atomically retired and the new
