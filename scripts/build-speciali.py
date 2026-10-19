@@ -153,7 +153,7 @@ def build(root:Path=ROOT)->int:
                 for idx,entry in enumerate(entries)]}},
             {"@type":"BreadcrumbList","itemListElement":[
                 {"@type":"ListItem","position":1,"name":"Home","item":"https://zazoomtek.it/"},
-                {"@type":"ListItem","position":2,"name":"TG Inside","item":"https://zazoomtek.it/speciali.html"},
+                {"@type":"ListItem","position":2,"name":"INSIGHTS","item":"https://zazoomtek.it/speciali.html"},
                 {"@type":"ListItem","position":3,"name":"Speciali","item":"https://zazoomtek.it/speciali.html"}
             ]}
         ]}
