@@ -1,0 +1,45 @@
+name: Read-only live TECH/GAMING review page probe
+on:
+  push:
+    branches: [audit/reviews-public-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Confirm public site and both new review archives, without mutation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import time,urllib.request
+          urls = {
+              "Home": ("https://zazoomtek.it/", "ZAZOOM"),
+              "Recensioni Tech": ("https://zazoomtek.it/recensioni-tech.html", "Recensioni Tech"),
+              "Recensioni Gaming": ("https://zazoomtek.it/recensioni-gaming.html", "Recensioni Gaming"),
+          }
+          for attempt in range(12):
+              ok=True
+              for label,(url,marker) in urls.items():
+                  try:
+                      req=urllib.request.Request(url+"?ztlivecheck=20261019-"+str(attempt),headers={"User-Agent":"Mozilla/5.0 (ZazoomTek release verifier)","Cache-Control":"no-cache"})
+                      with urllib.request.urlopen(req,timeout=15) as res:
+                          body=res.read().decode("utf-8","replace")
+                          status=res.status
+                      markers=[marker,"zt-visual.js","zt-design.css"]
+                      if label!="Home":
+                          markers+=['id="reviewList"','zt-mix-feature','zt-mix-recent']
+                      valid=status==200 and all(x in body for x in markers)
+                      print("ATTEMPT",attempt,label,"status",status,"bytes",len(body),"expected",markers,"valid",valid,flush=True)
+                      if not valid:ok=False
+                  except Exception as e:
+                      print("ATTEMPT",attempt,label,type(e).__name__,str(e),flush=True)
+                      ok=False
+              if ok:
+                  print("PASS: three real public URLs with complete review pages, editorial boxes and shared menu assets")
+                  break
+              if attempt==11:raise SystemExit("Public release not yet verifiable")
+              time.sleep(10)
+          PY
