@@ -67,7 +67,7 @@ jobs:
           if [ "$WITH_IMPORTS" = 'true' ]; then
             python3 scripts/master-orchestrator.py --with-imports
           else
-            python3 scripts/master-orchestrator.py
+            python3 scripts/master-orchestrator.py --simulate-production-render
           fi
       - name: Inventory concurrent legacy writers (report only)
         if: always()
