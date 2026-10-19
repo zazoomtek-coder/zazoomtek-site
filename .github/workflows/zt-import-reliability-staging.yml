@@ -1,7 +1,7 @@
 name: ZazoomTek importer transaction reliability - staging only
 on:
   push:
-    branches: [zt-import-pipeline-reliability-20261018]
+    branches: [zt-import-pipeline-reliability-20261018, fix/youtube-community-guard-20261019]
   workflow_dispatch:
 permissions:
   contents: read
