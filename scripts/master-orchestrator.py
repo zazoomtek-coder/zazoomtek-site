@@ -356,7 +356,13 @@ def run(args: argparse.Namespace) -> int:
                 command(folder, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
                 verify_sitewide_nav(folder / "dist")
                 shutil.copytree(folder / "dist", target / "preview-site", dirs_exist_ok=True)
-            stage(source, baseline, records, "isolated-offline-build", build_preview, mandatory=True)
+            if args.no_preview:
+                # Production five-minute polling: validated data only. The
+                # production release gateway performs the full site build
+                # before requesting any Cloudflare release window.
+                records.append({"module": "isolated-offline-build", "status": "deferred-to-release-gate"})
+            else:
+                stage(source, baseline, records, "isolated-offline-build", build_preview, mandatory=True)
             verify_source(source, baseline)
             (target / "carousel-five.json").write_text(
                 json.dumps(five_slot_manifest(source), ensure_ascii=False, indent=2) + "\n",
@@ -376,7 +382,8 @@ def run(args: argparse.Namespace) -> int:
                     ".youtube-posts.json", ".youtube-latest.json",
                     ".youtube-master-render-cache.json", "home-video-feed.json",
                     "featured-carousel.json", "trending-match-report.json",
-                    "trending-sources.json", "master-staging/reviews-due.json",
+                    "trending-sources.json", "video-watch-archive.json",
+                    "master-staging/reviews-due.json",
                     "master-staging/editorial-boxes.json",
                     "master-staging/carousel-five.json",
                 }
@@ -393,8 +400,9 @@ def run(args: argparse.Namespace) -> int:
                 (dest / "manifest.json").write_text(
                     json.dumps({"paths": paths, "base_commit": original_commit},
                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            status = ("staging-validated-with-fallbacks" if any(x["status"] == "fallback-last-good" for x in records)
-                      else "staging-validated")
+            has_fallback = any(x["status"] == "fallback-last-good" for x in records)
+            prefix = "data-validated" if args.no_preview else "staging-validated"
+            status = prefix + ("-with-fallbacks" if has_fallback else "")
         except Exception as exc:
             records.append({"module": "pipeline", "status": "blocked", "error": str(exc)[-1200:]})
         finally:
@@ -406,6 +414,7 @@ def run(args: argparse.Namespace) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--no-preview", action="store_true", help="Data-only import; defer full HTML regression build to production release gate")
     parser.add_argument("--simulate-production-render", action="store_true", help="CI-only, test Cloudflare JSON→HTML renderer without arming production")
     parser.add_argument("--with-imports", action="store_true",
                         help="Explicitly test external YouTube/portal feeds, still no deploy")
