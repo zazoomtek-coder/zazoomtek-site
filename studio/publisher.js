@@ -4,7 +4,7 @@
 const REPO="zazoomtek-coder/zazoomtek-site", BRANCH="main", ROOT="https://zazoomtek.it/";
 const $=id=>document.getElementById(id);
 const enc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const categories={"News Tech":["News Tech","/news.html"],"News Gaming":["News Gaming","/gaming-today.html"],"Recensioni Gaming":["Recensioni","/recensioni-scritte.html"],"Recensioni Hi-Tech":["Recensioni","/recensioni-scritte.html"],"Test":["Test","/test.html"],"Unboxing":["Unboxing","/unboxing.html"],"Guide":["Guide","/guide.html"],"Tech Impact":["Tech Impact","/tech-today.html"],"Gaming Inside":["Gaming Inside","/gaming-today.html"],"Extra":["Extra","/extra.html"]};
+const categories={"News Tech":["News Tech","/news.html"],"News Gaming":["News Gaming","/gaming-today.html"],"Recensioni Gaming":["Recensioni","/recensioni-scritte.html"],"Recensioni Hi-Tech":["Recensioni","/recensioni-scritte.html"],"Test":["Test","/test.html"],"Unboxing":["Unboxing","/unboxing.html"],"Guide":["Guide","/guide.html"],"Tech Impact":["Tech Impact","/tech-today.html"],"Gaming Inside":["Gaming Inside","/gaming-today.html"],"Speciali Tech":["Speciali Tech","/speciali.html"],"Speciali Gaming":["Speciali Gaming","/speciali.html"],"Extra":["Extra","/extra.html"]};
 let token="",working=false;const attachments=new Map();
 document.title="ZazoomTek Studio · Pubblicazione articoli";
 const robots=document.createElement("meta");robots.name="robots";robots.content="noindex,nofollow,noarchive";document.head.append(robots);
@@ -292,6 +292,7 @@ if(!inferred && !/^Recensioni /.test(typedCategory) && /\b(?:recensione|review)\
 if(!token){state("Collega GitHub prima di pubblicare.",true);panel.scrollIntoView({behavior:"smooth",block:"center"});return;}
 if(title.length<15||words<60||!$("coverPreview").getAttribute("src")){state("Controlli mancanti: titolo di almeno 15 caratteri, 60 parole e cover 16:9.",true);return;}
 if(!categories[category]){state("Categoria non riconosciuta.",true);return;}
+if(/^Speciali (Tech|Gaming)$/.test(category)&&words<700){state("Uno SPECIALE richiede almeno 700 parole di approfondimento originale.",true);return;}
 if(!confirm("Pubblicare un nuovo articolo sul repository principale? La home e gli archivi esistenti non verranno modificati."))return;
 working=true;btn.disabled=true;const finish=(s,bad=false)=>state(s,bad);
 try{
