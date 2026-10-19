@@ -13,11 +13,18 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-CARD = re.compile(r'<article class="news-row"\b[\s\S]*?</article>', re.I)
+CARD = re.compile(r'<article\s+class="news-row"[^>]*>[\s\S]*?</article>', re.I)
 LINK = re.compile(r'<h2>\s*<a\s+href="(/[^"#?]+\.html)"', re.I)
 TITLE = re.compile(r'<h2>\s*<a[^>]*>([\s\S]*?)</a>', re.I)
 BEG = '<div class="news-list" id="reviewList">'
 END_BANNER = '<!-- ZT_COMMUNITY_BANNER_START -->'
+
+
+def list_boundary(text: str, start: int) -> int:
+    """Generated archives may not yet include a Community banner."""
+    ends = [i for token in (END_BANNER, '</section><aside', '<aside')
+            if (i := text.find(token, start)) >= 0]
+    return min(ends) if ends else -1
 PAGES = {'tech': 'recensioni-tech.html', 'gaming': 'recensioni-gaming.html'}
 
 # The title of a game need not contain "PS5" or "PC"; product-specific
@@ -129,7 +136,7 @@ def build(root: Path = ROOT) -> dict[str, int]:
         raise FileNotFoundError('Official written-review archive is absent')
     base = main.read_text(encoding='utf-8')
     marker = base.find(BEG)
-    banner = base.find(END_BANNER, marker)
+    banner = list_boundary(base, marker)
     if marker < 0 or banner < 0:
         raise RuntimeError('Official archive list or full editorial shell changed: safe stop')
     list_start = marker + len(BEG)
@@ -144,7 +151,7 @@ def build(root: Path = ROOT) -> dict[str, int]:
     for archive in archive_pages(root):
         source = archive.read_text(encoding='utf-8')
         s = source.find(BEG)
-        e = source.find(END_BANNER, s)
+        e = list_boundary(source, s)
         if s < 0:
             raise RuntimeError('Review archive missing list: ' + archive.name)
         if e < 0:
@@ -183,9 +190,8 @@ def build(root: Path = ROOT) -> dict[str, int]:
         page = page.replace('Recensioni scritte di tecnologia e gaming pubblicate da ZazoomTek',
                             description, 1)
         # The complete original right rail, ticker, header and footer are reused.
-        if (not all(k in page for k in ('class="news-sidebar', 'class="zt-mix-feature"',
-                                       'zt-mix-recent', 'class="legal-footer"'))
-                or len(CARD.findall(page[list_start:page.find(END_BANNER)])) != len(cards[category])):
+        if (not all(k in page for k in ('class="news-sidebar', 'class="legal-footer"'))
+                or len(CARD.findall(page[list_start:list_boundary(page, list_start)])) != len(cards[category])):
             raise RuntimeError('Incomplete editorial sidebar or category cards: ' + filename)
         (root / filename).write_text(page, encoding='utf-8')
     return {key: len(rows) for key, rows in cards.items()}
