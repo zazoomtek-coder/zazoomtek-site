@@ -304,3 +304,96 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
   else ready();
 })();
+
+
+/* ZT_TG_INSIDE_20261019
+   Single navigational group built from the two existing Home links.
+   HTML fallback preserves both original links if JS is unavailable.
+   The floating submenu cannot be clipped by the horizontally-scrolling navbar. */
+(function(){
+  'use strict';
+  function setup(){
+    const navs=document.querySelectorAll('header .topbar nav.nav,header .zt-headrow nav.zt-nav');
+    const triggers=[];
+    const hidden=[];
+    for(const nav of navs){
+      const links=Array.from(nav.querySelectorAll(':scope > a'));
+      const tech=links.find(a=>a.textContent.trim().toLowerCase()==='tech impact');
+      const gaming=links.find(a=>a.textContent.trim().toLowerCase()==='gaming inside');
+      if(!tech||!gaming)continue;
+      const selected=tech.classList.contains('active')||gaming.classList.contains('active')
+        ||/\/speciali\.html$/.test(location.pathname);
+      if(selected){tech.classList.add('active');gaming.classList.remove('active');}
+      tech.textContent='TG INSIDE';
+      tech.href='/speciali.html';
+      tech.setAttribute('aria-haspopup','true');
+      tech.setAttribute('aria-expanded','false');
+      tech.setAttribute('aria-label','TG Inside: Tech Impact, Gaming Inside e Speciali');
+      gaming.classList.add('zt-tg-hidden-link');
+      gaming.setAttribute('aria-hidden','true');
+      gaming.tabIndex=-1;
+      triggers.push(tech);hidden.push(gaming);
+    }
+    if(!triggers.length||document.getElementById('zt-tg-menu'))return;
+    const box=document.createElement('nav');
+    box.id='zt-tg-menu';
+    box.setAttribute('aria-label','Sezioni TG Inside');
+    box.innerHTML='<a href="/tech-today.html">TECH IMPACT</a>'
+      +'<a href="/gaming-today.html">GAMING INSIDE</a>'
+      +'<a href="/speciali.html">SPECIALI</a>';
+    document.body.appendChild(box);
+    let active=null,timer=null;
+    function cancel(){if(timer!==null){clearTimeout(timer);timer=null;}}
+    function close(){
+      cancel();active=null;
+      box.classList.remove('is-open');
+      triggers.forEach(a=>a.setAttribute('aria-expanded','false'));
+    }
+    function position(){
+      if(!active)return;
+      const b=active.getBoundingClientRect();
+      const width=box.offsetWidth||212;
+      if(b.bottom<0||b.top>innerHeight){close();return;}
+      box.style.left=Math.max(8,Math.min(Math.round(b.left),innerWidth-width-8))+'px';
+      box.style.top=Math.round(b.bottom+2)+'px';
+    }
+    function open(trigger){
+      cancel();active=trigger;
+      triggers.forEach(a=>a.setAttribute('aria-expanded',a===trigger?'true':'false'));
+      // The existing reviews dropdown must not overlay this menu.
+      document.getElementById('zt-review-dropdown')?.classList.remove('is-open');
+      box.classList.add('is-open');position();
+    }
+    function delay(){cancel();timer=setTimeout(close,180);}
+    triggers.forEach(a=>{
+      a.addEventListener('mouseenter',()=>{if(matchMedia('(hover: hover)').matches)open(a);});
+      a.addEventListener('mouseleave',delay);
+      a.addEventListener('focus',()=>{if(matchMedia('(hover: hover)').matches)open(a);});
+      a.addEventListener('keydown',ev=>{
+        if(ev.key==='ArrowDown'||ev.key===' '){
+          ev.preventDefault();open(a);box.querySelector('a')?.focus();
+        }
+      });
+      a.addEventListener('click',ev=>{
+        if(matchMedia('(hover: none)').matches){
+          ev.preventDefault();
+          if(active===a&&box.classList.contains('is-open'))close();else open(a);
+        }
+      });
+    });
+    box.addEventListener('mouseenter',cancel);
+    box.addEventListener('mouseleave',delay);
+    box.addEventListener('focusin',cancel);
+    box.addEventListener('focusout',ev=>{if(!box.contains(ev.relatedTarget))delay();});
+    document.addEventListener('pointerdown',ev=>{
+      if(!box.contains(ev.target)&&!triggers.some(a=>a.contains(ev.target)))close();
+    });
+    document.addEventListener('keydown',ev=>{
+      if(ev.key==='Escape'&&active){const previous=active;close();previous.focus();}
+    });
+    window.addEventListener('scroll',position,{passive:true});
+    window.addEventListener('resize',position,{passive:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});
+  else setup();
+})();
