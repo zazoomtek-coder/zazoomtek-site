@@ -575,7 +575,7 @@ def verified_public_article(article):
 def is_promotional_community_milestone(article):
     """Self-congratulatory subscriber posts are Community, never Tech innovation."""
     title=str(article.get("title") or "").lower()
-    milestone=re.search(r"\\b(?:iscritt[io]|followers?|abbonat[io]|subscriber[s]?|traguardo)\\b", title)
+    milestone=re.search(r"\b(?:iscritt[io]|followers?|abbonat[io]|subscriber[s]?|traguardo)\b", title)
     brand=re.search(r"(?:zazoomtek|nostr[oaie]|canale|community|youtube)", title)
     return bool(milestone and brand)
 
