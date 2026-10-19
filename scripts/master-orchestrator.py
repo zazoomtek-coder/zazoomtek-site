@@ -66,6 +66,33 @@ def validate_core(root: Path, baseline: dict[str, str]) -> None:
             raise RuntimeError(f"Navigation destination is missing: {target}")
 
 
+def validate_sitewide_navigation(root: Path) -> None:
+    """Validate the CURRENT two-dropdown navigation; legacy nine-label test is obsolete."""
+    header_pattern = re.compile(r"<header\\b[^>]*>[\\s\\S]*?</header>", re.I)
+    nav_pattern = re.compile(r'<nav\\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
+    checked = 0
+    for page in sorted(root.glob("*.html")):
+        if page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
+            continue
+        text = page.read_text(encoding="utf-8", errors="replace")
+        header = header_pattern.search(text)
+        if not header or not any(v in header.group().upper() for v in ("ZAZOOM", "CHATGPT.PNG")):
+            continue
+        nav = nav_pattern.search(header.group())
+        if not nav:
+            raise RuntimeError(f"Missing canonical navigation on {page.name}")
+        if nav.group().count('class="nav-drop-trigger"') != 2:
+            raise RuntimeError(f"Expected Tech/Gaming dropdowns on {page.name}")
+        missing = [x for x in NAV_DESTINATIONS if f'href="{x}"' not in nav.group()]
+        if missing:
+            raise RuntimeError(f"Missing navigation links on {page.name}: {missing}")
+        if "zt-unified-header.js" in text:
+            raise RuntimeError(f"Obsolete asynchronous header on {page.name}")
+        checked += 1
+    if checked < 50:
+        raise RuntimeError(f"Insufficient canonical navigation coverage: {checked} pages")
+
+
 def validate_link(root: Path, item: dict) -> None:
     url, cover, title = (item.get("url"), item.get("image"), item.get("title"))
     if (not isinstance(url, str) or not re.fullmatch(r"/[A-Za-z0-9_.-]+\.html", url)
@@ -215,7 +242,7 @@ def run(args: argparse.Namespace) -> int:
                 validate_core(work, baseline)
                 command(work, sys.executable, "scripts/verify-home-layout-lock.py", "--packaged", timeout=90)
                 command(work, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
-                command(work, sys.executable, "scripts/test_sitewide_home_header.py", "--root", "dist", timeout=90)
+                validate_sitewide_navigation(work / "dist")
             stage(work, baseline, results, "production-equivalent-build", build, optional=False)
             shutil.copytree(work / "dist", target / "preview-site", dirs_exist_ok=True)
             if manifest:
