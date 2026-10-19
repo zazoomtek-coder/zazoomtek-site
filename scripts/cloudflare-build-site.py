@@ -24,6 +24,8 @@ def main() -> None:
     run("validate-sync-output.py", "community")
     run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
+    # Category lists are prebuilt; readers never scan or filter review content.
+    run("build-review-categories.py")
     run("apply-site-design.py")
     # Add original ISO times ONLY to already-published archive cards; safe even
     # when the YouTube importer skips a cycle with no new Community posts.
