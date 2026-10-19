@@ -33,13 +33,18 @@ jobs:
           node-version: '22'
       - name: Prepare existing image and rendering dependencies
         run: python3 -m pip install --quiet pillow
+      - name: Validate YouTube secret interpolation without exposing it
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          python3 -c 'import os,sys; key=os.environ.get("YOUTUBE_API_KEY", ""); sys.exit("Missing/malformed YouTube secret") if not key or key.startswith(chr(92)) or "${{" in key else print("PASS: YouTube secret resolved")'
       - name: Verify exclusive writer ownership; block if not cut over
         env:
-          YOUTUBE_API_KEY: \${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
       - name: Validate and publish only via single Git + Pages gateway
         env:
-          YOUTUBE_API_KEY: \${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --publish
