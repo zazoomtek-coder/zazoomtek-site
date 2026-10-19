@@ -79,16 +79,18 @@ def preflight() -> None:
 def import_and_validate(folder: Path) -> list[str]:
     export = folder / "json"
     result_dir = folder / "staging"
-    call(sys.executable, "scripts/master-orchestrator.py", "--with-imports",
+    call(sys.executable, "scripts/master-orchestrator.py", "--with-imports", "--no-preview",
          "--output-dir", str(result_dir), "--export-json-dir", str(export), timeout=2100)
     report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
-    if report.get("status") != "staging-validated":
-        raise ReleaseBlocked("Master has errors/fallbacks; KEEP LAST GOOD LIVE")
+    if report.get("status") != "data-validated":
+        raise ReleaseBlocked("Master data stage has errors/fallbacks; KEEP LAST GOOD LIVE")
     required = ("youtube-community", "youtube-videos", "video-watch-archive", "trending-carousel",
-                "editorial-boxes", "approved-reviews", "isolated-offline-build")
+                "editorial-boxes", "approved-reviews", "five-slot-carousel")
     stages = {x["module"]: x for x in report.get("modules", [])}
     if any(stages.get(x, {}).get("status") != "ok" for x in required):
         raise ReleaseBlocked("Required importer was skipped or failed; stop publication")
+    if stages.get("isolated-offline-build",{}).get("status") != "deferred-to-release-gate":
+        raise ReleaseBlocked("Wrong Master data-only mode; refuse an unverified source state")
     manifest = json.loads((export / "manifest.json").read_text(encoding="utf-8"))
     names = manifest.get("paths")
     if not isinstance(names, list) or any(x not in ALLOWED for x in names):
