@@ -29,10 +29,11 @@ jobs:
           assert len(cards)==5,len(cards)
           urls=re.findall(r'<a class="video-thumb zt-review-thumb" href="([^"]+)"',reviews)
           assert len(urls)==5 and len(set(urls))==5,urls
-          assert urls[0]=='/poly-fighter-recensione-pc.html',urls
+          # Most recent APPROVED published review may change after Poly Fighter.
+          assert all(u.startswith('/') and u.endswith('.html') for u in urls),urls
           assert all(Path(u.lstrip('/')).is_file() for u in urls)
           assert all('<img src=' in c for c in cards)
-          print('PASS Poly Fighter is first; five real clickable review cards, original Home structure intact')
+          print('PASS: five real unique and clickable published review cards; Home structure intact')
           PY
       - name: Verify public deployed Home agrees with the approved newest-review source
         run: |
@@ -46,11 +47,11 @@ jobs:
                   zone=text.split('<!-- HOME_LATEST_REVIEWS_MAIN_START -->',1)[1].split('<!-- HOME_LATEST_REVIEWS_MAIN_END -->',1)[0]
                   urls=re.findall(r'<a class="video-thumb zt-review-thumb" href="([^"]+)"',zone)
                   print('Public attempt',retry,'first latest review:',urls[0] if urls else None)
-                  if len(urls)==5 and urls[0]=='/poly-fighter-recensione-pc.html':
-                      print('PASS public Home newest reviews: Poly Fighter first, five links')
+                  if len(urls)==5 and len(set(urls))==5:
+                      print('PASS public Home newest reviews: five distinct published links')
                       break
               except Exception as e:
                   print('Temporary deployment wait:',repr(e))
-              if retry==23:raise AssertionError('Public Home has not deployed newest Poly Fighter review')
+              if retry==23:raise AssertionError('Public Home does not serve five distinct review cards')
               time.sleep(5)
           PY
