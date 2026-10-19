@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify orchestrator source and six-slot logic
+      - name: Verify orchestrator source and five-slot logic
         run: |
           python3 -m py_compile scripts/master-orchestrator.py
           python3 scripts/master-orchestrator.py --self-test
@@ -52,6 +52,36 @@ jobs:
           else
             python3 scripts/master-orchestrator.py
           fi
+      - name: Create visual preview of five cards (desktop / tablet / mobile)
+        if: success()
+        continue-on-error: true
+        run: |
+          python3 -m pip install --quiet 'playwright>=1.51,<2'
+          python3 -m playwright install --with-deps chromium
+          python3 scripts/capture-staging-preview.py \
+            --root artifacts/master-orchestrator/preview-site \
+            --output artifacts/master-orchestrator/screenshots
+      - name: Write human-readable test summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('artifacts/master-orchestrator/report.json')
+          lines=['## ZazoomTek Master staging', '']
+          if p.exists():
+              r=json.loads(p.read_text(encoding='utf-8'))
+              lines += [f"**Esito:** {r['status']}", '',
+                        '**Carosello:** 5 slot (4 Tech + 1 Gaming)', '',
+                        '**Produzione:** non modificata', '',
+                        '| Modulo | Risultato |', '|---|---|']
+              for x in r.get('modules', []):
+                  lines.append(f"| {x['module']} | {x['status']} |")
+              lines+=['', 'Le immagini desktop/tablet/mobile e il report JSON sono negli Artifacts del run.']
+          else: lines.append('Nessun report: errore di avvio del processo.')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n'.join(lines)+'\n')
+          PY
       - name: Publish staging report + preview artifact (NEVER deploy)
         if: always()
         uses: actions/upload-artifact@v4
