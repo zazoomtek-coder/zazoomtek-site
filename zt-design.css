@@ -1879,3 +1879,28 @@ main.page #articoli .ztp-news-head > h2 b{padding-right:0!important}
   :is(.zt-special-head,.zt-shelf-head,.zt-popular-head,.ztp-news-head,.module-head)
     > h2{padding-left:10px!important;padding-right:24px!important}
 }
+
+
+/* ZT_EDITORIAL_SQUARE_CENTERED_COVERS_20261019
+   Editorial headers: square, compact; images: full artwork centered.
+   Avoid navigation, video player overlays and article body imagery. */
+html body :is(.zt-special-head,.zt-editorial-large-box .zt-special-head,.ztp-editorial-archive > h2,.zt-mix-news-heading,.zt-mix-editorial .module-head,.zt-final-rail-head,.ztp-review-head,.ztp-news-head,.zt-shelf-head,.zt-popular-head,.module-head,.side-head){
+ border-radius:0!important;clip-path:none!important;
+}
+html body :is(.zt-special-head,.zt-editorial-large-box .zt-special-head,.ztp-editorial-archive > h2,.zt-mix-news-heading,.zt-mix-editorial .module-head,.zt-final-rail-head,.ztp-review-head,.ztp-news-head,.zt-shelf-head,.zt-popular-head,.module-head,.side-head) > h2{
+ border-radius:0!important;clip-path:none!important;
+ border-left:0!important;padding-top:9px!important;padding-bottom:9px!important;
+}
+html body :is(.zt-special-head,.zt-editorial-large-box .zt-special-head,.ztp-editorial-archive > h2,.zt-mix-news-heading,.zt-mix-editorial .module-head,.zt-final-rail-head,.ztp-review-head,.ztp-news-head,.zt-shelf-head,.zt-popular-head,.module-head,.side-head)::before{
+ border-radius:0!important;
+}
+html body :is(#ztFeaturedGrid .zt-feature-card img,#newsSlider .news-slide img,
+ .ztp-news-tech .article-image,.ztp-news-gaming .article-image,
+ .ztp-news-rail .zt-popular-article img,.ztp-news-rail .zt-special-item img,
+ .ztp-review-card img,.zt-review-thumb img,
+ .ztp-editorial-archive .ztp-editorial-story img,
+ .ztp-final-three .article-image){
+ object-fit:contain!important;object-position:50% 50%!important;
+ transform:none!important;
+}
+html body #newsSlider .news-slide img{object-fit:contain!important;object-position:center center!important}
