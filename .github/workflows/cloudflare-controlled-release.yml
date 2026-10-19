@@ -1,9 +1,10 @@
 name: Cloudflare Pages - hourly controlled publishing
 # Deploy source: GitHub main. Production should watch ONLY
 # cloudflare-release-trigger.txt in Cloudflare Pages Build watch paths.
-# Scheduled checks are twice hourly for missed-run recovery, but the
-# rolling 50-minute cooldown caps normal releases at about one/hour.
-# GitHub Actions cron is best effort, not an exact-time SLA.
+# Fixed publication windows open every two hours at even UTC hours :17.
+# :47 and the odd-hour :17/:47 runs are recovery checks for missed windows.
+# Each window publishes at most once; no rolling cooldown may postpone it.
+# GitHub Actions cron and Cloudflare deployment remain best effort, not exact-time SLAs.
 
 on:
   schedule:
@@ -64,16 +65,20 @@ jobs:
               fi
             fi
 
-            # Decide FIRST. No change, recent release, or exhausted budget =
-            # no expensive offline rebuild and no Cloudflare Pages build.
+            # Changes prepared before a scheduled release are published in
+            # the first available two-hour window (even UTC hours at :17).
+            # Regular push events queue work; only scheduled checks publish.
+            # Manual urgent release is an explicit, separately budgeted override.
             if [ "$URGENT" = "true" ]; then
               python3 scripts/cloudflare-release-control.py --urgent
+            elif [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+              python3 scripts/cloudflare-release-control.py --scheduled-slot
             else
-              python3 scripts/cloudflare-release-control.py --dedupe-hour
+              echo "Changes queued for the next scheduled Cloudflare window."
             fi
             git add -- cloudflare-release-trigger.txt
             if git diff --cached --quiet; then
-              echo "No new Cloudflare Pages build needed (no changes, cooldown or quota guard)."
+              echo "No new Cloudflare Pages build needed (queued, slot already released, or unchanged)."
               last_source="$(sed -n 's/^source_commit=//p' cloudflare-release-trigger.txt)"
               if ! [[ "$last_source" =~ ^[a-f0-9]{40}$ ]]; then
                 echo "::error::Existing release trigger has no valid source SHA"
@@ -152,4 +157,4 @@ jobs:
         run: |
           python3 scripts/verify-live-cloudflare.py --source-commit "$SOURCE_COMMIT" \
             --base-url "https://zazoomtek.it" --timeout-seconds 80 --interval-seconds 20
-          echo "Production verified (no new Pages build needed): $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Production verified (new public content remains queued for its next slot, if present): $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"

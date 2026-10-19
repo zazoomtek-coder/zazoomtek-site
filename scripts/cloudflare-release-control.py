@@ -3,10 +3,12 @@
 
 Only the trigger file causes a Pages build. You MUST configure Pages Build
 watch paths -> Includes: cloudflare-release-trigger.txt, Excludes: (none).
-Public changes are batched with a 50-minute rolling cooldown and a 450/31-day cap.
-If nothing public changed, the hourly check starts zero Cloudflare builds.
-Scheduled releases stop after 450 trigger changes in the previous 31 days,
-preserving a separate urgent reserve to 475 (and another 25 as contingency).
+Validated public changes are published in fixed two-hour UTC release windows
+(opening at even hours :17), with :47 and odd-hour checks as recovery opportunities.
+One triggered release per window, no rolling 50-minute delay and no arbitrary
+editorial/carousel hold. The 450/31-day budget leaves an urgent reserve to 475
+(and another 25 as contingency). External GitHub/Cloudflare delays remain possible.
+No public changes means no Pages build.
 
 This is a conservative Git-history backstop, NOT Cloudflare's actual billable
 build counter. Check the Cloudflare dashboard for any deployments outside
@@ -23,19 +25,14 @@ import subprocess
 ROOT=Path(__file__).resolve().parents[1]
 TRIGGER=ROOT/"cloudflare-release-trigger.txt"
 HORIZON="31 days ago"
-COOLDOWN_MINUTES=50
 RESERVE_SCHEDULED=450
 RESERVE_URGENT=475
-# If 350 builds or more are used, skip changes solely to homepage boxes;
-# if 400 or more, skip changes solely to the featured carousel.
-EDITORIAL_STOP=350
-FEATURED_STOP=400
+SLOT_HOURS=2
+SLOT_START_MINUTE=17
 CONTENT_EXT={".html",".css",".js",".json",".xml",".txt",".png",".jpg",".jpeg",".webp",".svg",".avif",".gif",".woff",".woff2",".ico"}
 OMIT={"cloudflare-release-trigger.txt"}
 NONPUBLIC_DIR={".github","scripts","functions","editorial","includes","node_modules","dist"}
 NONPUBLIC_SUFFIX=("-report.json","-manifest.json","-state.json")
-LOW_EDITORIAL={"index.html","zt-home-live.js"}
-LOW_FEATURED={"featured-carousel.json","trending-sources.json","trending-match-report.json"}
 # Build-time generators are real production inputs even when they have not
 # changed an .html/.js file in the repository yet. Without this list, a fix to
 # the build pipeline could remain unpublished forever while the gate says
@@ -102,33 +99,72 @@ def decide(changed: list[str],used: int,urgent: bool=False) -> str:
         return "block-budget"
     if not changed:
         return "unchanged"
-    if not urgent and used>=EDITORIAL_STOP and set(changed)<=LOW_EDITORIAL:
-        return "defer-editorial"
-    if not urgent and used>=FEATURED_STOP and set(changed)<=LOW_FEATURED:
-        return "defer-featured"
+    # All editorial updates, including Home modules, menus and the carousel,
+    # are valid publication inputs. The separate Home safety gate decides
+    # whether a change is destructive; this gate must not postpone safe content.
     return "publish"
+
+
+def release_slot(now: dt.datetime) -> dt.datetime:
+    """Latest fixed two-hour window start, UTC (00:17, 02:17, ...)."""
+    if now.tzinfo is None:
+        raise ReleaseError("A timezone-aware clock is required")
+    now=now.astimezone(dt.timezone.utc)
+    shifted=now-dt.timedelta(minutes=SLOT_START_MINUTE)
+    even_hour=shifted.hour-(shifted.hour%SLOT_HOURS)
+    return shifted.replace(hour=even_hour,minute=SLOT_START_MINUTE,
+                           second=0,microsecond=0)
+
+
+def release_metadata() -> dict[str,str]:
+    if not TRIGGER.is_file():
+        return {}
+    lines=TRIGGER.read_text(encoding="utf-8").splitlines()
+    return dict(line.split("=",1) for line in lines if "=" in line)
+
+
+def already_released_in_slot(meta: dict[str,str],slot: dt.datetime) -> bool:
+    """Prevent duplicate Cloudflare builds, including pre-migration receipts."""
+    recorded=meta.get("slot_utc","")
+    if recorded:
+        try:
+            stamp=dt.datetime.fromisoformat(recorded.replace("Z","+00:00"))
+        except ValueError as exc:
+            raise ReleaseError("Invalid existing release slot") from exc
+        if stamp.tzinfo is None:
+            raise ReleaseError("Existing release slot lacks timezone")
+        return stamp.astimezone(dt.timezone.utc)>=slot
+    created=meta.get("created_utc","")
+    if not created:
+        return False
+    try:
+        at=dt.datetime.fromisoformat(created.replace("Z","+00:00"))
+    except ValueError as exc:
+        raise ReleaseError("Invalid last release timestamp") from exc
+    if at.tzinfo is None:
+        raise ReleaseError("Last release timestamp lacks timezone")
+    return at.astimezone(dt.timezone.utc)>=slot
+
 
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--urgent",action="store_true")
     parser.add_argument("--self-test",action="store_true")
-    parser.add_argument("--dedupe-hour",action="store_true",
-                        help="Suppress ordinary releases within 50 minutes of last trigger")
+    parser.add_argument("--scheduled-slot",action="store_true",
+                        help="Publish once per fixed two-hour UTC window, recover on later checks")
     args=parser.parse_args()
     if args.self_test:
         assert decide(["news-X.html"],350)=="publish"
-        assert decide(["index.html","zt-home-live.js"],350)=="defer-editorial"
-        assert decide(["featured-carousel.json"],400)=="defer-featured"
+        assert decide(["index.html","zt-home-live.js"],350)=="publish"
+        assert decide(["featured-carousel.json"],400)=="publish"
         assert decide(["news-X.html"],450)=="block-budget"
         assert decide(["news-X.html"],450,True)=="publish"
         assert decide(["news-X.html"],475,True)=="block-budget"
         assert decide(["news-X.html"],449)=="publish"
         assert decide(["news-X.html"],449,True)=="publish"
-        assert decide(["news-X.html"],475)=="block-budget"
         assert decide(["news-X.html"],0)=="publish"
         assert decide([],0)=="unchanged"
         assert decide([],0,True)=="unchanged"
-        assert decide(["scripts/editorial-only.py"],0)=="publish"  # Only direct public diffs may be passed to decide().
         assert not public("scripts/editorial-only.py")
         assert public("assets/special/example.webp") and public("news-example.html")
         assert public("studio/index.html") and public("studio/publisher.js")
@@ -138,42 +174,34 @@ def main():
         assert public("scripts/link-review-videos.py")
         assert public("scripts/cloudflare-build-site.py")
         assert not public("cloudflare-release-trigger.txt")
+        utc=dt.timezone.utc
+        assert release_slot(dt.datetime(2026,10,19,10,16,tzinfo=utc))==dt.datetime(2026,10,19,8,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,10,17,tzinfo=utc))==dt.datetime(2026,10,19,10,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,11,47,tzinfo=utc))==dt.datetime(2026,10,19,10,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,19,12,17,tzinfo=utc))==dt.datetime(2026,10,19,12,17,tzinfo=utc)
+        assert release_slot(dt.datetime(2026,10,20,0,5,tzinfo=utc))==dt.datetime(2026,10,19,22,17,tzinfo=utc)
+        slot=dt.datetime(2026,10,19,10,17,tzinfo=utc)
+        assert already_released_in_slot({"slot_utc":"2026-10-19T10:17:00Z"},slot)
+        assert not already_released_in_slot({"slot_utc":"2026-10-19T08:17:00Z"},slot)
+        assert already_released_in_slot({"created_utc":"2026-10-19T10:28:00+00:00"},slot)
+        assert not already_released_in_slot({"created_utc":"2026-10-19T10:10:00+00:00"},slot)
         print("RELEASE SELF TEST PASSED")
         return
-    previous=""
-    # GitHub Actions may deliver the prior :44 run at :04 of the NEXT hour.
-    # Blocking by the local hour then silently drops this hour’s new articles:
-    # e.g. a delayed release at 16:04 blocked the scheduled 16:44.
-    # Instead use a 50-minute rolling cooldown so the :17 and :47 runs
-    # check every hour but create at most one normal release per hour.
-    # The independent rolling 31-day 450-build budget cap remains authoritative.
-    if args.dedupe_hour and not args.urgent and TRIGGER.is_file():
-        for row in TRIGGER.read_text(encoding="utf-8").splitlines():
-            if not row.startswith("created_utc="):
-                continue
-            try:
-                last=dt.datetime.fromisoformat(row.split("=",1)[1].replace("Z","+00:00"))
-                if last.tzinfo is None:
-                    raise ReleaseError("Release timestamp lacks timezone; refusing uncounted build")
-                elapsed=(dt.datetime.now(dt.timezone.utc)-
-                         last.astimezone(dt.timezone.utc)).total_seconds()
-                if elapsed < 0:
-                    raise ReleaseError("Release timestamp is in the future")
-                if elapsed < COOLDOWN_MINUTES*60:
-                    print(f"RELEASE CONTROL: last release was {elapsed/60:.1f}m ago; "
-                          f"defer within {COOLDOWN_MINUTES}m cooldown to avoid duplicate Pages builds")
-                    return
-            except ValueError as exc:
-                raise ReleaseError("Invalid release timestamp; refusing uncounted duplicate") from exc
-    if TRIGGER.is_file():
-        for line in TRIGGER.read_text(encoding="utf-8").splitlines():
-            if line.startswith("source_commit="):
-                previous=line.split("=",1)[1].strip()
+    meta=release_metadata()
+    previous=meta.get("source_commit","")
+    slot=release_slot(dt.datetime.now(dt.timezone.utc))
+    if args.scheduled_slot and not args.urgent and already_released_in_slot(meta,slot):
+        print("RELEASE CONTROL: window "+slot.isoformat()+" already published; "
+              "keep new updates queued for next fixed window")
+        return
     changed=changed_since(previous)
     used=build_count()
     outcome=decide(changed,used,args.urgent)
     print(f"RELEASE CONTROL: {outcome}, last 31 days Git-triggered releases={used}, "
           f"changed public files={len(changed)}, urgent={args.urgent}")
+    if outcome=="block-budget":
+        raise ReleaseError("Cloudflare release budget exhausted: content remains queued; "
+                           "scheduled publication needs quota or plan adjustment")
     if outcome!="publish":
         return
     source=git("rev-parse","HEAD")
@@ -182,7 +210,8 @@ def main():
         "ZazoomTek verified scheduled release\n"+
         "source_commit="+source+"\n"+
         "created_utc="+stamp+"\n"+
-        "priority="+("urgent" if args.urgent else "news") +"\n",
+        "priority="+("urgent" if args.urgent else "news") +"\n"+
+        "slot_utc="+slot.isoformat().replace("+00:00","Z")+"\n",
         encoding="utf-8")
     print("TRIGGER CREATED: Cloudflare Pages Git integration must watch only this file")
 
