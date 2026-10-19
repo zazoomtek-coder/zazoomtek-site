@@ -461,13 +461,9 @@
       if(route==="tech"||route==="gaming")return route;
       const label=signature.match(/\bnews\s+(tech|gaming)\s*:/i);
       if(label)return label[1].toLowerCase();
-      // Generic historical "News" posts were never explicitly routed.
-      // Use the EXISTING site classifier on real headline, lead and image,
-      // without inventing categories, rewriting archived posts or links.
-      if(typeof window.ztHomeTopicClassifier!=="function")return null;
-      const excerpt=from.querySelector(".news-copy p")?.textContent||"";
-      const img=from.querySelector("img");
-      return window.ztHomeTopicClassifier(heading,excerpt,img?.alt||"",img?.getAttribute("src")||"");
+      // Only explicitly categorized Tech/Gaming posts can appear here.
+      // Guides, celebratory posts and other categories stay in their own sections.
+      return null;
     }
     function makeArticle(from) {
       var link=from.querySelector(".news-copy h2 a");
