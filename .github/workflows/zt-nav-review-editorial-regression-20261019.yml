@@ -1,0 +1,74 @@
+name: ZazoomTek site navigation, editorial and review cover regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/zt-nav-review-editorial-regression-20261019.yml'
+      - 'zt-design.css'
+      - 'zt-visual.js'
+      - 'index.html'
+      - 'scripts/apply-site-design.py'
+      - 'scripts/build-review-categories.py'
+      - 'recensioni-tech.html'
+      - 'recensioni-scritte.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: zt-navigation-review-regression
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and existing category/navigation integrity
+        run: |
+          node --check zt-visual.js
+          python3 -m py_compile scripts/build-review-categories.py scripts/apply-site-design.py
+          python3 scripts/verify-home-layout-lock.py
+          python3 scripts/test-review-categories.py
+      - name: Build actual Cloudflare output offline without spending a Pages build
+        run: python3 scripts/cloudflare-build-site.py
+      - name: Assert both dropdowns, destination pages and approved photos survive release
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          out=Path('dist')
+          pages=('index.html','news.html','recensioni-tech.html','recensioni-gaming.html',
+                 'tech-today.html','gaming-today.html','speciali.html')
+          required=('/recensioni-tech.html','/recensioni-gaming.html',
+                    '/tech-today.html','/gaming-today.html','/speciali.html')
+          for page in pages:
+              html=(out/page).read_text(encoding='utf-8')
+              found=re.search(r'<nav\s+class="nav"[^>]*>(.*?)</nav>',html,re.I|re.S)
+              assert found, f'{page}: canonical main navigation missing'
+              nav=found.group(1)
+              assert nav.count('class="nav-drop-trigger"')==2, f'{page}: two dropdown buttons missing'
+              assert all(f'href="{route}"' in nav for route in required), f'{page}: route missing'
+          for rel in required:
+              assert (out/rel.lstrip('/')).is_file(), f'Missing published destination: {rel}'
+          tech=(out/'recensioni-tech.html').read_text(encoding='utf-8')
+          covers=('70mai-a900-cover-20261019.webp','iifactor-m08e-cover-20261019.webp')
+          for cover in covers:
+              assert f'/assets/recensioni/{cover}' in tech, f'Old cover restored: {cover}'
+              assert (out/'assets'/'recensioni'/cover).is_file(), f'Image asset absent: {cover}'
+          css=(out/'zt-design.css').read_text(encoding='utf-8')
+          js=(out/'zt-visual.js').read_text(encoding='utf-8')
+          assert 'ZT_SITE_MENU_20261019' in css and 'ZT_SQUARE_EDITORIAL_20261019' in css
+          assert 'ZT_SITE_MENU_FLYOUT_20261019' in js
+          assert '20261019siteMenuSquare1' in (out/'news.html').read_text()
+          print('PASS: Home + six internal pages, all five dropdown links, two approved Tech covers, square editorial header, versioned CSS/JS.')
+          PY
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 scripts/verify-packaged-home.py --root dist
