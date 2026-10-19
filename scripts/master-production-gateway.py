@@ -21,7 +21,7 @@ CONFIG = ROOT / "master-production-enabled.json"
 ALLOWED = {
     ".youtube-posts.json", ".youtube-latest.json", ".youtube-master-render-cache.json",
     "home-video-feed.json", "featured-carousel.json", "trending-match-report.json",
-    "trending-sources.json", "master-staging/reviews-due.json",
+    "trending-sources.json", "video-watch-archive.json", "master-staging/reviews-due.json",
     "master-staging/editorial-boxes.json", "master-staging/carousel-five.json",
 }
 
@@ -84,7 +84,7 @@ def import_and_validate(folder: Path) -> list[str]:
     report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
     if report.get("status") != "staging-validated":
         raise ReleaseBlocked("Master has errors/fallbacks; KEEP LAST GOOD LIVE")
-    required = ("youtube-community", "youtube-videos", "trending-carousel",
+    required = ("youtube-community", "youtube-videos", "video-watch-archive", "trending-carousel",
                 "editorial-boxes", "approved-reviews", "isolated-offline-build")
     stages = {x["module"]: x for x in report.get("modules", [])}
     if any(stages.get(x, {}).get("status") != "ok" for x in required):
