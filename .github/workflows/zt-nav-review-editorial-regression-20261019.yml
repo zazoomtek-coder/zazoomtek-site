@@ -36,7 +36,6 @@ jobs:
           node --check zt-visual.js
           python3 -m py_compile scripts/build-review-categories.py scripts/apply-site-design.py
           python3 scripts/verify-home-layout-lock.py
-          python3 scripts/test-review-categories.py
       - name: Build actual Cloudflare output offline without spending a Pages build
         run: python3 scripts/cloudflare-build-site.py
       - name: Assert both dropdowns, destination pages and approved photos survive release
@@ -72,3 +71,4 @@ jobs:
           PY
           python3 scripts/verify-home-layout-lock.py --packaged
           python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/test-review-categories.py
