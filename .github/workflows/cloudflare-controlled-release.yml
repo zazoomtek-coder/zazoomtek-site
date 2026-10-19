@@ -49,6 +49,9 @@ jobs:
 
             python3 scripts/cloudflare-release-control.py --self-test
             python3 scripts/verify-live-cloudflare.py --self-test
+            # HOME protection rule: allow normal editorial/content updates,
+            # but stop the release if the approved Home structure is damaged.
+            python3 scripts/protect-home-structure.py index.html
 
             # Decide FIRST. No change, recent release, or exhausted budget =
             # no expensive offline rebuild and no Cloudflare Pages build.
@@ -73,6 +76,9 @@ jobs:
             # Validate with the NEW source receipt before touching production.
             # All generated pages, thumbnails and review links must pass.
             python3 scripts/cloudflare-build-site.py
+            # The build itself must not damage the protected Home. Content
+            # changes are allowed; only structural destruction blocks release.
+            python3 scripts/protect-home-structure.py dist/index.html
             # No release may pass with old, duplicated, undated or unbalanced
             # Tech/Gaming columns. Browser-test exactly what Cloudflare ships.
             command -v google-chrome
