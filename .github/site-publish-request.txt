@@ -6,3 +6,4 @@
 2026-10-19 verified urgent repair: consistent TECH/GAMING and INSIGHTS flyouts; squared editorial headers; approved 70mai and IIFACTOR Tech covers; full offline Cloudflare regression passed.
 2026-10-19 urgent correction retry: fully qualified GitHub Actions dispatch for tested navigation, rectangular editorial headers, and approved Tech review images.
 2026-10-19 PR105: validated cross-Home news deduplication and older real Tech article backfill; publish in next safe Cloudflare slot
+2026-10-19 Urgent publish: include Community article "Videogiochi e terapia" in INSIGHTS > Speciali; preserve Home and original URL.
