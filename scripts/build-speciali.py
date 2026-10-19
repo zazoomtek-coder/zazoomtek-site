@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the combined SPECIALI archive only from already approved Studio publications.
+"""Build the combined SPECIALI archive from approved Studio publications and explicitly curated Community articles.
 
 Never scrape, publish or generate an article here. No user/browser requests.
 The marker-only update leaves approved shell, footer, sidebar and URLs intact.
@@ -21,11 +21,60 @@ SENTINEL=('<div class="zt-specials-empty"><strong>Gli SPECIALI sono in preparazi
 SAFE_ARTICLE=re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_-]*\.html\Z')
 SAFE_IMAGE=re.compile(r'/assets/[a-zA-Z0-9_./-]+\.(?:webp|png|jpg|jpeg|avif)\Z',re.I)
 
+CURATED_COMMUNITY_MANIFEST = "speciali-community-curated.json"
+COMMUNITY_ARTICLE = re.compile(r'news-Ugkx[a-zA-Z0-9_-]+\.html\Z')
+
+def curated_community_entries(root: Path=ROOT)->list[dict]:
+    """Include only explicitly curated, already published Community articles."""
+    path=root/CURATED_COMMUNITY_MANIFEST
+    if not path.is_file():
+        return []
+    data=json.loads(path.read_text(encoding='utf-8'))
+    if not isinstance(data,dict) or not isinstance(data.get('articles'),list):
+        raise RuntimeError('Invalid curated Community SPECIALI manifest')
+    seen=set()
+    items=[]
+    def clean(value: str)->str:
+        return re.sub(r'\s+',' ',html.unescape(re.sub(r'<[^>]+>','',value))).strip()
+    for name in data['articles']:
+        if not isinstance(name,str) or not COMMUNITY_ARTICLE.fullmatch(name):
+            raise RuntimeError('Invalid curated Community article path')
+        if name in seen:
+            continue
+        seen.add(name)
+        source=root/name
+        if not source.is_file():
+            raise RuntimeError('Missing curated Community article: '+name)
+        page=source.read_text(encoding='utf-8',errors='replace')
+        heading=re.search(r'<h1\b[^>]*>(.*?)</h1>',page,re.I|re.S)
+        hero=re.search(r'<img\b[^>]*class="[^"]*\barticle-hero\b[^"]*"[^>]*src="([^"]+)"',page,re.I)
+        intro=re.search(r'<div\b[^>]*class="article-body"[^>]*>\s*<p[^>]*>(.*?)</p>',page,re.I|re.S)
+        stamp=re.search(r'<meta\b[^>]*property="article:published_time"[^>]*content="([^"]+)"',page,re.I)
+        if not all((heading,hero,intro,stamp)):
+            raise RuntimeError('Incomplete curated Community metadata: '+name)
+        match=re.fullmatch(r'News\s+(Tech Impact|Gaming Inside)\s*:\s*(.+)',
+                           clean(heading.group(1)),re.I|re.S)
+        if not match:
+            raise RuntimeError('Curated Community article outside Insights: '+name)
+        image=html.unescape(hero.group(1)).strip()
+        parsed=urlparse(image)
+        if not (SAFE_IMAGE.fullmatch(image) or
+                (parsed.scheme=='https' and parsed.hostname in
+                 ('yt3.ggpht.com','i.ytimg.com') and not parsed.username)):
+            raise RuntimeError('Untrusted curated Community cover: '+name)
+        try:
+            date=datetime.fromisoformat(stamp.group(1).replace('Z','+00:00')).date().isoformat()
+        except ValueError as exc:
+            raise RuntimeError('Invalid curated Community publication date: '+name) from exc
+        label='TECH IMPACT' if match.group(1).lower().startswith('tech') else 'GAMING INSIDE'
+        items.append({'slug':name,'title':match.group(2).strip(),
+                      'desc':clean(intro.group(1))[:260],
+                      'date':date,'image':image,'label':label})
+    return items
+
 def approved_entries(root: Path=ROOT)->list[dict]:
     manifest=root/'studio/articoli.json'
-    if not manifest.is_file():
-        return []
-    data=json.loads(manifest.read_text(encoding='utf-8'))
+    data=json.loads(manifest.read_text(encoding='utf-8')) if manifest.is_file() else []
     if not isinstance(data,list):
         raise RuntimeError('Studio manifest invalid: refusing to rewrite SPECIALI')
     seen=set()
@@ -59,6 +108,10 @@ def approved_entries(root: Path=ROOT)->list[dict]:
         seen.add(slug)
         items.append({'slug':slug,'title':title,'desc':desc,'date':date,
                       'image':image,'label':CATEGORIES[entry['category']]})
+    for item in curated_community_entries(root):
+        if item['slug'] not in seen:
+            seen.add(item['slug'])
+            items.append(item)
     return sorted(items,key=lambda a:(a['date'],a['slug']),reverse=True)
 
 def render_row(item:dict)->str:
