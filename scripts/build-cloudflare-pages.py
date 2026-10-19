@@ -4,6 +4,8 @@ Only editorial/media assets go to dist. Never deploy scripts or Firebase service
 """
 from __future__ import annotations
 import os
+import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -22,14 +24,82 @@ SKIP_DIRS = {".github", "scripts", "functions", "editorial", "includes",
 MAX_FILES = 19000
 MAX_FILE_BYTES = 25 * 1024 * 1024
 
+def generated_approved_files() -> set[Path]:
+    """Safelist ONLY pages and media generated from authoritative editorial JSON.
+
+    Static Cloudflare builds need to include newly rendered news/reviews even
+    though the Master publisher itself commits JSON, never the generated HTML.
+    Arbitrary untracked HTML and drafts are NOT exposed.
+    """
+    config = ROOT / "master-production-enabled.json"
+    if not config.exists() or json.loads(config.read_text(encoding="utf-8")).get("enabled") is not True:
+        return set()
+    generated: set[Path] = set()
+
+    def add(relative: str) -> None:
+        target = Path(relative.lstrip("/"))
+        if not target.is_absolute() and ".." not in target.parts and eligible(target):
+            if (ROOT / target).is_file():
+                generated.add(target)
+
+    community = ROOT / ".youtube-posts.json"
+    if community.is_file():
+        posts = json.loads(community.read_text(encoding="utf-8"))
+        if not isinstance(posts, list) or len(posts) < 20:
+            raise ValueError("Invalid Community inventory for generated Cloudflare pages")
+        for post in posts:
+            if not isinstance(post, dict):
+                continue
+            identifier = post.get("id")
+            if isinstance(identifier, str) and re.fullmatch(r"[A-Za-z0-9_-]{8,80}", identifier):
+                for prefix in ("news-", "recensione-", "tech-impact-", "gaming-inside-"):
+                    add(prefix + identifier + ".html")
+
+    ordinary = ROOT / "standard-news.json"
+    if ordinary.is_file():
+        rows = json.loads(ordinary.read_text(encoding="utf-8")).get("articles", [])
+        for article in rows:
+            slug = article.get("slug")
+            if not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+                raise ValueError("Bad approved standard NEWS slug")
+            add("news-" + slug + ".html")
+            add("assets/special/news-" + slug + ".webp")
+            add("assets/special/article-" + slug + ".webp")
+
+    special = ROOT / "approved-special-articles.json"
+    if special.is_file():
+        rows = json.loads(special.read_text(encoding="utf-8")).get("articles", [])
+        for article in rows:
+            slug = article.get("slug")
+            prefix = {"tech": "tech-impact-", "gaming": "gaming-inside-"}.get(article.get("section"))
+            if (prefix and isinstance(slug, str)
+                    and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug)
+                    and (article.get("editor_approved") is True or article.get("auto_approved") is True)):
+                add(prefix + slug + ".html")
+                cover = article.get("image", "")
+                if isinstance(cover, str) and cover.startswith("/assets/"):
+                    add(cover)
+
+    reviews = ROOT / "editorial/review-publication-queue.json"
+    if reviews.is_file():
+        queue = json.loads(reviews.read_text(encoding="utf-8"))
+        items = queue.get("items", []) if isinstance(queue, dict) else []
+        for item in items:
+            if not isinstance(item, dict) or item.get("status") != "approved":
+                continue
+            target = item.get("target")
+            if isinstance(target, str) and re.fullmatch(r"[A-Za-z0-9_-]+\\.html", target):
+                add(target)
+    return generated
+
+
 def tracked_files() -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "-z"], cwd=ROOT, check=True, stdout=subprocess.PIPE)
-    published = [Path(os.fsdecode(name)) for name in result.stdout.split(b"\0") if name]
-    # Watch pages are produced at build time, not stored or synced as videos.
-    # Include only the verified HTML player pages, never media bytes.
-    generated_watch = list((ROOT / "watch").glob("*.html")) if (ROOT / "watch").is_dir() else []
-    return published + [p.relative_to(ROOT) for p in generated_watch]
+    published = {Path(os.fsdecode(name)) for name in result.stdout.split(b"\\0") if name}
+    # Video watch pages use only official YouTube iframes, never media bytes.
+    generated_watch = {p.relative_to(ROOT) for p in (ROOT / "watch").glob("*.html")} if (ROOT / "watch").is_dir() else set()
+    return sorted(published | generated_watch | generated_approved_files(), key=str)
 
 def eligible(path: Path) -> bool:
     parts = path.parts
