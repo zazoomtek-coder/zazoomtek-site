@@ -1,12 +1,12 @@
-name: TG INSIDE speciali full-site staging verification
+name: INSIGHTS three-section navigation and full-site staging verification
 on:
   push:
-    branches: [feature/tg-inside-speciali-safe-20261019]
+    branches: [feature/tg-inside-speciali-safe-20261019, fix/insights-navigation-20261019]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: tg-inside-staging
+  group: insights-staging
   cancel-in-progress: true
 jobs:
   verify:
@@ -43,6 +43,12 @@ jobs:
           assert 'zt-mix-recent' in src and 'zt-mix-feature' in src
           assert 'zt-sidebar-editorial' in src or 'zt-mix-video' in src
           assert '<nav class="nav">' in src
+          assert '>INSIGHTS</button>' in src
+          assert '>TG Inside</button>' not in src
+          for target in ('/tech-today.html','/gaming-today.html','/speciali.html'):
+              assert 'href="'+target+'"' in src
+          assert '"name":"INSIGHTS"' in src
+
           assert 'zt-visual.js' in src and '/zt-design.css' in src
           assert 'https://zazoomtek.it/speciali.html' in src
           assert '<meta property="og:title"' in src
@@ -68,6 +74,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tg-inside-staging-site
+          name: insights-staging-site
           path: dist/
           retention-days: 3
