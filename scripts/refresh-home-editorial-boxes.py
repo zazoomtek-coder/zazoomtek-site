@@ -176,20 +176,32 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     if "ztp-final-balanced-live-20261013" not in homepage:
         raise RuntimeError("Approved Home layout missing; refusing editorial overwrite")
     published_home = home_urls(homepage)
+    # Featured cards are refreshed independently, so the chosen editorial
+    # backfill must also exclude the CURRENT verified carousel, not merely
+    # the 15 news in the canonical Home feed. Otherwise the next carousel
+    # rotation can reintroduce a duplicate into DA NON PERDERE.
+    manifest = json.loads((ROOT / "featured-carousel.json").read_text(encoding="utf-8"))
+    featured_urls = {clean_url(x.get("url", "")) for x in manifest.get("items", [])}
+    if len(featured_urls) != 5 or None in featured_urls:
+        raise RuntimeError("Cannot refresh editorial boxes with invalid featured URLs")
+    reserved = published_home | featured_urls
     ordinary = []
-    for file in ("news.html", "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html"):
+    # More archive pages allow older real articles to fill the boxes when
+    # the newest ones are already in the carousel or Tech/Gaming columns.
+    for file in ("news.html", "news-2.html", "news-3.html", "news-4.html", "news-5.html",
+                 "pagina-2.html", "pagina-3.html", "pagina-4.html", "pagina-5.html"):
         ordinary.extend(item for item in extract(file)
                         if not item["url"].startswith(("/tech-impact-","/gaming-inside-"))
                         and not re.match(r"^News\s+(?:Tech\s+Impact|Gaming\s+Inside)\s*:",
                                          item["title"],re.I))
     if any(item["url"].startswith(("/tech-impact-","/gaming-inside-")) for item in ordinary):
         raise RuntimeError("Special article leaked into ordinary Home boxes")
-    ordinary = distinct(ordinary, published_home)
+    ordinary = distinct(ordinary, reserved)
     if len(ordinary) < 12:
         raise RuntimeError("Too few independent published news for editorial freshness")
     # Prioritize each source's freshest published, category-correct stories.
     # Cross-section exclusion must happen BEFORE selection, not after it.
-    tech = choose(distinct(extract("tech-today.html"), published_home), 4, today)
+    tech = choose(distinct(extract("tech-today.html"), reserved), 4, today)
     # Keep distinct topic-specific homepage covers even when the category feed is regenerated.
     # These files are actual local SVG assets, not remote placeholders.
     tech_cover_overrides = {
@@ -203,15 +215,15 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         if cover and valid_image(cover):
             item["image"] = cover
     special_urls = {item["url"] for item in tech}
-    gaming = choose(distinct(extract("gaming-today.html"), published_home | special_urls), 4, today)
+    gaming = choose(distinct(extract("gaming-today.html"), reserved | special_urls), 4, today)
     special_urls.update(item["url"] for item in gaming)
-    ordinary = distinct(ordinary, published_home | special_urls)
+    ordinary = distinct(ordinary, reserved | special_urls)
     # Permanent editorial separation: DA NON PERDERE is TECH only and
     # DALLA REDAZIONE is GAMING only. Rely on explicit published category metadata,
     # not on guesses from cover artwork or ambiguous headlines.
     suggested = choose([item for item in ordinary if item["category"] == "tech"], 6, today)
     selected = {item["url"] for item in suggested}
-    left = distinct(ordinary, published_home | special_urls | selected)
+    left = distinct(ordinary, reserved | special_urls | selected)
     editorial = choose([item for item in left if item["category"] == "gaming"], 12, today, keep_latest=2)
     if any(item["category"] != "tech" for item in suggested):
         raise RuntimeError("Non-Tech article reached DA NON PERDERE")
