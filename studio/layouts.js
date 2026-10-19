@@ -12,8 +12,8 @@ const SECTIONS=["Storia","Gameplay","Aspetto tecnico","Esperienza complessiva","
 const SHORT_HEADINGS=["Pro","Contro","Vantaggi","Svantaggi"];
 const enc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const normal=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase().replace(/\s+/g," ");
-function categoryLabel(category){return REVIEW.test(category)?"Recensioni":(category==="News Gaming"||category==="News Tech"?"News":category);}
-function categoryLink(category){return REVIEW.test(category)?"/recensioni-scritte.html":category==="News Gaming"?"/gaming-today.html":category==="News Tech"?"/news.html":category==="Guide"?"/guide.html":category==="Extra"?"/extra.html":category==="Tech Impact"?"/tech-today.html":category==="Gaming Inside"?"/gaming-today.html":category==="Test"?"/test.html":category==="Unboxing"?"/unboxing.html":"/news.html";}
+function categoryLabel(category){return REVIEW.test(category)?"Recensioni":(/^Speciali (Tech|Gaming)$/.test(category)?"Speciali":(category==="News Gaming"||category==="News Tech"?"News":category));}
+function categoryLink(category){return REVIEW.test(category)?"/recensioni-scritte.html":category==="News Gaming"?"/gaming-today.html":category==="News Tech"?"/news.html":category==="Guide"?"/guide.html":category==="Extra"?"/extra.html":category==="Tech Impact"?"/tech-today.html":category==="Gaming Inside"?"/gaming-today.html":/^Speciali (Tech|Gaming)$/.test(category)?"/speciali.html":category==="Test"?"/test.html":category==="Unboxing"?"/unboxing.html":"/news.html";}
 function canonical(url){return "https://zazoomtek.it/"+String(url||"").replace(/^\/+/,"");}
 async function template(kind){
  if(!cache[kind])cache[kind]=fetch(SOURCES[kind],{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("Modello grafico "+kind+" non disponibile ("+r.status+"). Pubblicazione interrotta.");return r.text();}).catch(e=>{delete cache[kind];throw e;});
