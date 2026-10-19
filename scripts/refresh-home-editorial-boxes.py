@@ -306,7 +306,13 @@ def build(today: dt.date) -> tuple[str, str, dict]:
     report = {"date_italy": today.isoformat(), "suggested": [x["url"] for x in suggested],
               "tech_impact": [x["url"] for x in tech],
               "gaming_inside": [x["url"] for x in gaming],
-              "dalla_redazione": [x["url"] for x in editorial]}
+              "dalla_redazione": [x["url"] for x in editorial],
+              "cards": {
+                  "suggested": [{k: x[k] for k in ("title", "url", "image", "category")} for x in suggested],
+                  "tech_impact": [{k: x[k] for k in ("title", "url", "image")} for x in tech],
+                  "gaming_inside": [{k: x[k] for k in ("title", "url", "image")} for x in gaming],
+                  "dalla_redazione": [{k: x[k] for k in ("title", "url", "image", "category")} for x in editorial],
+              }}
     return homepage, javascript, report
 
 def main() -> None:

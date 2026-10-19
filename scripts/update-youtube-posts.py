@@ -2,7 +2,7 @@
 # Global scrollbar refresh marker
 # Structured data refresh marker
 from zt_footer import FOOTER_HTML
-import json,re,html,time,hashlib,unicodedata,urllib.error,urllib.request,urllib.parse,os
+import json,re,html,time,hashlib,unicodedata,urllib.error,urllib.request,urllib.parse,os,sys
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
@@ -3004,52 +3004,67 @@ def main():
     scan_known_ids=set() if force_full_scan else known_ids
     if force_full_scan:
         print("FULL Community history scan requested: ignoring incremental boundary.")
-    try:
-        posts,complete=parse(fetch(),scan_known_ids)
-    except Exception as err:
-        if not previous:
-            raise
-        print(f"::warning::Primary YouTube Community unavailable: {err}; recovering from official alternate pages.")
-        # Retain all previous posts while the alternate official URLs and mirrors
-        # look for genuinely new IDs. Never replace a healthy archive with zero.
-        posts=list(previous)
-        complete=False
-    posts,complete=augment_recent_posts(posts,previous,complete,force_full_scan)
-    if force_full_scan:
-        direct_posts=list(posts)
-        historical,historical_complete=fetch_invidious_full_history()
-        if len(historical)>len(direct_posts):
-            posts=merge_historical_posts(direct_posts,historical,previous)
-            complete=historical_complete
-            print(
-                f"Historical fallback expanded Community archive from "
-                f"{len(direct_posts)} to {len(posts)} posts."
-            )
-        elif len(direct_posts)<=len(previous):
-            # YouTube's Posts tab can stop at a recent-history cap while
-            # reporting no continuation. Keep the flag so a later retry or
-            # alternate public instance can recover older posts.
+    if "--render-from-cache" in sys.argv:
+        # JSON->HTML adapter is invoked ONLY in a disposable BUILD worktree.
+        # There is no network acquisition and no change to source Git data.
+        posts=json.loads(STATE.read_text(encoding="utf-8"))
+        if not isinstance(posts,list) or not posts or any(
+                not isinstance(p,dict) or not p.get("id") for p in posts):
+            raise RuntimeError("Invalid cached Community JSON; refuse any HTML render")
+        if previous and len(posts)<max(20,int(len(previous)*0.80)):
+            raise RuntimeError("Cached Community feed shrank unexpectedly")
+        complete=True
+        force_full_scan=False
+        os.environ["ZT_FORCE_SYNC"]="true"
+        print("MASTER JSON ADAPTER: verified Community state; offline render")
+    else:
+        try:
+            posts,complete=parse(fetch(),scan_known_ids)
+        except Exception as err:
+            if not previous:
+                raise
+            print(f"::warning::Primary YouTube Community unavailable: {err}; recovering from official alternate pages.")
+            # Retain all previous posts while the alternate official URLs and mirrors
+            # look for genuinely new IDs. Never replace a healthy archive with zero.
+            posts=list(previous)
             complete=False
+        posts,complete=augment_recent_posts(posts,previous,complete,force_full_scan)
+        if force_full_scan:
+            direct_posts=list(posts)
+            historical,historical_complete=fetch_invidious_full_history()
+            if len(historical)>len(direct_posts):
+                posts=merge_historical_posts(direct_posts,historical,previous)
+                complete=historical_complete
+                print(
+                    f"Historical fallback expanded Community archive from "
+                    f"{len(direct_posts)} to {len(posts)} posts."
+                )
+            elif len(direct_posts)<=len(previous):
+                # YouTube's Posts tab can stop at a recent-history cap while
+                # reporting no continuation. Keep the flag so a later retry or
+                # alternate public instance can recover older posts.
+                complete=False
+                print(
+                    f"Full scan still capped at {len(direct_posts)} posts; "
+                    "keeping the one-time recovery flag for another attempt."
+                )
+        if not posts:
+            raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
+    
+        if not complete:
+            if not previous:
+                raise RuntimeError(
+                    "Community scan incomplete and no previous valid state is available; "
+                    "refusing to modify the site."
+                )
+            fresh_ids={p.get("id") for p in posts if isinstance(p,dict)}
+            preserved=[p for p in previous if isinstance(p,dict) and p.get("id") not in fresh_ids]
+            posts=posts+preserved
             print(
-                f"Full scan still capped at {len(direct_posts)} posts; "
-                "keeping the one-time recovery flag for another attempt."
+                f"Community scan was partial: merged {len(posts)-len(preserved)} fresh items "
+                f"with {len(preserved)} preserved previous items."
             )
-    if not posts:
-        raise RuntimeError("No public Community posts parsed; refusing to modify the site.")
-
-    if not complete:
-        if not previous:
-            raise RuntimeError(
-                "Community scan incomplete and no previous valid state is available; "
-                "refusing to modify the site."
-            )
-        fresh_ids={p.get("id") for p in posts if isinstance(p,dict)}
-        preserved=[p for p in previous if isinstance(p,dict) and p.get("id") not in fresh_ids]
-        posts=posts+preserved
-        print(
-            f"Community scan was partial: merged {len(posts)-len(preserved)} fresh items "
-            f"with {len(preserved)} preserved previous items."
-        )
+    
 
     previous_by_id={
         p.get("id"):p for p in previous

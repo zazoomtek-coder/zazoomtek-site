@@ -6,6 +6,7 @@ YouTube iframe watch pages and related sidebars from already-published sources.
 No Firebase, third-party news scraping, video downloading or live API keys.
 """
 from __future__ import annotations
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -20,6 +21,23 @@ def run(script: str, *args: str) -> None:
 def main() -> None:
     # Refuse unauthorized Home structural changes before any publication.
     run("verify-home-layout-lock.py")
+    # Master production mode: all content is derived from verified JSON.
+    # The generated markup is temporary Cloudflare build output, never
+    # a write to the tracked Home/layout source by a data importer.
+    import json
+    flag = ROOT / "master-production-enabled.json"
+    master_active = (flag.is_file() and
+                     json.loads(flag.read_text(encoding="utf-8")).get("enabled") is True)
+    # This test flag only works for a PR validation and is never a production
+    # switch. A reviewer must verify JSON->HTML parity before the real cutover.
+    if os.environ.get("GITHUB_EVENT_NAME") == "pull_request" and os.environ.get("ZT_MASTER_STAGING_TEST") == "1":
+        master_active = True
+    if master_active:
+        run("update-youtube-posts.py", "--render-from-cache")
+        if (ROOT / ".youtube-master-render-cache.json").is_file():
+            run("update-youtube.py", "--render-from-cache")
+        run("master-json-renderer.py", "--prebuild-reviews")
+        run("verify-home-layout-lock.py")
     run("test_home_10x10_release.py")
     run("validate-sync-output.py", "community")
     run("validate-sync-output.py", "videos")
@@ -55,6 +73,8 @@ def main() -> None:
     # Generators may refresh content, but must never rewrite locked Home layout.
     run("verify-home-layout-lock.py")
     run("build-cloudflare-pages.py")
+    if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
+        run("master-json-renderer.py", "--postbuild-editorial")
     run("verify-home-layout-lock.py", "--packaged")
     run("test_home_10x10_release.py", "dist")
     run("verify-packaged-home.py", "--root", "dist")

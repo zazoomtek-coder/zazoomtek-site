@@ -572,6 +572,14 @@ def verified_public_article(article):
     return (image.startswith("https://") or
             (image.startswith("/assets/") and (ROOT/image.lstrip("/")).is_file()))
 
+def is_promotional_community_milestone(article):
+    """Self-congratulatory subscriber posts are Community, never Tech innovation."""
+    title=str(article.get("title") or "").lower()
+    milestone=re.search(r"\b(?:iscritt[io]|followers?|abbonat[io]|subscriber[s]?|traguardo)\b", title)
+    brand=re.search(r"(?:zazoomtek|nostr[oaie]|canale|community|youtube)", title)
+    return bool(milestone and brand)
+
+
 def pick(articles,on_date=None):
     """Keep the newest five verified ZazoomTek posts; never expire on idle days."""
     reference=on_date or NOW().astimezone(ITALY_TIMEZONE).date()
@@ -665,7 +673,7 @@ def pick(articles,on_date=None):
                 item.get("freshness",0))
     def add_best(kind,quota):
         count=0
-        for item in sorted((x for x in candidates if x["section"]==kind),
+        for item in sorted((x for x in candidates if x["section"]==kind and not is_promotional_community_milestone(x)),
                            key=priority,reverse=True):
             if count>=quota:break
             if item["url"] in seen:continue
@@ -859,6 +867,8 @@ def selftest():
     assert prefer_latest_verified_special(old,[old,newer])["url"]==newer["url"]
     assert prefer_latest_verified_special(newer,[old])["url"]==newer["url"]
     assert prefer_latest_verified_special(old,[])["url"]==old["url"]
+    assert is_promotional_community_milestone({"title":"ZazoomTek supera i 7.000 iscritti su YouTube"})
+    assert not is_promotional_community_milestone({"title":"iRobot presenta nuovi robot aspirapolvere"})
     # Current archived content is changing daily; these tests must remain stable.
     reference=NOW().astimezone(ITALY_TIMEZONE).date()
     existing=matches(owned_candidates(),{"items":[]})

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import html, json, os, re, time, urllib.error, urllib.parse, urllib.request
+import html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 from datetime import datetime
 from xml.etree import ElementTree as ET
@@ -7,7 +7,7 @@ from xml.etree import ElementTree as ET
 CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
 HANDLE="@ZazoomTek"
 API="https://www.googleapis.com/youtube/v3/"
-KEY=os.environ["YOUTUBE_API_KEY"]
+KEY=os.environ.get("YOUTUBE_API_KEY", "")
 TEST_PLAYLIST_ID="PL7dvpppAJr03SBwNej9rwT4nIvgYzJwzT"
 GAMING_PLAYLIST_ID="PL7dvpppAJr01wOyi0xZob2R5g5NfoZGZZ"
 UNBOXING_PLAYLIST_ID="PL7dvpppAJr03Tdqg6YeNWepK4sMOgIXvB"
@@ -760,36 +760,74 @@ def main():
         except Exception:
             previous=[]
 
-    vids=uploads(previous)
-    if not vids:
-        raise RuntimeError("YouTube safety check failed: zero uploads returned.")
-
-    # Protect the site from a transient partial API response.
-    if previous:
-        minimum=max(20,int(len(previous)*0.80))
-        if len(vids)<minimum:
-            raise RuntimeError(
-                f"YouTube safety check failed: received {len(vids)} videos, "
-                f"previous valid state had {len(previous)}. Site left unchanged."
-            )
-
-    GAMEPLAY_ORIGINAL_IDS,GAMEPLAY_EDITORIAL_IDS=load_gameplay_rules()
-    TEST_VIDEO_IDS=safe_playlist_ids(TEST_PLAYLIST_ID,"test",previous)
-    GAMING_VIDEO_IDS=safe_playlist_ids(GAMING_PLAYLIST_ID,"gaming",previous)
-    UNBOXING_VIDEO_IDS=safe_playlist_ids(UNBOXING_PLAYLIST_ID,"unboxing",previous)
-    REVIEWS_VIDEO_IDS=safe_playlist_ids(REVIEWS_PLAYLIST_ID,"recensioni",previous)
-    ANALOGIKTEK_VIDEO_IDS=safe_playlist_ids(ANALOGIKTEK_PLAYLIST_ID,"analogiktek",previous)
-
-    # Previously approved playlist classifications are preserved by safe_playlist_ids.
-    # The main uploader still sees all public channel videos when a playlist fails.
-
-    short_ids=youtube_short_ids()
-    if short_ids is None:
-        short_ids={
-            item.get("id") for item in previous
-            if isinstance(item,dict) and item.get("short") and item.get("id")
+    replay = "--render-from-cache" in sys.argv
+    cache_file = Path(".youtube-master-render-cache.json")
+    if replay:
+        cache=json.loads(cache_file.read_text(encoding="utf-8"))
+        vids=cache.get("videos", [])
+        if (not isinstance(vids, list) or len(vids)<20 or
+                any(not isinstance(v, dict) or not isinstance(v.get("id"), str)
+                    or "snippet" not in v for v in vids)):
+            raise RuntimeError("Missing or corrupted YouTube full-video render cache")
+        if len({v["id"] for v in vids}) != len(vids):
+            raise RuntimeError("Duplicated video IDs in JSON render cache")
+        GAMEPLAY_ORIGINAL_IDS,GAMEPLAY_EDITORIAL_IDS=load_gameplay_rules()
+        sets=cache.get("playlists", {})
+        for key in ("test","gaming","unboxing","recensioni","analogiktek"):
+            if not isinstance(sets.get(key), list):
+                raise RuntimeError("Missing playlist cache: "+key)
+        TEST_VIDEO_IDS=set(sets["test"])
+        GAMING_VIDEO_IDS=set(sets["gaming"])
+        UNBOXING_VIDEO_IDS=set(sets["unboxing"])
+        REVIEWS_VIDEO_IDS=set(sets["recensioni"])
+        ANALOGIKTEK_VIDEO_IDS=set(sets["analogiktek"])
+        short_ids=set(cache.get("short_ids", []))
+        if any(not isinstance(x,str) for x in short_ids):
+            raise RuntimeError("Malformed Short ID cache")
+        os.environ["ZT_FORCE_SYNC"]="true"
+        print("MASTER VIDEO ADAPTER: rendering validated JSON cache without new API import")
+    else:
+        vids=uploads(previous)
+        if not vids:
+            raise RuntimeError("YouTube safety check failed: zero uploads returned.")
+    
+        # Protect the site from a transient partial API response.
+        if previous:
+            minimum=max(20,int(len(previous)*0.80))
+            if len(vids)<minimum:
+                raise RuntimeError(
+                    f"YouTube safety check failed: received {len(vids)} videos, "
+                    f"previous valid state had {len(previous)}. Site left unchanged."
+                )
+    
+        GAMEPLAY_ORIGINAL_IDS,GAMEPLAY_EDITORIAL_IDS=load_gameplay_rules()
+        TEST_VIDEO_IDS=safe_playlist_ids(TEST_PLAYLIST_ID,"test",previous)
+        GAMING_VIDEO_IDS=safe_playlist_ids(GAMING_PLAYLIST_ID,"gaming",previous)
+        UNBOXING_VIDEO_IDS=safe_playlist_ids(UNBOXING_PLAYLIST_ID,"unboxing",previous)
+        REVIEWS_VIDEO_IDS=safe_playlist_ids(REVIEWS_PLAYLIST_ID,"recensioni",previous)
+        ANALOGIKTEK_VIDEO_IDS=safe_playlist_ids(ANALOGIKTEK_PLAYLIST_ID,"analogiktek",previous)
+    
+        # Previously approved playlist classifications are preserved by safe_playlist_ids.
+        # The main uploader still sees all public channel videos when a playlist fails.
+    
+        short_ids=youtube_short_ids()
+        if short_ids is None:
+            short_ids={
+                item.get("id") for item in previous
+                if isinstance(item,dict) and item.get("short") and item.get("id")
+            }
+            print(f"Using {len(short_ids)} last known-good Short IDs from state.")
+    
+        cache_payload={
+            "videos": vids,
+            "playlists": {
+                "test": sorted(TEST_VIDEO_IDS), "gaming": sorted(GAMING_VIDEO_IDS),
+                "unboxing": sorted(UNBOXING_VIDEO_IDS), "recensioni": sorted(REVIEWS_VIDEO_IDS),
+                "analogiktek": sorted(ANALOGIKTEK_VIDEO_IDS)},
+            "short_ids": sorted(short_ids),
         }
-        print(f"Using {len(short_ids)} last known-good Short IDs from state.")
+        # Commit cache only on meaningful video/playlist/Short changes.
+        # Live view counts and other API volatility must not cause a deploy.
     # Use the verified API/playlist state to determine whether any video,
     # category, Short, or completed livestream actually changed. Rebuilding
     # all category pages on an unchanged poll needlessly consumes Hosting quota.
@@ -803,6 +841,10 @@ def main():
         "live": is_live_upload(v),
         "completedLive": is_completed_broadcast(v)
     } for v in vids]
+    if not replay and (not cache_file.is_file() or new_state != previous):
+        cache_file.write_text(
+            json.dumps(cache_payload, ensure_ascii=False, separators=(",", ":")) + "\n",
+            encoding="utf-8")
     force_rebuild=os.environ.get("ZT_FORCE_SYNC","").lower()=="true"
     if previous and new_state==previous and not force_rebuild:
         print("No YouTube video/playlist changes; skipping HTML regeneration.")
