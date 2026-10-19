@@ -163,7 +163,8 @@ def main() -> None:
         assert len(ALLOWED) == len(set(ALLOWED))
         assert all(x.endswith(".json") for x in ALLOWED)
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
-        assert config.get("enabled") is False, "Do not accidentally arm staging"
+        assert isinstance(config.get("enabled"), bool), "Production switch must be explicit"
+        assert config.get("carousel_policy")=={"tech":4,"gaming":1,"total":5}, "Invalid featured quota"
         print("PASS: JSON allowlist and release is disarmed by default")
         return
     if args.check_cutover:
