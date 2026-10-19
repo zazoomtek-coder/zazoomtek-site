@@ -96,6 +96,18 @@ def main() -> None:
             if "Voto finale" not in reviewed and "8.5/10" not in reviewed:
                 failures.append("ThermoMate full review/vote missing from Cloudflare artifact")
 
+    # SPECIALI must be a complete static page with shared layout/assets.
+    specials = OUT / "speciali.html"
+    if not specials.is_file():
+        failures.append("Missing public SPECIALI archive")
+    else:
+        special_html = specials.read_text(encoding="utf-8")
+        for marker in ('id="specialiList"', "zt-mix-feature", "zt-mix-recent",
+                       'class="news-sidebar', "/zt-design.css", "/zt-visual.js",
+                       "https://zazoomtek.it/speciali.html"):
+            if marker not in special_html:
+                failures.append("Incomplete public SPECIALI page: " + marker)
+
     # Verify actual featured articles and local images are delivered.
     try:
         import json
