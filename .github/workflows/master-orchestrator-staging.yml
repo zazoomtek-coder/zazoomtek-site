@@ -8,6 +8,10 @@ on:
       - 'scripts/master-cutover-audit.py'
       - 'scripts/master-production-gateway.py'
       - 'scripts/cloudflare-build-site.py'
+      - '.github/workflows/master-orchestrator-production.yml'
+      - 'master-production-enabled.json'
+      - 'scripts/master-production-gateway.py'
+      - 'scripts/cloudflare-build-site.py'
       - 'master-production-enabled.json'
       - '.github/workflows/master-orchestrator-production.yml'
       - 'scripts/trending-crosscheck.py'
@@ -50,6 +54,7 @@ jobs:
           node-version: '22'
       - name: Verify orchestrator source and five-slot logic
         run: |
+          python3 -m py_compile scripts/cloudflare-build-site.py scripts/master-production-gateway.py
           python3 -m py_compile scripts/master-orchestrator.py
           python3 -m py_compile scripts/master-json-renderer.py scripts/refresh-home-editorial-boxes.py scripts/update-youtube-posts.py scripts/update-youtube.py scripts/trending-crosscheck.py
           python3 scripts/master-orchestrator.py --self-test
@@ -61,14 +66,47 @@ jobs:
           python3 scripts/test_review_dedup.py
       - name: Run all modules in an isolated Git worktree
         env:
-          YOUTUBE_API_KEY: ${{ github.event_name == 'workflow_dispatch' && secrets.YOUTUBE_API_KEY || '' }}
-          WITH_IMPORTS: ${{ github.event_name == 'workflow_dispatch' && inputs.with_imports || false }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          WITH_IMPORTS: ${{ (github.event_name == 'workflow_dispatch' && inputs.with_imports) || (github.event_name == 'pull_request' && github.head_ref == 'fix/master-cutover-youtube-gate-20261019') }}
+          ZT_MASTER_STAGING_TEST: ${{ github.event_name == 'pull_request' && github.head_ref == 'fix/master-cutover-youtube-gate-20261019' && '1' || '0' }}
         run: |
           if [ "$WITH_IMPORTS" = 'true' ]; then
             python3 scripts/master-orchestrator.py --with-imports
           else
             python3 scripts/master-orchestrator.py --simulate-production-render
           fi
+      - name: Require real video and Community importer success on cutover smoke branch
+        if: github.event_name == 'pull_request' && github.head_ref == 'fix/master-cutover-youtube-gate-20261019'
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('artifacts/master-orchestrator/report.json').read_text())
+          steps={x['module']: x['status'] for x in data['modules']}
+          assert data['status']=='staging-validated', data['status']
+          assert steps['youtube-community']=='ok', steps
+          assert steps['youtube-videos']=='ok', steps
+          assert steps['isolated-offline-build']=='ok', steps
+          print('REAL IMPORT PASS: Community, videos and Cloudflare-compatible preview')
+          PY
+      - name: Verify fast five-minute JSON-only polling and allowed export
+        if: success()
+        run: |
+          python3 scripts/master-orchestrator.py --no-preview \
+            --output-dir artifacts/master-fast \
+            --export-json-dir /tmp/zt-master-fast-export
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out=json.loads(Path('artifacts/master-fast/report.json').read_text())
+          assert out['status']=='data-validated',out
+          stages={x['module']:x['status'] for x in out['modules']}
+          assert stages['isolated-offline-build']=='deferred-to-release-gate'
+          assert stages['five-slot-carousel']=='ok'
+          manifest=json.loads(Path('/tmp/zt-master-fast-export/manifest.json').read_text())
+          assert all(path.endswith('.json') for path in manifest['paths'])
+          print('PASS: safe import-only export and deferred HTML release gate')
+          PY
       - name: Inventory concurrent legacy writers (report only)
         if: always()
         run: python3 scripts/master-cutover-audit.py

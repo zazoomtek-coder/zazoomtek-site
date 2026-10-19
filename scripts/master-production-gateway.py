@@ -15,15 +15,62 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import urllib.request
+import urllib.parse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "master-production-enabled.json"
 ALLOWED = {
     ".youtube-posts.json", ".youtube-latest.json", ".youtube-master-render-cache.json",
     "home-video-feed.json", "featured-carousel.json", "trending-match-report.json",
-    "trending-sources.json", "master-staging/reviews-due.json",
+    "trending-sources.json", "video-watch-archive.json", "master-staging/reviews-due.json",
     "master-staging/editorial-boxes.json", "master-staging/carousel-five.json",
 }
+
+
+# Workflow runs created before the atomic cutover may continue executing
+# against the old SHA. Do not start the new writer while any of those old
+# jobs is running, pending or queued: the next five-minute cycle retries.
+RETIRED_WRITERS = {
+    "youtube-sync.yml", "cloudflare-controlled-release.yml",
+    "publish-approved-reviews.yml", "publish-standard-news.yml",
+    "publish-special-news.yml", "build-guide-archive.yml",
+    "refresh-home-editorials-daily.yml", "refresh-static-news-in-evidenza.yml",
+    "scan-trending-portals.yml", "seo-video-archive.yml",
+    "discover-special-news.yml", "perf-header-logo-stage.yml",
+    "refresh-featured-cover-photos.yml", "verify-rotating-sidebars.yml",
+    "youtube-publishing-safety-net.yml", "zt-urgent-cloudflare-dispatch.yml",
+}
+
+
+def ensure_no_legacy_runs() -> None:
+    token=os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    repo=os.environ.get("GITHUB_REPOSITORY")
+    if not token or not repo or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        raise ReleaseBlocked("Cannot verify active legacy workflow runs (missing Actions API context)")
+    for status in ("in_progress", "queued", "pending", "waiting", "requested"):
+        url=f"https://api.github.com/repos/{repo}/actions/runs?per_page=100&status={status}"
+        req=urllib.request.Request(url, headers={
+            "Accept":"application/vnd.github+json",
+            "Authorization":"Bearer "+token,
+            "X-GitHub-Api-Version":"2022-11-28",
+            "User-Agent":"ZazoomTek-master-cutover-safety"})
+        try:
+            with urllib.request.urlopen(req, timeout=22) as response:
+                state=json.load(response)
+        except Exception as exc:
+            raise ReleaseBlocked("Unable to verify concurrent GitHub writers: "+str(exc)[:180]) from exc
+        if not isinstance(state,dict) or not isinstance(state.get("workflow_runs"),list):
+            raise ReleaseBlocked("Malformed Actions active-run response; keep last-good site")
+        if state.get("total_count",0)>100:
+            raise ReleaseBlocked("Too many active runs to check completely; retry later")
+        for run in state["workflow_runs"]:
+            if run.get("head_branch") != "main":
+                continue
+            path=str(run.get("path") or "").split("/")[-1]
+            if path in RETIRED_WRITERS:
+                raise ReleaseBlocked(
+                    f"Legacy writer still {status}: {path}; wait for safe cutover cycle")
 
 
 class ReleaseBlocked(RuntimeError):
@@ -65,9 +112,11 @@ def preflight() -> None:
         raise ReleaseBlocked("Production is not explicitly armed; no Git or Cloudflare changes")
     if os.environ.get("GITHUB_REF") != "refs/heads/main":
         raise ReleaseBlocked("Only main may publish")
-    if not os.environ.get("YOUTUBE_API_KEY"):
-        raise ReleaseBlocked("YouTube secret unavailable: do not degrade the 5-minute feed")
+    key=os.environ.get("YOUTUBE_API_KEY", "")
+    if not key or key.startswith(chr(92)) or "${{" in key:
+        raise ReleaseBlocked("YouTube secret missing/escaped: do not degrade the import pipeline")
     audit_cutover()
+    ensure_no_legacy_runs()
     if call("git", "status", "--porcelain"):
         raise ReleaseBlocked("Checkout contains uncommitted files")
     call(sys.executable, "scripts/verify-home-layout-lock.py", timeout=90)
@@ -78,16 +127,18 @@ def preflight() -> None:
 def import_and_validate(folder: Path) -> list[str]:
     export = folder / "json"
     result_dir = folder / "staging"
-    call(sys.executable, "scripts/master-orchestrator.py", "--with-imports",
+    call(sys.executable, "scripts/master-orchestrator.py", "--with-imports", "--no-preview",
          "--output-dir", str(result_dir), "--export-json-dir", str(export), timeout=2100)
     report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
-    if report.get("status") != "staging-validated":
-        raise ReleaseBlocked("Master has errors/fallbacks; KEEP LAST GOOD LIVE")
-    required = ("youtube-community", "youtube-videos", "trending-carousel",
-                "editorial-boxes", "approved-reviews", "isolated-offline-build")
+    if report.get("status") != "data-validated":
+        raise ReleaseBlocked("Master data stage has errors/fallbacks; KEEP LAST GOOD LIVE")
+    required = ("youtube-community", "youtube-videos", "video-watch-archive", "trending-carousel",
+                "editorial-boxes", "approved-reviews", "five-slot-carousel")
     stages = {x["module"]: x for x in report.get("modules", [])}
     if any(stages.get(x, {}).get("status") != "ok" for x in required):
         raise ReleaseBlocked("Required importer was skipped or failed; stop publication")
+    if stages.get("isolated-offline-build",{}).get("status") != "deferred-to-release-gate":
+        raise ReleaseBlocked("Wrong Master data-only mode; refuse an unverified source state")
     manifest = json.loads((export / "manifest.json").read_text(encoding="utf-8"))
     names = manifest.get("paths")
     if not isinstance(names, list) or any(x not in ALLOWED for x in names):
@@ -122,7 +173,9 @@ def one_attempt() -> tuple[bool, str]:
                  "commit", "-m", "master: verified JSON-only editorial batch")
     # A release trigger is necessary ONLY at the existing controlled window,
     # and exactly one extra Git commit lets it contain the real source SHA.
-    call(sys.executable, "scripts/cloudflare-release-control.py", "--scheduled-slot", timeout=120)
+    emergency=os.environ.get("ZT_MASTER_URGENT", "").lower()=="true"
+    call(sys.executable, "scripts/cloudflare-release-control.py",
+         "--urgent" if emergency else "--scheduled-slot", timeout=120)
     trigger_changed = bool(call("git", "status", "--porcelain", "--", "cloudflare-release-trigger.txt"))
     trigger_source = ""
     if trigger_changed:
@@ -160,7 +213,8 @@ def main() -> None:
         assert len(ALLOWED) == len(set(ALLOWED))
         assert all(x.endswith(".json") for x in ALLOWED)
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
-        assert config.get("enabled") is False, "Do not accidentally arm staging"
+        assert isinstance(config.get("enabled"), bool), "Production switch must be explicit"
+        assert config.get("carousel_policy")=={"tech":4,"gaming":1,"total":5}, "Invalid featured quota"
         print("PASS: JSON allowlist and release is disarmed by default")
         return
     if args.check_cutover:

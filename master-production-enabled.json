@@ -1,10 +1,13 @@
 {
-  "enabled": false,
+  "enabled": true,
   "cutover_requires": "one controlled commit retiring every concurrent legacy writer, production adapter smoke tests, real YouTube import checks and Cloudflare last-good rollback",
   "cloudflare_release_strategy": "Git-connected Pages build watch: cloudflare-release-trigger.txt only",
   "carousel_policy": {
     "tech": 4,
     "gaming": 1,
     "total": 5
-  }
+  },
+  "activated_by": "atomic-coordinated-writer-retirement",
+  "retired_workflows": 16,
+  "rollback_instruction": "Revert cutover commit atomically: restores previous workflows and sets enabled=false"
 }
