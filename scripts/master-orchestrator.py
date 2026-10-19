@@ -129,6 +129,10 @@ def five_slot_manifest(root: Path) -> dict:
         raise ValueError("Carousel slots must be 4 Tech then 1 Gaming")
     for item in items:
         validate_featured(root, item)
+        title=item["title"].lower()
+        if (re.search(r"\\b(?:iscritt[io]|followers?|subscriber[s]?|traguardo)\\b", title)
+                and re.search(r"(?:zazoomtek|nostr[oaie]|canale|community|youtube)", title)):
+            raise ValueError("Community subscriber celebration cannot occupy a Tech innovation slot")
     if len({item["url"] for item in items}) != 5:
         raise ValueError("Duplicate article in carousel")
     keys = ("section", "url", "title", "image", "published_date")
@@ -320,7 +324,18 @@ def run(args: argparse.Namespace) -> int:
             # Production-equivalent rendering occurs in its OWN throwaway worktree,
             # never in the JSON-only parent source worktree.
             def build_preview(folder: Path) -> None:
+                # Data acquisition writes JSON only. Rendering is a separate,
+                # reversible phase inside THIS disposable build worktree.
+                command(folder, sys.executable, "scripts/master-json-renderer.py",
+                        "--prebuild-reviews", timeout=180)
+                community = next((x for x in records if x["module"] == "youtube-community"), {})
+                if community.get("status") == "ok" and ".youtube-posts.json" in community.get("json_updated", []):
+                    command(folder, sys.executable, "scripts/update-youtube-posts.py",
+                            "--render-from-cache", timeout=600)
                 command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
+                if (folder / "master-staging/editorial-boxes.json").is_file():
+                    command(folder, sys.executable, "scripts/master-json-renderer.py",
+                            "--postbuild-editorial", timeout=180)
                 command(folder, sys.executable, "scripts/verify-home-layout-lock.py", "--packaged", timeout=90)
                 command(folder, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
                 verify_sitewide_nav(folder / "dist")
