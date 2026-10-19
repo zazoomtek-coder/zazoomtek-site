@@ -176,7 +176,7 @@ def build(root: Path = ROOT) -> dict[str, int]:
                 if not (root / override.lstrip('/')).is_file():
                     raise RuntimeError('Missing approved review cover: ' + override)
                 card, replaced = re.subn(
-                    r'(<img\\b[^>]*\\bsrc=")[^"]+(")',
+                    r'(<img\b[^>]*\bsrc=")[^"]+(")',
                     lambda match: match.group(1) + override + match.group(2),
                     card, count=1, flags=re.I)
                 if replaced != 1:
