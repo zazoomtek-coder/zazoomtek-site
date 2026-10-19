@@ -49,9 +49,16 @@ jobs:
 
             python3 scripts/cloudflare-release-control.py --self-test
             python3 scripts/verify-live-cloudflare.py --self-test
-            # HOME protection rule: allow normal editorial/content updates,
-            # but stop the release if the approved Home structure is damaged.
-            python3 scripts/protect-home-structure.py index.html
+            python3 -m py_compile scripts/protect-home-structure.py scripts/restore-home-last-release.py
+            # HOME protection rule: normal editorial/content updates are allowed.
+            # If any update damages the approved Home, restore ONLY index.html
+            # from the last verified production source, then continue with the
+            # unrelated safe changes. Never ship a broken Home.
+            if ! python3 scripts/protect-home-structure.py index.html; then
+              echo "::warning::Candidate Home is damaged. Rolling index.html back to the last verified production Home."
+              python3 scripts/restore-home-last-release.py
+              python3 scripts/protect-home-structure.py index.html
+            fi
 
             # Decide FIRST. No change, recent release, or exhausted budget =
             # no expensive offline rebuild and no Cloudflare Pages build.
@@ -76,9 +83,18 @@ jobs:
             # Validate with the NEW source receipt before touching production.
             # All generated pages, thumbnails and review links must pass.
             python3 scripts/cloudflare-build-site.py
-            # The build itself must not damage the protected Home. Content
-            # changes are allowed; only structural destruction blocks release.
-            python3 scripts/protect-home-structure.py dist/index.html
+            # The build itself must not damage the protected Home. If the
+            # generated Home is broken, roll source Home back to the last
+            # verified production version and rebuild once. If it is STILL
+            # broken after rollback, abort the whole release: nothing reaches
+            # production until the cause is fixed.
+            if ! python3 scripts/protect-home-structure.py dist/index.html; then
+              echo "::warning::Built Home failed protection. Restoring last verified Home and rebuilding once."
+              python3 scripts/restore-home-last-release.py
+              rm -rf dist
+              python3 scripts/cloudflare-build-site.py
+              python3 scripts/protect-home-structure.py dist/index.html
+            fi
             # No release may pass with old, duplicated, undated or unbalanced
             # Tech/Gaming columns. Browser-test exactly what Cloudflare ships.
             command -v google-chrome
