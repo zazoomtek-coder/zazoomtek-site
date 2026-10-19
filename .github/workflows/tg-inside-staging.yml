@@ -48,7 +48,7 @@ jobs:
           for target in ('/tech-today.html','/gaming-today.html','/speciali.html'):
               assert 'href="'+target+'"' in src
           assert 'INSIGHTS' in src and 'TG Inside' not in src
-          assert __import__('re').search(r'"name"\\s*:\\s*"INSIGHTS"',src)
+          assert __import__('re').search(r'"name"\s*:\s*"INSIGHTS"',src)
 
           assert 'zt-visual.js' in src and '/zt-design.css' in src
           assert 'https://zazoomtek.it/speciali.html' in src
