@@ -104,9 +104,9 @@ def build(root:Path=ROOT)->int:
         ]}
     ld=json.dumps(graph,ensure_ascii=False).replace('<','\\u003c')
     updated,count=re.subn(
-        r'(<script id="zt-specials-ld" type="application/ld\\+json">)[\\s\\S]*?(</script>)',
+        r'(<script id="zt-specials-ld"[^>]*>).*?(</script>)',
         lambda m:m.group(1)+ld+m.group(2),
-        updated,count=1)
+        updated,count=1,flags=re.S)
     if count!=1:
         raise RuntimeError("Speciali SEO JSON-LD missing; refusing incomplete build")
     if not all(key in updated for key in ('class="news-sidebar','zt-mix-feature','zt-mix-recent',
