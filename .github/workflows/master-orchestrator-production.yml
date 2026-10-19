@@ -5,6 +5,12 @@ name: ZazoomTek MASTER - sole production writer (CUTOVER GATED)
 
 on:
   workflow_dispatch:
+    inputs:
+      urgent:
+        description: 'Explicit emergency release (counts against reserved Cloudflare builds)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -46,5 +52,6 @@ jobs:
       - name: Validate and publish only via single Git + Pages gateway
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_MASTER_URGENT: ${{ github.event_name == 'workflow_dispatch' && inputs.urgent || false }}
         run: |
           python3 scripts/master-production-gateway.py --publish
