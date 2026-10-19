@@ -190,11 +190,8 @@ def build(root: Path = ROOT) -> dict[str, int]:
         page = page.replace('Recensioni scritte di tecnologia e gaming pubblicate da ZazoomTek',
                             description, 1)
         # The complete original right rail, ticker, header and footer are reused.
-        print('STAGING review checks:', filename, 'rail=', 'class="news-sidebar' in page, 'footer=', 'class="legal-footer' in page,
-              'actual=', len(CARD.findall(page[list_start:list_boundary(page, list_start)])), 'expected=', len(cards[category]),
-              'boundary=', list_boundary(page,list_start), 'banner=', page.find(END_BANNER))
         if (not all(k in page for k in ('class="news-sidebar', 'class="legal-footer'))
-                or len(CARD.findall(page[list_start:list_boundary(page, list_start)])) != len(cards[category])):
+                or len(CARD.findall(page[(page.index(BEG) + len(BEG)):list_boundary(page, page.index(BEG))])) != len(cards[category])):
             raise RuntimeError('Incomplete editorial sidebar or category cards: ' + filename)
         (root / filename).write_text(page, encoding='utf-8')
     return {key: len(rows) for key, rows in cards.items()}
