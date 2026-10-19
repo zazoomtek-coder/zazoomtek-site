@@ -130,7 +130,7 @@ def five_slot_manifest(root: Path) -> dict:
     for item in items:
         validate_featured(root, item)
         title=item["title"].lower()
-        if (re.search(r"\\b(?:iscritt[io]|followers?|subscriber[s]?|traguardo)\\b", title)
+        if (re.search(r"\b(?:iscritt[io]|followers?|subscriber[s]?|traguardo)\b", title)
                 and re.search(r"(?:zazoomtek|nostr[oaie]|canale|community|youtube)", title)):
             raise ValueError("Community subscriber celebration cannot occupy a Tech innovation slot")
     if len({item["url"] for item in items}) != 5:
