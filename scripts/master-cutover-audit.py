@@ -13,6 +13,11 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
+INDIRECT_DISPATCHERS = {
+    "youtube-publishing-safety-net.yml": "youtube-sync.yml",
+    "zt-urgent-cloudflare-dispatch.yml": "cloudflare-controlled-release.yml",
+}
+PRODUCTION = "master-orchestrator-production.yml"
 PROTECTED_WRITERS = {
     "youtube-sync.yml",
     "refresh-static-news-in-evidenza.yml",
@@ -46,7 +51,7 @@ def report(root: Path) -> dict:
     scheduled_writers = [x["file"] for x in workflows
                          if x["schedule"] and x["potential_writer"]
                          and x["file"] != "master-orchestrator-production.yml"]
-    all_writers = [x["file"] for x in workflows if x["potential_writer"]]
+    all_writers = [x["file"] for x in workflows if x["potential_writer"] and x["file"] != PRODUCTION]
     expected = sorted(PROTECTED_WRITERS & set(all_writers))
     # Only after all old scheduled writers are atomically retired and the new
     # production workflow exists can an operator APPROVE the release cutover.
@@ -56,8 +61,20 @@ def report(root: Path) -> dict:
                  if x not in scheduled_writers and x != "master-orchestrator-production.yml"])
     if not master_exists:
         blockers.append("No production release workflow with single-writer lock installed")
+    indirect = []
+    for name, target in INDIRECT_DISPATCHERS.items():
+        file = folder / name
+        if file.is_file():
+            raw = file.read_text(encoding="utf-8")
+            # The only accepted retirement is a code-free read-only audit.
+            # Never trust a text comment saying retired while a dispatch
+            # of the legacy writer remains executable.
+            if re.search(r"gh\\s+workflow\\s+run\\s+" + re.escape(target), raw):
+                indirect.append(name)
+                blockers.append(f"Indirect dispatcher still invokes old publisher: {name}")
     return {"generated_utc": datetime.now(timezone.utc).isoformat(),
             "legacy_writer_count": len(all_writers),
+            "indirect_legacy_dispatchers": indirect,
             "active_scheduled_writers": sorted(scheduled_writers),
             "known_critical_writers": expected,
             "production_master_exists": master_exists,
