@@ -316,49 +316,61 @@ def run(args: argparse.Namespace) -> int:
                  ("master-staging/editorial-boxes.json",), True),
             ]
             for name, operation, files, enabled in steps:
+                if args.poll_only and name not in ("youtube-community", "youtube-videos"):
+                    records.append({"module": name, "status": "skipped-in-poll"})
+                    continue
                 if enabled:
                     stage(source, baseline, records, name, operation, files)
                 else:
                     records.append({"module": name, "status": "skipped-in-test"})
-            stage(source, baseline, records, "five-slot-carousel",
-                  lambda folder: (folder / "master-staging").mkdir(parents=True, exist_ok=True)
-                    or (folder / "master-staging/carousel-five.json").write_text(
-                        json.dumps(five_slot_manifest(folder), ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8"),
-                  ("master-staging/carousel-five.json",), mandatory=True)
-            # Production-equivalent rendering occurs in its OWN throwaway worktree,
-            # never in the JSON-only parent source worktree.
-            def build_preview(folder: Path) -> None:
-                # Data acquisition writes JSON only. Rendering is a separate,
-                # reversible phase inside THIS disposable build worktree.
-                command(folder, sys.executable, "scripts/master-json-renderer.py",
-                        "--prebuild-reviews", timeout=180)
-                community = next((x for x in records if x["module"] == "youtube-community"), {})
-                if community.get("status") == "ok" and ".youtube-posts.json" in community.get("json_updated", []):
-                    command(folder, sys.executable, "scripts/update-youtube-posts.py",
-                            "--render-from-cache", timeout=600)
-                videos = next((x for x in records if x["module"] == "youtube-videos"), {})
-                if videos.get("status") == "ok" and ".youtube-master-render-cache.json" in videos.get("json_updated", []):
-                    command(folder, sys.executable, "scripts/update-youtube.py",
-                            "--render-from-cache", timeout=600)
-                if args.simulate_production_render and os.getenv("GITHUB_EVENT_NAME") == "pull_request":
-                    os.environ["ZT_MASTER_STAGING_TEST"] = "1"
-                try:
-                    command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
-                finally:
-                    os.environ.pop("ZT_MASTER_STAGING_TEST", None)
-                if (folder / "master-staging/editorial-boxes.json").is_file():
+            if args.poll_only:
+                # Every-five-minute acquisition: two isolated JSON importers only.
+                # The expensive offline Cloudflare build runs on the release job.
+                required = ("youtube-community", "youtube-videos")
+                states = {record["module"]: record["status"] for record in records}
+                if any(states.get(name) != "ok" for name in required):
+                    raise RuntimeError("BLOCK: required YouTube acquisition failed; retain last good JSON")
+                verify_source(source, baseline)
+            else:
+                stage(source, baseline, records, "five-slot-carousel",
+                      lambda folder: (folder / "master-staging").mkdir(parents=True, exist_ok=True)
+                        or (folder / "master-staging/carousel-five.json").write_text(
+                            json.dumps(five_slot_manifest(folder), ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8"),
+                      ("master-staging/carousel-five.json",), mandatory=True)
+                # Production-equivalent rendering occurs in its OWN throwaway worktree,
+                # never in the JSON-only parent source worktree.
+                def build_preview(folder: Path) -> None:
+                    # Data acquisition writes JSON only. Rendering is a separate,
+                    # reversible phase inside THIS disposable build worktree.
                     command(folder, sys.executable, "scripts/master-json-renderer.py",
-                            "--postbuild-editorial", timeout=180)
-                command(folder, sys.executable, "scripts/verify-home-layout-lock.py", "--packaged", timeout=90)
-                command(folder, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
-                verify_sitewide_nav(folder / "dist")
-                shutil.copytree(folder / "dist", target / "preview-site", dirs_exist_ok=True)
-            stage(source, baseline, records, "isolated-offline-build", build_preview, mandatory=True)
-            verify_source(source, baseline)
-            (target / "carousel-five.json").write_text(
-                json.dumps(five_slot_manifest(source), ensure_ascii=False, indent=2) + "\n",
-                encoding="utf-8")
+                            "--prebuild-reviews", timeout=180)
+                    community = next((x for x in records if x["module"] == "youtube-community"), {})
+                    if community.get("status") == "ok" and ".youtube-posts.json" in community.get("json_updated", []):
+                        command(folder, sys.executable, "scripts/update-youtube-posts.py",
+                                "--render-from-cache", timeout=600)
+                    videos = next((x for x in records if x["module"] == "youtube-videos"), {})
+                    if videos.get("status") == "ok" and ".youtube-master-render-cache.json" in videos.get("json_updated", []):
+                        command(folder, sys.executable, "scripts/update-youtube.py",
+                                "--render-from-cache", timeout=600)
+                    if args.simulate_production_render and os.getenv("GITHUB_EVENT_NAME") == "pull_request":
+                        os.environ["ZT_MASTER_STAGING_TEST"] = "1"
+                    try:
+                        command(folder, sys.executable, "scripts/cloudflare-build-site.py", timeout=900)
+                    finally:
+                        os.environ.pop("ZT_MASTER_STAGING_TEST", None)
+                    if (folder / "master-staging/editorial-boxes.json").is_file():
+                        command(folder, sys.executable, "scripts/master-json-renderer.py",
+                                "--postbuild-editorial", timeout=180)
+                    command(folder, sys.executable, "scripts/verify-home-layout-lock.py", "--packaged", timeout=90)
+                    command(folder, sys.executable, "scripts/verify-packaged-home.py", "--root", "dist", timeout=90)
+                    verify_sitewide_nav(folder / "dist")
+                    shutil.copytree(folder / "dist", target / "preview-site", dirs_exist_ok=True)
+                stage(source, baseline, records, "isolated-offline-build", build_preview, mandatory=True)
+                verify_source(source, baseline)
+                (target / "carousel-five.json").write_text(
+                    json.dumps(five_slot_manifest(source), ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8")
             if args.export_json_dir:
                 # DATA-ONLY handoff to the separate production gateway.
                 # Export everything committed by successful import modules,
@@ -391,7 +403,8 @@ def run(args: argparse.Namespace) -> int:
                 (dest / "manifest.json").write_text(
                     json.dumps({"paths": paths, "base_commit": original_commit},
                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            status = ("staging-validated-with-fallbacks" if any(x["status"] == "fallback-last-good" for x in records)
+            status = ("poll-validated" if args.poll_only else
+                      "staging-validated-with-fallbacks" if any(x["status"] == "fallback-last-good" for x in records)
                       else "staging-validated")
         except Exception as exc:
             records.append({"module": "pipeline", "status": "blocked", "error": str(exc)[-1200:]})
@@ -404,6 +417,7 @@ def run(args: argparse.Namespace) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--poll-only", action="store_true", help="Staging-only fast JSON import without the expensive release build")
     parser.add_argument("--simulate-production-render", action="store_true", help="CI-only, test Cloudflare JSON→HTML renderer without arming production")
     parser.add_argument("--with-imports", action="store_true",
                         help="Explicitly test external YouTube/portal feeds, still no deploy")
