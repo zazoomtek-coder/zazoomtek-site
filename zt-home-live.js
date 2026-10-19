@@ -286,6 +286,7 @@
   // Tech Impact / Gaming Inside / Da non perdere / Dalla redazione.
   // Existing backup cards are promoted into the first two slots: do not
   // delete articles, alter SEO, insert filler or change the approved layout.
+  let olderTechForPopular=[];
   function reconcileRight(){
     if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
     function articlePath(node){
@@ -332,6 +333,28 @@
     }
     fillModule(impact,".zt-special-item",2,"a.zt-special-thumb[href]");
     fillModule(inside,".zt-special-item",2,"a.zt-special-thumb[href]");
+    // Older, verified Tech articles backfill DA NON PERDERE AFTER the
+    // browser has finalized the ten newest Tech and Gaming columns.
+    // The daily snapshot alone can overlap those asynchronous columns.
+    if(pop && olderTechForPopular.length){
+      const holder=pop.querySelector(".zt-popular-list");
+      if(holder){
+        const existing=new Set([...holder.querySelectorAll(".zt-popular-article")].map(articlePath).filter(Boolean));
+        for(const item of olderTechForPopular){
+          if(!item || !/^\\/news-[A-Za-z0-9_-]+\\.html$/.test(item.url) ||
+             !item.title || !item.image || used.has(item.url) || existing.has(item.url))continue;
+          const card=document.createElement("a");
+          card.className="zt-popular-article";card.href=item.url;card.title=item.title;
+          const image=document.createElement("img");image.src=item.image;image.alt=item.title;image.loading="lazy";
+          const copy=document.createElement("span");copy.className="zt-popular-copy";
+          const category=document.createElement("span");category.className="zt-popular-category";category.textContent="TECNOLOGIA";
+          const title=document.createElement("strong");title.textContent=item.title;
+          copy.append(category,title);card.append(image,copy);holder.appendChild(card);
+          existing.add(item.url);
+          if(existing.size>=16)break;
+        }
+      }
+    }
     fillModule(pop,".zt-popular-article",2,"");
     const chosen=[];
     for(const card of editorialCards){
@@ -342,7 +365,10 @@
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
   }
-  window.addEventListener("zt:home-columns-repainted",()=>requestAnimationFrame(reconcileRight));
+  window.addEventListener("zt:home-columns-repainted",event=>{
+    olderTechForPopular=Array.isArray(event.detail?.techBackups)?event.detail.techBackups:[];
+    requestAnimationFrame(reconcileRight);
+  });
 
   balance();
   window.addEventListener("load",()=>{balance();requestAnimationFrame(reconcileRight)},{once:true});
@@ -601,7 +627,21 @@
       rebalance();
       // Sidebar cards must be rechecked whenever archived news or featured
       // carousel changes. Only visible, real article links count as duplicates.
-      window.dispatchEvent(new Event("zt:home-columns-repainted"));
+      const visibleTech=new Set([...tech.querySelectorAll(".article-copy h3 a[href]")].map(a=>{
+        try{return new URL(a.getAttribute("href"),location.origin).pathname;}catch(_){return "";}
+      }));
+      const techBackups=candidates.tech
+        .filter(row=>{
+          const url=archiveHref(row);
+          return url && !featured.has(url) && !visibleTech.has(url);
+        })
+        .sort((a,b)=>sourcePublishedAt(b)-sourcePublishedAt(a))
+        .slice(0,22).map(row=>({
+          url:archiveHref(row),
+          title:(row.querySelector(".article-copy h3 a")?.textContent||"").trim(),
+          image:row.querySelector("img.article-image")?.getAttribute("src")||""
+        }));
+      window.dispatchEvent(new CustomEvent("zt:home-columns-repainted",{detail:{techBackups}}));
     }
     function addPublishedNews(src){
       const route=explicitArchiveCategory(src);
