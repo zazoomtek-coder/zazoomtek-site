@@ -36,7 +36,11 @@ jobs:
           python3 - <<'PY'
           import re, subprocess, tempfile
           from pathlib import Path
-          from scripts.protect_home_structure import check
+          import importlib.util
+          spec=importlib.util.spec_from_file_location("zt_home_guard","scripts/protect-home-structure.py")
+          module=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          check=module.check
           with tempfile.TemporaryDirectory() as tmp:
               release=Path('cloudflare-release-trigger.txt').read_text()
               source=re.search(r'^source_commit=([a-f0-9]{40})
