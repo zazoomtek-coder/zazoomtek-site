@@ -16,7 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def run(script: str, *args: str) -> None:
     print("CLOUDFLARE BUILD:", script, " ".join(args), flush=True)
     subprocess.run([sys.executable, str(ROOT / "scripts" / script), *args],
-                   cwd=ROOT, check=True, timeout=180)
+                   cwd=ROOT, check=True,
+                   timeout=300 if script == "update-youtube-posts.py" and "--render-from-cache" in args else 180)
 
 def main() -> None:
     # Refuse unauthorized Home structural changes before any publication.
