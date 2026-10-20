@@ -53,12 +53,12 @@ def verify(root: Path = ROOT, packaged: bool = False) -> None:
     if not path.is_file():
         raise HomeLockError("HOME INTEGRITY FAILED: missing index.html")
     home = path.read_text(encoding="utf-8")
-    if len(home) < 1000 or not re.search(r"<html\\b", home, re.I):
+    if len(home) < 1000 or not re.search(r"<html\b", home, re.I):
         errors.append("Home is truncated or has no HTML document")
     for tag in ("head", "body", "html"):
-        if not re.search(r"<" + tag + r"\\b", home, re.I):
+        if not re.search(r"<" + tag + r"\b", home, re.I):
             errors.append("Missing opening <" + tag + ">")
-        if not re.search(r"</" + tag + r"\\s*>", home, re.I):
+        if not re.search(r"</" + tag + r"\s*>", home, re.I):
             errors.append("Missing closing </" + tag + ">")
     parser = HomeElements()
     parser.feed(home)
@@ -75,7 +75,7 @@ def verify(root: Path = ROOT, packaged: bool = False) -> None:
         if ".." in Path(name).parts or not (root / name).is_file():
             errors.append("Missing/unsafe local Home script: " + url)
     if errors:
-        raise HomeLockError("HOME INTEGRITY FAILED:\\n" + "\\n".join("- " + x for x in errors))
+        raise HomeLockError("HOME INTEGRITY FAILED:\n" + "\n".join("- " + x for x in errors))
     label = "packaged Cloudflare dist" if packaged else "source checkout"
     print(f"HOME INTEGRITY PASS ({label}): publishing anchors intact; CSS/JS/design unlocked.")
 
@@ -92,7 +92,7 @@ def self_test() -> None:
             '<!-- HOME_LATEST_REVIEWS_MAIN_END -->'
             '<script src="/new-layout.js?v=9999"></script>'
             '</body></html>'
-        )
+        ) + (" " * 1100)
     with tempfile.TemporaryDirectory() as folder:
         root = Path(folder)
         (root / "new-layout.js").write_text("console.log('new layout')", encoding="utf-8")
