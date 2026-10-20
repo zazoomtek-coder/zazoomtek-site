@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "timezone": "Europe/Rome",
+  "policy": "Explicit editor approval; automated merges only in assigned scheduled release slot, never earlier or via poll",
+  "items": [
+    {
+      "pr": 118,
+      "head_sha": "f3c19cb95382fc89ab849d19cea169736bd9644b",
+      "owner_approved": true,
+      "publish_at": "2026-10-21T10:15:00+02:00",
+      "note": "A900 Ultra video banner matching ThermoMate, editor-approved 10:15"
+    },
+    {
+      "pr": 119,
+      "head_sha": "5b63067ea4adf99c8ba1d943eae56c7035026a1a",
+      "owner_approved": true,
+      "publish_at": "2026-10-21T12:45:00+02:00",
+      "note": "A900 Ultra Tech shelf filter, headline and Dashcam subtitle, editor-approved 12:45"
+    }
+  ]
+}

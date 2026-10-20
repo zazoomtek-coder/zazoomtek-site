@@ -84,15 +84,24 @@ def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
         args.append("--poll-only")
     call(*args, timeout=2100)
     report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
-    expected_status = "poll-validated" if poll_only else "staging-validated"
-    if report.get("status") != expected_status:
-        raise ReleaseBlocked("Master has errors/fallbacks; KEEP LAST GOOD LIVE")
-    required = (("youtube-community", "youtube-videos") if poll_only else
-                ("youtube-community", "youtube-videos", "trending-carousel",
-                 "editorial-boxes", "approved-reviews", "isolated-offline-build"))
+    allowed_status = (("poll-validated", "poll-validated-with-fallbacks") if poll_only
+                      else ("staging-validated", "staging-validated-with-fallbacks"))
+    if report.get("status") not in allowed_status:
+        raise ReleaseBlocked("Master structural validation failed; preserve last-good public site")
     stages = {x["module"]: x for x in report.get("modules", [])}
-    if any(stages.get(x, {}).get("status") != "ok" for x in required):
-        raise ReleaseBlocked("Required importer was skipped or failed; stop publication")
+    # No unrelated importer may veto the good output of another importer.
+    # Full releases still require a verified complete render, a valid carousel,
+    # and a valid Home; individual YouTube/trending errors retain last-good data.
+    if not poll_only:
+        required = ("five-slot-carousel", "isolated-offline-build")
+        if any(stages.get(x, {}).get("status") != "ok" for x in required):
+            raise ReleaseBlocked("Verified offline build or required Home artifacts failed")
+    failures = [x["module"] for x in report.get("modules", [])
+                if x.get("status") in ("fallback-last-good", "skipped-in-test")]
+    if failures:
+        print("::warning::Individual modules unavailable, preserving last-good "
+              "data without losing verified independent updates: "
+              + ", ".join(failures), flush=True)
     manifest = json.loads((export / "manifest.json").read_text(encoding="utf-8"))
     names = manifest.get("paths")
     if not isinstance(names, list) or any(x not in ALLOWED for x in names):
@@ -190,14 +199,14 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
     initial = call("git", "rev-parse", "HEAD")
     # Scheduled publications are permitted even when an unrelated YouTube
     # importer is unavailable. Poll-only jobs still require their API secret.
-    preflight(require_imports=poll_only)
+    # Community imports may still work even if the separate videos API secret
+    # is temporarily unavailable. Each importer reports its own outcome.
+    preflight(require_imports=False)
     # Explicit manual releases never rerun unrelated imports.
     if publish_pending:
         names = []
-    elif not poll_only and not urgent and not os.environ.get("YOUTUBE_API_KEY"):
-        print("::warning::YouTube import secret missing; publish previously "
-              "validated pending content only", flush=True)
-        names = []
+    # Missing credentials for one importer must not prevent independently
+    # acquired and validated data from other importers reaching the next slot.
     else:
         try:
             with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:

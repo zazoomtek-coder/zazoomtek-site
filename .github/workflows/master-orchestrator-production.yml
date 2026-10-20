@@ -34,6 +34,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
   actions: read
 
 concurrency:
@@ -66,6 +67,18 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
+      - name: Merge owner-approved queued changes at their scheduled editorial window
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          set -euo pipefail
+          if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
+            python3 scripts/process-approved-release-queue.py --cron "${ZT_EVENT_SCHEDULE}"
+          else
+            echo "Import-only poll: never merge approved editorial PRs."
+          fi
       - name: JSON-only poll or controlled publication
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}

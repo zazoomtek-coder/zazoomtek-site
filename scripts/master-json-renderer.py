@@ -126,34 +126,43 @@ def render_boxes_to_dist(root: Path, dist: Path) -> None:
 
 
 def render_approved_reviews(root: Path) -> None:
-    """One-way approved review JSON publication, inside throwaway build only."""
-    path = root / "master-staging/reviews-due.json"
-    if not path.exists():
-        return
-    data = load_json(path)
-    if not isinstance(data.get("due"), list) or not isinstance(data.get("changed"), list):
-        raise ValueError("Malformed review plan")
-    if not data["due"]:
-        print("REVIEWS: no approved unpublished reviews due")
-        return
+    """Publish CURRENT approved due reviews, regardless of stale cached plans.
+
+    The owner-approved queue is authoritative. Master plans are optimization
+    hints, not permission to drop editorially approved content at release time.
+    The actual renderer operates in Cloudflare's disposable build workspace.
+    """
+    queue = root / "editorial/review-publication-queue.json"
+    if not queue.is_file():
+        raise ValueError("Approved review queue missing from Cloudflare source")
+    plan_path = root / "master-staging/reviews-due.json"
+    plan = load_json(plan_path) if plan_path.is_file() else None
     result = subprocess.run(
         [sys.executable, "scripts/publish-approved-reviews.py", "--dry-run"],
         cwd=root, capture_output=True, text=True, check=True, timeout=150)
     fresh = json.loads(result.stdout)
-    if fresh.get("due") != data["due"] or set(fresh.get("changed", [])) != set(data["changed"]):
-        # Reviews are optional content relative to the complete site build.
-        # A stale plan must NEVER publish an outdated or newly-unapproved
-        # review, but must not take down unrelated News, Home or Cloudflare
-        # releases. A following Master poll/export will refresh this plan.
-        print("::warning::REVIEWS: stale approval plan; skipped review publication "
-              "without changing review pages", flush=True)
+    due, changed = fresh.get("due"), fresh.get("changed")
+    if (not isinstance(due, list) or not isinstance(changed, list)
+            or any(not isinstance(x, str) for x in due)
+            or any(not isinstance(x, str) or x.startswith("/") or ".." in Path(x).parts
+                   for x in changed)):
+        raise ValueError("Invalid CURRENT approved review plan")
+    if plan is None or plan.get("due") != due or set(plan.get("changed", [])) != set(changed):
+        print("::warning::REVIEWS: cached plan missing/stale; current approved "
+              "editorial queue governs this build, with no silent skip.", flush=True)
+    if not due:
+        print("REVIEWS: no due approved reviews")
         return
     result = subprocess.run([sys.executable, "scripts/publish-approved-reviews.py"],
-                            cwd=root, capture_output=True, text=True, check=True, timeout=150)
+                            cwd=root, capture_output=True, text=True,
+                            check=True, timeout=150)
     applied = json.loads(result.stdout)
-    if set(applied.get("changed", [])) != set(data["changed"]):
-        raise RuntimeError("Approved review files changed unexpectedly")
-    print(f"REVIEWS: generated {len(data['due'])} approved entries in disposable build")
+    if applied.get("due") != due or set(applied.get("changed", [])) != set(changed):
+        raise RuntimeError("Approved review files changed unexpectedly during render")
+    for target in changed:
+        if not (root / target).is_file():
+            raise RuntimeError("Approved generated review artifact missing: " + target)
+    print(f"REVIEWS: included {len(due)} currently approved reviews in Cloudflare build")
 
 
 def self_test() -> None:
