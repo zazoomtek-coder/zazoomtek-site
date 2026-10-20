@@ -310,10 +310,13 @@ def main() -> None:
             # A new external main commit may explain a rejected push. Retrying is
             # safe, but NEVER force-push or bypass the validation/release gate.
             if attempt < 3 and ("Main moved" in str(exc) or "git', 'push" in str(exc)):
-                # Only the disposable Actions checkout owns these generated files.
-                # git reset alone leaves untracked build output behind, which
-                # makes the next preflight reject an otherwise fresh retry.
+                # After an isolated offline build, generated untracked pages,
+                # assets and dist files can survive git reset --hard. Do not
+                # let those temporary files block the next valid retry.
+                # Only clean on the disposable GitHub Actions checkout;
+                # never delete a developer's local untracked work.
                 if os.environ.get("GITHUB_ACTIONS") == "true":
+                    call("git", "reset", "--hard", "HEAD", timeout=90)
                     call("git", "clean", "-fd", timeout=90)
                 continue
             break
