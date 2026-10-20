@@ -18,6 +18,7 @@ END="<!-- ZT_REVIEW_VIDEO_END -->"
 # Editorially checked alternative-language titles and one-word series.
 # The referenced video MUST still exist in the official categorized video feed.
 EXPLICIT={
+  "70mai-a900-ultra-recensione-dual-4k.html":("3biZz45pUJs",("70mai","a900","ultra")),
   # Official ThermoMate 2500W review; never infer this link from a fuzzy title match.
   "thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html":("e7rAYQprXTM",("thermomate","2500w")),
   "sesame-street-amici-e-risate-recensione-ps5.html":("WwGAaKGfoGY",("sesame","street")),
@@ -71,11 +72,12 @@ def insert_banner(document,vid):
     caption=re.match(r'\s*<(?:small|p)\b[^>]*class="(?:hero-caption|hero-cap)"[^>]*>.*?</(?:small|p)>',
                      document[offset:],re.S|re.I)
     if caption: offset+=caption.end()
+    label = "Vedi video recensione" if vid == "3biZz45pUJs" else "▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗"
     banner=(f'\n{START}\n<div class="zt-review-video-banner" data-zt-review-video="1">'
             f'<a href="https://www.youtube.com/watch?v={vid}" target="_blank" '
             'rel="noopener noreferrer" aria-label="Guarda la videorecensione '
             'ufficiale di ZazoomTek su YouTube">'
-            '▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗</a></div>\n'
+            f'{label}</a></div>\n'
             f'{END}\n')
     return document[:offset]+banner+document[offset:].lstrip()
 def main():
