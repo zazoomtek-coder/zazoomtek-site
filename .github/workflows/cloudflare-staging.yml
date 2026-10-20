@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - zt-safety-gates-20261018
+      - fix/editorial-headers-20261020
   workflow_dispatch:
 permissions:
   contents: read
