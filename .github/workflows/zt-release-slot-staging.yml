@@ -5,6 +5,8 @@ on:
     paths:
       - scripts/cloudflare-release-control.py
       - scripts/master-production-gateway.py
+      - scripts/process-approved-release-queue.py
+      - editorial/approved-release-queue.json
       - scripts/test_deploy_architecture.py
       - .github/workflows/master-orchestrator-production.yml
       - .github/workflows/zt-release-slot-staging.yml
@@ -12,6 +14,8 @@ on:
     paths:
       - scripts/cloudflare-release-control.py
       - scripts/master-production-gateway.py
+      - scripts/process-approved-release-queue.py
+      - editorial/approved-release-queue.json
       - scripts/test_deploy_architecture.py
       - .github/workflows/master-orchestrator-production.yml
       - .github/workflows/zt-release-slot-staging.yml
@@ -37,6 +41,8 @@ jobs:
           set -euo pipefail
           python3 -m py_compile scripts/cloudflare-release-control.py scripts/protect-home-structure.py scripts/verify-home-layout-lock.py
           python3 scripts/cloudflare-release-control.py --self-test
+          python3 -m py_compile scripts/process-approved-release-queue.py scripts/master-json-renderer.py scripts/master-orchestrator.py
+          python3 scripts/process-approved-release-queue.py --self-test
           python3 scripts/test_deploy_architecture.py
           python3 scripts/verify-live-cloudflare.py --self-test
           python3 scripts/protect-home-structure.py index.html
