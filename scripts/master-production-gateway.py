@@ -199,7 +199,9 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
     initial = call("git", "rev-parse", "HEAD")
     # Scheduled publications are permitted even when an unrelated YouTube
     # importer is unavailable. Poll-only jobs still require their API secret.
-    preflight(require_imports=poll_only)
+    # Community imports may still work even if the separate videos API secret
+    # is temporarily unavailable. Each importer reports its own outcome.
+    preflight(require_imports=False)
     # Explicit manual releases never rerun unrelated imports.
     if publish_pending:
         names = []
