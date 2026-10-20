@@ -76,13 +76,38 @@ jobs:
                   raise RuntimeError(f'Cannot audit live {url}: {exc}; do not dispatch blind build')
           if missing:
               print('::warning::Overdue approved reviews require Cloudflare publication:',missing)
-              # The legacy publish-approved-reviews.yml is retired. GitHub
-              # workflow_dispatch is supported by master-orchestrator-production.yml
-              # and can run from a GitHub Actions job with actions:write.
-              subprocess.run(['gh','workflow','run','master-orchestrator-production.yml',
-                              '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',
-                              '--field','mode=publish_pending'],check=True,timeout=30)
-              print('DISPATCHED: sole Master --publish-pending. This is a request, not proof of live deployment.')
+              # A receipt may update before article paths finish propagating.
+              # Always report the source currently served on Cloudflare.
+              try:
+                  req=Request('https://zazoomtek.it/zt-release-status.json',
+                              headers={'User-Agent':'ZazoomTek-Publication-Watchdog/1.0',
+                                       'Cache-Control':'no-cache'})
+                  with urlopen(req,timeout=18) as response:
+                      receipt=json.loads(response.read().decode('utf-8','replace'))
+                  print('CLOUDFLARE PUBLIC RECEIPT source_commit:',
+                        receipt.get('source_commit'),'validated:',receipt.get('validated'))
+              except (HTTPError,URLError,TimeoutError,ValueError) as exc:
+                  print('::warning::Could not read public receipt:',str(exc))
+              # An already running manual/urgent Master will finish or fail and
+              # report its own outcome. Don't flood the concurrency queue.
+              cmd=['gh','run','list','--repo',os.environ['GITHUB_REPOSITORY'],
+                   '--workflow','master-orchestrator-production.yml',
+                   '--limit','30','--json','status,event,displayTitle']
+              active=json.loads(subprocess.run(
+                  cmd,check=True,capture_output=True,text=True,timeout=30).stdout)
+              pending=[x for x in active
+                       if x.get('status') in ('queued','pending','in_progress','waiting','requested')
+                       and (x.get('event')=='workflow_dispatch'
+                            or (x.get('event')=='push' and
+                                'manual Cloudflare release' in (x.get('displayTitle') or '')))]
+              if pending:
+                  print('MASTER RELEASE ALREADY QUEUED/RUNNING: no duplicate dispatch.',len(pending))
+              else:
+                  # Retired publish-approved-reviews.yml must NEVER be called.
+                  subprocess.run(['gh','workflow','run','master-orchestrator-production.yml',
+                                  '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',
+                                  '--field','mode=publish_pending'],check=True,timeout=30)
+                  print('DISPATCHED: sole Master --publish-pending. This is a request, not proof of live deployment.')
           else:
               print('PASS: every overdue review is on Cloudflare.')
           PY
