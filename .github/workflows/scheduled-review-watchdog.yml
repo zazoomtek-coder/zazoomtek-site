@@ -54,7 +54,8 @@ jobs:
                   with urlopen(request,timeout=18) as response:
                       body=response.read().decode('utf-8','replace')
                       status=response.status
-                  if status==200 and '<article' in body.lower() and '<h1' in body.lower():
+                  if (status==200 and '<article' in body.lower() and '<h1' in body.lower()
+                          and url in body):
                       print('LIVE REVIEW OK:',url)
                       continue
                   missing.append(path)
