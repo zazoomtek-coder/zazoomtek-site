@@ -2,8 +2,8 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-20",
-  "reason": "Publish overdue approved A900 Ultra; queue now preserves release requests",
+  "reason": "Recover overdue approved A900 Ultra after production retry cleanup was merged",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "70mai-release-after-queue-fix-20261020"
+  "request_id": "70mai-release-after-retry-repair-20261020"
 }
