@@ -2,6 +2,7 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-20",
-  "reason": "Operational smoke-test of restored manual publication requested by site owner",
-  "respect_future_publish_at": true
+  "reason": "Publish overdue approved 70mai A900 Ultra review scheduled at 17:45; include home, Tech archive and video CTA",
+  "respect_future_publish_at": true,
+  "request_id": "70mai-a900-ultra-overdue-20261020-1812"
 }
