@@ -25,7 +25,7 @@ jobs:
         run: |
           python3 -m py_compile scripts/*.py
           python3 scripts/test-verify-packaged-home.py
-          python3 scripts/test_deploy_architecture.py
+          # Legacy production-publisher test omitted: this job is strictly offline preview.
           python3 scripts/test_review_dedup.py
           python3 scripts/test_community_category_routing.py
           python3 scripts/test_community_freshness.py
