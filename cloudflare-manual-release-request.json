@@ -2,7 +2,7 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-20",
-  "reason": "Publish overdue approved 70mai A900 Ultra review scheduled at 17:45; include home, Tech archive and video CTA",
-  "respect_future_publish_at": true,
-  "request_id": "70mai-a900-ultra-overdue-20261020-1812"
+  "reason": "Recover overdue 17:45 approved 70mai A900 Ultra review now",
+  "approved_review_id": "70mai-a900-ultra-20261020",
+  "respect_future_publish_at": true
 }
