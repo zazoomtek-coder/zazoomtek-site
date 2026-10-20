@@ -410,11 +410,13 @@ def run(args: argparse.Namespace) -> int:
                 (dest / "manifest.json").write_text(
                     json.dumps({"paths": paths, "base_commit": original_commit},
                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            had_fallback = any(x["status"] in ("fallback-last-good", "skipped-in-test")
-                               for x in records
-                               if x["module"] in ("youtube-community", "youtube-videos",
-                                                  "approved-reviews", "trending-scan",
-                                                  "trending-carousel", "editorial-boxes"))
+            had_fallback = any(
+                x["status"] == "fallback-last-good" or
+                (args.with_imports and x["status"] == "skipped-in-test")
+                for x in records
+                if x["module"] in ("youtube-community", "youtube-videos",
+                                   "approved-reviews", "trending-scan",
+                                   "trending-carousel", "editorial-boxes"))
             status = ("poll-validated-with-fallbacks" if had_fallback else
                       "poll-validated") if args.poll_only else (
                       "staging-validated-with-fallbacks" if had_fallback else
