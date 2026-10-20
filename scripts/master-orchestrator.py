@@ -326,10 +326,15 @@ def run(args: argparse.Namespace) -> int:
             if args.poll_only:
                 # Every-five-minute acquisition: two isolated JSON importers only.
                 # The expensive offline Cloudflare build runs on the release job.
-                required = ("youtube-community", "youtube-videos")
+                # Each importer is independent. A valid Community feed
+                # MUST survive failure of the videos importer and vice versa.
+                # Per-module worktrees retain last-good JSON on failure.
                 states = {record["module"]: record["status"] for record in records}
-                if any(states.get(name) != "ok" for name in required):
-                    raise RuntimeError("BLOCK: required YouTube acquisition failed; retain last good JSON")
+                if any(states.get(n) != "ok"
+                       for n in ("youtube-community", "youtube-videos")):
+                    print("::warning::YouTube poll partial failure; keep failed "
+                          "module's last-good JSON, export successful modules",
+                          flush=True)
                 verify_source(source, baseline)
             else:
                 stage(source, baseline, records, "five-slot-carousel",
@@ -405,9 +410,15 @@ def run(args: argparse.Namespace) -> int:
                 (dest / "manifest.json").write_text(
                     json.dumps({"paths": paths, "base_commit": original_commit},
                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            status = ("poll-validated" if args.poll_only else
-                      "staging-validated-with-fallbacks" if any(x["status"] == "fallback-last-good" for x in records)
-                      else "staging-validated")
+            had_fallback = any(x["status"] in ("fallback-last-good", "skipped-in-test")
+                               for x in records
+                               if x["module"] in ("youtube-community", "youtube-videos",
+                                                  "approved-reviews", "trending-scan",
+                                                  "trending-carousel", "editorial-boxes"))
+            status = ("poll-validated-with-fallbacks" if had_fallback else
+                      "poll-validated") if args.poll_only else (
+                      "staging-validated-with-fallbacks" if had_fallback else
+                      "staging-validated")
         except Exception as exc:
             records.append({"module": "pipeline", "status": "blocked", "error": str(exc)[-1200:]})
         finally:
