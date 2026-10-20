@@ -58,11 +58,8 @@ jobs:
           node-version: '22'
       - name: Prepare existing image and rendering dependencies
         run: python3 -m pip install --quiet pillow
-      - name: Verify exclusive writer ownership; block if not cut over
-        env:
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-        run: |
-          python3 scripts/master-production-gateway.py --check-cutover
+      # The gateway performs the identical fail-closed preflight immediately
+      # before work; do not repeat its expensive subprocess checks here.
       - name: JSON-only poll or controlled publication
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
