@@ -30,6 +30,7 @@ on:
     branches: [main]
     paths:
       - 'master-production-enabled.json'
+      - 'cloudflare-manual-release-request.json'  # explicit release signal; no secrets
 
 permissions:
   contents: write
@@ -68,8 +69,10 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
           ZT_DISPATCH_MODE: ${{ inputs.mode }}
+          ZT_PUSH_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           set -euo pipefail
+          urgent=0
           if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
             if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
               mode=publish
@@ -83,11 +86,20 @@ jobs:
             fi
           elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
             mode="${ZT_DISPATCH_MODE:-publish}"
+            if [ "${mode}" = "publish" ]; then urgent=1; fi
           else
             mode=publish
+            # Only a deliberately named GitHub commit requests an urgent release.
+            # Other pushes, including Master activation, keep scheduled rules.
+            if [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then urgent=1; fi
           fi
           if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ]; then
             echo "::error::Unsupported Master mode"; exit 1
           fi
           echo "ZT Master mode: ${mode}"
-          python3 scripts/master-production-gateway.py "--${mode}"
+          if [ "${urgent}" = 1 ]; then
+            echo "User-approved immediate release: all Master safety gates still apply."
+            python3 scripts/master-production-gateway.py --publish --urgent
+          else
+            python3 scripts/master-production-gateway.py "--${mode}"
+          fi

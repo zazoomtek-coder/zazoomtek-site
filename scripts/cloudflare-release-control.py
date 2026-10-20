@@ -30,7 +30,7 @@ RESERVE_URGENT=475
 ITALY=ZoneInfo("Europe/Rome")
 EDITORIAL_SLOTS=((10,15),(12,45),(15,15),(17,45),(20,15))
 CONTENT_EXT={".html",".css",".js",".json",".xml",".txt",".png",".jpg",".jpeg",".webp",".svg",".avif",".gif",".woff",".woff2",".ico"}
-OMIT={"cloudflare-release-trigger.txt"}
+OMIT={"cloudflare-release-trigger.txt", "cloudflare-manual-release-request.json"}
 # Data-only master publishes are public build inputs; none of these JSON
 # files may change HTML/CSS directly in the import stage.
 MASTER_DATA_INPUTS={
@@ -246,6 +246,7 @@ def main():
         assert public("master-staging/editorial-boxes.json")
         assert public("master-staging/reviews-due.json")
         assert not public("cloudflare-release-trigger.txt")
+        assert not public("cloudflare-manual-release-request.json")
         utc=dt.timezone.utc
         # CEST (October, +02:00) and CET (December, +01:00).
         assert release_slot(dt.datetime(2026,10,19,8,14,tzinfo=utc))==dt.datetime(2026,10,18,18,15,tzinfo=utc)
