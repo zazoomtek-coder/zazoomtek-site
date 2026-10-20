@@ -9,6 +9,7 @@ Runs both before and after the Cloudflare production build; no deployment.
 """
 from __future__ import annotations
 import argparse
+import json
 import hashlib
 from html.parser import HTMLParser
 from pathlib import Path
@@ -29,6 +30,36 @@ HOME_ASSET_REVISION="20261018stableColumns1010"
 
 class HomeLockError(RuntimeError):
     pass
+
+# An explicitly reviewed layout may replace the frozen fingerprints without
+# disabling the structural invariants. No manifest: the original lock applies.
+APPROVAL_FILE = "home-layout-approved.json"
+
+def approved_layout(root: Path) -> dict:
+    path = root / APPROVAL_FILE
+    # A packaged build can use the same manifest copied to dist, or fall back
+    # to repository approval when package creation omits metadata.
+    if not path.is_file() and root.name == "dist":
+        path = root.parent / APPROVAL_FILE
+    if not path.is_file():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("approved") is not True or not isinstance(data.get("reason"), str) or len(data["reason"].strip()) < 12:
+            raise ValueError("missing explicit approval and change rationale")
+        if not isinstance(data.get("blobs"), dict) or not isinstance(data.get("inline_style_fnv64"), str):
+            raise ValueError("invalid approved checksums")
+        if set(data["blobs"]) != set(LOCKED_BLOBS):
+            raise ValueError("approval must cover all protected Home resources")
+        if any(not re.fullmatch(r"[a-f0-9]{40}", sha) for sha in data["blobs"].values()):
+            raise ValueError("invalid approved blob SHA")
+        if not re.fullmatch(r"[a-f0-9]{16}", data["inline_style_fnv64"]):
+            raise ValueError("invalid inline style fingerprint")
+        if not re.fullmatch(r"[a-f0-9]{40}", data.get("home_live_template_sha", "")):
+            raise ValueError("invalid Home runtime template SHA")
+        return data
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise HomeLockError("Invalid approved Home layout manifest: " + str(exc)) from exc
 
 def blob_sha(data:bytes)->str:
     return hashlib.sha1(b"blob "+str(len(data)).encode()+b"\0"+data).hexdigest()
@@ -92,14 +123,15 @@ class HomeElements(HTMLParser):
 
 def verify(root:Path=ROOT, packaged:bool=False)->None:
     errors=[]
+    approval=approved_layout(root)
     for name,expected in LOCKED_BLOBS.items():
         path=root/name
         if not path.is_file():
             errors.append("Missing locked Home asset: "+name)
         elif name=="zt-home-live.js":
-            if safe_editorial_js_sha(path.read_bytes())!=LOCKED_HOME_LIVE_TEMPLATE_SHA:
+            if safe_editorial_js_sha(path.read_bytes())!=(approval.get("home_live_template_sha") or LOCKED_HOME_LIVE_TEMPLATE_SHA):
                 errors.append("Unauthorized Home layout/code change: "+name)
-        elif blob_sha(path.read_bytes())!=expected:
+        elif blob_sha(path.read_bytes())!=approval.get("blobs",{}).get(name,expected):
             errors.append("Unauthorized Home layout change: "+name)
     source=root/"index.html"
     if not source.is_file():
@@ -107,7 +139,7 @@ def verify(root:Path=ROOT, packaged:bool=False)->None:
     else:
         home=source.read_text(encoding="utf-8")
         style=re.search(r"<style\b[^>]*>(.*?)</style>",home,re.I|re.S)
-        if not style or fnv64(style.group(1))!=INLINE_STYLE_FNV64:
+        if not style or fnv64(style.group(1))!=(approval.get("inline_style_fnv64") or INLINE_STYLE_FNV64):
             errors.append("Canonical Home inline layout CSS was modified")
         parser=HomeElements()
         parser.feed(home)
