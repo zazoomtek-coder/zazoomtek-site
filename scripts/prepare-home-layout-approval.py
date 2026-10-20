@@ -19,7 +19,7 @@ def main():
     if len(args.reason.strip())<12:
         ap.error("Explain the requested layout improvement")
     html=(ROOT/"index.html").read_text(encoding="utf-8")
-    style=re.search(r"<style\\b[^>]*>(.*?)</style>",html,re.I|re.S)
+    style=re.search(r"<style\b[^>]*>(.*?)</style>",html,re.I|re.S)
     if not style:
         raise RuntimeError("Home has no inline styles")
     script=(ROOT/"zt-home-live.js").read_bytes()
