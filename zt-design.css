@@ -1895,3 +1895,33 @@ html body :is(#ztFeaturedGrid .zt-feature-card img,#newsSlider .news-slide img,
  .zt-side-mix .zt-special-thumb img){
  object-position:var(--zt-cover-x,50%) var(--zt-cover-y,50%)!important;
 }
+
+
+/* ZT_EDITORIAL_SQUARE_CARDS_FIX_20261020
+   Square the actual card containers, not just the inner title strip.
+   Scoped to editorial sections on desktop, tablet and mobile. */
+html body :is(
+ .zt-special-box,.zt-editorial-large-box,.zt-mix-editorial,
+ .zt-side-mix .side-box,.zt-side-mix .zt-editorial-large-box,
+ .ztp-editorial-archive,.zt-mix-feature,.compact-box,
+ .ztp-news-tech,.ztp-news-gaming,.ztp-news-rail,
+ .ztp-review-card,.ztp-final-three,
+ .zt-special-head,.module-head,.side-head,.zt-shelf-head,
+ .zt-popular-head,.ztp-news-head,.zt-final-rail-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-mix-news-heading,
+ .ztp-review-head,.ztp-editorial-heading,
+ .module-title
+){
+ border-radius:0!important;
+}
+html body :is(
+ .zt-special-box,.zt-editorial-large-box,.zt-mix-editorial,
+ .zt-side-mix .side-box,.ztp-editorial-archive,
+ .zt-mix-feature,.compact-box,.ztp-news-tech,.ztp-news-gaming,
+ .ztp-news-rail,.ztp-review-card,.ztp-final-three
+) :is(.module-head,.side-head,.zt-special-head,.zt-shelf-head,
+ .zt-popular-head,.ztp-news-head,.zt-final-rail-head,
+ .ztp-extra-head,.zt-mix-news-heading,.ztp-review-head,
+ .module-title){
+ border-radius:0!important;
+}
