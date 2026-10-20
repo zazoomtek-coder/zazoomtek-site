@@ -189,7 +189,9 @@ def main() -> None:
         print("PASS: JSON allowlist, pending-only release mode and production activation flag")
         return
     if args.check_cutover:
-        preflight()
+        # Read-only workflow prerequisite must not require YouTube import secrets:
+        # the actual selected run mode performs its own mode-specific preflight.
+        preflight(require_imports=False)
         print("PASS: no competing GitHub writers, release gate armed")
         return
     if sum(bool(x) for x in (args.publish, args.poll, args.publish_pending)) != 1:
