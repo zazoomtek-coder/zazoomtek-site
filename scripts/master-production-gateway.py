@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "master-production-enabled.json"
@@ -31,13 +32,16 @@ class ReleaseBlocked(RuntimeError):
 
 
 def call(*args: str, cwd: Path = ROOT, timeout: int = 1200) -> str:
+    started = time.monotonic()
     try:
         p = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
                            check=True, timeout=timeout)
     except subprocess.TimeoutExpired as exc:
-        raise ReleaseBlocked(f"Timed out: {args[:2]}") from exc
+        raise ReleaseBlocked(f"Timed out after {timeout}s: {args[:2]}") from exc
     except subprocess.CalledProcessError as exc:
-        raise ReleaseBlocked(f"{args[:2]} failed: {(exc.stdout + exc.stderr)[-1700:]}") from exc
+        raise ReleaseBlocked(f"{args[:2]} failed after {time.monotonic()-started:.1f}s: {(exc.stdout + exc.stderr)[-1700:]}") from exc
+    elapsed = time.monotonic() - started
+    print(f"MASTER STEP {args[0]} {args[1] if len(args)>1 else ''}: {elapsed:.1f}s", flush=True)
     return (p.stdout + p.stderr).strip()
 
 
