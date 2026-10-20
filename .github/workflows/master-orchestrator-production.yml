@@ -39,6 +39,8 @@ permissions:
 concurrency:
   group: zazoomtek-master-sole-repository-and-pages-writer
   cancel-in-progress: false
+  # Preserve every pending request; scheduled polls must not cancel a manual release.
+  queue: max
 
 jobs:
   master:
