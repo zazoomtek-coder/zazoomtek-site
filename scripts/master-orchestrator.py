@@ -343,8 +343,10 @@ def run(args: argparse.Namespace) -> int:
                 def build_preview(folder: Path) -> None:
                     # Data acquisition writes JSON only. Rendering is a separate,
                     # reversible phase inside THIS disposable build worktree.
-                    command(folder, sys.executable, "scripts/master-json-renderer.py",
-                            "--prebuild-reviews", timeout=180)
+                    # cloudflare-build-site.py already runs the approved-review
+                    # prebuild exactly once. Repeating it here makes the second
+                    # dry-run differ after the first pass has written pages,
+                    # falsely marking an unchanged approval plan as stale.
                     community = next((x for x in records if x["module"] == "youtube-community"), {})
                     if community.get("status") == "ok" and ".youtube-posts.json" in community.get("json_updated", []):
                         command(folder, sys.executable, "scripts/update-youtube-posts.py",
