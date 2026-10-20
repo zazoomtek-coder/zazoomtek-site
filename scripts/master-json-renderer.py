@@ -141,7 +141,13 @@ def render_approved_reviews(root: Path) -> None:
         cwd=root, capture_output=True, text=True, check=True, timeout=150)
     fresh = json.loads(result.stdout)
     if fresh.get("due") != data["due"] or set(fresh.get("changed", [])) != set(data["changed"]):
-        raise RuntimeError("Review plan is stale: refuse publishing")
+        # Reviews are optional content relative to the complete site build.
+        # A stale plan must NEVER publish an outdated or newly-unapproved
+        # review, but must not take down unrelated News, Home or Cloudflare
+        # releases. A following Master poll/export will refresh this plan.
+        print("::warning::REVIEWS: stale approval plan; skipped review publication "
+              "without changing review pages", flush=True)
+        return
     result = subprocess.run([sys.executable, "scripts/publish-approved-reviews.py"],
                             cwd=root, capture_output=True, text=True, check=True, timeout=150)
     applied = json.loads(result.stdout)
