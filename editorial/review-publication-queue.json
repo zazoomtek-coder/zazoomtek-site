@@ -13,6 +13,18 @@
       "date_label": "13 ottobre 2026",
       "description": "Un picchiaduro roguelike che trasforma le vittorie in nuove mosse, combo e strategie. Recensione PC con voto finale 8/10.",
       "image": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3977340/472302f24d5fcb52f0a111fd532d0ec1dd429810/capsule_616x353.jpg"
+    },
+    {
+      "id": "70mai-a900-ultra-20261020",
+      "status": "approved",
+      "publish_at": "2026-10-20T15:34:00+02:00",
+      "source": "anteprima-70mai-a900-ultra.html",
+      "target": "70mai-a900-ultra-recensione-dual-4k.html",
+      "title": "70mai A900 Ultra Recensione | Dual 4K e Sony STARVIS 2",
+      "platform": "TECH",
+      "date_label": "20 ottobre 2026",
+      "description": "La recensione della dash cam Dual 4K HDR con sensori Sony STARVIS 2, modalità parcheggio, pro e contro. Voto finale 9.5/10.",
+      "image": "/assets/recensioni/70mai-a900-ultra/foto-1.png"
     }
   ]
 }
