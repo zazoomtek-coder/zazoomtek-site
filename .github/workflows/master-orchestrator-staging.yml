@@ -8,6 +8,7 @@ on:
       - 'scripts/master-cutover-audit.py'
       - 'scripts/master-production-gateway.py'
       - 'scripts/cloudflare-build-site.py'
+      - 'scripts/verify-home-layout-lock.py'
       - 'master-production-enabled.json'
       - '.github/workflows/master-orchestrator-production.yml'
       - 'scripts/trending-crosscheck.py'
@@ -58,6 +59,8 @@ jobs:
           python3 scripts/master-json-renderer.py --self-test
           python3 scripts/master-cutover-audit.py --self-test
           python3 scripts/master-production-gateway.py --self-test
+          python3 scripts/verify-home-layout-lock.py --self-test
+          python3 scripts/verify-home-layout-lock.py
           python3 scripts/trending-crosscheck.py --test
           python3 scripts/refresh-home-editorial-boxes.py --self-test
           python3 scripts/test_review_dedup.py

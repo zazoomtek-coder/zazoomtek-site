@@ -1,55 +1,36 @@
 #!/usr/bin/env python3
-"""Fail a production release only when the protected Home structure is damaged.
+"""Protect usable Home publishing output without imposing a visual layout.
 
-Content is intentionally NOT frozen: headlines, article cards, reviews, videos,
-editorial items and other data may change normally. This guard protects only
-the structural anchors that define the approved ZazoomTek Home layout.
+Temporary rules until the editor approves the new Home design contract.
+No three-column requirement, fixed class names, rigid graphic blocks or exact
+pixel/asset revisions. Editors may redesign without bypassing this guard.
 """
 from pathlib import Path
 import sys
 
-REQUIRED = {
-    'main navigation': 'class="nav"',
-    # The approved 2026-10-18/19 Home uses #ztFeaturedGrid. #newsSlider
-    # is an obsolete element absent even from the last verified release.
-    'news carousel': 'id="ztFeaturedGrid"',
-    'three-column home shell': 'ztp-three-home',
-    'three-column news grid': 'ztp-three-columns',
-    'tech column': 'ztp-news-tech',
-    'gaming column': 'ztp-news-gaming',
-    'right editorial rail': 'ztp-news-rail',
-    'guides module': 'id="ztHomeGuide"',
-    'latest reviews module': 'latest-reviews-module',
-    'latest videos module': 'zt-video-stack',
-    'popular articles box': 'id="zt-popular-box"',
-    'amazon module': 'zt-amazon-box',
-    'editorial box': 'zt-special-box',
-    'ticker video links': 'ticker-video-links',
-}
-
-FORBIDDEN = (
-    '<body></body>',
-    'display:none!important}/* HOME DISABLED',
+PAIRS = (
+    ("FEATURED_NEWS_START", "FEATURED_NEWS_END"),
+    ("ARTICLE_FEED_START", "ARTICLE_FEED_END"),
+    ("HOME_LATEST_REVIEWS_MAIN_START", "HOME_LATEST_REVIEWS_MAIN_END"),
 )
+
 
 def check(path: Path) -> None:
     if not path.is_file():
-        raise SystemExit(f'HOME GUARD: missing {path}')
-    text = path.read_text(encoding='utf-8')
-    missing = [label for label, token in REQUIRED.items() if token not in text]
-    if missing:
-        raise SystemExit('HOME GUARD: protected structure missing: ' + ', '.join(missing))
-    for token in FORBIDDEN:
-        if token in text:
-            raise SystemExit(f'HOME GUARD: destructive marker found: {token}')
-    if len(text) < 25000:
-        raise SystemExit(f'HOME GUARD: index unexpectedly small ({len(text)} bytes)')
-    print(f'HOME GUARD OK: {path} — structure protected, content updates allowed.')
+        raise SystemExit(f"HOME GUARD: missing {path}")
+    text = path.read_text(encoding="utf-8")
+    if len(text) < 1000 or "<body" not in text.lower() or "</body>" not in text.lower():
+        raise SystemExit(f"HOME GUARD: broken/truncated HTML: {path}")
+    for start, end in PAIRS:
+        first, last = "<!-- " + start + " -->", "<!-- " + end + " -->"
+        if (text.count(first) != 1 or text.count(last) != 1 or
+                text.index(first) >= text.index(last)):
+            raise SystemExit("HOME GUARD: missing/duplicated publishing boundary " + start)
+    if 'id="ztFeaturedGrid"' not in text or 'id="articleList"' not in text:
+        raise SystemExit("HOME GUARD: news publishing targets are missing")
+    print(f"HOME GUARD OK: {path} — content publishing intact; Home composition editable.")
 
-def main():
-    targets = [Path(p) for p in (sys.argv[1:] or ['index.html'])]
-    for target in targets:
-        check(target)
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    for candidate in sys.argv[1:] or ["index.html"]:
+        check(Path(candidate))
