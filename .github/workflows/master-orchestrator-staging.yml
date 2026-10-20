@@ -7,6 +7,8 @@ on:
       - 'scripts/master-json-renderer.py'
       - 'scripts/master-cutover-audit.py'
       - 'scripts/master-production-gateway.py'
+      - 'scripts/process-approved-release-queue.py'
+      - 'editorial/approved-release-queue.json'
       - 'scripts/cloudflare-build-site.py'
       - 'scripts/verify-home-layout-lock.py'
       - 'master-production-enabled.json'
@@ -59,6 +61,7 @@ jobs:
           python3 scripts/master-json-renderer.py --self-test
           python3 scripts/master-cutover-audit.py --self-test
           python3 scripts/master-production-gateway.py --self-test
+          python3 scripts/process-approved-release-queue.py --self-test
           python3 scripts/verify-home-layout-lock.py --self-test
           python3 scripts/verify-home-layout-lock.py
           python3 scripts/trending-crosscheck.py --test
