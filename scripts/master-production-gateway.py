@@ -205,10 +205,8 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
     # Explicit manual releases never rerun unrelated imports.
     if publish_pending:
         names = []
-    elif not poll_only and not urgent and not os.environ.get("YOUTUBE_API_KEY"):
-        print("::warning::YouTube import secret missing; publish previously "
-              "validated pending content only", flush=True)
-        names = []
+    # Missing credentials for one importer must not prevent independently
+    # acquired and validated data from other importers reaching the next slot.
     else:
         try:
             with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
