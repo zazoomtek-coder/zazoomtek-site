@@ -224,6 +224,9 @@ def main():
     args=parser.parse_args()
     if args.self_test:
         assert decide(["news-X.html"],350)=="publish"
+        assert decide(["recensione-pronta.html"],100)=="publish"
+        assert decide(["zt-design.css"],100)=="publish"
+        assert decide([],100)=="unchanged"
         assert decide(["index.html","zt-home-live.js"],350)=="publish"
         assert decide(["featured-carousel.json"],400)=="publish"
         assert decide(["news-X.html"],450)=="block-budget"
@@ -275,11 +278,10 @@ def main():
               "keep new updates queued for next fixed window")
         return
     changed=changed_since(previous)
-    # An empty polling day never spends a Pages build. Pending CSS/layout
-    # updates are bundled automatically with the next new article.
-    if args.scheduled_slot and not args.urgent and changed and not newly_acquired_articles(previous):
-        print("RELEASE CONTROL: no new articles since last release; skip Cloudflare")
-        return
+    # At each scheduled window publish ANY verified public changes, not just
+    # newly acquired stories. Approved reviews, HTML updates, corrections and
+    # site metadata must not remain indefinitely unpublished. Empty windows
+    # still skip Cloudflare because decide([],...) returns "unchanged".
     used=build_count()
     outcome=decide(changed,used,args.urgent)
     print(f"RELEASE CONTROL: {outcome}, last 31 days Git-triggered releases={used}, "

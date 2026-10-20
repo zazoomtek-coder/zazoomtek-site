@@ -60,13 +60,13 @@ def audit_cutover() -> dict:
     return status
 
 
-def preflight() -> None:
+def preflight(*, require_imports: bool = True) -> None:
     if not enabled():
         raise ReleaseBlocked("Production is not explicitly armed; no Git or Cloudflare changes")
     if os.environ.get("GITHUB_REF") != "refs/heads/main":
         raise ReleaseBlocked("Only main may publish")
-    if not os.environ.get("YOUTUBE_API_KEY"):
-        raise ReleaseBlocked("YouTube secret unavailable: do not degrade the 5-minute feed")
+    if require_imports and not os.environ.get("YOUTUBE_API_KEY"):
+        raise ReleaseBlocked("YouTube secret unavailable for imports; pending-content releases do not require it")
     audit_cutover()
     if call("git", "status", "--porcelain"):
         raise ReleaseBlocked("Checkout contains uncommitted files")
@@ -110,15 +110,41 @@ def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
     return names
 
 
-def one_attempt(poll_only: bool = False, urgent: bool = False) -> tuple[bool, str]:
+def one_attempt(poll_only: bool = False, urgent: bool = False,
+                publish_pending: bool = False) -> tuple[bool, str]:
     """No remote mutation until the full preview/build and SHA checks succeed."""
     call("git", "fetch", "origin", "main", timeout=120)
     call("git", "checkout", "main", timeout=90)
     call("git", "reset", "--hard", "origin/main", timeout=90)
     initial = call("git", "rev-parse", "HEAD")
-    preflight()
-    with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
-        names = import_and_validate(Path(tmp), poll_only=poll_only)
+    # Scheduled publications are permitted even when an unrelated YouTube
+    # importer is unavailable. Poll-only jobs still require their API secret.
+    preflight(require_imports=poll_only)
+    # Explicit manual releases never rerun unrelated imports.
+    if publish_pending:
+        names = []
+    elif not poll_only and not urgent and not os.environ.get("YOUTUBE_API_KEY"):
+        print("::warning::YouTube import secret missing; publish previously "
+              "validated pending content only", flush=True)
+        names = []
+    else:
+        try:
+            with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
+                names = import_and_validate(Path(tmp), poll_only=poll_only)
+        except ReleaseBlocked as exc:
+            if poll_only or urgent:
+                raise  # Never hide a broken poll or a manually requested import.
+            print("::warning::Master content acquisition failed; attempting "
+                  "safe scheduled release of previously approved changes: "
+                  + str(exc)[:350], flush=True)
+            # Some adapters may have copied data before raising. Discard ALL
+            # partial tracked edits; never turn an incomplete import into a
+            # public release. Stop if untracked changes remain.
+            call("git", "reset", "--hard", initial, timeout=90)
+            if call("git", "status", "--porcelain"):
+                raise ReleaseBlocked(
+                    "Incomplete importer left untracked changes: safe release blocked")
+            names = []
     if names:
         call("git", "add", "--", *names)
         if call("git", "diff", "--cached", "--name-only"):
@@ -166,6 +192,8 @@ def main() -> None:
     ap.add_argument("--self-test", action="store_true")
     ap.add_argument("--check-cutover", action="store_true")
     ap.add_argument("--publish", action="store_true")
+    ap.add_argument("--publish-pending", action="store_true",
+                    help="Publish already-approved pending site changes immediately, without reimporting")
     ap.add_argument("--poll", action="store_true", help="Fast serialized YouTube JSON-only importer; no release request")
     ap.add_argument("--urgent", action="store_true", help="Explicitly approved immediate Cloudflare release; requires --publish")
     args = ap.parse_args()
@@ -175,22 +203,25 @@ def main() -> None:
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
         assert isinstance(config.get("enabled"), bool), "Malformed production activation flag"
         assert config.get("carousel_policy") == {"tech": 4, "gaming": 1, "total": 5}
-        print("PASS: JSON allowlist and release is disarmed by default")
+        assert sum(bool(x) for x in (True,False,False)) == 1
+        assert "cloudflare-release-trigger.txt" not in ALLOWED
+        print("PASS: JSON allowlist, pending-only release mode and production activation flag")
         return
     if args.check_cutover:
-        preflight()
+        # Read-only workflow prerequisite must not require YouTube import secrets:
+        # the actual selected run mode performs its own mode-specific preflight.
+        preflight(require_imports=False)
         print("PASS: no competing GitHub writers, release gate armed")
         return
-    if not args.publish and not args.poll:
-        ap.error("Choose --self-test, --check-cutover, --poll or --publish")
-    if args.publish and args.poll:
-        ap.error("Choose poll OR publish")
-    if args.urgent and not args.publish:
-        ap.error("--urgent requires --publish")
+    if sum(bool(x) for x in (args.publish, args.poll, args.publish_pending)) != 1:
+        ap.error("Choose exactly one mode: --poll, --publish, or --publish-pending")
+    if args.urgent and not (args.publish or args.publish_pending):
+        ap.error("--urgent requires --publish or --publish-pending")
     last = None
     for attempt in range(1, 4):
         try:
-            published, source = one_attempt(poll_only=args.poll, urgent=args.urgent)
+            published, source = one_attempt(poll_only=args.poll, urgent=args.urgent,
+                                            publish_pending=args.publish_pending)
             print(json.dumps({"success": True, "release_requested": published,
                               "source_commit": source}, ensure_ascii=False))
             if published:
