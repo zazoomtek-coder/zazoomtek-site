@@ -110,6 +110,77 @@ def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
     return names
 
 
+
+def refresh_due_review_plan(root: Path = ROOT) -> bool:
+    """Refresh time-dependent approvals without rerunning external importers."""
+    raw = call(sys.executable, "scripts/publish-approved-reviews.py", "--dry-run",
+               cwd=root, timeout=150)
+    try:
+        plan = json.loads(raw)
+    except ValueError as exc:
+        raise ReleaseBlocked("Approved review dry-run returned invalid JSON") from exc
+    if (not isinstance(plan, dict) or not isinstance(plan.get("due"), list)
+            or not isinstance(plan.get("changed"), list)
+            or any(not isinstance(item, str) for item in plan["due"])
+            or any(not isinstance(name, str) or "/" in name or "\\\\" in name
+                   or not name.endswith((".html", ".xml")) for name in plan["changed"])
+            or plan.get("dry_run") is not True):
+        raise ReleaseBlocked("Malformed approved review publication plan")
+    path = root / "master-staging/reviews-due.json"
+    output = json.dumps(plan, ensure_ascii=False, indent=2) + "\n"
+    if path.is_file() and path.read_text(encoding="utf-8") == output:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(output, encoding="utf-8")
+    return True
+
+
+def test_due_review_plan() -> None:
+    """A scheduled review becoming due must be seen by a pending-only release."""
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+    with tempfile.TemporaryDirectory(prefix="zt-review-plan-test-") as folder:
+        root = Path(folder)
+        (root / "scripts").mkdir()
+        (root / "editorial").mkdir()
+        shutil.copyfile(ROOT / "scripts/publish-approved-reviews.py",
+                        root / "scripts/publish-approved-reviews.py")
+        card = '<article class="video-card zt-review-card">Existing</article>'
+        (root / "index.html").write_text(
+            "<!-- HOME_LATEST_REVIEWS_MAIN_START -->" + card * 5
+            + "<!-- HOME_LATEST_REVIEWS_MAIN_END -->", encoding="utf-8")
+        (root / "recensioni-scritte.html").write_text(
+            '<div class="news-list" id="reviewList"></div>', encoding="utf-8")
+        for name in ("sitemap.xml", "google-sitemap.xml"):
+            (root / name).write_text("<urlset></urlset>", encoding="utf-8")
+        now = datetime.now(ZoneInfo("Europe/Rome"))
+        items = []
+        for n, delta in ((1, -5), (2, 60)):
+            source = f"anteprima-demo-{n}.html"
+            (root / source).write_text(
+                "<html><head><title>Review</title></head><body>"
+                "<article><h1>Review</h1></article></body></html>", encoding="utf-8")
+            items.append({"id": f"demo-{n}", "status": "approved",
+                          "publish_at": (now + timedelta(minutes=delta)).isoformat(),
+                          "source": source, "target": f"demo-{n}-recensione.html",
+                          "title": f"Demo review {n}", "platform": "TECH",
+                          "date_label": now.date().isoformat(),
+                          "description": "A verified demo review",
+                          "image": "/assets/demo.jpg"})
+        queue = root / "editorial/review-publication-queue.json"
+        data = {"version": 1, "timezone": "Europe/Rome", "items": items}
+        queue.write_text(json.dumps(data), encoding="utf-8")
+        assert refresh_due_review_plan(root)
+        path = root / "master-staging/reviews-due.json"
+        first = json.loads(path.read_text(encoding="utf-8"))
+        assert first["due"] == ["demo-1"]
+        assert not refresh_due_review_plan(root)
+        items[1]["publish_at"] = (now - timedelta(minutes=1)).isoformat()
+        queue.write_text(json.dumps(data), encoding="utf-8")
+        assert refresh_due_review_plan(root)
+        assert json.loads(path.read_text(encoding="utf-8"))["due"] == ["demo-1", "demo-2"]
+    print("PASS: pending releases refresh newly due reviews and preserve future approvals")
+
 def one_attempt(poll_only: bool = False, urgent: bool = False,
                 publish_pending: bool = False) -> tuple[bool, str]:
     """No remote mutation until the full preview/build and SHA checks succeed."""
@@ -145,6 +216,8 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
                 raise ReleaseBlocked(
                     "Incomplete importer left untracked changes: safe release blocked")
             names = []
+    if not poll_only and refresh_due_review_plan():
+        names = sorted(set(names) | {"master-staging/reviews-due.json"})
     if names:
         call("git", "add", "--", *names)
         if call("git", "diff", "--cached", "--name-only"):
@@ -205,6 +278,7 @@ def main() -> None:
         assert config.get("carousel_policy") == {"tech": 4, "gaming": 1, "total": 5}
         assert sum(bool(x) for x in (True,False,False)) == 1
         assert "cloudflare-release-trigger.txt" not in ALLOWED
+        test_due_review_plan()
         print("PASS: JSON allowlist, pending-only release mode and production activation flag")
         return
     if args.check_cutover:
