@@ -3,6 +3,12 @@ name: Approved review queue watchdog for Cloudflare Pages
 # HTML to GitHub main. Audit the real live article and ask the sole Master
 # publisher to recover overdue approved content if needed.
 on:
+  # Run a live review audit when the watchdog or approved queue changes.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scheduled-review-watchdog.yml'
+      - 'editorial/review-publication-queue.json'
   schedule:
     # Hourly recovery; supplementary checks 20 minutes after editorial slots.
     - cron: '33 10-20 * * *'
