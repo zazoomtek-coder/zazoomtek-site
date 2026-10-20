@@ -1,38 +1,81 @@
 name: Approved review queue watchdog for Cloudflare Pages
-# This validates the editorial source, never bypasses the scheduled Pages deploy.
+# Reviews are generated in Cloudflare's build workspace, NOT committed as
+# HTML to GitHub main. Audit the real live article and ask the sole Master
+# publisher to recover overdue approved content if needed.
 on:
   schedule:
-    - cron: '33 10-19 * * *'
+    # Hourly recovery; supplementary checks 20 minutes after editorial slots.
+    - cron: '33 10-20 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '35 10,15,20 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '5 13,18 * * *'
       timezone: 'Europe/Rome'
   workflow_dispatch:
 permissions:
   contents: read
   actions: write
+concurrency:
+  group: zazoomtek-approved-review-live-watchdog
+  cancel-in-progress: false
 jobs:
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Make sure due approved reviews exist in GitHub
+      - name: Verify approved due reviews on LIVE Cloudflare and recover via sole Master
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
-          from datetime import datetime,timezone
-          import json,os,subprocess
+          from datetime import datetime, timezone, timedelta
+          from html.parser import HTMLParser
           from pathlib import Path
-          queue=Path('editorial/review-publication-queue.json')
-          data=json.loads(queue.read_text(encoding='utf-8'))
+          from urllib.request import Request,urlopen
+          from urllib.error import HTTPError,URLError
+          import json,os,subprocess,time
+
+          data=json.loads(Path('editorial/review-publication-queue.json').read_text(encoding='utf-8'))
           now=datetime.now(timezone.utc)
-          due=[x for x in data.get('items',[])
-               if x.get('status')=='approved' and
-                  datetime.fromisoformat(x['publish_at'].replace('Z','+00:00'))<=now]
-          missing=[x['target'] for x in due if not Path(x['target']).is_file()]
+          # Give a scheduled run 20 minutes for its GitHub queue + Cloudflare build.
+          overdue=[x for x in data.get('items',[]) if x.get('status')=='approved'
+                   and datetime.fromisoformat(x['publish_at'].replace('Z','+00:00'))+timedelta(minutes=20)<=now]
+          if not overdue:
+              print('No reviews overdue by 20 minutes; nothing to recover.')
+              raise SystemExit(0)
+          missing=[]
+          for item in overdue:
+              path=item['target']
+              url='https://zazoomtek.it/'+path
+              try:
+                  request=Request(url,headers={'User-Agent':'ZazoomTek-Publication-Watchdog/1.0',
+                                               'Cache-Control':'no-cache'})
+                  with urlopen(request,timeout=18) as response:
+                      body=response.read().decode('utf-8','replace')
+                      status=response.status
+                  if status==200 and '<article' in body.lower() and '<h1' in body.lower():
+                      print('LIVE REVIEW OK:',url)
+                      continue
+                  missing.append(path)
+                  print('::warning::Review missing/invalid on live:',url,'status',status)
+              except HTTPError as exc:
+                  if exc.code==404:
+                      missing.append(path)
+                      print('::warning::Review not found on live (404):',url)
+                  else:
+                      raise RuntimeError(f'Live status {exc.code} for {url}; do not dispatch blind build')
+              except (URLError,TimeoutError) as exc:
+                  raise RuntimeError(f'Cannot audit live {url}: {exc}; do not dispatch blind build')
           if missing:
-              print('::warning::Approved reviews awaiting GitHub source publishing:',missing)
-              subprocess.run(['gh','workflow','run','publish-approved-reviews.yml',
-                              '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main'],check=True)
+              print('::warning::Overdue approved reviews require Cloudflare publication:',missing)
+              # The legacy publish-approved-reviews.yml is retired. GitHub
+              # workflow_dispatch is supported by master-orchestrator-production.yml
+              # and can run from a GitHub Actions job with actions:write.
+              subprocess.run(['gh','workflow','run','master-orchestrator-production.yml',
+                              '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',
+                              '--field','mode=publish_pending'],check=True,timeout=30)
+              print('DISPATCHED: sole Master --publish-pending. This is a request, not proof of live deployment.')
           else:
-              print('Approved reviews are present in GitHub; Cloudflare publishes them in the next batched release.')
+              print('PASS: every overdue review is on Cloudflare.')
           PY
