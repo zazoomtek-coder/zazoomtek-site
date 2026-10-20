@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'poll = only verified JSON / publish = controlled full release'
+        description: 'publish_pending = release approved site changes now; publish = import and release; poll = JSON only'
         required: true
         type: choice
-        options: [poll, publish]
-        default: publish
+        options: [publish_pending, publish, poll]
+        default: publish_pending
   schedule:
     # Italian local time, with automatic DST. No overnight scheduled polls.
     # Exact editorial releases: 10:15 12:45 15:15 17:45 20:15.
@@ -85,20 +85,26 @@ jobs:
               mode=poll
             fi
           elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            mode="${ZT_DISPATCH_MODE:-publish}"
-            if [ "${mode}" = "publish" ]; then urgent=1; fi
+            mode="${ZT_DISPATCH_MODE:-publish_pending}"
+            if [ "${mode}" != "poll" ]; then urgent=1; fi
           else
             mode=publish
-            # Only a deliberately named GitHub commit requests an urgent release.
-            # Other pushes, including Master activation, keep scheduled rules.
-            if [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then urgent=1; fi
+            # ChatGPT can write the manual request file via the GitHub connector.
+            # The deliberately named commit is an explicit publication request.
+            if [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then
+              mode=publish_pending
+              urgent=1
+            fi
           fi
-          if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ]; then
+          if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ] && [ "${mode}" != "publish_pending" ]; then
             echo "::error::Unsupported Master mode"; exit 1
           fi
           echo "ZT Master mode: ${mode}"
-          if [ "${urgent}" = 1 ]; then
-            echo "User-approved immediate release: all Master safety gates still apply."
+          if [ "${mode}" = "publish_pending" ]; then
+            echo "Immediate release of verified pending content; no unrelated imports."
+            python3 scripts/master-production-gateway.py --publish-pending --urgent
+          elif [ "${urgent}" = 1 ]; then
+            echo "User-approved import and release: all safety gates still apply."
             python3 scripts/master-production-gateway.py --publish --urgent
           else
             python3 scripts/master-production-gateway.py "--${mode}"
