@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "request_type": "publish_approved_pending",
+  "requested_date": "2026-10-20",
+  "reason": "Operational smoke-test of restored manual publication requested by site owner",
+  "respect_future_publish_at": true
+}
