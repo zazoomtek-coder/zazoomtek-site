@@ -117,15 +117,34 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
     call("git", "checkout", "main", timeout=90)
     call("git", "reset", "--hard", "origin/main", timeout=90)
     initial = call("git", "rev-parse", "HEAD")
-    preflight(require_imports=not publish_pending)
-    # A user-approved release must not rerun unrelated YouTube/trending
-    # importers. It republishes ONLY files already accepted on main after
-    # the same Home lock, quota, complete build and live receipt checks.
+    # Scheduled publications are permitted even when an unrelated YouTube
+    # importer is unavailable. Poll-only jobs still require their API secret.
+    preflight(require_imports=poll_only)
+    # Explicit manual releases never rerun unrelated imports.
     if publish_pending:
         names = []
+    elif not poll_only and not urgent and not os.environ.get("YOUTUBE_API_KEY"):
+        print("::warning::YouTube import secret missing; publish previously "
+              "validated pending content only", flush=True)
+        names = []
     else:
-        with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
-            names = import_and_validate(Path(tmp), poll_only=poll_only)
+        try:
+            with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
+                names = import_and_validate(Path(tmp), poll_only=poll_only)
+        except ReleaseBlocked as exc:
+            if poll_only or urgent:
+                raise  # Never hide a broken poll or a manually requested import.
+            print("::warning::Master content acquisition failed; attempting "
+                  "safe scheduled release of previously approved changes: "
+                  + str(exc)[:350], flush=True)
+            # Some adapters may have copied data before raising. Discard ALL
+            # partial tracked edits; never turn an incomplete import into a
+            # public release. Stop if untracked changes remain.
+            call("git", "reset", "--hard", initial, timeout=90)
+            if call("git", "status", "--porcelain"):
+                raise ReleaseBlocked(
+                    "Incomplete importer left untracked changes: safe release blocked")
+            names = []
     if names:
         call("git", "add", "--", *names)
         if call("git", "diff", "--cached", "--name-only"):
