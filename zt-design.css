@@ -1925,3 +1925,36 @@ html body :is(
  .module-title){
  border-radius:0!important;
 }
+
+
+/* ZT_SQUARE_ALL_EDITORIAL_BOXES_20261020
+   Reference: black square bar, red diagonal tab. The actual outer
+   panels/cards must also be square on all breakpoints and pages.
+   Do not alter thumbnails, circular icons, navigation or controls. */
+html body :is(
+ .zt-special-box,.zt-editorial-large-box,.zt-mix-editorial,
+ .zt-side-mix,.zt-side-mix .side-box,.side-box,.compact-box,
+ .zt-mix-feature,.ztp-editorial-archive,.ztp-news-tech,.ztp-news-gaming,
+ .ztp-news-rail,.ztp-review-card,.ztp-final-three,
+ .zt-review-card,.zt-feature-card,.zt-special-item,
+ .ztp-editorial-story,.ztp-popular-article,
+ .module,.module-box,.home-module,.news-module,
+ .zt-home-guide-box,.ztp-extra-box
+){border-radius:0!important;}
+html body :is(
+ .zt-special-box,.zt-editorial-large-box,.zt-mix-editorial,
+ .zt-side-mix,.side-box,.compact-box,.zt-mix-feature,
+ .ztp-editorial-archive,.ztp-news-tech,.ztp-news-gaming,
+ .ztp-news-rail,.ztp-final-three,.module,.module-box,.home-module
+) :is(
+ .module-head,.side-head,.zt-special-head,.zt-shelf-head,
+ .zt-popular-head,.ztp-news-head,.zt-final-rail-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-mix-news-heading,
+ .ztp-review-head,.ztp-editorial-heading,.module-title
+){border-radius:0!important;}
+/* Cover the outer frame and immediate section cards even when page
+   generators use generic markup instead of the editorial class names. */
+html body main :is(section,aside) > :is(
+ .box,.card,.panel,.module,.module-box,.side-box,.compact-box,
+ .zt-special-box,.zt-editorial-large-box
+){border-radius:0!important;}
