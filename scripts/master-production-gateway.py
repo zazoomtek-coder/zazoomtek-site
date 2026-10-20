@@ -110,7 +110,7 @@ def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
     return names
 
 
-def one_attempt(poll_only: bool = False) -> tuple[bool, str]:
+def one_attempt(poll_only: bool = False, urgent: bool = False) -> tuple[bool, str]:
     """No remote mutation until the full preview/build and SHA checks succeed."""
     call("git", "fetch", "origin", "main", timeout=120)
     call("git", "checkout", "main", timeout=90)
@@ -130,7 +130,10 @@ def one_attempt(poll_only: bool = False) -> tuple[bool, str]:
     if not poll_only:
         # A release trigger is necessary ONLY at the existing controlled window,
         # and exactly one extra Git commit lets it contain the real source SHA.
-        call(sys.executable, "scripts/cloudflare-release-control.py", "--scheduled-slot", timeout=120)
+        # Explicit user-requested releases may run immediately. Scheduled jobs
+        # continue to respect fixed slots; both paths retain budgets and validation.
+        gate = "--urgent" if urgent else "--scheduled-slot"
+        call(sys.executable, "scripts/cloudflare-release-control.py", gate, timeout=120)
         trigger_changed = bool(call("git", "status", "--porcelain", "--", "cloudflare-release-trigger.txt"))
         trigger_source = ""
         if trigger_changed:
@@ -164,6 +167,7 @@ def main() -> None:
     ap.add_argument("--check-cutover", action="store_true")
     ap.add_argument("--publish", action="store_true")
     ap.add_argument("--poll", action="store_true", help="Fast serialized YouTube JSON-only importer; no release request")
+    ap.add_argument("--urgent", action="store_true", help="Explicitly approved immediate Cloudflare release; requires --publish")
     args = ap.parse_args()
     if args.self_test:
         assert len(ALLOWED) == len(set(ALLOWED))
@@ -181,10 +185,12 @@ def main() -> None:
         ap.error("Choose --self-test, --check-cutover, --poll or --publish")
     if args.publish and args.poll:
         ap.error("Choose poll OR publish")
+    if args.urgent and not args.publish:
+        ap.error("--urgent requires --publish")
     last = None
     for attempt in range(1, 4):
         try:
-            published, source = one_attempt(poll_only=args.poll)
+            published, source = one_attempt(poll_only=args.poll, urgent=args.urgent)
             print(json.dumps({"success": True, "release_requested": published,
                               "source_commit": source}, ensure_ascii=False))
             if published:
