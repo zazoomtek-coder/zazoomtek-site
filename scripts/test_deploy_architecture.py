@@ -56,8 +56,24 @@ elif not retired:
     errors.append('Active Firebase publishing requires a canonical push router')
 if retired and merge_path.is_file():
     errors.append('Retired Firebase merge router unexpectedly restored')
-if not (WORKFLOWS/'cloudflare-controlled-release.yml').is_file():
-    errors.append('Missing Cloudflare production publisher workflow')
+# The atomic 19 October cutover retired cloudflare-controlled-release.yml.
+# Production has exactly one Master workflow; do NOT restore legacy writers.
+master=WORKFLOWS/'master-orchestrator-production.yml'
+if not master.is_file():
+    errors.append('Missing Master Cloudflare production publisher workflow')
+else:
+    production=master.read_text(encoding='utf-8')
+    for required in (
+        'zazoomtek-master-sole-repository-and-pages-writer',
+        'master-production-gateway.py',
+        'cloudflare-manual-release-request.json',
+        'python3 scripts/master-production-gateway.py --publish --urgent',
+        'cancel-in-progress: false',
+    ):
+        if required not in production:
+            errors.append(f'Master Cloudflare production guard missing: {required}')
+if (WORKFLOWS/'cloudflare-controlled-release.yml').is_file():
+    errors.append('Retired Cloudflare publisher unexpectedly restored')
 firebase=json.loads((ROOT/'firebase.json').read_text(encoding='utf-8'))
 hosting=firebase.get('hosting',{})
 if hosting.get('target')!='zazoomtek' or hosting.get('public')!='.':
@@ -68,4 +84,4 @@ if errors:
     raise SystemExit('FIREBASE ARCHITECTURE CHECK FAILED:\n'+'\n'.join('- '+x for x in errors))
 print('PASS: legacy Firebase live workflow remains gated and retired')
 print('PASS: PR previews and maintenance jobs cannot deploy live')
-print('PASS: Cloudflare production publisher present; retired Firebase safety and config protected')
+print('PASS: Master Cloudflare publisher present with manual release; retired Firebase safe')
