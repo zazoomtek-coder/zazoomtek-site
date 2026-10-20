@@ -1,10 +1,19 @@
-name: Release slots — scheduled publication safety (staging only)
+name: Master release slots — scheduled and manual safety (staging only)
 on:
   push:
-    branches: [main, fix/cloudflare-fixed-publishing-slots-20261019]
+    branches: [main]
     paths:
       - scripts/cloudflare-release-control.py
-      - .github/workflows/cloudflare-controlled-release.yml
+      - scripts/master-production-gateway.py
+      - scripts/test_deploy_architecture.py
+      - .github/workflows/master-orchestrator-production.yml
+      - .github/workflows/zt-release-slot-staging.yml
+  pull_request:
+    paths:
+      - scripts/cloudflare-release-control.py
+      - scripts/master-production-gateway.py
+      - scripts/test_deploy_architecture.py
+      - .github/workflows/master-orchestrator-production.yml
       - .github/workflows/zt-release-slot-staging.yml
   workflow_dispatch:
 permissions:
@@ -23,30 +32,35 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Test scheduled two-hour release windows, dedupe and quota safeguards
+      - name: Test Master scheduled release windows, manual dispatch, dedupe and budget guards
         run: |
           set -euo pipefail
           python3 -m py_compile scripts/cloudflare-release-control.py scripts/protect-home-structure.py scripts/verify-home-layout-lock.py
           python3 scripts/cloudflare-release-control.py --self-test
+          python3 scripts/test_deploy_architecture.py
           python3 scripts/verify-live-cloudflare.py --self-test
           python3 scripts/protect-home-structure.py index.html
           python3 scripts/verify-home-layout-lock.py
           python3 - <<'PY'
           from pathlib import Path
-          schedule=Path(".github/workflows/cloudflare-controlled-release.yml").read_text()
+          schedule=Path(".github/workflows/master-orchestrator-production.yml").read_text()
           gate=Path("scripts/cloudflare-release-control.py").read_text()
-          assert "cron: '17,47 * * * *'" in schedule
-          assert "cloudflare-release-control.py --scheduled-slot" in schedule
-          assert 'GITHUB_EVENT_NAME" = "schedule"' in schedule
-          assert "cloudflare-release-control.py --urgent" in schedule
-          assert "--dedupe-hour" not in schedule
-          assert "COOLDOWN_MINUTES" not in gate
+          gateway=Path("scripts/master-production-gateway.py").read_text()
+          assert "timezone: 'Europe/Rome'" in schedule
+          assert "cron: '15 10,15,20 * * *'" in schedule
+          assert "cron: '45 12,17 * * *'" in schedule
+          assert "cloudflare-manual-release-request.json" in schedule
+          assert "master-production-gateway.py --publish --urgent" in schedule
+          assert "cancel-in-progress: false" in schedule
+          assert "zazoomtek-master-sole-repository-and-pages-writer" in schedule
+          assert 'gate = "--urgent" if urgent else "--scheduled-slot"' in gateway
+          assert "scripts/cloudflare-release-control.py" in gateway
           assert "slot_utc=" in gate
           assert "RESERVE_SCHEDULED=450" in gate and "RESERVE_URGENT=475" in gate
-          assert "python3 scripts/cloudflare-build-site.py" in schedule
-          assert "scripts/protect-home-structure.py dist/index.html" in schedule
-          assert "scripts/verify-live-cloudflare.py --source-commit" in schedule
-          print("PASS: fixed release slot, retries, build budgets, Home protection and live verification")
+          assert "already_released_in_slot" in gate
+          assert "verify-live-cloudflare.py" in gateway
+          assert not Path(".github/workflows/cloudflare-controlled-release.yml").exists()
+          print("PASS: Master scheduled slots, immediate manual release, quota safeguards, serialization and live verification")
           PY
       - name: Verify complete Cloudflare-equivalent production build offline
         run: |
