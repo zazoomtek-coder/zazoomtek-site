@@ -33,7 +33,7 @@ jobs:
               assert html.count("<!-- FEATURED_NEWS_START -->")==1
           assert len(re.findall(r'<article class="article-row"',stage))==15
           assert 'zt-home-live.js?v=20261013approved45-35-20b' in stage
-          assert '/zt-home-live.js?v=20261018stableColumns1010' in src
+          assert '/zt-home-live.js?v=20261021specialiNoShorts' in src
           assert '<h2 id="zt-popular-title">DA NON PERDERE</h2>' in src
           assert r'\g<1>' not in src and r'\g<2>' not in src
           live_js=pathlib.Path("zt-home-live.js").read_text()
@@ -80,10 +80,10 @@ jobs:
              let visible=false;
              for(let retry=0;retry<22;retry++){
               await page.goto(url+"?qa="+retry,{waitUntil:"domcontentloaded",timeout:45000});
-              if(await page.locator(".ztp-final-three .ztp-shorts-companion .ztp-rail-shorts .zt-shelf-card").count()===6){visible=true;break;}
+              if(await page.locator("#ztpNewsRail #ztHomeSpeciali .zt-special-item").count()>=1){visible=true;break;}
               if(retry!==21)await page.waitForTimeout(4000);
              }
-             if(!visible)throw Error("Fresh staging page failed to render genuine Shorts");
+             if(!visible)throw Error("Fresh staging page failed to render genuine approved SPECIALI");
              // Lazy thumbnails below the fold must first be requested before evaluating them.
              await page.evaluate(()=>document.querySelectorAll(".ztp-news-item:not(.ztp-gaming-extra) .article-image, #zt-special-tech .zt-special-item:nth-child(-n+3) img").forEach(img=>img.loading="eager"));
              await page.waitForTimeout(3500);
@@ -124,14 +124,14 @@ jobs:
                 })(),
                 shortsPortraitFit:(()=>{
                   const images=[...document.querySelectorAll(".ztp-shorts-companion .zt-shelf-card:nth-child(-n+4) .zt-shelf-thumbnail > img")];
-                  return images.length===4&&images.every(im=>{
+                  return images.length===0&&images.every(im=>{
                     const box=im.closest(".zt-shelf-thumbnail").getBoundingClientRect(),r=im.getBoundingClientRect();
                     return getComputedStyle(im).objectFit==="cover"&&r.width>0&&
                       Math.abs(r.height-box.height)<3&&Math.abs(r.width-box.width)<3;
                   });
                 })(),
                 noOldStack:document.querySelectorAll(".ztp-news-rail .zt-video-stack").length===0,
-                shortsUnderEditorial:(()=>{const a=document.querySelector(".ztp-news-rail .ztp-editorial-archive"),b=document.querySelector(".ztp-news-rail > .ztp-shorts-companion");return !!a&&!!b&&a.nextElementSibling===b})(),
+                shortsUnderEditorial:(()=>{const a=document.querySelector("#ztpNewsRail #zt-popular-box"),b=document.querySelector("#ztpNewsRail #ztHomeSpeciali"),c=document.querySelector("#ztpNewsRail .zt-special-box[data-special-section=\"tech\"]");return !!a&&!!b&&!!c&&!!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(b.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING)})(),
                 shortsNoLongerInVideoRow:!document.querySelector("#articoli .ztp-primary-feed .ztp-shorts-companion"),
                 videoEnoughWidth:(()=>{const a=document.querySelector("#ztpVideosAnchor"),b=document.querySelector(".ztp-primary-feed");return a&&b&&a.getBoundingClientRect().width>=b.getBoundingClientRect().width*.95})(),
                 guides:!!document.querySelector("#ztHomeGuide"),reviews:!!document.querySelector(".latest-reviews-module"),
@@ -184,8 +184,8 @@ jobs:
                throw Error("News must be unique with at least 10 genuine Tech and 10 genuine Gaming cards; other editorial modules must remain intact");
              if(d.editorialPreviewHeaderCount!==0||d.popularTitle!=="DA NON PERDERE"||d.hasLeakedBackrefs)
                throw Error("Editorial bar or invalid headings were found on public Home");
-             if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==6||d.shortsTitle!=="ULTIMI SHORTS")throw Error("Wrong video/Short boxes");
-             if(!d.techReviewCoverFit||!d.shortsPortraitFit)throw Error("Tech review 16:9 or Shorts 9:16 artwork is not filling the requested card format");
+             if(d.primaryVideoTitle!=="ESPLORA ULTIMI VIDEO"||d.primaryVideoCount!==6||d.railShortCount!==0)throw Error("Explore Video missing or removed Home Shorts reappeared");
+             if(!d.techReviewCoverFit)throw Error("Tech review 16:9 artwork is not filling its approved frame");
              if(!d.noOldStack||!d.shortsUnderEditorial||!d.shortsNoLongerInVideoRow||!d.videoEnoughWidth||!d.guides||!d.reviews||!d.pagesLink||d.navCount<7||!d.canonicalFeedMarker)throw Error("Editorial widgets or navigation missing");
              if(d.overflow>8)throw Error("Mobile horizontal overflow");
              if(d.imagesValidSource!==d.imagesTotal)throw Error("News thumbnails lack valid source/ALT");
