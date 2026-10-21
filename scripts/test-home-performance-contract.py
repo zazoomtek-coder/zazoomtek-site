@@ -23,7 +23,7 @@ def check_repo_source():
     head = source.split("</head>", 1)[0]
     assert head.count('id="zt-home-graphic-approved-20261016"') == 1, (
         "Home CSS must load in document head, not wait for DOMContentLoaded")
-    assert "/zt-home-graphic-layout-20261016.css?v=5" in head
+    assert "/zt-home-graphic-layout-20261016.css?v=" in head, "Approved layout CSS must load before first paint"
     assert "if(unchanged)return;" in source, (
         "Do not refetch/replace already decoded featured hero images")
     assert "if(i===0)img.fetchPriority='high'" in source
