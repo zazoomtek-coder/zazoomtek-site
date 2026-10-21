@@ -65,7 +65,10 @@ def generated_approved_files() -> set[Path]:
         for article in rows:
             slug = article.get("slug")
             if not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
-                raise ValueError("Bad approved standard NEWS slug")
+                # Skip an invalid metadata row without preventing other
+                # approved generated articles from reaching the package.
+                print("::warning::Skipping invalid standard NEWS slug in artifact inventory", flush=True)
+                continue
             add("news-" + slug + ".html")
             add("assets/special/news-" + slug + ".webp")
             add("assets/special/article-" + slug + ".webp")
