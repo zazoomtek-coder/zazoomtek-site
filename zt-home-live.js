@@ -752,7 +752,7 @@
        if(!href.startsWith("/")||!href.endsWith(".html"))return null;
        const title=link.textContent.trim();
        const techTag=(row.getAttribute("data-review-category")||"").toLowerCase();
-       if(techTag!=="tech" && !/thermomate|70mai.*dash|iifactor.*smart|smartphone|smart glasses|mini pc|router|riscaldatore|aspirapolvere/i.test(title))return null;
+       if(techTag!=="tech" && !/thermomate|70mai|iifactor.*smart|smartphone|smart glasses|mini pc|router|riscaldatore|aspirapolvere/i.test(title))return null;
        const meta=row.querySelector(".news-meta")?.textContent||"";
        const m=meta.toLowerCase().match(/(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(\d{4})/);
        if(!m)return null;
