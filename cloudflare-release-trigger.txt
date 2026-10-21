@@ -1,5 +1,5 @@
 ZazoomTek verified scheduled release
-source_commit=322cbc9771819e36bcac244157dfc564927c8317
-created_utc=2026-10-21T08:48:21+00:00
+source_commit=98c6a1f31bc6662a19e869c19b9c9b2438c024b4
+created_utc=2026-10-21T09:20:12+00:00
 priority=urgent
 slot_utc=2026-10-21T08:15:00Z
