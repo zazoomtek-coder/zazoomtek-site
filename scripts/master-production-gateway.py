@@ -318,6 +318,12 @@ def main() -> None:
             print(json.dumps({"success": True, "release_requested": published,
                               "source_commit": source}, ensure_ascii=False))
             if published:
+                # Direct Wrangler releases are published and verified by the
+                # calling GitHub Actions job after this gateway commits data.
+                # Do not wait for the old Git-connected Pages deployment first.
+                if os.environ.get("ZT_CLOUDFLARE_DIRECT_DEPLOY") == "1":
+                    print("CLOUDFLARE: direct deploy pending in workflow", flush=True)
+                    return
                 call(sys.executable, "scripts/verify-live-cloudflare.py",
                      "--source-commit", source,
                      "--timeout-seconds", "840", timeout=890)
