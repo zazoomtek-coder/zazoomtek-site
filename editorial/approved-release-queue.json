@@ -16,6 +16,13 @@
       "owner_approved": true,
       "publish_at": "2026-10-21T12:45:00+02:00",
       "note": "A900 Ultra Tech shelf filter, headline and Dashcam subtitle, editor-approved 12:45"
+    },
+    {
+      "pr": 125,
+      "head_sha": "219b7f4bbe89cbeb7b270b5379d798fdef9a5d0d",
+      "owner_approved": true,
+      "publish_at": "2026-10-21T10:15:00+02:00",
+      "note": "Owner requested: remove only Home Ultimi Shorts, add two-capacity SPECIALI after Da non perdere with first real article, desktop rail aligned exactly with Esplora Ultimi Video; verified staging and viewport tests; no urgent deploy"
     }
   ]
 }
