@@ -8,7 +8,7 @@
    const link=document.createElement("link");
    link.id="zt-home-graphic-approved-20261016";
    link.rel="stylesheet";
-   link.href="/zt-home-graphic-layout-20261016.css?v=5";
+   link.href="/zt-home-graphic-layout-20261016.css?v=6";
    document.head.appendChild(link);
  }
  function normalizeFeatured(){
