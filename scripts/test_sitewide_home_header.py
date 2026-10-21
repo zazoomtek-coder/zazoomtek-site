@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 import re
 
-NAV=("Home","News","Recensioni","Guide","Tech Impact","Gaming Inside","Extra","Community","Video")
+NAV=("Home","News","TECH","GAMING","Guide","Cybercultura","Speciali","Extra","Community","Video")
 HEADER=re.compile(r"<header\b[^>]*>[\s\S]*?</header>",re.I)
 NAV_RE=re.compile(r'<nav\b[^>]*class=["\']nav["\'][^>]*>[\s\S]*?</nav>',re.I)
 
@@ -53,11 +53,12 @@ def validate(root:Path):
                                 text[header.end():],re.I),path.name+" duplicate ticker"
             # Keep page bodies/sidebars and one static root-absolute masthead.
             assert 'href="/news.html"' in header.group(),path.name
-            assert 'href="/tech-today.html"' in header.group(),path.name
+            assert 'href="/cybercultura.html"' in header.group(),path.name
+            assert 'href="/speciali.html"' in header.group(),path.name
             assert 'href="/extra.html"' in header.group(),path.name
         checked+=1
     assert checked>=50,("Insufficient sitewide coverage",checked)
-    for sample in ("news.html","tech-today.html","gaming-today.html",
+    for sample in ("news.html","cybercultura.html","speciali.html","tech-today.html","gaming-today.html",
                    "extra.html","guide.html","recensioni-scritte.html"):
         assert (root/sample).is_file(),sample+" absent"
         page=(root/sample).read_text(encoding="utf-8")
@@ -71,7 +72,7 @@ def validate(root:Path):
         assert markup.count('id="zt-site-home-header-style"')==1,video.name
         assert 'class="ticker-video-links"' in markup,video.name
     print("PASS:",len(video_pages),"generated video watch pages use the same static Home header")
-    print("PASS: static Home logo, nine menu links, search/ticker and no async swap on",checked,"pages")
+    print("PASS: static Home logo, ten navigation destinations, direct Cybercultura and Speciali, no async swap on",checked,"pages")
 
 if __name__=="__main__":
     p=argparse.ArgumentParser()
