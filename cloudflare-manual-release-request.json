@@ -2,10 +2,10 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-21",
-  "reason": "Owner-authorized immediate publish after correcting 70mai review YouTube embed validator; deploy Cybercultura and navigation and current imported news",
+  "reason": "Owner explicit unconditional immediate deployment after gateway and orchestrator pass-through changes",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "zt-immediate-retry-20261021-fix-review-video-verifier",
+  "request_id": "zt-owner-direct-pass-through-20261021-1629",
   "publish_mode": "immediate",
   "force_publish": true
 }
