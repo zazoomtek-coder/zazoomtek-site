@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-20T18:54:12.072003+00:00",
+  "checked_at": "2026-10-21T09:04:24.859889+00:00",
   "source_sites": 16,
   "matches": 6,
   "selected": [
@@ -9,8 +9,8 @@
       "url": "/news-UgkxXhA_nA53_EpjKVaJtVdrcn1tdqYQFv0I.html",
       "trend_score": 0,
       "published_date": "2026-10-19",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
       "sources": []
     },
     {
@@ -19,8 +19,8 @@
       "url": "/news-UgkxQnyZ_3Qv-X5igTpP62iNghRMMquqf9AK.html",
       "trend_score": 0,
       "published_date": "2026-10-19",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
       "sources": []
     },
     {
@@ -29,8 +29,8 @@
       "url": "/news-UgkxDGgP7IWYNGCwxWwbLtvHpRrb7IPSPxJa.html",
       "trend_score": 0,
       "published_date": "2026-10-19",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
       "sources": []
     },
     {
@@ -49,8 +49,8 @@
       "url": "/news-UgkxH5BL42iGXVvyBNeYA-PjX07cSZ1eEvQk.html",
       "trend_score": 0,
       "published_date": "2026-10-19",
-      "freshness_bonus": 62,
-      "selection_score": 62.0,
+      "freshness_bonus": 40,
+      "selection_score": 40.0,
       "sources": []
     }
   ]
