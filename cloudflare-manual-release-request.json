@@ -1,9 +1,9 @@
 {
   "version": 1,
   "request_type": "publish_approved_pending",
-  "requested_date": "2026-10-20",
-  "reason": "Recover overdue approved A900 Ultra after production retry cleanup was merged",
+  "requested_date": "2026-10-21",
+  "reason": "Owner approved a manual test release of pending approved site changes before 12:45",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "70mai-release-after-retry-repair-20261020"
+  "request_id": "manual-release-test-20261021-1047"
 }
