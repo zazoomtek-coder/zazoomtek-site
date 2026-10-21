@@ -1,0 +1,8 @@
+# No local authentication material in Git
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+node_modules/
+.wrangler/
+wrangler.toml
