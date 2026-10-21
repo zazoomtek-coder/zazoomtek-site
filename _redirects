@@ -1,0 +1,6 @@
+# ZazoomTek 21 October 2026: combine legacy editorial archives in Cybercultura.
+# Published Tech Impact and Gaming Inside article URLs remain unchanged.
+/tech-today.html /cybercultura.html 301
+/tech-today /cybercultura.html 301
+/gaming-today.html /cybercultura.html 301
+/gaming-today /cybercultura.html 301
