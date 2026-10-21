@@ -15,7 +15,7 @@ ARCHIVES=(("tech-today.html","Tech Impact"),("gaming-today.html","Gaming Inside"
 TARGET=ROOT/"cybercultura.html"
 ROW=re.compile(r'<article\b[^>]*class="[^"]*\bnews-row\b[^"]*"[^>]*>.*?</article>', re.I|re.S)
 URL=re.compile(r'<a\b[^>]*href="(/(?:news-|tech-impact-|gaming-inside-)[^"#?]+\.html)"',re.I)
-LIST=re.compile(r'(<div\b[^>]*class="news-list"[^>]*>)(.*?)(</div>\s*</section>)',re.I|re.S)
+LIST=re.compile(r'(<div\b[^>]*class="news-list"[^>]*>)(.*?)(</article>\s*</div>)',re.I|re.S)
 DATE=re.compile(r'<div\b[^>]*class="news-meta"[^>]*>.*?(\d{4}-\d{2}-\d{2})',re.I|re.S)
 
 def build() -> None:
@@ -52,7 +52,7 @@ def build() -> None:
     opening=LIST.search(base)
     if not opening:
         raise RuntimeError("Cybercultura archive source structure changed")
-    body='<div class="news-list" id="newsList" data-auto-articles="cybercultura">\n'+'\n'.join(item for _,item in ordered)+'\n</div></section>'
+    body='<div class="news-list" id="newsList" data-auto-articles="cybercultura">\n'+'\n'.join(item for _,item in ordered)+'\n</div>'
     base=base[:opening.start()]+body+base[opening.end():]
     base=base.replace('</head>','<style>.zt-cyber-category{display:inline-block;margin-bottom:8px;padding:5px 9px;background:#202020;color:#fff;font:800 11px Arial,Helvetica,sans-serif;text-transform:uppercase;border-left:3px solid #d51232}</style><meta property="og:type" content="website"><meta property="og:title" content="Cybercultura | ZazoomTek"><meta property="og:url" content="https://zazoomtek.it/cybercultura.html"></head>',1)
     # Legacy archive links are kept for Google; site-wide navigation gets
