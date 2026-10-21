@@ -106,6 +106,10 @@ def tracked_files() -> list[Path]:
     return sorted(published | generated_watch | generated_approved_files(), key=str)
 
 def eligible(path: Path) -> bool:
+    if path == Path("_redirects"):
+        # Cloudflare Pages supports exact 301 rules in this root-level file.
+        # Keep category compatibility while preserving all article URLs.
+        return True
     parts = path.parts
     if any(part.startswith(".") or part in SKIP_DIRS for part in parts):
         return False
@@ -143,6 +147,17 @@ def main() -> None:
     copied = [p for p in OUT.rglob("*") if p.is_file()]
     if len(copied) > MAX_FILES:
         failures.append(f"{len(copied)} files exceed safety margin of {MAX_FILES}")
+    redirects = OUT / "_redirects"
+    if not redirects.is_file():
+        failures.append("Missing Cloudflare category archive redirects")
+    else:
+        rules = redirects.read_text(encoding="utf-8")
+        for route in ("/tech-today.html /cybercultura.html 301",
+                      "/gaming-today.html /cybercultura.html 301"):
+            if route not in rules:
+                failures.append("Missing legacy archive redirect: " + route)
+    if not (OUT / "cybercultura.html").is_file():
+        failures.append("Missing published unified Cybercultura archive")
     for required in ("index.html", "news.html", "robots.txt", "sitemap.xml",
                      "zt-design.css", "zt-home-live.js", "featured-carousel.json"):
         if not (OUT / required).is_file():
