@@ -88,6 +88,17 @@ def verify_once(base: str, expected: str) -> str:
     if not js.strip():
         raise RuntimeError("Published Home JavaScript response is empty")
     home = get_public_page(base, "/", expected)
+    # A valid release MUST deliver the public Cybercultura archive and
+    # both primary navigation links, not only a successful Cloudflare receipt.
+    cyber = get_public_page(base, "/cybercultura.html", expected)
+    if ('<h1>Cybercultura</h1>' not in cyber
+            or 'https://zazoomtek.it/cybercultura.html' not in cyber
+            or 'Tech Impact' not in cyber or 'Gaming Inside' not in cyber):
+        raise RuntimeError("Cybercultura archive is missing or incomplete online")
+    if ('href="/cybercultura.html">Cybercultura</a>' not in home
+            or 'href="/speciali.html">Speciali</a>' not in home
+            or 'id="ztHomeSpeciali"' not in home):
+        raise RuntimeError("Live Home lacks Cybercultura/Speciali navigation or Speciali box")
     # Public receipt and HTTP 200 do not prove that the Home mosaic is intact.
     from html.parser import HTMLParser
     class FeaturedReader(HTMLParser):
