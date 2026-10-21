@@ -66,6 +66,9 @@ def main() -> None:
     run("build-review-categories.py")
     # Studio-approved Tech/Gaming long-form SPECIALI, no runtime filtering.
     run("build-speciali.py")
+    # Unified public archive is regenerated from both historical archives
+    # after their verified content imports, preserving all old URLs.
+    run("build-cybercultura.py")
     run("sync-home-speciali.py")
     run("apply-site-design.py")
     # Add original ISO times ONLY to already-published archive cards; safe even
