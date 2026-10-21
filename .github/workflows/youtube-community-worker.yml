@@ -1,0 +1,45 @@
+name: YouTube Community → isolated Cloudflare Worker
+
+on:
+  schedule:
+    # GitHub scheduled runs are best-effort, not an exact 5-minute SLA.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: 'One-time backfill of all cached Community posts'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zazoomtek-community-worker-ingest
+  cancel-in-progress: false
+
+jobs:
+  community:
+    name: Independent YouTube Community import
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Ingest Community posts to D1 Worker (no main build or push)
+        env:
+          ZT_COMMUNITY_WORKER_ENDPOINT: ${{ vars.ZT_COMMUNITY_WORKER_ENDPOINT }}
+          ZT_COMMUNITY_INGEST_TOKEN: ${{ secrets.ZT_COMMUNITY_INGEST_TOKEN }}
+          ZT_BACKFILL: ${{ inputs.backfill }}
+        run: |
+          set -euo pipefail
+          if [ "${ZT_BACKFILL:-false}" = "true" ]; then
+            python3 scripts/community-worker-sync.py --backfill
+          else
+            python3 scripts/community-worker-sync.py
+          fi
