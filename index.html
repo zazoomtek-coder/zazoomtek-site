@@ -1646,6 +1646,13 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
       a.setAttribute('aria-label',a.title);
       var img=document.createElement('img');
       img.src=item.image;
+      // Smaller image only on smartphones. Desktop continues to use original.
+      if(window.matchMedia('(max-width: 720px)').matches &&
+         item.image.indexOf('https://yt3.ggpht.com/')===0 &&
+         item.image.includes('=s1600-rw-nd-v1')){
+        img.srcset=item.image.replace('=s1600-rw-nd-v1','=s960-rw-nd-v1')+' 960w, '+item.image+' 1600w';
+        img.sizes='100vw';
+      }
       img.alt=a.title;
       img.loading=i===0?'eager':'lazy';
       if(i===0)img.fetchPriority='high';
