@@ -2,10 +2,10 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-21",
-  "reason": "Owner reports 12:45 Home editorial layout not live; verified CSS/JS cache-version fix and previously approved editorial boxes; corrective immediate release",
+  "reason": "Explicit owner command: immediate release of due 12:45 editorial queue and verify Cloudflare deploy/cache purge",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "zt-corrective-home-layout-1245-20261021",
+  "request_id": "zt-immediate-due-1245-20261021-final-check-01",
   "publish_mode": "immediate",
   "force_publish": true
 }
