@@ -1,0 +1,68 @@
+name: Home SPECIALI and No Shorts — staging preview only
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'zt-home-live.js'
+      - 'zt-home-graphic-layout-20261016.css'
+      - 'scripts/sync-home-speciali.py'
+      - 'scripts/test-home-speciali-placement.py'
+      - 'scripts/cloudflare-build-site.py'
+      - '.github/workflows/zt-home-speciali-staging.yml'
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression for real Speciali and no Shorts on Home
+        run: |
+          python3 -m py_compile scripts/sync-home-speciali.py scripts/test-home-speciali-placement.py scripts/cloudflare-build-site.py
+          node --check zt-home-live.js
+          python3 scripts/test-home-speciali-placement.py
+      - name: Build whole site as Cloudflare would, without deployment
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 - <<'PY'
+          from pathlib import Path
+          home=Path('dist/index.html').read_text(encoding='utf-8')
+          a=home.split('<!-- HOME_SPECIALI_CARDS_START -->',1)[1].split('<!-- HOME_SPECIALI_CARDS_END -->',1)[0]
+          assert a.count('class="zt-special-item"')==1
+          assert home.count('id="ztHomeSpeciali"')==1
+          assert home.index('id="ztHomeSpeciali"')<home.index('data-special-section="tech"')
+          assert 'Videogiochi e terapia, come il gaming può entrare nei percorsi clinici' in a
+          print('PASS: Cloudflare build retains approved Home and one real Speciale in two-place slot')
+          PY
+      - name: Install Chrome browser test dependencies
+        run: |
+          command -v google-chrome
+          mkdir -p /tmp/zt-home-preview
+          cd /tmp/zt-home-preview
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Test editorial rail against Explore Video across desktop and mobile
+        env:
+          NODE_PATH: /tmp/zt-home-preview/node_modules
+        run: |
+          python3 -m http.server 8899 --bind 127.0.0.1 --directory dist >/tmp/zt-home-preview/server.log 2>&1 &
+          sleep 3
+          node scripts/test-home-speciali-browser.cjs
+      - name: Upload navigable staging HTML and viewport screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-speciali-staging-preview
+          path: |
+            dist/index.html
+            /tmp/zt-home-speciali-*.png
+          retention-days: 5
+          if-no-files-found: warn
