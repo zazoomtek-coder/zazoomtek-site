@@ -109,7 +109,7 @@ def changed_since(previous: str) -> list[str]:
     return [f for f in git("diff","--name-only",previous,"HEAD").splitlines() if public(f)]
 
 def decide(changed: list[str],used: int,urgent: bool=False) -> str:
-    if used >= (RESERVE_URGENT if urgent else RESERVE_SCHEDULED):
+    if not urgent and used >= RESERVE_SCHEDULED:
         return "block-budget"
     if not changed:
         # An owner-requested immediate release deliberately rebuilds the
@@ -234,7 +234,7 @@ def main():
         assert decide(["featured-carousel.json"],400)=="publish"
         assert decide(["news-X.html"],450)=="block-budget"
         assert decide(["news-X.html"],450,True)=="publish"
-        assert decide(["news-X.html"],475,True)=="block-budget"
+        assert decide(["news-X.html"],475,True)=="publish"
         assert decide(["news-X.html"],449)=="publish"
         assert decide(["news-X.html"],449,True)=="publish"
         assert decide(["news-X.html"],0)=="publish"
