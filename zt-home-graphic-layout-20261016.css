@@ -508,10 +508,31 @@ main.page #articoli #ztHomeSpeciali .zt-special-list img{
   width:100%!important;
   height:auto!important;
   aspect-ratio:16/9!important;
-  object-fit:cover!important;
-  object-position:center!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  background:#17202a!important;
 }
 main.page #articoli .ztp-news-rail :is(.zt-final-rail-article,.ztp-editorial-story)[hidden],
 main.page #articoli #ztHomeSpeciali [hidden]{
   display:none!important
+}
+
+/* EDITORIAL_THUMBNAILS_SAFE_20261021
+   Photographic cover text and subjects must always stay inside the frame.
+   No cropped editorial covers. Preserves cards, layout, menu and spacing. */
+html body main.page #articoli :is(
+ .zt-feature-card img,
+ .ztp-news-items .article-image img,
+ .ztp-news-items img.article-image,
+ .ztp-news-rail .zt-special-thumb img,
+ .ztp-news-rail .zt-popular-article img,
+ .ztp-news-rail .ztp-editorial-story img,
+ .ztp-news-rail .zt-final-rail-article img,
+ .ztp-review-card img,
+ #ztHomeSpeciali img,
+ .zt-home-guide img
+){
+ object-fit:contain!important;
+ object-position:50% 50%!important;
+ transform:none!important;
 }
