@@ -170,10 +170,8 @@ def context_articles(root:Path=ROOT)->str:
             if count>=3:
                 break
     if not selected:
-        return ('<a class="zt-specials-related-category" href="/tech-today.html">'
-                'Scopri le news Tech Impact →</a>'
-                '<a class="zt-specials-related-category" href="/gaming-today.html">'
-                'Scopri le news Gaming Inside →</a>')
+        return ('<a class="zt-specials-related-category" href="/cybercultura.html">'
+                'Scopri tutte le news Cybercultura →</a>')
     return '\n'.join(selected)
 
 
@@ -206,8 +204,7 @@ def build(root:Path=ROOT)->int:
                 for idx,entry in enumerate(entries)]}},
             {"@type":"BreadcrumbList","itemListElement":[
                 {"@type":"ListItem","position":1,"name":"Home","item":"https://zazoomtek.it/"},
-                {"@type":"ListItem","position":2,"name":"INSIGHTS","item":"https://zazoomtek.it/speciali.html"},
-                {"@type":"ListItem","position":3,"name":"Speciali","item":"https://zazoomtek.it/speciali.html"}
+                {"@type":"ListItem","position":2,"name":"Speciali","item":"https://zazoomtek.it/speciali.html"}
             ]}
         ]}
     ld=json.dumps(graph,ensure_ascii=False).replace('<','\\u003c')
