@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'publish_pending = release approved site changes now; publish = import and release; poll = JSON only'
+        description: 'publish = refresh imports and release; publish_pending = last-good recovery; poll = JSON only'
         required: true
         type: choice
         options: [publish_pending, publish, poll]
-        default: publish_pending
+        default: publish
   schedule:
     # Italian local time, with automatic DST. No overnight scheduled polls.
     # Exact editorial releases: 10:15 12:45 15:15 17:45 20:15.
@@ -102,22 +102,22 @@ jobs:
           urgent=0
           if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
             if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
-              # Imports already run in serialized five-minute polls.
-              # A release slot publishes validated pending content without
-              # waiting for live YouTube/network imports or their timeouts.
-              mode=publish_pending
+              # At every editorial window scan current YouTube Community
+              # and videos into validated JSON, then build and publish once.
+              # An unavailable secondary source retains last-good data.
+              mode=publish
             else
               mode=poll
             fi
           elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            mode="${ZT_DISPATCH_MODE:-publish_pending}"
+            mode="${ZT_DISPATCH_MODE:-publish}"
             if [ "${mode}" != "poll" ]; then urgent=1; fi
           else
             mode=publish
             # ChatGPT can write the manual request file via the GitHub connector.
             # The deliberately named commit is an explicit publication request.
             if [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then
-              mode=publish_pending
+              mode=publish
               urgent=1
             fi
           fi
