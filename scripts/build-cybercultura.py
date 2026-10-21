@@ -55,6 +55,20 @@ def build() -> None:
     body='<div class="news-list" id="newsList" data-auto-articles="cybercultura">\n'+'\n'.join(item for _,item in ordered)+'\n</div>'
     base=base[:opening.start()]+body+base[opening.end():]
     base=base.replace('</head>','<style>.zt-cyber-category{display:inline-block;margin-bottom:8px;padding:5px 9px;background:#202020;color:#fff;font:800 11px Arial,Helvetica,sans-serif;text-transform:uppercase;border-left:3px solid #d51232}</style><meta property="og:type" content="website"><meta property="og:title" content="Cybercultura | ZazoomTek"><meta property="og:url" content="https://zazoomtek.it/cybercultura.html"></head>',1)
+    structured={
+        "@context":"https://schema.org",
+        "@type":"CollectionPage",
+        "name":"Cybercultura | ZazoomTek",
+        "url":"https://zazoomtek.it/cybercultura.html",
+        "inLanguage":"it-IT",
+        "mainEntity":{"@type":"ItemList","itemListElement":[
+            {"@type":"ListItem","position":i,"url":"https://zazoomtek.it"+url}
+            for i,url in enumerate(
+                sorted(entries,key=lambda u:entries[u][0],reverse=True),start=1)
+        ]}
+    }
+    block='<script type="application/ld+json">'+json.dumps(structured,ensure_ascii=False).replace('<','\\u003c')+'</script>'
+    base=base.replace('</head>',block+'</head>',1)
     # Legacy archive links are kept for Google; site-wide navigation gets
     # its authoritative menu from the Home in apply-site-design.py.
     TARGET.write_text(base,encoding="utf-8")
