@@ -68,6 +68,8 @@ def main() -> None:
     run("build-speciali.py")
     # Published SPECIALI archive is the only source for the two Home cards.
     run("sync-home-speciali.py")
+    # Combined CYBERCULTURA always follows both independent verified publishers.
+    run("build-cybercultura.py")
     run("apply-site-design.py")
     # Add original ISO times ONLY to already-published archive cards; safe even
     # when the YouTube importer skips a cycle with no new Community posts.
