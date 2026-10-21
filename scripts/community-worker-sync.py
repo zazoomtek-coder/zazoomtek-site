@@ -46,7 +46,10 @@ def send(endpoint,token,posts):
     } for p in posts]},ensure_ascii=False).encode("utf-8")
     url=endpoint.rstrip("/")+"/community/ingest"
     req=request.Request(url,data=payload,method="POST",headers={
-        "Content-Type":"application/json","Authorization":"Bearer "+token
+        "User-Agent":"ZazoomTek-Community-Sync/1.0 (+https://zazoomtek.it)",
+        "Accept":"application/json",
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token,
     })
     last=None
     for attempt in range(4):
@@ -56,6 +59,22 @@ def send(endpoint,token,posts):
             if result.get("failed"):
                 raise RuntimeError("Rejected IDs: "+repr(result["failed"][:5]))
             return int(result["accepted"])
+        except error.HTTPError as exc:
+            # Report only safe response metadata, never credentials or request headers.
+            content_type=exc.headers.get("Content-Type","")
+            server=exc.headers.get("Server","")
+            ray=exc.headers.get("CF-Ray","")
+            remote_error=""
+            if "application/json" in content_type.lower():
+                try:
+                    body=json.loads(exc.read(2048).decode("utf-8","replace"))
+                    if isinstance(body,dict):
+                        remote_error=str(body.get("error",""))[:120].replace(token,"[redacted]")
+                except (ValueError,UnicodeError):
+                    pass
+            origin="worker" if remote_error in ("Unauthorized","POST required","Ingest token not configured") else "unconfirmed"
+            last=f"HTTP {exc.code}; content-type={content_type[:60]}; server={server[:50]}; cf-ray={ray[:100]}; origin={origin}; error={remote_error}"
+            print("Ingest response diagnostics:",last,flush=True)
         except (error.URLError,TimeoutError,ValueError,RuntimeError) as exc:
             last=exc
             if attempt<3:
