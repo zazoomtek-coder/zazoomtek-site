@@ -202,7 +202,8 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
     # Community imports may still work even if the separate videos API secret
     # is temporarily unavailable. Each importer reports its own outcome.
     preflight(require_imports=False)
-    # Explicit manual releases never rerun unrelated imports.
+    # Pending-only mode is retained for recovery; normal scheduled and manual
+    # releases now perform a fresh import before the single verified build.
     if publish_pending:
         names = []
     # Missing credentials for one importer must not prevent independently
@@ -210,10 +211,12 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
     else:
         try:
             with tempfile.TemporaryDirectory(prefix="zt-production-") as tmp:
-                names = import_and_validate(Path(tmp), poll_only=poll_only)
+                # Lightweight, isolated fresh YouTube scan at every release.
+                # The production Cloudflare build below runs once, after validated JSON.
+                names = import_and_validate(Path(tmp), poll_only=True)
         except ReleaseBlocked as exc:
-            if poll_only or urgent:
-                raise  # Never hide a broken poll or a manually requested import.
+            if poll_only:
+                raise  # A data-only poll reports its own failures; publishing may use last-good.
             print("::warning::Master content acquisition failed; attempting "
                   "safe scheduled release of previously approved changes: "
                   + str(exc)[:350], flush=True)
