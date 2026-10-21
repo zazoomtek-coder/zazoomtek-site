@@ -1,4 +1,4 @@
-name: Home SPECIALI and No Shorts — staging preview only
+name: Home SPECIALI / CYBERCULTURA — staging preview only
 on:
   pull_request:
     paths:
@@ -8,6 +8,11 @@ on:
       - 'scripts/sync-home-speciali.py'
       - 'scripts/test-home-speciali-placement.py'
       - 'scripts/cloudflare-build-site.py'
+      - 'scripts/build-cybercultura.py'
+      - 'scripts/test-cybercultura.py'
+      - 'scripts/build-cloudflare-pages.py'
+      - 'cybercultura.html'
+      - '_redirects'
       - '.github/workflows/zt-home-speciali-staging.yml'
 permissions:
   contents: read
@@ -25,9 +30,10 @@ jobs:
           node-version: '22'
       - name: Regression for real Speciali and no Shorts on Home
         run: |
-          python3 -m py_compile scripts/sync-home-speciali.py scripts/test-home-speciali-placement.py scripts/cloudflare-build-site.py
+          python3 -m py_compile scripts/sync-home-speciali.py scripts/test-home-speciali-placement.py scripts/build-cybercultura.py scripts/test-cybercultura.py scripts/cloudflare-build-site.py
           node --check zt-home-live.js
           python3 scripts/test-home-speciali-placement.py
+          python3 scripts/test-cybercultura.py
       - name: Build whole site as Cloudflare would, without deployment
         run: |
           python3 -m pip install --quiet Pillow
@@ -41,7 +47,15 @@ jobs:
           assert home.count('id="ztHomeSpeciali"')==1
           assert home.index('id="ztHomeSpeciali"')<home.index('data-special-section="tech"')
           assert 'Videogiochi e terapia, come il gaming può entrare nei percorsi clinici' in a
-          print('PASS: Cloudflare build retains approved Home and one real Speciale in two-place slot')
+          cyber=(Path('dist')/'cybercultura.html').read_text(encoding='utf-8')
+          block=cyber.split('<!-- ZT_CYBERCULTURA_ITEMS_START -->',1)[1].split('<!-- ZT_CYBERCULTURA_ITEMS_END -->',1)[0]
+          assert block.count('data-cyber-section="tech-impact"')>=15
+          assert block.count('data-cyber-section="gaming-inside"')>=4
+          assert 'href="/cybercultura.html"' in home and 'href="/speciali.html"' in home
+          redirects=(Path('dist')/'_redirects').read_text(encoding='utf-8')
+          assert '/tech-today.html /cybercultura.html 301' in redirects
+          assert '/gaming-today.html /cybercultura.html 301' in redirects
+          print('PASS: staging Home Speciali, unified Cybercultura, preserved original articles, safe 301 category redirects')
           PY
       - name: Install Chrome browser test dependencies
         run: |
