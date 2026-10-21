@@ -36,7 +36,7 @@ def check_builder():
     sample=(ROOT/"index.html").read_text(encoding="utf-8")
     archive=(ROOT/"speciali.html").read_text(encoding="utf-8")
     published=mod.special_cards(archive)
-    assert len(published)==1, "The baseline has one verified published Speciale"
+    assert 1 <= len(published) <= 2, "Use at most two genuine approved Speciali"
     with tempfile.TemporaryDirectory() as folder:
         temp=Path(folder)
         (temp/"index.html").write_text(sample,encoding="utf-8")
@@ -50,7 +50,7 @@ def check_builder():
         mod.sync(temp)
         source=(temp/"index.html").read_text(encoding="utf-8")
         block=source.split(mod.HOME_START,1)[1].split(mod.HOME_END,1)[0]
-        assert block.count('class="zt-special-item"')==1
+        assert block.count('class="zt-special-item"')==len(published)
         assert published[0]["url"] in block
         assert not mod.sync(temp), "Second run must be idempotent"
         new='/speciale-secondo-articolo.html'
@@ -68,7 +68,7 @@ def check_builder():
         assert block.count('class="zt-special-item"')==2
         assert new in block
         assert not mod.sync(temp)
-    print("PASS: one real Speciale now; second is automatic, no fake placeholder, Home Shorts suppressed, independent category archives intact")
+    print("PASS: one or two real Speciali only, next approved article automatically rotates into the two-place box; no Home Shorts")
 
 
 if __name__=="__main__":
