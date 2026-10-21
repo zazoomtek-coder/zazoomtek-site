@@ -41,8 +41,8 @@ def preserves_approved_routes(labels,required):
     return position==len(required)
 
 home_labels=nav_labels(home_match.group(1))
-required_nav=("Home","News","Recensioni","Guide","Tech Impact",
-              "Gaming Inside","Extra","Community","Video")
+required_nav=("Home","News","Recensioni","Guide","Cybercultura",
+              "Speciali","Extra","Community","Video")
 if (not preserves_approved_routes(home_labels,required_nav)
         or len(home_labels)!=len(set(home_labels))):
     raise RuntimeError("Home main navigation lost, reordered or duplicated an approved route")
@@ -62,7 +62,7 @@ if not nav_pattern.search(header_template) or 'ticker-video-links' not in header
 def active_nav_key(filename):
     name=filename.lower()
     if name=="speciali.html" or re.fullmatch(r"speciali-\d+[.]html",name):
-        return "Tech Impact"  # Shared INSIGHTS active button in enhanced navigation.
+        return "Speciali"
     if name=="extra.html" or re.fullmatch(r"extra-\d+[.]html",name):
         return "Extra"
     # An Extra Community article keeps its stable news-ID URL, but belongs
@@ -81,10 +81,8 @@ def active_nav_key(filename):
         return "Recensioni"
     if name.startswith(("guida-","guide-")) or name=="guide.html":
         return "Guide"
-    if name.startswith("tech-impact-") or name=="tech-today.html":
-        return "Tech Impact"
-    if name.startswith("gaming-inside-") or name=="gaming-today.html":
-        return "Gaming Inside"
+    if name=="cybercultura.html" or name in ("tech-today.html","gaming-today.html") or name.startswith(("tech-impact-","gaming-inside-")):
+        return "Cybercultura"
     if name.startswith(("test-","unboxing-","gaming-")) or name in (
         "recensioni.html","test.html","unboxing.html","gaming.html"):
         return "Video"
