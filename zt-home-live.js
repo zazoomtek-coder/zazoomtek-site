@@ -204,49 +204,46 @@
   }
   const originalStack=side.querySelector(".zt-video-stack");
   const pop=side.querySelector("#zt-popular-box");
+  const speciali=side.querySelector("#ztHomeSpeciali");
   const impact=side.querySelector('.zt-special-box[data-special-section="tech"]');
   const inside=side.querySelector('.zt-special-box[data-special-section="gaming"]');
   if(pop)rail.appendChild(pop);
+  if(speciali)rail.appendChild(speciali);
   if(impact)rail.appendChild(impact);
   if(inside)rail.appendChild(inside);
   if(originalStack)originalStack.remove();
   while(side.firstElementChild)rail.appendChild(side.firstElementChild);
   side.remove();
   const videoShelfTarget=area.querySelector("#ztpVideosAnchor");
-  // Shorts stay in the 20% editorial rail, beneath Dalla Redazione;
-  // Explore Video retains its full original width.
-  const shortsSlot=document.createElement("aside");
-  shortsSlot.className="ztp-shorts-companion";
-  shortsSlot.setAttribute("aria-label","Ultimi Shorts ZazoomTek");
+  // The owner's Home no longer displays 'Ultimi Shorts'. Keep actual
+  // YouTube Shorts in their existing video archives, untouched.
+  // Leave full-length 'ESPLORA ULTIMI VIDEO' anchored to the main column.
   const root=document.querySelector("main.page");
   function mountShelves(){
-   const shelves=document.getElementById("zt-home-shelves");
-   if(!shelves||!videoShelfTarget)return false;
-   if(shelves.parentElement!==videoShelfTarget)videoShelfTarget.appendChild(shelves);
-   const sync=()=>{
-     const full=[...shelves.children].find(el=>el.classList.contains("zt-shelf")&&!el.querySelector(".zt-shelf-shorts"));
-     if(full){const h=full.querySelector(".zt-shelf-head h2");if(h&&h.textContent!=="ESPLORA ULTIMI VIDEO")h.textContent="ESPLORA ULTIMI VIDEO";}
-     const shorts=[...shelves.children].find(el=>el.classList.contains("zt-shelf")&&el.querySelector(".zt-shelf-shorts")) || rail.querySelector(".ztp-rail-shorts") || shortsSlot.querySelector(".ztp-rail-shorts");
-     if(!shorts)return;
-     shorts.classList.add("ztp-rail-shorts");
-     const heading=shorts.querySelector(".zt-shelf-head h2");
-     if(heading)heading.textContent="ULTIMI SHORTS";
-     const prev=shortsSlot.querySelector(".ztp-rail-shorts");
-     if(prev&&prev!==shorts)prev.replaceWith(shorts);
-     else if(shorts.parentElement!==shortsSlot)shortsSlot.appendChild(shorts);
-     requestAnimationFrame(reconcileRight);
-   };
-   sync();
-   requestAnimationFrame(reconcileRight);
-   if(!shelves.dataset.ztpShortsObserved){
-     shelves.dataset.ztpShortsObserved="yes";
-     new MutationObserver(sync).observe(shelves,{childList:true});
-   }
-   return true;
+    const shelves=document.getElementById("zt-home-shelves");
+    if(!shelves||!videoShelfTarget)return false;
+    if(shelves.parentElement!==videoShelfTarget)videoShelfTarget.appendChild(shelves);
+    const sync=()=>{
+      const all=[...shelves.children].filter(el=>el.classList.contains("zt-shelf"));
+      const full=all.find(el=>!el.querySelector(".zt-shelf-shorts"));
+      if(full){
+        const h=full.querySelector(".zt-shelf-head h2");
+        if(h&&h.textContent!=="ESPLORA ULTIMI VIDEO")h.textContent="ESPLORA ULTIMI VIDEO";
+      }
+      // Remove Shorts from Home only, even if the video importer refreshes them.
+      for(const shorts of all.filter(el=>el.querySelector(".zt-shelf-shorts")))shorts.remove();
+      requestAnimationFrame(reconcileRight);
+    };
+    sync();
+    if(!shelves.dataset.ztpShortsObserved){
+      shelves.dataset.ztpShortsObserved="yes";
+      new MutationObserver(sync).observe(shelves,{childList:true});
+    }
+    return true;
   }
   if(!mountShelves()&&root){
-   const obs=new MutationObserver(()=>{if(mountShelves())obs.disconnect();});
-   obs.observe(root,{childList:true});
+    const obs=new MutationObserver(()=>{if(mountShelves())obs.disconnect();});
+    obs.observe(root,{childList:true});
   }
   // Only distinct real archive articles may expand Gaming. A static hidden
   // cache is never shown twice, and card balancing avoids creating new gaps.
