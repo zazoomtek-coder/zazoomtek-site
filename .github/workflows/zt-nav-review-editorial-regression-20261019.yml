@@ -8,6 +8,9 @@ on:
       - 'zt-visual.js'
       - 'index.html'
       - 'scripts/apply-site-design.py'
+      - 'scripts/build-cybercultura.py'
+      - 'cybercultura.html'
+      - 'speciali.html'
       - 'scripts/build-review-categories.py'
       - 'recensioni-tech.html'
       - 'recensioni-scritte.html'
@@ -45,15 +48,15 @@ jobs:
           import re
           out=Path('dist')
           pages=('index.html','news.html','recensioni-tech.html','recensioni-gaming.html',
-                 'tech-today.html','gaming-today.html','speciali.html')
+                 'cybercultura.html','tech-today.html','gaming-today.html','speciali.html')
           required=('/recensioni-tech.html','/recensioni-gaming.html',
-                    '/tech-today.html','/gaming-today.html','/speciali.html')
+                    '/cybercultura.html','/speciali.html')
           for page in pages:
               html=(out/page).read_text(encoding='utf-8')
               found=re.search(r'<nav\s+class="nav"[^>]*>(.*?)</nav>',html,re.I|re.S)
               assert found, f'{page}: canonical main navigation missing'
               nav=found.group(1)
-              assert nav.count('class="nav-drop-trigger"')==2, f'{page}: two dropdown buttons missing'
+              assert nav.count('class="nav-drop-trigger"')==1, f'{page}: reviews dropdown must be the only dropdown'
               assert all(f'href="{route}"' in nav for route in required), f'{page}: route missing'
           for rel in required:
               assert (out/rel.lstrip('/')).is_file(), f'Missing published destination: {rel}'
@@ -67,7 +70,7 @@ jobs:
           assert 'ZT_SITE_MENU_20261019' in css and 'ZT_SQUARE_EDITORIAL_20261019' in css
           assert 'ZT_SITE_MENU_FLYOUT_20261019' in js
           assert '20261019siteMenuSquare1' in (out/'news.html').read_text()
-          print('PASS: Home + six internal pages, all five dropdown links, two approved Tech covers, square editorial header, versioned CSS/JS.')
+          print('PASS: Home + internal pages, Cybercultura/Speciali direct links and reviews dropdown, two approved Tech covers, stable square editorial header.')
           PY
           python3 scripts/verify-home-layout-lock.py --packaged
           python3 scripts/verify-packaged-home.py --root dist
