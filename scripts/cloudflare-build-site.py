@@ -97,6 +97,7 @@ def main() -> None:
     # Generators may refresh content, but must never rewrite locked Home layout.
     run("verify-home-layout-lock.py")
     run("build-cloudflare-pages.py")
+    run("sync-cybercultura-sitemaps.py", "dist")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
     run("verify-home-layout-lock.py", "--packaged")
@@ -111,6 +112,8 @@ def main() -> None:
     assert (output / "studio/template-news.html").is_file()
     assert (output / "studio/template-review.html").is_file()
     assert (output / "speciali.html").is_file()
+    assert (output / "cybercultura.html").is_file()
+    assert (output / "_redirects").is_file()
     # Public receipt written ONLY after every editorial and artifact check
     # succeeded. Used by GitHub to verify actual Cloudflare production.
     import json
