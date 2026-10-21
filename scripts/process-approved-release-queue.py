@@ -28,13 +28,9 @@ def due_items(data: dict, now: datetime, event_cron: str) -> list[dict]:
         raise ValueError("Not a configured editorial release event")
     if now.tzinfo is None:
         raise ValueError("Timezone-aware clock required")
-    local = now.astimezone(ZoneInfo("Europe/Rome"))
-    starts = [local.replace(hour=h, minute=m, second=0, microsecond=0)
-              for h, m in SLOTS[event_cron]]
-    # A late scheduled GitHub worker still belongs to its scheduled release
-    # window. No manual workflow can pass the actual-event check in process().
-    if not any(0 <= (local - start).total_seconds() <= 90*60 for start in starts):
-        raise ValueError("Outside scheduled editorial window")
+    # Event origin is authenticated by process() (schedule + GitHub Actions).
+    # A runner starting late must still process every previously approved item
+    # whose publication time has passed; a real scheduled run never expires.
     if data.get("version") != 1 or not isinstance(data.get("items"), list):
         raise ValueError("Invalid editorial approval queue")
     due, seen = [], set()
@@ -104,6 +100,9 @@ def self_test() -> None:
          "publish_at": "2026-10-22T10:15:00+02:00", "owner_approved": True},
     ]}
     assert [x["pr"] for x in due_items(data, t, "45 12,17 * * *")] == [119]
+    # A delayed scheduled event must not strand an approved backlog.
+    delayed = datetime.fromisoformat("2026-10-21T15:40:00+02:00")
+    assert [x["pr"] for x in due_items(data, delayed, "45 12,17 * * *")] == [119]
     assert not due_items(data, datetime.fromisoformat("2026-10-21T10:16:00+02:00"),
                          "15 10,15,20 * * *")
     try:
