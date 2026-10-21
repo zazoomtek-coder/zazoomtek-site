@@ -276,7 +276,7 @@
   const ytFollow=rail.querySelector(".zt-youtube-follow");
   if(ytFollow)ytFollow.insertAdjacentElement("afterend",editorialBox);
   else rail.appendChild(editorialBox);
-  editorialBox.insertAdjacentElement("afterend",shortsSlot);
+  // Owner removed Ultimi Shorts from Home; editorial news remains last in the right rail.
   // Three large and real editorial images; keep article links, never inject placeholders.
   // One article may appear in ONE visible Home news module only.
   // Priority: featured carousel, ten Tech/Gaming news per column, then
