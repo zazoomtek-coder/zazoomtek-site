@@ -1,7 +1,7 @@
 {
   "version": 1,
   "timezone": "Europe/Rome",
-  "policy": "Explicit editor approval; automated merges only in assigned scheduled release slot, never earlier or via poll",
+  "policy": "Direttiva editoriale permanente 21-10-2026: ogni modifica/contenuto esplicitamente richiesto o approvato dall'editore entra in coda senza ulteriori approvazioni editoriali ed esce automaticamente al prossimo orario editoriale previsto. Solo l'editore può sospendere, annullare o rinviare un elemento. Nessuna pubblicazione anticipata automatica. Restano soltanto controlli tecnici indispensabili alla sicurezza e integrità del sito.",
   "items": [
     {
       "pr": 118,
