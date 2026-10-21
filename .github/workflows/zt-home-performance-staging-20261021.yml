@@ -1,0 +1,63 @@
+name: Home LCP + CLS regression — staging only
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'scripts/cloudflare-sync-featured-home.py'
+      - 'scripts/test-home-performance-contract.py'
+      - 'zt-home-graphic-layout-20261016.css'
+      - '.github/workflows/zt-home-performance-staging-20261021.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: home-performance-staging-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test-performance-fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit tests for first image LCP priority and prepaint CSS
+        run: |
+          python3 -m py_compile scripts/cloudflare-sync-featured-home.py scripts/test-home-performance-contract.py
+          python3 scripts/test-home-performance-contract.py
+          python3 scripts/test-cloudflare-featured-home.py
+          node --check zt-home-live.js
+          node --check zt-home-graphic-layout-20261016.js
+      - name: Full Cloudflare-equivalent build (no public deployment)
+        run: |
+          python3 -m pip install --quiet 'Pillow>=10,<13'
+          python3 scripts/cloudflare-build-site.py
+          python3 scripts/verify-packaged-home.py --root dist
+          python3 scripts/verify-home-layout-lock.py --packaged
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          page=Path('dist/index.html').read_text(encoding='utf-8')
+          head=page.split('</head>',1)[0]
+          markup=page.split('<!-- FEATURED_NEWS_START -->',1)[1].split('<!-- FEATURED_NEWS_END -->',1)[0]
+          assert head.count('rel="preload" as="image"') == 1
+          assert head.count('id="zt-home-graphic-approved-20261016"') == 1
+          assert markup.count('fetchpriority="high"') == 1
+          assert markup.count('loading="eager"') == 1
+          assert markup.count('loading="lazy"') == 4
+          assert markup.count('width="1600" height="900"') == 5
+          print('PASS: Cloudflare Home keeps its graphics and articles; early CSS and lead priority persisted')
+          PY
+      - name: Save staging Home (no deploy)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-lcp-cls-staging
+          path: |
+            dist/index.html
+            dist/zt-home-graphic-layout-20261016.css
+          retention-days: 3
