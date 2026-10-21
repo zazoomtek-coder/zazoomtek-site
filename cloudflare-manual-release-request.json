@@ -2,10 +2,10 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-21",
-  "reason": "Owner explicit unconditional immediate deployment after gateway and orchestrator pass-through changes",
+  "reason": "Owner-authorized immediate release after resolving PR #119 by preserving main Home and incorporating 70mai A900 Ultra title and Tech shelf behavior",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "zt-owner-direct-pass-through-20261021-1629",
+  "request_id": "zt-pr119-integrated-release-20261021",
   "publish_mode": "immediate",
   "force_publish": true
 }
