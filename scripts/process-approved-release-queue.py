@@ -71,24 +71,31 @@ def process(now: datetime, cron: str, *, dry_run: bool) -> None:
         if dry_run:
             print(f"EDITORIAL QUEUE DRY-RUN: #{pr}, SHA {pin[:12]}")
             continue
-        try:
-            info = json.loads(cli("gh", "pr", "view", str(pr), "--repo", repo,
-                                  "--json", "state,headRefOid,baseRefName,isDraft"))
-            if info["state"] == "MERGED":
-                print(f"EDITORIAL QUEUE: #{pr} already merged")
-                continue
-            if (info["state"] != "OPEN" or info["isDraft"] or
-                    info["baseRefName"] != "main" or info["headRefOid"] != pin):
-                print(f"::warning::EDITORIAL QUEUE: #{pr} differs from "
-                      "the editor-approved revision; retain for reapproval", flush=True)
-                continue
-            cli("gh", "pr", "merge", str(pr), "--repo", repo, "--squash",
-                "--match-head-commit", pin)
-            print(f"EDITORIAL QUEUE: merged #{pr} at its approved slot", flush=True)
-        except (subprocess.SubprocessError, OSError, ValueError, KeyError) as exc:
-            # No single PR is allowed to block unrelated approved PRs or imports.
-            print(f"::warning::EDITORIAL QUEUE: #{pr} still pending: "
-                  f"{str(exc)[:320]}", flush=True)
+        # Failures remain pending and are retried in the next scheduled window.
+        # Transient GitHub failures get two additional attempts in this run.
+        for attempt in range(1, 4):
+            try:
+                info = json.loads(cli("gh", "pr", "view", str(pr), "--repo", repo,
+                                      "--json", "state,headRefOid,baseRefName,isDraft"))
+                if info["state"] == "MERGED":
+                    print(f"EDITORIAL QUEUE: #{pr} already merged")
+                    break
+                if (info["state"] != "OPEN" or info["isDraft"] or
+                        info["baseRefName"] != "main" or info["headRefOid"] != pin):
+                    print(f"::warning::EDITORIAL QUEUE: #{pr} differs from "
+                          "the editor-approved revision; retain for reapproval", flush=True)
+                    break
+                cli("gh", "pr", "merge", str(pr), "--repo", repo, "--squash",
+                    "--match-head-commit", pin)
+                print(f"EDITORIAL QUEUE: merged #{pr} at its approved slot", flush=True)
+                break
+            except (subprocess.SubprocessError, OSError, ValueError, KeyError) as exc:
+                # Never allow one failed PR to block the remaining approved queue.
+                print(f"::warning::EDITORIAL QUEUE: #{pr} attempt {attempt}/3 "
+                      f"failed: {str(exc)[:320]}", flush=True)
+                if attempt == 3:
+                    print(f"::warning::EDITORIAL QUEUE: #{pr} retained for "
+                          "the next editorial slot", flush=True)
 
 
 def self_test() -> None:
