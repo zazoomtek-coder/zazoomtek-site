@@ -214,6 +214,15 @@
   if(originalStack)originalStack.remove();
   while(side.firstElementChild)rail.appendChild(side.firstElementChild);
   side.remove();
+  // Approved rearrangement: existing boxes only, SPECIALI stays untouched.
+  const amazonBox=rail.querySelector(".zt-amazon-box");
+  const youtubeBox=rail.querySelector(".zt-youtube-follow");
+  if(amazonBox&&youtubeBox&&impact){
+    const originalPosition=document.createComment("zt-original-amazon-position");
+    amazonBox.before(originalPosition);
+    impact.insertAdjacentElement("afterend",amazonBox);
+    originalPosition.replaceWith(youtubeBox);
+  }
   const videoShelfTarget=area.querySelector("#ztpVideosAnchor");
   // The owner's Home no longer displays 'Ultimi Shorts'. Keep actual
   // YouTube Shorts in their existing video archives, untouched.
