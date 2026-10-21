@@ -126,9 +126,9 @@ def main():
     items=raw.get("articles",[])
     if not isinstance(items,list):raise ValueError("articles must be a list")
     if len(items)>1500:raise ValueError("Too many articles")
-    # Validate all input before writing any site file.
-    for item in items:
-        if not valid(item):raise ValueError("Invalid or not approved article: "+str(item.get("slug") if isinstance(item,dict) else item))
+    # Validate each article independently: a malformed draft must not prevent
+    # unrelated approved reports from being published in the same build.
+    rejected=[]
     # The cover generator writes its selections separately. The editorial source
     # JSON remains unchanged, so repeated publishes do not create deploy loops.
     cover_data={}
@@ -136,9 +136,13 @@ def main():
         cover_data=json.loads(COVER_MANIFEST.read_text(encoding="utf-8")).get("articles",{})
     published=[];used=set()
     for item in items:
-        if not valid(item):raise ValueError("Invalid or not approved article: "+str(item.get("slug") if isinstance(item,dict) else item))
+        if not valid(item):
+            rejected.append(str(item.get("slug") if isinstance(item,dict) else item))
+            continue
         filename=PREFIX[item["section"]]+"-"+item["slug"]+".html"
-        if filename in used:raise ValueError("Duplicate slug: "+filename)
+        if filename in used:
+            rejected.append("duplicate:"+filename)
+            continue
         used.add(filename)
         article={**item,"filename":filename}
         if item.get("cover_mode")=="auto" or not article.get("image") or article["image"]=="/ChatGPT.png":
@@ -149,9 +153,16 @@ def main():
                 article["image"]=generated
                 article["_cover_origin"]=info.get("origin") or {}
             else:
-                # Do not publish new stories with broken or generic hero images.
-                raise RuntimeError("Missing generated cover for approved article: "+filename)
+                # Keep other approved reports flowing; never publish a broken image.
+                rejected.append("missing-cover:"+filename)
+                continue
         published.append(article)
+    if rejected:
+        print("::warning::SPECIAL NEWS: skipped "+str(len(rejected))+
+              " incomplete/unapproved records: "+", ".join(rejected[:12]), flush=True)
+    if not published:
+        print("SPECIAL NEWS: no usable approved articles; existing archives retained")
+        return
     published.sort(key=lambda x:(x["date"],x["filename"]),reverse=True)
     for item in published:
         related=[r for r in published if r["filename"]!=item["filename"] and r["section"]==item["section"]]
@@ -162,6 +173,9 @@ def main():
     # Editorially special topics only. Ordinary product/game announcements
     # live in NEWS + HOME, not in these dedicated analysis archives.
     for section,archive in SECTION_FILES.items():
+        if not any(p["section"]==section for p in published):
+            print("SPECIAL NEWS: retaining existing "+section+" archive (no valid batch)")
+            continue
         path=ROOT/archive;s=path.read_text(encoding="utf-8")
         rows=[]
         for x in (p for p in published if p["section"]==section):
