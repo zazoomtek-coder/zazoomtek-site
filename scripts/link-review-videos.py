@@ -72,12 +72,23 @@ def insert_banner(document,vid):
     caption=re.match(r'\s*<(?:small|p)\b[^>]*class="(?:hero-caption|hero-cap)"[^>]*>.*?</(?:small|p)>',
                      document[offset:],re.S|re.I)
     if caption: offset+=caption.end()
-    label = "▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗"
-    banner=(f'\n{START}\n<div class="zt-review-video-banner" data-zt-review-video="1">'
-            f'<a href="https://www.youtube.com/watch?v={vid}" target="_blank" '
-            'rel="noopener noreferrer" aria-label="Guarda la videorecensione '
-            'ufficiale di ZazoomTek su YouTube">'
-            f'{label}</a></div>\n'
+    # Native, privacy-enhanced embed for an independently verified review video.
+    # Lazy iframe loading avoids competing with the article's LCP image.
+    banner=(f'\n{START}\n'
+            '<section class="zt-review-video-banner" data-zt-review-video="1" '
+            'aria-label="Videorecensione ufficiale ZazoomTek" '
+            'style="max-width:960px;margin:18px auto 22px">'
+            '<h2 style="margin:0 0 10px;font-size:1.15rem">Guarda la videorecensione</h2>'
+            '<div style="width:100%;aspect-ratio:16/9;background:#101827">'
+            f'<iframe src="https://www.youtube-nocookie.com/embed/{vid}" '
+            'title="Videorecensione ufficiale ZazoomTek" '
+            'loading="lazy" allowfullscreen '
+            'referrerpolicy="strict-origin-when-cross-origin" '
+            'allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" '
+            'style="display:block;width:100%;height:100%;border:0"></iframe></div>'
+            f'<p><a href="https://www.youtube.com/watch?v={vid}" '
+            'target="_blank" rel="noopener noreferrer">'
+            'Apri la videorecensione su YouTube</a></p></section>\n'
             f'{END}\n')
     return document[:offset]+banner+document[offset:].lstrip()
 def main():
