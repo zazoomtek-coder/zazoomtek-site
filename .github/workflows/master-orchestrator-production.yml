@@ -68,6 +68,9 @@ jobs:
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
       - name: Merge due editorial queue independently of other releases
+        # A conflicted PR must not prevent independent approved content reaching Cloudflare.
+        # Any unresolved PR is retried in later slots; never overwrite main.
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
