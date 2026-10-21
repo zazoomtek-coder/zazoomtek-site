@@ -22,7 +22,7 @@ SECTION = {"tech", "gaming"}
 
 PRELOAD_START = "<!-- ZT_FEATURED_LCP_PRELOAD_START -->"
 PRELOAD_END = "<!-- ZT_FEATURED_LCP_PRELOAD_END -->"
-CDN_IMAGE = re.compile(r"^(https://yt3\\.ggpht\\.com/[A-Za-z0-9_-]{20,})=s(?:800|960|1200|1600)-rw-nd-v1$", re.I)
+CDN_IMAGE = re.compile(r"^(https://yt3\.ggpht\.com/[A-Za-z0-9_-]{20,})=s(?:800|960|1200|1600)-rw-nd-v1$", re.I)
 
 
 def responsive_cover(image: str) -> tuple[str, str]:
@@ -54,11 +54,11 @@ def preload_lead_image(html: str, image: str) -> str:
         last = html.index(PRELOAD_END, first) + len(PRELOAD_END)
         return html[:first] + block + html[last:]
     # Legacy unit-test HTML can omit <head>; no need to invent a document.
-    viewport = re.search(r'<meta\\s+name=["\\']viewport["\\'][^>]*>', html, re.I)
+    viewport = re.search(r'<meta\s+name="viewport"[^>]*>', html, re.I)
     if viewport:
         pos = viewport.end()
         return html[:pos] + '\n' + block + html[pos:]
-    head = re.search(r'<head\\b[^>]*>', html, re.I)
+    head = re.search(r'<head\b[^>]*>', html, re.I)
     if head:
         pos = head.end()
         return html[:pos] + '\n' + block + html[pos:]
@@ -157,7 +157,7 @@ def sync(root: Path, check: bool = False) -> bool:
     new = old[:start] + "\n" + rendered + "\n" + old[end:]
     # Keep the preload synchronized with the CURRENT lead cover after every
     # YouTube/featured import; no stale cover or duplicated preload request.
-    lead = re.search(r'<img\\b[^>]*\\bsrc="([^"]+)"', rendered, re.I)
+    lead = re.search(r'<img\b[^>]*\bsrc="([^"]+)"', rendered, re.I)
     if not lead:
         raise RuntimeError("Featured lead image absent")
     from html import unescape
