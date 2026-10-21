@@ -99,7 +99,10 @@ jobs:
           urgent=0
           if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
             if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
-              mode=publish
+              # Imports already run in serialized five-minute polls.
+              # A release slot publishes validated pending content without
+              # waiting for live YouTube/network imports or their timeouts.
+              mode=publish_pending
             else
               mode=poll
             fi
@@ -126,8 +129,13 @@ jobs:
           if [ "${urgent}" = 1 ]; then echo "FORCE_PUBLISH=True; publish_mode=immediate; approved pending content only"; fi
           echo "ZT Master mode: ${mode}"
           if [ "${mode}" = "publish_pending" ]; then
-            echo "Immediate release of verified pending content; no unrelated imports."
-            python3 scripts/master-production-gateway.py --publish-pending --urgent
+            if [ "${urgent}" = 1 ]; then
+              echo "Manual immediate release of validated pending content."
+              python3 scripts/master-production-gateway.py --publish-pending --urgent
+            else
+              echo "Scheduled release of validated pending content at editorial slot."
+              python3 scripts/master-production-gateway.py --publish-pending
+            fi
           elif [ "${urgent}" = 1 ]; then
             echo "User-approved import and release: all safety gates still apply."
             python3 scripts/master-production-gateway.py --publish --urgent
