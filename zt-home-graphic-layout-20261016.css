@@ -490,10 +490,28 @@ main.page #articoli #ztHomeSpeciali .zt-special-list{
 /* Keep the rail level with the bottom of Esplora Ultimi Video.
    Natural gaps distribute the editorial boxes vertically, without fake news
    or arbitrary spacer cards. Tablet/mobile remain naturally stacked. */
+/* Editorial rail: no artificial vertical voids or stretched empty slots.
+   Only existing, published article cards are displayed. */
 @media(min-width:1341px){
   main.page #articoli .ztp-final-three > .ztp-news-rail{
-    align-self:stretch!important;
-    height:100%!important;
-    justify-content:space-between!important
+    align-self:start!important;
+    height:auto!important;
+    justify-content:flex-start!important;
+    align-content:start!important;
+    gap:12px!important
   }
+}
+/* Keep genuine editorial thumbnails aligned and consistent in every right-rail box. */
+main.page #articoli .ztp-news-rail :is(.zt-final-rail-article,.ztp-editorial-story) img,
+main.page #articoli #ztHomeSpeciali .zt-special-list img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+main.page #articoli .ztp-news-rail :is(.zt-final-rail-article,.ztp-editorial-story)[hidden],
+main.page #articoli #ztHomeSpeciali [hidden]{
+  display:none!important
 }
