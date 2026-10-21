@@ -67,7 +67,7 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
-      - name: Merge due owner-approved queue at release time
+      - name: Merge due editorial queue independently of other releases
         env:
           GH_TOKEN: ${{ github.token }}
           ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
@@ -104,11 +104,6 @@ jobs:
               # waiting for live YouTube/network imports or their timeouts.
               mode=publish_pending
             else
-              mode=poll
-            fi
-            # One final production push is requested tonight. Today's scheduled
-            # 20:15 release must NOT issue another Cloudflare build.
-            if [ "$(TZ=Europe/Rome date +%Y-%m-%d)" = "2026-10-19" ]; then
               mode=poll
             fi
           elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
