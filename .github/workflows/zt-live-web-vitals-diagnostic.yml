@@ -1,0 +1,38 @@
+name: REAL live Web Vitals root-cause diagnostic (read only)
+on:
+  pull_request:
+    paths:
+      - scripts/audit-real-web-vitals-readonly.cjs
+      - .github/workflows/zt-live-web-vitals-diagnostic.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  measure-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chrome and Playwright for mobile and desktop Web Vitals measurement
+        run: |
+          command -v google-chrome
+          node --check scripts/audit-real-web-vitals-readonly.cjs
+          mkdir -p /tmp/zt-vitals-node
+          cd /tmp/zt-vitals-node
+          npm install --no-save --silent playwright-core@1.56.0
+      - name: Measure ACTUAL public LCP element and layout shift sources
+        env:
+          NODE_PATH: /tmp/zt-vitals-node/node_modules
+        run: |
+          node scripts/audit-real-web-vitals-readonly.cjs | tee /tmp/zt-live-vitals.log
+      - name: Save metrics and diagnostic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zt-public-web-vitals-diagnostic
+          path: |
+            /tmp/zt-live-vitals.log
+            /tmp/zt-live-mobile.png
+            /tmp/zt-live-desktop.png
+          if-no-files-found: warn
+          retention-days: 3
