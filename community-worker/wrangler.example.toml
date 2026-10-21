@@ -1,0 +1,17 @@
+# Copy to wrangler.toml AFTER Cloudflare D1 database creation.
+# The production Pages project is NOT changed by deploying this Worker.
+name = "zazoomtek-community"
+main = "src/index.js"
+compatibility_date = "2026-10-21"
+workers_dev = true
+
+[[d1_databases]]
+binding = "POSTS"
+database_name = "zazoomtek-community"
+database_id = "REPLACE_WITH_REAL_D1_DATABASE_ID"
+
+# After verification of the Worker on *.workers.dev, add its route
+# in Cloudflare: zazoomtek.it/community/*
+# Do NOT add an overlapping route for /news-* or existing review paths.
+# In the Cloudflare dashboard confirm the zone route points to this Worker.
+# Secret INGEST_TOKEN MUST be set via "wrangler secret put INGEST_TOKEN".
