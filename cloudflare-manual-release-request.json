@@ -2,10 +2,10 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-21",
-  "reason": "Owner-authorized immediate recovery after failed 15:15 slot; force fresh YouTube import then build, verify Cybercultura and primary menus, purge Cloudflare after confirmed release",
+  "reason": "Owner-authorized immediate publish after correcting 70mai review YouTube embed validator; deploy Cybercultura and navigation and current imported news",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "zt-recover-1515-cybercultura-youtube-20261021-v2",
+  "request_id": "zt-immediate-retry-20261021-fix-review-video-verifier",
   "publish_mode": "immediate",
   "force_publish": true
 }
