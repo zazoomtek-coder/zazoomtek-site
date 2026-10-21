@@ -34,7 +34,7 @@ PROTECTED = (
 )
 NAV_LINKS = (
     "/recensioni-tech.html", "/recensioni-gaming.html",
-    "/tech-today.html", "/gaming-today.html", "/speciali.html",
+    "/cybercultura.html", "/speciali.html",
 )
 
 
@@ -73,7 +73,7 @@ def verify_source(root: Path, baseline: dict[str, str]) -> None:
 
 
 def verify_sitewide_nav(root: Path) -> int:
-    """Current menu (two dropdowns) rather than the obsolete nine-item check."""
+    """Owner-approved nav: reviews dropdown plus direct Cybercultura and Speciali."""
     header = re.compile(r"<header\b[^>]*>[\s\S]*?</header>", re.I)
     nav = re.compile(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
     count = 0
@@ -87,8 +87,8 @@ def verify_sitewide_nav(root: Path) -> int:
         n = nav.search(h.group())
         if not n:
             raise RuntimeError(f"Missing sitewide menu on {page.name}")
-        if n.group().count('class="nav-drop-trigger"') != 2:
-            raise RuntimeError(f"Missing two navigation dropdowns on {page.name}")
+        if n.group().count('class="nav-drop-trigger"') != 1:
+            raise RuntimeError(f"Reviews dropdown must be the only flyout on {page.name}")
         if any(f'href="{link}"' not in n.group() for link in NAV_LINKS):
             raise RuntimeError(f"Missing submenu links on {page.name}")
         if "zt-unified-header.js" in source:
