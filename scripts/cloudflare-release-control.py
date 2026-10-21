@@ -112,7 +112,10 @@ def decide(changed: list[str],used: int,urgent: bool=False) -> str:
     if used >= (RESERVE_URGENT if urgent else RESERVE_SCHEDULED):
         return "block-budget"
     if not changed:
-        return "unchanged"
+        # An owner-requested immediate release deliberately rebuilds the
+        # latest committed site even when content did not change. Scheduled
+        # slots still skip empty deploys to conserve the Pages quota.
+        return "publish" if urgent else "unchanged"
     # All editorial updates, including Home modules, menus and the carousel,
     # are valid publication inputs. The separate Home safety gate decides
     # whether a change is destructive; this gate must not postpone safe content.
@@ -236,7 +239,7 @@ def main():
         assert decide(["news-X.html"],449,True)=="publish"
         assert decide(["news-X.html"],0)=="publish"
         assert decide([],0)=="unchanged"
-        assert decide([],0,True)=="unchanged"
+        assert decide([],0,True)=="publish"
         assert not public("scripts/editorial-only.py")
         assert public("assets/special/example.webp") and public("news-example.html")
         assert public("studio/index.html") and public("studio/publisher.js")
