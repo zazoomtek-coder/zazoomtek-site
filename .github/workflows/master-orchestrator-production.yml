@@ -90,7 +90,9 @@ jobs:
             python3 scripts/process-approved-release-queue.py --cron manual-approved
           fi
       - name: JSON-only poll or controlled publication
+        id: production
         env:
+          ZT_CLOUDFLARE_DIRECT_DEPLOY: '1'
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
           ZT_DISPATCH_MODE: ${{ inputs.mode }}
@@ -129,16 +131,74 @@ jobs:
           if [ "${mode}" = "publish_pending" ]; then
             if [ "${urgent}" = 1 ]; then
               echo "Manual immediate release of validated pending content."
-              python3 scripts/master-production-gateway.py --publish-pending --urgent
+              python3 scripts/master-production-gateway.py --publish-pending | tee "$RUNNER_TEMP/zt-master-release.log" --urgent | tee "$RUNNER_TEMP/zt-master-release.log"
             else
               echo "Scheduled release of validated pending content at editorial slot."
               python3 scripts/master-production-gateway.py --publish-pending
             fi
           elif [ "${urgent}" = 1 ]; then
             echo "Immediate requested release: refresh YouTube sources; publish verified site without waiting for a slot."
-            python3 scripts/master-production-gateway.py --publish --urgent
+            python3 scripts/master-production-gateway.py --publish --urgent | tee "$RUNNER_TEMP/zt-master-release.log"
           else
             # The gateway preserves validated last-good JSON when an optional
             # upstream importer fails. Mandatory HTML/deploy integrity remains.
-            python3 scripts/master-production-gateway.py "--${mode}"
+            python3 scripts/master-production-gateway.py "--${mode}" | tee "$RUNNER_TEMP/zt-master-release.log"
+          fi
+
+          # Carry the gateway's actual release decision to the Pages deploy.
+          # Polls (release_requested=false) never spend a Cloudflare build.
+          python3 -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"zt-master-release.log"; rows=[json.loads(line) for line in p.read_text().splitlines() if line.startswith("{") and "release_requested" in line]; r=rows[-1]; print("release_requested="+str(r["release_requested"]).lower()); print("source_commit="+str(r.get("source_commit","")))' >> "$GITHUB_OUTPUT"
+
+      - name: Check direct Pages deployment configuration
+        if: steps.production.outputs.release_requested == 'true'
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          test -n "$CF_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN secret"; exit 1; }
+          test -n "$CF_ACCOUNT" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID secret"; exit 1; }
+          test -n "$CF_PROJECT" || { echo "::error::Missing CLOUDFLARE_PAGES_PROJECT_NAME repository variable"; exit 1; }
+
+      - name: Build the exact committed Cloudflare Pages snapshot
+        if: steps.production.outputs.release_requested == 'true'
+        env:
+          EXPECTED_SOURCE: ${{ steps.production.outputs.source_commit }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          python3 scripts/cloudflare-build-site.py
+          python3 - <<'PY'
+          import json,os,pathlib,re
+          expected=os.environ["EXPECTED_SOURCE"]
+          marker=pathlib.Path("cloudflare-release-trigger.txt").read_text()
+          actual=re.search(r"(?m)^source_commit=([a-f0-9]{40})$",marker)
+          receipt=json.loads(pathlib.Path("dist/zt-release-status.json").read_text())
+          if not actual or actual.group(1)!=expected or receipt.get("source_commit")!=expected:
+              raise SystemExit("Release source SHA changed before direct upload: retry a fresh publish")
+          print("Verified Pages artifact for source",expected)
+          PY
+
+      - name: Deploy committed site directly to Cloudflare Pages
+        if: steps.production.outputs.release_requested == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
+
+      - name: Confirm that the production domain serves this release
+        if: steps.production.outputs.release_requested == 'true'
+        env:
+          EXPECTED_SOURCE: ${{ steps.production.outputs.source_commit }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set -euo pipefail
+          python3 scripts/verify-live-cloudflare.py --source-commit "$EXPECTED_SOURCE" --timeout-seconds 840
+          echo "VERIFIED: Cloudflare serves the exact committed release $EXPECTED_SOURCE"
+          if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ZONE_ID:-}" ]; then
+            python3 scripts/cloudflare-purge-after-release.py || echo "::warning::Optional cache purge failed"
           fi
