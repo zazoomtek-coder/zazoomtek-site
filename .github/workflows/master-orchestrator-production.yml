@@ -67,17 +67,24 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python3 scripts/master-production-gateway.py --check-cutover
-      - name: Merge owner-approved queued changes at their scheduled editorial window
-        if: github.event_name == 'schedule'
+      - name: Merge due owner-approved queue at release time
         env:
           GH_TOKEN: ${{ github.token }}
           ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
+          ZT_DISPATCH_MODE: ${{ inputs.mode }}
+          ZT_PUSH_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           set -euo pipefail
-          if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
-            python3 scripts/process-approved-release-queue.py --cron "${ZT_EVENT_SCHEDULE}"
-          else
-            echo "Import-only poll: never merge approved editorial PRs."
+          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
+            if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
+              python3 scripts/process-approved-release-queue.py --cron "${ZT_EVENT_SCHEDULE}"
+            else
+              echo "Import-only poll: approved PR queue untouched."
+            fi
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${ZT_DISPATCH_MODE:-publish_pending}" != "poll" ]; then
+            python3 scripts/process-approved-release-queue.py --cron manual-approved
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then
+            python3 scripts/process-approved-release-queue.py --cron manual-approved
           fi
       - name: JSON-only poll or controlled publication
         env:
@@ -116,6 +123,7 @@ jobs:
           if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ] && [ "${mode}" != "publish_pending" ]; then
             echo "::error::Unsupported Master mode"; exit 1
           fi
+          if [ "${urgent}" = 1 ]; then echo "FORCE_PUBLISH=True; publish_mode=immediate; approved pending content only"; fi
           echo "ZT Master mode: ${mode}"
           if [ "${mode}" = "publish_pending" ]; then
             echo "Immediate release of verified pending content; no unrelated imports."
