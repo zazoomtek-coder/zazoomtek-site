@@ -29,7 +29,7 @@ def check_source():
     assert 'justify-content:space-between!important' in css
     assert 'align-self:stretch!important' in css
     # Only on Home. The original Shorts video archives and imports stay intact.
-    assert (ROOT/"shorts.html").exists() or (ROOT/"video.html").exists()
+    assert (ROOT/"zt-visual.js").exists(), "Shared video shelves runtime must remain available"
 
 
 def check_builder():
