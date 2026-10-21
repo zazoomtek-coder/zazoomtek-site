@@ -84,7 +84,7 @@ jobs:
             else
               echo "Import-only poll: approved PR queue untouched."
             fi
-          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${ZT_DISPATCH_MODE:-publish_pending}" != "poll" ]; then
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${ZT_DISPATCH_MODE:-publish}" != "poll" ]; then
             python3 scripts/process-approved-release-queue.py --cron manual-approved
           elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then
             python3 scripts/process-approved-release-queue.py --cron manual-approved
@@ -124,7 +124,7 @@ jobs:
           if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ] && [ "${mode}" != "publish_pending" ]; then
             echo "::error::Unsupported Master mode"; exit 1
           fi
-          if [ "${urgent}" = 1 ]; then echo "FORCE_PUBLISH=True; publish_mode=immediate; approved pending content only"; fi
+          if [ "${urgent}" = 1 ]; then echo "IMMEDIATE_RELEASE=True; fresh YouTube import, then release verified content (no slot wait)"; fi
           echo "ZT Master mode: ${mode}"
           if [ "${mode}" = "publish_pending" ]; then
             if [ "${urgent}" = 1 ]; then
@@ -135,8 +135,10 @@ jobs:
               python3 scripts/master-production-gateway.py --publish-pending
             fi
           elif [ "${urgent}" = 1 ]; then
-            echo "User-approved import and release: all safety gates still apply."
+            echo "Immediate requested release: refresh YouTube sources; publish verified site without waiting for a slot."
             python3 scripts/master-production-gateway.py --publish --urgent
           else
+            # The gateway preserves validated last-good JSON when an optional
+            # upstream importer fails. Mandatory HTML/deploy integrity remains.
             python3 scripts/master-production-gateway.py "--${mode}"
           fi
