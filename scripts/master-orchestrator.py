@@ -275,10 +275,6 @@ def save_summary(output: Path, status: str, records: list[dict]) -> None:
         "status": status, "mode": "validated-json-handoff-to-production-gateway",
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "carosello": "5 slot: 4 Tech + 1 Gaming",
-        # JSON acquisition deliberately does not rewrite Home, CSS, or JS.
-        # This is a data-integrity fact, NEVER a deployment veto. The actual
-        # publish / IMMEDIATE_RELEASE override belongs to the production gateway.
-        "protected_source_html_css_js_unchanged": True,
         "legacy_rendering_requires_json_adapters": bool(discarded),
         "modules_with_fallback": failed,
         "blocking_errors": [r.get("error", "") for r in records if r.get("status") == "blocked"],
