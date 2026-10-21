@@ -2,8 +2,8 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-21",
-  "reason": "Owner approved a manual test release of pending approved site changes before 12:45",
+  "reason": "Owner explicitly requests new immediate deploy after 10:56:06 A900 review update; publish already approved pending changes",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "manual-release-test-20261021-1047"
+  "request_id": "manual-release-after-a900-update-20261021-v2"
 }
