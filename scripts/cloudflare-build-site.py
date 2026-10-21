@@ -66,6 +66,8 @@ def main() -> None:
     run("build-review-categories.py")
     # Studio-approved Tech/Gaming long-form SPECIALI, no runtime filtering.
     run("build-speciali.py")
+    # Published SPECIALI archive is the only source for the two Home cards.
+    run("sync-home-speciali.py")
     run("apply-site-design.py")
     # Add original ISO times ONLY to already-published archive cards; safe even
     # when the YouTube importer skips a cycle with no new Community posts.
