@@ -20,6 +20,50 @@ END = "<!-- FEATURED_NEWS_END -->"
 URL = re.compile(r"/[A-Za-z0-9_.-]+\.html\Z")
 SECTION = {"tech", "gaming"}
 
+PRELOAD_START = "<!-- ZT_FEATURED_LCP_PRELOAD_START -->"
+PRELOAD_END = "<!-- ZT_FEATURED_LCP_PRELOAD_END -->"
+CDN_IMAGE = re.compile(r"^(https://yt3\\.ggpht\\.com/[A-Za-z0-9_-]{20,})=s(?:800|960|1200|1600)-rw-nd-v1$", re.I)
+
+
+def responsive_cover(image: str) -> tuple[str, str]:
+    """Return source attributes for the same editorial photo, no crop/replacement."""
+    match = CDN_IMAGE.fullmatch(image)
+    if not match:
+        return "", ""
+    stem = escape(match.group(1), quote=True)
+    srcset = (f"{stem}=s480-rw-nd-v1 480w, "
+              f"{stem}=s800-rw-nd-v1 800w, "
+              f"{stem}=s1200-rw-nd-v1 1200w, "
+              f"{stem}=s1600-rw-nd-v1 1600w")
+    sizes = "(max-width: 820px) calc(100vw - 28px), (max-width: 1500px) 50vw, 740px"
+    return srcset, sizes
+
+
+def preload_lead_image(html: str, image: str) -> str:
+    """Put the lead-image fetch hint in <head>, before scripts or hero markup."""
+    srcset, sizes = responsive_cover(image)
+    attrs = (f' href="{escape(image, quote=True)}"' +
+             (f' imagesrcset="{srcset}" imagesizes="{sizes}"' if srcset else ''))
+    block = (PRELOAD_START + '\n'
+             + '<link rel="preload" as="image" fetchpriority="high"' + attrs + '>\n'
+             + PRELOAD_END)
+    if PRELOAD_START in html or PRELOAD_END in html:
+        if html.count(PRELOAD_START) != 1 or html.count(PRELOAD_END) != 1:
+            raise RuntimeError("Broken lead-image preload anchors")
+        first = html.index(PRELOAD_START)
+        last = html.index(PRELOAD_END, first) + len(PRELOAD_END)
+        return html[:first] + block + html[last:]
+    # Legacy unit-test HTML can omit <head>; no need to invent a document.
+    viewport = re.search(r'<meta\\s+name=["\\']viewport["\\'][^>]*>', html, re.I)
+    if viewport:
+        pos = viewport.end()
+        return html[:pos] + '\n' + block + html[pos:]
+    head = re.search(r'<head\\b[^>]*>', html, re.I)
+    if head:
+        pos = head.end()
+        return html[:pos] + '\n' + block + html[pos:]
+    return html
+
 def render(root: Path) -> str:
     data = json.loads((root / "featured-carousel.json").read_text(encoding="utf-8"))
     pins = json.loads((root / "featured-editorial-pins.json").read_text(encoding="utf-8"))
@@ -90,11 +134,14 @@ def render(root: Path) -> str:
         label = escape(re.sub(r"(?i)^news\s*:\s*", "", title), quote=True)
         path = escape(url, quote=True)
         cover = escape(image, quote=True)
+        srcset, sizes = responsive_cover(image) if n == 0 else ("", "")
+        priority = (' fetchpriority="high"' if n == 0 else '')
+        responsive = (f' srcset="{srcset}" sizes="{sizes}"' if srcset else '')
         cards.append('<a class="zt-feature-card zt-feature-small" href="' + path +
                      '" data-feature-section="' + item["section"] + '" aria-label="' + label + '" title="' + label +
-                     '"><img src="' + cover + '" alt="' + label + '" loading="' +
+                     '"><img src="' + cover + '" alt="' + label + '" width="1600" height="900" loading="' +
                      ("eager" if n == 0 else "lazy") +
-                     '" decoding="async"></a>')
+                     '" decoding="async"' + priority + responsive + '></a>')
     return ('<div class="zt-featured-grid" id="ztFeaturedGrid" '
             'aria-label="News ZazoomTek in evidenza">' + "".join(cards) + "</div>")
 
@@ -106,7 +153,15 @@ def sync(root: Path, check: bool = False) -> bool:
         raise RuntimeError("Home has missing or duplicate featured boundaries")
     start = old.index(START) + len(START)
     end = old.index(END, start)
-    new = old[:start] + "\n" + render(root) + "\n" + old[end:]
+    rendered = render(root)
+    new = old[:start] + "\n" + rendered + "\n" + old[end:]
+    # Keep the preload synchronized with the CURRENT lead cover after every
+    # YouTube/featured import; no stale cover or duplicated preload request.
+    lead = re.search(r'<img\\b[^>]*\\bsrc="([^"]+)"', rendered, re.I)
+    if not lead:
+        raise RuntimeError("Featured lead image absent")
+    from html import unescape
+    new = preload_lead_image(new, unescape(lead.group(1)))
     changed = new != old
     if changed and not check:
         source.write_text(new, encoding="utf-8")
