@@ -318,7 +318,11 @@ def main() -> None:
             print(f"Attempt {attempt}/3 blocked safely: {exc}", file=sys.stderr, flush=True)
             # A new external main commit may explain a rejected push. Retrying is
             # safe, but NEVER force-push or bypass the validation/release gate.
-            if attempt < 3 and ("Main moved" in str(exc) or "git', 'push" in str(exc)):
+            if attempt < 3 and (
+                "Main moved" in str(exc) or "git', 'push" in str(exc)
+                or "Timed out" in str(exc)
+                or "failed" in str(exc)
+            ):
                 # After an isolated offline build, generated untracked pages,
                 # assets and dist files can survive git reset --hard. Do not
                 # let those temporary files block the next valid retry.
