@@ -124,3 +124,19 @@ jobs:
           else
             python3 scripts/master-production-gateway.py "--${mode}"
           fi
+      - name: Purge Cloudflare cache after verified release
+        if: success()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set -euo pipefail
+          if [ "$(git log -1 --format=%s)" != "master: one verified Cloudflare release request" ]; then
+            echo "No new verified Cloudflare release: cache purge not needed."
+            exit 0
+          fi
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ZONE_ID}" ]; then
+            echo "::warning::Cloudflare secrets not configured; cannot purge cache."
+            exit 0
+          fi
+          python3 scripts/cloudflare-purge-after-release.py
