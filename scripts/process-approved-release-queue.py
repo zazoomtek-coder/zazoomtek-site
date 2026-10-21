@@ -24,7 +24,7 @@ SLOTS = {
 
 
 def due_items(data: dict, now: datetime, event_cron: str) -> list[dict]:
-    if event_cron not in SLOTS:
+    if event_cron not in SLOTS and event_cron != "manual-approved":
         raise ValueError("Not a configured editorial release event")
     if now.tzinfo is None:
         raise ValueError("Timezone-aware clock required")
@@ -60,11 +60,13 @@ def process(now: datetime, cron: str, *, dry_run: bool) -> None:
     data = json.loads(QUEUE.read_text(encoding="utf-8"))
     items = due_items(data, now, cron)
     repo = os.getenv("GITHUB_REPOSITORY", "")
-    if not dry_run and (os.getenv("GITHUB_EVENT_NAME") != "schedule" or
+    event = os.getenv("GITHUB_EVENT_NAME")
+    authorized_event = (event == "schedule" and cron in SLOTS) or (cron == "manual-approved" and event in ("push", "workflow_dispatch"))
+    if not dry_run and (not authorized_event or
                         os.getenv("GITHUB_ACTIONS") != "true" or
                         not os.getenv("GH_TOKEN") or
                         not re.fullmatch(r"[\w.-]+/[\w.-]+", repo)):
-        raise RuntimeError("Automatic PR merges require a real scheduled GitHub Master event")
+        raise RuntimeError("Approved PR merges require authenticated scheduled or explicit manual Master event")
     print(f"EDITORIAL QUEUE: {len(items)} approved PR(s) due in this window", flush=True)
     for entry in items:
         pr, pin = entry["pr"], entry["head_sha"]
@@ -107,6 +109,7 @@ def self_test() -> None:
          "publish_at": "2026-10-22T10:15:00+02:00", "owner_approved": True},
     ]}
     assert [x["pr"] for x in due_items(data, t, "45 12,17 * * *")] == [119]
+    assert [x["pr"] for x in due_items(data, t, "manual-approved")] == [119]
     # A delayed scheduled event must not strand an approved backlog.
     delayed = datetime.fromisoformat("2026-10-21T15:40:00+02:00")
     assert [x["pr"] for x in due_items(data, delayed, "45 12,17 * * *")] == [119]
