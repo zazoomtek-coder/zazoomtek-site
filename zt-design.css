@@ -1904,3 +1904,32 @@ html body :is(#ztFeaturedGrid .zt-feature-card img,#newsSlider .news-slide img,
  transform:none!important;
 }
 html body #newsSlider .news-slide img{object-fit:contain!important;object-position:center center!important}
+
+/* ZT_EDITORIAL_FULL_ART_SAFETY_20261021
+   Applies across all editorial archives, news, reviews and sidebar cards.
+   Never crop cover headlines or edge-positioned subjects. Not for brand logos. */
+html body :is(
+ .news-row img,
+ .news-card img,
+ .news-sidebar .side-video img,
+ .news-sidebar .zt-mix-feature img,
+ .news-sidebar .zt-mix-recent-row img,
+ .news-sidebar .zt-mix-editorial-row img,
+ .zt-special-item img,
+ .zt-specials-related-card img,
+ .zt-popular-article img,
+ .ztp-editorial-story img,
+ .zt-final-rail-article img,
+ .zt-feature-card img,
+ .news-slide img,
+ .article-row .article-image img,
+ .article-row img.article-image,
+ .zt-shelf-grid .zt-shelf-thumb img,
+ .zt-review-thumb img,
+ .ztp-review-card img,
+ .zt-home-guide img
+){
+ object-fit:contain!important;
+ object-position:50% 50%!important;
+ transform:none!important;
+}
