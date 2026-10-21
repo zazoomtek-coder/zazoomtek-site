@@ -30,12 +30,28 @@ def main():
         if "recensione" not in path.name or path.name.startswith("recensioni-scritte"):
             continue
         doc=path.read_text(encoding="utf-8")
-        ids=re.findall(r'<!-- ZT_REVIEW_VIDEO_START -->\s*'
-                       r'<div class="zt-review-video-banner"[^>]*>'
-                       r'<a href="https://www.youtube.com/watch\?v=([A-Za-z0-9_-]{11})"',
-                       doc)
-        if len(ids)>1 or doc.count("ZT_REVIEW_VIDEO_END")!=len(ids):
+        # Support the existing link card and the official lazy YouTube embed.
+        # Marker counts, video identity and duplicate detection remain strict.
+        blocks=re.findall(
+            r'<!-- ZT_REVIEW_VIDEO_START -->(.*?)<!-- ZT_REVIEW_VIDEO_END -->',
+            doc, re.S)
+        if (len(blocks)>1 or doc.count("ZT_REVIEW_VIDEO_START")!=len(blocks)
+                or doc.count("ZT_REVIEW_VIDEO_END")!=len(blocks)):
             raise RuntimeError("Invalid or duplicate video banner: "+path.name)
+        ids=[]
+        for block in blocks:
+            embed_ids=re.findall(
+                r'https://www[.]youtube-nocookie[.]com/embed/([A-Za-z0-9_-]{11})',
+                block)
+            link_ids=re.findall(
+                r'https://www[.]youtube[.]com/watch[?]v=([A-Za-z0-9_-]{11})',
+                block)
+            references=embed_ids+link_ids
+            if (not references or len(set(references))!=1
+                    or len(embed_ids)>1 or len(link_ids)>1
+                    or 'zt-review-video-banner' not in block):
+                raise RuntimeError("Mismatched or incomplete YouTube review player: "+path.name)
+            ids.append(references[0])
         if any(vid not in VIDEOS for vid in ids):
             raise RuntimeError("Video is not a verified ZazoomTek REVIEW: "+path.name)
         if path.name in EXPECTED and EXPECTED[path.name] in VIDEOS:
