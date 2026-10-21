@@ -134,7 +134,20 @@ def render(root: Path) -> str:
         label = escape(re.sub(r"(?i)^news\s*:\s*", "", title), quote=True)
         path = escape(url, quote=True)
         cover = escape(image, quote=True)
-        srcset, sizes = responsive_cover(image) if n == 0 else ("", "")
+        if n == 0:
+            # Keep the existing lead-image logic and its build-synced preload.
+            srcset, sizes = responsive_cover(image)
+        else:
+            # Other covers use lighter variants only on narrow screens.
+            # Desktop always retains the full-resolution 1600px source.
+            mobile = CDN_IMAGE.fullmatch(image)
+            if mobile:
+                stem = escape(mobile.group(1), quote=True)
+                srcset = (f"{stem}=s960-rw-nd-v1 960w, "
+                          f"{stem}=s1600-rw-nd-v1 1600w")
+                sizes = "(max-width: 720px) 100vw, 1600px"
+            else:
+                srcset, sizes = "", ""
         priority = (' fetchpriority="high"' if n == 0 else '')
         responsive = (f' srcset="{srcset}" sizes="{sizes}"' if srcset else '')
         cards.append('<a class="zt-feature-card zt-feature-small" href="' + path +
