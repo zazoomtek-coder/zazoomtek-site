@@ -2,8 +2,10 @@
   "version": 1,
   "request_type": "publish_approved_pending",
   "requested_date": "2026-10-21",
-  "reason": "Owner-authorized immediate release and authenticated Cloudflare cache purge verification after secrets setup",
+  "reason": "Owner explicitly requests immediate release of due approved editorial queue and verified Cloudflare cache purge",
   "approved_review_id": "70mai-a900-ultra-20261020",
   "respect_future_publish_at": true,
-  "request_id": "verify-cloudflare-purge-secrets-20261021-01"
+  "request_id": "zt-immediate-manual-publish-20261021-0937",
+  "publish_mode": "immediate",
+  "force_publish": true
 }
