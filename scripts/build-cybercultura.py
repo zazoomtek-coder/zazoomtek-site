@@ -15,7 +15,7 @@ ARCHIVES=(("tech-today.html","Tech Impact"),("gaming-today.html","Gaming Inside"
 TARGET=ROOT/"cybercultura.html"
 ROW=re.compile(r'<article\b[^>]*class="[^"]*\bnews-row\b[^"]*"[^>]*>.*?</article>', re.I|re.S)
 URL=re.compile(r'<a\b[^>]*href="(/(?:news-|tech-impact-|gaming-inside-)[^"#?]+\.html)"',re.I)
-LIST=re.compile(r'(<div\b[^>]*class="news-list"[^>]*>)(.*?)(</article>\s*</div>)',re.I|re.S)
+LIST=re.compile(r'(<div\b[^>]*class="news-list"[^>]*>)(.*?</article>)(\s*</div>)',re.I|re.S)
 DATE=re.compile(r'<div\b[^>]*class="news-meta"[^>]*>.*?(\d{4}-\d{2}-\d{2})',re.I|re.S)
 
 def build() -> None:
