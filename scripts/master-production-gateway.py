@@ -312,6 +312,18 @@ def main() -> None:
                      "--source-commit", source,
                      "--timeout-seconds", "840", timeout=890)
                 print("VERIFIED: public Cloudflare release matches master source", flush=True)
+                # Purge only after the public deployment was verified.
+                # Credentials are injected from GitHub Actions Secrets, never stored here.
+                if os.environ.get("CLOUDFLARE_API_TOKEN") and os.environ.get("CLOUDFLARE_ZONE_ID"):
+                    try:
+                        call(sys.executable, "scripts/cloudflare-purge-after-release.py", timeout=60)
+                    except ReleaseBlocked as purge_error:
+                        # Cache invalidation failure must not discard a successful deploy.
+                        print("::warning::Cloudflare cache purge failed: "
+                              + str(purge_error), flush=True)
+                else:
+                    print("::warning::Cloudflare cache purge not configured: "
+                          "set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID secrets", flush=True)
             return
         except ReleaseBlocked as exc:
             last = exc
