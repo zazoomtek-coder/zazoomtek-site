@@ -272,13 +272,14 @@ def save_summary(output: Path, status: str, records: list[dict]) -> None:
                  if s.get("legacy_html_discarded")
                  and s["module"] != "isolated-offline-build"]
     summary = {
-        "status": status, "mode": "staging-only-no-push-no-deploy",
+        "status": status, "mode": "validated-json-handoff-to-production-gateway",
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "carosello": "5 slot: 4 Tech + 1 Gaming",
         "protected_source_html_css_js_unchanged": True,
         "legacy_rendering_requires_json_adapters": bool(discarded),
         "modules_with_fallback": failed,
-        "production_deploy_allowed": False,
+        "blocking_errors": [r.get("error", "") for r in records if r.get("status") == "blocked"],
+        "production_deploy_allowed": status != "blocked",
         "old_workflows_unchanged": True,
         "modules": records,
     }
