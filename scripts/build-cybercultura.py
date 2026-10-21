@@ -45,7 +45,7 @@ def build() -> None:
     # Preserve the existing accessible and responsive page shell, sidebar and footer.
     base=base.replace("<title>Tech Impact | ZazoomTek</title>","<title>Cybercultura | Tecnologia, Gaming, Società e Diritti - ZazoomTek</title>",1)
     base=base.replace('https://zazoomtek.it/tech-today.html','https://zazoomtek.it/cybercultura.html',1)
-    base=re.sub(r'(<meta name="description" content=")[^"]+(")',r'\1Cybercultura: approfondimenti su tecnologia, videogiochi, politica, sicurezza, diritti digitali e societa. Tutte le notizie Tech Impact e Gaming Inside.\2',base,count=1)
+    base=re.sub(r'(<meta name="description" content=")[^"]+(")',r'\1Cybercultura: approfondimenti su tecnologia, videogiochi, politica, sicurezza, diritti digitali e società. Tutte le notizie Tech Impact e Gaming Inside.\2',base,count=1)
     base=base.replace('<strong>Tech Impact</strong>','<strong>Cybercultura</strong>',1)
     base=base.replace('<span>Notizie di tecnologia e innovazione</span>','<span>Tecnologia, videogiochi, politica, sicurezza e diritti digitali</span>',1)
     base=base.replace('<h1>Tech Impact</h1>','<h1>Cybercultura</h1>',1)
@@ -55,6 +55,25 @@ def build() -> None:
     body='<div class="news-list" id="newsList" data-auto-articles="cybercultura">\n'+'\n'.join(item for _,item in ordered)+'\n</div>'
     base=base[:opening.start()]+body+base[opening.end():]
     base=base.replace('</head>','<style>.zt-cyber-category{display:inline-block;margin-bottom:8px;padding:5px 9px;background:#202020;color:#fff;font:800 11px Arial,Helvetica,sans-serif;text-transform:uppercase;border-left:3px solid #d51232}</style><meta property="og:type" content="website"><meta property="og:title" content="Cybercultura | ZazoomTek"><meta property="og:url" content="https://zazoomtek.it/cybercultura.html"></head>',1)
+    preview_image=re.search(r'<img\\b[^>]*\\bsrc="([^"]+)"',ordered[0][1],re.I)
+    image=html.unescape(preview_image.group(1)) if preview_image else "/ChatGPT.png"
+    if image.startswith("/"):
+        image="https://zazoomtek.it"+image
+    description=("Cybercultura riunisce Tech Impact e Gaming Inside: "
+                 "tecnologia, videogiochi, politica, cybersicurezza e diritti digitali.")
+    social=(
+        '<meta property="og:locale" content="it_IT">'
+        '<meta property="og:site_name" content="ZazoomTek">'
+        '<meta property="og:description" content="'+html.escape(description,quote=True)+'">'
+        '<meta property="og:image" content="'+html.escape(image,quote=True)+'">'
+        '<meta property="og:image:alt" content="Cybercultura: notizie e approfondimenti ZazoomTek">'
+        '<meta name="twitter:card" content="summary_large_image">'
+        '<meta name="twitter:title" content="Cybercultura | ZazoomTek">'
+        '<meta name="twitter:description" content="'+html.escape(description,quote=True)+'">'
+        '<meta name="twitter:image" content="'+html.escape(image,quote=True)+'">'
+        '<meta name="robots" content="index,follow,max-image-preview:large">'
+    )
+    base=base.replace('</head>',social+'</head>',1)
     structured={
         "@context":"https://schema.org",
         "@type":"CollectionPage",
