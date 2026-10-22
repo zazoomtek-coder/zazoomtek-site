@@ -1,11 +1,10 @@
 {
   "version": 1,
-  "request_type": "publish_approved_pending",
-  "requested_date": "2026-10-21",
-  "reason": "Owner-authorized immediate release after resolving PR #119 by preserving main Home and incorporating 70mai A900 Ultra title and Tech shelf behavior",
-  "approved_review_id": "70mai-a900-ultra-20261020",
+  "request_type": "publish_approved_pending_and_refresh_youtube",
+  "requested_date": "2026-10-22",
+  "reason": "Owner explicitly requested immediate recovery of missed 12:45 editorial release and import/publication of newly available YouTube videos; verify full Cloudflare deploy and 70mai image templates",
   "respect_future_publish_at": true,
-  "request_id": "zt-pr119-integrated-release-20261021",
+  "request_id": "zt-owner-recovery-20261022-1245-missed-and-fresh-youtube",
   "publish_mode": "immediate",
   "force_publish": true
 }
