@@ -2,7 +2,11 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const goodPath=raw=>{try{const s=decodeURIComponent(String(raw||"").trim().replace(/^https?:\/\/(?:www\.)?zazoomtek\.it\//i,"").replace(/^\/+/,"").split(/[?#]/)[0]);return (/^[\w.-]+\.html$/.test(s)||/^watch\/[\w-]{11}\.html$/.test(s))&&!s.includes("..")&&!["index.html","studio.html","watch/index.html"].includes(s)?s:null}catch{return null}};
+const goodPath=raw=>{try{
+ let s=decodeURIComponent(String(raw||"").trim().replace(/^https?:\/\/(?:www\.)?zazoomtek\.it\//i,"").replace(/^\/+/,"").split(/[?#]/)[0]).replace(/\/+$/,"");
+ if(s&&!/\.[a-z0-9]+$/i.test(s))s+=".html";
+ return (/^[\w.-]+\.html$/.test(s)||/^watch\/[\w-]{11}\.html$/.test(s))&&!s.includes("..")&&!["index.html","studio.html","watch/index.html"].includes(s)?s:null;
+}catch{return null}};
 const yt=raw=>{try{let u=new URL(raw,location.href);if(!["youtube.com","www.youtube.com","m.youtube.com","youtu.be","www.youtu.be","www.youtube-nocookie.com"].includes(u.hostname))return null;const id=u.hostname.includes("youtu.be")?u.pathname.slice(1):u.pathname==="/watch"?u.searchParams.get("v"):(u.pathname.match(/^\/(?:embed|shorts|live|v)\/([\w-]+)/)||[])[1];return /^[\w-]{11}$/.test(id||"")?id:null}catch{return null}};
 const b64decode=s=>new TextDecoder().decode(Uint8Array.from(atob(String(s||"").replace(/\s+/g,"")),c=>c.charCodeAt(0)));
 const photo=(src,alt,x=50,y=50)=>{let f=document.createElement("figure");f.className="zt-media photo";f.dataset.x=x;f.dataset.y=y;f.dataset.zoom=1;f.contentEditable="false";f.innerHTML='<img alt="'+esc(alt)+'" style="width:100%;aspect-ratio:16/9;object-fit:cover;object-position:'+x+'% '+y+'%;transform:scale(1);transform-origin:'+x+'% '+y+'%"><figcaption>Immagine · trascina per regolare l’inquadratura</figcaption>';f.querySelector("img").src=src;return f};
@@ -58,8 +62,8 @@ $("zeUp").onclick=()=>{if(selected?.previousElementSibling){selected.previousEle
 $("zeDown").onclick=()=>{if(selected?.nextElementSibling){selected.nextElementSibling.after(selected);dirty=true}};
 $("zeDelete").onclick=()=>{if(selected&&confirm("Eliminare l'elemento selezionato?")){selected.remove();select(null);dirty=true}};
 body.addEventListener("paste",e=>{const t=e.clipboardData?.getData("text/plain")?.trim(),id=yt(t);if(id){e.preventDefault();insert(video(id));status("Link YouTube trasformato automaticamente in player.")}});
-function prepare(html){const doc=new DOMParser().parseFromString(html,"text/html"),article=doc.querySelector("article.article-main,article.story,article.zt-main.zt-article,article.zt-main,article.zt-article,main.content article.article-body,main.content article,article.zt-watch-article");if(!article)throw Error("Non è una pagina editoriale supportata.");
-let holder=article.querySelector(":scope > .article-body, :scope > .body"), nodes=[],type="";
+function prepare(html){const doc=new DOMParser().parseFromString(html,"text/html"),article=doc.querySelector("article.article-main,article.story,article.zt-main.zt-article,article.zt-main,article.zt-article,main.content article.article-body,main.content article,article.zt-watch-article")||[...doc.querySelectorAll("main")].find(main=>main.querySelector("h1")&&main.querySelector(".article-copy"));if(!article)throw Error("Non è una pagina editoriale supportata.");
+let holder=article.querySelector(":scope > .article-body, :scope > .body, :scope > .article-copy"), nodes=[],type="";
 if(holder){type="holder";nodes=[holder]}
 else if(article.matches(".zt-watch-article")){type="watch";nodes=[...article.children].filter(el=>!el.matches("h1"))}
 else if(article.matches(".article-body")){type="self";for(const el of [...article.children]){if(el.matches(".zt-related-section,.zt-community-banner,.zt-community-area,.zt-subscribe-cta,.related,[data-zt-auto]"))break;nodes.push(el)}}
