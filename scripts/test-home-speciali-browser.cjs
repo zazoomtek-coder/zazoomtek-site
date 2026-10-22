@@ -34,7 +34,7 @@ const views=[["desktop",1600,900],["tablet",1100,900],["mobile",390,844]];
       cachedCss:!!document.querySelector('link[id="zt-home-graphic-approved-20261016"]')};
    });
    console.log("ZT_HOME_SPECIALI_VIEW",name,JSON.stringify(info));
-   if(info.specials!==1||!info.cardImagesGood)throw Error(name+": exactly one real approved special is expected");
+   if(info.specials!==2||!info.cardImagesGood)throw Error(name+": exactly two genuine approved specials are expected");
    if(info.order.indexOf("ztHomeSpeciali")<0||info.order.indexOf("ztHomeSpeciali")<
       info.order.indexOf("zt-popular-box")||info.order.indexOf("ztHomeSpeciali")>
       info.order.indexOf("tech"))throw Error(name+": SPECIALI box not between DA NON PERDERE and Tech Impact");
