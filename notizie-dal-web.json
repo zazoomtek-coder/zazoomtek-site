@@ -1,8 +1,19 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T14:11:00.766085+00:00",
-  "license_policy": "Five approved RSS publishers; external editorial photographs require an explicit redistribution license",
+  "updated_at": "2026-10-22T14:35:30.575292+00:00",
+  "image_policy": "RSS enclosure/media or article OpenGraph; 720x405 WebP with linked attribution",
   "items": [
+    {
+      "id": "c2c6c539c6f1ca8cc436",
+      "source": "HDblog",
+      "url": "https://www.hdblog.it/hardware/articoli/n674607/corsair-cyberpunk-2077-edgerunners-arasaka/",
+      "title": "Il punto su Corsair arrivano nuove periferiche ispirate Cyberpunk 2077",
+      "excerpt": "La notizia riguarda Corsair arrivano nuove periferiche ispirate. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-22T14:15:00+00:00",
+      "image": "/assets/notizie-dal-web/c2c6c539c6f1ca8cc436-484a2b182c.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://hd2.tudocdn.net/1379916?w=660"
+    },
     {
       "id": "d896de01d28a5f7f09b8",
       "source": "Tom's Hardware Italia",
@@ -10,16 +21,9 @@
       "title": "Il punto su bundle Nintendo Switch bonus valore 150",
       "excerpt": "La notizia riguarda bundle Nintendo Switch bonus valore. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
       "published": "2026-10-22T14:10:02+00:00",
-      "image": "/assets/notizie-dal-web/d896de01d28a5f7f09b8.webp"
-    },
-    {
-      "id": "b777defc4542e59abc45",
-      "source": "HDblog",
-      "url": "https://www.hdblog.it/indossabili/articoli/n674594/samsung-galaxy-fit-4-video-immagini/",
-      "title": "Il punto su Galaxy Fit ecco sarà smartband Samsung",
-      "excerpt": "La notizia riguarda Galaxy ecco sarà smartband Samsung. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T13:50:00+00:00",
-      "image": "/assets/notizie-dal-web/b777defc4542e59abc45.webp"
+      "image": "/assets/notizie-dal-web/d896de01d28a5f7f09b8-7b369d630f.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119814/nintendo-switch-sport-resort-cover.jpg"
     },
     {
       "id": "7bf4a3b8bccc7d2c58ea",
@@ -28,7 +32,9 @@
       "title": "Il punto su Roborock Saros Neo robot aspirapolvere lavapavimenti toglie",
       "excerpt": "La notizia riguarda Roborock Saros robot aspirapolvere lavapavimenti. DDAY.it pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
       "published": "2026-10-22T13:35:00+00:00",
-      "image": "/assets/notizie-dal-web/7bf4a3b8bccc7d2c58ea.webp"
+      "image": "/assets/notizie-dal-web/7bf4a3b8bccc7d2c58ea-a25eac417c.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://images.dday.it/lkfBM4xClC1cVBYiC0ANrFQsblWMGdqMyY1cmpScFsU/w:329/h:256/rt:fill/plain/s3://dday-production/system/uploads/news/square_crop_img/59120/dc3f6c_Roborock_Saros_20_Neo__Lifestyle__Black_25.jpg"
     },
     {
       "id": "3445940c87d5d165691e",
@@ -37,7 +43,9 @@
       "title": "Il punto su Samsung Galaxy Fit trapelano prime immagini quasi",
       "excerpt": "La notizia riguarda Samsung Galaxy trapelano prime immagini. SmartWorld pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
       "published": "2026-10-22T12:59:00+00:00",
-      "image": "/assets/notizie-dal-web/3445940c87d5d165691e.webp"
+      "image": "/assets/notizie-dal-web/3445940c87d5d165691e-0d9858aa0f.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://www.smartworld.it/images/2026/10/22/samsung-galaxy-fit-4-orig.jpg"
     },
     {
       "id": "25a0009388d2c8e3c7af",
@@ -46,7 +54,9 @@
       "title": "Il punto su Tesla adatta app iPad iPhone Duo cosa",
       "excerpt": "La notizia riguarda Tesla adatta iPad iPhone cosa. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
       "published": "2026-10-22T14:10:00+00:00",
-      "image": "/assets/notizie-dal-web/25a0009388d2c8e3c7af.webp"
+      "image": "/assets/notizie-dal-web/25a0009388d2c8e3c7af-ef74603a62.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119812/tesla-adatta-l-app-a-ipad-e-iphone-duo-cosa-cambia-nei-comandi.png"
     }
   ]
 }
