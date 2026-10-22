@@ -284,10 +284,17 @@ def build(today: dt.date) -> tuple[str, str, dict]:
         [{"title":item["title"], "url":item["url"], "image":item["image"]} for item in editorial],
         ensure_ascii=False, separators=(",", ":"),
     ).replace("<", "\\u003c")
-    javascript = replace_once(
-        javascript, r'const sidebarEditorials=\[.*?\];(?=\s*const editorialBox=)',
-        "const sidebarEditorials=" + serialized + ";", "Dalla redazione source",
-    )
+    # The retired Dalla redazione mini-box was removed from the live Home.
+    # Keep refreshing its legacy source only on still-old templates; never
+    # force that deleted element back into the current ALTRE NEWS layout.
+    if "const editorialBox=" in javascript:
+        javascript = replace_once(
+            javascript, r'const sidebarEditorials=\[.*?\];(?=\s*const editorialBox=)',
+            "const sidebarEditorials=" + serialized + ";", "Dalla redazione source",
+        )
+    elif 'otherBox.id="ztpOtherNews"' not in javascript:
+        raise RuntimeError("Neither the legacy editorials nor the approved ALTRE NEWS module is present")
+
     # Post conditions defend the Home, and all three original editorial regions.
     if homepage.count("<!-- ARTICLE_FEED_START -->") != 1 or homepage.count("<!-- ARTICLE_FEED_END -->") != 1:
         raise RuntimeError("Article import markers unexpectedly changed")
