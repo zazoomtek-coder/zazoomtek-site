@@ -17,14 +17,15 @@
     {
       "id": "70mai-a900-ultra-20261020",
       "status": "approved",
-      "publish_at": "2026-10-20T17:45:00+02:00",
+      "publish_at": "2026-10-21T17:45:00+02:00",
       "source": "anteprima-70mai-a900-ultra.html",
       "target": "70mai-a900-ultra-recensione-dual-4k.html",
-      "title": "70mai A900 Ultra Recensione | Dashcam Dual 4K e Sony STARVIS 2",
+      "title": "70mai A900 Ultra Recensione | Dash Cam Dual 4K, Sony STARVIS 2 e sorveglianza intelligente al vertice della gamma",
       "platform": "TECH",
-      "date_label": "20 ottobre 2026",
+      "date_label": "21 ottobre 2026",
       "description": "La recensione della dash cam Dual 4K HDR con sensori Sony STARVIS 2, modalità parcheggio, pro e contro. Voto finale 9.5/10.",
-      "image": "/assets/recensioni/70mai-a900-ultra/foto-1.png"
+      "image": "/assets/recensioni/70mai-a900-ultra/foto-1.png",
+      "author": "Giuseppe Saieva"
     }
   ]
 }

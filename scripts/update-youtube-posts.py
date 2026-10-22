@@ -2579,7 +2579,7 @@ def editorial_review_pages():
             continue
         result.append({
             "_editorial":True,
-            "title":html.unescape(headline.group(1)).split(" | ")[0].split(" - ZazoomTek")[0],
+            "title":html.unescape(headline.group(1)).split(" - ZazoomTek")[0],
             "slug":name, "image":html.unescape(cover.group(1)),
             "published_iso":published.group(1),
             "published":published.group(1)[:10],
