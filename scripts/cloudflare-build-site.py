@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+BUILD_WARNINGS: list[str] = []
+
 def run(script: str, *args: str) -> None:
     print("CLOUDFLARE BUILD:", script, " ".join(args), flush=True)
     try:
@@ -23,6 +25,7 @@ def run(script: str, *args: str) -> None:
         if script == "build-cloudflare-pages.py":
             # The public artifact must exist before any Cloudflare upload.
             raise
+        BUILD_WARNINGS.append(script)
         print("::warning::Editorial renderer/importer unavailable: "
               + script + " (" + str(exc)[:220] + "); proceeding with existing content", flush=True)
 
@@ -131,6 +134,8 @@ def main() -> None:
     receipt = {
         "source_commit": match.group(1),
         "validated": True,
+        "editorial_status": "partial" if BUILD_WARNINGS else "complete",
+        "editorial_warnings": sorted(set(BUILD_WARNINGS)),
         "built_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     (output / "zt-release-status.json").write_text(
