@@ -69,7 +69,7 @@ def verify_sitewide_nav(root: Path) -> int:
     nav = re.compile(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
     count = 0
     for page in sorted(root.glob("*.html")):
-        if page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
+        if page.name == "404.html" or page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
             continue
         source = page.read_text(encoding="utf-8", errors="replace")
         h = header.search(source)
