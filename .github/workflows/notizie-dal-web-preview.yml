@@ -1,0 +1,64 @@
+name: Notizie dal Web - Live Preview (NO DEPLOY)
+on:
+  push:
+    branches:
+      - feature/notizie-dal-web
+    paths:
+      - 'scripts/refresh-web-news.py'
+      - 'scripts/render-web-news.py'
+      - 'scripts/build-web-news-preview.py'
+      - 'scripts/master-production-gateway.py'
+      - 'scripts/cloudflare-build-site.py'
+      - '.github/workflows/notizie-dal-web-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image conversion
+        run: python -m pip install --disable-pip-version-check -q Pillow
+      - name: RSS parsing, page insertion and idempotence tests
+        run: |
+          python scripts/refresh-web-news.py --self-test
+          python scripts/render-web-news.py --self-test
+          python -m py_compile scripts/refresh-web-news.py scripts/render-web-news.py scripts/build-web-news-preview.py scripts/master-production-gateway.py
+      - name: Request only the configured technology RSS feeds, no live release
+        run: python scripts/refresh-web-news.py
+      - name: Verify real five-item snapshot and image files
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("notizie-dal-web.json")
+          assert p.exists(), "No validated current RSS data, do not invent headlines"
+          rows=json.loads(p.read_text())["items"]
+          assert len(rows)==5
+          assert all(pathlib.Path(i["image"].lstrip("/")).is_file() for i in rows)
+          print("RSS preview from",sorted(set(i["source"] for i in rows)),"; five real article URLs")
+          PY
+      - name: Inject module into actual Home after pagination and before GUIDE
+        run: |
+          python scripts/render-web-news.py
+          python scripts/render-web-news.py
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          assert t.count('id="ztWebNews"')==1
+          assert t.index('ARTICLE_PAGINATION_END')<t.index('ZT_WEB_NEWS_START')<t.index('HOME_GUIDES_INSET_START')
+          assert t.count('class="zt-webnews-item"')==4
+          print('PASS: exact Home placement and 5-card responsive module')
+          PY
+      - name: Create ZIP with actual Home, real links and local WebP
+        run: python scripts/build-web-news-preview.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-Notizie-dal-Web-LIVE
+          path: ZazoomTek-Notizie-dal-Web-LIVE.zip
+          if-no-files-found: error
+          retention-days: 7
