@@ -17,7 +17,7 @@ def apply(root:Path=ROOT):
         if obj.get("version")!=1 or not obj.get("owner_edited") or not isinstance(path,str) or not NAME.fullmatch(path) or path=="index.html" or marker.name!=path[:-5]+".json":
             raise RuntimeError("Invalid Studio override: "+marker.name)
         content=obj.get("html")
-        if not isinstance(content,str) or len(content)>2_000_000 or not re.search(r"<article\b[^>]*class=['\"][^'\"]*(?:article-main|story)",content,re.I) or not re.search(r"<h1\b",content,re.I) or not re.search(r'<link\b[^>]*rel=["\']canonical["\']',content,re.I):
+        if not isinstance(content,str) or len(content)>2_000_000 or not re.search(r"<article\b[^>]*class=['\"][^'\"]*(?:article-main|story|zt-main)",content,re.I) or not re.search(r"<h1\b",content,re.I) or not re.search(r'<link\b[^>]*rel=["\']canonical["\']',content,re.I):
             raise RuntimeError("Unsafe or incomplete Studio override: "+marker.name)
         target=root/path
         if not target.is_file():
