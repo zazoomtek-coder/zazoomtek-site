@@ -52,21 +52,33 @@ jobs:
           schedule=Path(".github/workflows/master-orchestrator-production.yml").read_text()
           gate=Path("scripts/cloudflare-release-control.py").read_text()
           gateway=Path("scripts/master-production-gateway.py").read_text()
+          assert "workflow_dispatch:" in schedule
           assert "timezone: 'Europe/Rome'" in schedule
           assert "cron: '15 10,15,20 * * *'" in schedule
-          assert "cron: '45 12,17 * * *'" in schedule
-          assert "cloudflare-manual-release-request.json" in schedule
-          assert "master-production-gateway.py --publish --urgent" in schedule
+          assert "cron: '45 12 * * *'" in schedule and "cron: '45 17 * * *'" in schedule
+          assert "cron: '25,40 20 * * *'" in schedule
+          assert "2026-10-22" in schedule and "45 17 * * *" in schedule
+          assert 'Owner postponed the 17:45 slot to 20:15' in schedule
           assert "cancel-in-progress: false" in schedule
           assert "zazoomtek-master-sole-repository-and-pages-writer" in schedule
-          assert 'gate = "--urgent"' in gateway
+          assert "contents: write" in schedule
+          assert "master-production-gateway.py --publish" in schedule
+          assert "master-production-gateway.py --publish --urgent" not in schedule
+          assert 'steps.master_release.outputs.deploy == \'true\'' in schedule
+          assert "steps.recovery.outputs.mode == 'retry_deploy'" in schedule
+          assert "Cloudflare" in schedule and "cloudflare/wrangler-action@v3" in schedule
+          assert "pages deploy dist --project-name=" in schedule
+          assert "scripts/verify-live-cloudflare.py" in schedule
+          assert "if current and len(expected)==40" in schedule
+          assert 'mode=\'skip\'' in schedule
+          assert 'mode=\'retry_deploy\'' in schedule
+          assert 'gate = "--urgent" if urgent else "--scheduled-slot"' in gateway
           assert "scripts/cloudflare-release-control.py" in gateway
           assert "slot_utc=" in gate
           assert "RESERVE_SCHEDULED=450" in gate and "RESERVE_URGENT=475" in gate
           assert "already_released_in_slot" in gate
-          assert "verify-live-cloudflare.py" in gateway
           assert not Path(".github/workflows/cloudflare-controlled-release.yml").exists()
-          print("PASS: Master scheduled slots, immediate manual release, quota safeguards, serialization and live verification")
+          print("PASS: actual 5 Italian scheduled slots, postponed 17:45, conditional 20:15 recovery, direct deployment, Git serialization and verification")
           PY
       - name: Verify complete Cloudflare-equivalent production build offline
         run: |
