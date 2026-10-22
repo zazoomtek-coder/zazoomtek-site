@@ -302,6 +302,7 @@
   let otherPool=[];
   let otherRaf=0;
   let otherReady=false;
+  let otherSignature="";
   let otherRendering=false;
   const isInternalArticle=(path)=>/^\/(?:[a-zA-Z0-9._-]+|watch\/[a-zA-Z0-9_-]{11})\.html$/.test(path);
   const shuffle=(rows)=>{
@@ -358,8 +359,10 @@
     const available=otherPool.filter(item=>!visible.has(item.url));
     const desktop=window.matchMedia("(min-width:1150px)").matches;
     if(!available.length){
-      otherBox.hidden=true;otherList.replaceChildren();otherRendering=false;return;
+      otherBox.hidden=true;otherList.replaceChildren();otherSignature="";otherRendering=false;return;
     }
+    // Make the section measurable before calculating its target height.
+    otherBox.hidden=false;
     // Keep the chosen random rotation stable during resizing and image loads.
     const target=videoShelfTarget?.getBoundingClientRect().bottom||0;
     const start=otherBox.getBoundingClientRect().top;
@@ -370,6 +373,11 @@
     const approxCard=width*9/16+73;
     const desired=desktop ? Math.max(2,Math.min(22,Math.ceil(gap/approxCard))) : 6;
     const items=available.slice(0,Math.min(desired,available.length));
+    const signature=items.map(item=>item.url).join("|");
+    // Don't replace the cards after every image-load callback: that creates
+    // an endless repaint loop and unnecessary thumbnail downloads.
+    if(signature===otherSignature){otherRendering=false;return;}
+    otherSignature=signature;
     const fragment=document.createDocumentFragment();
     for(const item of items){
       const article=document.createElement("a");
