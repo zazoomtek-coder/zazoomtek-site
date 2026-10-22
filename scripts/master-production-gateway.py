@@ -83,7 +83,12 @@ def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
     if poll_only:
         args.append("--poll-only")
     call(*args, timeout=2100)
-    report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
+    try:
+        report = json.loads((result_dir / "report.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print("::warning::Importer report unavailable: " + str(exc)[:200]
+              + "; leaving previous editorial data intact", flush=True)
+        return []
     allowed_status = (("poll-validated", "poll-validated-with-fallbacks") if poll_only
                       else ("staging-validated", "staging-validated-with-fallbacks"))
     if report.get("status") not in allowed_status:
@@ -102,7 +107,12 @@ def import_and_validate(folder: Path, poll_only: bool = False) -> list[str]:
         print("::warning::Individual modules unavailable, preserving last-good "
               "data without losing verified independent updates: "
               + ", ".join(failures), flush=True)
-    manifest = json.loads((export / "manifest.json").read_text(encoding="utf-8"))
+    try:
+        manifest = json.loads((export / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print("::warning::Importer export manifest unavailable: " + str(exc)[:200]
+              + "; continuing with previously published content", flush=True)
+        return []
     names = manifest.get("paths")
     if not isinstance(names, list):
         print("::warning::No usable import manifest; existing editorial content remains available", flush=True)
