@@ -8,6 +8,9 @@ from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from html import unescape
 from html.parser import HTMLParser
+from urllib.request import HTTPRedirectHandler, build_opener
+from urllib.parse import urlsplit
+import ipaddress
 from io import BytesIO
 import hashlib
 import json
@@ -74,14 +77,25 @@ def parse_feed(data,source,domain):
         description=plain(tag(n,"description") or tag(n,"summary") or tag(n,"content"))
         img=""
         for x in n.iter():
-            typ=x.tag.split("}")[-1]
-            if typ in ("thumbnail","content","enclosure"):
-                u=x.attrib.get("url","")
-                if u.lower().startswith("https://") and (typ!="content" or x.attrib.get("medium")=="image" or x.attrib.get("type","").startswith("image/")):
-                    img=u;break
+            typ=x.tag.split("}")[-1].lower()
+            if typ in ("thumbnail","content","enclosure","image"):
+                candidate=x.attrib.get("url") or x.attrib.get("href") or ""
+                mime=x.attrib.get("type","").lower()
+                medium=x.attrib.get("medium","").lower()
+                if candidate.startswith("https://") and (
+                    typ in ("thumbnail","image") or medium=="image" or
+                    mime.startswith("image/") or (typ=="content" and not mime and not medium)
+                ):
+                    img=candidate
+                    break
         if not img:
-            m=re.search(r'<img\b[^>]*\bsrc=["\'](https://[^"\']+)',tag(n,"description") or "",re.I)
-            if m:img=m.group(1)
+            for field in ("description","encoded","summary","content"):
+                raw=tag(n,field)
+                found=re.search(r'<(?:img\b[^>]*src|meta\b[^>]*(?:og:image|twitter:image)[^>]*content)=["\'](https://[^"\' ]+)',raw,re.I)
+                if found:
+                    img=unescape(found.group(1))
+                    break
+
         rows.append({"id":hashlib.sha256((source+"|"+guid+"|"+link).encode()).hexdigest()[:20],
                      "source":source,"url":link,"original":original,"description":description,
                      "published":pub.isoformat(),"image_candidate":img})
@@ -110,25 +124,91 @@ def safe_fetch(url,domain,max_size=1600000,timeout=10):
         if len(data)>max_size:raise ValueError("RSS too large")
         return data
 
+def _public_image_url(address):
+    """Images must come from public HTTPS hosts, never local services."""
+    try:
+        u=urlsplit(address)
+        host=(u.hostname or "").lower()
+        if u.scheme!="https" or not host or "." not in host or host.endswith((".local",".internal")):
+            return False
+        try:
+            return ipaddress.ip_address(host).is_global
+        except ValueError:
+            return True
+    except ValueError:
+        return False
+
+
+class _ImageRedirects(HTTPRedirectHandler):
+    def redirect_request(self,req,fp,code,msg,headers,newurl):
+        if not _public_image_url(newurl):
+            raise ValueError("Non-public image redirect")
+        return super().redirect_request(req,fp,code,msg,headers,newurl)
+
+
+class _OG(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.url=""
+    def handle_starttag(self,tag,attrs):
+        if tag!="meta" or self.url:
+            return
+        d=dict(attrs)
+        if d.get("property","").lower() in ("og:image","og:image:url") or d.get("name","").lower() in ("twitter:image","twitter:image:src"):
+            self.url=unescape(d.get("content",""))
+
+
+def article_cover_url(row):
+    """Fallback to the article's own Open Graph cover when RSS has none."""
+    article=row["url"]
+    domain=urlsplit(article).hostname
+    if not _public_image_url(article):
+        return ""
+    try:
+        req=Request(article,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekRSS/1.0; +https://zazoomtek.it)","Accept":"text/html"})
+        opener=build_opener(_ImageRedirects())
+        with opener.open(req,timeout=6) as response:
+            final=urlsplit(response.url)
+            if final.hostname!=domain and not final.hostname.endswith("."+domain):
+                return ""
+            if "html" not in response.headers.get("Content-Type","text/html").lower():
+                return ""
+            raw=response.read(900000).decode("utf-8","replace")
+        parser=_OG()
+        parser.feed(raw)
+        cover=urljoin(article,parser.url)
+        return cover if _public_image_url(cover) else ""
+    except (OSError,ValueError):
+        return ""
+
+
 def image_for(row,root):
-    """Only permissioned imagery may be rehosted. Else original WebP art."""
-    from PIL import Image, ImageDraw
-    seed=int(row["id"][:12],16)
-    tones=[(28,38,57),(24,46,61),(50,38,54),(33,47,43),(46,37,51)]
-    w,h=720,405
-    image=Image.new("RGB",(w,h),tones[seed%len(tones)])
-    draw=ImageDraw.Draw(image)
-    for i in range(15):
-        x=(seed//(i+7)+i*91)%900-90
-        y=(seed//(i+11)+i*73)%550-80
-        radius=40+(seed+i*31)%140
-        color=(min(170,53+i*4),min(137,70+i*3),min(150,92+i*2))
-        draw.ellipse((x,y,x+radius,y+radius),fill=color,width=2)
-    draw.rectangle((0,0,16,h),fill=(213,18,50))
-    draw.rectangle((0,h-70,w,h),fill=(19,23,31))
-    # Own graphic: neither hotlink nor copy an unlicensed editorial photo.
-    draw.text((33,h-47),"NOTIZIE DAL WEB",fill=(245,245,248))
-    return image
+    """Fetch authentic RSS/media/OpenGraph cover and convert it to a 16:9 WebP thumbnail."""
+    from PIL import Image, ImageOps, UnidentifiedImageError
+    candidates=[row.get("image_candidate","")]
+    # Article OG is tried if the RSS media URL fails.
+    candidates.append(article_cover_url(row))
+    opener=build_opener(_ImageRedirects())
+    for address in dict.fromkeys(candidates):
+        if not address or not _public_image_url(address):
+            continue
+        try:
+            req=Request(address,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekRSS/1.0; +https://zazoomtek.it)","Accept":"image/avif,image/webp,image/jpeg,image/png,image/*;q=0.8"})
+            with opener.open(req,timeout=8) as response:
+                if not _public_image_url(response.url) or not response.headers.get("Content-Type","image/").lower().startswith("image/"):
+                    continue
+                content=response.read(5_000_001)
+            if len(content)>5_000_000:
+                continue
+            with Image.open(BytesIO(content)) as opened:
+                if opened.width*opened.height>36_000_000 or opened.width<180 or opened.height<100:
+                    continue
+                thumb=ImageOps.fit(ImageOps.exif_transpose(opened).convert("RGB"),(720,405),method=Image.Resampling.LANCZOS)
+            return thumb,address
+        except (OSError,ValueError,UnidentifiedImageError):
+            continue
+    return None,""
+
 
 TECH_TERMS=(
  "android","iphone","ipad","ios","macbook","apple watch","samsung","google","microsoft",
@@ -152,22 +232,22 @@ def relevant(row,now=None):
     now=now or datetime.now(timezone.utc)
     return now-timedelta(days=14)<=stamp<=now+timedelta(days=1)
 
-def choose(candidates,old):
+def choose(candidates,old,limit=5):
     pool={}
     for row in candidates:
         if row["source"] not in pool:pool[row["source"]]=[]
         if row["url"] not in {a["url"] for a in pool[row["source"]]}:pool[row["source"]].append(row)
     chosen=[]
     # One per available source first, then recency-balanced additional items.
-    while len(chosen)<5 and any(pool.values()):
+    while len(chosen)<limit and any(pool.values()):
         round_items=[]
         for name,*_ in SOURCES:
             if pool.get(name):
                 round_items.append(pool[name].pop(0))
         for r in sorted(round_items,key=lambda x:x["published"],reverse=True):
-            if len(chosen)<5:chosen.append(r)
+            if len(chosen)<limit:chosen.append(r)
     if len(chosen)<5:return None
-    selected={r["id"] for r in chosen}
+    selected={r["id"] for r in chosen[:5]}
     previous={r.get("id") for r in old.get("items",[])}
     if selected==previous:return None
     return chosen
@@ -192,27 +272,54 @@ def update(root=ROOT,fetch=safe_fetch):
     if len(ok)<3 or len(candidates)<5:
         print("WEB-NEWS UNCHANGED: insufficient valid feeds; preserve existing published state")
         return []
-    selected=choose(candidates,old)
+    legacy=any(item.get("image_origin")!="rss-webp" for item in old.get("items",[]))
+    selected=choose(candidates,{"items":[]} if legacy else old,limit=20)
     if selected is None:
-        print("WEB-NEWS UNCHANGED: same story IDs, no new thumbnails or commits")
+        print("WEB-NEWS UNCHANGED: same story IDs and authentic image thumbnails")
         return []
-    folder=root/ASSETS;folder.mkdir(parents=True,exist_ok=True)
-    new=[];changed=[]
+    folder=root/ASSETS
+    folder.mkdir(parents=True,exist_ok=True)
+    new=[]
+    changed=[]
     for row in selected:
-        name=row["id"]+".webp";dest=folder/name
-        if not dest.exists():
-            # Never download/rehost an editorial image without an explicit license.
-            image_for(row,root).save(dest,"WEBP",quality=80,method=5)
+        if len(new)==5:
+            break
+        image,origin=image_for(row,root)
+        if image is None:
+            print("WEB-NEWS: image unavailable for",row["source"],row["url"][:100])
+            continue
+        data=BytesIO()
+        image.save(data,"WEBP",quality=79,method=4)
+        payload=data.getvalue()
+        name=row["id"]+"-"+hashlib.sha256(payload).hexdigest()[:10]+".webp"
+        dest=folder/name
+        if not dest.is_file():
+            dest.write_bytes(payload)
             changed.append(str(ASSETS/name))
         new.append({"id":row["id"],"source":row["source"],"url":row["url"],
                     "title":restate(row["original"]),"excerpt":excerpt(row)[:270],
-                    "published":row["published"],"image":"/"+str(ASSETS/name)})
+                    "published":row["published"],"image":"/"+str(ASSETS/name),
+                    "image_origin":"rss-webp","image_source":origin})
+    if len(new)<5:
+        print("WEB-NEWS UNCHANGED: fewer than five real article images; preserving published set")
+        for path in changed:
+            (root/path).unlink(missing_ok=True)
+        return []
+    previous={row.get("id") for row in old.get("items",[])}
+    if not legacy and previous=={row["id"] for row in new} and all(
+        row.get("image")==new[i]["image"] for i,row in enumerate(old.get("items",[]))
+    ):
+        print("WEB-NEWS UNCHANGED: authentic images and stories unchanged")
+        for path in changed:
+            (root/path).unlink(missing_ok=True)
+        return []
     output={"version":1,"updated_at":datetime.now(timezone.utc).isoformat(),
-            "license_policy":"Five approved RSS publishers; external editorial photographs require an explicit redistribution license",
+            "image_policy":"RSS enclosure/media or article OpenGraph; 720x405 WebP with linked attribution",
             "items":new}
+
     old_path.write_text(json.dumps(output,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     changed.append(str(STATE))
-    print("WEB-NEWS UPDATED:",len(new),"stories,",len(changed)-1,"new original WebP thumbnails")
+    print("WEB-NEWS UPDATED:",len(new),"stories,",len(changed)-1,"new real article WebP thumbnails")
     return changed
 
 def self_test():
@@ -220,6 +327,10 @@ def self_test():
     rows=parse_feed(rss,"HDblog","hdblog.it")
     assert len(rows)==1 and rows[0]["source"]=="HDblog"
     assert not parse_feed(rss.replace(b"hdblog.it",b"evil.test"),"HDblog","hdblog.it")
+    rss_image=b'<rss xmlns:media="http://search.yahoo.com/mrss/"><channel><item><title>Nuovi strumenti per il settore tecnologico</title><link>https://www.hdblog.it/news/2026/test/</link><enclosure url="https://www.hdblog.it/img/cover.jpg" type="image/jpeg"/></item></channel></rss>'
+    assert parse_feed(rss_image,"HDblog","hdblog.it")[0]["image_candidate"].endswith("cover.jpg")
+    assert _public_image_url("https://images.example.com/cover.jpg")
+    assert not _public_image_url("https://127.0.0.1/internal")
     assert len(excerpt(rows[0]).split())<=50
     assert choose(rows,{"items":[]}) is None
     assert not relevant({"original":"Le migliori tende da campeggio per famiglie","published":"2026-10-22T10:00:00+00:00"},datetime(2026,10,22,tzinfo=timezone.utc))
