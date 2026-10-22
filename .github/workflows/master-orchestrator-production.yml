@@ -15,8 +15,7 @@ permissions:
 
 concurrency:
   group: zazoomtek-master-sole-repository-and-pages-writer
-  cancel-in-progress: false
-  queue: max
+  cancel-in-progress: true
 
 jobs:
   publish:
