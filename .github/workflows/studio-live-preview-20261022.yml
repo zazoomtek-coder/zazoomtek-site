@@ -1,0 +1,39 @@
+name: Studio - real offline preview ZIP
+on:
+  push:
+    branches:
+      - feature/studio-edit-all-20261022
+    paths:
+      - 'studio/**'
+      - 'scripts/build-studio-local-preview.py'
+      - '.github/workflows/studio-live-preview-20261022.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check permanent Studio and new editor syntax
+        run: |
+          node --check studio/edit-existing.js
+          node --check studio/edit-button.js
+          node --check studio/publisher.js
+          node scripts/test-studio-layouts.cjs
+      - name: Verify protected persistence and edit button
+        run: |
+          python3 scripts/studio-apply-overrides.py --self-test
+          python3 scripts/studio-inject-edit-button.py --self-test
+      - name: Package actual Studio + actual editorial article for local testing
+        run: python3 scripts/build-studio-local-preview.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-Studio-Live-Preview-20261022
+          path: ZazoomTek-Studio-Live-Preview-20261022.zip
+          if-no-files-found: error
+          retention-days: 7
