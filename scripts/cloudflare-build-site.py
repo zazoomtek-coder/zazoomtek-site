@@ -106,6 +106,9 @@ def main() -> None:
     run("ensure-review-summaries.py", "--check")
     # Generators may refresh content, but must never rewrite locked Home layout.
     run("verify-home-layout-lock.py")
+    # Home-only external press review is rendered from the five verified RSS
+    # records already committed by the Master. No network calls at build time.
+    run("render-web-news.py")
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
