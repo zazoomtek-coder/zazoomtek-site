@@ -6,18 +6,18 @@ from pathlib import Path
 import re
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/"editorial/studio-overrides"
-NAME=re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*\.html$")
+NAME=re.compile(r"^(?:[a-zA-Z0-9][a-zA-Z0-9._-]*|watch/[a-zA-Z0-9_-]{11})\.html$")
 def apply(root:Path=ROOT):
     folder=root/"editorial/studio-overrides"
     if not folder.exists():return 0
     updated=0
-    for marker in sorted(folder.glob("*.json")):
+    for marker in sorted(folder.rglob("*.json")):
         obj=json.loads(marker.read_text(encoding="utf-8"))
         path=obj.get("path")
-        if obj.get("version")!=1 or not obj.get("owner_edited") or not isinstance(path,str) or not NAME.fullmatch(path) or path=="index.html" or marker.name!=path[:-5]+".json":
+        if obj.get("version")!=1 or not obj.get("owner_edited") or not isinstance(path,str) or not NAME.fullmatch(path) or path=="index.html" or marker.relative_to(folder).as_posix()!=path[:-5]+".json":
             raise RuntimeError("Invalid Studio override: "+marker.name)
         content=obj.get("html")
-        if not isinstance(content,str) or len(content)>2_000_000 or not re.search(r"<article\b[^>]*class=['\"][^'\"]*(?:article-main|story|zt-main)",content,re.I) or not re.search(r"<h1\b",content,re.I) or not re.search(r'<link\b[^>]*rel=["\']canonical["\']',content,re.I):
+        if not isinstance(content,str) or len(content)>2_000_000 or not re.search(r"<article\b[^>]*class=['\"][^'\"]*(?:article-main|story|zt-main|zt-watch-article)",content,re.I) or not re.search(r"<h1\b",content,re.I) or not re.search(r'<link\b[^>]*rel=["\']canonical["\']',content,re.I):
             raise RuntimeError("Unsafe or incomplete Studio override: "+marker.name)
         target=root/path
         if not target.is_file():
