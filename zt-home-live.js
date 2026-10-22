@@ -285,6 +285,118 @@
   const ytFollow=rail.querySelector(".zt-youtube-follow");
   if(ytFollow)ytFollow.insertAdjacentElement("afterend",editorialBox);
   else rail.appendChild(editorialBox);
+
+  // ALTRE NEWS: exactly one full-width box below DALLA REDAZIONE.
+  // Pull verified site news, guides, reviews, Extra and YouTube video pages
+  // rather than creating three disconnected mini-panels or frozen links.
+  const otherBox=document.createElement("section");
+  otherBox.className="ztp-editorial-archive ztp-other-news";
+  otherBox.id="ztpOtherNews";
+  otherBox.hidden=true;
+  const otherHead=document.createElement("h2");
+  otherHead.textContent="ALTRE NEWS";
+  const otherList=document.createElement("div");
+  otherList.className="ztp-other-news-list";
+  otherBox.append(otherHead,otherList);
+  editorialBox.insertAdjacentElement("afterend",otherBox);
+  let otherPool=[];
+  let otherRaf=0;
+  let otherReady=false;
+  let otherRendering=false;
+  const isInternalArticle=(path)=>/^\/(?:[a-zA-Z0-9._-]+|watch\/[a-zA-Z0-9_-]{11})\.html$/.test(path);
+  const shuffle=(rows)=>{
+    const result=rows.slice();
+    for(let i=result.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [result[i],result[j]]=[result[j],result[i]];
+    }
+    return result;
+  };
+  function loadOtherNews(){
+    Promise.all([
+      fetch("/zt-sidebar-feed.json",{cache:"no-store"}).then(r=>r.ok?r.json():{}).catch(()=>({})),
+      fetch("/home-video-feed.json",{cache:"no-store"}).then(r=>r.ok?r.json():[]).catch(()=>[])
+    ]).then(([data,video])=>{
+      const types=["news","tech","gaming","extra","guides","reviews","editorial"];
+      const groups=types.map(type=>shuffle(Array.isArray(data[type])?data[type]:[]));
+      const verifiedVideos=Array.isArray(video)?video.filter(row=>
+        row && !row.short && !row.live && !row.completedLive &&
+        /^[A-Za-z0-9_-]{11}$/.test(String(row.id||"")) &&
+        typeof row.title==="string" && row.title.trim()
+      ).map(row=>({
+        title:row.title,
+        url:"/watch/"+row.id+".html",
+        image:"https://i.ytimg.com/vi/"+row.id+"/hqdefault.jpg"
+      })):[];
+      groups.push(shuffle(verifiedVideos).slice(0,20));
+      const urls=new Set(),records=[];
+      for(let round=0;round<50;round++){
+        let found=false;
+        for(const group of groups){
+          const item=group[round];
+          if(!item)continue;
+          found=true;
+          if(typeof item.title!=="string"||typeof item.image!=="string")continue;
+          const url=String(item.url||"");
+          if(!isInternalArticle(url)||urls.has(url))continue;
+          urls.add(url);
+          records.push({title:item.title,url,image:item.image});
+        }
+        if(!found)break;
+      }
+      otherPool=records;
+      otherReady=true;
+      requestAnimationFrame(reconcileRight);
+    }).catch(()=>{otherReady=true;requestAnimationFrame(reconcileRight);});
+  }
+  function populateOtherNews(visible){
+    if(!otherReady || otherRendering || !otherPool.length){
+      otherBox.hidden=true;
+      return;
+    }
+    otherRendering=true;
+    const available=otherPool.filter(item=>!visible.has(item.url));
+    const desktop=window.matchMedia("(min-width:1150px)").matches;
+    if(!available.length){
+      otherBox.hidden=true;otherList.replaceChildren();otherRendering=false;return;
+    }
+    // Keep the chosen random rotation stable during resizing and image loads.
+    const target=videoShelfTarget?.getBoundingClientRect().bottom||0;
+    const start=otherBox.getBoundingClientRect().top;
+    const gap=Math.max(0,target-start);
+    // Full-width 16:9 covers. Approximate the required number initially,
+    // then measure after rendering and adjust to actual video-shelf height.
+    const width=Math.max(150,otherBox.clientWidth||rail.clientWidth||240);
+    const approxCard=width*9/16+73;
+    const desired=desktop ? Math.max(2,Math.min(22,Math.ceil(gap/approxCard))) : 6;
+    const items=available.slice(0,Math.min(desired,available.length));
+    const fragment=document.createDocumentFragment();
+    for(const item of items){
+      const article=document.createElement("a");
+      article.className="ztp-editorial-story ztp-other-story";
+      article.href=item.url;
+      const image=document.createElement("img");
+      image.src=item.image;image.alt=item.title;
+      image.loading="lazy";image.decoding="async";
+      image.addEventListener("load",requestOtherAlignment,{once:true});
+      const title=document.createElement("strong");title.textContent=item.title;
+      article.append(image,title);
+      fragment.append(article);
+    }
+    otherList.replaceChildren(fragment);
+    otherBox.hidden=false;
+    otherRendering=false;
+  }
+  function requestOtherAlignment(){
+    if(otherRaf)return;
+    otherRaf=requestAnimationFrame(()=>{
+      otherRaf=0;
+      if(!document.documentElement.classList.contains("ztp-home-live-ready"))return;
+      reconcileRight();
+    });
+  }
+  loadOtherNews();
+
   // Home Shorts removed; editorial remains a real-news shelf.
   // Three large and real editorial images; keep article links, never inject placeholders.
   // One article may appear in ONE visible Home news module only.
@@ -370,6 +482,9 @@
     const selected=new Set(chosen);
     editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
     editorialBox.style.display=selected.size?"block":"none";
+    // Rebuild the single ALTRE NEWS block using only articles not already
+    // shown in the carousel, main columns or other editorial modules.
+    populateOtherNews(used);
   }
   window.addEventListener("zt:home-columns-repainted",event=>{
     olderTechForPopular=Array.isArray(event.detail?.techBackups)?event.detail.techBackups:[];
