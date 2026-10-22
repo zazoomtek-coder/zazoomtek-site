@@ -25,6 +25,52 @@ const coverPanel=document.createElement("figure");coverPanel.id="zeCover";coverP
 coverPanel.contentEditable="false";coverPanel.innerHTML='<img alt="Cover" style="width:100%;aspect-ratio:16/9;object-fit:cover;object-position:50% 50%;display:block"><figcaption>Cover · seleziona o trascina per l’inquadratura</figcaption>';
 coverPanel.style.cssText="border:2px solid transparent;padding:5px;margin:7px 0 17px;cursor:pointer";
 document.querySelector(".ze-aside").insertBefore(coverPanel,document.querySelector(".ze-aside h3"));
+const coverUploadButton=document.createElement("button");
+coverUploadButton.id="zeReplaceCover";
+coverUploadButton.type="button";
+coverUploadButton.textContent="Sostituisci cover · scegli una nuova foto";
+coverUploadButton.style.cssText="width:100%;margin:-3px 0 18px;background:#d51232!important;color:white!important;border-color:#d51232!important";
+coverPanel.insertAdjacentElement("afterend",coverUploadButton);
+const coverFile=document.createElement("input");
+coverFile.type="file";coverFile.id="zeCoverFile";
+coverFile.accept="image/jpeg,image/png,image/webp";
+coverFile.hidden=true;
+coverUploadButton.insertAdjacentElement("afterend",coverFile);
+coverUploadButton.onclick=()=>{if(!loaded){status("Apri prima un articolo.");return;}coverFile.click()};
+coverFile.addEventListener("change",async()=>{
+ const file=coverFile.files?.[0];coverFile.value="";if(!file)return;
+ if(!/^image\/(?:jpeg|png|webp)$/.test(file.type)||file.size>8_000_000){
+   status("Cover non valida: usa JPG, PNG o WebP fino a 8 MB.");return;
+ }
+ const temp=URL.createObjectURL(file);
+ try{
+   const bitmap=await new Promise((resolve,reject)=>{
+     const image=new Image();image.onload=()=>resolve(image);
+     image.onerror=()=>reject(new Error("Impossibile leggere questa foto."));
+     image.src=temp;
+   });
+   if(bitmap.naturalWidth<320||bitmap.naturalHeight<180)throw Error("Cover troppo piccola (minimo 320 × 180).");
+   const ratio=Math.min(1,1920/bitmap.naturalWidth,1920/bitmap.naturalHeight);
+   const canvas=document.createElement("canvas");
+   canvas.width=Math.round(bitmap.naturalWidth*ratio);
+   canvas.height=Math.round(bitmap.naturalHeight*ratio);
+   const context=canvas.getContext("2d");
+   if(!context)throw Error("Conversione della cover non disponibile nel browser.");
+   context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+   const newSrc=canvas.toDataURL("image/webp",0.83);
+   if(!newSrc.startsWith("data:image/webp;base64,"))throw Error("Conversione in WebP non riuscita.");
+   coverPanel.hidden=false;
+   coverPanel.querySelector("img").src=newSrc;
+   coverPanel.querySelector("img").alt=file.name;
+   coverPanel.dataset.replacement="true";
+   coverPanel.dataset.x="50";coverPanel.dataset.y="50";coverPanel.dataset.zoom="1";
+   coverPanel.querySelector("img").style.objectPosition="50% 50%";
+   coverPanel.querySelector("img").style.transform="scale(1)";
+   select(coverPanel);dirty=true;
+   status("Nuova cover caricata in anteprima ("+canvas.width+" × "+canvas.height+" WebP). Puoi spostarla e ingrandirla, poi premi Salva modifiche.");
+ }catch(error){status("Cover non sostituita: "+error.message)}
+ finally{URL.revokeObjectURL(temp)}
+});
 const zoomControl=document.createElement("label");
 zoomControl.id="zeZoomWrap";zoomControl.innerHTML='Dimensione copertina <output id="zeZoomOut">100%</output><input id="zeZoom" type="range" min="100" max="300" step="5" value="100" disabled>';
 document.getElementById("zeCenter").before(zoomControl);
@@ -79,7 +125,7 @@ return {doc,article,nodes,type,div};
 function show(path,html,sha){let p=prepare(html);loaded={path,html,sha};$("zePath").value=path;
 const lead=p.article.querySelector(".lead");leadBox.hidden=!lead;leadInput.value=lead?.textContent?.trim()||"";
 const hero=p.doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero") || p.article.querySelector(":scope > figure.hero img,:scope > img.article-hero,:scope > img.cover,:scope > img, :scope > figure:has(> img) img");
-coverPanel.hidden=!hero;if(hero){coverPanel.querySelector("img").src=hero.getAttribute("src")||"";const point=(hero.style.objectPosition||"50% 50%").match(/(\d+)%\s+(\d+)%/);coverPanel.dataset.x=point?.[1]||50;coverPanel.dataset.y=point?.[2]||50;coverPanel.dataset.zoom=String(Number(hero.getAttribute("data-zt-zoom")||1));coverPanel.querySelector("img").style.objectPosition=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";coverPanel.querySelector("img").style.transform="scale("+coverPanel.dataset.zoom+")";coverPanel.querySelector("img").style.transformOrigin=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";}$("zeTitle").disabled=false;$("zeTitle").value=(p.article.querySelector("h1")||p.doc.querySelector("main.content h1"))?.textContent?.trim()||"";body.replaceChildren(...[...p.div.childNodes]);select(null);dirty=false;ui.hidden=false;status("Articolo originale caricato: "+path+". Modifica testo, foto, link e video. Salvataggio diretto su main.");}
+coverPanel.hidden=false;coverPanel.dataset.replacement="false";if(!hero){coverPanel.querySelector("img").removeAttribute("src");coverPanel.dataset.x="50";coverPanel.dataset.y="50";coverPanel.dataset.zoom="1";}if(hero){coverPanel.querySelector("img").src=hero.getAttribute("src")||"";const point=(hero.style.objectPosition||"50% 50%").match(/(\d+)%\s+(\d+)%/);coverPanel.dataset.x=point?.[1]||50;coverPanel.dataset.y=point?.[2]||50;coverPanel.dataset.zoom=String(Number(hero.getAttribute("data-zt-zoom")||1));coverPanel.querySelector("img").style.objectPosition=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";coverPanel.querySelector("img").style.transform="scale("+coverPanel.dataset.zoom+")";coverPanel.querySelector("img").style.transformOrigin=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";}$("zeTitle").disabled=false;$("zeTitle").value=(p.article.querySelector("h1")||p.doc.querySelector("main.content h1"))?.textContent?.trim()||"";body.replaceChildren(...[...p.div.childNodes]);select(null);dirty=false;ui.hidden=false;status("Articolo originale caricato: "+path+". Modifica testo, foto, link e video. Salvataggio diretto su main.");}
 async function open(raw){const path=goodPath(raw);if(!path){status("Inserisci un link articolo valido.");return}if(dirty&&!confirm("Scartare le modifiche non salvate?"))return;try{let html,sha;if(isDemo()){html=localStorage.getItem(storage(path))||window.ZTStudioDemoArticle.html;sha="locale"}else{let api=window.ZTStudioGitHub;if(!api?.isAuthenticated())throw Error("Collega prima GitHub nello Studio.");let r=await api.read(path);if(r?.content){html=b64decode(r.content);sha=r.sha}else{const live=await fetch("/"+path,{cache:"no-store"});if(!live.ok)throw Error("Articolo non presente né su GitHub né sul sito.");html=await live.text();sha=null}}show(path,html,sha)}catch(e){status("Apertura non riuscita: "+e.message)}}
 function build(){if(!loaded)throw Error("Apri prima un articolo.");let p=prepare(loaded.html),out=document.createElement("div");out.innerHTML=body.innerHTML;
 out.querySelectorAll("script,style,object,form").forEach(x=>x.remove());out.querySelectorAll("*").forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));
@@ -89,14 +135,56 @@ out.querySelectorAll("figure.zt-media.photo").forEach(f=>{const img=f.querySelec
 if(p.type==="holder")p.nodes[0].innerHTML=out.innerHTML;else{const before=p.nodes[0];for(const n of [...out.childNodes])before.before(n);for(const n of p.nodes)n.remove()}
 let title=$("zeTitle").value.trim();if(!title)throw Error("Titolo obbligatorio");const titleNode=p.article.querySelector("h1")||p.doc.querySelector("main.content h1");if(!titleNode)throw Error("Titolo originale mancante");titleNode.textContent=title;
 const leadNode=p.article.querySelector(".lead");if(leadNode)leadNode.textContent=leadInput.value.trim();
-const hero=p.doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero") || p.article.querySelector(":scope > figure.hero img,:scope > img.article-hero,:scope > img.cover,:scope > img, :scope > figure:has(> img) img");
-if(hero&&!coverPanel.hidden){const x=Math.max(0,Math.min(100,+coverPanel.dataset.x||0)),y=Math.max(0,Math.min(100,+coverPanel.dataset.y||0));hero.style.objectFit="cover";hero.style.setProperty("object-position",x+"% "+y+"%","important");hero.setAttribute("data-zt-crop",x+","+y);const zoom=Math.max(1,Math.min(3,+coverPanel.dataset.zoom||1));hero.setAttribute("data-zt-zoom",String(zoom));let frame=hero.parentElement?.classList.contains("zt-studio-cover-viewport")?hero.parentElement:null;if(!frame){frame=p.doc.createElement("div");frame.className="zt-studio-cover-viewport";hero.replaceWith(frame);frame.append(hero)}frame.style.cssText="position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;margin:0 0 24px";hero.style.setProperty("width","100%","important");hero.style.setProperty("height","100%","important");hero.style.setProperty("aspect-ratio","auto","important");hero.style.setProperty("max-height","none","important");hero.style.setProperty("transform","scale("+zoom+")","important");hero.style.setProperty("transform-origin",x+"% "+y+"%","important")}
+let hero=p.doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero") || p.article.querySelector(":scope > figure.hero img,:scope > img.article-hero,:scope > img.cover,:scope > img, :scope > figure:has(> img) img");
+if(!hero&&coverPanel.dataset.replacement==="true"){
+  const insertAfter=p.article.querySelector("h1")||p.doc.querySelector("main h1");
+  if(!insertAfter)throw Error("Titolo mancante: impossibile inserire una cover.");
+  hero=p.doc.createElement("img");hero.className="article-hero";
+  hero.alt=title;insertAfter.insertAdjacentElement("afterend",hero);
+}
+if(hero&&!coverPanel.hidden){if(coverPanel.dataset.replacement==="true"){hero.setAttribute("src",coverPanel.querySelector("img").getAttribute("src")||"");hero.setAttribute("alt",title);hero.removeAttribute("srcset");hero.removeAttribute("sizes");hero.removeAttribute("data-src");hero.removeAttribute("width");hero.removeAttribute("height");}const x=Math.max(0,Math.min(100,+coverPanel.dataset.x||0)),y=Math.max(0,Math.min(100,+coverPanel.dataset.y||0));hero.style.objectFit="cover";hero.style.setProperty("object-position",x+"% "+y+"%","important");hero.setAttribute("data-zt-crop",x+","+y);const zoom=Math.max(1,Math.min(3,+coverPanel.dataset.zoom||1));hero.setAttribute("data-zt-zoom",String(zoom));let frame=hero.parentElement?.classList.contains("zt-studio-cover-viewport")?hero.parentElement:null;if(!frame){frame=p.doc.createElement("div");frame.className="zt-studio-cover-viewport";hero.replaceWith(frame);frame.append(hero)}frame.style.cssText="position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;margin:0 0 24px";hero.style.setProperty("width","100%","important");hero.style.setProperty("height","100%","important");hero.style.setProperty("aspect-ratio","auto","important");hero.style.setProperty("max-height","none","important");hero.style.setProperty("transform","scale("+zoom+")","important");hero.style.setProperty("transform-origin",x+"% "+y+"%","important")}
 const summary=out.textContent.replace(/\s+/g," ").trim().slice(0,158)||title,doc=p.doc;
 doc.title=title+" | ZazoomTek";for(const [sel,val] of [['meta[name="description"]',summary],['meta[property="og:title"]',title],['meta[property="og:description"]',summary]]){let m=doc.head.querySelector(sel);if(m)m.content=val}
 doc.querySelectorAll('script[type="application/ld+json"]').forEach(s=>{try{let o=JSON.parse(s.textContent);if(["Article","NewsArticle","Review","BlogPosting"].includes(o["@type"])){o.headline=title;o.description=summary;o.dateModified=new Date().toISOString();s.textContent=JSON.stringify(o).replace(/</g,"\\u003c")}}catch{}});
 return "<!doctype html>\n"+doc.documentElement.outerHTML;
 }
 async function save(){if(!loaded||busy)return;busy=true;$("zeSave").disabled=true;try{status("Verifica e salvataggio…");let html=build(),path=loaded.path,doc=new DOMParser().parseFromString(html,"text/html"),counter=0,api=window.ZTStudioGitHub;
+
+const savedHero=doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero")||doc.querySelector("article.article-main > img.article-hero,article.article-main > .zt-studio-cover-viewport > img");
+let newCoverSrc=savedHero?.getAttribute("src")||"";
+if(coverPanel.dataset.replacement==="true"&&newCoverSrc.startsWith("data:image/webp;base64,")){
+ if(!isDemo()){
+   if(!api?.isAuthenticated())throw Error("Collega GitHub prima di salvare la nuova cover.");
+   const key=path.replace(/\.html$/,"").replace(/[^a-zA-Z0-9_.-]/g,"-").slice(0,90);
+   const dest="assets/studio/"+key+"-cover-"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+".webp";
+   await api.create(dest,newCoverSrc.slice("data:image/webp;base64,".length),"studio: sostituisce cover di "+path);
+   newCoverSrc="/"+dest;
+   savedHero.setAttribute("src",newCoverSrc);
+ }
+ const canonicalCover=newCoverSrc.startsWith("/")?"https://zazoomtek.it"+newCoverSrc:newCoverSrc;
+ for(const sel of ['meta[property="og:image"]','meta[name="twitter:image"]']){
+   let tag=doc.head.querySelector(sel);
+   if(!tag){tag=doc.createElement("meta");tag.setAttribute(sel.includes("twitter:")?"name":"property",sel.includes("twitter:")?"twitter:image":"og:image");doc.head.appendChild(tag)}
+   tag.content=canonicalCover;
+ }
+ const metaAlt=doc.head.querySelector('meta[property="og:image:alt"]');
+ if(metaAlt)metaAlt.content=doc.querySelector("h1")?.textContent?.trim()||"ZazoomTek";
+ doc.querySelectorAll('script[type="application/ld+json"]').forEach(script=>{
+   try{
+     const schema=JSON.parse(script.textContent);
+     const update=(entry)=>{
+       if(!entry||typeof entry!=="object")return;
+       if(Array.isArray(entry)){entry.forEach(update);return;}
+       if(["Article","NewsArticle","Review","BlogPosting"].some(t=>[entry["@type"]].flat().includes(t))){
+         entry.image=canonicalCover;
+       }
+       if(entry["@graph"])update(entry["@graph"]);
+     };
+     update(schema);script.textContent=JSON.stringify(schema).replace(/</g,"\\u003c");
+   }catch(_){}
+ });
+}
+
 for(const im of doc.querySelectorAll(".zt-studio-photo img")){let src=im.getAttribute("src")||"",match=/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/i.exec(src);if(!match||isDemo())continue;const dest="assets/studio/"+path.replace(/\.html$/,"")+"-"+Date.now()+"-"+(++counter)+"."+({jpeg:"jpg",png:"png",webp:"webp"}[match[1]]);await api.create(dest,match[2],"studio: foto per "+path);im.setAttribute("src","/"+dest)}
 html="<!doctype html>\n"+doc.documentElement.outerHTML;
 if(isDemo()){localStorage.setItem(storage(path),html);show(path,html,"locale");status("Modifiche salvate localmente. Riapri l’articolo: sono persistenti. Nessuna pubblicazione.");return}
