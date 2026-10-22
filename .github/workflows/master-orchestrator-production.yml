@@ -1,13 +1,13 @@
 name: ZazoomTek MASTER - direct main publisher
 # Publication directly from main: no PR queue, approval step or staging branch.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '15 10,15,20 * * *'
       timezone: 'Europe/Rome'
-    - cron: '45 12,17 * * *'
+    - cron: '45 12 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '45 17 * * *'
       timezone: 'Europe/Rome'
 
 permissions:
@@ -22,20 +22,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 65
     steps:
+      - name: Respect owner hold - 22 Oct 17:45 moved to 20:15
+        id: editorial_slot
+        env:
+          ZT_SCHEDULE: ${{ github.event.schedule }}
+        shell: bash
+        run: |
+          if [[ "$(TZ=Europe/Rome date +%F)" == "2026-10-22" && "$ZT_SCHEDULE" == "45 17 * * *" ]]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Owner postponed the 17:45 slot to 20:15 (Europe/Rome) on 22 Oct 2026."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v4
+        if: steps.editorial_slot.outputs.publish == 'true'
         with:
           ref: main
           fetch-depth: 0
           persist-credentials: true
       - uses: actions/setup-python@v5
+        if: steps.editorial_slot.outputs.publish == 'true'
         with:
           python-version: '3.12'
       - uses: actions/setup-node@v4
+        if: steps.editorial_slot.outputs.publish == 'true'
         with:
           node-version: '22'
       - name: Install rendering dependency
+        if: steps.editorial_slot.outputs.publish == 'true'
         run: python3 -m pip install --quiet pillow
       - name: Import and commit directly to main
+        if: steps.editorial_slot.outputs.publish == 'true'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ github.token }}
@@ -44,14 +61,16 @@ jobs:
         run: |
           git config user.name "ZazoomTek Master"
           git config user.email "actions@users.noreply.github.com"
-          python3 scripts/master-production-gateway.py --publish --urgent
+          python3 scripts/master-production-gateway.py --publish
       - name: Build latest main for Cloudflare Pages
+        if: steps.editorial_slot.outputs.publish == 'true'
         run: |
           git fetch origin main
           git checkout main
           git reset --hard origin/main
           python3 scripts/cloudflare-build-site.py
       - name: Publish directly to Cloudflare Pages
+        if: steps.editorial_slot.outputs.publish == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
