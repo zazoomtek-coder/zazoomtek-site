@@ -316,7 +316,7 @@ if(slug.length<25)throw Error("Titolo non adatto a creare un indirizzo leggibile
 const filename=slug+".html";
 finish("Controllo duplicati su GitHub…");
 if(await req("GET",filename+"?ref="+BRANCH))throw Error("Esiste già un articolo con questo titolo. Nessun file sarà sovrascritto.");
-const exported=cleanArticle($("coverPreview").getAttribute("src"),slug);
+const exported=cleanArticle(window.ZTStudioCover?.export?.()||$("coverPreview").getAttribute("src"),slug);
 if(exported.upload.some(x=>x.b64.length>9000000))throw Error("Un file supera il limite consigliato di caricamento. Riduci le dimensioni.");
 const description=($("editor").innerText||"").replace(/\s+/g," ").trim().slice(0,155);
 const date=new Date().toISOString();
