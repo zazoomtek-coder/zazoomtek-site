@@ -203,7 +203,10 @@
    }
   }
   const originalStack=side.querySelector(".zt-video-stack");
-  const pop=side.querySelector("#zt-popular-box");
+  // Retire ONLY the three cramped right-rail mini boxes requested for 23 Oct.
+  // Keep articles themselves, category archives and all other Home modules.
+  side.querySelector("#zt-popular-box")?.remove();
+  const pop=null;
   const speciali=side.querySelector("#ztHomeSpeciali");
   const impact=side.querySelector('.zt-special-box[data-special-section="tech"]');
   const inside=side.querySelector('.zt-special-box[data-special-section="gaming"]');
@@ -270,21 +273,22 @@
   // Fill remaining vertical space with published articles, never blank padding.
   // Entries come from real, distinct archived news URLs on ZazoomTek.
   const sidebarEditorials=[{"title":"Tales of Eternia Remastered è disponibile ora su PC e console","url":"/news-UgkxHKjqDM_6w4x_d1JfWv0MwO8uWY5mvxdT.html","image":"https://yt3.ggpht.com/NSskrfq9i9pljVhldYWumZrovdtp82LmvZfIW8rtDikqxnb4uoolWuacle8xv6glmVcqWcLjw0NEzg=s1600-rw-nd-v1"},{"title":"Galaxies Autumn Showcase 2026 presenta oltre 50 giochi tra Castlevania, THE FINALS, inZOI e Planet Zoo 2","url":"/news-UgkxmeHWU7RwhPehvkplGPHZSjz6XYDe4E4O.html","image":"https://yt3.ggpht.com/gSeRUTW_RIWbq87H9LzOZpXej9mDPHi_0HzFf_cKL5tS_4j4u3rx3hkp06GgNUrIq9_GZZrX_PAxVw=s1600-rw-nd-v1"},{"title":"PEAK arriva su console quest’autunno, edizione fisica PS5 il 9 dicembre con Buddy Code","url":"/news-Ugkx-OXj6pKP_zwDIxvYCYT3NmR331k4FNzI.html","image":"https://yt3.ggpht.com/ogtzPVCaC-4zyiiRaFxwo61JyFQIAmvUsHG06LOoOivOrrj7yfMtjaRsBdFvhPsaOOXw7f__iTfq=s1600-rw-nd-v1"},{"title":"Star Wars Zero Company, la Patch 1.2 introduce i Modificatori della campagna e nuove opzioni di difficoltà","url":"/news-UgkxfPFvMsM74hTZC1vCygxkY4P6ZVEVd3rz.html","image":"https://yt3.ggpht.com/STsF27-F5OGSpk1-DSrn_oRI6B0h9bqRxY-jzo0mUbH8w3LMeQ3lqM9ojtjMRa_Ep5klArdrcwUfCQ=s1600-rw-nd-v1"},{"title":"Acts of Blood arriva su PC il 4 dicembre, versioni PS5 e Xbox Series X|S nel 2027","url":"/news-UgkxanA_bg3ewHe8h6QlwNX-x68h4g3KFnJl.html","image":"https://yt3.ggpht.com/ecd6waU4I99z3DspUmPeHk0uRpu85SRaH2Y62whLuJ6ccAG4gk-al2PqPV6ZBPA8TNrEndVRLt0lYQ=s1600-rw-nd-v1"},{"title":"Wreckfest 2, l’aggiornamento 9 aggiunge Deathloop 2, nuove auto e modalità","url":"/news-UgkxnO7wMKAA5-asrOgA4z9nFwqxPBaShPTz.html","image":"https://yt3.ggpht.com/mj2HgBiZLuzl-NVQjYD67e4tY3EplPVGrj2gLMjOoRAQJJdZcIQoiMSx-zSyjFhMqpStFah17ENmdi4=s1600-rw-nd-v1"},{"title":"Forge of the Fae arriva a marzo 2027 con un JRPG ispirato all’Irlanda del XIX secolo","url":"/news-Ugkx5hB09T4oM2Oph87ieWwY9aaVQvh3ucFS.html","image":"https://yt3.ggpht.com/LrbgAzhcrSczu_JPGoEHWtIJLzMbtjISzsGlpGlvyZaojQDQssujy1_27J0Pl_hRbJowtr5ebCtAiHk=s1600-rw-nd-v1"},{"title":"It Takes Two arriva su Nintendo Switch 2 con upgrade gratuito e cross-play tramite Pass amici","url":"/news-UgkxmhTWoKHgoMFRBVCVwarDzbQ13biS-HcH.html","image":"https://yt3.ggpht.com/amVWYeD14sFZPuyG3TZHB1xA_9ST6teuh0AfUol8wjzXEJSvXG8hlLdh5Ms3LNsAz9LZiScmSken5Q=s1600-rw-nd-v1"},{"title":"GeForce NOW si aggiorna con NVIDIA DLSS 4.5 e 10 nuovi giochi in arrivo questa settimana","url":"/news-UgkxQY-hCQCCMw3WlbF-zCPiRlsc0UEmSE81.html","image":"https://yt3.ggpht.com/nFRoX0S_44wRJvGoK9RpxYmwb_IGmoJrpoG4chRdjUmchMrRrofxZbmsfmBM3wwQNoRpRkBxgL1kYAA=s1600-rw-nd-v1"},{"title":"WWE 2K26 incontra Street Fighter con un nuovo Elite Pack in arrivo il 28 ottobre","url":"/news-Ugkx9dHcFpP5d1qd5Qby_oVDcCx-FVADEW46.html","image":"https://yt3.ggpht.com/2WRvIMuOnbRtWY6x33k4bAQ6qfZDD8rbUJczrZF8Ta4yiQE0ChchUofLYysHvoKO3EUtwDTsA9Ix1Q=s1600-rw-nd-v1"},{"title":"Bluey’s Happy Snaps è disponibile ora su console e PC con esplorazione, fotografie e gioco creativo","url":"/news-UgkxPCOgryK5A4RSA43juUimmAUZVqL7vhSE.html","image":"https://yt3.ggpht.com/jPHEWNqf9UmyL_gsNDdRlpVxDBD4mIILZ4_3ajbI_xcAo8uuaIrgbeOaNFdLzeLXOotGguVC-tQJag=s1600-rw-nd-v1"},{"title":"VAULTBREAKERS apre l’alpha test pubblico con modalità PvPvE, cinque personaggi e due mappe","url":"/news-Ugkxh7FEm6Cn8P9uU9f6xvh_CJVfQqzEfahc.html","image":"https://yt3.ggpht.com/MF6iX-mRu2bmPVMKHQ1JToYE-zbWNhSs_C9PfoIM4CjIuuVPIa971zfy0FhdI15OFFUqcooous_3RGc=s1600-rw-nd-v1"}];
-  const editorialBox=document.createElement("section");
-  editorialBox.className="ztp-editorial-archive";
-  const editorialHead=document.createElement("h2");editorialHead.textContent="DALLA REDAZIONE";
-  editorialBox.append(editorialHead);
-  const editorialCards=[];
-  for(const item of sidebarEditorials){
-    const article=document.createElement("a");article.className="ztp-editorial-story";
-    article.href=item.url;article.hidden=true;
-    const pic=document.createElement("img");pic.src=item.image;pic.alt=item.title;pic.loading="lazy";
-    const title=document.createElement("strong");title.textContent=item.title;
-    article.append(pic,title);editorialBox.append(article);editorialCards.push(article);
-  }
+  // Only ALTRE NEWS stays in this position. DALLA REDAZIONE is removed.
   const ytFollow=rail.querySelector(".zt-youtube-follow");
-  if(ytFollow)ytFollow.insertAdjacentElement("afterend",editorialBox);
-  else rail.appendChild(editorialBox);
+  // Some asynchronous Home enhancers mount another compact Tech-review panel
+  // inside the right rail. Remove that panel ONLY, not the main reviews area.
+  function dropRetiredRightRailBoxes(){
+    rail.querySelector("#zt-popular-box")?.remove();
+    for(const child of [...rail.children]){
+      if(child.id==="ztpOtherNews")continue;
+      const header=child.querySelector(":scope > .module-head h2,:scope > .side-head h2,:scope > .zt-popular-head h2,:scope > h2");
+      if(header && /^(?:DA NON PERDERE|DALLA REDAZIONE|RECENSIONI TECH)$/i.test(header.textContent.trim())){
+        child.remove();
+      }
+    }
+  }
+  dropRetiredRightRailBoxes();
+  new MutationObserver(dropRetiredRightRailBoxes).observe(rail,{childList:true});
 
   // ALTRE NEWS: exactly one full-width box below DALLA REDAZIONE.
   // Pull verified site news, guides, reviews, Extra and YouTube video pages
@@ -298,7 +302,8 @@
   const otherList=document.createElement("div");
   otherList.className="ztp-other-news-list";
   otherBox.append(otherHead,otherList);
-  editorialBox.insertAdjacentElement("afterend",otherBox);
+  if(ytFollow)ytFollow.insertAdjacentElement("afterend",otherBox);
+  else rail.appendChild(otherBox);
   let otherPool=[];
   let otherRaf=0;
   let otherReady=false;
@@ -511,17 +516,8 @@
         }
       }
     }
-    fillModule(pop,".zt-popular-article",3,"");
-    const chosen=[];
-    for(const card of editorialCards){
-      const path=articlePath(card);
-      if(path && !used.has(path) && chosen.length<6){chosen.push(card);used.add(path);}
-    }
-    const selected=new Set(chosen);
-    editorialCards.forEach(card=>{card.hidden=!selected.has(card);});
-    editorialBox.style.display=selected.size?"block":"none";
-    // Rebuild the single ALTRE NEWS block using only articles not already
-    // shown in the carousel, main columns or other editorial modules.
+
+    // Populate the surviving single large-image ALTRE NEWS block.
     populateOtherNews(used);
   }
   window.addEventListener("zt:home-columns-repainted",event=>{
