@@ -17,7 +17,12 @@ def apply(root:Path=ROOT):
         if obj.get("version")!=1 or not obj.get("owner_edited") or not isinstance(path,str) or not NAME.fullmatch(path) or path=="index.html" or marker.relative_to(folder).as_posix()!=path[:-5]+".json":
             raise RuntimeError("Invalid Studio override: "+marker.name)
         content=obj.get("html")
-        if not isinstance(content,str) or len(content)>2_000_000 or not re.search(r"<article\b[^>]*class=['\"][^'\"]*(?:article-main|story|zt-main|zt-watch-article)",content,re.I) or not re.search(r"<h1\b",content,re.I) or not re.search(r'<link\b[^>]*rel=["\']canonical["\']',content,re.I):
+        if not isinstance(content,str) or len(content)>2_000_000:
+            raise RuntimeError("Unsafe Studio override: "+marker.name)
+        has_editorial_article=bool(re.search(r"<article\b[^>]*class=['\"][^'\"]*(?:article-main|story|zt-main|zt-watch-article)",content,re.I))
+        has_generated_news=bool(re.search(r"<main\b[^>]*>",content,re.I) and
+                                re.search(r"<div\b[^>]*class=['\"][^'\"]*\barticle-copy\b",content,re.I))
+        if not (has_editorial_article or has_generated_news) or not re.search(r"<h1\b",content,re.I) or not re.search(r'<link\b[^>]*rel=["\']canonical["\']',content,re.I):
             raise RuntimeError("Unsafe or incomplete Studio override: "+marker.name)
         target=root/path
         if not target.is_file():
@@ -40,6 +45,10 @@ def self_test():
         assert apply(root)==1 and (root/page).read_text()==html
         (root/page).write_text("import reset",encoding="utf-8")
         assert apply(root)==1 and (root/page).read_text()==html
+        generated="<html><head><link rel='canonical' href='/demo-news.html'></head><body><main><h1>News</h1><div class='article-copy'>Testo</div></main></body></html>"
+        (root/"demo-news.html").write_text("import")
+        (base/"demo-news.json").write_text(json.dumps({"version":1,"owner_edited":True,"path":"demo-news.html","html":generated}))
+        assert apply(root)==1 and (root/"demo-news.html").read_text()==generated
         print("PASS: subsequent imports cannot overwrite the approved manual edit")
 if __name__=="__main__":
     import sys
