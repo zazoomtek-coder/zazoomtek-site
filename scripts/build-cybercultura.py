@@ -90,7 +90,7 @@ def build() -> None:
     base=base.replace('</head>',block+'</head>',1)
     # Legacy archive links are kept for Google; site-wide navigation gets
     # its authoritative menu from the Home in apply-site-design.py.
-    TARGET.write_text(base,encoding="utf-8")
+    page_total=write_paged_archives(base,ordered,structured,block)
     sitemap=ROOT/"sitemap.xml"
     if sitemap.is_file():
         xml=sitemap.read_text(encoding="utf-8")
@@ -100,7 +100,65 @@ def build() -> None:
                 raise RuntimeError("Invalid sitemap")
             xml=xml.replace("</urlset>","  <url><loc>"+locator+"</loc></url>\n</urlset>",1)
             sitemap.write_text(xml,encoding="utf-8")
-    print("CYBERCULTURA GENERATED:",len(ordered),"unique existing articles; legacy category URLs preserved",flush=True)
+    print("CYBERCULTURA GENERATED:",len(ordered),"articles across",page_total,"pages; legacy category URLs preserved",flush=True)
+
+
+def write_paged_archives(base: str, ordered: list, structured: dict, original_block: str) -> int:
+    """Write 20 distinct approved Cybercultura stories per accessible static page."""
+    per_page=20
+    total=max(1,(len(ordered)+per_page-1)//per_page)
+    for number in range(1,total+1):
+        part=ordered[(number-1)*per_page:number*per_page]
+        path="cybercultura.html" if number==1 else "cybercultura-"+str(number)+".html"
+        page_url="https://zazoomtek.it/"+path
+        selected=LIST.search(base)
+        if not selected:
+            raise RuntimeError("Cybercultura list markup changed; pagination aborted")
+        navigation=""
+        if total>1:
+            controls=[]
+            for index in range(1,total+1):
+                caption=str(index)
+                target="/cybercultura.html" if index==1 else "/cybercultura-"+caption+".html"
+                controls.append('<span class="active" aria-current="page">'+caption+'</span>'
+                                if index==number else '<a href="'+target+'">'+caption+'</a>')
+            if number<total:
+                controls.append('<a class="next" href="/cybercultura-'+str(number+1)+'.html">NEXT</a>')
+            navigation='<nav class="archive-pagination" aria-label="Pagine Cyber Cultura">'+''.join(controls)+'</nav>'
+        markup='<div class="news-list" id="newsList" data-auto-articles="cybercultura">\n'+''.join(
+            item+'\n' for _,item in part)+'</div>'+navigation
+        scoped=base[:selected.start()]+markup+base[selected.end():]
+        current_schema=json.loads(json.dumps(structured))
+        current_schema["url"]=page_url
+        records=[]
+        for idx,(_,item) in enumerate(part):
+            link=URL.search(item)
+            if not link:
+                raise RuntimeError("Cybercultura article missing URL during pagination")
+            records.append({"@type":"ListItem","position":(number-1)*per_page+idx+1,
+                            "url":"https://zazoomtek.it"+link.group(1)})
+        current_schema["mainEntity"]["itemListElement"]=records
+        replacement='<script type="application/ld+json">'+json.dumps(
+            current_schema,ensure_ascii=False).replace('<',r'\u003c')+'</script>'
+        if original_block not in scoped:
+            raise RuntimeError("Cybercultura JSON-LD marker unavailable")
+        scoped=scoped.replace(original_block,replacement,1)
+        if number>1:
+            scoped=scoped.replace("Cybercultura | Tecnologia, Gaming, Società e Diritti - ZazoomTek",
+                                  "Cybercultura - Pagina "+str(number)+" | ZazoomTek",1)
+            scoped=scoped.replace("https://zazoomtek.it/cybercultura.html",page_url)
+            scoped=scoped.replace("<h1>Cybercultura</h1>",
+                                  "<h1>Cybercultura - Pagina "+str(number)+"</h1>",1)
+        rel=[]
+        if number>1:
+            previous="cybercultura.html" if number==2 else "cybercultura-"+str(number-1)+".html"
+            rel.append('<link rel="prev" href="https://zazoomtek.it/'+previous+'">')
+        if number<total:
+            rel.append('<link rel="next" href="https://zazoomtek.it/cybercultura-'+str(number+1)+'.html">')
+        scoped=scoped.replace("</head>","".join(rel)+"</head>",1)
+        (ROOT/path).write_text(scoped,encoding="utf-8")
+    return total
+
 
 if __name__=="__main__":
     build()

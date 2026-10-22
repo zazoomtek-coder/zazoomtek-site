@@ -38,7 +38,7 @@ jobs:
           from pathlib import Path
           home=Path('dist/index.html').read_text(encoding='utf-8')
           a=home.split('<!-- HOME_SPECIALI_CARDS_START -->',1)[1].split('<!-- HOME_SPECIALI_CARDS_END -->',1)[0]
-          assert a.count('class="zt-special-item"')==1
+          assert a.count('class="zt-special-item"')==2
           assert home.count('id="ztHomeSpeciali"')==1
           assert home.index('id="ztHomeSpeciali"')<home.index('data-special-section="tech"')
           assert 'Videogiochi e terapia, come il gaming può entrare nei percorsi clinici' in a

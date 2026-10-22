@@ -2,6 +2,49 @@
   "articles": [
     {
       "section": "tech",
+      "slug": "data-center-ai-comunita-big-tech-2026",
+      "title": "Data center e corsa all'IA, le Big Tech cambiano strategia davanti alle proteste dei territori",
+      "summary": "I colossi della tecnologia promettono maggiore trasparenza e investimenti nelle comunità che ospitano nuovi data center. Dietro la crescita dell'intelligenza artificiale resta aperto il confronto su consumi, acqua, bollette e benefici per i cittadini.",
+      "date": "2026-10-22",
+      "image": "/assets/special/tech-impact-data-center-ai-comunita-20261022.svg",
+      "editor_approved": true,
+      "featured": true,
+      "sources": [
+        "https://apnews.com/article/b4b0544036989fc33820e8306593aff9"
+      ],
+      "paragraphs": [
+        "La crescita dell'intelligenza artificiale richiede enormi infrastrutture fisiche, ma negli Stati Uniti costruire nuovi data center sta diventando anche una questione politica. Le aziende tecnologiche incontrano un'opposizione sempre più organizzata da parte delle comunità locali, preoccupate per il consumo di elettricità, la disponibilità d'acqua, il rumore degli impianti e gli effetti sulle bollette.",
+        "Di fronte alle proteste, Amazon, Google, Meta e Microsoft stanno rafforzando le promesse economiche rivolte ai territori che ospitano i loro progetti. La novità non riguarda soltanto gli investimenti: secondo una ricostruzione pubblicata il 22 ottobre dall'Associated Press, alcune aziende stanno anche rivedendo le pratiche di riservatezza e la comunicazione con le amministrazioni locali.",
+        "Per molti residenti, il problema è capire quali vantaggi rimangano davvero sul posto dopo l'apertura di un complesso industriale così esteso. Durante la costruzione possono nascere posti di lavoro e commesse, ma l'impatto permanente sull'occupazione è diverso da quello di un cantiere. Servono inoltre infrastrutture elettriche adeguate, spesso oggetto di discussione per i costi di potenziamento.",
+        "I nuovi impegni annunciati dalle Big Tech comprendono contributi destinati ai territori, maggiore dialogo pubblico e una posizione più prudente sugli incentivi finanziati dai contribuenti. Resta però da verificare, progetto per progetto, come questi propositi vengano tradotti in accordi concreti e quali garanzie accompagnino eventuali richieste di risorse e autorizzazioni.",
+        "Il confronto si inserisce anche nella politica americana: amministratori e candidati sono chiamati a scegliere tra la promessa di attirare investimenti miliardari e le richieste dei cittadini che temono effetti negativi sulla qualità della vita. In diverse località i progetti sono stati contestati o rallentati, dimostrando che la disponibilità di capitali non basta a ottenere consenso.",
+        "La sfida per l'industria dell'IA non sarà quindi soltanto costruire server più potenti. Dovrà dimostrare che infrastrutture fondamentali per l'economia digitale possono convivere con esigenze energetiche, ambientali e sociali dei territori. Trasparenza sui consumi e benefici misurabili saranno decisivi per distinguere gli impegni pubblicitari dai risultati effettivi."
+      ]
+    },
+    {
+      "section": "gaming",
+      "slug": "bioware-chiusura-mass-effect-futuro-2026",
+      "title": "BioWare chiude dopo oltre trent'anni, stop al nuovo Mass Effect: la svolta di Electronic Arts",
+      "summary": "Electronic Arts conferma la chiusura di BioWare e l'interruzione del progetto Mass Effect ancora nelle prime fasi di sviluppo. Una decisione che segna l'industria dei giochi di ruolo e apre interrogativi sull'eredità dello studio.",
+      "date": "2026-10-22",
+      "image": "/assets/special/gaming-inside-bioware-mass-effect-20261022.svg",
+      "editor_approved": true,
+      "featured": true,
+      "sources": [
+        "https://blog.bioware.com/2026/10/21/bioware-update/",
+        "https://www.ea.com/news/building-eas-next-chapter"
+      ],
+      "paragraphs": [
+        "Si chiude una pagina fondamentale della storia dei videogiochi. Il 21 ottobre 2026 BioWare ha annunciato ufficialmente la propria chiusura dopo oltre trent'anni di attività. Electronic Arts ha contemporaneamente confermato che lo sviluppo preliminare del prossimo Mass Effect non proseguirà. Non si tratta quindi soltanto di indiscrezioni su una ristrutturazione: la decisione arriva direttamente dalle società coinvolte.",
+        "Fondata nel 1995, BioWare ha contribuito a definire il gioco di ruolo moderno attraverso opere come Baldur's Gate, Neverwinter Nights, Star Wars: Knights of the Old Republic, Dragon Age e Mass Effect. Il suo tratto distintivo è stato soprattutto il modo di costruire universi narrativi, compagni di viaggio e scelte capaci di influenzare il rapporto tra giocatore e storia.",
+        "Nel messaggio rivolto ai dipendenti, EA spiega di aver riesaminato investimenti, studi e priorità in un mercato segnato da maggiore concorrenza. La società intende concentrare risorse su alcuni franchise e progetti considerati strategici, mentre il percorso avviato per il nuovo Mass Effect viene fermato insieme alle attività dello studio di Edmonton.",
+        "È importante distinguere lo stop al progetto dalla cancellazione definitiva del marchio Mass Effect. L'annuncio riguarda lo sviluppo in corso e la chiusura di BioWare; non stabilisce che la proprietà intellettuale non potrà mai essere utilizzata in futuro. Per i fan, però, viene meno il team storicamente associato alla serie e non esiste al momento un nuovo capitolo annunciato in produzione.",
+        "Le ultime stagioni dello studio sono state difficili, tra l'accoglienza contrastante di Anthem e risultati inferiori alle attese per Dragon Age: The Veilguard. Ridurre la chiusura a un singolo insuccesso sarebbe comunque semplicistico: il caso riflette scelte industriali più ampie, con costi di sviluppo crescenti e una crescente pressione sui grandi publisher.",
+        "BioWare lascia un'eredità che supera i bilanci e i calendari delle uscite. I suoi sistemi di dialogo, le relazioni tra personaggi e le avventure costruite attorno alle decisioni dei giocatori hanno influenzato intere generazioni di sviluppatori. La domanda, adesso, non riguarda soltanto il futuro di Mass Effect, ma lo spazio che i grandi gruppi concederanno ai giochi di ruolo narrativi."
+      ]
+    },
+    {
+      "section": "tech",
       "slug": "ue-bulgaria-digital-services-act-controlli-piattaforme",
       "title": "Digital Services Act, la Commissione richiama la Bulgaria: perché i controlli sulle piattaforme contano",
       "summary": "La Commissione europea ha contestato alla Bulgaria carenze nell'attuazione del Digital Services Act, soprattutto nei poteri delle autorità incaricate di far rispettare le regole alle piattaforme digitali. La procedura è ancora aperta: non si tratta di una condanna definitiva.",

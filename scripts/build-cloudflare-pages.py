@@ -87,6 +87,11 @@ def generated_approved_files() -> set[Path]:
                 if isinstance(cover, str) and cover.startswith("/assets/"):
                     add(cover)
 
+    # Generated archive pages are safe only when named sequentially by the approved builder.
+    for page in ROOT.glob("cybercultura-*.html"):
+        if re.fullmatch(r"cybercultura-(?:[2-9]|[1-9][0-9]+)\.html",page.name):
+            add(page.name)
+
     reviews = ROOT / "editorial/review-publication-queue.json"
     if reviews.is_file():
         queue = json.loads(reviews.read_text(encoding="utf-8"))

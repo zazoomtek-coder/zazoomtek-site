@@ -19,7 +19,7 @@ CATEGORIES={'Speciali Tech':'TECH IMPACT','Speciali Gaming':'GAMING INSIDE'}
 SENTINEL=('<div class="zt-specials-empty"><strong>Gli SPECIALI sono in preparazione.</strong>'
           '<p>I prossimi approfondimenti verificati appariranno qui dopo l’approvazione editoriale.</p></div>')
 SAFE_ARTICLE=re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_-]*\.html\Z')
-SAFE_IMAGE=re.compile(r'/assets/[a-zA-Z0-9_./-]+\.(?:webp|png|jpg|jpeg|avif)\Z',re.I)
+SAFE_IMAGE=re.compile(r'/assets/[a-zA-Z0-9_./-]+\.(?:webp|png|jpg|jpeg|avif|svg)\Z',re.I)
 
 CURATED_COMMUNITY_MANIFEST = "speciali-community-curated.json"
 COMMUNITY_ARTICLE = re.compile(r'news-Ugkx[a-zA-Z0-9_-]+\.html\Z')
