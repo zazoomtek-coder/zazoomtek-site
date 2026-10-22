@@ -208,7 +208,7 @@ window.ZTStudioGitHub={
  read:async path=>{if(!token)throw Error("Accesso amministratore richiesto");return req("GET",path+"?ref="+BRANCH)},
  write:async(path,content,sha,message)=>{
   if(!token)throw Error("Accesso amministratore richiesto");
-  if(!(/^[a-zA-Z0-9_.-]+\.html$/.test(path)&&path!=="index.html"||/^editorial\/studio-overrides\/[a-zA-Z0-9_.-]+\.json$/.test(path)))throw Error("Percorso non modificabile");
+  if(!((/^[a-zA-Z0-9_.-]+\.html$/.test(path)&&path!=="index.html")||/^watch\/[a-zA-Z0-9_-]{11}\.html$/.test(path)||/^editorial\/studio-overrides\/(?:watch\/)?[a-zA-Z0-9_.-]+\.json$/.test(path)))throw Error("Percorso non modificabile");
   return req("PUT",path,{message,content:b64UTF8(content),branch:BRANCH,...(sha?{sha}:{})});
  },
  create:async(path,base64,message)=>{
