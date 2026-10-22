@@ -132,6 +132,28 @@ def image_for(row,root):
     draw.text((33,h-47),"NOTIZIE DAL WEB",fill=(245,245,248))
     return image
 
+TECH_TERMS=(
+ "android","iphone","ipad","ios","macbook","apple watch","samsung","google","microsoft",
+ "windows","linux","xbox","playstation","ps5","ps4","nintendo","videogioch",
+ "gaming","gpu","cpu","ram ","dram","ssd","nvme","ryzen","geforce","rtx",
+ "snapdragon","nvidia","amd ","intel","computer","laptop","notebook","alienware",
+ "hardware","software","digitale","tecnologia","tech","cyber","sicurezza informatica",
+ "intelligenza artificiale","robot","smartphone","tablet","cloud","data center",
+ "elettronic","microfono","insta360","fotocamera","camera","televis","display","wifi",
+ "wi-fi","bluetooth","router","app ","domotica","openai","ai agent","startup",
+ "chip","processore","social media","facebook","instagram","tiktok","whatsapp",
+ "streaming","netflix","amazon luna","prime video","meta quest","occhiali smart")
+PROMOTIONAL=("offerta","sconto","offerte","coupon","codice sconto","buono amazon",
+ "prezzo stracciato","prezzo mai visto","super prezzo","a meno di","ultimi pezzi",
+ "codice promozionale","svendita","black friday")
+def relevant(row,now=None):
+    title=row["original"].lower()
+    if any(x in title for x in PROMOTIONAL):return False
+    if not any(t in title for t in TECH_TERMS):return False
+    stamp=datetime.fromisoformat(row["published"])
+    now=now or datetime.now(timezone.utc)
+    return now-timedelta(days=14)<=stamp<=now+timedelta(days=1)
+
 def choose(candidates,old):
     pool={}
     for row in candidates:
@@ -164,12 +186,12 @@ def update(root=ROOT,fetch=safe_fetch):
         try:
             rows=parse_feed(fetch(url,domain),source,domain)
             if not rows:raise ValueError("RSS returned no usable article links")
-            candidates.extend(rows);ok.append(source)
+            candidates.extend([row for row in rows if relevant(row)]);ok.append(source)
             print("RSS",source,":",len(rows),"items")
         except Exception as e:
             print("RSS unavailable",source,":",str(e)[:180])
     # Do not replace 5 valid stories with a smaller or failed snapshot.
-    if not ok or len(candidates)<5:
+    if len(ok)<3 or len(candidates)<5:
         print("WEB-NEWS UNCHANGED: insufficient valid feeds; preserve existing published state")
         return []
     selected=choose(candidates,old)
@@ -202,6 +224,8 @@ def self_test():
     assert not parse_feed(rss.replace(b"hdblog.it",b"evil.test"),"HDblog","hdblog.it")
     assert len(excerpt(rows[0]).split())<=50
     assert choose(rows,{"items":[]}) is None
+    assert not relevant({"original":"Le migliori tende da campeggio per famiglie","published":"2026-10-22T10:00:00+00:00"},datetime(2026,10,22,tzinfo=timezone.utc))
+    assert relevant({"original":"Nvidia GeForce RTX 5050 e nuove GPU","published":"2026-10-22T10:00:00+00:00"},datetime(2026,10,22,tzinfo=timezone.utc))
     print("PASS: RSS parser, source whitelist, 5-item guard and original excerpts")
 if __name__=="__main__":
     if "--self-test" in sys.argv:self_test()
