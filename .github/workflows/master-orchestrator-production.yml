@@ -1,52 +1,25 @@
-name: ZazoomTek MASTER - sole production writer (CUTOVER GATED)
-# Enabled only by the one-commit atomic cutover, gated by master-production-enabled.json.
-# One concurrency group serializes both 5-minute JSON-only polls and the
-# five fixed daytime Cloudflare release windows. Any competing legacy writer blocks the run.
-
+name: ZazoomTek MASTER - direct main publisher
+# Publication directly from main: no PR queue, approval step or staging branch.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'publish = refresh imports and release; publish_pending = last-good recovery; poll = JSON only'
-        required: true
-        type: choice
-        options: [publish_pending, publish, poll]
-        default: publish
   schedule:
-    # Italian local time, with automatic DST. No overnight scheduled polls.
-    # Exact editorial releases: 10:15 12:45 15:15 17:45 20:15.
     - cron: '15 10,15,20 * * *'
       timezone: 'Europe/Rome'
     - cron: '45 12,17 * * *'
       timezone: 'Europe/Rome'
-    # Five-minute import-only checks after first and before last release.
-    - cron: '20-55/5 10 * * *'
-      timezone: 'Europe/Rome'
-    - cron: '2-57/5 11-19 * * *'
-      timezone: 'Europe/Rome'
-    - cron: '2,7,12 20 * * *'
-      timezone: 'Europe/Rome'
-  push:
-    branches: [main]
-    paths:
-      - 'master-production-enabled.json'
-      - 'cloudflare-manual-release-request.json'  # explicit release signal; no secrets
 
 permissions:
   contents: write
-  pull-requests: write
-  actions: read
 
 concurrency:
   group: zazoomtek-master-sole-repository-and-pages-writer
   cancel-in-progress: false
-  # Preserve every pending request; scheduled polls must not cancel a manual release.
   queue: max
 
 jobs:
-  master:
-    if: github.ref == 'refs/heads/main'
-    name: Verified editorial JSON to Cloudflare release gate
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 65
     steps:
@@ -54,151 +27,34 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Prepare existing image and rendering dependencies
+      - name: Install rendering dependency
         run: python3 -m pip install --quiet pillow
-      - name: Verify exclusive writer ownership; block if not cut over
+      - name: Import and commit directly to main
         env:
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-        run: |
-          python3 scripts/master-production-gateway.py --check-cutover
-      - name: Merge due editorial queue independently of other releases
-        # A conflicted PR must not prevent independent approved content reaching Cloudflare.
-        # Any unresolved PR is retried in later slots; never overwrite main.
-        continue-on-error: true
-        env:
+          GITHUB_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ github.token }}
-          ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
-          ZT_DISPATCH_MODE: ${{ inputs.mode }}
-          ZT_PUSH_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          set -euo pipefail
-          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
-            if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
-              python3 scripts/process-approved-release-queue.py --cron "${ZT_EVENT_SCHEDULE}"
-            else
-              echo "Import-only poll: approved PR queue untouched."
-            fi
-          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${ZT_DISPATCH_MODE:-publish}" != "poll" ]; then
-            python3 scripts/process-approved-release-queue.py --cron manual-approved
-          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then
-            python3 scripts/process-approved-release-queue.py --cron manual-approved
-          fi
-      - name: JSON-only poll or controlled publication
-        id: production
-        env:
-          ZT_CLOUDFLARE_DIRECT_DEPLOY: '1'
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_EVENT_SCHEDULE: ${{ github.event.schedule }}
-          ZT_DISPATCH_MODE: ${{ inputs.mode }}
-          ZT_PUSH_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          ZT_CLOUDFLARE_DIRECT_DEPLOY: '1'
         run: |
-          set -euo pipefail
-          urgent=0
-          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
-            if [ "${ZT_EVENT_SCHEDULE}" = "15 10,15,20 * * *" ] || [ "${ZT_EVENT_SCHEDULE}" = "45 12,17 * * *" ]; then
-              # At every editorial window scan current YouTube Community
-              # and videos into validated JSON, then build and publish once.
-              # An unavailable secondary source retains last-good data.
-              mode=publish
-            else
-              mode=poll
-            fi
-          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            mode="${ZT_DISPATCH_MODE:-publish}"
-            if [ "${mode}" != "poll" ]; then urgent=1; fi
-          else
-            mode=publish
-            # ChatGPT can write the manual request file via the GitHub connector.
-            # The deliberately named commit is an explicit publication request.
-            if [[ "${ZT_PUSH_COMMIT_MESSAGE:-}" == "zt: manual Cloudflare release"* ]]; then
-              mode=publish
-              urgent=1
-            fi
-          fi
-          if [ "${mode}" != "poll" ] && [ "${mode}" != "publish" ] && [ "${mode}" != "publish_pending" ]; then
-            echo "::error::Unsupported Master mode"; exit 1
-          fi
-          if [ "${urgent}" = 1 ]; then echo "IMMEDIATE_RELEASE=True; fresh YouTube import, then release verified content (no slot wait)"; fi
-          echo "ZT Master mode: ${mode}"
-          if [ "${mode}" = "publish_pending" ]; then
-            if [ "${urgent}" = 1 ]; then
-              echo "Manual immediate release of validated pending content."
-              python3 scripts/master-production-gateway.py --publish-pending --urgent | tee "$RUNNER_TEMP/zt-master-release.log"
-            else
-              echo "Scheduled release of validated pending content at editorial slot."
-              python3 scripts/master-production-gateway.py --publish-pending | tee "$RUNNER_TEMP/zt-master-release.log"
-            fi
-          elif [ "${urgent}" = 1 ]; then
-            echo "Immediate requested release: refresh YouTube sources; publish verified site without waiting for a slot."
-            python3 scripts/master-production-gateway.py --publish --urgent | tee "$RUNNER_TEMP/zt-master-release.log"
-          else
-            # The gateway preserves validated last-good JSON when an optional
-            # upstream importer fails. Mandatory HTML/deploy integrity remains.
-            python3 scripts/master-production-gateway.py "--${mode}" | tee "$RUNNER_TEMP/zt-master-release.log"
-          fi
-
-          # Carry the gateway's actual release decision to the Pages deploy.
-          # Polls (release_requested=false) never spend a Cloudflare build.
-          python3 -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"zt-master-release.log"; rows=[json.loads(line) for line in p.read_text().splitlines() if line.startswith("{") and "release_requested" in line]; r=rows[-1]; print("release_requested="+str(r["release_requested"]).lower()); print("source_commit="+str(r.get("source_commit","")))' >> "$GITHUB_OUTPUT"
-
-      - name: Check direct Pages deployment configuration
-        if: steps.production.outputs.release_requested == 'true'
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CF_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          git config user.name "ZazoomTek Master"
+          git config user.email "actions@users.noreply.github.com"
+          python3 scripts/master-production-gateway.py --publish --urgent
+      - name: Build latest main for Cloudflare Pages
         run: |
-          test -n "$CF_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN secret"; exit 1; }
-          test -n "$CF_ACCOUNT" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID secret"; exit 1; }
-          test -n "$CF_PROJECT" || { echo "::error::Missing CLOUDFLARE_PAGES_PROJECT_NAME repository variable"; exit 1; }
-
-      - name: Build the exact committed Cloudflare Pages snapshot
-        if: steps.production.outputs.release_requested == 'true'
-        env:
-          EXPECTED_SOURCE: ${{ steps.production.outputs.source_commit }}
-        run: |
-          set -euo pipefail
           git fetch origin main
           git checkout main
           git reset --hard origin/main
           python3 scripts/cloudflare-build-site.py
-          python3 - <<'PY'
-          import json,os,pathlib,re
-          expected=os.environ["EXPECTED_SOURCE"]
-          marker=pathlib.Path("cloudflare-release-trigger.txt").read_text()
-          actual=re.search(r"(?m)^source_commit=([a-f0-9]{40})$",marker)
-          receipt=json.loads(pathlib.Path("dist/zt-release-status.json").read_text())
-          if not actual or actual.group(1)!=expected or receipt.get("source_commit")!=expected:
-              raise SystemExit("Release source SHA changed before direct upload: retry a fresh publish")
-          print("Verified Pages artifact for source",expected)
-          PY
-
-      - name: Deploy committed site directly to Cloudflare Pages
-        if: steps.production.outputs.release_requested == 'true'
+      - name: Publish directly to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
-
-      - name: Confirm that the production domain serves this release
-        if: steps.production.outputs.release_requested == 'true'
-        env:
-          EXPECTED_SOURCE: ${{ steps.production.outputs.source_commit }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-        run: |
-          set -euo pipefail
-          python3 scripts/verify-live-cloudflare.py --source-commit "$EXPECTED_SOURCE" --timeout-seconds 840
-          echo "VERIFIED: Cloudflare serves the exact committed release $EXPECTED_SOURCE"
-          if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ZONE_ID:-}" ]; then
-            python3 scripts/cloudflare-purge-after-release.py || echo "::warning::Optional cache purge failed"
-          fi
