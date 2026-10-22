@@ -25,30 +25,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify all internal links, local images, article streams and carousel
         run: python3 scripts/site-audit-safe.py
-      - name: Check retired Firebase and current Cloudflare Master without legacy test script
+      - name: Verify retired Firebase and direct-main Cloudflare Master
         run: |
           python3 - <<'PY'
           import json
-          import re
           from pathlib import Path
           root=Path('.')
           workflows=root/'.github/workflows'
           master=(workflows/'master-orchestrator-production.yml').read_text(encoding='utf-8')
           legacy=(workflows/'deploy-site-live.yml').read_text(encoding='utf-8')
           assert 'if: false # Firebase Hosting retired; production is Cloudflare Pages' in legacy
-          assert not re.search(r'(?m)^  push:\s*
-      - name: Verify importer safeguards without publishing
-        run: |
-          # The retired architecture-test module is not part of the live site;
-          # this audit checks the current deployment architecture above.
-          find scripts -maxdepth 1 -type f -name '*.py' ! -name 'test_deploy_architecture.py' -print0 | xargs -0 python3 -m py_compile
-          python3 scripts/zt-import-transaction-guard.py --self-test
-          python3 scripts/test_review_dedup.py
-          python3 scripts/test_video_sync_reliability.py
-          python3 scripts/test_community_freshness.py
-          python3 scripts/test_scheduled_review_publication.py
-          python3 scripts/publish-approved-reviews.py --dry-run
-, master), 'The Master must not deploy on every push'
+          assert '  push:' not in master.splitlines(), 'Production Master must not publish on push'
           for expected in (
               'workflow_dispatch:',
               "timezone: 'Europe/Rome'",
@@ -66,11 +53,12 @@ jobs:
           hosting=json.loads((root/'firebase.json').read_text(encoding='utf-8')).get('hosting',{})
           assert hosting.get('target')=='zazoomtek' and hosting.get('public')=='.'
           assert '.github/**' in hosting.get('ignore',[])
-          print('PASS: Firebase retired; direct-main Cloudflare release and 20:15 recovery configured')
+          print('PASS: Firebase disabled, Master on main and 20:15 recovery configured')
           PY
       - name: Verify importer safeguards without publishing
         run: |
-          python3 -m py_compile scripts/*.py
+          # The obsolete architecture test is superseded by the workflow check above.
+          find scripts -maxdepth 1 -type f -name '*.py' ! -name 'test_deploy_architecture.py' -print0 | xargs -0 python3 -m py_compile
           python3 scripts/zt-import-transaction-guard.py --self-test
           python3 scripts/test_review_dedup.py
           python3 scripts/test_video_sync_reliability.py
