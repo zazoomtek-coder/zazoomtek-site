@@ -1,62 +1,67 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T14:35:30.575292+00:00",
+  "updated_at": "2026-10-22T18:59:02.637418+00:00",
   "image_policy": "RSS enclosure/media or article OpenGraph; 720x405 WebP with linked attribution",
   "items": [
     {
-      "id": "c2c6c539c6f1ca8cc436",
+      "id": "1309411a794633781e7e",
+      "source": "Tom's Hardware Italia",
+      "url": "https://www.tomshw.it/hardware/bluetooth-sparito-windows-11-controlli-driver-radio",
+      "title": "Il punto su Bluetooth sparito Windows farlo tornare",
+      "original_title": "Bluetooth sparito su Windows 11: come farlo tornare",
+      "excerpt": "La notizia riguarda Bluetooth sparito Windows farlo tornare. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-22T18:00:00+00:00",
+      "image": "/assets/notizie-dal-web/1309411a794633781e7e-33cecf4967.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119142/cover.png"
+    },
+    {
+      "id": "cd97b6ddb12e5132c129",
       "source": "HDblog",
-      "url": "https://www.hdblog.it/hardware/articoli/n674607/corsair-cyberpunk-2077-edgerunners-arasaka/",
-      "title": "Il punto su Corsair arrivano nuove periferiche ispirate Cyberpunk 2077",
-      "excerpt": "La notizia riguarda Corsair arrivano nuove periferiche ispirate. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T14:15:00+00:00",
-      "image": "/assets/notizie-dal-web/c2c6c539c6f1ca8cc436-484a2b182c.webp",
+      "url": "https://www.hdblog.it/smartphone/articoli/n674622/samsung-riparazione-elettrodomestici-garanzia/",
+      "title": "Il punto su Samsung permette ora acquistare online riparazione elettrodomestici",
+      "original_title": "Samsung permette ora di acquistare online la riparazione degli elettrodomestici fuori garanzia",
+      "excerpt": "La notizia riguarda Samsung permette acquistare online riparazione. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-22T17:30:00+00:00",
+      "image": "/assets/notizie-dal-web/cd97b6ddb12e5132c129-6c7540c2d7.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://hd2.tudocdn.net/1379916?w=660"
+      "image_source": "https://hd2.tudocdn.net/1353572?w=660"
     },
     {
-      "id": "d896de01d28a5f7f09b8",
-      "source": "Tom's Hardware Italia",
-      "url": "https://www.tomshw.it/offerte/nintendo-switch-2-bundle-a-52999eur-con-accessori-e-3-mesi-di-online",
-      "title": "Il punto su bundle Nintendo Switch bonus valore 150",
-      "excerpt": "La notizia riguarda bundle Nintendo Switch bonus valore. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T14:10:02+00:00",
-      "image": "/assets/notizie-dal-web/d896de01d28a5f7f09b8-7b369d630f.webp",
-      "image_origin": "rss-webp",
-      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119814/nintendo-switch-sport-resort-cover.jpg"
-    },
-    {
-      "id": "7bf4a3b8bccc7d2c58ea",
-      "source": "DDAY.it",
-      "url": "https://www.dday.it/redazione/59120/roborock-saros-20-neo-e-il-robot-aspirapolvere-lavapavimenti-che-toglie-di-mezzo-anche-gli-imprevisti",
-      "title": "Il punto su Roborock Saros Neo robot aspirapolvere lavapavimenti toglie",
-      "excerpt": "La notizia riguarda Roborock Saros robot aspirapolvere lavapavimenti. DDAY.it pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T13:35:00+00:00",
-      "image": "/assets/notizie-dal-web/7bf4a3b8bccc7d2c58ea-a25eac417c.webp",
-      "image_origin": "rss-webp",
-      "image_source": "https://images.dday.it/lkfBM4xClC1cVBYiC0ANrFQsblWMGdqMyY1cmpScFsU/w:329/h:256/rt:fill/plain/s3://dday-production/system/uploads/news/square_crop_img/59120/dc3f6c_Roborock_Saros_20_Neo__Lifestyle__Black_25.jpg"
-    },
-    {
-      "id": "3445940c87d5d165691e",
+      "id": "5ea348460b6e63a527ac",
       "source": "SmartWorld",
-      "url": "https://www.smartworld.it/news/samsung-galaxy-fit-4-design-colori-specifiche-leaked.html",
-      "title": "Il punto su Samsung Galaxy Fit trapelano prime immagini quasi",
-      "excerpt": "La notizia riguarda Samsung Galaxy trapelano prime immagini. SmartWorld pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T12:59:00+00:00",
-      "image": "/assets/notizie-dal-web/3445940c87d5d165691e-0d9858aa0f.webp",
+      "url": "https://www.smartworld.it/news/insta360-mic-prezzo-caratteristiche-novita-e-ink.html",
+      "title": "Il punto su Insta360 Mic microfono wireless display E-Ink personalizzabile",
+      "original_title": "Insta360 Mic: il microfono wireless con display E-Ink personalizzabile con registrazione a 32 bit su microSD",
+      "excerpt": "La notizia riguarda Insta360 microfono wireless display E-Ink. SmartWorld pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-22T16:03:00+00:00",
+      "image": "/assets/notizie-dal-web/5ea348460b6e63a527ac-586f1b669f.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://www.smartworld.it/images/2026/10/22/samsung-galaxy-fit-4-orig.jpg"
+      "image_source": "https://www.smartworld.it/images/2026/10/22/insta360-mic-orig.jpg"
     },
     {
-      "id": "25a0009388d2c8e3c7af",
-      "source": "Tom's Hardware Italia",
-      "url": "https://www.tomshw.it/automotive/tesla-adatta-lapp-a-ipad-e-iphone-duo-cosa-cambia-nei-comandi",
-      "title": "Il punto su Tesla adatta app iPad iPhone Duo cosa",
-      "excerpt": "La notizia riguarda Tesla adatta iPad iPhone cosa. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T14:10:00+00:00",
-      "image": "/assets/notizie-dal-web/25a0009388d2c8e3c7af-ef74603a62.webp",
+      "id": "342777800f998d6f1333",
+      "source": "DDAY.it",
+      "url": "https://www.dday.it/redazione/59197/riparare-un-elettrodomestico-fuori-garanzia-come-uno-smartphone-samsung-estende-smart-repair",
+      "title": "Il punto su Riparare elettrodomestico fuori garanzia smartphone Samsung estende",
+      "original_title": "Riparare un elettrodomestico fuori garanzia come uno smartphone: Samsung estende Smart Repair",
+      "excerpt": "La notizia riguarda Riparare elettrodomestico fuori garanzia smartphone. DDAY.it pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-22T14:58:00+00:00",
+      "image": "/assets/notizie-dal-web/342777800f998d6f1333-ef094a7544.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119812/tesla-adatta-l-app-a-ipad-e-iphone-duo-cosa-cambia-nei-comandi.png"
+      "image_source": "https://images.dday.it/dti_CHiqzBAdknSp5HaSuFq6iatZGuAgfcXY3V1NQgQ/w:329/h:256/rt:fill/plain/s3://dday-production/system/uploads/news/square_crop_img/59197/5bdb16_small_Screenshot_2026-10-22_alle_16.56.26_copia.png"
+    },
+    {
+      "id": "3044b73fcdba73ac1b7e",
+      "source": "Tom's Hardware Italia",
+      "url": "https://www.tomshw.it/business/vuoi-lai-di-meta-in-locale-servono-almeno-20000-euro-di-hardware-apple",
+      "title": "Il punto su Vuoi Meta locale Servono almeno 000 euro",
+      "original_title": "Vuoi l'AI di Meta in locale? Servono almeno 20.000 euro di hardware Apple",
+      "excerpt": "La notizia riguarda Vuoi Meta locale Servono almeno. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-22T16:57:39+00:00",
+      "image": "/assets/notizie-dal-web/3044b73fcdba73ac1b7e-369a3412d9.webp",
+      "image_origin": "rss-webp",
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119540/01-ai-meta-locale-hardware-apple.jpg"
     }
   ]
 }
