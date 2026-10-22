@@ -131,10 +131,10 @@ jobs:
           if [ "${mode}" = "publish_pending" ]; then
             if [ "${urgent}" = 1 ]; then
               echo "Manual immediate release of validated pending content."
-              python3 scripts/master-production-gateway.py --publish-pending | tee "$RUNNER_TEMP/zt-master-release.log" --urgent | tee "$RUNNER_TEMP/zt-master-release.log"
+              python3 scripts/master-production-gateway.py --publish-pending --urgent | tee "$RUNNER_TEMP/zt-master-release.log"
             else
               echo "Scheduled release of validated pending content at editorial slot."
-              python3 scripts/master-production-gateway.py --publish-pending
+              python3 scripts/master-production-gateway.py --publish-pending | tee "$RUNNER_TEMP/zt-master-release.log"
             fi
           elif [ "${urgent}" = 1 ]; then
             echo "Immediate requested release: refresh YouTube sources; publish verified site without waiting for a slot."

@@ -723,56 +723,48 @@
      ["min-height","height","display","flex-direction","justify-content"].forEach(function(p){col.style.removeProperty(p);});
    });
    const track=review.querySelector("#latestVideos");
-   const olderCards=track?[...track.querySelectorAll("article.video-card")]:[];
-   const gamingCards=olderCards.filter(function(card){
-     const url=card.querySelector("h3 a")?.getAttribute("href")||"";
-     return /poly-fighter|sesame-street|transport-fever|recensione-Ugkxvpi|walto|recensione-Ugkx1Mz|ace-combat|recensione-UgkxPQV/i.test(url);
-   }).slice(0,3);
+   // Keep the server-rendered latest reviews until the canonical category archive arrives.
+   // Never replace real dated reviews with a frozen product/Community fallback.
    function reviewCard(data){
      const c=document.createElement("article");c.className="video-card zt-review-card";
-     const imageLink=document.createElement("a");imageLink.className="video-thumb zt-review-thumb";imageLink.href=data.href;
-     const image=document.createElement("img");image.src=data.img;image.alt=data.title;image.loading="lazy";image.decoding="async";imageLink.appendChild(image);
-     const heading=document.createElement("h3"),anchor=document.createElement("a");anchor.href=data.href;anchor.textContent=data.title;heading.appendChild(anchor);
-     if(data.href.startsWith("https://")){imageLink.target="_blank";imageLink.rel="noopener noreferrer";anchor.target="_blank";anchor.rel="noopener noreferrer";}
-     c.append(imageLink,heading);
-     if(data.kind){const small=document.createElement("small");small.textContent=data.kind;c.appendChild(small);}
+     const thumb=document.createElement("a");thumb.className="video-thumb zt-review-thumb";thumb.href=data.href;
+     const img=document.createElement("img");img.src=data.img;img.alt=data.title;img.loading="lazy";img.decoding="async";thumb.appendChild(img);
+     const h=document.createElement("h3"),a=document.createElement("a");a.href=data.href;a.textContent=data.title;h.appendChild(a);
+     c.append(thumb,h);
+     if(data.kind){const date=document.createElement("small");date.textContent=data.kind;c.appendChild(date);}
      return c;
    }
-   if(track){
-     track.replaceChildren(
-       reviewCard({href:"/thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html",title:"ThermoMate 2500W | Recensione riscaldatore a infrarossi",img:"/assets/recensioni/thermomate-2500w/cover.webp",kind:"17 ottobre 2026"}),
-       reviewCard({href:"/recensione-Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js.html",title:"70mai Dash Cam 4K A900 | Recensione",img:"https://yt3.ggpht.com/_Dt3qOg45HgYDTfEAyPaMIcIFyrOaQLiH8WoY2GfoAvX7uaU1uc9OUTBBBqKuTgWNnWAGeV-aoFx4Ug=s1600-rw-nd-v1",kind:"Recensione scritta"}),
-       reviewCard({href:"/recensione-UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg.html",title:"IIFACTOR M08E AI Smart Glasses | Recensione",img:"https://yt3.ggpht.com/g9pYihIxSd_5JUYmWF3t8PVGJAEsueYJmPZoCfl_hiYkrBhnn-37gOzbY-09frAt_xG23eBgmQLUMA=s1600-rw-nd-v1",kind:"Recensione scritta"})
-     );
+   function datedReviews(url){
+     return fetch(url,{cache:"no-store"}).then(function(response){
+       if(!response.ok)throw Error("Archive HTTP "+response.status);
+       return response.text();
+     }).then(function(markup){
+       const archive=new DOMParser().parseFromString(markup,"text/html");
+       const months={gennaio:1,febbraio:2,marzo:3,aprile:4,maggio:5,giugno:6,
+         luglio:7,agosto:8,settembre:9,ottobre:10,novembre:11,dicembre:12};
+       const found=[],seen=new Set();
+       archive.querySelectorAll("#reviewList .news-row").forEach(function(row){
+         const link=row.querySelector(".news-copy h2 a[href]"),picture=row.querySelector("img[src]");
+         if(!link||!picture)return;
+         const href=link.getAttribute("href")||"";
+         if(!/^\/[a-zA-Z0-9._-]+\.html$/.test(href)||seen.has(href))return;
+         const title=link.textContent.trim(),img=picture.getAttribute("src")||"";
+         if(!title||!img)return;
+         const meta=row.querySelector(".news-meta")?.textContent||"";
+         const date=meta.toLowerCase().match(/(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(\d{4})/);
+         const iso=meta.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/);
+         if(!date&&!iso)return; // No invented publication dates or ranking.
+         const order=date?Number(date[3])*10000+months[date[2]]*100+Number(date[1]):
+           Number(iso[1])*10000+Number(iso[2])*100+Number(iso[3]);
+         const kind=date?date[1]+" "+date[2]+" "+date[3]:iso[3]+"/"+iso[2]+"/"+iso[1];
+         seen.add(href);found.push({href,title,img,kind,order});
+       });
+       return found.sort(function(a,b){return b.order-a.order;}).slice(0,3);
+     });
    }
-   // Auto-refresh the TECH shelf from the official dated review archive.
-   // Static cards above remain a safe fallback if the archive is unreachable.
-   if(track)fetch("/recensioni-scritte.html",{cache:"no-store"}).then(function(r){
-     if(!r.ok)throw new Error("archive HTTP "+r.status);
-     return r.text();
-   }).then(function(markup){
-     const doc=new DOMParser().parseFromString(markup,"text/html");
-     const months={gennaio:1,febbraio:2,marzo:3,aprile:4,maggio:5,giugno:6,
-       luglio:7,agosto:8,settembre:9,ottobre:10,novembre:11,dicembre:12};
-     const entries=[...doc.querySelectorAll("#reviewList .news-row")].map(function(row){
-       const link=row.querySelector(".news-copy h2 a"), image=row.querySelector("img");
-       if(!link||!image)return null;
-       const href=link.getAttribute("href")||"";
-       if(!href.startsWith("/")||!href.endsWith(".html"))return null;
-       const title=link.textContent.trim();
-       const techTag=(row.getAttribute("data-review-category")||"").toLowerCase();
-       if(techTag!=="tech" && !/thermomate|70mai|iifactor.*smart|smartphone|smart glasses|mini pc|router|riscaldatore|aspirapolvere/i.test(title))return null;
-       const meta=row.querySelector(".news-meta")?.textContent||"";
-       const m=meta.toLowerCase().match(/(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(\d{4})/);
-       if(!m)return null;
-       return {href,title,img:image.getAttribute("src"),kind:m[1]+" "+m[2]+" "+m[3],
-         order:Number(m[3])*10000+months[m[2]]*100+Number(m[1])};
-     }).filter(Boolean).sort(function(a,b){return b.order-a.order;});
-     // Never downgrade the shelf when the feed is incomplete.
-     if(entries.length<3 || !entries.some(e=>e.href.includes("thermomate-2500w")))return;
-     const unique=[...new Map(entries.map(e=>[e.href,e])).values()];
-     track.replaceChildren(...unique.slice(0,3).map(reviewCard));
-   }).catch(function(e){console.info("Tech reviews fallback retained",e.message);});
+   if(track)datedReviews("/recensioni-tech.html").then(function(entries){
+     if(entries.length)track.replaceChildren(...entries.map(reviewCard));
+   }).catch(function(e){console.info("Tech reviews: retaining real server-rendered cards",e.message);});
    const h=review.querySelector(".module-head h2");if(h)h.textContent="RECENSIONI TECH";
    const label=review.querySelector(".module-head span");if(label)label.textContent="Tre recensioni Tech";
 
@@ -842,24 +834,16 @@
    });
    extra.append(exHead,extraCards);panel.appendChild(extra);
 
-   // Move three real Gaming reviews to after the news grid, not at the very bottom.
+   // Populate Gaming only from the genuine, dated category archive.
    if(!document.getElementById("ztpGamingReviews")){
      const section=document.createElement("section");section.className="module ztp-gaming-reviews";section.id="ztpGamingReviews";
+     section.style.setProperty("display","none","important");
      const head=document.createElement("div");head.className="module-head";
      const title=document.createElement("h2");title.textContent="RECENSIONI GAMING";
-     const more=document.createElement("a");more.href="/recensioni-scritte.html";more.className="ztp-review-all";more.textContent="VEDI TUTTE →";head.append(title,more);
+     const more=document.createElement("a");more.href="/recensioni-gaming.html";more.className="ztp-review-all";more.textContent="VEDI TUTTE →";
+     head.append(title,more);
      const cards=document.createElement("div");cards.className="ztp-gaming-review-cards";
-     if(gamingCards.length===3){gamingCards.forEach(card=>cards.appendChild(card.cloneNode(true)));}
-     else {
-       [
-         {title:"Poly Fighter | Recensione PC",href:"/poly-fighter-recensione-pc.html",img:"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3977340/472302f24d5fcb52f0a111fd532d0ec1dd429810/capsule_616x353.jpg"},
-         {title:"Sesame Street: Amici e risate | Recensione PS5",href:"/sesame-street-amici-e-risate-recensione-ps5.html",img:"/assets/recensioni/sesame-street/cover.webp"},
-         {title:"Transport Fever 3 | Recensione PS5",href:"/recensione-Ugkxvpi4bKV_hiuDy7XJQb0-qw7CTJc5Is33.html",img:"https://yt3.ggpht.com/kI8EIbI2faK9m5NvmrggFQ_OdgW14-sL-iUXXwOFarZ_VX71Sne7FtDadwv0UmPwZ0eWOMhqxJg7eRQ=s1600-rw-nd-v1"}
-       ].forEach(item=>cards.appendChild(reviewCard(item)));
-     }
      section.append(head,cards);
-     // Gaming reviews belong immediately after the Tech/Gaming news grid,
-     // inside the primary feed, before Explore Videos and pagination.
      const videoAnchor=area.querySelector("#ztpVideosAnchor");
      const newsColumns=area.querySelector(".ztp-primary-feed .ztp-two-news-columns");
      const videoPair=videoAnchor?.closest(".ztp-video-shorts-pair");
@@ -867,6 +851,11 @@
      else if(videoAnchor)videoAnchor.insertAdjacentElement("beforebegin",section);
      else if(newsColumns)newsColumns.insertAdjacentElement("afterend",section);
      else area.querySelector(".ztp-primary-feed")?.appendChild(section);
+     datedReviews("/recensioni-gaming.html").then(function(entries){
+       if(!entries.length)return;
+       cards.replaceChildren(...entries.map(reviewCard));
+       section.style.removeProperty("display");
+     }).catch(function(e){console.info("Gaming archive unavailable: no fabricated cards shown",e.message);});
    }
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();

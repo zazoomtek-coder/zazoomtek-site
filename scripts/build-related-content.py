@@ -627,12 +627,34 @@ def relevance(current,candidate,idf,entity_idf):
         score += 1.0
     return score
 
-def related_for(current, records, idf, entity_idf, limit=LIMIT):
+def build_candidate_lookup(records):
+    """Index overlap signals once, avoiding repeated full text scoring for unrelated pages."""
+    lookup = {}
+    for record in records:
+        for kind, field in (("entity", "entities"), ("franchise", "franchises"),
+                            ("bigram", "bigrams"), ("token", "strong_tokens"),
+                            ("topic", "topics")):
+            for value in record[field]:
+                lookup.setdefault((kind, value), set()).add(record["name"])
+    return lookup
+
+
+def related_for(current, records, idf, entity_idf, limit=LIMIT, candidate_lookup=None):
     ranked=[]
     family_ranked=[]
     current_primary=primary_topics(current)
+    potential = None
+    if candidate_lookup is not None:
+        potential = set()
+        for kind, field in (("entity", "entities"), ("franchise", "franchises"),
+                            ("bigram", "bigrams"), ("token", "strong_tokens"),
+                            ("topic", "topics")):
+            for value in current[field]:
+                potential.update(candidate_lookup.get((kind, value), ()))
 
     for candidate in records:
+        if potential is not None and candidate["name"] not in potential:
+            continue
         if candidate["name"] == current["name"]:
             continue
 
@@ -743,7 +765,7 @@ def inject(record, block):
     return content
 
 
-def add_required_sidebar_boxes(records, idf, entity_idf):
+def add_required_sidebar_boxes(records, idf, entity_idf, candidate_lookup=None):
     """The right column has ONLY editorial suggestions, never Articoli correlati.
     Related articles appear once, after the article text and before the
     black Community banner in the left/main article column.
@@ -792,7 +814,7 @@ def add_required_sidebar_boxes(records, idf, entity_idf):
         if not match:
             raise RuntimeError(f"{path.name}: missing right editorial sidebar; refusing to publish")
 
-        related = related_for(record, records, idf, entity_idf, LIMIT)
+        related = related_for(record, records, idf, entity_idf, LIMIT, candidate_lookup)
         if not related:
             domain = record["domain"]
             pool = [
@@ -873,6 +895,7 @@ def main():
 
     idf=build_idf(records)
     entity_idf=build_entity_idf(records)
+    candidate_lookup=build_candidate_lookup(records)
     changed = 0
     with_blocks = 0
     total_links = 0
@@ -883,7 +906,7 @@ def main():
                      record["clean"], re.I):
             with_blocks += 1
             continue
-        related = related_for(record, records, idf, entity_idf, LIMIT)
+        related = related_for(record, records, idf, entity_idf, LIMIT, candidate_lookup)
         if not related:
             # Editorial fallback for a new/unusual subject: start with the
             # same section AND vertical, never recommend Tech for Gaming or
@@ -917,7 +940,7 @@ def main():
 
     # Keep the right column editorial-only and leave related content at the
     # end of the article, including pages with manually curated related links.
-    add_required_sidebar_boxes(records, idf, entity_idf)
+    add_required_sidebar_boxes(records, idf, entity_idf, candidate_lookup)
 
     coverage=(with_blocks/len(records))*100 if records else 0
     print(

@@ -97,6 +97,7 @@ def make_page(x,filename,related):
     return f'''<!doctype html><html lang="it"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} | ZazoomTek</title><meta name="description" content="{summary}">
+<meta name="author" content="ZazoomTek">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="{esc(url)}">
 <style>body{{margin:0;background:#ededed;color:#222;font:17px/1.75 Arial,Helvetica,sans-serif}}
@@ -114,7 +115,7 @@ footer a{{color:#fff}}</style>
 <script type="application/ld+json">{structured}</script></head>
 <body><header><a href="/">ZAZOOMTEK</a> &nbsp; / &nbsp; <a href="{esc(section_link)}">{name}</a></header>
 <main><div class="eyebrow">{name}</div><h1>{title}</h1>
-<div class="meta">{esc(x["date"])} · Redazione ZazoomTek</div>
+<div class="meta">{esc(x["date"])} · ZazoomTek</div>
 {hero_html}<p class="lead">{summary}</p>{body}
 {related_html}
 {('<details class="zt-photo-credits"><summary>Crediti fotografici</summary>'+credit_html+'</details>') if credit_html else ''}

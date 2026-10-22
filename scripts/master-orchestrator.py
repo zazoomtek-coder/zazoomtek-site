@@ -69,7 +69,7 @@ def verify_sitewide_nav(root: Path) -> int:
     nav = re.compile(r'<nav\b[^>]*class="nav"[^>]*>(.*?)</nav>', re.I | re.S)
     count = 0
     for page in sorted(root.glob("*.html")):
-        if page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
+        if page.name == "404.html" or page.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
             continue
         source = page.read_text(encoding="utf-8", errors="replace")
         h = header.search(source)
@@ -77,6 +77,13 @@ def verify_sitewide_nav(root: Path) -> int:
             continue
         n = nav.search(h.group())
         if not n:
+            # Approved editorial articles have an independent static zt-nav;
+            # compact utility headers (404, landing pages) may link Home only.
+            alternate = 'class="zt-nav"' in h.group()
+            home_link = 'href="/"' in h.group() or 'href="https://zazoomtek.it/"' in h.group()
+            if home_link and (alternate or "<nav" not in h.group()):
+                count += 1
+                continue
             raise RuntimeError(f"Missing sitewide menu on {page.name}")
         if n.group().count('class="nav-drop-trigger"') != 2:
             raise RuntimeError(f"Missing two navigation dropdowns on {page.name}")

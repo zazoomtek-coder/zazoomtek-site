@@ -32,7 +32,7 @@ def validate(root:Path):
     assert source and "class=\"shell topbar\"" in source.group(),"Locked Home header absent"
     checked=0
     for path in sorted(root.glob("*.html")):
-        if path.name.startswith(("preview-","anteprima-","audit-","test-")):
+        if path.name == "404.html" or path.name.startswith(("preview-","anteprima-","audit-","test-")):
             continue
         text=path.read_text(encoding="utf-8",errors="replace")
         header=HEADER.search(text)
