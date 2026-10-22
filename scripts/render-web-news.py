@@ -57,13 +57,13 @@ def render_cards(data):
     def link(item):return escape(item["url"],quote=True)
     def title(item):return escape(item["title"])
     def image(item):
-        return '<a class="zt-webnews-image" href="'+link(item)+'" target="_blank" rel="nofollow noopener" aria-label="'+title(item)+'"><img src="'+escape(item["image"],quote=True)+'" alt="Illustrazione originale, notizia da '+escape(item["source"])+'" loading="lazy" decoding="async"></a>'
+        return '<a class="zt-webnews-image" href="'+link(item)+'" target="_blank" rel="nofollow noopener" aria-label="'+title(item)+'"><img src="'+escape(item["image"],quote=True)+'" alt="Immagine della notizia da '+escape(item["source"])+'" loading="lazy" decoding="async"></a>'
     lead=items[0]
     first='<article class="zt-webnews-feature">'+image(lead)+'<span class="zt-webnews-label">'+escape(lead["source"])+'</span><h3><a href="'+link(lead)+'" target="_blank" rel="nofollow noopener">'+title(lead)+'</a></h3><p>'+escape(lead["excerpt"])+'</p><span class="zt-webnews-source">Fonte: '+escape(lead["source"])+' · Apri la notizia originale ↗</span></article>'
     right=[]
     for v in items[1:]:
         right.append('<article class="zt-webnews-item">'+image(v)+'<div><h3><a href="'+link(v)+'" target="_blank" rel="nofollow noopener">'+title(v)+'</a></h3><p>'+escape(v["excerpt"])+'</p><span class="zt-webnews-source">Fonte: '+escape(v["source"])+'</span></div></article>')
-    return START+'<section class="zt-webnews" id="ztWebNews" aria-labelledby="ztWebNewsTitle" data-web-news="independent-external-rss"><header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2><a href="#ztWebNewsCredits">LE FONTI ↗</a></header><div class="zt-webnews-grid">'+first+'<div class="zt-webnews-side">'+"".join(right)+'</div></div><p class="zt-webnews-footer" id="ztWebNewsCredits">Rassegna esterna · 5 notizie · titoli e sintesi rielaborati. Le immagini sono illustrazioni originali WebP, non fotografie delle testate. I collegamenti aprono gli articoli sui siti degli editori.</p></section>'+END
+    return START+'<section class="zt-webnews" id="ztWebNews" aria-labelledby="ztWebNewsTitle" data-web-news="independent-external-rss"><header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2><a href="#ztWebNewsCredits">LE FONTI ↗</a></header><div class="zt-webnews-grid">'+first+'<div class="zt-webnews-side">'+"".join(right)+'</div></div><p class="zt-webnews-footer" id="ztWebNewsCredits">Rassegna esterna · 5 notizie · titoli e sintesi rielaborati. Le miniature provengono dai feed o dalle anteprime degli articoli originali e sono ottimizzate in WebP, con attribuzione alla fonte. I collegamenti aprono gli articoli sui siti degli editori.</p></section>'+END
 
 def apply(home,data,root=ROOT):
     # The live Home is assembled by zt-home-live.js into its approved 30/50/20
