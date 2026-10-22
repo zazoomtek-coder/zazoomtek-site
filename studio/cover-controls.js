@@ -24,6 +24,18 @@ box.addEventListener("pointerdown",e=>{if(!box.classList.contains("hascover")||e
 box.addEventListener("pointermove",e=>{if(!pointer)return;const dx=e.clientX-pointer.px,dy=e.clientY-pointer.py;if(Math.abs(dx)+Math.abs(dy)<3)return;if(crop.zoom<1.1)crop.zoom=1.3;crop.x=clamp(pointer.x-dx/Math.max(1,box.clientWidth)*100/(crop.zoom-1),0,100);crop.y=clamp(pointer.y-dy/Math.max(1,box.clientHeight)*100/(crop.zoom-1),0,100);render()});
 box.addEventListener("pointerup",()=>{if(pointer){pointer=null;window.ZTStudio?.saveDraft?.(true)}});
 box.addEventListener("pointercancel",()=>pointer=null);
-window.ZTStudioCover={get,set,render};
+function exportCover(){
+ if(!pic.complete||!pic.naturalWidth||!pic.naturalHeight)return null;
+ const iw=pic.naturalWidth,ih=pic.naturalHeight,ratio=16/9;
+ let sw=Math.min(iw,ih*ratio),sh=sw/ratio;
+ let sx=(iw-sw)*crop.x/100,sy=(ih-sh)*crop.y/100;
+ sx+=(sw-sw/crop.zoom)*crop.x/100;sy+=(sh-sh/crop.zoom)*crop.y/100;
+ sw/=crop.zoom;sh/=crop.zoom;
+ const canvas=document.createElement("canvas");canvas.width=1200;canvas.height=675;
+ const ctx=canvas.getContext("2d");
+ ctx.drawImage(pic,sx,sy,sw,sh,0,0,1200,675);
+ return canvas.toDataURL("image/jpeg",.86);
+}
+window.ZTStudioCover={get,set,render,export:exportCover};
 render();
 })();
