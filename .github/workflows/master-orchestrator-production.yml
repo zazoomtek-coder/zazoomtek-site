@@ -43,20 +43,55 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: true
-      - uses: actions/setup-python@v5
+      - name: Check if 20:15 recovery is actually necessary
+        id: recovery
         if: steps.editorial_slot.outputs.publish == 'true'
+        env:
+          ZT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import datetime,json,os,pathlib,urllib.request
+          from zoneinfo import ZoneInfo
+          mode='normal'
+          source=''
+          # Never attempt to 'recover' a previously skipped 17:45 release.
+          if os.environ.get('ZT_SCHEDULE')=='25,40 20 * * *':
+              metadata=dict(line.split('=',1) for line in pathlib.Path('cloudflare-release-trigger.txt').read_text().splitlines() if '=' in line)
+              slot=metadata.get('slot_utc','')
+              expected=metadata.get('source_commit','')
+              try:
+                  when=datetime.datetime.fromisoformat(slot.replace('Z','+00:00')).astimezone(ZoneInfo('Europe/Rome'))
+                  now=datetime.datetime.now(ZoneInfo('Europe/Rome'))
+                  current=(when.date()==now.date() and (when.hour,when.minute)==(20,15))
+              except (ValueError,TypeError): current=False
+              if current and len(expected)==40:
+                  source=expected
+                  try:
+                      request=urllib.request.Request('https://zazoomtek.it/zt-release-status.json',headers={'Cache-Control':'no-cache, no-store','User-Agent':'ZazoomTek-Evening-Release-Recovery/1.0'})
+                      with urllib.request.urlopen(request,timeout=12) as response:
+                          receipt=json.load(response)
+                      if receipt.get('validated') is True and receipt.get('source_commit')==expected:
+                          mode='skip'
+                      else: mode='retry_deploy'
+                  except Exception: mode='retry_deploy'
+          print('mode='+mode)
+          print('source='+source)
+          print('Evening publication decision:',mode,file=__import__('sys').stderr)
+          PY
+      - uses: actions/setup-python@v5
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
         with:
           python-version: '3.12'
       - uses: actions/setup-node@v4
-        if: steps.editorial_slot.outputs.publish == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
         with:
           node-version: '22'
       - name: Install rendering dependency
-        if: steps.editorial_slot.outputs.publish == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
         run: python3 -m pip install --quiet pillow
       - name: Import and commit directly to main
         id: master_release
-        if: steps.editorial_slot.outputs.publish == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode == 'normal'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ github.token }}
@@ -85,14 +120,14 @@ jobs:
           print("source="+source)
           PY
       - name: Build latest main for Cloudflare Pages
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.master_release.outputs.deploy == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && (steps.master_release.outputs.deploy == 'true' || steps.recovery.outputs.mode == 'retry_deploy')
         run: |
           git fetch origin main
           git checkout main
           git reset --hard origin/main
           python3 scripts/cloudflare-build-site.py
       - name: Publish directly to Cloudflare Pages
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.master_release.outputs.deploy == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && (steps.master_release.outputs.deploy == 'true' || steps.recovery.outputs.mode == 'retry_deploy')
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -100,8 +135,8 @@ jobs:
           command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
 
       - name: Verify public release receipt
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.master_release.outputs.deploy == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && (steps.master_release.outputs.deploy == 'true' || steps.recovery.outputs.mode == 'retry_deploy')
         run: |
           python3 scripts/verify-live-cloudflare.py \
-            --source-commit "${{ steps.master_release.outputs.source }}" \
+            --source-commit "${{ steps.master_release.outputs.source || steps.recovery.outputs.source }}" \
             --timeout-seconds 300
