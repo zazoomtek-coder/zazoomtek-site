@@ -4,7 +4,7 @@
 let authorized=false;
 try{authorized=Number(localStorage.getItem("zt_studio_verified_until")||0)>Date.now()}catch{}
 if(!authorized)return;
-const root=document.querySelector("article.article-main,article.story");
+const root=document.querySelector("article.article-main,article.story,article.zt-main.zt-article");
 const title=root?.querySelector("h1");
 if(!root||!title||document.getElementById("zt-studio-edit-title"))return;
 const path=location.pathname.replace(/^\//,"");
