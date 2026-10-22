@@ -149,6 +149,15 @@ def build(root=ROOT,dest=DEST):
                         and verify["cards"]==5 and
                         verify["order"][0]<=verify["order"][1]<=verify["order"][2]):
                     raise RuntimeError("Actual browser doesn't match approved 3-col structure: "+str(verify))
+                # Activate lazy images before capturing the long real Home;
+                # otherwise Chromium's full-page screenshot paints off-screen
+                # originals as blank dark rectangles, despite valid local WebP.
+                pg.evaluate("""() => document.querySelectorAll('img[loading="lazy"]').forEach(img => {img.loading='eager';img.decoding='sync'})""")
+                try:
+                    pg.get_by_text("ACCETTA",exact=True).first.click(timeout=1500)
+                except Exception:
+                    pass
+                pg.wait_for_timeout(1400)
                 # Keep a full-page visual artifact, reviewable by the editor.
                 pg.screenshot(path=str(base/"VERIFICA_HOME_3_COLONNE.png"),full_page=True,animations="disabled",timeout=30000)
                 built=pg.content()
