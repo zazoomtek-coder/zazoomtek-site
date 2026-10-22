@@ -107,6 +107,8 @@ def main() -> None:
     run("ensure-review-summaries.py", "--check")
     # Generators may refresh content, but must never rewrite locked Home layout.
     run("verify-home-layout-lock.py")
+    # Restore late-built YouTube watch-page revisions after all generators.
+    run("studio-apply-overrides.py")
     run("studio-inject-edit-button.py")
     run("render-web-news.py")
     run("build-cloudflare-pages.py")
