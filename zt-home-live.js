@@ -445,6 +445,17 @@
     for(const link of document.querySelectorAll("#ztFeaturedGrid > a[href]")){
       const path=articlePath(link);if(path)used.add(path);
     }
+    // ALTRE NEWS must not repeat cards already visible in Guide/Extra,
+    // Reviews or the 'Esplora Ultimi Video' gallery.
+    for(const link of document.querySelectorAll(
+      "#ztHomeGuide a[href],#ztp-guide-extra a[href],.latest-reviews-module a[href],#zt-home-shelves a[href]"
+    )){
+      const path=articlePath(link);if(path)used.add(path);
+    }
+    for(const video of document.querySelectorAll("#zt-home-shelves [data-video]")){
+      const id=video.getAttribute("data-video")||"";
+      if(/^[A-Za-z0-9_-]{11}$/.test(id))used.add("/watch/"+id+".html");
+    }
     for(const link of area.querySelectorAll(".ztp-news-column .ztp-news-items > article .article-copy h3 a[href]")){
       const card=link.closest("article");
       if(card && !card.hidden && getComputedStyle(card).display!=="none"){
