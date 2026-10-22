@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '15 10,15,20 * * *'
       timezone: 'Europe/Rome'
+    # Recover any 20:15 release missed or delayed by the scheduler.
+    - cron: '25,40 20 * * *'
+      timezone: 'Europe/Rome'
     - cron: '45 12 * * *'
       timezone: 'Europe/Rome'
     - cron: '45 17 * * *'
@@ -15,7 +18,7 @@ permissions:
 
 concurrency:
   group: zazoomtek-master-sole-repository-and-pages-writer
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -52,6 +55,7 @@ jobs:
         if: steps.editorial_slot.outputs.publish == 'true'
         run: python3 -m pip install --quiet pillow
       - name: Import and commit directly to main
+        id: master_release
         if: steps.editorial_slot.outputs.publish == 'true'
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -61,18 +65,43 @@ jobs:
         run: |
           git config user.name "ZazoomTek Master"
           git config user.email "actions@users.noreply.github.com"
-          python3 scripts/master-production-gateway.py --publish
+          set -o pipefail
+          python3 scripts/master-production-gateway.py --publish | tee "$RUNNER_TEMP/zt-master-result.log"
+          python3 - "$RUNNER_TEMP/zt-master-result.log" >> "$GITHUB_OUTPUT" <<'PY'
+          import json,sys
+          data=None
+          for line in reversed(open(sys.argv[1],encoding="utf-8").read().splitlines()):
+              try: value=json.loads(line)
+              except (ValueError,TypeError): continue
+              if isinstance(value,dict) and value.get("success") is True and "release_requested" in value:
+                  data=value
+                  break
+          if data is None: raise SystemExit("Master did not confirm its release decision")
+          deploy=bool(data["release_requested"])
+          source=str(data.get("source_commit") or "")
+          if deploy and (len(source)!=40 or any(c not in "0123456789abcdef" for c in source)):
+              raise SystemExit("Release requested without a valid source commit SHA")
+          print("deploy="+str(deploy).lower())
+          print("source="+source)
+          PY
       - name: Build latest main for Cloudflare Pages
-        if: steps.editorial_slot.outputs.publish == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.master_release.outputs.deploy == 'true'
         run: |
           git fetch origin main
           git checkout main
           git reset --hard origin/main
           python3 scripts/cloudflare-build-site.py
       - name: Publish directly to Cloudflare Pages
-        if: steps.editorial_slot.outputs.publish == 'true'
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.master_release.outputs.deploy == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
+
+      - name: Verify public release receipt
+        if: steps.editorial_slot.outputs.publish == 'true' && steps.master_release.outputs.deploy == 'true'
+        run: |
+          python3 scripts/verify-live-cloudflare.py \
+            --source-commit "${{ steps.master_release.outputs.source }}" \
+            --timeout-seconds 300
