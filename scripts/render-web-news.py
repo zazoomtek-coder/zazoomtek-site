@@ -65,6 +65,10 @@ def render_cards(data):
     return START+'<section class="zt-webnews" id="ztWebNews" aria-labelledby="ztWebNewsTitle" data-web-news="independent-external-rss"><header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2><a href="#ztWebNewsCredits">LE FONTI ↗</a></header><div class="zt-webnews-grid">'+first+'<div class="zt-webnews-side">'+"".join(right)+'</div></div><p class="zt-webnews-footer" id="ztWebNewsCredits">Rassegna esterna · 5 notizie · titoli e sintesi rielaborati. Le immagini sono illustrazioni originali WebP, non fotografie delle testate. I collegamenti aprono gli articoli sui siti degli editori.</p></section>'+END
 
 def apply(home,data):
+    if START in home and END in home:
+        present=home[home.index(START):home.index(END)+len(END)]
+        if present==render_cards(data):
+            return home  # identical source IDs: preserve bytes and avoid rebuild churn
     if START in home or END in home:
         home=re.sub(re.escape(START)+r"[\s\S]*?"+re.escape(END)+r"\s*","",home,count=1)
     if f'id="{CSS_ID}"' in home:
