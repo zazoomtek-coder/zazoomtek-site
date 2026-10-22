@@ -357,42 +357,61 @@
     }
     otherRendering=true;
     const available=otherPool.filter(item=>!visible.has(item.url));
-    const desktop=window.matchMedia("(min-width:1150px)").matches;
     if(!available.length){
-      otherBox.hidden=true;otherList.replaceChildren();otherSignature="";otherRendering=false;return;
+      otherBox.hidden=true;otherList.replaceChildren();
+      otherSignature="";otherRendering=false;return;
     }
-    // Make the section measurable before calculating its target height.
+    const signature=available.map(item=>item.url).join("|");
+    const desktop=window.matchMedia("(min-width:1150px)").matches;
     otherBox.hidden=false;
-    // Keep the chosen random rotation stable during resizing and image loads.
-    const target=videoShelfTarget?.getBoundingClientRect().bottom||0;
-    const start=otherBox.getBoundingClientRect().top;
-    const gap=Math.max(0,target-start);
-    // Full-width 16:9 covers. Approximate the required number initially,
-    // then measure after rendering and adjust to actual video-shelf height.
-    const width=Math.max(150,otherBox.clientWidth||rail.clientWidth||240);
-    const approxCard=width*9/16+73;
-    const desired=desktop ? Math.max(2,Math.min(22,Math.ceil(gap/approxCard))) : 6;
-    const items=available.slice(0,Math.min(desired,available.length));
-    const signature=items.map(item=>item.url).join("|");
-    // Don't replace the cards after every image-load callback: that creates
-    // an endless repaint loop and unnecessary thumbnail downloads.
-    if(signature===otherSignature){otherRendering=false;return;}
-    otherSignature=signature;
-    const fragment=document.createDocumentFragment();
-    for(const item of items){
-      const article=document.createElement("a");
-      article.className="ztp-editorial-story ztp-other-story";
-      article.href=item.url;
-      const image=document.createElement("img");
-      image.src=item.image;image.alt=item.title;
-      image.loading="lazy";image.decoding="async";
-      image.addEventListener("load",requestOtherAlignment,{once:true});
-      const title=document.createElement("strong");title.textContent=item.title;
-      article.append(image,title);
-      fragment.append(article);
+
+    function appendStory(item){
+      const card=document.createElement("a");
+      card.className="ztp-editorial-story ztp-other-story";
+      card.href=item.url;
+      const picture=document.createElement("img");
+      picture.src=item.image;picture.alt=item.title;
+      picture.loading="lazy";picture.decoding="async";
+      picture.addEventListener("load",requestOtherAlignment,{once:true});
+      const headline=document.createElement("strong");headline.textContent=item.title;
+      card.append(picture,headline);
+      otherList.append(card);
     }
-    otherList.replaceChildren(fragment);
-    otherBox.hidden=false;
+
+    // Retain existing cards on image-load and resize: avoid refetching photos.
+    if(signature!==otherSignature){
+      otherList.replaceChildren();
+      otherSignature=signature;
+    }
+    const minimum=Math.min(available.length,desktop?2:6);
+    if(otherList.children.length>Math.min(available.length,22)){
+      otherList.replaceChildren();otherSignature=signature;
+    }
+    while(otherList.children.length<minimum){
+      appendStory(available[otherList.children.length]);
+    }
+    if(desktop){
+      const target=videoShelfTarget?.getBoundingClientRect().bottom||0;
+      if(target){
+        // Measure the REAL shelf and sidebar rather than inserting blanks.
+        // Stop at the closest real card height to ESPLORA ULTIMI VIDEO.
+        let bottom=otherBox.getBoundingClientRect().bottom;
+        while(bottom<target-12 &&
+              otherList.children.length<Math.min(22,available.length)){
+          appendStory(available[otherList.children.length]);
+          bottom=otherBox.getBoundingClientRect().bottom;
+        }
+        while(otherList.children.length>minimum){
+          const last=otherList.lastElementChild;
+          const removedHeight=last.getBoundingClientRect().height;
+          if(Math.abs(bottom-target)<=Math.abs(bottom-removedHeight-target))break;
+          last.remove();
+          bottom=otherBox.getBoundingClientRect().bottom;
+        }
+      }
+    } else {
+      while(otherList.children.length>minimum)otherList.lastElementChild.remove();
+    }
     otherRendering=false;
   }
   function requestOtherAlignment(){
