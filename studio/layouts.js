@@ -177,7 +177,7 @@ function preview(){
  if(!window.ZTStudio||!window.ZTStudio.safeDoc)return;
  const title=document.getElementById("headline").value.trim();
  const category=document.getElementById("category").value;
- const cover=document.getElementById("coverPreview").getAttribute("src");
+ const cover=window.ZTStudioCover?.export?.()||document.getElementById("coverPreview").getAttribute("src");
  if(!title||!cover||!document.getElementById("editor").innerText.trim()){alert("Per l'anteprima completa inserisci titolo, testo e copertina.");return;}
  let overlay=document.getElementById("zt-exact-preview");
  if(!overlay){
