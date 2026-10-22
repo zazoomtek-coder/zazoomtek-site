@@ -1,32 +1,54 @@
 #!/usr/bin/env python3
-"""Show the opt-in Edit affordance on real detail pages, never on Home/archives."""
+"""Install the Studio quick-edit UI on all existing and newly generated site pages.
+
+Rendering runs after YouTube / feed imports, so future articles receive the
+same affordance without touching their editorial HTML or Home structure.
+The JavaScript only displays edit controls to browsers with a Studio session.
+Actual GitHub writes still require authentication in Studio.
+"""
 from __future__ import annotations
 from pathlib import Path
 import re
-ROOT=Path(__file__).resolve().parents[1]
-TAG='<script src="/studio/edit-button.js" defer></script>'
-def inject(root:Path=ROOT):
-    count=0
+
+ROOT = Path(__file__).resolve().parents[1]
+TAG = '<script src="/studio/edit-button.js" defer></script>'
+END = re.compile(r"</body\s*>", re.I)
+
+
+def inject(root: Path = ROOT):
+    count = 0
     for path in root.glob("*.html"):
-        if path.name=="index.html" or path.name.startswith("preview-"):continue
-        markup=path.read_text(encoding="utf-8")
-        detail=(re.search(r'<article\b[^>]*class=["\'][^"\']*(?:article-main|story|zt-main)\b',markup,re.I)
-               and re.search(r'<h1\b',markup,re.I))
-        if not detail or "</body>" not in markup.lower() or TAG in markup:continue
-        markup=re.sub(r"</body>",lambda m:TAG+"\n"+m.group(),markup,count=1,flags=re.I)
-        path.write_text(markup,encoding="utf-8")
-        count+=1
-    print("Administrator edit affordance included on editorial pages:",count)
+        if path.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
+            continue
+        markup = path.read_text(encoding="utf-8")
+        if not END.search(markup) or TAG in markup:
+            continue
+        # Archives and Home get edit controls on their article cards; article
+        # pages additionally get the edit link beside the genuine title.
+        if not re.search(r"<(?:main|article)\b", markup, re.I):
+            continue
+        new = END.sub(lambda m: TAG + "\n" + m.group(), markup, count=1)
+        if new != markup:
+            path.write_text(new, encoding="utf-8")
+            count += 1
+    print("Studio quick edit installed on source/YouTube/feed/archives:", count)
     return count
+
+
 def self_test():
     import tempfile
     with tempfile.TemporaryDirectory() as t:
-        root=Path(t)
-        (root/"index.html").write_text('<html><body><h1>Home</h1></body></html>',encoding="utf-8")
-        f=root/"test.html";f.write_text('<html><body><article class="article-main"><h1>Test</h1></article></body></html>',encoding="utf-8")
-        assert inject(root)==1 and inject(root)==0 and TAG in f.read_text()
-        assert TAG not in (root/"index.html").read_text()
-        print("PASS: protected homepage unchanged, idempotent article Edit button")
-if __name__=="__main__":
+        root = Path(t)
+        (root / "index.html").write_text('<html><body><main>Home cards</main></body></html>')
+        (root / "review.html").write_text('<html><body><main class="content"><h1>Review</h1><article class="article-body article-main">Review</article></main></body></html>')
+        (root / "news-YT.html").write_text('<html><body><main><article class="story"><h1>YouTube News</h1></article></main></body></html>')
+        assert inject(root) == 3
+        assert inject(root) == 0
+        for name in ("index.html", "review.html", "news-YT.html"):
+            assert (root / name).read_text().count(TAG) == 1
+        print("PASS: Homepage cards and all editorial page shapes receive Studio UI")
+
+
+if __name__ == "__main__":
     import sys
     self_test() if "--self-test" in sys.argv else inject()
