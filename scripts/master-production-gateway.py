@@ -264,7 +264,7 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
             changed=payload.get("paths",[])
             if isinstance(changed,list) and all(
                 isinstance(p,str) and (p=="notizie-dal-web.json"
-                or re.fullmatch(r"assets/notizie-dal-web/[a-f0-9]{20}\.webp",p))
+                or re.fullmatch(r"assets/notizie-dal-web/[a-f0-9]{20}(?:-[a-f0-9]{10})?\.webp",p))
                 for p in changed
             ):
                 names=sorted(set(names)|set(changed))
