@@ -125,7 +125,7 @@ def eligible(path: Path) -> bool:
     # Studio is a standalone publishing interface; permit only its reviewed
     # fixed reviewed files. Never ship local drafts or build-only support files.
     if len(parts) > 1 and parts[0] == "studio":
-        return len(parts) == 2 and path.name in {"index.html", "publisher.js", "layouts.js", "template-news.html", "template-review.html"}
+        return len(parts) == 2 and path.name in {"index.html", "publisher.js", "layouts.js", "edit-existing.js", "edit-button.js", "template-news.html", "template-review.html"}
     if len(parts) > 1 and parts[0] not in ("assets", "watch"):
         return False
     if path.name.endswith(("-report.json", "-state.json", "-manifest.json")):
@@ -201,7 +201,7 @@ def main() -> None:
     if not (OUT / "watch/index.html").is_file():
         failures.append("Missing verified YouTube video player directory")
     # A Studio release must never contain an HTML shell without its JS publisher.
-    for studio_file in ("studio/index.html", "studio/publisher.js", "studio/layouts.js", "studio/template-news.html", "studio/template-review.html"):
+    for studio_file in ("studio/index.html", "studio/publisher.js", "studio/layouts.js", "studio/edit-existing.js", "studio/edit-button.js", "studio/template-news.html", "studio/template-review.html"):
         if not (OUT / studio_file).is_file():
             failures.append("Missing Studio online editor file: " + studio_file)
     # If an editorial review is in the repository, it must reach the public
