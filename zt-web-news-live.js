@@ -5,7 +5,7 @@
 "use strict";
 if(!["/","/index.html"].includes(location.pathname) && location.protocol!=="file:")return;
 function mount(){
- const source=document.getElementById("ztWebNewsFollowup");
+ const source=document.getElementById("ztWebNewsStaging");
  if(!source)return true;
  const left=source.querySelector(".zt-webnews-followup-main");
  const right=source.querySelector(".zt-webnews-followup-rail");
