@@ -63,15 +63,48 @@ if not master.is_file():
     errors.append('Missing Master Cloudflare production publisher workflow')
 else:
     production=master.read_text(encoding='utf-8')
+    # Current publisher uses direct main, scheduled release at Italian local
+    # times, conditional catch-up and Wrangler. Manual dispatch remains
+    # available without resurrecting the old manual-request JSON mechanism.
     for required in (
+        'workflow_dispatch:',
+        "timezone: 'Europe/Rome'",
+        "cron: '15 10,15,20 * * *'",
+        "cron: '25,40 20 * * *'",
+        "cron: '45 12 * * *'",
+        "cron: '45 17 * * *'",
         'zazoomtek-master-sole-repository-and-pages-writer',
-        'master-production-gateway.py',
-        'cloudflare-manual-release-request.json',
-        'python3 scripts/master-production-gateway.py --publish --urgent',
         'cancel-in-progress: false',
+        'contents: write',
+        'scripts/master-production-gateway.py --publish',
+        "steps.master_release.outputs.deploy == 'true'",
+        "steps.recovery.outputs.mode == 'retry_deploy'",
+        'python3 scripts/cloudflare-build-site.py',
+        'cloudflare/wrangler-action@v3',
+        'pages deploy dist --project-name=',
+        'scripts/verify-live-cloudflare.py',
     ):
         if required not in production:
             errors.append(f'Master Cloudflare production guard missing: {required}')
+    if re.search(r'(?m)^  push:\\s*
+if (WORKFLOWS/'cloudflare-controlled-release.yml').is_file():
+    errors.append('Retired Cloudflare publisher unexpectedly restored')
+firebase=json.loads((ROOT/'firebase.json').read_text(encoding='utf-8'))
+hosting=firebase.get('hosting',{})
+if hosting.get('target')!='zazoomtek' or hosting.get('public')!='.':
+    errors.append('Firebase Hosting target/public changed; manual review required')
+if not any(x=='.github/**' for x in hosting.get('ignore',[])):
+    errors.append('Firebase ignore list does not exclude GitHub workflows')
+if errors:
+    raise SystemExit('FIREBASE ARCHITECTURE CHECK FAILED:\n'+'\n'.join('- '+x for x in errors))
+print('PASS: legacy Firebase live workflow remains gated and retired')
+print('PASS: PR previews and maintenance jobs cannot deploy live')
+print('PASS: direct-main Cloudflare Master, scheduled release/recovery and retired Firebase verified')
+, production):
+        errors.append('Scheduled Master unexpectedly publishes on every main push')
+    if 'python3 scripts/master-production-gateway.py --publish --urgent' in production:
+        errors.append('Scheduled Master unexpectedly bypasses the configured release windows')
+
 if (WORKFLOWS/'cloudflare-controlled-release.yml').is_file():
     errors.append('Retired Cloudflare publisher unexpectedly restored')
 firebase=json.loads((ROOT/'firebase.json').read_text(encoding='utf-8'))
