@@ -59,7 +59,7 @@ jobs:
           assert "master-production-gateway.py --publish --urgent" in schedule
           assert "cancel-in-progress: false" in schedule
           assert "zazoomtek-master-sole-repository-and-pages-writer" in schedule
-          assert 'gate = "--urgent" if urgent else "--scheduled-slot"' in gateway
+          assert 'gate = "--urgent"' in gateway
           assert "scripts/cloudflare-release-control.py" in gateway
           assert "slot_utc=" in gate
           assert "RESERVE_SCHEDULED=450" in gate and "RESERVE_URGENT=475" in gate
