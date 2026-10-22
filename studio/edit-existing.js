@@ -104,6 +104,6 @@ $("zeClose").onclick=()=>{if(dirty&&!confirm("Chiudere senza salvare?"))return;u
 $("zeOpen").onclick=()=>open($("zePath").value);$("zePath").onkeydown=e=>{if(e.key==="Enter")open($("zePath").value)};
 $("zeSave").onclick=save;$("zePreview").onclick=()=>{try{prev.querySelector("iframe").srcdoc=build();prev.hidden=false}catch(e){status(e.message)}};$("zeEndPreview").onclick=()=>prev.hidden=true;
 const sidebar=document.querySelector(".sidebar");if(sidebar){const b=document.createElement("button");b.className="navbtn";b.id="zeNav";b.textContent="✎  Modifica articoli";(document.getElementById("navDraft")||sidebar.firstElementChild).insertAdjacentElement("afterend",b);b.onclick=()=>ui.hidden=false}
-const query=new URLSearchParams(location.search).get("edit");if(query){ui.hidden=false;$("zePath").value=query;setTimeout(()=>open(query),400)}
+const query=new URLSearchParams(location.search).get("edit");if(query){ui.hidden=false;$("zePath").value=query;let attempts=0;const autoOpen=()=>{if(isDemo()||window.ZTStudioGitHub?.isAuthenticated?.()){open(query);return}if(++attempts<=40){setTimeout(autoOpen,250);return}status("Collega GitHub con l’accesso permanente dello Studio, quindi premi Apri articolo.")};setTimeout(autoOpen,200)}
 if(isDemo()){ui.hidden=false;$("zePath").value=window.ZTStudioDemoArticle.path;setTimeout(()=>open(window.ZTStudioDemoArticle.path),80)}
 })();
