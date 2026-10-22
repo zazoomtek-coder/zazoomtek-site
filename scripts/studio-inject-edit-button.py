@@ -10,7 +10,7 @@ def inject(root:Path=ROOT):
     for path in root.glob("*.html"):
         if path.name=="index.html" or path.name.startswith("preview-"):continue
         markup=path.read_text(encoding="utf-8")
-        detail=(re.search(r'<article\b[^>]*class=["\'][^"\']*(?:article-main|story)\b',markup,re.I)
+        detail=(re.search(r'<article\b[^>]*class=["\'][^"\']*(?:article-main|story|zt-main)\b',markup,re.I)
                and re.search(r'<h1\b',markup,re.I))
         if not detail or "</body>" not in markup.lower() or TAG in markup:continue
         markup=re.sub(r"</body>",lambda m:TAG+"\n"+m.group(),markup,count=1,flags=re.I)
