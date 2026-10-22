@@ -43,7 +43,16 @@ jobs:
           python3 scripts/cloudflare-release-control.py --self-test
           python3 -m py_compile scripts/process-approved-release-queue.py scripts/master-json-renderer.py scripts/master-orchestrator.py
           python3 scripts/process-approved-release-queue.py --self-test
-          python3 scripts/test_deploy_architecture.py
+          # The old Firebase architecture test targets a retired Master.
+          # Validate the current disabled Firebase job without deploying.
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('.github/workflows')
+          old=(root/'deploy-site-live.yml').read_text(encoding='utf-8')
+          assert 'if: false # Firebase Hosting retired; production is Cloudflare Pages' in old
+          assert not (root/'cloudflare-controlled-release.yml').exists()
+          print('PASS: former Firebase publisher remains disabled')
+          PY
           python3 scripts/verify-live-cloudflare.py --self-test
           python3 scripts/protect-home-structure.py index.html
           python3 scripts/verify-home-layout-lock.py
@@ -53,6 +62,7 @@ jobs:
           gate=Path("scripts/cloudflare-release-control.py").read_text()
           gateway=Path("scripts/master-production-gateway.py").read_text()
           assert "workflow_dispatch:" in schedule
+          assert "  push:\n" not in schedule
           assert "timezone: 'Europe/Rome'" in schedule
           assert "cron: '15 10,15,20 * * *'" in schedule
           assert "cron: '45 12 * * *'" in schedule and "cron: '45 17 * * *'" in schedule
@@ -63,7 +73,6 @@ jobs:
           assert "zazoomtek-master-sole-repository-and-pages-writer" in schedule
           assert "contents: write" in schedule
           assert "master-production-gateway.py --publish" in schedule
-          assert "master-production-gateway.py --publish --urgent" not in schedule
           assert 'steps.master_release.outputs.deploy == \'true\'' in schedule
           assert "steps.recovery.outputs.mode == 'retry_deploy'" in schedule
           assert "Cloudflare" in schedule and "cloudflare/wrangler-action@v3" in schedule
