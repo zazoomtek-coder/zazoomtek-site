@@ -186,27 +186,29 @@ def image_for(row,root):
     """Fetch authentic RSS/media/OpenGraph cover and convert it to a 16:9 WebP thumbnail."""
     from PIL import Image, ImageOps, UnidentifiedImageError
     candidates=[row.get("image_candidate","")]
-    # Article OG is tried if the RSS media URL fails.
-    candidates.append(article_cover_url(row))
+    # Query the article for Open Graph only if its RSS thumbnail fails.
     opener=build_opener(_ImageRedirects())
-    for address in dict.fromkeys(candidates):
-        if not address or not _public_image_url(address):
-            continue
-        try:
-            req=Request(address,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekRSS/1.0; +https://zazoomtek.it)","Accept":"image/avif,image/webp,image/jpeg,image/png,image/*;q=0.8"})
-            with opener.open(req,timeout=8) as response:
-                if not _public_image_url(response.url) or not response.headers.get("Content-Type","image/").lower().startswith("image/"):
-                    continue
-                content=response.read(5_000_001)
-            if len(content)>5_000_000:
+    for stage in (0,1):
+        if stage==1:
+            candidates=[article_cover_url(row)]
+        for address in dict.fromkeys(candidates):
+            if not address or not _public_image_url(address):
                 continue
-            with Image.open(BytesIO(content)) as opened:
-                if opened.width*opened.height>36_000_000 or opened.width<180 or opened.height<100:
+            try:
+                req=Request(address,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekRSS/1.0; +https://zazoomtek.it)","Accept":"image/avif,image/webp,image/jpeg,image/png,image/*;q=0.8"})
+                with opener.open(req,timeout=8) as response:
+                    if not _public_image_url(response.url) or not response.headers.get("Content-Type","image/").lower().startswith("image/"):
+                        continue
+                    content=response.read(5_000_001)
+                if len(content)>5_000_000:
                     continue
-                thumb=ImageOps.fit(ImageOps.exif_transpose(opened).convert("RGB"),(720,405),method=Image.Resampling.LANCZOS)
-            return thumb,address
-        except (OSError,ValueError,UnidentifiedImageError):
-            continue
+                with Image.open(BytesIO(content)) as opened:
+                    if opened.width*opened.height>36_000_000 or opened.width<180 or opened.height<100:
+                        continue
+                    thumb=ImageOps.fit(ImageOps.exif_transpose(opened).convert("RGB"),(720,405),method=Image.Resampling.LANCZOS)
+                return thumb,address
+            except (OSError,ValueError,UnidentifiedImageError):
+                continue
     return None,""
 
 
