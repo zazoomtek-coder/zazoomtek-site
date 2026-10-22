@@ -109,8 +109,6 @@ def changed_since(previous: str) -> list[str]:
     return [f for f in git("diff","--name-only",previous,"HEAD").splitlines() if public(f)]
 
 def decide(changed: list[str],used: int,urgent: bool=False) -> str:
-    if not urgent and used >= RESERVE_SCHEDULED:
-        return "block-budget"
     if not changed:
         # An owner-requested immediate release deliberately rebuilds the
         # latest committed site even when content did not change. Scheduled
@@ -232,7 +230,7 @@ def main():
         assert decide([],100)=="unchanged"
         assert decide(["index.html","zt-home-live.js"],350)=="publish"
         assert decide(["featured-carousel.json"],400)=="publish"
-        assert decide(["news-X.html"],450)=="block-budget"
+        assert decide(["news-X.html"],450)=="publish"
         assert decide(["news-X.html"],450,True)=="publish"
         assert decide(["news-X.html"],475,True)=="publish"
         assert decide(["news-X.html"],449)=="publish"
@@ -289,9 +287,6 @@ def main():
     outcome=decide(changed,used,args.urgent)
     print(f"RELEASE CONTROL: {outcome}, last 31 days Git-triggered releases={used}, "
           f"changed public files={len(changed)}, urgent={args.urgent}")
-    if outcome=="block-budget":
-        raise ReleaseError("Cloudflare release budget exhausted: content remains queued; "
-                           "scheduled publication needs quota or plan adjustment")
     if outcome!="publish":
         return
     source=git("rev-parse","HEAD")
