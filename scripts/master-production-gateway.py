@@ -268,7 +268,7 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
         # and exactly one extra Git commit lets it contain the real source SHA.
         # Explicit user-requested releases may run immediately. Scheduled jobs
         # continue to respect fixed slots; both paths retain budgets and validation.
-        gate = "--urgent"  # Publish requests always bypass the normal slot/unchanged gate.
+        gate = "--urgent" if urgent else "--scheduled-slot"  # Respect scheduled windows; manual requests remain immediate.
         call(sys.executable, "scripts/cloudflare-release-control.py", gate, timeout=120)
         trigger_changed = bool(call("git", "status", "--porcelain", "--", "cloudflare-release-trigger.txt"))
         trigger_source = ""
