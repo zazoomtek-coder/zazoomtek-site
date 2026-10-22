@@ -143,7 +143,7 @@ TECH_TERMS=(
  "streaming","netflix","amazon luna","prime video","meta quest","occhiali smart")
 PROMOTIONAL=("offerta","sconto","offerte","coupon","codice sconto","buono amazon",
  "prezzo stracciato","prezzo mai visto","super prezzo","a meno di","ultimi pezzi",
- "codice promozionale","svendita","black friday")
+ "codice promozionale","svendita","black friday","pochi pezzi","ultime unità","pezzi rimasti","solo oggi","in promozione","scontat","volantino","prezzo bomba","prezzo shock","spendi meno","risparmia","costa solo")
 def relevant(row,now=None):
     title=row["original"].lower()
     if any(x in title for x in PROMOTIONAL):return False
