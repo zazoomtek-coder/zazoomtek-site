@@ -15,9 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def run(script: str, *args: str) -> None:
     print("CLOUDFLARE BUILD:", script, " ".join(args), flush=True)
-    subprocess.run([sys.executable, str(ROOT / "scripts" / script), *args],
-                   cwd=ROOT, check=True,
-                   timeout=300 if script == "update-youtube-posts.py" and "--render-from-cache" in args else 180)
+    try:
+        subprocess.run([sys.executable, str(ROOT / "scripts" / script), *args],
+                       cwd=ROOT, check=True,
+                       timeout=300 if script == "update-youtube-posts.py" and "--render-from-cache" in args else 180)
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as exc:
+        if script == "build-cloudflare-pages.py":
+            # The public artifact must exist before any Cloudflare upload.
+            raise
+        print("::warning::Editorial renderer/importer unavailable: "
+              + script + " (" + str(exc)[:220] + "); proceeding with existing content", flush=True)
 
 def main() -> None:
     # Refuse unauthorized Home structural changes before any publication.
