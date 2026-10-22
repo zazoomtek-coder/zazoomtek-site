@@ -16,6 +16,13 @@
       "owner_approved": true,
       "publish_at": "2026-10-21T10:15:00+02:00",
       "note": "Owner requested: remove only Home Ultimi Shorts, add two-capacity SPECIALI after Da non perdere with first real article, desktop rail aligned exactly with Esplora Ultimi Video; verified staging and viewport tests; no urgent deploy"
+    },
+    {
+      "pr": 128,
+      "head_sha": "559f3ad40132aa20c97e3c6018f4e3e25ad38ecf",
+      "owner_approved": true,
+      "publish_at": "2026-10-22T10:15:00+02:00",
+      "note": "Owner-approved three original Insights articles (Tech Impact, Gaming Inside, Speciali), 16:9 original covers and Cybercultura pagination 20/page. Scheduled only; no Home box/layout edits."
     }
   ]
 }
