@@ -17,7 +17,7 @@ const local=document.querySelector(".local");if(local)local.textContent="● Stu
 const intro=document.querySelector(".intro");if(intro)intro.innerHTML='<span style="color:#d51232;font-size:19px">✎</span><span><strong>Editor completo:</strong> scrivi come su Patreon e usa <b>+</b> per immagini, video e altri contenuti. <strong>La home e gli script automatici non vengono toccati.</strong> La pubblicazione crea una nuova pagina e la registra nell’archivio dello Studio, senza inserirla automaticamente nelle sezioni del sito.</span>';
 const locks=document.querySelectorAll(".locked");locks.forEach(n=>{const t=n.textContent||"";if(/automatic|automatici|SEO|correlati/i.test(t))n.title="Le nuove pagine hanno i propri metadati SEO e un riquadro notizie; non vengono aggiunte automaticamente agli archivi storici."});
 const btn=$("publishBtn");if(btn){btn.textContent="Pubblica articolo";btn.onclick=publish;}
-const state=(t,error=false)=>{const n=$("ztConnection");n.textContent=t;n.className="zt-state "+(error?"error":token?"ok":"");};
+const state=(t,error=false)=>{const n=$("ztConnection");n.textContent=t;n.className="zt-state "+(error?"error":token?"ok":"");try{if(token&&!error&&/^(Collegato|Collegato a)/i.test(t))localStorage.setItem("zt_studio_verified_until",String(Date.now()+8*3600000));if(!token&&/Disconnesso/.test(t))localStorage.removeItem("zt_studio_verified_until")}catch{}};
 
 // ZT_STUDIO_ENCRYPTED_VAULT_1. The GitHub PAT is never stored unencrypted.
 const VAULT_STORAGE_KEY="zazoomtek.studio.github.vault.v1";
@@ -202,6 +202,21 @@ const data=await res.json().catch(()=>({}));
 if(!res.ok)throw Error((data.message||("GitHub HTTP "+res.status))+(res.status===401?" — token non valido":res.status===403?" — verifica permessi Contents: Read and write":""));
 return data;
 }
+// The edit-existing module receives only validated GitHub operations, never the PAT.
+window.ZTStudioGitHub={
+ isAuthenticated:()=>!!token,
+ read:async path=>{if(!token)throw Error("Accesso amministratore richiesto");return req("GET",path+"?ref="+BRANCH)},
+ write:async(path,content,sha,message)=>{
+  if(!token)throw Error("Accesso amministratore richiesto");
+  if(!(/^[a-zA-Z0-9_.-]+\.html$/.test(path)&&path!=="index.html"||/^editorial\/studio-overrides\/[a-zA-Z0-9_.-]+\.json$/.test(path)))throw Error("Percorso non modificabile");
+  return req("PUT",path,{message,content:b64UTF8(content),branch:BRANCH,...(sha?{sha}:{})});
+ },
+ create:async(path,base64,message)=>{
+  if(!token||!/^assets\/studio\/[a-zA-Z0-9_.-]+\.(?:jpg|png|webp)$/.test(path))throw Error("Upload non autorizzato");
+  if(await req("GET",path+"?ref="+BRANCH))throw Error("Immagine esistente");
+  return req("PUT",path,{message,content:base64,branch:BRANCH});
+ }
+};
 function b64UTF8(s){const bytes=new TextEncoder().encode(s);let a="";for(let i=0;i<bytes.length;i+=16384)a+=String.fromCharCode(...bytes.subarray(i,i+16384));return btoa(a);}
 async function writeNew(path,base64,message){
 const exists=await req("GET",path+"?ref="+BRANCH);
