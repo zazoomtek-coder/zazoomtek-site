@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from web_news_editorial import render_extra, render_rail, CSS as FOLLOWUP_CSS
 ROOT=Path(__file__).resolve().parents[1]
 START="<!-- ZT_WEB_NEWS_START -->"
 END="<!-- ZT_WEB_NEWS_END -->"
@@ -64,29 +65,49 @@ def render_cards(data):
         right.append('<article class="zt-webnews-item">'+image(v)+'<div><h3><a href="'+link(v)+'" target="_blank" rel="nofollow noopener">'+title(v)+'</a></h3><p>'+escape(v["excerpt"])+'</p><span class="zt-webnews-source">Fonte: '+escape(v["source"])+'</span></div></article>')
     return START+'<section class="zt-webnews" id="ztWebNews" aria-labelledby="ztWebNewsTitle" data-web-news="independent-external-rss"><header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2><a href="#ztWebNewsCredits">LE FONTI ↗</a></header><div class="zt-webnews-grid">'+first+'<div class="zt-webnews-side">'+"".join(right)+'</div></div><p class="zt-webnews-footer" id="ztWebNewsCredits">Rassegna esterna · 5 notizie · titoli e sintesi rielaborati. Le immagini sono illustrazioni originali WebP, non fotografie delle testate. I collegamenti aprono gli articoli sui siti degli editori.</p></section>'+END
 
-def apply(home,data):
-    if START in home and END in home:
-        present=home[home.index(START):home.index(END)+len(END)]
-        if present==render_cards(data):
-            return home  # identical source IDs: preserve bytes and avoid rebuild churn
-    if START in home or END in home:
-        home=re.sub(re.escape(START)+r"[\s\S]*?"+re.escape(END)+r"\s*","",home,count=1)
-    if f'id="{CSS_ID}"' in home:
-        home=re.sub(r'<style id="'+CSS_ID+r'">[\s\S]*?</style>\s*',"",home,count=1)
-    # Remove and reinsert the same approved GUIDE block, preserving its bytes.
+def apply(home,data,root=ROOT):
+    # Use the real approved GUIDE markup unchanged, and render only true
+    # existing EXTRA and right-rail editorial articles. No fabricated links.
     p=home.find(GUIDE_START);q=home.find(GUIDE_END,p)
     if p<0 or q<0:raise ValueError("Official GUIDE markers missing; refuse Home rewrite")
     q+=len(GUIDE_END)
-    guide=home[p:q];home=home[:p]+home[q:]
-    pattern=r'(<!-- ARTICLE_PAGINATION_END -->\s*</section>)'
-    matches=list(re.finditer(pattern,home,re.I))
-    if len(matches)!=1:raise ValueError("Expected one genuine Home pagination section")
-    idx=matches[0].end()
-    result=home[:idx]+"\n"+render_cards(data)+"\n"+guide+"\n"+home[idx:]
+    guide=home[p:q]
+    card=render_cards(data).replace(START,"").replace(END,"")
+    extra=render_extra(root)
+    rail=render_rail(root)
+    block=(
+        START+'<section class="zt-webnews-followup" id="ztWebNewsFollowup" aria-label="Notizie dal Web e approfondimenti">'
+        '<div class="zt-webnews-followup-main">'+card+'\n'+guide+'\n'+extra+
+        '</div>'+rail+'</section>'+END
+    )
+    # Leave a literally identical article snapshot untouched, avoiding churn
+    # and costly Pages builds when the RSS content has not changed.
+    if START in home and END in home:
+        present=home[home.index(START):home.index(END)+len(END)]
+        if present==block and f'id="{CSS_ID}"' in home:
+            return home
+        home=home.replace(present,"",1)
+    # Relocate GUIDE by its original preserved HTML; do not edit the card.
+    p=home.find(GUIDE_START);q=home.find(GUIDE_END,p)
+    if p>=0 and q>=p:
+        home=home[:p]+home[q+len(GUIDE_END):]
+    if f'id="{CSS_ID}"' in home:
+        home=re.sub(r'<style id="'+CSS_ID+r'">[\s\S]*?</style>\s*',"",home,count=1)
+    paginations=list(re.finditer(r'<!-- ARTICLE_PAGINATION_END -->\s*</section>',home,re.I))
+    if len(paginations)!=1:raise ValueError("Expected exactly one genuine Home pagination")
+    # Existing .layout contains the left paginated feed plus the approved
+    # editorial right sidebar. Add a distinct 2-column follow-up immediately
+    # after the closing .layout, not in either of its columns. No overlap.
+    anchor=re.search(r'</aside>\s*</div>',home[paginations[0].end():],re.I)
+    if not anchor:raise ValueError("Cannot identify safe closing anchor of Home 2-column layout")
+    idx=paginations[0].end()+anchor.end()
+    result=home[:idx]+'\n'+block+'\n'+home[idx:]
     if "</head>" not in result:raise ValueError("Home head missing")
-    result=result.replace("</head>",'<style id="'+CSS_ID+'">'+CSS+'</style>\n</head>',1)
-    assert result.count(GUIDE_START)==1 and result.count(START)==1
+    result=result.replace("</head>",'<style id="'+CSS_ID+'">'+CSS+FOLLOWUP_CSS+'</style>\n</head>',1)
+    if result.count(START)!=1 or result.count(GUIDE_START)!=1 or result.count('id="ztWebNewsFollowup"')!=1:
+        raise ValueError("Duplicate Home sections prevented")
     assert result.index("<!-- ARTICLE_PAGINATION_END -->")<result.index(START)<result.index(GUIDE_START)
+    assert result.index(GUIDE_END)<result.index("ZT_WEB_EXTRA_START")<result.index("ZT_WEB_EDITORIAL_RAIL_START")
     return result
 
 def run(root=ROOT):
@@ -100,16 +121,18 @@ def run(root=ROOT):
         return False
     page=root/"index.html"
     old=page.read_text(encoding="utf-8")
-    new=apply(old,data)
+    new=apply(old,data,root)
     if old!=new:page.write_text(new,encoding="utf-8")
     print("WEB-NEWS: 5 items rendered after pagination, before official GUIDE")
     return True
 
 def self_test():
-    sample='<html><head></head><body><!-- HOME_GUIDES_INSET_START --><section id="ztHomeGuide">GUIDE</section><!-- HOME_GUIDES_INSET_END --><section><nav>1,2,3</nav><!-- ARTICLE_PAGINATION_END --></section></body></html>'
+    sample='<html><head></head><body><!-- HOME_GUIDES_INSET_START --><section id="ztHomeGuide">GUIDE</section><!-- HOME_GUIDES_INSET_END --><div class="layout"><div class="maincol"><section><nav>1,2,3</nav><!-- ARTICLE_PAGINATION_END --></section></div><aside class="sidebar"><div>Original sidebar</div></aside></div></body></html>'
     data={"items":[{"id":str(i),"source":"HDblog","url":"https://hdblog.it/test/"+str(i),"image":"/assets/notizie-dal-web/"+str(i)+".webp","title":"Focus tecnologia numero "+str(i),"excerpt":"Sintesi rielaborata."} for i in range(5)]}
     first=apply(sample,data)
-    assert first.count("NOTIZIE DAL WEB")==1
+    assert first.count("NOTIZIE DAL WEB")>=1
+    assert first.count('id="ztWebNewsFollowup"')==1
+    assert 'zt-webnews-followup-rail' in first and 'ZT_WEB_EXTRA_START' in first
     assert first.index("ARTICLE_PAGINATION_END")<first.index("ZT_WEB_NEWS_START")<first.index("HOME_GUIDES_INSET_START")
     assert apply(first,data)==first
     print("PASS: one module; 5 cards; exact after-pagination/before-GUIDE order; idempotent")
