@@ -26,7 +26,6 @@
     },
     {
       "pr": 132,
-      "head_sha": "f7cac86419066daa82d929ee2d386e80e20a7569",
       "owner_approved": true,
       "publish_at": "2026-10-22T15:15:00+02:00",
       "note": "Owner-approved: permanent ZazoomTek Studio editor with detailed cover pan/zoom controls, Youtube embeds and admin edit affordance across article/review/guide pages. Only 15:15 editorial Master slot. No manual deploy."
