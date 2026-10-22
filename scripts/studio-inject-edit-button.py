@@ -17,7 +17,7 @@ END = re.compile(r"</body\s*>", re.I)
 
 def inject(root: Path = ROOT):
     count = 0
-    for path in root.glob("*.html"):
+    for path in list(root.glob("*.html")) + list((root / "watch").glob("*.html")):
         if path.name.startswith(("preview-", "anteprima-", "audit-", "test-")):
             continue
         markup = path.read_text(encoding="utf-8")
@@ -41,10 +41,12 @@ def self_test():
         root = Path(t)
         (root / "index.html").write_text('<html><body><main>Home cards</main></body></html>')
         (root / "review.html").write_text('<html><body><main class="content"><h1>Review</h1><article class="article-body article-main">Review</article></main></body></html>')
+        (root / "watch").mkdir()
+        (root / "watch" / "abcdefghijk.html").write_text('<html><body><main><article class="zt-watch-article"><h1>Video</h1></article></main></body></html>')
         (root / "news-YT.html").write_text('<html><body><main><article class="story"><h1>YouTube News</h1></article></main></body></html>')
-        assert inject(root) == 3
+        assert inject(root) == 4
         assert inject(root) == 0
-        for name in ("index.html", "review.html", "news-YT.html"):
+        for name in ("index.html", "review.html", "news-YT.html", "watch/abcdefghijk.html"):
             assert (root / name).read_text().count(TAG) == 1
         print("PASS: Homepage cards and all editorial page shapes receive Studio UI")
 
