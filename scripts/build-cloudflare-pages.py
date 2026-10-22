@@ -89,7 +89,7 @@ def generated_approved_files() -> set[Path]:
 
     # Generated archive pages are safe only when named sequentially by the approved builder.
     for page in ROOT.glob("cybercultura-*.html"):
-        if re.fullmatch(r"cybercultura-[2-9][0-9]*\.html",page.name):
+        if re.fullmatch(r"cybercultura-(?:[2-9]|[1-9][0-9]+)\.html",page.name):
             add(page.name)
 
     reviews = ROOT / "editorial/review-publication-queue.json"
