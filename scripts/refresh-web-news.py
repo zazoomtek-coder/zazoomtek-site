@@ -7,6 +7,7 @@ from __future__ import annotations
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from html import unescape
+from web_news_dedup import local_headlines, duplicates, self_test as dedup_self_test
 from html.parser import HTMLParser
 from urllib.request import HTTPRedirectHandler, build_opener
 from urllib.parse import urlsplit
@@ -274,44 +275,71 @@ def update(root=ROOT,fetch=safe_fetch):
     if len(ok)<3 or len(candidates)<5:
         print("WEB-NEWS UNCHANGED: insufficient valid feeds; preserve existing published state")
         return []
-    legacy=any(item.get("image_origin")!="rss-webp" for item in old.get("items",[]))
-    selected=choose(candidates,{"items":[]} if legacy else old,limit=20)
+    # Always compare against latest OWN site news, even if the five RSS IDs
+    # have not changed. A newly published ZazoomTek story has priority.
+    local=local_headlines(root)
+    print("WEB-NEWS: checking",len(local),"recent ZazoomTek titles before external selection")
+    selected=choose(candidates,{"items":[]},limit=120)
     if selected is None:
-        print("WEB-NEWS UNCHANGED: same story IDs and authentic image thumbnails")
+        print("WEB-NEWS UNCHANGED: insufficient RSS candidates")
         return []
     folder=root/ASSETS
     folder.mkdir(parents=True,exist_ok=True)
+    cached={v.get("id"):v for v in old.get("items",[])
+            if isinstance(v,dict) and v.get("image_origin")=="rss-webp"}
     new=[]
     changed=[]
+    discarded_local=discarded_web=0
     for row in selected:
         if len(new)==5:
             break
-        image,origin=image_for(row,root)
-        if image is None:
-            print("WEB-NEWS: image unavailable for",row["source"],row["url"][:100])
+        title=row["original"]
+        if any(duplicates(title,ours) for ours in local):
+            discarded_local+=1
             continue
-        data=BytesIO()
-        image.save(data,"WEBP",quality=79,method=4)
-        payload=data.getvalue()
-        name=row["id"]+"-"+hashlib.sha256(payload).hexdigest()[:10]+".webp"
-        dest=folder/name
-        if not dest.is_file():
-            dest.write_bytes(payload)
-            changed.append(str(ASSETS/name))
+        if any(duplicates(title,previous["original_title"]) for previous in new):
+            discarded_web+=1
+            continue
+
+        old_item=cached.get(row["id"])
+        old_image=old_item.get("image","") if old_item else ""
+        if (isinstance(old_image,str)
+                and re.fullmatch(r"/assets/notizie-dal-web/[a-f0-9]{20}-[a-f0-9]{10}\.webp",old_image)
+                and (root/old_image.lstrip("/")).is_file()):
+            # Reuse the exact existing thumbnail, avoid network calls.
+            image_path=old_image
+            origin=old_item.get("image_source","")
+        else:
+            image,origin=image_for(row,root)
+            if image is None:
+                print("WEB-NEWS: real image unavailable:",row["source"],row["url"][:100])
+                continue
+            stream=BytesIO()
+            image.save(stream,"WEBP",quality=79,method=4)
+            payload=stream.getvalue()
+            name=row["id"]+"-"+hashlib.sha256(payload).hexdigest()[:10]+".webp"
+            dest=folder/name
+            if not dest.is_file():
+                dest.write_bytes(payload)
+                changed.append(str(ASSETS/name))
+            image_path="/"+str(ASSETS/name)
         new.append({"id":row["id"],"source":row["source"],"url":row["url"],
-                    "title":restate(row["original"]),"excerpt":excerpt(row)[:270],
-                    "published":row["published"],"image":"/"+str(ASSETS/name),
-                    "image_origin":"rss-webp","image_source":origin})
+                    "title":restate(title),"original_title":title,
+                    "excerpt":excerpt(row)[:270],"published":row["published"],
+                    "image":image_path,"image_origin":"rss-webp","image_source":origin})
+    print("WEB-NEWS anti-duplicate: own-site",discarded_local,
+          "cross-feed",discarded_web)
     if len(new)<5:
-        print("WEB-NEWS UNCHANGED: fewer than five real article images; preserving published set")
+        print("WEB-NEWS UNCHANGED: cannot assemble five unique stories with real covers")
         for path in changed:
             (root/path).unlink(missing_ok=True)
         return []
-    previous={row.get("id") for row in old.get("items",[])}
-    if not legacy and previous=={row["id"] for row in new} and all(
-        row.get("image")==new[i]["image"] for i,row in enumerate(old.get("items",[]))
-    ):
-        print("WEB-NEWS UNCHANGED: authentic images and stories unchanged")
+    if (len(old.get("items",[]))==5 and
+            [(r.get("id"),r.get("image")) for r in old["items"]]==
+            [(r["id"],r["image"]) for r in new] and
+            all(r.get("original_title")==new[i]["original_title"]
+                for i,r in enumerate(old["items"]))):
+        print("WEB-NEWS UNCHANGED: same five unique external stories")
         for path in changed:
             (root/path).unlink(missing_ok=True)
         return []
@@ -337,6 +365,7 @@ def self_test():
     assert choose(rows,{"items":[]}) is None
     assert not relevant({"original":"Le migliori tende da campeggio per famiglie","published":"2026-10-22T10:00:00+00:00"},datetime(2026,10,22,tzinfo=timezone.utc))
     assert relevant({"original":"Nvidia GeForce RTX 5050 e nuove GPU","published":"2026-10-22T10:00:00+00:00"},datetime(2026,10,22,tzinfo=timezone.utc))
+    dedup_self_test()
     print("PASS: RSS parser, source whitelist, 5-item guard and original excerpts")
 if __name__=="__main__":
     if "--self-test" in sys.argv:self_test()
