@@ -97,7 +97,8 @@ def make_page(x,filename,related):
     return f'''<!doctype html><html lang="it"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} | ZazoomTek</title><meta name="description" content="{summary}">
-<meta name="author" content="ZazoomTek">\n<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="author" content="ZazoomTek">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="{esc(url)}">
 <style>body{{margin:0;background:#ededed;color:#222;font:17px/1.75 Arial,Helvetica,sans-serif}}
 header{{background:#171717;color:#fff;padding:24px max(16px,calc((100vw - 1130px)/2));border-top:4px solid #d51232}}
