@@ -132,6 +132,48 @@ def eligible(path: Path) -> bool:
         return False
     return True
 
+def optimize_review_photos(out: Path) -> None:
+    """Optional lossy-safe delivery variant; original review images remain available.
+
+    WebP variants preserve the actual image dimensions and aspect ratio.
+    A content hash prevents stale Cloudflare asset caches after an image edit.
+    Failure is nonblocking and leaves every HTML image pointing at its real PNG.
+    """
+    import hashlib
+    try:
+        from PIL import Image
+    except ImportError:
+        print("NOTICE: Pillow unavailable; keep verified original review photographs")
+        return
+    for stem in ("foto-1", "foto-2"):
+        original = out / "assets/recensioni/70mai-a900-ultra" / (stem + ".png")
+        if not original.is_file() or original.stat().st_size < 500_000:
+            continue
+        try:
+            from io import BytesIO
+            with Image.open(original) as image:
+                if image.mode not in ("RGB", "RGBA"):
+                    image = image.convert("RGBA" if "A" in image.getbands() else "RGB")
+                buffer = BytesIO()
+                image.save(buffer, format="WEBP", quality=82, method=4)
+            compact = buffer.getvalue()
+            if len(compact) >= original.stat().st_size * 0.85:
+                continue
+            public_base = "/assets/recensioni/70mai-a900-ultra/" + stem
+            name = stem + "-" + hashlib.sha256(compact).hexdigest()[:12] + ".webp"
+            variant = original.with_name(name)
+            variant.write_bytes(compact)
+            old_url = public_base + ".png"
+            new_url = "/assets/recensioni/70mai-a900-ultra/" + name
+            for html_path in out.rglob("*.html"):
+                original_html = html_path.read_text(encoding="utf-8")
+                if old_url in original_html:
+                    html_path.write_text(original_html.replace(old_url, new_url), encoding="utf-8")
+            print(f"REVIEW PHOTO: {stem} optimized {original.stat().st_size} -> {len(compact)} bytes", flush=True)
+        except (OSError, ValueError) as exc:
+            print("::warning::Photo optimization skipped for " + stem + ": " + str(exc)[:180], flush=True)
+
+
 def main() -> None:
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -148,6 +190,7 @@ def main() -> None:
         dest = OUT / path
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dest)
+    optimize_review_photos(OUT)
     copied = [p for p in OUT.rglob("*") if p.is_file()]
     if len(copied) > MAX_FILES:
         failures.append(f"{len(copied)} files exceed safety margin of {MAX_FILES}")
