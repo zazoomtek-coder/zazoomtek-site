@@ -80,6 +80,7 @@ def main() -> None:
     # after their verified content imports, preserving all old URLs.
     run("build-cybercultura.py")
     run("sync-home-speciali.py")
+    run("studio-apply-overrides.py")
     run("apply-site-design.py")
     # Add original ISO times ONLY to already-published archive cards; safe even
     # when the YouTube importer skips a cycle with no new Community posts.
@@ -106,6 +107,7 @@ def main() -> None:
     run("ensure-review-summaries.py", "--check")
     # Generators may refresh content, but must never rewrite locked Home layout.
     run("verify-home-layout-lock.py")
+    run("studio-inject-edit-button.py")
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
