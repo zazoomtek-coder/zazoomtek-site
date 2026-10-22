@@ -523,3 +523,66 @@ main.page .ztp-top-main .latest-reviews-module #latestVideos
     aspect-ratio:9/16!important;
   }
 }
+
+
+/* ZT_HOME_OTHER_NEWS_ONE_BOX_20261022
+   One unified right-rail block BELOW Dalla redazione. Large genuine 16:9
+   images and varied technology, gaming, Extra, reviews, guides and videos.
+   No mini columns and no artificial empty-height placeholders. */
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews[hidden]{
+ display:none!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews{
+ display:block!important;width:100%!important;min-width:0!important;
+ grid-column:1/-1!important;
+ overflow:hidden!important;background:#fff!important;
+ border:1px solid #dfe6ef!important;border-radius:0!important;
+ box-shadow:none!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews > h2{
+ height:49px!important;min-height:49px!important;margin:0!important;
+ padding:0 14px!important;display:flex!important;align-items:center!important;
+ color:#fff!important;background:#202020!important;
+ border-left:6px solid #d51232!important;
+ font:900 13px/1.1 Arial,Helvetica,sans-serif!important;
+ letter-spacing:.02em!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews .ztp-other-news-list{
+ display:block!important;margin:0!important;padding:0!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews .ztp-other-story{
+ display:block!important;width:100%!important;max-width:none!important;
+ margin:0!important;padding:12px!important;
+ border:0!important;border-bottom:1px solid #e6e9ee!important;
+ text-decoration:none!important;background:#fff!important;
+ box-sizing:border-box!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews .ztp-other-story:last-child{
+ border-bottom:0!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews .ztp-other-story img{
+ display:block!important;width:100%!important;height:auto!important;
+ aspect-ratio:16/9!important;object-fit:contain!important;
+ object-position:center center!important;border-radius:0!important;
+ background:#151c29!important;margin:0 0 8px!important;
+ max-height:none!important;transform:none!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews .ztp-other-story strong{
+ display:block!important;margin:0!important;
+ font:800 12px/1.34 Arial,Helvetica,sans-serif!important;
+ color:#20232a!important;overflow-wrap:anywhere!important;
+}
+#articoli.ztp-news-area .ztp-news-rail #ztpOtherNews .ztp-other-story:hover strong{
+ color:#d51232!important;
+}
+/* Do not turn the single Dalla redazione section into 3 miniature boxes
+   at tablet widths. Keep both editorial sections in a single vertical rail. */
+@media (min-width:821px) and (max-width:1149px){
+ #articoli.ztp-news-area .ztp-news-rail .ztp-editorial-archive{
+   grid-column:1/-1!important;
+ }
+ #articoli.ztp-news-area .ztp-news-rail .ztp-editorial-archive .ztp-editorial-story:not([hidden]){
+   display:block!important;float:none!important;vertical-align:initial!important;
+   width:100%!important;max-width:100%!important;
+ }
+}
