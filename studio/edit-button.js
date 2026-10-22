@@ -16,7 +16,7 @@
       const u = new URL(raw, location.origin);
       if (u.origin !== location.origin) return null;
       const path = decodeURIComponent(u.pathname).replace(/^\/+/, "");
-      if (!/^[a-zA-Z0-9_.-]+\.html$/.test(path)
+      if (!(/^[a-zA-Z0-9_.-]+\.html$/.test(path) || /^watch\/[a-zA-Z0-9_-]{11}\.html$/.test(path))
           || ["index.html", "studio.html"].includes(path)
           || path.includes("..")) return null;
       return path;
@@ -29,7 +29,7 @@
     const path = escPath(location.href);
     if (!path || document.getElementById("zt-studio-edit-title")) return;
     // Some review templates place H1 in main.content OUTSIDE article.article-main.
-    const detail = document.querySelector("article.article-main,article.story,article.zt-main,article.zt-article,article.article-body,main.content article");
+    const detail = document.querySelector("article.article-main,article.story,article.zt-main,article.zt-article,article.article-body,article.zt-watch-article,main.content article");
     if (!detail) return;
     const title = detail.querySelector("h1") ||
       document.querySelector("main.content h1, main.page h1, main h1");
@@ -49,14 +49,14 @@
       ".ztp-primary-feed a[href]", ".ztp-news-area a[href]",
       ".zt-mix-editorial-row[href]", ".news-card a[href]",
       ".review-card a[href]", ".article-card a[href]",
-      ".zt-card a[href]", ".ztp-card a[href]"
+      ".zt-card a[href]", ".ztp-card a[href]", ".zt-watch-list a[href]"
     ].join(",");
     document.querySelectorAll(selectors).forEach((a) => {
       if (a.dataset.ztEditChecked) return;
       a.dataset.ztEditChecked = "1";
       const path = escPath(a.href);
       if (!path) return; // External RSS publishers are linked, never editable.
-      const card = a.closest(".news-card,.review-card,.article-card,.ztp-news-card,.ztp-card,.zt-card,.zt-mix-editorial-row,article");
+      const card = a.closest(".news-card,.review-card,.article-card,.ztp-news-card,.ztp-card,.zt-card,.zt-mix-editorial-row,article,li");
       if (!card || card.querySelector(".zt-studio-card-edit")) return;
       const edit = document.createElement("a");
       edit.className = "zt-studio-card-edit";
