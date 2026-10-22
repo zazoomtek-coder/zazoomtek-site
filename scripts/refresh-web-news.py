@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RSS-only external news snapshot for ZazoomTek. No independent releases.
 Run ONLY inside the existing scheduled Master publication, not its 5-min polls.
-All 5 official endpoints configured; ANSA intentionally needs a license to enable.
+All five official technology RSS sources configured and enabled.
 """
 from __future__ import annotations
 from datetime import datetime, timezone, timedelta
@@ -27,10 +27,8 @@ SOURCES=(
   ("Tom's Hardware Italia","https://www.tomshw.it/feed/","tomshw.it",True),
   ("DDAY.it","https://www.dday.it/rss","dday.it",True),
   ("Wired Italia","https://www.wired.it/feed/rss","wired.it",True),
-  ("ANSA Tecnologia","https://www.ansa.it/sito/notizie/tecnologia/tecnologia_rss.xml","ansa.it",False),
+  ("SmartWorld","https://www.smartworld.it/feed","smartworld.it",True),
 )
-# ANSA's published RSS license prohibits website republication. A signed
-# permission and explicit code review are prerequisites to enabling it.
 assert len(SOURCES)==5
 
 class Plain(HTMLParser):
@@ -181,7 +179,7 @@ def update(root=ROOT,fetch=safe_fetch):
     candidates=[];ok=[]
     for source,url,domain,enabled in SOURCES:
         if not enabled:
-            print("SKIP ANSA Tecnologia: RSS redistribution license requires prior authorization.")
+            print("SKIP source disabled:",source)
             continue
         try:
             rows=parse_feed(fetch(url,domain),source,domain)
@@ -210,7 +208,7 @@ def update(root=ROOT,fetch=safe_fetch):
                     "title":restate(row["original"]),"excerpt":excerpt(row)[:270],
                     "published":row["published"],"image":"/"+str(ASSETS/name)})
     output={"version":1,"updated_at":datetime.now(timezone.utc).isoformat(),
-            "license_policy":"ANSA RSS blocked; source photos require explicit redistribution license",
+            "license_policy":"Five approved RSS publishers; external editorial photographs require an explicit redistribution license",
             "items":new}
     old_path.write_text(json.dumps(output,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     changed.append(str(STATE))
