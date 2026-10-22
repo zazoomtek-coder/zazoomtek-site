@@ -255,6 +255,23 @@ def one_attempt(poll_only: bool = False, urgent: bool = False,
                 names = sorted(set(names) | {"master-staging/reviews-due.json"})
         except Exception as exc:
             print("::warning::Optional review-plan error, continuing: " + str(exc)[:300], flush=True)
+    if not poll_only:
+        # One RSS Smart Check per EXISTING editorial publication, never each
+        # five-minute YouTube-only poll; optional sources cannot block the Master.
+        try:
+            report=call(sys.executable,"scripts/refresh-web-news.py",timeout=90)
+            payload=json.loads(report.splitlines()[-1])
+            changed=payload.get("paths",[])
+            if isinstance(changed,list) and all(
+                isinstance(p,str) and (p=="notizie-dal-web.json"
+                or re.fullmatch(r"assets/notizie-dal-web/[a-f0-9]{20}\.webp",p))
+                for p in changed
+            ):
+                names=sorted(set(names)|set(changed))
+            else:print("::warning::WEB-NEWS invalid changed-path report; preserving existing data")
+        except Exception as exc:
+            print("::warning::WEB-NEWS optional source refresh failed; "
+                  "the approved editorial release continues: "+str(exc)[:240],flush=True)
     if names:
         call("git", "add", "--", *names)
         if call("git", "diff", "--cached", "--name-only"):
