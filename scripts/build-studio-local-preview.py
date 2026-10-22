@@ -29,12 +29,14 @@ def build(destination:Path):
         original=original.replace('<script src="/studio/publisher.js" defer></script>',
                                   '<!-- Online publication disabled in this local live test. -->')
         code='window.ZTStudioDemoArticle = {path:'+json.dumps(ARTICLE)+',html: new TextDecoder().decode(Uint8Array.from(atob('+json.dumps(base64.b64encode(preview_html.encode("utf-8")).decode("ascii"))+'),c=>c.charCodeAt(0)))};'
+        original=original.replace('<script src="/studio/cover-controls.js" defer></script>','<script src="./cover-controls.js" defer></script>')
         original=original.replace('<script src="/studio/edit-existing.js" defer></script>',
                                   '<script src="./demo-article.js"></script><script src="./edit-existing.js" defer></script>')
         (root/"index.html").write_text(original,encoding="utf-8")
         (root/"demo-article.js").write_text(code+"\n",encoding="utf-8")
         shutil.copy(ROOT/"studio/layouts.js",root/"layouts.js")
         shutil.copy(ROOT/"studio/edit-existing.js",root/"edit-existing.js")
+        shutil.copy(ROOT/"studio/cover-controls.js",root/"cover-controls.js")
         shutil.copy(ROOT/ARTICLE,root/ARTICLE)
         (root/"LEGGIMI.txt").write_text(
             "ZAZOOMTEK STUDIO - PROVA LIVE LOCALE\n\n"
