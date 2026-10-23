@@ -99,7 +99,22 @@ def main():
         pending.unlink()
         state.restore("pending")
         assert json.loads(pending.read_text()) == []
-    print("PASS: Git archival restore, concurrent writer merge and isolated datasets")
+        # Legacy duration-only entries must never be reintroduced by archival
+        # union during a later run, even when stored on the Git data branch.
+        prior = json.loads(data.read_text())
+        prior.append({"id": "legacybad01", "title": "Unverified orientation",
+                      "type": "landscape_video", "orientation": "unverified",
+                      "verification": "duration_over_3m_not_short"})
+        data.write_text(json.dumps(prior))
+        state.save("videos")
+        git(local, "fetch", "origin", "zt-services10-state")
+        safe = json.loads(git(local, "show", "FETCH_HEAD:services10-data/videos.json",
+                              capture=True))
+        assert "legacybad01" not in {v["id"] for v in safe}
+        data.unlink()
+        state.restore("videos")
+        assert "legacybad01" not in {v["id"] for v in json.loads(data.read_text())}
+    print("PASS: Git archival restore, concurrent writer merge, unsafe legacy rejection")
 
 if __name__ == "__main__":
     main()
