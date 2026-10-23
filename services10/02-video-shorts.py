@@ -1,86 +1,127 @@
 #!/usr/bin/env python3
-"""Independent YouTube landscape-video collector using RSS and YouTube Data API.
-Individual malformed entries are discarded; prior data are retained on failures.
+"""Independent YouTube collector: only confirmed horizontal 16:9 videos.
+
+No media is downloaded. yt-dlp inspects YouTube's actual video-stream metadata,
+NOT the dimensions of a player embed or a thumbnail. Unknown and vertical
+videos are skipped individually, while earlier confirmed videos are retained.
 """
-import json, os, tempfile, urllib.request, urllib.parse, xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from __future__ import annotations
+import json
+import os
+import tempfile
+import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/"services10-data"/"videos.json"
-CHANNEL=os.environ.get("ZT_YOUTUBE_CHANNEL_ID","UCJs0ZT10hUiPRD0UZtUpI1Q")
-API_KEY=os.environ.get("YOUTUBE_API_KEY","")
-NS={"a":"http://www.w3.org/2005/Atom","yt":"http://www.youtube.com/xml/schemas/2015"}
-def landscape_ids(ids):
-    """Include only verified horizontal 16:9 videos; exclude Shorts and unknowns."""
-    if not API_KEY or not ids:
-        print("YouTube Data API key absent: cannot verify landscape; retaining archive")
-        return set()
-    result=set()
-    for start in range(0,len(ids),50):
-        batch=ids[start:start+50]
-        params=urllib.parse.urlencode({"part":"player,snippet","id":",".join(batch),"key":API_KEY})
-        req=urllib.request.Request("https://www.googleapis.com/youtube/v3/videos?"+params)
-        with urllib.request.urlopen(req,timeout=35) as response:
-            data=json.load(response)
-        for item in data.get("items",[]):
-            player=item.get("player",{})
-            snippet=item.get("snippet",{})
-            embed=player.get("embedHtml","")
-            # YouTube's embed dimensions do not establish source orientation.
-            # Explicitly exclude /shorts/ references and leave uncertain items
-            # unclassified until authoritative orientation metadata is available.
-            import re
-            references=json.dumps(item,ensure_ascii=False).lower()
-            if "/shorts/" in references:
-                continue
-            dimensions=re.search(r'(?i)width="(\\d+)"[^>]*height="(\\d+)"',embed)
-            if not dimensions:
-                continue
-            w,h=map(int,dimensions.groups())
-            if h and abs(w/h-16/9)<0.04 and snippet.get("liveBroadcastContent")!="upcoming":
-                result.add(item["id"])
-    return result
-def collect(xml):
-    root=ET.fromstring(xml)
-    items=[]
-    for entry in root.findall("a:entry",NS):
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "services10-data" / "videos.json"
+CHANNEL = os.environ.get("ZT_YOUTUBE_CHANNEL_ID", "UCJs0ZT10hUiPRD0UZtUpI1Q")
+NS = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
+
+def collect(xml: bytes) -> list[dict]:
+    root = ET.fromstring(xml)
+    found = []
+    for entry in root.findall("a:entry", NS):
         try:
-            vid=entry.findtext("yt:videoId",namespaces=NS)
-            title=entry.findtext("a:title",namespaces=NS)
-            published=entry.findtext("a:published",namespaces=NS)
-            if not (vid and title and published):continue
-            items.append({"id":vid,"title":title,"published":published,"url":"https://www.youtube.com/watch?v="+vid,"type":"landscape_video"})
-        except (TypeError,ValueError,AttributeError):continue
-    return items
-def merge(previous,news):
-    result={}
-    for row in previous+news:
-        if isinstance(row,dict) and row.get("id") and row.get("title"):
-            result[row["id"]]=row
-    return sorted(result.values(),key=lambda r:r.get("published",""),reverse=True)
-def save(rows):
-    OUT.parent.mkdir(parents=True,exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",dir=OUT.parent,delete=False) as f:
-        json.dump(rows,f,ensure_ascii=False,indent=2)
-        name=f.name
-    os.replace(name,OUT)
-def main():
-    old=json.loads(OUT.read_text(encoding="utf-8")) if OUT.is_file() else []
-    if not CHANNEL:
-        print("No ZT_YOUTUBE_CHANNEL_ID; preserving previous video data")
-        return
+            video_id = entry.findtext("yt:videoId", namespaces=NS)
+            title = entry.findtext("a:title", namespaces=NS)
+            published = entry.findtext("a:published", namespaces=NS)
+            if video_id and title and published:
+                found.append({"id": video_id, "title": title,
+                              "published": published,
+                              "url": "https://www.youtube.com/watch?v=" + video_id,
+                              "type": "landscape_video"})
+        except (TypeError, ValueError, AttributeError):
+            continue
+    return found
+
+def stream_shape(info: dict) -> tuple[int, int] | None:
+    """Read actual encoded video frame dimensions from available streams."""
+    streams = []
+    for item in [info] + (info.get("formats") or []):
+        try:
+            if not isinstance(item, dict) or item.get("vcodec") == "none":
+                continue
+            width, height = int(item.get("width")), int(item.get("height"))
+            if width > 0 and height > 0:
+                streams.append((width * height, width, height))
+        except (TypeError, ValueError):
+            continue
+    if not streams:
+        return None
+    _, width, height = max(streams)
+    return width, height
+
+def is_landscape_16_9(info: dict) -> bool:
+    """Unknown is never assumed horizontal; no duration-based Shorts heuristic."""
+    if not isinstance(info, dict):
+        return False
+    if "/shorts/" in str(info.get("webpage_url") or "").lower():
+        return False
+    shape = stream_shape(info)
+    return bool(shape and abs(shape[0] / shape[1] - 16 / 9) <= 0.045)
+
+def verified_ids(entries: list[dict]) -> set[str]:
     try:
-        req=urllib.request.Request("https://www.youtube.com/feeds/videos.xml?channel_id="+CHANNEL,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTek/1.0)"})
-        with urllib.request.urlopen(req,timeout=35) as response:new=collect(response.read())
-        allowed=landscape_ids([x["id"] for x in new])
-        new=[x for x in new if x["id"] in allowed]
-        # Never erase archived videos if classification data are unavailable.
-        if not API_KEY or not allowed:
-            print("Landscape verification unavailable; leave existing archive intact")
-            return
-        old=[x for x in old if x.get("type")=="landscape_video"]
-        save(merge(old,new))
-        print("Verified landscape videos:",len(new),"; total retained:",len(merge(old,new)))
+        import yt_dlp
+    except ImportError:
+        print("yt-dlp not installed; no new videos classified")
+        return set()
+    accepted = set()
+    options = {"skip_download": True, "quiet": True, "no_warnings": True,
+               "noplaylist": True, "socket_timeout": 18, "retries": 1,
+               "extractor_retries": 1}
+    with yt_dlp.YoutubeDL(options) as client:
+        for entry in entries:
+            try:
+                info = client.extract_info(entry["url"], download=False)
+                if is_landscape_16_9(info):
+                    accepted.add(entry["id"])
+                else:
+                    print("Not verified 16:9, skipped:", entry["id"])
+            except Exception as exc:
+                # An inaccessible video cannot stop processing the next one.
+                print("Cannot inspect video", entry.get("id"), ":", str(exc)[:130])
+    return accepted
+
+def merge(previous: list[dict], incoming: list[dict]) -> list[dict]:
+    by_id = {}
+    for item in previous + incoming:
+        if (isinstance(item, dict) and item.get("id") and item.get("title")
+                and item.get("type") == "landscape_video"):
+            by_id[item["id"]] = item
+    return sorted(by_id.values(), key=lambda x: x.get("published", ""), reverse=True)
+
+def save(items: list[dict]) -> None:
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8",
+                                     dir=OUT.parent, delete=False) as stream:
+        json.dump(items, stream, ensure_ascii=False, indent=2)
+        name = stream.name
+    os.replace(name, OUT)
+
+def main() -> None:
+    try:
+        existing = json.loads(OUT.read_text(encoding="utf-8")) if OUT.is_file() else []
+        if not isinstance(existing, list):
+            existing = []
+    except (ValueError, OSError):
+        existing = []
+    try:
+        url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL
+        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            incoming = collect(response.read())
     except Exception as exc:
-        print("Video source temporarily unavailable; previous archive retained:",str(exc)[:160])
-if __name__=="__main__":main()
+        print("RSS temporarily unavailable; prior archive remains:", str(exc)[:130])
+        return
+    allowed = verified_ids(incoming)
+    selected = [entry for entry in incoming if entry["id"] in allowed]
+    result = merge(existing, selected)
+    if result != existing:
+        save(result)
+    print("New 16:9:", len(selected), "Known 16:9:", len(result),
+          "Other/unknown skipped:", len(incoming) - len(selected))
+
+if __name__ == "__main__":
+    main()
