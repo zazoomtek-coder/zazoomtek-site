@@ -103,6 +103,7 @@ def main() -> None:
     # Durable Home source renderer, run AFTER all generators and BEFORE packaging.
     # This operates on the disposable Cloudflare build checkout, never commits
     # generated index.html to main. The approved JSON supplies the web headlines.
+    import re
     from html import escape as html_escape
     from urllib.parse import urlsplit
     home = ROOT / "index.html"
