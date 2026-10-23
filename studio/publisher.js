@@ -13,6 +13,34 @@ document.head.append(style);
 const panel=document.createElement("section");panel.className="zt-connect";panel.innerHTML='<h3>Collega GitHub per pubblicare</h3><p>La scrittura e le bozze funzionano senza accesso. Per pubblicare serve un token GitHub <b>fine-grained</b> autorizzato soltanto sul repository <b>zazoomtek-coder/zazoomtek-site</b>, con <b>Contents: Read and write</b>.</p><label for="ztToken">Token GitHub (non viene salvato)</label><input id="ztToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"><div class="zt-row"><button type="button" class="btn mini" id="ztConnect">Verifica collegamento</button><button type="button" class="btn mini" id="ztDisconnect">Disconnetti</button></div><p class="zt-state" id="ztConnection">Non collegato · nessun articolo può essere pubblicato senza autorizzazione.</p><p class="zt-note">Il token resta soltanto nella memoria della pagina e viene inviato direttamente a api.github.com. Non incollarlo in chat e non usare un token con accesso a tutti i repository.</p><div id="ztPublished" class="zt-result"></div>';
 const right=document.querySelector(".right");
 if(right)right.insertBefore(panel,right.firstChild);
+/* SEO_EDITORIALE_CONTENT_GROUNDED_20261023 — preview and manual overrides.
+   New articles get specific SEO BEFORE any GitHub write. */
+const seoHost=document.createElement("div");
+if(right)panel.insertAdjacentElement("afterend",seoHost);
+const seoModule=window.ZTStudioSEO;
+if(!seoModule)console.error("Studio: SEO editoriale non disponibile, la pubblicazione verrà bloccata.");
+const seoPanel=seoModule?.panel(seoHost);
+const currentSEO=()=>({
+ title:$("headline")?.value?.trim()||"",
+ category:$("category")?.value||"",
+ body:$("editor")?.innerText||"",
+ cover:($("coverPreview")?.getAttribute("src")||""),
+ url:""
+});
+seoPanel?.attach(currentSEO);
+let seoTimer=0;
+const seoRefresh=()=>{clearTimeout(seoTimer);seoTimer=setTimeout(()=>seoPanel?.update(currentSEO()),450)};
+for(const el of [$("headline"),$("category"),$("editor"),$("coverPreview")]){
+ if(!el)continue;
+ el.addEventListener("input",seoRefresh);
+ el.addEventListener("change",seoRefresh);
+}
+if($("coverPreview"))new MutationObserver(seoRefresh).observe($("coverPreview"),{attributes:true,attributeFilter:["src"]});
+window.ZTStudioSEOPrepare=data=>{
+ if(!seoPanel||!seoModule)throw Error("SEO intelligente non disponibile. Nessuna pubblicazione eseguita.");
+ return seoPanel.prepare(data);
+};
+
 const local=document.querySelector(".local");if(local)local.textContent="● Studio online · GitHub";
 const intro=document.querySelector(".intro");if(intro)intro.innerHTML='<span style="color:#d51232;font-size:19px">✎</span><span><strong>Editor completo:</strong> scrivi come su Patreon e usa <b>+</b> per immagini, video e altri contenuti. <strong>La home e gli script automatici non vengono toccati.</strong> La pubblicazione crea una nuova pagina e la registra nell’archivio dello Studio, senza inserirla automaticamente nelle sezioni del sito.</span>';
 const locks=document.querySelectorAll(".locked");locks.forEach(n=>{const t=n.textContent||"";if(/automatic|automatici|SEO|correlati/i.test(t))n.title="Le nuove pagine hanno i propri metadati SEO e un riquadro notizie; non vengono aggiunte automaticamente agli archivi storici."});
@@ -318,10 +346,12 @@ finish("Controllo duplicati su GitHub…");
 if(await req("GET",filename+"?ref="+BRANCH))throw Error("Esiste già un articolo con questo titolo. Nessun file sarà sovrascritto.");
 const exported=cleanArticle(window.ZTStudioCover?.export?.()||$("coverPreview").getAttribute("src"),slug);
 if(exported.upload.some(x=>x.b64.length>9000000))throw Error("Un file supera il limite consigliato di caricamento. Riduci le dimensioni.");
-const description=($("editor").innerText||"").replace(/\s+/g," ").trim().slice(0,155);
 const date=new Date().toISOString();
 if(!window.ZTStudioLayouts?.build)throw Error("Modello editoriale non caricato: pubblicazione interrotta senza modificare nulla.");
- const html=await window.ZTStudioLayouts.build({title,category,cover:exported.cover,body:exported.content,description,date,url:filename});
+const seo=window.ZTStudioSEOPrepare({title,category,cover:exported.cover,body:exported.content,url:"/"+filename});
+const description=seo.description;
+finish("Analisi SEO completata: "+seo.schemaType+". Titolo, metadati e tag personalizzati pronti.");
+const html=await window.ZTStudioLayouts.build({title,category,cover:exported.cover,body:exported.content,description,date,url:filename,seo});
 window.ZTStudio?.saveDraft?.(true);
 for(let i=0;i<exported.upload.length;i++){
 finish("Caricamento immagini e allegati "+(i+1)+"/"+exported.upload.length+"…");
