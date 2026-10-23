@@ -62,7 +62,7 @@ jobs:
           gate=Path("scripts/cloudflare-release-control.py").read_text()
           gateway=Path("scripts/master-production-gateway.py").read_text()
           assert "workflow_dispatch:" in schedule
-          assert "  push:\n" not in schedule
+          assert "  push:\n" in schedule
           assert "timezone: 'Europe/Rome'" in schedule
           assert "cron: '15 10,15,20 * * *'" in schedule
           assert "cron: '45 12 * * *'" in schedule and "cron: '45 17 * * *'" in schedule
@@ -73,11 +73,12 @@ jobs:
           assert "zazoomtek-master-sole-repository-and-pages-writer" in schedule
           assert "contents: write" in schedule
           assert "master-production-gateway.py --publish" in schedule
-          assert 'steps.master_release.outputs.deploy == \'true\'' in schedule
-          assert "steps.recovery.outputs.mode == 'retry_deploy'" in schedule
+          assert 'ZT_RELEASE_SOURCE_SHA' in schedule
+          assert "steps.recovery.outputs.mode != 'skip'" in schedule
           assert "Cloudflare" in schedule and "cloudflare/wrangler-action@v3" in schedule
           assert "pages deploy dist --project-name=" in schedule
           assert "scripts/verify-live-cloudflare.py" in schedule
+          assert "scripts/cloudflare-purge-after-release.py" in schedule
           assert "if current and len(expected)==40" in schedule
           assert 'mode=\'skip\'' in schedule
           assert 'mode=\'retry_deploy\'' in schedule
