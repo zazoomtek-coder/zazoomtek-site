@@ -15,7 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BRANCH = os.environ.get("ZT_DATA_BRANCH", "zt-services10-state")
 FILES = {"community": "services10-data/community.json",
-         "videos": "services10-data/videos.json"}
+         "videos": "services10-data/videos.json",
+         "pending": "services10-data/pending-videos.json"}
 
 def git(*args: str, input: bytes | None = None, env=None, check=True):
     return subprocess.run(["git", *args], cwd=ROOT, input=input, env=env,
