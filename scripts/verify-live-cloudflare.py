@@ -50,7 +50,7 @@ def verify_once(base: str, expected: str) -> str:
         studio_html = get_public_page(base, "/studio/index.html", expected)
         studio_js = get_public_page(base, "/studio/publisher.js", expected)
         seo_js = get_public_page(base, "/studio/editorial-seo.js", expected)
-        if ("ZTStudioSEO" not in seo_js or "/studio/editorial-seo.js?v=" not in studio_html:
+        if ("ZTStudioSEO" not in seo_js or "/studio/editorial-seo.js?v=" not in studio_html):
             raise RuntimeError("Published Studio lacks its content-aware SEO editor")
         if (not re.search(r'src="/studio/publisher\.js(?:\?v=[A-Za-z0-9_-]+)?"', studio_html)
                 or 'id="publishBtn"' not in studio_html
