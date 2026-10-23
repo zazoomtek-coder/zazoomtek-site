@@ -41,19 +41,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install metadata reader
-        run: python3 -m pip install --quiet yt-dlp
+      # Official YouTube Data API v3: no extractor, browser cookies or scraping.
       - run: python3 services10/state.py restore videos
-      - name: Read horizontal 16:9 videos, never Shorts
+      - run: python3 services10/state.py restore pending
+      - name: Read official API + RSS and verify 16:9; quarantine unknowns
         env:
           ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_CONFIRMED_16X9_IDS: ${{ vars.ZT_CONFIRMED_16X9_IDS }}
         run: python3 services10/02-video-16x9.py
-      - name: Save video archive
+      - name: Save confirmed video archive
         run: python3 services10/state.py save videos
+      - name: Save pending orientation-review queue
+        run: python3 services10/state.py save pending
       - uses: actions/upload-artifact@v4
         with:
           name: video-data
-          path: services10-data/videos.json
+          path: |
+            services10-data/videos.json
+            services10-data/pending-videos.json
           if-no-files-found: ignore
   snapshot-preview:
     needs: [community, video]
