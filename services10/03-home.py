@@ -57,7 +57,7 @@ def items(root:Path=ROOT)->list[dict]:
                       "section":classify(post),
                       "image":str(post.get("image") or ""),
                       "first_seen":str(post.get("first_seen") or "")})
-    return found
+    return sorted(found,key=lambda x:x.get("first_seen",""),reverse=True)
 
 def article_content(text:str)->str:
     paragraphs=[]
@@ -155,28 +155,37 @@ def update(root:Path=ROOT)->dict:
     news=root/"news.html"
     if news.is_file():
         document=news.read_text(encoding="utf-8")
-        cards="\n".join(render_archive_card(p) for p in publications if
-                        "href=\""+p["url"]+"\"" not in document)
-        if cards:
-            if ARCH_START in document and ARCH_END in document:
-                updated=replace_owned(document,ARCH_START,ARCH_END,cards)
-            else:
-                updated=re.sub(r'<article class="news-row"',ARCH_START+"\n"+cards+"\n"+ARCH_END+
-                               '\n<article class="news-row"',document,count=1)
-            if updated!=document:news.write_text(updated,encoding="utf-8")
+        outside=document
+        if ARCH_START in outside and ARCH_END in outside:
+            left=outside.index(ARCH_START);right=outside.index(ARCH_END,left)+len(ARCH_END)
+            outside=outside[:left]+outside[right:]
+        fresh=[p for p in publications if 'href="'+p["url"]+'"' not in outside]
+        cards="\n".join(render_archive_card(p) for p in fresh)
+        if ARCH_START in document and ARCH_END in document:
+            updated=replace_owned(document,ARCH_START,ARCH_END,cards)
+        elif cards:
+            updated=re.sub(r'<article class="news-row"',
+                lambda m:ARCH_START+"\n"+cards+"\n"+ARCH_END+"\n"+m.group(0),
+                document,count=1)
+        else:updated=document
+        if updated!=document:news.write_text(updated,encoding="utf-8")
     home=root/"index.html"
     if home.is_file():
         document=home.read_text(encoding="utf-8")
-        cards="\n".join(render_home_card(p) for p in publications[:12] if
-                        "href=\""+p["url"]+"\"" not in document)
-        if cards:
-            if HOME_START in document and HOME_END in document:
-                updated=replace_owned(document,HOME_START,HOME_END,cards)
-            else:
-                updated=document.replace("<!-- ARTICLE_FEED_START -->",
+        outside=document
+        if HOME_START in outside and HOME_END in outside:
+            left=outside.index(HOME_START);right=outside.index(HOME_END,left)+len(HOME_END)
+            outside=outside[:left]+outside[right:]
+        fresh=[p for p in publications if 'href="'+p["url"]+'"' not in outside]
+        cards="\n".join(render_home_card(p) for p in fresh[:12])
+        if HOME_START in document and HOME_END in document:
+            updated=replace_owned(document,HOME_START,HOME_END,cards)
+        elif cards:
+            updated=document.replace("<!-- ARTICLE_FEED_START -->",
                   "<!-- ARTICLE_FEED_START -->\n"+HOME_START+"\n"+cards+"\n"+
                   HOME_END,1)
-            if updated!=document:home.write_text(updated,encoding="utf-8")
+        else:updated=document
+        if updated!=document:home.write_text(updated,encoding="utf-8")
     print("Community: archived",len(publications),"new pages",created)
     return {"posts":len(publications),"created_pages":created}
 
