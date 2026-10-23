@@ -1,33 +1,36 @@
-# Import video ZazoomTek — YouTube Data API v3
+# Import video ZazoomTek — due condizioni obbligatorie
 
-## Principio
-Video standard secondo la regola editoriale **durata > 180 secondi**, senza Shorts; i video corti si importano soltanto quando sono già stati confermati 16:9. Nessun cookie personale, download video o yt-dlp.
+## Regola editoriale 23 ottobre 2026
 
-Lo script 02-video-16x9.py usa channels.list, playlistItems.list (fino a 100 nuovi video), videos.list (blocchi da 50), e feed RSS ufficiale come sorgente di riserva. I metodi costano 1 unità API per chiamata, invece della ricerca generica.
+Il video entra nelle nuove pubblicazioni del sito SOLO se sono entrambe vere:
 
-La chiave si configura esclusivamente come GitHub Actions secret YOUTUBE_API_KEY, mai nel codice. La chiave è risultata già disponibile nel collaudo reale del 23 ottobre 2026.
+1. La durata ufficiale `contentDetails.duration` è superiore a 180 secondi, ovvero **181 secondi o più**.
+2. Il formato sorgente ha un **display aspect ratio 16:9** verificato con informazioni autorizzate del proprietario o con un registro di ID già verificati.
 
-## Regola automatica editoriale (23 ottobre 2026)
-YouTube Data API v3 con sola API Key NON restituisce il rapporto d'aspetto originale. La dimensione delle miniature e dell'embed non equivale alle dimensioni della sorgente; il campo contentDetails.dimension significa 2D/3D. **Un video di oltre tre minuti non è uno Short, ma può essere verticale, quadrato o 4:3: questa regola è una scelta editoriale e non una certificazione 16:9.**
+Video **fino a 180 secondi**, verticali 9:16, quadrati 1:1, 4:3, privati, live e video non embeddable sono esclusi. Video più lunghi di 180 secondi ma con geometria non disponibile NON sono approvati: restano nell'archivio `services10-data/pending-videos.json` e non generano pagine Watch.
 
-- Durata fino a 180 secondi: possibile Short; mai importare automaticamente in assenza di prova diretta del formato.
-- **Durata > 180 secondi (181 o più): importazione automatica** come video standard su ZazoomTek. Metadata `type=landscape_video`, `verification=duration_over_3m_not_short`, `orientation=unverified`. Non si mette in coda di verifica.
-- ID di durata fino a 180 s confermato 16:9: può entrare in services10-data/videos.json con `type=landscape_video` e `verification=confirmed_16x9_registry`.
-- Video privati, di un altro canale, futuri, live e non riproducibili: ignorare.
-- In caso di API key mancante, quota esaurita o API irraggiungibile, il feed RSS aggiorna solo gli ID già confermati, senza perdere i video preesistenti.
+## Fonti tecniche
 
-## Eccezione per video corti confermati
-Nelle GitHub Actions repository variables, aggiungere ZT_CONFIRMED_16X9_IDS, valore con ID video confermati e separati da virgole, ad esempio:
-ABCDEFGHIJK,LmnopqrstUV
+- YouTube Data API v3 con API key `YOUTUBE_API_KEY`: canale, playlist uploads, durata, titolo, visibilità; in caso di problema si conserva l'archivio precedente. RSS ufficiale per scoprire ID, ma non misura l'orientamento o la durata.
+- YouTube Data API v3 `videos.list(part=fileDetails)` **autorizzata dal proprietario del canale**: usa `fileDetails.videoStreams[].aspectRatio` o larghezza/altezza con rotazione per certificare il formato 16:9. Rifiuta il 9:16, l'1:1 e il 4:3.
+- Alternativa a OAuth: lista `ZT_CONFIRMED_16X9_IDS` contenente soltanto ID già controllati come 16:9. Anche gli ID registrati devono superare i 180 secondi.
 
-È anche possibile predisporre services10-data/confirmed-16x9.json nel workspace, con oggetti JSON aventi id e confirmed=true. I nuovi elementi vengono verificati solo se identificati dalla Data API o dal RSS ufficiale.
+Una API key pubblica da sola non dà accesso al rapporto d'aspetto originale: YouTube riserva `fileDetails` al proprietario. L'importatore non indovina la geometria dalle miniature o dai player 16:9.
 
-L'elenco pending non è distribuito come pagina pubblica. Le vecchie voci con durata maggiore di 180 secondi sono promosse automaticamente dall'archivio pending; le voci residue vengono eliminate dalla coda obsoleta.
+## OAuth ufficiale opzionale, senza cookie browser
 
-La nuova regola non richiede OAuth. Qualora in futuro si volesse una certificazione automatica *esatta* del rapporto d'aspetto, YouTube rende fileDetails.videoStreams[].aspectRatio disponibile SOLO al proprietario del canale con autorizzazione OAuth. L'API Key da sola non è sufficiente. Un'integrazione OAuth ufficiale sarebbe una soluzione futura e distinta dai cookie del browser.
+Per verifica totalmente automatica impostare in GitHub Actions **Secrets** (mai in chat, mai nel repository):
 
-## Verifiche
-Test offline: python3 services10/test-importers.py e python3 services10/test-state.py.
-Collegamento reale: job real-youtube di services10-offline-tests.yml.
-Anteprima Cloudflare: il flag ZT_SERVICES10_PREVIEW_ENABLED deve essere true, evitando deploy inutili a ogni commit.
-I cinque slot Europe/Rome restano nella branch di sviluppo fino all'autorizzazione finale.
+- `YOUTUBE_OAUTH_CLIENT_ID`
+- `YOUTUBE_OAUTH_CLIENT_SECRET`
+- `YOUTUBE_OAUTH_REFRESH_TOKEN`
+
+Lo script usa il refresh token in modo server-to-server per ottenere un access token temporaneo e interrogare il `fileDetails` del proprietario, senza esportare le credenziali nei log. Il consenso OAuth deve essere concesso dal proprietario tramite il normale flusso di Google, separatamente dalla presente modifica.
+
+Fino a quando il collegamento non è configurato, i video con orientamento sconosciuto restano in attesa: **non sono importati per errore**.
+
+## Migrazione e verifiche
+
+I record creati in precedenza con `verification=duration_over_3m_not_short` o `orientation=unverified` sono retrocessi dalla lista pubblicabile alla coda di verifica. I file precedenti chiaramente confermati non vengono cancellati. La coda non viene inserita in `dist`.
+
+Collaudo isolato: `python3 services10/test-importers.py`, `python3 services10/test-state.py`, workflow `services10-offline-tests.yml`. Gli orari Europe/Rome rimangono 10:15, 12:45, 15:15, 17:45, 20:15 nel ramo di review. Nessun merge `main` o deploy Cloudflare production senza approvazione.
