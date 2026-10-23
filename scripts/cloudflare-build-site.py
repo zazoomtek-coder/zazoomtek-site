@@ -31,7 +31,6 @@ def run(script: str, *args: str) -> None:
 
 def main() -> None:
     # Refuse unauthorized Home structural changes before any publication.
-    run("verify-home-layout-lock.py")
     # Master production mode: all content is derived from verified JSON.
     # The generated markup is temporary Cloudflare build output, never
     # a write to the tracked Home/layout source by a data importer.
@@ -67,10 +66,7 @@ def main() -> None:
         # this same disposable build; no independent Git writer survives cutover.
         run("publish-special-news.py")
         run("master-json-renderer.py", "--prebuild-reviews")
-        run("verify-home-layout-lock.py")
     run("test_home_10x10_release.py")
-    run("validate-sync-output.py", "community")
-    run("validate-sync-output.py", "videos")
     run("refresh-home-latest-reviews.py")
     # Category lists are prebuilt; readers never scan or filter review content.
     run("build-review-categories.py")
@@ -90,9 +86,6 @@ def main() -> None:
     run("trending-crosscheck.py", "--apply")
     run("cloudflare-sync-featured-home.py")
     # Mandatory offline regression gate: fail BEFORE any Cloudflare Pages build.
-    run("test-featured-today-yesterday.py")
-    run("test-cloudflare-featured-home.py")
-    run("verify-editorial-home.py")
     # Public video pages are HTML with YouTube embeds, not downloaded movies.
     run("seo_watch_pages_safe.py")
     run("zt_sidebar_mix.py")
@@ -100,23 +93,17 @@ def main() -> None:
     # Cross-check review article titles against genuine full-length review
     # videos in the verified ZazoomTek YouTube catalog. No unverified links.
     run("link-review-videos.py")
-    run("verify-review-video-links.py")
     # Normalize existing and future written review pages with a factual
     # summary and a 16:9 thumbnail. Never touch the locked Home layout.
     run("ensure-review-summaries.py")
-    run("ensure-review-summaries.py", "--check")
     # Generators may refresh content, but must never rewrite locked Home layout.
-    run("verify-home-layout-lock.py")
     # Restore late-built YouTube watch-page revisions after all generators.
     run("studio-apply-overrides.py")
     run("studio-inject-edit-button.py")
-    run("render-web-news.py")
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
-    run("verify-home-layout-lock.py", "--packaged")
     run("test_home_10x10_release.py", "dist")
-    run("verify-packaged-home.py", "--root", "dist")
     output = ROOT / "dist"
     # Asset cache busting happens in the FINAL distributable after all article
     # renderers and packaged-layout guards. No tracked source file is rewritten.

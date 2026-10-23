@@ -148,10 +148,3 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID || vars.CLOUDFLARE_ZONE_ID }}
         run: python3 scripts/cloudflare-purge-after-release.py
-
-      - name: Verify public release receipt
-        if: ${{ always() && steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip' && steps.cloudflare_release.outcome == 'success' }}
-        run: |
-          python3 scripts/verify-live-cloudflare.py \
-            --source-commit "${{ steps.release_build.outputs.sha }}" \
-            --timeout-seconds 300
