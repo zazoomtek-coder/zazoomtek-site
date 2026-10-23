@@ -1,0 +1,66 @@
+name: ZazoomTek services10 isolated schedule candidate
+# This workflow exists ONLY in the review branch. Scheduled GitHub Actions
+# run from the default branch, so these timers cannot publish production yet.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 10,15,20 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '45 12,17 * * *'
+      timezone: 'Europe/Rome'
+permissions:
+  contents: read
+jobs:
+  community:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 services10/01-community.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: community-data
+          path: services10-data/community.json
+          if-no-files-found: ignore
+  video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - env:
+          ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
+        run: python3 services10/02-video-shorts.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-data
+          path: services10-data/videos.json
+          if-no-files-found: ignore
+  snapshot-preview:
+    needs: [community, video]
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          path: services10-data
+          merge-multiple: true
+      # Temporary existing builder: must be replaced before integration.
+      - run: python3 scripts/cloudflare-build-site.py
+      - run: python3 services10/audit-generated-site.py --dist dist
+      - name: Preview-only Cloudflare deployment
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: python3 services10/10-cloudflare-publish.py --branch zt-services10-review
