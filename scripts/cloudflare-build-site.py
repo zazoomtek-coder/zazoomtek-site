@@ -250,6 +250,19 @@ def main() -> None:
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
+    # Post-build editorial renderer may replace the popular block with its
+    # own older three-card selection. The approved Home five-card block wins.
+    dist_home = ROOT / "dist" / "index.html"
+    if dist_home.is_file():
+        packed = dist_home.read_text(encoding="utf-8")
+        published = home.read_text(encoding="utf-8")
+        marker_re = r'(<!-- POPULAR_NEWS_ITEMS_START -->)[\s\S]*?(<!-- POPULAR_NEWS_ITEMS_END -->)'
+        m = re.search(marker_re, published)
+        if m:
+            packed, count = re.subn(marker_re, lambda _: m.group(0), packed, count=1)
+            if count != 1:
+                raise RuntimeError("Home package missing DA NON PERDERE markers")
+            dist_home.write_text(packed, encoding="utf-8")
     output = ROOT / "dist"
     # Asset cache busting happens in the FINAL distributable after all article
     # renderers and packaged-layout guards. No tracked source file is rewritten.
