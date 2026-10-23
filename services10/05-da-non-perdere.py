@@ -1,37 +1,78 @@
 #!/usr/bin/env python3
-"""Independent ZazoomTek component, intended for isolated build workspace.
-
-Does not deploy to Cloudflare. No editorial approvals or central Master gateway.
-"""
+"""Independent five-card 'Da non perdere' renderer; no legacy dependencies."""
 from pathlib import Path
-import subprocess
-import sys
-ROOT=Path(__file__).resolve().parents[1]
-def run(script,*args):
-    subprocess.run([sys.executable,str(ROOT/"scripts"/script),*args],cwd=ROOT,check=True)
+import html
 import re
-from html import escape
 
-def update():
-    page=ROOT/"index.html"
-    html=page.read_text(encoding="utf-8")
-    start="<!-- POPULAR_NEWS_ITEMS_START -->"; end="<!-- POPULAR_NEWS_ITEMS_END -->"
-    if start not in html or end not in html: return
-    feed=html.split("<!-- ARTICLE_FEED_START -->",1)[-1].split("<!-- ARTICLE_FEED_END -->",1)[0]
-    cards=[];seen=set()
-    for article in re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>',feed):
-        if not re.search(r'data-post-category="tech"',article,re.I): continue
-        m=re.search(r'<h3><a href="([^"]+)"[^>]*>([\s\S]*?)</a></h3>',article,re.I)
-        im=re.search(r'<img\b[^>]*\bsrc="([^"]+)"',article,re.I)
-        if not m or not im: continue
-        href=m.group(1); href=href if href.startswith("/") else "/"+href
+ROOT=Path(__file__).resolve().parents[1]
+START="<!-- POPULAR_NEWS_ITEMS_START -->"
+END="<!-- POPULAR_NEWS_ITEMS_END -->"
+STYLE_ID="zt-services10-popular-five"
+STYLE='''<style id="zt-services10-popular-five">
+/* Outrank the old injected three-card rail rule without changing other boxes. */
+html body #articoli .ztp-news-rail #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(4),
+html body #articoli .ztp-news-rail #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(5),
+html body #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(4),
+html body #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(5)
+{display:block!important;visibility:visible!important}
+html body #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6)
+{display:none!important}
+#zt-popular-box .zt-popular-list{max-height:none!important;height:auto!important;overflow:visible!important}
+</style>'''
+
+def cards_from_home(document: str) -> list[str]:
+    found=[];seen=set()
+    if "<!-- ARTICLE_FEED_START -->" not in document:
+        return []
+    news=document.split("<!-- ARTICLE_FEED_START -->",1)[1].split("<!-- ARTICLE_FEED_END -->",1)[0]
+    for article in re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>',news,re.I):
+        if not re.search(r'data-post-category="tech"',article,re.I):
+            continue
+        title=re.search(r'<h3\b[^>]*>\s*<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)</a>',article,re.I)
+        picture=re.search(r'<img\b[^>]*\bsrc="([^"]+)"',article,re.I)
+        if not title or not picture:continue
+        href=html.unescape(title.group(1))
+        if not href.startswith("/"):href="/"+href
         if href in seen:continue
         seen.add(href)
-        title=re.sub(r'<[^>]*>', '',m.group(2)).strip()
-        cards.append('<a class="zt-popular-article" href="'+escape(href,quote=True)+'"><img src="'+escape(im.group(1),quote=True)+'" alt="'+escape(title,quote=True)+'" loading="lazy"><span class="zt-popular-copy"><span class="zt-popular-category">TECNOLOGIA</span><strong>'+escape(title)+'</strong></span></a>')
-        if len(cards)==5:break
-    if not cards:return
-    pattern=r'(?<=<!-- POPULAR_NEWS_ITEMS_START -->)[\s\S]*?(?=<!-- POPULAR_NEWS_ITEMS_END -->)'
-    html=re.sub(pattern,lambda _: '\\n'+'\\n'.join(cards)+'\\n',html,count=1)
-    page.write_text(html,encoding="utf-8")
-if __name__=="__main__":update()
+        label=html.unescape(re.sub(r'<[^>]+>','',title.group(2))).strip()
+        if not label:continue
+        cover=html.unescape(picture.group(1))
+        found.append('<a class="zt-popular-article" href="'+html.escape(href,quote=True)+
+                     '" title="'+html.escape(label,quote=True)+'"><img src="'+
+                     html.escape(cover,quote=True)+'" alt="'+html.escape(label,quote=True)+
+                     '" loading="lazy"><span class="zt-popular-copy"><span '+
+                     'class="zt-popular-category">TECNOLOGIA</span><strong>'+
+                     html.escape(label)+'</strong></span></a>')
+        if len(found)==5:break
+    return found
+
+def update(root:Path=ROOT) -> int:
+    page=root/"index.html"
+    if not page.is_file():return 0
+    document=page.read_text(encoding="utf-8")
+    if START not in document or END not in document:return 0
+    selected=cards_from_home(document)
+    if selected:
+        old=document.split(START,1)[1].split(END,1)[0]
+        existing=re.findall(r'<a class="zt-popular-article"[\s\S]*?</a>',old)
+        known={re.search(r'href="([^"]+)"',c).group(1) for c in selected}
+        for card in existing:
+            href=re.search(r'href="([^"]+)"',card)
+            if href and href.group(1) not in known and len(selected)<5:
+                selected.append(card);known.add(href.group(1))
+    else:
+        selected=re.findall(r'<a class="zt-popular-article"[\s\S]*?</a>',
+                            document.split(START,1)[1].split(END,1)[0])[:5]
+    if selected:
+        a=document.index(START)+len(START)
+        b=document.index(END,a)
+        document=document[:a]+"\n"+"\n".join(selected[:5])+"\n"+document[b:]
+    document=re.sub(r'<style id="'+STYLE_ID+r'">[\s\S]*?</style>',"",document)
+    document=document.replace("</head>",STYLE+"\n</head>",1)
+    page.write_text(document,encoding="utf-8")
+    print("Da non perdere:",min(len(selected),5),"visible Tech cards prepared")
+    return min(len(selected),5)
+
+if __name__=="__main__":
+    update()
