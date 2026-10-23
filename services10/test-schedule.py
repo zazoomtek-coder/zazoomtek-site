@@ -17,6 +17,9 @@ def main():
     assert "services10/03-home.py" in source
     assert "services10/09-layout.py" in source
     assert "services10/10-cloudflare-publish.py" in source
+    expected_workflows={"services10-offline-tests.yml","services10-scheduled-cloudflare.yml"}
+    present={f.name for f in WORKFLOW.parent.glob("*.yml")}
+    assert present==expected_workflows, ("Unexpected legacy workflow remains",present)
     assert "scripts/cloudflare-build-site.py" not in source
     assert "--branch zt-services10-review" in source
     assert "uses: actions/download-artifact@v4" in source
