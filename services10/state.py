@@ -67,7 +67,7 @@ def restore(kind: str):
     try:
         commit = remote_ref()
         saved = from_branch(commit, path)
-        if not saved:
+        if not saved and kind != "pending":
             print("No saved data for", kind)
             return
         local = ROOT / path
