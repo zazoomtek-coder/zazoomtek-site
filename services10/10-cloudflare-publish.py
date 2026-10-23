@@ -17,13 +17,13 @@ def publish(dist: Path, *, project: str, branch: str, dry_run: bool = False):
     if not (dist / "index.html").is_file():
         raise RuntimeError("No built Home found at " + str(dist))
     env = os.environ.copy()
-    env["CLOUDFLARE_API_TOKEN"] = os.environ["CLOUDFLARE_API_TOKEN"]
-    env["CLOUDFLARE_ACCOUNT_ID"] = os.environ["CLOUDFLARE_ACCOUNT_ID"]
     args = ["npx", "--yes", "wrangler@3", "pages", "deploy", str(dist),
             "--project-name=" + project, "--branch=" + branch]
     if dry_run:
         print("Preview command validated; no upload made:", " ".join(args))
         return
+    if not env.get("CLOUDFLARE_API_TOKEN") or not env.get("CLOUDFLARE_ACCOUNT_ID"):
+        raise RuntimeError("Cloudflare test credentials missing")
     subprocess.run(args, cwd=ROOT, env=env, check=True)
 
 def main():
