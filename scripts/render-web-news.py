@@ -94,7 +94,7 @@ def apply(home,data,root=ROOT):
     if "</head>" not in home:raise ValueError("Home <head> missing")
     home=home.replace("</head>",'<style id="'+CSS_ID+'">'+CSS+FOLLOWUP_CSS+'</style>\n</head>',1)
     # Add script AFTER original layout scripts, not before.
-    hook='<script defer src="/zt-web-news-live.js"></script>'
+    hook='<script defer src="/zt-web-news-live.js?v=20261023_remove_legacy_v5"></script>'
     if hook not in home:
         match=re.search(r'</body>',home,re.I)
         if not match:raise ValueError("Home footer missing")
