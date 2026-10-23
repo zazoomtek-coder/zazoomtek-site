@@ -456,7 +456,7 @@ def unify_site_navigation(page, filename):
                 '',page,flags=re.I)
     return re.sub(r'</head>',lambda m:FIXED_HEADER_STYLE+'\n'+m.group(),page,count=1,flags=re.I)
 
-css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261019siteMenuSquare1" data-zt-design="20261010">'
+css_tag='<link rel="stylesheet" href="/zt-design.css?v=20261023squareEditorialTitles" data-zt-design="20261010">'
 # The Home owns the CURRENT Javascript URL. Never force an outdated query
 # version during deployment: it would silently reload cached old VIDEO shelves.
 home_js_ref=re.search(r'src="(/zt-visual[.]js[?]v=[^"]+)"',home_source)
@@ -474,7 +474,7 @@ for path in root.rglob('*.html'):
     original=html
     if 'href="/zt-design.css' in html:
         html=re.sub(r'(?<=href=")/zt-design[.]css(?:[?][^"]*)?',
-                    "/zt-design.css?v=20261019siteMenuSquare1",html,count=1)
+                    "/zt-design.css?v=20261023squareEditorialTitles",html,count=1)
     else:
         html=re.sub(r"</head>",lambda m:css_tag+"\n"+m.group(0),html,count=1,flags=re.I)
     if 'src="/zt-visual.js' in html:
@@ -559,7 +559,7 @@ for nav_path in sorted(root.glob('*.html')):
     if labels!=home_labels:
         raise RuntimeError(
             f"{nav_path.name}: navigation differs from the verified Home: {labels}")
-    if 'href="/zt-design.css?v=20261019siteMenuSquare1"' not in nav_content:
+    if 'href="/zt-design.css?v=20261023squareEditorialTitles"' not in nav_content:
         raise RuntimeError(
             f"{nav_path.name}: shared stylesheet absent or outdated")
     nav_checked+=1
