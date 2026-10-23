@@ -3,10 +3,10 @@
 
 Uses channels.list, playlistItems.list and videos.list; API key remains in
 the environment, never a published file. YouTube's public API does NOT expose
-source frame geometry. Only externally confirmed 16:9 IDs may enter the
-published landscape_video archive. Other non-Short long-form uploads are
-retained in a separate pending archive; Shorts and unverifiable entries never
-become site videos. Loss of API access never erases existing publications.
+source frame geometry. By editorial policy, uploads lasting MORE than
+180 seconds are auto-published as standard non-Short videos. This is a
+duration-based rule, NOT proof of 16:9 aspect ratio. Previously approved
+shorter 16:9 videos remain eligible. Failed API lookups preserve the archive.
 """
 from __future__ import annotations
 
@@ -178,11 +178,12 @@ def classify(item: dict, approved: set[str], channel: str = CHANNEL) -> tuple[st
     # Shorts can be up to 3 minutes and may be vertical or square.
     if seconds <= 180:
         return "short_or_unknown", None
-    # Over 3 minutes proves "not a Short" under current platform rules;
-    # it does NOT prove that a video is horizontal. Await confirmation.
-    record.update({"type": "pending_landscape", "verification": "duration_over_3m_only",
+    # Editorial rule requested: >180 seconds is automatically accepted as
+    # a STANDARD video (not a Short), without claiming frame geometry is 16:9.
+    record.update({"type": "landscape_video",
+                   "verification": "duration_over_3m_not_short",
                    "orientation": "unverified"})
-    return "pending", record
+    return "landscape", record
 
 def merge(previous: list[dict], incoming: list[dict]) -> list[dict]:
     by_id = {}
@@ -203,6 +204,30 @@ def merge_pending(previous: list[dict], incoming: list[dict], approved: set[str]
 def run() -> dict:
     old = load(OUT)
     prior_pending = load(PENDING)
+    # Migrate previously fetched >3m entries, instead of requiring a new API
+    # lookup or leaving them in the legacy review queue.
+    already = {row.get("id") for row in old if isinstance(row, dict)}
+    promoted = [
+        {**row, "type": "landscape_video",
+         "verification": "duration_over_3m_not_short", "orientation": "unverified"}
+        for row in prior_pending
+        if isinstance(row, dict)
+        and row.get("type") == "pending_landscape"
+        and row.get("verification") == "duration_over_3m_only"
+        and VIDEO_ID.fullmatch(str(row.get("id") or ""))
+        and row.get("title")
+        and isinstance(row.get("duration_seconds"), (int, float))
+        and row["duration_seconds"] > 180
+        and row["id"] not in already
+    ]
+    if promoted:
+        old = merge(old, promoted)
+        save(old)
+        print("Migrated previously checked >3m videos:", len(promoted))
+    if prior_pending:
+        # Any remaining short/uncertain candidates stay excluded, never pending.
+        save([], PENDING)
+        print("Cleared obsolete orientation review queue:", len(prior_pending))
     candidates = []
     rss_ok = False
     if API_KEY:
@@ -246,32 +271,30 @@ def run() -> dict:
         print("Metadata API unavailable: retained approved RSS entries:",len(eligible))
         return {"source": "approved_rss_fallback", "verified_new": len(eligible),
                 "pending_new": len(prior_pending), "retained": len(updated)}
-    landscape, pending = [], []
+    landscape = []
     skips = 0
     for item in known:
         category, row = classify(item, approved)
         if category == "landscape":
             landscape.append(row)
-        elif category == "pending":
-            pending.append(row)
         else:
             skips += 1
     approved.update(row["id"] for row in old if isinstance(row, dict) and
                     row.get("type") == "landscape_video" and row.get("verification") in
                     ("confirmed_16x9_registry", "source_stream_geometry"))
     updated = merge(old, landscape)
-    old_pending_ids = {row.get("id") for row in prior_pending if isinstance(row, dict)}
-    new_pending = merge_pending(prior_pending, pending, approved)
     if updated != old:
         save(updated)
-    if new_pending != prior_pending:
-        save(new_pending, PENDING)
-    print("Official API result: verified 16:9:", len(landscape),
-          "pending horizontal verification:", len(new_pending),
-          "new pending:", len([x for x in new_pending if x["id"] not in old_pending_ids]),
-          "non-videos/Shorts:", skips, "RSS read:", rss_ok)
+    auto_by_duration = sum(
+        row.get("verification") == "duration_over_3m_not_short"
+        for row in landscape
+    )
+    print("Official API result: accepted standard videos:", len(landscape),
+          "automatic >180s:", auto_by_duration,
+          "excluded short/unknown:", skips, "RSS read:", rss_ok)
     return {"source": "youtube_data_api_v3", "verified_new": len(landscape),
-            "pending_new": len(new_pending), "retained": len(updated)}
+            "auto_duration": auto_by_duration, "pending_new": 0,
+            "retained": len(updated)}
 
 def main() -> None:
     run()
