@@ -27,9 +27,9 @@ def landscape_ids(ids):
             snippet=item.get("snippet",{})
             embed=player.get("embedHtml","")
             import re
-            wh=re.search(r'width=["\\'](\\d+)["\\'][^>]*height=["\\'](\\d+)',embed)
+            wh=re.search(r"width=[\\\"'](\\d+)[\\\"'][^>]*height=[\\\"'](\\d+)",embed)
             if not wh:
-                wh=re.search(r'height=["\\'](\\d+)["\\'][^>]*width=["\\'](\\d+)',embed)
+                wh=re.search(r"height=[\\\"'](\\d+)[\\\"'][^>]*width=[\\\"'](\\d+)",embed)
                 if wh: w,h=int(wh.group(2)),int(wh.group(1))
                 else: continue
             else:w,h=int(wh.group(1)),int(wh.group(2))
