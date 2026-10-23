@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: zazoomtek-master-sole-repository-and-pages-writer
+  group: zazoomtek-cloudflare-production-release
   cancel-in-progress: false
 
 jobs:
