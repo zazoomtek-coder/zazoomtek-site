@@ -183,7 +183,19 @@ if(!seoSourceDate)for(const script of p.doc.querySelectorAll('script[type="appli
   if(original){seoSourceDate=String(original.datePublished);break;}
  }catch(_){}
 }
-seoPanel?.update(editSEOInput(),true);select(null);dirty=false;ui.hidden=false;status("Articolo originale caricato: "+path+". Modifica testo, foto, link e video. SEO controllabile prima del salvataggio.");}
+seoPanel?.update(editSEOInput(),true);
+if(p.doc.querySelector('meta[name="zt:seo-editorial"][content="1"]')){
+ const meta=(key)=>p.doc.querySelector(key)?.getAttribute("content")||"";
+ const allTags=[...p.doc.querySelectorAll('meta[property="article:tag"]')].map(x=>x.content).filter(Boolean);
+ const keywords=meta('meta[name="keywords"]').split(",").map(x=>x.trim()).filter(Boolean);
+ const manualTitle=p.doc.title.replace(/\s*\|\s*ZazoomTek\s*$/i,"").trim();
+ seoPanel?.restore(editSEOInput(),{
+  title:manualTitle,description:meta('meta[name="description"]'),
+  primary:keywords[0]||"",secondary:keywords.slice(1),tags:allTags,
+  alt:p.doc.querySelector(".zt-studio-cover-viewport > img,img.article-hero,img.cover")?.alt||""
+ });
+}
+select(null);dirty=false;ui.hidden=false;status("Articolo originale caricato: "+path+". Modifica testo, foto, link e video. SEO controllabile prima del salvataggio.");}
 async function open(raw){const path=goodPath(raw);if(!path){status("Inserisci un link articolo valido.");return}if(dirty&&!confirm("Scartare le modifiche non salvate?"))return;try{let html,sha;if(isDemo()){html=localStorage.getItem(storage(path))||window.ZTStudioDemoArticle.html;sha="locale"}else{let api=window.ZTStudioGitHub;if(!api?.isAuthenticated())throw Error("Collega prima GitHub nello Studio.");let r=await api.read(path);if(r?.content){html=b64decode(r.content);sha=r.sha}else{const live=await fetch("/"+path,{cache:"no-store"});if(!live.ok)throw Error("Articolo non presente né su GitHub né sul sito.");html=await live.text();sha=null}}show(path,html,sha)}catch(e){status("Apertura non riuscita: "+e.message)}}
 function build(){if(!loaded)throw Error("Apri prima un articolo.");let p=prepare(loaded.html),out=document.createElement("div");out.innerHTML=body.innerHTML;
 out.querySelectorAll("script,style,object,form").forEach(x=>x.remove());out.querySelectorAll("*").forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));
