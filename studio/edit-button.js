@@ -49,34 +49,8 @@
     title.insertAdjacentElement("afterend", b);
   }
 
-  function installCards() {
-    // Card templates are often rendered after initial HTML by zt-home-live.js.
-    const selectors = [
-      ".ztp-primary-feed a[href]", ".ztp-news-area a[href]",
-      ".zt-mix-editorial-row[href]", ".news-card a[href]",
-      ".review-card a[href]", ".article-card a[href]",
-      ".zt-card a[href]", ".ztp-card a[href]", ".zt-watch-list a[href]"
-    ].join(",");
-    document.querySelectorAll(selectors).forEach((a) => {
-      if (a.dataset.ztEditChecked) return;
-      a.dataset.ztEditChecked = "1";
-      const path = escPath(a.href);
-      if (!path) return; // External RSS publishers are linked, never editable.
-      const card = a.closest(".news-card,.review-card,.article-card,.ztp-news-card,.ztp-card,.zt-card,.zt-mix-editorial-row,article,li");
-      if (!card || card.querySelector(".zt-studio-card-edit")) return;
-      const edit = document.createElement("a");
-      edit.className = "zt-studio-card-edit";
-      edit.href = hrefFor(path);
-      edit.textContent = "✎ Modifica";
-      edit.setAttribute("aria-label", "Modifica " + path + " nello Studio");
-      edit.style.cssText = design + ";position:relative;font-size:10px;padding:5px 7px;margin:5px 0";
-      card.append(edit);
-    });
-  }
-
   function activate() {
     installTitle();
-    installCards();
   }
   let running = false;
   function schedule() {
