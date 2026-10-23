@@ -66,6 +66,8 @@ jobs:
         run: python3 -m compileall -q services10
       - name: Verify malformed Community/video records, archive retention and Shorts exclusion
         run: python3 services10/test-importers.py
+      - name: Verify rich written Community import, original date, photos and de-duplication
+        run: python3 services10/test-community-written.py
       - name: Test persistent Git archive and concurrent saves
         run: python3 services10/test-state.py
       - name: Verify 4 Tech and 1 Gaming Home tiles without layout changes
