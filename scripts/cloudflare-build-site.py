@@ -123,6 +123,7 @@ def main() -> None:
     assert (output / "studio/index.html").is_file()
     assert (output / "studio/publisher.js").is_file()
     assert (output / "studio/layouts.js").is_file()
+    assert (output / "studio/editorial-seo.js").is_file()
     assert (output / "studio/template-news.html").is_file()
     assert (output / "studio/template-review.html").is_file()
     assert (output / "speciali.html").is_file()
