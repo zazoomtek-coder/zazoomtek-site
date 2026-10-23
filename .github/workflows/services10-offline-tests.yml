@@ -9,6 +9,44 @@ on:
 permissions:
   contents: read
 jobs:
+  real-youtube:
+    name: Real channel import - review only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install YouTube stream metadata inspector
+        run: python3 -m pip install --quiet yt-dlp
+      - name: Restore previously archived Community posts and 16:9 videos
+        run: |
+          python3 services10/state.py restore community
+          python3 services10/state.py restore videos
+      - name: Import public Community posts now
+        run: python3 services10/01-community.py
+      - name: Import real horizontal YouTube video metadata now
+        run: python3 services10/02-video-16x9.py
+      - name: Report real source verification
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ('community','videos'):
+              path=Path('services10-data')/(name+'.json')
+              data=json.loads(path.read_text()) if path.is_file() else []
+              print('LIVE_YOUTUBE_'+name.upper()+'_RECORDS='+str(len(data)))
+              if not data:
+                  print('WARNING: No verified '+name+' records imported; investigate live source')
+          PY
+      - name: Retain real-import data for preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-youtube-inputs
+          path: services10-data/*.json
+          if-no-files-found: warn
+          retention-days: 3
   importer-tests:
     runs-on: ubuntu-latest
     steps:
@@ -41,12 +79,20 @@ jobs:
         run: python3 services10/test-schedule.py
 
   site-build:
+    needs: [real-youtube]
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Restore real YouTube data from this same test execution
+        if: needs.real-youtube.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: real-youtube-inputs
+          path: services10-data
       - name: Generate independent Community and video pages from available archives
         run: python3 services10/03-home.py
       - name: Render independent featured, popular, web and reviews modules
@@ -60,3 +106,10 @@ jobs:
         run: python3 services10/09-layout.py
       - name: Audit actual full Cloudflare snapshot
         run: python3 services10/audit-generated-site.py --dist dist
+      - name: Deploy isolated Cloudflare preview after audit
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: python3 services10/10-cloudflare-publish.py --branch zt-services10-review
