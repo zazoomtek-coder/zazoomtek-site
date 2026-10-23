@@ -1,31 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T08:30:39.602228+00:00",
+  "updated_at": "2026-10-23T08:50:22.119356+00:00",
   "image_policy": "RSS enclosure/media or article OpenGraph; 720x405 WebP with linked attribution",
   "items": [
     {
-      "id": "d52ca71f6787e23c6388",
-      "source": "Tom's Hardware Italia",
-      "url": "https://www.tomshw.it/business/nexxt-ai-factory-il-supercomputer-italiano-guadagna-nuovo-hardware-nvidia",
-      "title": "Il punto su NeXXt Factory supercomputer italiano guadagna hardware NVIDIA",
-      "original_title": "NeXXt AI Factory, il supercomputer italiano guadagna nuovo hardware NVIDIA",
-      "excerpt": "La notizia riguarda NeXXt Factory supercomputer italiano guadagna. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-23T08:27:37+00:00",
-      "image": "/assets/notizie-dal-web/d52ca71f6787e23c6388-d092a99a04.webp",
+      "id": "0cef7f55ab2f5e764fa0",
+      "source": "HDblog",
+      "url": "https://www.hdblog.it/samsung/articoli/n674687/samsung-anello-smart-spazzolino-denti/",
+      "title": "Il punto su Samsung idea farci lavare meglio denti serve",
+      "original_title": "Samsung ha un'idea per farci lavare meglio i denti, e non serve cambiare spazzolino",
+      "excerpt": "La notizia riguarda Samsung idea farci lavare meglio. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T08:45:00+00:00",
+      "image": "/assets/notizie-dal-web/0cef7f55ab2f5e764fa0-3dc7174efa.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119715/03-nexxt-ai-factory-nuovo-hardware-nvidia.jpg"
+      "image_source": "https://hd2.tudocdn.net/1380073?w=660"
     },
     {
-      "id": "bdd982d80a4d74d8ca59",
-      "source": "HDblog",
-      "url": "https://www.hdblog.it/smartphone/articoli/n674652/vivo-x500-ultra-fotocamera-principale-sony-50-mp/",
-      "title": "Il punto su Vivo X500 Ultra fotocamera principale avrà meno",
-      "original_title": "Vivo X500 Ultra, la fotocamera principale avrà meno megapixel del Pro Max?",
-      "excerpt": "La notizia riguarda Vivo X500 Ultra fotocamera principale. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-23T08:05:00+00:00",
-      "image": "/assets/notizie-dal-web/bdd982d80a4d74d8ca59-fceafab12a.webp",
+      "id": "3008268e23d60a76bb98",
+      "source": "Tom's Hardware Italia",
+      "url": "https://www.tomshw.it/hardware/robot-lavavetri-abir-wd8-in-offerta-a-soli-120eur-2026-10-23",
+      "title": "Il punto su Prima chiamare donna pulizie prova robot lavavetri",
+      "original_title": "Prima di chiamare una donna delle pulizie, prova questo robot lavavetri da 120€",
+      "excerpt": "La notizia riguarda Prima chiamare donna pulizie prova. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T08:42:00+00:00",
+      "image": "/assets/notizie-dal-web/3008268e23d60a76bb98-a2ec6a8636.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://hd2.tudocdn.net/1372681?w=660"
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119931/robot-lavavetri-abir-wd8-in-offerta-a-soli-120eur-2026-10-23-5N82irp1cn5hgl1YMLgdW.jpg"
     },
     {
       "id": "20ad4f01490eaed7fe1d",
@@ -52,16 +52,16 @@
       "image_source": "https://images.dday.it/lkfBM4xClC1cVBYiC0ANrFQsblWMGdqMyY1cmpScFsU/w:329/h:256/rt:fill/plain/s3://dday-production/system/uploads/news/square_crop_img/59120/dc3f6c_Roborock_Saros_20_Neo__Lifestyle__Black_25.jpg"
     },
     {
-      "id": "76042fa0150cf651d8ce",
+      "id": "0a7cfcf8cfa5155a4e31",
       "source": "Tom's Hardware Italia",
-      "url": "https://www.tomshw.it/altro/openai-ha-il-suo-jev-come-funziona-il-modello-decisionale",
-      "title": "Il punto su OpenAI suo Jev funziona modello decisionale",
-      "original_title": "OpenAI ha il suo Jev, come funziona il modello decisionale",
-      "excerpt": "La notizia riguarda OpenAI funziona modello decisionale. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-23T08:12:00+00:00",
-      "image": "/assets/notizie-dal-web/76042fa0150cf651d8ce-f9a47f7c0c.webp",
+      "url": "https://www.tomshw.it/videogioco/recensione-nintendo-switch-sports-resort",
+      "title": "Il punto su Recensione Nintendo Switch Sports Resort ritorna Wuhu",
+      "original_title": "Recensione Nintendo Switch Sports Resort, si ritorna a Wuhu Island (con il fiatone)",
+      "excerpt": "La notizia riguarda Recensione Nintendo Switch Sports Resort. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T08:39:00+00:00",
+      "image": "/assets/notizie-dal-web/0a7cfcf8cfa5155a4e31-ee9a5f2903.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://cdn.tomshw.it/storage/media/2026/09/115483/gli-incidenti-con-lia-aumentano-a-vista-docchio-anthropic-e--a9eck8u.webp"
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119923/nintendoswitch2-1x1-nintendoswitchsportsresort-keyart-copia_nuza.png"
     }
   ]
 }
