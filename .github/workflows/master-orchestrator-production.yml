@@ -5,9 +5,6 @@ on:
   schedule:
     - cron: '15 10,15,20 * * *'
       timezone: 'Europe/Rome'
-    # Recover any 20:15 release missed or delayed by the scheduler.
-    - cron: '25,40 20 * * *'
-      timezone: 'Europe/Rome'
     - cron: '45 12 * * *'
       timezone: 'Europe/Rome'
     - cron: '45 17 * * *'
