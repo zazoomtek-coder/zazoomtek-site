@@ -19,7 +19,7 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"services10-data"/"community.json"
 HANDLE=os.environ.get("ZT_YOUTUBE_HANDLE","ZazoomTek")
 CHANNEL=os.environ.get("ZT_YOUTUBE_CHANNEL_ID","UCJs0ZT10hUiPRD0UZtUpI1Q")
-POST_ID=re.compile(r"^Ugkx[A-Za-z0-9_-]{5,100}$")
+POST_ID=re.compile(r"^Ugkx[A-Za-z0-9_-]{3,100}$")
 
 def walk(node):
     if isinstance(node,dict):
@@ -52,8 +52,10 @@ def images_from_post(post):
         candidates=[v for v in thumbs if isinstance(v,dict) and
                     str(v.get("url") or "").startswith("https://")]
         if not candidates:continue
-        best=max(candidates,key=lambda x:int(x.get("width") or 0)*
-                 int(x.get("height") or 0))
+        def pixel_area(item):
+            try:return int(item.get("width") or 0)*int(item.get("height") or 0)
+            except (ValueError,TypeError):return 0
+        best=max(candidates,key=pixel_area)
         url=normalized_image(best.get("url"))
         # Thumbnail resizing variants are the same photo, not extra images.
         identity=re.sub(r"=s\d+.*$","",url)
@@ -124,8 +126,9 @@ def merge(old,new):
         updated={**prior}
         updated.update({key:value for key,value in item.items() if value not in ("",None,[])})
         if prior.get("first_seen"):updated["first_seen"]=prior["first_seen"]
-        if prior.get("published_iso") and not prior.get("published_iso","").startswith("2026-10-23T"):
-            # Preserve a stable original date when a later relative label changes.
+        if prior.get("published_iso"):
+            # YouTube's relative '2 hours ago' changes at every scan.
+            # Keep the first resolved publication date rather than drifting.
             updated["published_iso"]=prior["published_iso"]
         if prior.get("images") and not item.get("images"):
             updated["images"]=prior["images"]
