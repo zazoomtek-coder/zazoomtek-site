@@ -62,6 +62,13 @@ def published_video_ids(commit: str) -> set[str]:
     return {str(row["id"]) for row in union(from_branch(commit, FILES["videos"]), cached)
             if row.get("type") == "landscape_video" and row.get("id")}
 
+def eligible_published_records(rows):
+    """Never resurrect an explicitly unverified long video as a verified 16:9."""
+    return [row for row in rows if isinstance(row, dict)
+            and row.get("verification") != "duration_over_3m_not_short"
+            and row.get("orientation") != "unverified"]
+
+
 def restore(kind: str):
     path = FILES[kind]
     try:
@@ -73,6 +80,8 @@ def restore(kind: str):
         local = ROOT / path
         existing = json.loads(local.read_text(encoding="utf-8")) if local.is_file() else []
         restored = union(saved, existing)
+        if kind == "videos":
+            restored = eligible_published_records(restored)
         if kind == "pending":
             verified = published_video_ids(commit)
             restored = [row for row in restored if row.get("id") not in verified]
@@ -100,6 +109,8 @@ def save(kind: str):
         try:
             commit = remote_ref()
             data = union(from_branch(commit, path), imported)
+            if kind == "videos":
+                data = eligible_published_records(data)
             if kind == "pending":
                 verified = published_video_ids(commit)
                 data = [row for row in data if row.get("id") not in verified]
