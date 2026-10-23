@@ -48,12 +48,12 @@ def main():
         git(second, "config", "user.email", "ci@example.test")
         other_data = second / "services10-data" / "videos.json"
         other_data.write_text(json.dumps([{"id": "video1", "title": "First"},
-                                          {"id": "video2", "title": "Second"}]))
+                                          {"id": "video2", "title": "Second", "type": "landscape_video"}]))
         git(second, "add", "services10-data/videos.json")
         git(second, "commit", "-m", "another writer")
         git(second, "push", "origin", "HEAD:refs/heads/zt-services10-state")
 
-        data.write_text(json.dumps([{"id": "video3", "title": "Third"}]))
+        data.write_text(json.dumps([{"id": "video3", "title": "Third", "type": "landscape_video"}]))
         state.save("videos")
         git(local, "fetch", "origin", "zt-services10-state")
         combined = json.loads(git(local, "show", "FETCH_HEAD:services10-data/videos.json",
@@ -75,6 +75,30 @@ def main():
         assert len(json.loads(git(local, "show",
                                  "FETCH_HEAD:services10-data/videos.json",
                                  capture=True))) == 3
+        # An approved video must not be resurrected in the pending queue by
+        # the union-only concurrency archive, nor on the next restart.
+        pending = local / "services10-data" / "pending-videos.json"
+        pending.write_text(json.dumps([
+            {"id": "video2", "type": "pending_landscape"},
+            {"id": "waiting1", "type": "pending_landscape"}]))
+        state.save("pending")
+        git(local, "fetch", "origin", "zt-services10-state")
+        staged = json.loads(git(local, "show",
+                    "FETCH_HEAD:services10-data/pending-videos.json", capture=True))
+        assert [x["id"] for x in staged] == ["waiting1"]
+        pending.unlink()
+        state.restore("pending")
+        assert [x["id"] for x in json.loads(pending.read_text())] == ["waiting1"]
+
+        video_archive = json.loads(data.read_text())
+        video_archive.append({"id": "waiting1", "title": "Approved later",
+                              "type": "landscape_video"})
+        data.write_text(json.dumps(video_archive))
+        state.save("videos")
+        state.save("pending")
+        pending.unlink()
+        state.restore("pending")
+        assert json.loads(pending.read_text()) == []
     print("PASS: Git archival restore, concurrent writer merge and isolated datasets")
 
 if __name__ == "__main__":
