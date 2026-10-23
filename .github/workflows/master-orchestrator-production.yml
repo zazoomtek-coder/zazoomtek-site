@@ -144,7 +144,8 @@ jobs:
       - name: Purge Cloudflare cache after successful Pages deployment
         if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip' && steps.cloudflare_release.outcome == 'success'
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Prefer a zone-scoped Cache Purge token; never expose it in the browser.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID || vars.CLOUDFLARE_ZONE_ID }}
         run: python3 scripts/cloudflare-purge-after-release.py
 
