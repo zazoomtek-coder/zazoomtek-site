@@ -1,25 +1,46 @@
 #!/usr/bin/env python3
-"""Direct Cloudflare Pages deployment of a prepared static site.
+"""Independent Cloudflare Pages publisher.
 
-Each publication invokes this independently; no central Master gateway.
-Required environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
-CLOUDFLARE_PAGES_PROJECT_NAME. Never delete existing content.
+A preview uses a *non-production* Cloudflare branch by default.
+Explicit --production is required to target main; this component is not
+connected to a live workflow in the migration branch.
 """
+import argparse
 import os
 import subprocess
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-DIST=ROOT/"dist"
+
+ROOT = Path(__file__).resolve().parents[1]
+DIST = ROOT / "dist"
+
+def publish(dist: Path, *, project: str, branch: str, dry_run: bool = False):
+    if not (dist / "index.html").is_file():
+        raise RuntimeError("No built Home found at " + str(dist))
+    env = os.environ.copy()
+    env["CLOUDFLARE_API_TOKEN"] = os.environ["CLOUDFLARE_API_TOKEN"]
+    env["CLOUDFLARE_ACCOUNT_ID"] = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+    args = ["npx", "--yes", "wrangler@3", "pages", "deploy", str(dist),
+            "--project-name=" + project, "--branch=" + branch]
+    if dry_run:
+        print("Preview command validated; no upload made:", " ".join(args))
+        return
+    subprocess.run(args, cwd=ROOT, env=env, check=True)
+
 def main():
-    if not (DIST/"index.html").is_file():
-        raise RuntimeError("No generated index.html in dist; refusing empty upload")
-    project=os.environ["CLOUDFLARE_PAGES_PROJECT_NAME"]
-    env=os.environ.copy()
-    env["CLOUDFLARE_ACCOUNT_ID"]=os.environ["CLOUDFLARE_ACCOUNT_ID"]
-    subprocess.run(["npx","--yes","wrangler@3","pages","deploy",str(DIST),
-        "--project-name="+project,"--branch=main"],cwd=ROOT,env=env,check=True)
-    if env.get("CLOUDFLARE_ZONE_ID"):
-        subprocess.run(["python3",str(ROOT/"scripts/cloudflare-purge-after-release.py")],
-            cwd=ROOT,env=env,check=False)
-if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dist", type=Path, default=DIST)
+    parser.add_argument("--project", default=os.environ.get("CLOUDFLARE_PAGES_PROJECT_NAME"))
+    parser.add_argument("--branch", default="zt-services10-review")
+    parser.add_argument("--production", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    if not args.project:
+        parser.error("Cloudflare Pages project name required")
+    if args.branch == "main" and not args.production:
+        parser.error("Publishing on main requires --production")
+    if args.production and args.branch != "main":
+        parser.error("--production requires --branch main")
+    publish(args.dist, project=args.project, branch=args.branch, dry_run=args.dry_run)
+
+if __name__ == "__main__":
     main()
