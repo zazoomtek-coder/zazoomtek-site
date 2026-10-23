@@ -26,46 +26,66 @@ def load_list(path:Path)->list[dict]:
     except (ValueError,OSError):
         return []
 
+def original_title(text:str)->str:
+    lines=[re.sub(r"^\s*(?:🇮🇹|🇬🇧|📰)\s*","",l).strip(" *\t")
+           for l in str(text or "").splitlines()]
+    lines=[l for l in lines if l]
+    if not lines:return "News ZazoomTek"
+    first=lines[0]
+    first=re.sub(r"(?i)^news(?:\s+(?:tech|game|gaming|extra))?\s*:?\s*","",first).strip()
+    if not first and len(lines)>1:first=lines[1]
+    return first[:180] or "News ZazoomTek"
+
 def title_of(post:dict)->str:
-    raw=str(post.get("text") or post.get("title") or "").strip()
-    line=next((line.strip() for line in raw.splitlines() if line.strip()),"")
-    line=re.sub(r"^\s*(?:🇮🇹|🇬🇧|📰)\s*","",line)
-    line=re.sub(r"^\*+|\*+$","",line).strip()
-    line=re.sub(r"(?i)^news\s*:\s*","",line)
-    return line[:180] or str(post.get("title") or "")[:180]
+    return original_title(post.get("text") or post.get("title") or "")
 
 def classify(post:dict)->str:
-    label=str(post.get("text") or post.get("title") or "")[:280].lower()
-    if re.search(r"(?i)(?:news\s+(?:gaming|videogiochi)|\b(?:playstation|xbox|nintendo|ps5|steam|gameplay|videogioch[io])\b)",label):
+    text=str(post.get("text") or post.get("title") or "")
+    heading=next((s.strip().lstrip("🇮🇹 ").strip() for s in text.splitlines() if s.strip()),"")
+    route=re.match(r"(?i)^news\s+(tech|game|gaming|extra)\s*:",heading)
+    if route:
+        kind=route.group(1).lower()
+        return {"game":"gaming"}.get(kind,kind)
+    label=heading[:280].lower()
+    if re.search(r"\b(playstation|xbox|nintendo|ps5|steam|gameplay|videogioch[io])\b",label):
         return "gaming"
-    if re.search(r"(?i)(?:news\s+(?:tech|tecnologia)|\b(?:smartphone|robot|fotocamer|notebook|laptop|processore|intel|nvidia|amd|wi-fi|televisor|smartwatch|apple|samsung)\b)",label):
+    if re.search(r"\b(smartphone|robot|notebook|laptop|intel|nvidia|amd|wi-fi|televisor|smartwatch|apple|samsung)\b",label):
         return "tech"
     return "news"
 
-def items(root:Path=ROOT)->list[dict]:
-    found=[];seen=set()
-    for post in load_list(root/"services10-data"/"community.json"):
-        if not isinstance(post,dict):continue
-        ident=str(post.get("id") or "")
-        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{5,100}",ident) or ident in seen:
-            continue
-        seen.add(ident)
-        body=str(post.get("text") or "").strip()
-        if not body:continue
-        found.append({"id":ident,"url":"/news-"+ident+".html",
-                      "title":title_of(post),"text":body,
-                      "section":classify(post),
-                      "image":str(post.get("image") or ""),
-                      "first_seen":str(post.get("first_seen") or "")})
-    return sorted(found,key=lambda x:x.get("first_seen",""),reverse=True)
+SOCIAL_LINE=re.compile(
+    r"(?i)^\s*(?:subscribe\b|iscriviti\b|"
+    r"(?:🌐\s*)?zazoomtek\.it\b|(?:▶️\s*)?youtube\s*:|"
+    r"(?:❤️\s*)?patreon\s*:|(?:🎵\s*)?tiktok\s*:|"
+    r"(?:💬\s*)?whatsapp\s*:|#\S+)"
+)
+def site_blocks(raw:str,title:str="")->list[str]:
+    """Preserve authored sections while omitting Community-only footer."""
+    lines=[]
+    for segment in re.split(r"\n\s*\n|⠀",str(raw or "")):
+        for line in segment.splitlines():
+            line=line.strip()
+            if not line or SOCIAL_LINE.match(line):continue
+            if line==title or original_title(line)==title and len(lines)==0:
+                continue
+            lines.append(line)
+    return lines
 
-def article_content(text:str)->str:
-    paragraphs=[]
-    for part in re.split(r"\n\s*\n",text.strip()):
-        lines=part.splitlines()
-        cleaned="<br>".join(html.escape(line.strip()) for line in lines if line.strip())
-        if cleaned:paragraphs.append("<p>"+cleaned+"</p>")
-    return "\n".join(paragraphs)
+def article_content(text:str,title:str="",images:list[str]|None=None)->str:
+    blocks=site_blocks(text,title)
+    markup=[]
+    for line in blocks:
+        markup.append("<p>"+html.escape(line)+"</p>")
+    # If YouTube supplied multiple photos, keep the main cover above and
+    # insert additional gallery pictures between the authored paragraphs.
+    photos=[str(u) for u in (images or [])[1:] if str(u).startswith("https://")]
+    if photos:
+        at=max(1,len(markup)//2)
+        gallery="".join('<figure class="zt-community-gallery"><img src="'+
+                 html.escape(u,quote=True)+'" loading="lazy" alt="'+
+                 html.escape(title,quote=True)+'"></figure>' for u in photos[:8])
+        markup.insert(at,gallery)
+    return "\n".join(markup)
 
 def replace_owned(source:str,start:str,end:str,new:str)->str:
     owned=start+"\n"+new+"\n"+end
@@ -79,8 +99,9 @@ def render_detail(item:dict)->str:
     title=html.escape(item["title"])
     description=html.escape(item["text"][:155].replace("\n"," "),quote=True)
     category=html.escape(item["section"].upper())
-    content=article_content(item["text"])
+    content=article_content(item["text"],item["title"],item.get("images"))
     url="https://zazoomtek.it"+item["url"]
+    published=html.escape(item.get("published_iso") or item.get("first_seen") or "",quote=True)
     cover=('<img class="article-hero" src="'+html.escape(item["image"],quote=True)+
            '" alt="'+title+'" loading="eager">' if item["image"] else "")
     return f'''<!-- SERVICES10_GENERATED -->\n<!DOCTYPE html>
@@ -90,6 +111,7 @@ def render_detail(item:dict)->str:
 <link rel="canonical" href="{html.escape(url,quote=True)}">
 <meta property="og:type" content="article"><meta property="og:title" content="{title}">
 <meta property="og:description" content="{description}">
+<meta property="article:published_time" content="{published}">
 <meta property="og:url" content="{html.escape(url,quote=True)}">
 <link rel="icon" href="/ChatGPT.png"><link rel="stylesheet" href="/zt-design.css">
 <style>body{{margin:0;font-family:Arial,Helvetica,sans-serif;background:#efefef;color:#202020}}
@@ -104,7 +126,9 @@ def render_detail(item:dict)->str:
 .article-meta{{color:#777;margin:18px 0}}
 .article-body{{font-size:17px;line-height:1.7;overflow-wrap:anywhere}}
 .article-body p{{margin:0 0 18px;white-space:normal}}
-.article-hero{{width:100%;aspect-ratio:16/9;object-fit:cover}}
+ .article-hero{{width:100%;aspect-ratio:16/9;object-fit:cover}}
+.zt-community-gallery{{margin:20px auto;max-width:840px}}
+.zt-community-gallery img{{max-width:100%;height:auto;display:block}}
 .zt-content-footer{{background:#191919;color:white;padding:24px;text-align:center}}
 .zt-content-footer a{{color:white}}
 </style></head><body>
@@ -128,7 +152,7 @@ def render_home_card(item:dict)->str:
              '" loading="lazy"></a>' if item["image"] else "")
     summary=html.escape(re.sub(r"\s+"," ",item["text"])[:200])
     return ('<article class="article-row" data-post-category="'+item["section"]+
-       '" data-published-at="'+html.escape(item["first_seen"],quote=True)+'">'+picture+
+       '" data-published-at="'+html.escape(item.get("published_iso") or item["first_seen"],quote=True)+'">'+picture+
        '<div class="article-copy"><h3><a href="'+href+'">'+title+
        '</a></h3><div class="article-meta">ZazoomTek · Community</div><p>'+summary+
        '…</p><a class="read-more" href="'+href+'">Leggi tutto ›</a></div></article>')
