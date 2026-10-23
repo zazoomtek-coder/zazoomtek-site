@@ -43,7 +43,6 @@ jobs:
           python-version: '3.12'
       - name: Install metadata reader
         run: python3 -m pip install --quiet yt-dlp
-        continue-on-error: true
       - run: python3 services10/state.py restore videos
       - name: Read horizontal 16:9 videos, never Shorts
         env:
@@ -58,7 +57,7 @@ jobs:
           if-no-files-found: ignore
   snapshot-preview:
     needs: [community, video]
-    if: always()
+    if: needs.community.result == 'success' && needs.video.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,27 +73,20 @@ jobs:
           merge-multiple: true
       - name: Generate Community news and 16:9 Watch pages
         run: python3 services10/03-home.py
-        continue-on-error: true
       - name: Update featured Tech and Gaming
         run: python3 services10/04-in-evidenza.py
-        continue-on-error: true
       - name: Update five Tech cards
         run: python3 services10/05-da-non-perdere.py
-        continue-on-error: true
       - name: Update independent Web news
         run: python3 services10/06-notizie-web.py
-        continue-on-error: true
       - name: Refresh independent review lists
         run: python3 services10/07-recensioni.py
-        continue-on-error: true
       - name: Restore Studio edit link to interior pages
         run: python3 services10/08-studio.py
-        continue-on-error: true
       - name: Assemble static Cloudflare snapshot without Master
         run: python3 services10/09-layout.py
       - name: Audit generated HTML snapshot
         run: python3 services10/audit-generated-site.py --dist dist
-        continue-on-error: true
       - name: Preview-only Cloudflare deployment
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
