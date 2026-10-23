@@ -32,6 +32,8 @@ jobs:
         run: python3 services10/test-content-pages.py
       - name: Validate Cloudflare preview deploy invocation without network
         run: python3 services10/test-cloudflare-publish.py
+      - name: Validate exact Rome time slots and complete independent chain
+        run: python3 services10/test-schedule.py
 
   site-build:
     runs-on: ubuntu-latest
