@@ -205,12 +205,11 @@
   const originalStack=side.querySelector(".zt-video-stack");
   // Retire ONLY the three cramped right-rail mini boxes requested for 23 Oct.
   // Keep articles themselves, category archives and all other Home modules.
-  side.querySelector("#zt-popular-box")?.remove();
-  const pop=null;
+  const pop=side.querySelector("#zt-popular-box");
   const speciali=side.querySelector("#ztHomeSpeciali");
   const impact=side.querySelector('.zt-special-box[data-special-section="tech"]');
   const inside=side.querySelector('.zt-special-box[data-special-section="gaming"]');
-  if(pop)rail.appendChild(pop);
+  if(pop){rail.prepend(pop);pop.classList.add("ztp-popular-restored");}
   if(speciali)rail.appendChild(speciali);
   if(impact)rail.appendChild(impact);
   if(inside)rail.appendChild(inside);
@@ -278,11 +277,11 @@
   // Some asynchronous Home enhancers mount another compact Tech-review panel
   // inside the right rail. Remove that panel ONLY, not the main reviews area.
   function dropRetiredRightRailBoxes(){
-    // Preserve the approved DA NON PERDERE Tech editorial box.
     for(const child of [...rail.children]){
-      if(child.id==="ztpOtherNews")continue;
-      const header=child.querySelector(":scope > .module-head h2,:scope > .side-head h2,:scope > .zt-popular-head h2,:scope > h2");
-      if(header && /^(?:DALLA REDAZIONE|RECENSIONI TECH)$/i.test(header.textContent.trim())){
+      if(child.id==="ztpOtherNews" || child===pop)continue;
+      const header=child.querySelector(":scope > .module-head h2,:scope > .side-head h2,:scope > .zt-popular-head h2,:scope > h2,:scope > header h2,:scope > header h3");
+      const title=(header?.textContent||"").trim();
+      if(/^(?:DA NON PERDERE|DALLA REDAZIONE|RECENSIONI TECH|ALTRE NEWS)$/i.test(title)){
         child.remove();
       }
     }
@@ -293,6 +292,8 @@
   // ALTRE NEWS: exactly one full-width box below DALLA REDAZIONE.
   // Pull verified site news, guides, reviews, Extra and YouTube video pages
   // rather than creating three disconnected mini-panels or frozen links.
+  // Remove any older ALTRE NEWS module before mounting the single canonical one.
+  for(const el of [...rail.querySelectorAll("#ztpOtherNews,.ztp-other-news")])el.remove();
   const otherBox=document.createElement("section");
   otherBox.className="ztp-editorial-archive ztp-other-news";
   otherBox.id="ztpOtherNews";
@@ -302,8 +303,7 @@
   const otherList=document.createElement("div");
   otherList.className="ztp-other-news-list";
   otherBox.append(otherHead,otherList);
-  if(ytFollow)ytFollow.insertAdjacentElement("afterend",otherBox);
-  else rail.appendChild(otherBox);
+  rail.appendChild(otherBox);
   let otherPool=[];
   let otherRaf=0;
   let otherReady=false;
@@ -388,8 +388,8 @@
       otherList.replaceChildren();
       otherSignature=signature;
     }
-    const minimum=Math.min(available.length,desktop?2:4);
-    if(otherList.children.length>Math.min(available.length,6)){
+    const minimum=Math.min(available.length,desktop?4:4);
+    if(otherList.children.length>Math.min(available.length,12)){
       otherList.replaceChildren();otherSignature=signature;
     }
     while(otherList.children.length<minimum){
@@ -402,7 +402,7 @@
         // Stop at the closest real card height to ESPLORA ULTIMI VIDEO.
         let bottom=otherBox.getBoundingClientRect().bottom;
         while(bottom<target-12 &&
-              otherList.children.length<Math.min(6,available.length)){
+              otherList.children.length<Math.min(12,available.length)){
           appendStory(available[otherList.children.length]);
           bottom=otherBox.getBoundingClientRect().bottom;
         }
