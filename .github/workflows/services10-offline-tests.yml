@@ -101,7 +101,9 @@ jobs:
         with:
           name: real-youtube-inputs
           path: services10-data
-      - name: Generate independent Community and video pages from available archives
+      - name: Generate verified video pages from independent archive
+        run: python3 services10/02-video-pages.py
+      - name: Generate written Community articles from independent archive
         run: python3 services10/03-home.py
       - name: Render independent featured, popular, web and reviews modules
         run: |
