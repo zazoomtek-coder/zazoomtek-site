@@ -15,7 +15,7 @@ def load_list(path:Path)->list[dict]:
     except (ValueError,OSError):
         return []
 
-ef sync_video_catalog(root:Path=ROOT)->dict:
+def sync_video_catalog(root:Path=ROOT)->dict:
     """Publish only new confirmed 16:9 videos; preserve the old video archive."""
     new=load_list(root/"services10-data"/"videos.json")
     original=load_list(root/"home-video-feed.json")
