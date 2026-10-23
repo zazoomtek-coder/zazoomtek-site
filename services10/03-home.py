@@ -189,7 +189,7 @@ def sync_video_catalog(root:Path=ROOT)->dict:
           '</body></html>',encoding="utf-8")
         created+=1
     listing=folder/"index.html"
-    if not listing.exists():
+    if not listing.exists() or "SERVICES10_GENERATED" in listing.read_text(encoding="utf-8"):
         cards="\n".join('<article><a href="/watch/'+v["id"]+'.html">'
           '<img loading="lazy" width="240" '
           'src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" alt="">'
