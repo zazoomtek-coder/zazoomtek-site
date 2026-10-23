@@ -83,7 +83,7 @@ def render_detail(item:dict)->str:
     url="https://zazoomtek.it"+item["url"]
     cover=('<img class="article-hero" src="'+html.escape(item["image"],quote=True)+
            '" alt="'+title+'" loading="eager">' if item["image"] else "")
-    return f'''<!DOCTYPE html>
+    return f'''<!-- SERVICES10_GENERATED -->\n<!DOCTYPE html>
 <html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} | ZazoomTek</title><meta name="description" content="{description}">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -174,7 +174,7 @@ def sync_video_catalog(root:Path=ROOT)->dict:
         if page.exists():continue
         title=html.escape(str(video.get("title") or "Video ZazoomTek"))
         page.write_text(
-          '<!doctype html><html lang="it"><head><meta charset="utf-8">'
+          '<!-- SERVICES10_GENERATED -->\\n<!doctype html><html lang="it"><head><meta charset="utf-8">'
           '<meta name="viewport" content="width=device-width,initial-scale=1">'
           '<title>'+title+' | ZazoomTek</title><link rel="stylesheet" href="/zt-design.css">'
           '<link rel="canonical" href="https://zazoomtek.it/watch/'+vid+'.html">'
@@ -196,7 +196,7 @@ def sync_video_catalog(root:Path=ROOT)->dict:
           '<h2>'+html.escape(str(v.get("title") or "Video"))+'</h2></a></article>'
           for v in sorted(horizontal,
              key=lambda v:str(v.get("publishedAt") or ""),reverse=True))
-        listing.write_text('<!doctype html><html lang="it"><head><meta charset="utf-8">'
+        listing.write_text('<!-- SERVICES10_GENERATED -->\\n<!doctype html><html lang="it"><head><meta charset="utf-8">'
           '<title>Video ZazoomTek</title><link rel="stylesheet" href="/zt-design.css">'
           '</head><body><main><h1>Video orizzontali ZazoomTek</h1>'+cards+
           '</main></body></html>',encoding="utf-8")
