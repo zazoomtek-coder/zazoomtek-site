@@ -28,3 +28,5 @@ jobs:
 
       - name: Verify Studio and independent static packaging
         run: python3 services10/test-packaging.py
+      - name: Verify incremental Community articles and independent review catalog
+        run: python3 services10/test-content-pages.py
