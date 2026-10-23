@@ -87,6 +87,28 @@ def article_content(text:str,title:str="",images:list[str]|None=None)->str:
         markup.insert(at,gallery)
     return "\n".join(markup)
 
+def items(root:Path=ROOT)->list[dict]:
+    found=[];seen=set()
+    for post in load_list(root/"services10-data"/"community.json"):
+        if not isinstance(post,dict):continue
+        ident=str(post.get("id") or "")
+        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",ident) or ident in seen:
+            continue
+        body=str(post.get("text") or "").strip()
+        if not body:continue
+        seen.add(ident)
+        pictures=post.get("images") if isinstance(post.get("images"),list) else []
+        found.append({"id":ident,"url":"/news-"+ident+".html",
+                      "title":title_of(post),"text":body,
+                      "section":classify(post),
+                      "image":str(post.get("image") or (pictures[0] if pictures else "")),
+                      "images":pictures,
+                      "published_iso":str(post.get("published_iso") or ""),
+                      "first_seen":str(post.get("first_seen") or "")})
+    return sorted(found,
+        key=lambda x:x.get("published_iso") or x.get("first_seen") or "",
+        reverse=True)
+
 def replace_owned(source:str,start:str,end:str,new:str)->str:
     owned=start+"\n"+new+"\n"+end
     if start in source and end in source:
