@@ -186,7 +186,7 @@ def main() -> None:
 #zt-webnews-home .zt-webnews-item:hover strong{color:#d51232}
 @media(max-width:650px){#zt-webnews-home .zt-webnews-grid{display:flex;flex-direction:column}#zt-webnews-home .zt-webnews-item:first-child{border-right:0;border-bottom:1px solid #e7e7e7;padding:8px}#zt-webnews-home .zt-webnews-item:first-child img{height:auto}}
 </style>"""
-    source = re.sub(r'<style id="zt-draft-webnews-center">[\\s\\S]*?</style>', "", source)
+    source = re.sub(r'<style id="zt-draft-webnews-center">[\s\S]*?</style>', "", source)
     source = source.replace("</head>", draft_style + "\n</head>", 1)
     # Move the block after the existing video explorer, without cloning it.
     draft_relocate = """<script id="zt-draft-webnews-relocate">
@@ -205,21 +205,21 @@ def main() -> None:
   setTimeout(function(){observer.disconnect();},15000);
 })();
 </script>"""
-    source = re.sub(r'<script id="zt-draft-webnews-relocate">[\\s\\S]*?</script>', "", source)
+    source = re.sub(r'<script id="zt-draft-webnews-relocate">[\s\S]*?</script>', "", source)
     source = source.replace("</body>", draft_relocate + "\n</body>", 1)
 
     # Render five Tech news cards in Da non perdere, choosing the latest
     # live-imported Tech articles; never depend on a stale static six-card list.
-    popular = re.search(r'(<!-- POPULAR_NEWS_ITEMS_START -->)([\\s\\S]*?)(<!-- POPULAR_NEWS_ITEMS_END -->)', source)
+    popular = re.search(r'(<!-- POPULAR_NEWS_ITEMS_START -->)([\s\S]*?)(<!-- POPULAR_NEWS_ITEMS_END -->)', source)
     if popular:
         articles = source.split('<!-- ARTICLE_FEED_START -->',1)[-1].split('<!-- ARTICLE_FEED_END -->',1)[0]
         chosen = []
         used = set()
-        candidates = re.findall(r'<article\\b[^>]*class="article-row"[^>]*>[\\s\\S]*?</article>', articles)
+        candidates = re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>', articles)
         for card in candidates:
             if not re.search(r'data-post-category="tech"',card,re.I): continue
-            m = re.search(r'<h3><a href="([^"]+)"[^>]*>([\\s\\S]*?)</a></h3>',card,re.I)
-            img = re.search(r'<img\\b[^>]*\\bsrc="([^"]+)"',card,re.I)
+            m = re.search(r'<h3><a href="([^"]+)"[^>]*>([\s\S]*?)</a></h3>',card,re.I)
+            img = re.search(r'<img\b[^>]*\bsrc="([^"]+)"',card,re.I)
             if not m or not img: continue
             href = m.group(1)
             if not href.startswith('/'): href='/'+href
@@ -229,7 +229,7 @@ def main() -> None:
             used.add(href)
             if len(chosen)==5: break
         # Preserve existing approved cards as fallback if today's Tech feed is sparse.
-        for card in re.findall(r'<a class="zt-popular-article"[\\s\\S]*?</a>',popular.group(2)):
+        for card in re.findall(r'<a class="zt-popular-article"[\s\S]*?</a>',popular.group(2)):
             href = re.search(r'href="([^"]+)"',card)
             if href and href.group(1) not in used and len(chosen)<5:
                 chosen.append(card);used.add(href.group(1))
