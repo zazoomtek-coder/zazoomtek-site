@@ -28,12 +28,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Refresh YouTube Community and videos before publishing
+        shell: bash
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git reset --hard origin/main
+          for script in update-youtube-posts.py update-youtube.py; do
+            imported=0
+            for attempt in 1 2 3; do
+              if python3 "scripts/$script"; then imported=1; break; fi
+              sleep $((attempt * 20))
+            done
+            if [ "$imported" -ne 1 ]; then
+              echo "::warning::YouTube $script not reachable; retain the previous public version"
+            fi
+          done
       - name: Build latest main without invoking Master
         run: |
           git fetch origin main
           git checkout main
-          git reset --hard origin/main
-          ZT_RELEASE_SOURCE_SHA="$(git rev-parse HEAD)" python3 scripts/cloudflare-build-site.py
+          ZT_YOUTUBE_LIVE_IMPORTED=1 ZT_RELEASE_SOURCE_SHA="$(git rev-parse HEAD)" python3 scripts/cloudflare-build-site.py
       - name: Deploy directly to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
