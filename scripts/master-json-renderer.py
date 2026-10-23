@@ -111,11 +111,17 @@ def render_boxes_to_dist(root: Path, dist: Path) -> None:
          for x in cards["dalla_redazione"]],
         ensure_ascii=False, separators=(",", ":"),
     ).replace("<", "\\u003c")
-    javascript = replace(
-        javascript, r"const sidebarEditorials=\[.*?\];(?=\s*const editorialBox=)",
-        "const sidebarEditorials=" + serialized + ";",
-        "JSON Gaming sidebar source",
-    )
+    # The Home now uses one ALTRE NEWS rail. The retired DALLA REDAZIONE
+    # component is intentionally absent; never fail a live build for it.
+    if "const editorialBox=" in javascript:
+        javascript = replace(
+            javascript, r"const sidebarEditorials=\[.*?\];(?=\s*const editorialBox=)",
+            "const sidebarEditorials=" + serialized + ";",
+            "JSON Gaming sidebar source",
+        )
+    elif 'otherBox.id="ztpOtherNews"' not in javascript:
+        raise ValueError("Approved ALTRE NEWS sidebar missing from Home renderer")
+
     if (homepage.count('id="zt-special-tech"') != 1
             or homepage.count('id="zt-special-gaming"') != 1
             or homepage.count('id="ztFeaturedGrid"') != 1):
