@@ -1,0 +1,21 @@
+name: ZazoomTek services10 offline regression tests
+on:
+  pull_request:
+    paths:
+      - 'services10/**'
+      - '.github/workflows/services10-offline-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  importer-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile all isolated components
+        run: python3 -m compileall -q services10
+      - name: Verify malformed Community/video records, archive retention and Shorts exclusion
+        run: python3 services10/test-importers.py
