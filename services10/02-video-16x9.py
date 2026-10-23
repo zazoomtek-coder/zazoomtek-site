@@ -219,14 +219,33 @@ def run() -> dict:
         print("Official RSS candidates:", len(rss))
     except Exception as exc:
         print("RSS temporarily unavailable; keeping saved archive:", str(exc)[:105])
-    if not API_KEY:
-        print("YOUTUBE_API_KEY missing: cannot verify Shorts/orientation; no new videos published")
-        return {"source": "no_api_key", "verified_new": 0, "pending_new": 0, "retained": len(old)}
+    approved = confirmed_ids()
     if not candidates:
         print("No candidates: keeping prior archive and previously pending videos")
         return {"source": "no_candidates", "verified_new": 0, "pending_new": 0, "retained": len(old)}
-    approved = confirmed_ids()
+    if not API_KEY:
+        # The official RSS feed contains no trustworthy orientation/Shorts field,
+        # but IDs explicitly approved as 16:9 can be safely refreshed via RSS.
+        eligible = [{**item, "type": "landscape_video",
+                     "verification": "confirmed_16x9_registry"}
+                    for item in candidates if item["id"] in approved]
+        updated = merge(old, eligible)
+        if updated != old: save(updated)
+        print("API key unavailable: RSS-only verified IDs:",len(eligible),
+              "unverified RSS candidates ignored:",len(candidates)-len(eligible))
+        return {"source": "approved_rss_fallback", "verified_new": len(eligible),
+                "pending_new": len(prior_pending), "retained": len(updated)}
     known = metadata(candidates)
+    if not known and rss_ok and approved:
+        # Temporary API quota/availability failure: do not drop approved IDs.
+        eligible = [{**item, "type": "landscape_video",
+                     "verification": "confirmed_16x9_registry"}
+                    for item in candidates if item["id"] in approved]
+        updated = merge(old, eligible)
+        if updated != old: save(updated)
+        print("Metadata API unavailable: retained approved RSS entries:",len(eligible))
+        return {"source": "approved_rss_fallback", "verified_new": len(eligible),
+                "pending_new": len(prior_pending), "retained": len(updated)}
     landscape, pending = [], []
     skips = 0
     for item in known:
