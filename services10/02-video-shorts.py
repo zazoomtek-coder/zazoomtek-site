@@ -26,13 +26,17 @@ def landscape_ids(ids):
             player=item.get("player",{})
             snippet=item.get("snippet",{})
             embed=player.get("embedHtml","")
+            # YouTube's embed dimensions do not establish source orientation.
+            # Explicitly exclude /shorts/ references and leave uncertain items
+            # unclassified until authoritative orientation metadata is available.
             import re
-            wh=re.search(r"width=[\\\"'](\\d+)[\\\"'][^>]*height=[\\\"'](\\d+)",embed)
-            if not wh:
-                wh=re.search(r"height=[\\\"'](\\d+)[\\\"'][^>]*width=[\\\"'](\\d+)",embed)
-                if wh: w,h=int(wh.group(2)),int(wh.group(1))
-                else: continue
-            else:w,h=int(wh.group(1)),int(wh.group(2))
+            references=json.dumps(item,ensure_ascii=False).lower()
+            if "/shorts/" in references:
+                continue
+            dimensions=re.search(r'(?i)width="(\\d+)"[^>]*height="(\\d+)"',embed)
+            if not dimensions:
+                continue
+            w,h=map(int,dimensions.groups())
             if h and abs(w/h-16/9)<0.04 and snippet.get("liveBroadcastContent")!="upcoming":
                 result.add(item["id"])
     return result
@@ -70,6 +74,10 @@ def main():
         with urllib.request.urlopen(req,timeout=35) as response:new=collect(response.read())
         allowed=landscape_ids([x["id"] for x in new])
         new=[x for x in new if x["id"] in allowed]
+        # Never erase archived videos if classification data are unavailable.
+        if not API_KEY or not allowed:
+            print("Landscape verification unavailable; leave existing archive intact")
+            return
         old=[x for x in old if x.get("type")=="landscape_video"]
         save(merge(old,new))
         print("Verified landscape videos:",len(new),"; total retained:",len(merge(old,new)))
