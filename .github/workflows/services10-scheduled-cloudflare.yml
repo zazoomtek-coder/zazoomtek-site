@@ -15,7 +15,7 @@ on:
     - cron: '15 20 * * *'
       timezone: 'Europe/Rome'
 permissions:
-  contents: read
+  contents: write
 jobs:
   community:
     runs-on: ubuntu-latest
@@ -24,7 +24,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 services10/01-community.py
+      - run: python3 services10/state.py restore community
+      - name: Read Community posts
+        run: python3 services10/01-community.py
+      - name: Save Community archive
+        run: python3 services10/state.py save community
       - uses: actions/upload-artifact@v4
         with:
           name: community-data
@@ -37,9 +41,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - env:
+      - name: Install metadata reader
+        run: python3 -m pip install --quiet yt-dlp
+        continue-on-error: true
+      - run: python3 services10/state.py restore videos
+      - name: Read horizontal 16:9 videos, never Shorts
+        env:
           ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
         run: python3 services10/02-video-shorts.py
+      - name: Save video archive
+        run: python3 services10/state.py save videos
       - uses: actions/upload-artifact@v4
         with:
           name: video-data
@@ -47,6 +58,7 @@ jobs:
           if-no-files-found: ignore
   snapshot-preview:
     needs: [community, video]
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
