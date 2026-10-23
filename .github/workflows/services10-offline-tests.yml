@@ -68,6 +68,8 @@ jobs:
         run: python3 services10/test-importers.py
       - name: Verify rich written Community import, original date, photos and de-duplication
         run: python3 services10/test-community-written.py
+      - name: Prove Community and video page builders do not require each other's archives
+        run: python3 services10/test-isolation.py
       - name: Test persistent Git archive and concurrent saves
         run: python3 services10/test-state.py
       - name: Verify 4 Tech and 1 Gaming Home tiles without layout changes
