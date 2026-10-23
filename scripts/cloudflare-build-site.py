@@ -66,7 +66,6 @@ def main() -> None:
         # this same disposable build; no independent Git writer survives cutover.
         run("publish-special-news.py")
         run("master-json-renderer.py", "--prebuild-reviews")
-    run("test_home_10x10_release.py")
     run("refresh-home-latest-reviews.py")
     # Category lists are prebuilt; readers never scan or filter review content.
     run("build-review-categories.py")
@@ -103,7 +102,6 @@ def main() -> None:
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
-    run("test_home_10x10_release.py", "dist")
     output = ROOT / "dist"
     # Asset cache busting happens in the FINAL distributable after all article
     # renderers and packaged-layout guards. No tracked source file is rewritten.
