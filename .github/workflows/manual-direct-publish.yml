@@ -1,0 +1,51 @@
+name: ZazoomTek MANUAL - direct main to Cloudflare
+# Independent editorial lane. Never call Master. Trigger on edits to main.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: zazoomtek-cloudflare-production-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Recover archived Community and verified videos, non-blocking
+        continue-on-error: true
+        run: |
+          python3 services10/state.py restore community
+          python3 services10/state.py restore videos
+      - name: Build published pages directly from approved source (no Master)
+        run: |
+          python3 services10/03-home.py
+          python3 services10/04-in-evidenza.py
+          python3 services10/05-da-non-perdere.py
+          python3 services10/06-notizie-web.py --offline
+          python3 services10/07-recensioni.py
+          python3 services10/08-studio.py
+          python3 services10/09-layout.py
+      - name: Deploy direct to Cloudflare Pages production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: python3 services10/10-cloudflare-publish.py --branch main --production
+      - name: Purge production cache immediately after successful deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID || vars.CLOUDFLARE_ZONE_ID }}
+        run: python3 scripts/cloudflare-purge-after-release.py
