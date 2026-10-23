@@ -35,7 +35,7 @@ jobs:
           master=(workflows/'master-orchestrator-production.yml').read_text(encoding='utf-8')
           legacy=(workflows/'deploy-site-live.yml').read_text(encoding='utf-8')
           assert 'if: false # Firebase Hosting retired; production is Cloudflare Pages' in legacy
-          assert '  push:' not in master.splitlines(), 'Production Master must not publish on push'
+          assert '  push:' in master.splitlines(), 'Master must publish main commits automatically'
           for expected in (
               'workflow_dispatch:',
               "timezone: 'Europe/Rome'",
@@ -44,6 +44,8 @@ jobs:
               'contents: write',
               'cancel-in-progress: false',
               'scripts/master-production-gateway.py --publish',
+              'ZT_RELEASE_SOURCE_SHA',
+              'scripts/cloudflare-purge-after-release.py',
               'cloudflare/wrangler-action@v3',
               'pages deploy dist --project-name=',
               'scripts/verify-live-cloudflare.py',
