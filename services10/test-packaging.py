@@ -39,10 +39,11 @@ def main():
         (root/"services10-data"/"community.json").write_text('{"private":"staging"}')
         (root/".env").write_text("SENSITIVE=private")
         (root/"notizie-dal-web.json").write_text('{"items":[]}')
-        assert studio.inject(root)==2
+        assert studio.inject(root)==3
         assert studio.inject(root)==0
         assert '/studio/edit-button.js' not in (root/"index.html").read_text()
         assert '/studio/edit-button.js' not in (root/"studio"/"index.html").read_text()
+        assert '/studio/edit-button.js' in (root/'news.html').read_text()
         assert '/studio/edit-button.js' in article.read_text()
         assert '/studio/edit-button.js' in video.read_text()
         source_digest=hashlib.sha256((root/"assets"/"cover.webp").read_bytes()).hexdigest()
