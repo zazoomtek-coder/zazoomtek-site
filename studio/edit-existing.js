@@ -127,7 +127,7 @@ const categoryFromDoc=doc=>{
  if(/recension/.test(section)||/recensione/.test(canon+" "+text)){
    return /gaming|videogiochi/i.test(section)?"Recensioni Gaming":/tech/i.test(section)?"Recensioni Hi-Tech":"Recensioni";
  }
- return /news/i.test(section)?"News Tech":section||"Article";
+ return /news/i.test(section)?"News":section||"Article";
 };
 const editSEOInput=()=>({
  title:$("zeTitle")?.value?.trim()||"",
