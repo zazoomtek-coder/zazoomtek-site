@@ -108,7 +108,7 @@ def main() -> None:
     # Microseconds ensure distinct CSS URLs even for releases in the same second.
     from datetime import datetime, timezone
     import re
-    css_version = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    css_version = "squadrato_force_99_" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     css_ref = re.compile(
         r"""(?P<attr>href\s*=\s*["'])(?P<path>/?zt-design\.css)(?:\?v=[^"']*)?(?P<close>["'])""",
         re.I,
