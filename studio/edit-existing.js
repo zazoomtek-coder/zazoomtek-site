@@ -94,6 +94,56 @@ function crop(){if(!selected?.classList.contains("photo"))return;let x=Number($(
 ["X","Y"].forEach(a=>$("ze"+a).addEventListener("input",crop));$("zeZoom").addEventListener("input",crop);
 $("zeCenter").onclick=()=>{if(!selected)return;$("zeX").value=50;$("zeY").value=50;$("zeZoom").value=100;crop()};
 let drag=null;const body=$("zeBody");
+/* SEO editoriale: same analyzer for new and existing published articles. */
+const seoAPI=window.ZTStudioSEO;
+const seoMount=document.createElement("section");
+seoMount.className="ze-seo-aside";
+document.querySelector(".ze-aside").appendChild(seoMount);
+const seoPanel=seoAPI?.panel(seoMount);
+let seoCategory="Article",seoSourceDate="",seoTimer=0;
+const categoryFromDoc=doc=>{
+ const section=(doc.querySelector('meta[property="article:section"]')?.content||
+   doc.querySelector(".tag,.article-category,.breadcrumbs,.crumb")?.textContent||"").trim();
+ const canon=(doc.querySelector('link[rel="canonical"]')?.href||"").toLowerCase();
+ const text=(doc.querySelector("h1")?.textContent||"").toLowerCase();
+ let reviewed=null;
+ for(const node of doc.querySelectorAll('script[type="application/ld+json"]')){
+   try{
+     const data=JSON.parse(node.textContent||"{}");
+     const arr=Array.isArray(data?.["@graph"])?data["@graph"]:[data];
+     for(const item of arr){
+       if(item["@type"]==="Review")reviewed=item.itemReviewed?.["@type"]||"Review";
+     }
+   }catch(_){}
+ }
+ if(reviewed){
+   if(reviewed==="VideoGame"||/gaming|ps[45]|videogiochi|xbox|nintendo/.test(section.toLowerCase()))return "Recensioni Gaming";
+   if(reviewed==="Product"||/tech|hi-tech|tecnologia/.test(section.toLowerCase()))return "Recensioni Hi-Tech";
+   return "Recensioni";
+ }
+ if(/news gaming/i.test(section)||/gaming-today/.test(canon))return "News Gaming";
+ if(/news tech/i.test(section)||/news\.html/.test(canon))return "News Tech";
+ if(/speciali/i.test(section))return "Speciali Tech";
+ if(/recension/.test(section)||/recensione/.test(canon+" "+text)){
+   return /gaming|videogiochi/i.test(section)?"Recensioni Gaming":/tech/i.test(section)?"Recensioni Hi-Tech":"Recensioni";
+ }
+ return /news/i.test(section)?"News":section||"Article";
+};
+const editSEOInput=()=>({
+ title:$("zeTitle")?.value?.trim()||"",
+ category:seoCategory,body:body.innerText||"",
+ cover:coverPanel.querySelector("img")?.getAttribute("src")||"",
+ url:loaded?"/"+loaded.path:""
+});
+seoPanel?.attach(editSEOInput);
+const refreshEditSEO=()=>{
+ clearTimeout(seoTimer);
+ seoTimer=setTimeout(()=>{if(loaded)seoPanel?.update(editSEOInput())},400);
+};
+$("zeTitle").addEventListener("input",refreshEditSEO);
+body.addEventListener("input",refreshEditSEO);
+coverPanel.querySelector("img").addEventListener("load",refreshEditSEO);
+
 body.addEventListener("pointerdown",e=>{const im=e.target.closest(".photo img");if(!im)return;select(im.parentElement);drag={x:e.clientX,y:e.clientY,fx:Number($("zeX").value),fy:Number($("zeY").value)};im.setPointerCapture?.(e.pointerId)});
 body.addEventListener("pointermove",e=>{if(!drag||!selected)return;if(Number($("zeZoom").value)<110)$("zeZoom").value=130;$("zeX").value=Math.min(100,Math.max(0,drag.fx+(drag.x-e.clientX)/3));$("zeY").value=Math.min(100,Math.max(0,drag.fy+(drag.y-e.clientY)/3));crop()});
 body.addEventListener("pointerup",()=>drag=null);body.addEventListener("pointercancel",()=>drag=null);
@@ -125,7 +175,27 @@ return {doc,article,nodes,type,div};
 function show(path,html,sha){let p=prepare(html);loaded={path,html,sha};$("zePath").value=path;
 const lead=p.article.querySelector(".lead");leadBox.hidden=!lead;leadInput.value=lead?.textContent?.trim()||"";
 const hero=p.doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero") || p.article.querySelector(":scope > figure.hero img,:scope > img.article-hero,:scope > img.cover,:scope > img, :scope > figure:has(> img) img");
-coverPanel.hidden=false;coverPanel.dataset.replacement="false";if(!hero){coverPanel.querySelector("img").removeAttribute("src");coverPanel.dataset.x="50";coverPanel.dataset.y="50";coverPanel.dataset.zoom="1";}if(hero){coverPanel.querySelector("img").src=hero.getAttribute("src")||"";const point=(hero.style.objectPosition||"50% 50%").match(/(\d+)%\s+(\d+)%/);coverPanel.dataset.x=point?.[1]||50;coverPanel.dataset.y=point?.[2]||50;coverPanel.dataset.zoom=String(Number(hero.getAttribute("data-zt-zoom")||1));coverPanel.querySelector("img").style.objectPosition=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";coverPanel.querySelector("img").style.transform="scale("+coverPanel.dataset.zoom+")";coverPanel.querySelector("img").style.transformOrigin=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";}$("zeTitle").disabled=false;$("zeTitle").value=(p.article.querySelector("h1")||p.doc.querySelector("main.content h1"))?.textContent?.trim()||"";body.replaceChildren(...[...p.div.childNodes]);select(null);dirty=false;ui.hidden=false;status("Articolo originale caricato: "+path+". Modifica testo, foto, link e video. Salvataggio diretto su main.");}
+coverPanel.hidden=false;coverPanel.dataset.replacement="false";if(!hero){coverPanel.querySelector("img").removeAttribute("src");coverPanel.dataset.x="50";coverPanel.dataset.y="50";coverPanel.dataset.zoom="1";}if(hero){coverPanel.querySelector("img").src=hero.getAttribute("src")||"";const point=(hero.style.objectPosition||"50% 50%").match(/(\d+)%\s+(\d+)%/);coverPanel.dataset.x=point?.[1]||50;coverPanel.dataset.y=point?.[2]||50;coverPanel.dataset.zoom=String(Number(hero.getAttribute("data-zt-zoom")||1));coverPanel.querySelector("img").style.objectPosition=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";coverPanel.querySelector("img").style.transform="scale("+coverPanel.dataset.zoom+")";coverPanel.querySelector("img").style.transformOrigin=coverPanel.dataset.x+"% "+coverPanel.dataset.y+"%";}$("zeTitle").disabled=false;$("zeTitle").value=(p.article.querySelector("h1")||p.doc.querySelector("main.content h1"))?.textContent?.trim()||"";body.replaceChildren(...[...p.div.childNodes]);seoCategory=categoryFromDoc(p.doc);seoSourceDate=p.doc.querySelector('meta[property="article:published_time"]')?.content||"";
+if(!seoSourceDate)for(const script of p.doc.querySelectorAll('script[type="application/ld+json"]')){
+ try{
+  const json=JSON.parse(script.textContent||"{}"),entries=Array.isArray(json["@graph"])?json["@graph"]:[json];
+  const original=entries.find(x=>x?.datePublished);
+  if(original){seoSourceDate=String(original.datePublished);break;}
+ }catch(_){}
+}
+seoPanel?.update(editSEOInput(),true);
+if(p.doc.querySelector('meta[name="zt:seo-editorial"][content="1"]')){
+ const meta=(key)=>p.doc.querySelector(key)?.getAttribute("content")||"";
+ const allTags=[...p.doc.querySelectorAll('meta[property="article:tag"]')].map(x=>x.content).filter(Boolean);
+ const keywords=meta('meta[name="keywords"]').split(",").map(x=>x.trim()).filter(Boolean);
+ const manualTitle=p.doc.title.replace(/\s*\|\s*ZazoomTek\s*$/i,"").trim();
+ seoPanel?.restore(editSEOInput(),{
+  title:manualTitle,description:meta('meta[name="description"]'),
+  primary:keywords[0]||"",secondary:keywords.slice(1),tags:allTags,
+  alt:p.doc.querySelector(".zt-studio-cover-viewport > img,img.article-hero,img.cover")?.alt||""
+ });
+}
+select(null);dirty=false;ui.hidden=false;status("Articolo originale caricato: "+path+". Modifica testo, foto, link e video. SEO controllabile prima del salvataggio.");}
 async function open(raw){const path=goodPath(raw);if(!path){status("Inserisci un link articolo valido.");return}if(dirty&&!confirm("Scartare le modifiche non salvate?"))return;try{let html,sha;if(isDemo()){html=localStorage.getItem(storage(path))||window.ZTStudioDemoArticle.html;sha="locale"}else{let api=window.ZTStudioGitHub;if(!api?.isAuthenticated())throw Error("Collega prima GitHub nello Studio.");let r=await api.read(path);if(r?.content){html=b64decode(r.content);sha=r.sha}else{const live=await fetch("/"+path,{cache:"no-store"});if(!live.ok)throw Error("Articolo non presente né su GitHub né sul sito.");html=await live.text();sha=null}}show(path,html,sha)}catch(e){status("Apertura non riuscita: "+e.message)}}
 function build(){if(!loaded)throw Error("Apri prima un articolo.");let p=prepare(loaded.html),out=document.createElement("div");out.innerHTML=body.innerHTML;
 out.querySelectorAll("script,style,object,form").forEach(x=>x.remove());out.querySelectorAll("*").forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));
@@ -148,7 +218,7 @@ doc.title=title+" | ZazoomTek";for(const [sel,val] of [['meta[name="description"
 doc.querySelectorAll('script[type="application/ld+json"]').forEach(s=>{try{let o=JSON.parse(s.textContent);if(["Article","NewsArticle","Review","BlogPosting"].includes(o["@type"])){o.headline=title;o.description=summary;o.dateModified=new Date().toISOString();s.textContent=JSON.stringify(o).replace(/</g,"\\u003c")}}catch{}});
 return "<!doctype html>\n"+doc.documentElement.outerHTML;
 }
-async function save(){if(!loaded||busy)return;busy=true;$("zeSave").disabled=true;try{status("Verifica e salvataggio…");let html=build(),path=loaded.path,doc=new DOMParser().parseFromString(html,"text/html"),counter=0,api=window.ZTStudioGitHub;
+async function save(){if(!loaded||busy)return;busy=true;$("zeSave").disabled=true;try{status("Analisi SEO e verifica prima del salvataggio…");if(!seoPanel||!seoAPI?.apply)throw Error("Motore SEO editoriale non disponibile: nessun salvataggio.");const seo=seoPanel.prepare(editSEOInput());let html=build(),path=loaded.path,doc=new DOMParser().parseFromString(html,"text/html"),counter=0,api=window.ZTStudioGitHub;
 
 const savedHero=doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero")||doc.querySelector("article.article-main > img.article-hero,article.article-main > .zt-studio-cover-viewport > img");
 let newCoverSrc=savedHero?.getAttribute("src")||"";
@@ -186,6 +256,14 @@ if(coverPanel.dataset.replacement==="true"&&newCoverSrc.startsWith("data:image/w
 }
 
 for(const im of doc.querySelectorAll(".zt-studio-photo img")){let src=im.getAttribute("src")||"",match=/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/i.exec(src);if(!match||isDemo())continue;const dest="assets/studio/"+path.replace(/\.html$/,"")+"-"+Date.now()+"-"+(++counter)+"."+({jpeg:"jpg",png:"png",webp:"webp"}[match[1]]);await api.create(dest,match[2],"studio: foto per "+path);im.setAttribute("src","/"+dest)}
+// Apply metadata after cover replacement/upload so OG/JSON-LD use the FINAL URL.
+const seoFinalCover=(doc.querySelector(".zt-studio-cover-viewport > img,main.content img.hero,img.article-hero,img.cover")?.getAttribute("src")||"");
+const seoFinalDate=new Date().toISOString();
+seoAPI.apply(doc,seo,{
+ category:seoCategory,body:body.innerText,
+ cover:seoFinalCover.startsWith("/")?seoFinalCover:undefined,
+ url:"/"+path,published:seoSourceDate||undefined,date:seoFinalDate
+});
 html="<!doctype html>\n"+doc.documentElement.outerHTML;
 if(isDemo()){localStorage.setItem(storage(path),html);show(path,html,"locale");status("Modifiche salvate localmente. Riapri l’articolo: sono persistenti. Nessuna pubblicazione.");return}
 if(!api?.isAuthenticated())throw Error("Accesso GitHub non verificato.");let override="editorial/studio-overrides/"+path.replace(/\.html$/,".json"),old=await api.read(override),data=JSON.stringify({version:1,path,html,owner_edited:true},null,2)+"\n";
@@ -195,7 +273,15 @@ show(path,html,result.content?.sha||loaded.sha);status("Salvato su GitHub e prot
 }catch(e){status("Nessuna conferma di salvataggio: "+e.message)}finally{busy=false;$("zeSave").disabled=false}}
 $("zeClose").onclick=()=>{if(dirty&&!confirm("Chiudere senza salvare?"))return;ui.hidden=true};
 $("zeOpen").onclick=()=>open($("zePath").value);$("zePath").onkeydown=e=>{if(e.key==="Enter")open($("zePath").value)};
-$("zeSave").onclick=save;$("zePreview").onclick=()=>{try{prev.querySelector("iframe").srcdoc=build();prev.hidden=false}catch(e){status(e.message)}};$("zeEndPreview").onclick=()=>prev.hidden=true;
+$("zeSave").onclick=save;
+$("zePreview").onclick=()=>{try{
+ const doc=new DOMParser().parseFromString(build(),"text/html");
+ if(!seoPanel||!seoAPI)throw Error("Motore SEO non disponibile.");
+ const seo=seoPanel.prepare(editSEOInput());
+ seoAPI.apply(doc,seo,{category:seoCategory,body:body.innerText,url:"/"+loaded.path,published:seoSourceDate||undefined});
+ prev.querySelector("iframe").srcdoc="<!doctype html>\n"+doc.documentElement.outerHTML;
+ prev.hidden=false;
+}catch(e){status("Anteprima SEO non disponibile: "+e.message)}};$("zeEndPreview").onclick=()=>prev.hidden=true;
 const sidebar=document.querySelector(".sidebar");if(sidebar){const b=document.createElement("button");b.className="navbtn";b.id="zeNav";b.textContent="✎  Modifica articoli";(document.getElementById("navDraft")||sidebar.firstElementChild).insertAdjacentElement("afterend",b);b.onclick=()=>ui.hidden=false}
 const query=new URLSearchParams(location.search).get("edit");if(query){ui.hidden=false;$("zePath").value=query;let attempts=0;const autoOpen=()=>{if(isDemo()||window.ZTStudioGitHub?.isAuthenticated?.()){open(query);return}if(++attempts<=40){setTimeout(autoOpen,250);return}status("Collega GitHub con l’accesso permanente dello Studio, quindi premi Apri articolo.")};setTimeout(autoOpen,200)}
 if(isDemo()){ui.hidden=false;$("zePath").value=window.ZTStudioDemoArticle.path;setTimeout(()=>open(window.ZTStudioDemoArticle.path),80)}
