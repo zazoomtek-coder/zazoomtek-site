@@ -119,7 +119,7 @@ def replace_owned(source:str,start:str,end:str,new:str)->str:
 
 def render_detail(item:dict)->str:
     title=html.escape(item["title"])
-    description=html.escape(item["text"][:155].replace("\n"," "),quote=True)
+    description=html.escape(" ".join(site_blocks(item["text"],item["title"]))[:155],quote=True)
     category=html.escape(item["section"].upper())
     content=article_content(item["text"],item["title"],item.get("images"))
     url="https://zazoomtek.it"+item["url"]
@@ -172,7 +172,7 @@ def render_home_card(item:dict)->str:
     picture=('<a href="'+href+'"><img class="article-image" src="'+
              html.escape(item["image"],quote=True)+'" alt="'+title+
              '" loading="lazy"></a>' if item["image"] else "")
-    summary=html.escape(re.sub(r"\s+"," ",item["text"])[:200])
+    summary=html.escape(" ".join(site_blocks(item["text"],item["title"]))[:200])
     return ('<article class="article-row" data-post-category="'+item["section"]+
        '" data-published-at="'+html.escape(item.get("published_iso") or item["first_seen"],quote=True)+'">'+picture+
        '<div class="article-copy"><h3><a href="'+href+'">'+title+
