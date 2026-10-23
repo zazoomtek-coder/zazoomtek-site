@@ -25,6 +25,8 @@ jobs:
         run: python3 services10/test-featured.py
       - name: Verify graphic layout of Web News and five Tech cards
         run: python3 services10/test-layout.py
+      - name: Verify 24-hour RSS refresh and fallback with simulated outages
+        run: python3 services10/test-rss.py
 
       - name: Verify Studio and independent static packaging
         run: python3 services10/test-packaging.py
