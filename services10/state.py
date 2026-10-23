@@ -52,6 +52,16 @@ def atomic_write(path: Path, rows):
         tmp = file.name
     os.replace(tmp, path)
 
+def published_video_ids(commit: str) -> set[str]:
+    """Reconcile approved uploads before restoring/merging pending review items."""
+    local = ROOT / FILES["videos"]
+    try:
+        cached = json.loads(local.read_text(encoding="utf-8")) if local.is_file() else []
+    except (ValueError, OSError):
+        cached = []
+    return {str(row["id"]) for row in union(from_branch(commit, FILES["videos"]), cached)
+            if row.get("type") == "landscape_video" and row.get("id")}
+
 def restore(kind: str):
     path = FILES[kind]
     try:
@@ -62,8 +72,12 @@ def restore(kind: str):
             return
         local = ROOT / path
         existing = json.loads(local.read_text(encoding="utf-8")) if local.is_file() else []
-        atomic_write(local, union(saved, existing))
-        print("Restored", kind, "records:", len(union(saved, existing)))
+        restored = union(saved, existing)
+        if kind == "pending":
+            verified = published_video_ids(commit)
+            restored = [row for row in restored if row.get("id") not in verified]
+        atomic_write(local, restored)
+        print("Restored", kind, "records:", len(restored))
     except Exception as err:
         # A backup service outage must not stop an independent import.
         print("Archive restore unavailable, continuing:", str(err)[:180])
@@ -86,6 +100,9 @@ def save(kind: str):
         try:
             commit = remote_ref()
             data = union(from_branch(commit, path), imported)
+            if kind == "pending":
+                verified = published_video_ids(commit)
+                data = [row for row in data if row.get("id") not in verified]
             payload = (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
             blob = git("hash-object", "-w", "--stdin", input=payload).stdout.decode().strip()
             with tempfile.NamedTemporaryFile(prefix="zt-services10-git-index-", delete=False) as index:
