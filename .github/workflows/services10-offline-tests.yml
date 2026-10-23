@@ -23,3 +23,5 @@ jobs:
         run: python3 services10/test-state.py
       - name: Verify 4 Tech and 1 Gaming Home tiles without layout changes
         run: python3 services10/test-featured.py
+      - name: Verify graphic layout of Web News and five Tech cards
+        run: python3 services10/test-layout.py
