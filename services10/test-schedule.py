@@ -13,7 +13,7 @@ def main():
     assert found==expected,(found,expected)
     assert len(re.findall(r'^\s+timezone:\s*["\x27]?Europe/Rome',source,re.M))==5
     assert "services10/01-community.py" in source
-    assert "services10/02-video-shorts.py" in source
+    assert "services10/02-video-16x9.py" in source
     assert "services10/03-home.py" in source
     assert "services10/09-layout.py" in source
     assert "services10/10-cloudflare-publish.py" in source
