@@ -32,6 +32,7 @@ jobs:
         shell: bash
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_FORCE_SYNC: 'true'
         run: |
           set -euo pipefail
           git fetch origin main
@@ -43,7 +44,8 @@ jobs:
               sleep $((attempt * 20))
             done
             if [ "$imported" -ne 1 ]; then
-              echo "::warning::YouTube $script not reachable; retain the previous public version"
+              echo "::error::YouTube $script failed all three import attempts; do not falsely report a completed update"
+              exit 1
             fi
           done
       - name: Build latest main without invoking Master
