@@ -1,93 +1,121 @@
 #!/usr/bin/env python3
-"""Offline regression checks. No network, keys, or live Cloudflare deploy."""
+"""Offline regression tests for official YouTube Data API import + Community.
+
+No live access, API keys, secrets, cookies, Cloudflare deploys or downloads.
+"""
 import importlib.util
 import json
-import sys
-import types
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
-ROOT = Path(__file__).resolve().parent
+ROOT=Path(__file__).resolve().parent
 
-def load(name, filename):
-    spec = importlib.util.spec_from_file_location(name, ROOT / filename)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+def load(name,file):
+    spec=importlib.util.spec_from_file_location(name,ROOT/file)
+    obj=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(obj)
+    return obj
 
-community = load("service_community", "01-community.py")
-videos = load("service_videos", "02-video-16x9.py")
+community=load("community_offline","01-community.py")
+videos=load("videos_official","02-video-16x9.py")
+
+def video(vid,seconds,channel=videos.CHANNEL):
+    return {"id":vid,"snippet":{"channelId":channel,"title":"Review "+vid,
+        "publishedAt":"2026-10-23T15:00:00Z","liveBroadcastContent":"none"},
+        "contentDetails":{"duration":"PT"+str(seconds)+"S"},
+        "status":{"privacyStatus":"public","embeddable":True}}
 
 def main():
-    xml = b'''<?xml version="1.0"?>
-    <feed xmlns="http://www.w3.org/2005/Atom"
+    assert videos.duration_seconds("PT3M") == 180
+    assert videos.duration_seconds("PT3M1S") == 181
+    assert videos.duration_seconds("PT1H1M1S") == 3661
+    assert videos.duration_seconds("P1DT2H") == 93600
+    assert videos.duration_seconds("not-time") is None
+    xml=b'''<feed xmlns="http://www.w3.org/2005/Atom"
     xmlns:yt="http://www.youtube.com/xml/schemas/2015">
-      <entry><yt:videoId>good1</yt:videoId><title>Review</title>
-        <published>2026-10-23T12:00:00Z</published></entry>
-      <entry><yt:videoId>bad</yt:videoId><title>Broken</title></entry>
-      <entry><yt:videoId>good2</yt:videoId><title>Gameplay</title>
-        <published>2026-10-23T13:00:00Z</published></entry>
+     <entry><yt:videoId>abcdef12345</yt:videoId><title>Full</title><published>2026-10-23T15:00:00Z</published></entry>
+     <entry><yt:videoId>bad</yt:videoId><title>Ignore</title><published>2026-10-23T15:00:00Z</published></entry>
     </feed>'''
-    parsed_videos = videos.collect(xml)
-    assert [x["id"] for x in parsed_videos] == ["good1", "good2"]
-    older = [{"id": "old", "title": "Prior video",
-              "published": "2026-10-20T08:00:00Z", "type": "landscape_video"}]
-    merged = videos.merge(older, parsed_videos)
-    assert len(merged) == 3 and merged[0]["id"] == "good2"
-    assert len(videos.merge(merged, parsed_videos)) == 3
+    assert [x["id"] for x in videos.collect(xml)]==["abcdef12345"]
+    known={"abcdef12345"}
+    status,row=videos.classify(video("abcdef12345",30),known)
+    assert status=="landscape" and row["type"]=="landscape_video"
+    status,row=videos.classify(video("shortvid001",40),set())
+    assert status=="short_or_unknown" and row is None
+    status,row=videos.classify(video("longvid0001",360),set())
+    assert status=="pending" and row["orientation"]=="unverified"
+    assert videos.classify(video("longvid0001",360,"another-channel"),known)[0]=="other"
+    future=video("abcdef12345",600)
+    future["snippet"]["liveBroadcastContent"]="upcoming"
+    assert videos.classify(future,known)[0]=="other"
+    blocked=video("abcdef12345",600)
+    blocked["status"]["embeddable"]=False
+    assert videos.classify(blocked,known)[0]=="other"
+    old=[{"id":"priorvid001","title":"Old verified","type":"landscape_video",
+          "published":"2026-10-22T00:00:00Z"}]
+    approved=[{"id":"abcdef12345","title":"Confirmed","type":"landscape_video",
+               "published":"2026-10-23T15:00:00Z"}]
+    assert len(videos.merge(old,approved))==2
+    assert len(videos.merge(videos.merge(old,approved),approved))==2
+    pending=[{"id":"longvid0001","title":"Pending","type":"pending_landscape",
+              "published":"2026-10-23T15:00:00Z"}]
+    assert videos.merge_pending(pending,pending,set())==pending
+    assert videos.merge_pending(pending,[],{"longvid0001"})==[]
 
-    horizontal = {"webpage_url": "https://www.youtube.com/watch?v=good1",
-                  "formats": [{"vcodec": "avc1", "width": 1920, "height": 1080}]}
-    vertical = {"webpage_url": "https://www.youtube.com/watch?v=vertical",
-                "formats": [{"vcodec": "avc1", "width": 1080, "height": 1920}]}
-    shorts = dict(horizontal, webpage_url="https://www.youtube.com/shorts/short1")
-    assert videos.is_landscape_16_9(horizontal)
-    assert not videos.is_landscape_16_9(vertical)
-    assert not videos.is_landscape_16_9(shorts)
-    assert not videos.is_landscape_16_9({"formats": []})
-    assert videos.stream_shape({"formats": [{"vcodec": "none"}]}) is None
-
-    # One inaccessible video is isolated: the other landscape video is accepted.
-    class FakeYDL:
-        def __init__(self, options): pass
-        def __enter__(self): return self
-        def __exit__(self, *args): pass
-        def extract_info(self, url, download):
-            if "bad" in url: raise RuntimeError("Temporary YouTube failure")
-            if "good2" in url: return vertical
-            return horizontal
-    sys.modules["yt_dlp"] = types.SimpleNamespace(YoutubeDL=FakeYDL)
-    try:
-        result = videos.verified_ids([
-            {"id": "good1", "url": "https://www.youtube.com/watch?v=good1"},
-            {"id": "bad", "url": "https://www.youtube.com/watch?v=bad"},
-            {"id": "good2", "url": "https://www.youtube.com/watch?v=good2"}
-        ])
-        assert result == {"good1"}
-    finally:
-        sys.modules.pop("yt_dlp", None)
-
-    # Braces and semicolons inside post texts do not truncate nested JSON.
-    posts = {"contents": {
-        "a": {"backstagePostRenderer": {"postId": "Ugkx123",
-              "contentText": {"runs": [{"text": "Tech news }; safe"}]}}},
-        "b": {"backstagePostRenderer": {"postId": "broken"}},
-        "c": {"backstagePostRenderer": {"postId": "Ugkx456",
-              "contentText": {"simpleText": "Gaming update"}}}}}
-    raw = 'var ytInitialData = ' + json.dumps(posts) + ';'
-    parsed_community = community.extract(raw)
-    assert {x["id"] for x in parsed_community} == {"Ugkx123", "Ugkx456"}
-    assert len(community.merge(parsed_community, parsed_community)) == 2
-    assert community.extract("var ytInitialData = {malformed;") == []
+    with patch.object(videos,"request_api") as get:
+        get.side_effect=[
+           {"items":[{"contentDetails":{"relatedPlaylists":{"uploads":"UU_TEST"}}}]},
+           {"items":[
+             {"contentDetails":{"videoId":"abcdef12345","videoPublishedAt":"2026-10-23T15:00:00Z"},
+              "snippet":{"title":"Review"}}],
+            "nextPageToken":""}
+        ]
+        uploads=videos.upload_candidates()
+        assert uploads[0]["id"]=="abcdef12345"
+        assert get.call_count==2
+        assert get.call_args_list[1].args[0]=="playlistItems"
+    with patch.object(videos,"request_api") as get:
+        get.return_value={"items":[video("abcdef12345",120)]}
+        assert len(videos.metadata([{"id":"abcdef12345"}]))==1
+        assert get.call_args.args[0]=="videos"
 
     with TemporaryDirectory() as tmp:
-        videos.OUT = Path(tmp) / "videos.json"
-        videos.save(merged)
-        assert json.loads(videos.OUT.read_text()) == merged
-        # Atomic overwrite without losing older entries.
-        videos.save(videos.merge(merged, parsed_videos))
-        assert len(json.loads(videos.OUT.read_text())) == 3
-    print("PASS: Community + verified landscape video imports survive bad items; Shorts excluded")
+        directory=Path(tmp)
+        with patch.object(videos,"OUT",directory/"videos.json"), \
+             patch.object(videos,"PENDING",directory/"pending.json"), \
+             patch.object(videos,"API_KEY","test-key"), \
+             patch.object(videos,"confirmed_ids",return_value={"abcdef12345"}), \
+             patch.object(videos,"upload_candidates",return_value=[
+                 {"id":"abcdef12345"},{"id":"longvid0001"},{"id":"shortvid001"}]), \
+             patch.object(videos,"rss_candidates",return_value=[]), \
+             patch.object(videos,"metadata",return_value=[
+                 video("abcdef12345",110),video("longvid0001",450),video("shortvid001",45)]):
+            videos.save(old)
+            result=videos.run()
+            assert result["verified_new"]==1
+            verified=videos.load(videos.OUT)
+            waiting=videos.load(videos.PENDING)
+            assert {x["id"] for x in verified}=={"priorvid001","abcdef12345"}
+            assert [x["id"] for x in waiting]==["longvid0001"]
+            with patch.object(videos,"upload_candidates",side_effect=RuntimeError("quotaExceeded")), \
+                 patch.object(videos,"rss_candidates",side_effect=RuntimeError("RSS failed")):
+                assert videos.run()["source"]=="no_candidates"
+                assert videos.load(videos.OUT)==verified
+                assert videos.load(videos.PENDING)==waiting
 
-if __name__ == "__main__":
+    # Braces inside post text and malformed neighbours never break Community.
+    posts={"contents":{
+        "a":{"backstagePostRenderer":{"postId":"Ugkx123",
+             "contentText":{"runs":[{"text":"Tech news }; safe"}]}}},
+        "b":{"backstagePostRenderer":{"postId":"broken"}},
+        "c":{"backstagePostRenderer":{"postId":"Ugkx456",
+             "contentText":{"simpleText":"Gaming update"}}}}}
+    parsed=community.extract("var ytInitialData = "+json.dumps(posts)+";")
+    assert {x["id"] for x in parsed}=={"Ugkx123","Ugkx456"}
+    assert len(community.merge(parsed,parsed))==2
+    assert community.extract("var ytInitialData = {corrupt;")==[]
+    print("PASS: official API, RSS fallback, strict 16:9 approval, pending longform, Shorts blocked, archives preserved")
+
+if __name__=="__main__":
     main()
