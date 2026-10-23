@@ -62,6 +62,15 @@ def test_community(folder):
     assert (root/"news.html").read_text().count('class="news-row"')==3
     assert home.update(root)["created_pages"]==0
     assert first==(root/"index.html").read_text()
+    (root/"services10-data"/"videos.json").write_text(json.dumps([
+        {"id":"newvideo001","title":"New video 16:9",
+         "published":"2026-10-23T16:30:00Z","type":"landscape_video"},
+        {"id":"newvideo002","title":"Second 16:9",
+         "published":"2026-10-23T17:30:00Z","type":"landscape_video"}]))
+    assert home.update(root)["new_videos"]==1
+    assert (root/"watch"/"newvideo002.html").exists()
+    watch_index=(root/"watch"/"index.html").read_text()
+    assert "newvideo001" in watch_index and "newvideo002" in watch_index
     path.write_text(json.dumps([post(1),post(2,"gaming"),post(3)]),encoding="utf-8")
     assert home.update(root)["created_pages"]==1
     updated=(root/"index.html").read_text()
