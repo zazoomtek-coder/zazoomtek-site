@@ -13,24 +13,15 @@ function mount(){
  const pager=feed?.querySelector("#ztpNewsPager");
  const guide=document.getElementById("ztp-guide-extra");
  const editorialRail=document.getElementById("ztpNewsRail");
- if(!left||!right||!feed||!pager||!guide||!editorialRail)return false;
+ if(!left||!feed||!pager||!guide||!editorialRail)return false;
  // Respect existing real user-facing pagination and both official GUIDE/EXTRA.
  // Never create a second guide or Extra copy.
  pager.insertAdjacentElement("afterend",left);
  left.insertAdjacentElement("afterend",guide);
- // Add only local genuine ZazoomTek articles to the right 20% rail.
- editorialRail.appendChild(right);
+ // The former three miniature black panels are explicitly retired.
+ // Keep only the real top DA NON PERDERE and the single ALTRE NEWS.
+ for(const extra of document.querySelectorAll(".zt-webnews-followup-rail"))extra.remove();
  source.remove();
- const adjustRail=()=>{
-   // The first new box starts alongside the new Web press review if space
-   // permits, without modifying/shifting the previous approved editorial boxes.
-   if(!left.isConnected||!right.isConnected)return;
-   right.style.marginTop="0px";
-   const gap=Math.round(left.getBoundingClientRect().top-right.getBoundingClientRect().top);
-   if(gap>0)right.style.marginTop=Math.min(gap,2400)+"px";
- };
- requestAnimationFrame(()=>requestAnimationFrame(adjustRail));
- addEventListener("resize",()=>requestAnimationFrame(adjustRail),{passive:true});
  document.documentElement.dataset.ztWebNewsMounted="three-column";
  return true;
 }
