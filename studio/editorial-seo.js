@@ -52,6 +52,7 @@ function apply(doc,seo,ctx={}){
  Object.entries(props).forEach(([k,v])=>meta("property",k,v));
  const names={"description":seo.description,"robots":"index,follow,max-image-preview:large","twitter:card":"summary_large_image","twitter:title":seo.title,"twitter:description":seo.description,"twitter:image":image,"keywords":unique([seo.primary,...seo.secondary]).join(", ")};
  Object.entries(names).forEach(([k,v])=>meta("name",k,v));
+ meta("name","zt:seo-editorial","1");
  doc.head.querySelectorAll('meta[property="article:tag"]').forEach(x=>x.remove());
  seo.tags.slice(0,12).forEach(tag=>{const x=doc.createElement("meta");x.setAttribute("property","article:tag");x.content=tag;doc.head.append(x)});
  const hero=doc.querySelector(".zt-studio-cover-viewport > img, main.content img.hero,img.article-hero,img.cover");
@@ -71,7 +72,7 @@ function apply(doc,seo,ctx={}){
  const now=ctx.date||new Date().toISOString();
  const published=ctx.published||doc.querySelector('meta[property="article:published_time"]')?.content||now;
  const schema={"@context":"https://schema.org","@type":kind,headline:title,description:seo.description,datePublished:published,dateModified:now,
-  mainEntityOfPage:url,author:{"@type":"Organization",name:"ZazoomTek"},publisher:{"@type":"Organization",name:"ZazoomTek"}};
+  mainEntityOfPage:url,author:{"@type":"Organization",name:"ZazoomTek"},publisher:{"@type":"Organization",name:"ZazoomTek",logo:{"@type":"ImageObject",url:"https://zazoomtek.it/ChatGPT.png"}}};
  if(image)schema.image=[image];
  if(kind==="Review"){
   const itemName=trim(title.replace(/\s*(?:\||–|-)?\s*recensione\b.*$/i,""),95)||title;
@@ -101,7 +102,16 @@ function panel(container){
  }
  spec.forEach(([k])=>inputs[k].addEventListener("input",()=>{manual=true;state.textContent="SEO personalizzato manualmente."}));
  root.querySelector(".zt-seo-refresh").onclick=()=>{if(source)update(source(),true)};
- return {root,attach(fn){source=fn;return this},update,prepare(data){
+ return {root,attach(fn){source=fn;return this},update,restore(data,fields){
+  update(data,true);
+  if(!result)return;
+  let restored=false;
+  for(const [key,value] of Object.entries(fields||{})){
+   if(!(key in inputs)||value==null||value==="")continue;
+   inputs[key].value=Array.isArray(value)?value.join(", "):String(value);restored=true;
+  }
+  if(restored){manual=true;state.textContent="Metadati SEO editoriali già pubblicati recuperati e modificabili.";}
+ },prepare(data){
   update(data);if(!result)throw problem||new Error("SEO non generato");
   const seo={...result};spec.forEach(([k])=>seo[k]=["secondary","tags"].includes(k)?unique(inputs[k].value.split(",").map(x=>x.trim())):inputs[k].value.trim());
   if(seo.title.length<12||seo.title.length>90||seo.description.length<100||seo.description.length>170||!seo.primary||!seo.alt)throw Error("Controlla Titolo SEO (12–90 caratteri), Meta description (100–170) e keyword principale.");
