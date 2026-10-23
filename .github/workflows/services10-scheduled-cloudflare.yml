@@ -44,11 +44,14 @@ jobs:
       # Official YouTube Data API v3: no extractor, browser cookies or scraping.
       - run: python3 services10/state.py restore videos
       - run: python3 services10/state.py restore pending
-      - name: Read official API + RSS and verify 16:9; quarantine unknowns
+      - name: Enforce >180 seconds AND source 16:9 (owner OAuth or validated registry)
         env:
           ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           ZT_CONFIRMED_16X9_IDS: ${{ vars.ZT_CONFIRMED_16X9_IDS }}
+          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
+          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
+          YOUTUBE_OAUTH_REFRESH_TOKEN: ${{ secrets.YOUTUBE_OAUTH_REFRESH_TOKEN }}
         run: python3 services10/02-video-16x9.py
       - name: Save confirmed video archive
         run: python3 services10/state.py save videos
