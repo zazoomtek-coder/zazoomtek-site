@@ -1,145 +1,85 @@
-name: ZazoomTek MASTER - scheduled editorial slots
-# Automatic editorial slots only. Manual commits have a separate deployment workflow.
+name: ZazoomTek - pubblicazione automatica semplice
+# No Master gateway, staging approvals or publication-slot veto.
+# The build reads approved editorial JSON and queued reviews.
 on:
   workflow_dispatch:
   schedule:
     - cron: '15 10,15,20 * * *'
       timezone: 'Europe/Rome'
-    - cron: '45 12 * * *'
+    - cron: '45 12,17 * * *'
       timezone: 'Europe/Rome'
-    - cron: '45 17 * * *'
+    # Recovery after missed evening slots; keeps due content eligible.
+    - cron: '30 21 * * *'
       timezone: 'Europe/Rome'
-
 permissions:
-  contents: write
-
+  contents: read
 concurrency:
   group: zazoomtek-cloudflare-production-release
   cancel-in-progress: false
-
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 65
+    timeout-minutes: 60
     steps:
-      - name: Respect owner hold - 22 Oct 17:45 moved to 20:15
-        id: editorial_slot
-        env:
-          ZT_SCHEDULE: ${{ github.event.schedule }}
-        shell: bash
-        run: |
-          if [[ "$(TZ=Europe/Rome date +%F)" == "2026-10-22" && "$ZT_SCHEDULE" == "45 17 * * *" ]]; then
-            echo "publish=false" >> "$GITHUB_OUTPUT"
-            echo "Owner postponed the 17:45 slot to 20:15 (Europe/Rome) on 22 Oct 2026."
-          else
-            echo "publish=true" >> "$GITHUB_OUTPUT"
-          fi
       - uses: actions/checkout@v4
-        if: steps.editorial_slot.outputs.publish == 'true'
         with:
           ref: main
           fetch-depth: 0
-          persist-credentials: true
-      - name: Check if 20:15 recovery is actually necessary
-        id: recovery
-        if: steps.editorial_slot.outputs.publish == 'true'
-        env:
-          ZT_SCHEDULE: ${{ github.event.schedule }}
-        run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import datetime,json,os,pathlib,urllib.request,subprocess
-          from zoneinfo import ZoneInfo
-          mode='normal'
-          source=''
-          # Never attempt to 'recover' a previously skipped 17:45 release.
-          if os.environ.get('ZT_SCHEDULE')=='25,40 20 * * *':
-              metadata=dict(line.split('=',1) for line in pathlib.Path('cloudflare-release-trigger.txt').read_text().splitlines() if '=' in line)
-              slot=metadata.get('slot_utc','')
-              expected=metadata.get('source_commit','')
-              try:
-                  when=datetime.datetime.fromisoformat(slot.replace('Z','+00:00')).astimezone(ZoneInfo('Europe/Rome'))
-                  now=datetime.datetime.now(ZoneInfo('Europe/Rome'))
-                  current=(when.date()==now.date() and (when.hour,when.minute)==(20,15))
-              except (ValueError,TypeError): current=False
-              if current and len(expected)==40:
-                  source=expected
-                  try:
-                      request=urllib.request.Request('https://zazoomtek.it/zt-release-status.json',headers={'Cache-Control':'no-cache, no-store','User-Agent':'ZazoomTek-Evening-Release-Recovery/1.0'})
-                      with urllib.request.urlopen(request,timeout=12) as response:
-                          receipt=json.load(response)
-                      current_sha=subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
-                      if receipt.get('validated') is True and receipt.get('source_commit') in (expected,current_sha):
-                          mode='skip'
-                      else: mode='retry_deploy'
-                  except Exception: mode='retry_deploy'
-          print('mode='+mode)
-          print('source='+source)
-          print('Evening publication decision:',mode,file=__import__('sys').stderr)
-          PY
       - uses: actions/setup-python@v5
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
         with:
           python-version: '3.12'
       - uses: actions/setup-node@v4
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
         with:
           node-version: '22'
-      - name: Install rendering dependency
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
-        run: python3 -m pip install --quiet pillow
-      - name: Import and commit directly to main
-        id: master_release
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode == 'normal' && github.event_name != 'push'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GH_TOKEN: ${{ github.token }}
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          ZT_CLOUDFLARE_DIRECT_DEPLOY: '1'
+      - name: Build latest approved editorial content (retry)
+        shell: bash
         run: |
-          git config user.name "ZazoomTek Master"
-          git config user.email "actions@users.noreply.github.com"
-          set -o pipefail
-          python3 scripts/master-production-gateway.py --publish | tee "$RUNNER_TEMP/zt-master-result.log"
-          python3 - "$RUNNER_TEMP/zt-master-result.log" >> "$GITHUB_OUTPUT" <<'PY'
-          import json,sys
-          data=None
-          for line in reversed(open(sys.argv[1],encoding="utf-8").read().splitlines()):
-              try: value=json.loads(line)
-              except (ValueError,TypeError): continue
-              if isinstance(value,dict) and value.get("success") is True and "release_requested" in value:
-                  data=value
-                  break
-          if data is None: raise SystemExit("Master did not confirm its release decision")
-          deploy=bool(data["release_requested"])
-          source=str(data.get("source_commit") or "")
-          if deploy and (len(source)!=40 or any(c not in "0123456789abcdef" for c in source)):
-              raise SystemExit("Release requested without a valid source commit SHA")
-          print("deploy="+str(deploy).lower())
-          print("source="+source)
-          PY
-      - name: Build latest main for Cloudflare Pages
-        id: release_build
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
-        run: |
-          git fetch origin main
-          git checkout main
-          git reset --hard origin/main
-          CURRENT_SHA="$(git rev-parse HEAD)"
-          echo "sha=$CURRENT_SHA" >> "$GITHUB_OUTPUT"
-          ZT_RELEASE_SOURCE_SHA="$CURRENT_SHA" python3 scripts/cloudflare-build-site.py
-      - name: Publish directly to Cloudflare Pages
-        id: cloudflare_release
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
-
-      - name: Purge Cloudflare cache after successful Pages deployment
-        if: steps.editorial_slot.outputs.publish == 'true' && steps.recovery.outputs.mode != 'skip' && steps.cloudflare_release.outcome == 'success'
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            if ZT_RELEASE_SOURCE_SHA="$(git rev-parse HEAD)" python3 scripts/cloudflare-build-site.py; then
+              echo "Editorial build succeeded on attempt $attempt"
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Editorial build failed three times, preserving last live site"
+              exit 1
+            fi
+            sleep $((attempt * 45))
+          done
+      - name: Deploy latest approved content (retry)
+        id: deploy
+        shell: bash
         env:
-          # Prefer a zone-scoped Cache Purge token; never expose it in the browser.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_PROJECT"
+          for attempt in 1 2 3; do
+            if npx --yes wrangler@3 pages deploy dist --project-name="$CLOUDFLARE_PROJECT" --branch=main; then
+              echo "Cloudflare deploy succeeded on attempt $attempt"
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Cloudflare deploy failed three times"
+              exit 1
+            fi
+            sleep $((attempt * 45))
+          done
+      - name: Purge Cloudflare cache (retry)
+        shell: bash
+        env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID || vars.CLOUDFLARE_ZONE_ID }}
-        run: python3 scripts/cloudflare-purge-after-release.py
+        run: |
+          for attempt in 1 2 3; do
+            if python3 scripts/cloudflare-purge-after-release.py; then exit 0; fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::warning::Deploy succeeded, purge failed; next publish will retry"
+              exit 0
+            fi
+            sleep $((attempt * 30))
+          done
