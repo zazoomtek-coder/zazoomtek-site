@@ -1,4 +1,5 @@
 name: ZazoomTek services10 offline regression tests
+# Isolated full collaudo requested: no merge and no Cloudflare deploy.
 on:
   pull_request:
     paths:
