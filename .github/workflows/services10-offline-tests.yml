@@ -30,3 +30,24 @@ jobs:
         run: python3 services10/test-packaging.py
       - name: Verify incremental Community articles and independent review catalog
         run: python3 services10/test-content-pages.py
+
+  site-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate independent Community and video pages from available archives
+        run: python3 services10/03-home.py
+      - name: Render independent featured, popular, web and reviews modules
+        run: |
+          python3 services10/04-in-evidenza.py
+          python3 services10/05-da-non-perdere.py
+          python3 services10/06-notizie-web.py
+          python3 services10/07-recensioni.py
+          python3 services10/08-studio.py
+      - name: Package actual repository HTML, CSS and assets independently
+        run: python3 services10/09-layout.py
+      - name: Audit actual full Cloudflare snapshot
+        run: python3 services10/audit-generated-site.py --dist dist
