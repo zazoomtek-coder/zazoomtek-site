@@ -48,7 +48,7 @@ jobs:
       - name: Read horizontal 16:9 videos, never Shorts
         env:
           ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
-        run: python3 services10/02-video-shorts.py
+        run: python3 services10/02-video-16x9.py
       - name: Save video archive
         run: python3 services10/state.py save videos
       - uses: actions/upload-artifact@v4
