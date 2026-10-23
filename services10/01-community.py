@@ -80,20 +80,30 @@ def merge(old,new):
 
 def main():
     old=json.loads(OUT.read_text(encoding="utf-8")) if OUT.is_file() else []
-    try:
-        url="https://www.youtube.com/@"+HANDLE.lstrip("@")+"/posts"
-        req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Accept-Language":"it-IT,it;q=0.9"})
-        with urllib.request.urlopen(req,timeout=35) as response:page=response.read().decode("utf-8","replace")
-        new=extract(page)
-        if not new:
-            print("Community page returned no parseable posts; retained previous archive")
-            return
-        result=merge(old,new)
-        OUT.parent.mkdir(parents=True,exist_ok=True)
-        with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",dir=OUT.parent,delete=False) as f:
-            json.dump(result,f,ensure_ascii=False,indent=2); name=f.name
-        os.replace(name,OUT)
-        print("Community posts observed:",len(new),"; retained total:",len(result))
-    except Exception as exc:
-        print("Community temporarily unavailable; archive retained:",str(exc)[:180])
+    found=[]
+    urls=(
+        "https://www.youtube.com/@"+HANDLE.lstrip("@")+"/posts",
+        "https://www.youtube.com/@"+HANDLE.lstrip("@")+"/community",
+        "https://www.youtube.com/channel/UCJs0ZT10hUiPRD0UZtUpI1Q/community",
+    )
+    for url in urls:
+        try:
+            req=urllib.request.Request(url,headers={
+                "User-Agent":"Mozilla/5.0",
+                "Accept-Language":"it-IT,it;q=0.9"})
+            with urllib.request.urlopen(req,timeout=19) as response:
+                page=response.read().decode("utf-8","replace")
+            found=merge(found,extract(page))
+        except Exception as exc:
+            print("Community endpoint unavailable:",url,str(exc)[:110])
+    if not found:
+        print("No new Community data: previous archive preserved")
+        return
+    result=merge(old,found)
+    OUT.parent.mkdir(parents=True,exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",dir=OUT.parent,delete=False) as f:
+        json.dump(result,f,ensure_ascii=False,indent=2)
+        name=f.name
+    os.replace(name,OUT)
+    print("Community posts observed:",len(found),"; retained total:",len(result))
 if __name__=="__main__":main()
