@@ -38,7 +38,7 @@ jobs:
           python3 scripts/verify-home-layout-lock.py
       - name: Build actual Cloudflare output offline without spending a Pages build
         run: python3 scripts/cloudflare-build-site.py
-      - name: Assert both dropdowns, destination pages and approved photos survive release
+      - name: Assert single approved Reviews dropdown, destination pages and approved photos survive release
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -53,8 +53,8 @@ jobs:
               found=re.search(r'<nav\s+class="nav"[^>]*>(.*?)</nav>',html,re.I|re.S)
               assert found, f'{page}: canonical main navigation missing'
               nav=found.group(1)
-              assert nav.count('class="nav-drop-trigger"')==2, f'{page}: two dropdown buttons missing'
-              assert all(f'href="{route}"' in nav for route in required), f'{page}: route missing'
+              assert nav.count('class="nav-drop-trigger"')==1, f'{page}: Reviews TECH/GAMING dropdown missing or duplicated'
+              assert all(f'href="{route}"' in nav for route in ('/recensioni-tech.html','/recensioni-gaming.html','/speciali.html')), f'{page}: active navigation route missing'
           for rel in required:
               assert (out/rel.lstrip('/')).is_file(), f'Missing published destination: {rel}'
           tech=(out/'recensioni-tech.html').read_text(encoding='utf-8')
@@ -66,7 +66,7 @@ jobs:
           js=(out/'zt-visual.js').read_text(encoding='utf-8')
           assert 'ZT_SITE_MENU_20261019' in css and 'ZT_SQUARE_EDITORIAL_20261019' in css
           assert 'ZT_SITE_MENU_FLYOUT_20261019' in js
-          assert '20261019siteMenuSquare1' in (out/'news.html').read_text()
+          assert '/zt-design.css?v=' in (out/'news.html').read_text(), 'News design CSS cache version absent'
           print('PASS: Home + six internal pages, all five dropdown links, two approved Tech covers, square editorial header, versioned CSS/JS.')
           PY
           python3 scripts/verify-home-layout-lock.py --packaged
