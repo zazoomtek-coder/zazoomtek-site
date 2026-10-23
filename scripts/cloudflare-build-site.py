@@ -99,6 +99,76 @@ def main() -> None:
     # Restore late-built YouTube watch-page revisions after all generators.
     run("studio-apply-overrides.py")
     # Public edit controls disabled; Studio remains available at /studio/.
+
+    # Durable Home source renderer, run AFTER all generators and BEFORE packaging.
+    # This operates on the disposable Cloudflare build checkout, never commits
+    # generated index.html to main. The approved JSON supplies the web headlines.
+    from html import escape as html_escape
+    from urllib.parse import urlsplit
+    home = ROOT / "index.html"
+    source = home.read_text(encoding="utf-8")
+    square_style = """<style id="force-squadrato-head">
+*, *::before, *::after, img, iframe, .card, .thumb, .block-title, .block-header, [class*="rounded"] {
+  border-radius:0px!important;-webkit-border-radius:0px!important;-moz-border-radius:0px!important;
+}
+</style>"""
+    source = re.sub(r'<style\s+id=["\']force-squadrato-head["\'][^>]*>[\s\S]*?</style>\s*', "", source, flags=re.I)
+    if "</head>" not in source:
+        raise RuntimeError("Cannot place square style: missing Home head")
+    source = source.replace("</head>", square_style + "\n</head>", 1)
+    newsfile = ROOT / "notizie-dal-web.json"
+    if not newsfile.is_file():
+        raise RuntimeError("Missing approved web-news JSON; preserving previous Home")
+    stories = json.loads(newsfile.read_text(encoding="utf-8")).get("items", [])
+    if not isinstance(stories, list) or not stories:
+        raise RuntimeError("Empty approved web-news list")
+    tiles = []
+    for story in stories[:5]:
+        url = story.get("url", "")
+        image = story.get("image", "")
+        title = story.get("original_title") or story.get("title") or ""
+        provider = story.get("source") or ""
+        if (not isinstance(url, str) or urlsplit(url).scheme != "https"
+                or not isinstance(image, str) or not image.startswith("/assets/notizie-dal-web/")
+                or not isinstance(title, str) or not title.strip()):
+            continue
+        tiles.append(
+            '<a class="zt-webnews-item" href="' + html_escape(url, quote=True) +
+            '" target="_blank" rel="noopener noreferrer"><img src="' +
+            html_escape(image, quote=True) + '" alt="' + html_escape(title, quote=True) +
+            '" loading="lazy"><span class="zt-webnews-info"><small>' +
+            html_escape(str(provider)) + '</small><strong>' +
+            html_escape(title) + '</strong></span></a>'
+        )
+    if not tiles:
+        raise RuntimeError("No valid web-news stories")
+    web_style = """<style id="zt-webnews-restored-style">
+#zt-webnews-home{margin:22px 0;background:#fff;border:1px solid #ddd;overflow:hidden}
+#zt-webnews-home .zt-webnews-head{background:#202020;color:#fff;min-height:46px;display:flex;align-items:center}
+#zt-webnews-home .zt-webnews-head h2{margin:0;padding:12px 18px;background:#d51232;color:#fff;font:900 15px/1.3 Arial,sans-serif}
+#zt-webnews-home .zt-webnews-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#zt-webnews-home .zt-webnews-item{display:flex;align-items:center;gap:12px;padding:12px;color:#222;text-decoration:none;border-bottom:1px solid #eee;min-width:0}
+#zt-webnews-home .zt-webnews-item img{width:100px;height:70px;object-fit:cover;flex:none}
+#zt-webnews-home .zt-webnews-info{display:flex;flex-direction:column;gap:5px;min-width:0}
+#zt-webnews-home .zt-webnews-info small{color:#d51232;font:800 11px Arial,sans-serif}
+#zt-webnews-home .zt-webnews-info strong{color:#222;font:700 13px/1.35 Arial,sans-serif}
+@media(max-width:720px){#zt-webnews-home .zt-webnews-grid{grid-template-columns:1fr}}
+</style>"""
+    source = re.sub(r'<style\s+id=["\']zt-webnews-restored-style["\'][^>]*>[\s\S]*?</style>\s*', "", source, flags=re.I)
+    source = source.replace("</head>", web_style + "\n</head>", 1)
+    panel = ('<!-- ZT_WEB_NEWS_RESTORED_20261023 -->\n'
+             '<section id="zt-webnews-home" class="zt-webnews-home" aria-label="NOTIZIE DAL WEB">'
+             '<header class="zt-webnews-head"><h2>NOTIZIE DAL WEB</h2></header>'
+             '<div class="zt-webnews-grid">' + "\n".join(tiles) + '</div></section>')
+    source = re.sub(r'<!-- ZT_WEB_NEWS_RESTORED_20261023 -->\s*<section\b[^>]*id=["\']zt-webnews-home["\'][\s\S]*?</section>\s*',
+                    "", source, flags=re.I)
+    marker = re.search(r'(<!-- ARTICLE_PAGINATION_END -->\s*</section>)', source, re.I)
+    if not marker:
+        raise RuntimeError("Cannot place web-news after Home pagination")
+    source = source[:marker.end()] + "\n" + panel + source[marker.end():]
+    home.write_text(source, encoding="utf-8")
+    print("HOME SOURCE RENDERED: forced square head +", len(tiles), "web stories", flush=True)
+
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
