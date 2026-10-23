@@ -17,13 +17,21 @@ def main():
     assert "services10/03-home.py" in source
     assert "services10/09-layout.py" in source
     assert "services10/10-cloudflare-publish.py" in source
-    expected_workflows={"services10-offline-tests.yml","services10-scheduled-cloudflare.yml"}
+    expected_workflows={"services10-offline-tests.yml","services10-scheduled-cloudflare.yml",
+                        "manual-direct-publish.yml","cloudflare-site-health.yml"}
     present={f.name for f in WORKFLOW.parent.glob("*.yml")}
     assert present==expected_workflows, ("Unexpected legacy workflow remains",present)
     assert "scripts/cloudflare-build-site.py" not in source
-    assert "--branch zt-services10-review" in source
+    assert "--branch main --production" in source
     assert "uses: actions/download-artifact@v4" in source
-    print("PASS: five Rome slots and autonomous Cloudflare pipeline, with no legacy builder")
+    manual=(WORKFLOW.parent/"manual-direct-publish.yml").read_text(encoding="utf-8")
+    assert "branches: [main]" in manual
+    assert "scripts/cloudflare-build-site.py" not in manual
+    assert "master-orchestrator" not in manual
+    assert "--branch main --production" in manual
+    assert "cloudflare-purge-after-release.py" in manual
+    assert "needs.video.result != 'success'" in source, "Video source must not block production"
+    print("PASS: five Rome slots, fail-soft videos, independent Cloudflare production and direct manual")
 
 if __name__=="__main__":
     main()
