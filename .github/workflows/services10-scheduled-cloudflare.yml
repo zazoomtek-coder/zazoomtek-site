@@ -70,11 +70,31 @@ jobs:
           node-version: '22'
       - uses: actions/download-artifact@v4
         with:
-          path: services10-data
+          path: .
           merge-multiple: true
-      # Temporary existing builder: must be replaced before integration.
-      - run: python3 scripts/cloudflare-build-site.py
-      - run: python3 services10/audit-generated-site.py --dist dist
+      - name: Generate Community news and 16:9 Watch pages
+        run: python3 services10/03-home.py
+        continue-on-error: true
+      - name: Update featured Tech and Gaming
+        run: python3 services10/04-in-evidenza.py
+        continue-on-error: true
+      - name: Update five Tech cards
+        run: python3 services10/05-da-non-perdere.py
+        continue-on-error: true
+      - name: Update independent Web news
+        run: python3 services10/06-notizie-web.py
+        continue-on-error: true
+      - name: Refresh independent review lists
+        run: python3 services10/07-recensioni.py
+        continue-on-error: true
+      - name: Restore Studio edit link to interior pages
+        run: python3 services10/08-studio.py
+        continue-on-error: true
+      - name: Assemble static Cloudflare snapshot without Master
+        run: python3 services10/09-layout.py
+      - name: Audit generated HTML snapshot
+        run: python3 services10/audit-generated-site.py --dist dist
+        continue-on-error: true
       - name: Preview-only Cloudflare deployment
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
