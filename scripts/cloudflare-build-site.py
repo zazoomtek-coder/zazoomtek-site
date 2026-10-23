@@ -172,22 +172,23 @@ def main() -> None:
     source = source[:marker.end()] + "\n" + panel + source[marker.end():]
     # Draft layout: one lead story and four compact stories, in the centre
     # immediately after the dynamically rendered latest-video explorer.
+    # Screenshot layout: lead story on the left, four stacked short items on
+    # the right. No "VEDI TUTTE" link in this editorial panel.
     draft_style = """<style id="zt-draft-webnews-center">
-#zt-webnews-home{margin:18px 0;clear:both}
-#zt-webnews-home .zt-webnews-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
-#zt-webnews-home .zt-webnews-item{display:grid;grid-template-columns:76px minmax(0,1fr);gap:9px;border:1px solid #eee;padding:7px;min-height:85px}
-#zt-webnews-home .zt-webnews-item img{width:76px;height:70px;object-fit:cover}
-#zt-webnews-home .zt-webnews-item:first-child{grid-column:1/-1;grid-template-columns:45% minmax(0,1fr);padding:0;min-height:155px}
-#zt-webnews-home .zt-webnews-item:first-child img{width:100%;height:100%;min-height:155px;aspect-ratio:16/9}
-#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-info{padding:14px 10px}
-#zt-webnews-home .zt-webnews-item:first-child strong{font-size:17px;line-height:1.3}
+#zt-webnews-home{margin:18px 0;clear:both;border-radius:0}
+#zt-webnews-home .zt-webnews-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-rows:repeat(4,minmax(84px,auto));gap:0;padding:10px}
+#zt-webnews-home .zt-webnews-item{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:10px;border-bottom:1px solid #e7e7e7;padding:7px;min-width:0;min-height:85px}
+#zt-webnews-home .zt-webnews-item img{width:92px;height:73px;object-fit:cover}
+#zt-webnews-home .zt-webnews-item:first-child{grid-column:1;grid-row:1/5;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;border-right:1px solid #e7e7e7;border-bottom:0;padding:8px 14px 8px 4px}
+#zt-webnews-home .zt-webnews-item:first-child img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-info{padding:10px 3px}
+#zt-webnews-home .zt-webnews-item:first-child strong{font-size:18px;line-height:1.35}
 #zt-webnews-home .zt-webnews-item:hover strong{color:#d51232}
-@media(max-width:650px){#zt-webnews-home .zt-webnews-grid{grid-template-columns:1fr}#zt-webnews-home .zt-webnews-item:first-child{grid-column:1;grid-template-columns:1fr}#zt-webnews-home .zt-webnews-item:first-child img{height:auto}#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-info{padding:8px}}
+@media(max-width:650px){#zt-webnews-home .zt-webnews-grid{display:flex;flex-direction:column}#zt-webnews-home .zt-webnews-item:first-child{border-right:0;border-bottom:1px solid #e7e7e7;padding:8px}#zt-webnews-home .zt-webnews-item:first-child img{height:auto}}
 </style>"""
     source = re.sub(r'<style id="zt-draft-webnews-center">[\\s\\S]*?</style>', "", source)
     source = source.replace("</head>", draft_style + "\n</head>", 1)
-    # The video explorer is composed by the current homepage scripts. Move
-    # the existing panel after the explorer once it exists; never clone it.
+    # Move the block after the existing video explorer, without cloning it.
     draft_relocate = """<script id="zt-draft-webnews-relocate">
 (function(){
   function place(){
@@ -206,28 +207,43 @@ def main() -> None:
 </script>"""
     source = re.sub(r'<script id="zt-draft-webnews-relocate">[\\s\\S]*?</script>', "", source)
     source = source.replace("</body>", draft_relocate + "\n</body>", 1)
-    # Two extra actual Tech article cards, distinct from those already shown.
-    box_match = re.search(r'(<!-- POPULAR_NEWS_ITEMS_START -->)([\\s\\S]*?)(<!-- POPULAR_NEWS_ITEMS_END -->)', source)
-    if box_match:
-        old_popular = box_match.group(2)
-        existing = set(re.findall(r'class="zt-popular-article" href="([^"]+)"', old_popular))
-        feed = source.split('<!-- ARTICLE_FEED_START -->',1)[-1].split('<!-- ARTICLE_FEED_END -->',1)[0]
-        extras = []
-        for article in re.findall(r'<article class="article-row"[^>]*data-post-category="tech"[^>]*>[\\s\\S]*?</article>', feed):
-            link = re.search(r'<h3><a href="([^"]+)">([\\s\\S]*?)</a></h3>',article)
-            picture = re.search(r'<img class="article-image" src="([^"]+)"',article)
-            if not link or not picture or ("/"+link.group(1)) in existing:
-                continue
-            href,title,img = "/"+link.group(1),link.group(2),picture.group(1)
-            extras.append('<a class="zt-popular-article" href="'+html_escape(href,quote=True)+'">'
-                          '<img src="'+html_escape(img,quote=True)+'" alt="'+title+'" loading="lazy">'
-                          '<span class="zt-popular-copy"><span class="zt-popular-category">TECNOLOGIA</span>'
-                          '<strong>'+title+'</strong></span></a>')
-            existing.add(href)
-            if len(extras)==2:break
-        if len(extras)==2:
-            replacement=box_match.group(1)+old_popular+"\n"+"\n".join(extras)+"\n"+box_match.group(3)
-            source=source[:box_match.start()]+replacement+source[box_match.end():]
+
+    # Render five Tech news cards in Da non perdere, choosing the latest
+    # live-imported Tech articles; never depend on a stale static six-card list.
+    popular = re.search(r'(<!-- POPULAR_NEWS_ITEMS_START -->)([\\s\\S]*?)(<!-- POPULAR_NEWS_ITEMS_END -->)', source)
+    if popular:
+        articles = source.split('<!-- ARTICLE_FEED_START -->',1)[-1].split('<!-- ARTICLE_FEED_END -->',1)[0]
+        chosen = []
+        used = set()
+        candidates = re.findall(r'<article\\b[^>]*class="article-row"[^>]*>[\\s\\S]*?</article>', articles)
+        for card in candidates:
+            if not re.search(r'data-post-category="tech"',card,re.I): continue
+            m = re.search(r'<h3><a href="([^"]+)"[^>]*>([\\s\\S]*?)</a></h3>',card,re.I)
+            img = re.search(r'<img\\b[^>]*\\bsrc="([^"]+)"',card,re.I)
+            if not m or not img: continue
+            href = m.group(1)
+            if not href.startswith('/'): href='/'+href
+            if href in used: continue
+            title = re.sub(r'<[^>]+>', '', m.group(2)).strip()
+            chosen.append('<a class="zt-popular-article" href="'+html_escape(href,quote=True)+'"><img src="'+html_escape(img.group(1),quote=True)+'" alt="'+html_escape(title,quote=True)+'" loading="lazy"><span class="zt-popular-copy"><span class="zt-popular-category">TECNOLOGIA</span><strong>'+html_escape(title)+'</strong></span></a>')
+            used.add(href)
+            if len(chosen)==5: break
+        # Preserve existing approved cards as fallback if today's Tech feed is sparse.
+        for card in re.findall(r'<a class="zt-popular-article"[\\s\\S]*?</a>',popular.group(2)):
+            href = re.search(r'href="([^"]+)"',card)
+            if href and href.group(1) not in used and len(chosen)<5:
+                chosen.append(card);used.add(href.group(1))
+        if len(chosen)==5:
+            source=source[:popular.start()]+popular.group(1)+"\n"+"\n".join(chosen)+"\n"+popular.group(3)+source[popular.end():]
+        else:
+            print("::warning::Only",len(chosen),"Tech cards for DA NON PERDERE; retaining prior list")
+    # Enforce five *visible* cards, overriding older three-card layout limits.
+    source=source.replace("</head>", """<style id="zt-popular-five-visible">
+#zt-popular-box .zt-popular-list .zt-popular-article{display:flex!important;visibility:visible!important}
+#zt-popular-box .zt-popular-list .zt-popular-article:nth-child(n+6){display:none!important}
+#zt-popular-box .zt-popular-list{max-height:none!important;height:auto!important;overflow:visible!important}
+</style>
+</head>""",1)
     home.write_text(source, encoding="utf-8")
     print("HOME SOURCE RENDERED: forced square head +", len(tiles), "web stories", flush=True)
 
