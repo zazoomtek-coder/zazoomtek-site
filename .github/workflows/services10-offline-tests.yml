@@ -19,3 +19,5 @@ jobs:
         run: python3 -m compileall -q services10
       - name: Verify malformed Community/video records, archive retention and Shorts exclusion
         run: python3 services10/test-importers.py
+      - name: Test persistent Git archive and concurrent saves
+        run: python3 services10/test-state.py
