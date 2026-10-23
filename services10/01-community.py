@@ -20,20 +20,34 @@ def text(node):
         if "runs" in node:return "".join(str(x.get("text","")) for x in node["runs"] if isinstance(x,dict))
     return ""
 def extract(page):
-    m=re.search(r'(?:var\s+ytInitialData\s*=|window\["ytInitialData"\]\s*=)\s*(\{[\s\S]*?\})\s*;',page)
-    if not m:return []
-    root=json.loads(m.group(1))
+    # Decode the complete nested JSON value. A non-greedy brace regex can
+    # truncate an otherwise valid YouTube post collection.
+    marker = re.search(
+        r'(?:var\\s+ytInitialData\\s*=|window\\[["\\']ytInitialData["\\']\\]\\s*=)\\s*',
+        page
+    )
+    if not marker:
+        return []
+    try:
+        root, _ = json.JSONDecoder().raw_decode(page[marker.end():].lstrip())
+    except (json.JSONDecodeError, ValueError):
+        return []
     out=[]
+    seen=set()
     for obj in walk(root):
         try:
             post=obj.get("backstagePostRenderer") or obj.get("postRenderer")
             if not isinstance(post,dict):continue
             pid=post.get("postId") or post.get("id")
             msg=text(post.get("contentText") or post.get("content") or {})
-            if not pid or not msg:continue
-            out.append({"id":pid,"title":msg[:160],"text":msg,"url":"https://www.youtube.com/post/"+pid})
-        except (TypeError,ValueError,KeyError,AttributeError):continue
+            if not pid or not msg or pid in seen:continue
+            seen.add(pid)
+            out.append({"id":pid,"title":msg[:160],"text":msg,
+                        "url":"https://www.youtube.com/post/"+pid})
+        except (TypeError,ValueError,KeyError,AttributeError):
+            continue
     return out
+
 def merge(old,new):
     posts={}
     for item in old+new:
