@@ -2061,3 +2061,6 @@ html body main.page :is(
  .ztp-news-head,.ztp-review-head,.zt-shelf-head,
  .zt-webnews-head,.zt-home-guide-heading,.ztp-extra-head
 ){border-radius:0!important}
+
+/* ZazoomTek owner request 2026-10-23: sharp corners everywhere */
+:where(.module,.side-module,.side-box,.compact-box,.news-card,.video-card,.article-card,.article-image,.news-row img,.video-thumb,.read-more,.news-read,.search-box,.zt-search,.search-top,.zt-review-card,.zt-video-stack,.zt-latest-videos,.zt-shorts-box,.section-head,.module-head,.module-title,.side-head,.card,.btn,button,input,select,textarea){border-radius:0!important;}
