@@ -118,6 +118,33 @@ def main() -> None:
     run("test_home_10x10_release.py", "dist")
     run("verify-packaged-home.py", "--root", "dist")
     output = ROOT / "dist"
+    # Asset cache busting happens in the FINAL distributable after all article
+    # renderers and packaged-layout guards. No tracked source file is rewritten.
+    # Microseconds ensure distinct CSS URLs even for releases in the same second.
+    from datetime import datetime, timezone
+    import re
+    css_version = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    css_ref = re.compile(
+        r"""(?P<attr>href\s*=\s*["'])(?P<path>/?zt-design\.css)(?:\?v=[^"']*)?(?P<close>["'])""",
+        re.I,
+    )
+    versioned_pages = 0
+    for page in output.rglob("*.html"):
+        original = page.read_text(encoding="utf-8", errors="replace")
+        updated, count = css_ref.subn(
+            lambda m: m.group("attr") + m.group("path") + "?v=" + css_version + m.group("close"),
+            original,
+        )
+        if count:
+            page.write_text(updated, encoding="utf-8")
+            versioned_pages += 1
+    if versioned_pages < 1:
+        raise RuntimeError("No CSS references found in the Cloudflare HTML package")
+    home_html = (output / "index.html").read_text(encoding="utf-8")
+    if "/zt-design.css?v=" + css_version not in home_html:
+        raise RuntimeError("Cloudflare Home did not receive its dynamic CSS version")
+    print("CSS RELEASE VERSION:", css_version, "HTML files:", versioned_pages, flush=True)
+
     assert (output / "watch" / "index.html").is_file()
     assert (output / "news.html").is_file()
     assert (output / "studio/index.html").is_file()
@@ -135,10 +162,13 @@ def main() -> None:
     release_file = ROOT / "cloudflare-release-trigger.txt"
     marker = release_file.read_text(encoding="utf-8")
     match = re.search(r"^source_commit=([a-f0-9]{40})$", marker, re.M)
-    if not match:
-        raise RuntimeError("Cloudflare release source SHA is missing or invalid")
+    # Push releases do not mutate the editorial release marker. Their source
+    # is the checked-out main SHA supplied by the publishing workflow.
+    source_sha = os.environ.get("ZT_RELEASE_SOURCE_SHA", "").strip() or (match.group(1) if match else "")
+    if not re.fullmatch(r"[a-f0-9]{40}", source_sha):
+        raise RuntimeError("Cloudflare build source SHA is missing or invalid")
     receipt = {
-        "source_commit": match.group(1),
+        "source_commit": source_sha,
         "validated": True,
         "editorial_status": "partial" if BUILD_WARNINGS else "complete",
         "editorial_warnings": sorted(set(BUILD_WARNINGS)),
@@ -147,7 +177,7 @@ def main() -> None:
     (output / "zt-release-status.json").write_text(
         json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8")
-    print("CLOUDFLARE SITE READY; release receipt:", match.group(1), flush=True)
+    print("CLOUDFLARE SITE READY; release receipt:", source_sha, flush=True)
 
 if __name__ == "__main__":
     main()
