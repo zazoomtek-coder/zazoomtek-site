@@ -78,8 +78,9 @@ $('navWrite').onclick=()=>navigate('editor');$('navDraft').onclick=()=>navigate(
 for(const id of ['insertOverlay','previewOverlay','checksOverlay'])$(id).addEventListener('mousedown',e=>{if(e.target===$(id))$(id).classList.remove('show')});document.addEventListener('mousedown',e=>{if(!$('insertMenu').contains(e.target)&&e.target!==$('plusBtn')&&e.target!==$('plusBottom'))setMenu(false)});document.addEventListener('selectionchange',()=>{if(selectionInside())updatePlus()});window.addEventListener('resize',updatePlus);
 window.ZTStudio={safeDoc,getDraft,saveDraft,cleanHTML};loadStorage();newDraft();})();
 </script>
-<script src="/studio/layouts.js" defer></script>
-<script src="/studio/publisher.js" defer></script>
-<script src="/studio/edit-existing.js?v=20261023replaceCover" defer></script>
+<script src="/studio/editorial-seo.js?v=20261023contentSEO1" defer></script>
+<script src="/studio/layouts.js?v=20261023contentSEO1" defer></script>
+<script src="/studio/publisher.js?v=20261023contentSEO1" defer></script>
+<script src="/studio/edit-existing.js?v=20261023contentSEO1" defer></script>
 <script src="/studio/cover-controls.js" defer></script>
 </body></html>
