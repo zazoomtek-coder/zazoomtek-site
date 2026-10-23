@@ -278,11 +278,11 @@
   // Some asynchronous Home enhancers mount another compact Tech-review panel
   // inside the right rail. Remove that panel ONLY, not the main reviews area.
   function dropRetiredRightRailBoxes(){
-    rail.querySelector("#zt-popular-box")?.remove();
+    // Preserve the approved DA NON PERDERE Tech editorial box.
     for(const child of [...rail.children]){
       if(child.id==="ztpOtherNews")continue;
       const header=child.querySelector(":scope > .module-head h2,:scope > .side-head h2,:scope > .zt-popular-head h2,:scope > h2");
-      if(header && /^(?:DA NON PERDERE|DALLA REDAZIONE|RECENSIONI TECH)$/i.test(header.textContent.trim())){
+      if(header && /^(?:DALLA REDAZIONE|RECENSIONI TECH)$/i.test(header.textContent.trim())){
         child.remove();
       }
     }
@@ -388,8 +388,8 @@
       otherList.replaceChildren();
       otherSignature=signature;
     }
-    const minimum=Math.min(available.length,desktop?2:6);
-    if(otherList.children.length>Math.min(available.length,22)){
+    const minimum=Math.min(available.length,desktop?2:4);
+    if(otherList.children.length>Math.min(available.length,6)){
       otherList.replaceChildren();otherSignature=signature;
     }
     while(otherList.children.length<minimum){
@@ -402,7 +402,7 @@
         // Stop at the closest real card height to ESPLORA ULTIMI VIDEO.
         let bottom=otherBox.getBoundingClientRect().bottom;
         while(bottom<target-12 &&
-              otherList.children.length<Math.min(22,available.length)){
+              otherList.children.length<Math.min(6,available.length)){
           appendStory(available[otherList.children.length]);
           bottom=otherBox.getBoundingClientRect().bottom;
         }
