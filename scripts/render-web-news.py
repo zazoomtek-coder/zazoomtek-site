@@ -18,11 +18,11 @@ GUIDE_END="<!-- HOME_GUIDES_INSET_END -->"
 CSS_ID="zt-web-news-css"
 CSS=r"""
 /* Scoped external press-review module; does not alter existing editorial cards. */
-.zt-webnews{margin:18px 0 25px;background:#fff;border:1px solid #e1e2e5;padding:0 0 14px;min-width:0}
+.zt-webnews{margin:18px 0 25px;background:#fff;border:1px solid #e1e2e5;padding:0 0 14px;min-width:0;border-radius:0!important;overflow:hidden}
 .zt-webnews *{box-sizing:border-box}
 .zt-webnews-head{display:flex;align-items:stretch;justify-content:space-between;background:#1c1c1e;color:#fff;min-height:47px}
-.zt-webnews-head h2{margin:0;padding:12px 15px;font:900 16px/1.35 Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:.02em}
-.zt-webnews-head a{display:flex;align-items:center;padding:0 17px;background:#d51232;color:white;text-decoration:none;font:800 11px/1.2 Arial,Helvetica,sans-serif}
+.zt-webnews-head h2{display:flex;align-items:center;margin:0;padding:0 34px 0 16px;height:48px;max-width:calc(100% - 24px);width:max-content;background:#d51232;color:#fff;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 100%,0 100%);font:900 16px/1.2 Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+.zt-webnews-head{border-bottom:3px solid #d51232;border-radius:0!important}
 .zt-webnews-grid{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);gap:18px;padding:17px}
 .zt-webnews-feature{display:flex;flex-direction:column;min-width:0}
 .zt-webnews-image{display:block;aspect-ratio:16/9;overflow:hidden;background:#292e39}
@@ -43,7 +43,7 @@ CSS=r"""
 .zt-webnews-side .zt-webnews-source{margin-top:4px;font-size:10px}
 .zt-webnews-footer{font:11px/1.5 Arial,sans-serif;color:#777;margin:0 17px;padding-top:10px;border-top:1px solid #eee}
 @media(max-width:1080px){.zt-webnews-grid{grid-template-columns:1fr}.zt-webnews-side{grid-template-columns:1fr 1fr;grid-template-rows:auto}.zt-webnews-item{grid-template-columns:minmax(95px,37%) minmax(0,1fr)}}
-@media(max-width:640px){.zt-webnews-grid{padding:12px;gap:15px}.zt-webnews-side{grid-template-columns:1fr}.zt-webnews-feature h3{font-size:17px}.zt-webnews-head h2{font-size:14px}.zt-webnews-head a{font-size:10px}.zt-webnews-item{grid-template-columns:36% minmax(0,1fr)}}
+@media(max-width:640px){.zt-webnews-grid{padding:12px;gap:15px}.zt-webnews-side{grid-template-columns:1fr}.zt-webnews-feature h3{font-size:17px}.zt-webnews-head h2{font-size:14px}.zt-webnews-item{grid-template-columns:36% minmax(0,1fr)}}
 """
 
 def render_cards(data):
@@ -63,7 +63,7 @@ def render_cards(data):
     right=[]
     for v in items[1:]:
         right.append('<article class="zt-webnews-item">'+image(v)+'<div><h3><a href="'+link(v)+'" target="_blank" rel="nofollow noopener">'+title(v)+'</a></h3><p>'+escape(v["excerpt"])+'</p><span class="zt-webnews-source">Fonte: '+escape(v["source"])+'</span></div></article>')
-    return START+'<section class="zt-webnews" id="ztWebNews" aria-labelledby="ztWebNewsTitle" data-web-news="independent-external-rss"><header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2><a href="#ztWebNewsCredits">LE FONTI ↗</a></header><div class="zt-webnews-grid">'+first+'<div class="zt-webnews-side">'+"".join(right)+'</div></div><p class="zt-webnews-footer" id="ztWebNewsCredits">Rassegna esterna · 5 notizie · titoli e sintesi rielaborati. Le miniature provengono dai feed o dalle anteprime degli articoli originali e sono ottimizzate in WebP, con attribuzione alla fonte. I collegamenti aprono gli articoli sui siti degli editori.</p></section>'+END
+    return START+'<section class="zt-webnews" id="ztWebNews" aria-labelledby="ztWebNewsTitle" data-web-news="independent-external-rss"><header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2></header><div class="zt-webnews-grid">'+first+'<div class="zt-webnews-side">'+"".join(right)+'</div></div><p class="zt-webnews-footer" id="ztWebNewsCredits">Rassegna esterna · 5 notizie · titoli e sintesi rielaborati. Le miniature provengono dai feed o dalle anteprime degli articoli originali e sono ottimizzate in WebP, con attribuzione alla fonte. I collegamenti aprono gli articoli sui siti degli editori.</p></section>'+END
 
 def apply(home,data,root=ROOT):
     # The live Home is assembled by zt-home-live.js into its approved 30/50/20
@@ -124,6 +124,8 @@ def self_test():
     data={"items":[{"id":str(i),"source":"SmartWorld","url":"https://www.smartworld.it/test/"+str(i),"image":"/assets/notizie-dal-web/"+str(i)+".webp","title":"Focus tecnologia "+str(i),"excerpt":"Sintesi."} for i in range(5)]}
     first=apply(sample,data)
     assert first.count("NOTIZIE DAL WEB")>=1
+    assert 'LE FONTI ↗' not in first
+    assert '<header class="zt-webnews-head"><h2 id="ztWebNewsTitle">NOTIZIE DAL WEB</h2></header>' in first
     assert 'id="ztWebNewsStaging"' in first
     assert first.count("HOME_GUIDES_INSET_START")==1
     assert first.index("HOME_GUIDES_INSET_START")<first.index("ARTICLE_PAGINATION_END")
