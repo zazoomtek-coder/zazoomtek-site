@@ -180,4 +180,5 @@ def update(root:Path=ROOT,refresh:bool=False):
     return count
 
 if __name__=="__main__":
-    update(refresh=True)
+    import sys
+    update(refresh="--offline" not in sys.argv)
