@@ -172,17 +172,18 @@ def classify(item: dict, approved: set[str], channel: str = CHANNEL) -> tuple[st
               "duration_seconds": seconds}
     if not record["title"]:
         return "other", None
-    if vid in approved:
-        record.update({"type": "landscape_video", "verification": "confirmed_16x9_registry"})
-        return "landscape", record
-    # Shorts can be up to 3 minutes and may be vertical or square.
+    # Strict boundary: even a previously confirmed or manually approved ID
+    # cannot be auto-imported when duration is 180 seconds or less.
     if seconds <= 180:
         return "short_or_unknown", None
-    # Editorial rule requested: >180 seconds is automatically accepted as
-    # a STANDARD video (not a Short), without claiming frame geometry is 16:9.
+    # More than 180 seconds is eligible as a standard non-Short video.
+    # It does not, by itself, establish the source's aspect ratio.
+    verified_aspect = vid in approved
     record.update({"type": "landscape_video",
-                   "verification": "duration_over_3m_not_short",
-                   "orientation": "unverified"})
+                   "verification": "confirmed_16x9_registry"
+                       if verified_aspect else "duration_over_3m_not_short",
+                   "orientation": "16:9_confirmed"
+                       if verified_aspect else "unverified"})
     return "landscape", record
 
 def merge(previous: list[dict], incoming: list[dict]) -> list[dict]:
@@ -249,28 +250,14 @@ def run() -> dict:
         print("No candidates: keeping prior archive and previously pending videos")
         return {"source": "no_candidates", "verified_new": 0, "pending_new": 0, "retained": len(old)}
     if not API_KEY:
-        # The official RSS feed contains no trustworthy orientation/Shorts field,
-        # but IDs explicitly approved as 16:9 can be safely refreshed via RSS.
-        eligible = [{**item, "type": "landscape_video",
-                     "verification": "confirmed_16x9_registry"}
-                    for item in candidates if item["id"] in approved]
-        updated = merge(old, eligible)
-        if updated != old: save(updated)
-        print("API key unavailable: RSS-only verified IDs:",len(eligible),
-              "unverified RSS candidates ignored:",len(candidates)-len(eligible))
-        return {"source": "approved_rss_fallback", "verified_new": len(eligible),
-                "pending_new": len(prior_pending), "retained": len(updated)}
+        print("API key missing: RSS has no durations; no unknown IDs imported.")
+        return {"source": "rss_without_duration", "verified_new": 0,
+                "pending_new": 0, "retained": len(old)}
     known = metadata(candidates)
-    if not known and rss_ok and approved:
-        # Temporary API quota/availability failure: do not drop approved IDs.
-        eligible = [{**item, "type": "landscape_video",
-                     "verification": "confirmed_16x9_registry"}
-                    for item in candidates if item["id"] in approved]
-        updated = merge(old, eligible)
-        if updated != old: save(updated)
-        print("Metadata API unavailable: retained approved RSS entries:",len(eligible))
-        return {"source": "approved_rss_fallback", "verified_new": len(eligible),
-                "pending_new": len(prior_pending), "retained": len(updated)}
+    if not known:
+        print("YouTube API supplied no durations: retained verified archive; RSS cannot prove >180s")
+        return {"source": "metadata_unavailable", "verified_new": 0,
+                "pending_new": 0, "retained": len(old)}
     landscape = []
     skips = 0
     for item in known:
@@ -279,9 +266,6 @@ def run() -> dict:
             landscape.append(row)
         else:
             skips += 1
-    approved.update(row["id"] for row in old if isinstance(row, dict) and
-                    row.get("type") == "landscape_video" and row.get("verification") in
-                    ("confirmed_16x9_registry", "source_stream_geometry"))
     updated = merge(old, landscape)
     if updated != old:
         save(updated)
