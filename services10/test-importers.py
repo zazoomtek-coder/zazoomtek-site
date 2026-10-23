@@ -104,6 +104,23 @@ def main():
                 assert videos.load(videos.OUT)==verified
                 assert videos.load(videos.PENDING)==waiting
 
+    # Without a key or during API downtime, only manually verified 16:9 IDs
+    # may flow from RSS; unknown long videos and Shorts remain blocked.
+    with TemporaryDirectory() as tmp:
+        folder=Path(tmp)
+        with patch.object(videos,"OUT",folder/"videos.json"), \
+             patch.object(videos,"PENDING",folder/"pending.json"), \
+             patch.object(videos,"API_KEY",""), \
+             patch.object(videos,"confirmed_ids",return_value={"abcdef12345"}), \
+             patch.object(videos,"rss_candidates",return_value=[
+                 {"id":"abcdef12345","title":"Short but confirmed horizontal",
+                  "published":"2026-10-23T15:00:00Z","url":"https://www.youtube.com/watch?v=abcdef12345"},
+                 {"id":"shortvid001","title":"Unknown Short",
+                  "published":"2026-10-23T15:00:00Z","url":"https://www.youtube.com/watch?v=shortvid001"}]):
+            stats=videos.run()
+            assert stats["source"]=="approved_rss_fallback"
+            assert {x["id"] for x in videos.load(videos.OUT)}=={"abcdef12345"}
+
     # Braces inside post text and malformed neighbours never break Community.
     posts={"contents":{
         "a":{"backstagePostRenderer":{"postId":"Ugkx123",
