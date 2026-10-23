@@ -48,7 +48,7 @@ jobs:
         run: |
           python3 services10/04-in-evidenza.py
           python3 services10/05-da-non-perdere.py
-          python3 services10/06-notizie-web.py
+          python3 services10/06-notizie-web.py --offline
           python3 services10/07-recensioni.py
           python3 services10/08-studio.py
       - name: Package actual repository HTML, CSS and assets independently
