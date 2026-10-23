@@ -2089,3 +2089,13 @@ a[href*="/studio/?edit="], a[href*="edit"] { display: none !important; }
 {overflow:hidden;border:1px solid #e5e5e5;background:#fff;color:#24282c;}
 :is(.article-side,.news-sidebar,.zt-side-mix,.sidebar) :is(.zt-amazon-partner,.zt-sidebar-editorial,.side-module,.side-box,.module) :is(p,li,small)
 {line-height:1.5;overflow-wrap:anywhere;}
+
+/* SQUADRATO FORCE 99 - explicit final override */
+html body img, html body .card-img, html body .wp-post-image,
+html body .thumb img, html body .entry-thumbnail img,
+html body .block-title, html body .block-header,
+html body div[class*="block"], html body div[class*="card"] {
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    overflow: hidden !important;
+}
