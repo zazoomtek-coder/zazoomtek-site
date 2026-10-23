@@ -101,7 +101,9 @@ def main() -> None:
     # Generators may refresh content, but must never rewrite locked Home layout.
     # Restore late-built YouTube watch-page revisions after all generators.
     run("studio-apply-overrides.py")
-    # Public edit controls disabled; Studio remains available at /studio/.
+    # Restore owner Studio quick-edit links on generated news and review pages.
+    # Buttons appear only in browsers with an active Studio session.
+    run("studio-inject-edit-button.py")
 
     # Durable Home source renderer, run AFTER all generators and BEFORE packaging.
     # This operates on the disposable Cloudflare build checkout, never commits
