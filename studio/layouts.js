@@ -169,6 +169,11 @@ async function build(opt){
  const info=formatBody(opt.body,isReview);
  if(isReview){schema.itemReviewed={"@type":"CreativeWork",name:opt.title};if(info.score!=null)schema.reviewRating={"@type":"Rating",ratingValue:Number(info.score),bestRating:10,worstRating:0};}
  const ld=doc.createElement("script");ld.type="application/ld+json";ld.textContent=JSON.stringify(schema).replace(/</g,"\\u003c");doc.head.append(ld);
+ // SEO editoriale viene applicato all'HTML definitivo senza duplicati.
+ if(!window.ZTStudioSEO?.apply)throw Error("Motore SEO editoriale non caricato: pubblicazione interrotta.");
+ const smart=opt.seo||window.ZTStudioSEO.analyze({title:opt.title,category:opt.category,body:opt.body,cover:opt.cover,url:opt.url});
+ window.ZTStudioSEO.apply(doc,smart,{category:opt.category,body:opt.body,cover:opt.cover,url:opt.url,date:opt.date,published:opt.date});
+
  const style=doc.createElement("style");style.textContent=EXTRA_CSS;doc.head.append(style);
  const script=doc.createElement("script");script.textContent=SIDEBAR_SCRIPT;doc.body.append(script);
  return "<!doctype html>\n"+doc.documentElement.outerHTML;
@@ -190,7 +195,7 @@ function preview(){
  const frame=overlay.querySelector("iframe");
  frame.srcdoc='<p style="font-family:Arial;padding:35px">Caricamento del modello editoriale…</p>';
  const body=window.ZTStudio.safeDoc(),date=new Date().toISOString();
- build({title,category,cover,body,description:document.getElementById("editor").innerText.trim().slice(0,155),date,url:"/anteprima-studio.html"})
+ build({title,category,cover,body,description:"",date,url:"/anteprima-studio.html",seo:window.ZTStudioSEOPrepare?.({title,category,body,cover,url:"/anteprima-studio.html"})})
  .then(html=>{if(overlay.style.display==="block")frame.srcdoc=html;})
  .catch(e=>{frame.srcdoc='<p style="font-family:Arial;padding:35px;color:#b00">'+enc(e.message)+'</p>';});
 }
