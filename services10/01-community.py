@@ -23,7 +23,7 @@ def extract(page):
     # Decode the complete nested JSON value. A non-greedy brace regex can
     # truncate an otherwise valid YouTube post collection.
     marker = re.search(
-        r'(?:var\\s+ytInitialData\\s*=|window\\[["\\']ytInitialData["\\']\\]\\s*=)\\s*',
+        r"(?:var\s+ytInitialData\s*=|window\[[\"']ytInitialData[\"']\]\s*=)\s*",
         page
     )
     if not marker:
