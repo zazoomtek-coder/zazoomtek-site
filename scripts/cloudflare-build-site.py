@@ -101,7 +101,7 @@ def main() -> None:
     # Generators may refresh content, but must never rewrite locked Home layout.
     # Restore late-built YouTube watch-page revisions after all generators.
     run("studio-apply-overrides.py")
-    # Public edit controls disabled; Studio remains available at /studio/.
+    run("studio-inject-edit-button.py")
 
     # Durable Home source renderer, run AFTER all generators and BEFORE packaging.
     # This operates on the disposable Cloudflare build checkout, never commits
@@ -170,6 +170,64 @@ def main() -> None:
     if not marker:
         raise RuntimeError("Cannot place web-news after Home pagination")
     source = source[:marker.end()] + "\n" + panel + source[marker.end():]
+    # Draft layout: one lead story and four compact stories, in the centre
+    # immediately after the dynamically rendered latest-video explorer.
+    draft_style = """<style id="zt-draft-webnews-center">
+#zt-webnews-home{margin:18px 0;clear:both}
+#zt-webnews-home .zt-webnews-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
+#zt-webnews-home .zt-webnews-item{display:grid;grid-template-columns:76px minmax(0,1fr);gap:9px;border:1px solid #eee;padding:7px;min-height:85px}
+#zt-webnews-home .zt-webnews-item img{width:76px;height:70px;object-fit:cover}
+#zt-webnews-home .zt-webnews-item:first-child{grid-column:1/-1;grid-template-columns:45% minmax(0,1fr);padding:0;min-height:155px}
+#zt-webnews-home .zt-webnews-item:first-child img{width:100%;height:100%;min-height:155px;aspect-ratio:16/9}
+#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-info{padding:14px 10px}
+#zt-webnews-home .zt-webnews-item:first-child strong{font-size:17px;line-height:1.3}
+#zt-webnews-home .zt-webnews-item:hover strong{color:#d51232}
+@media(max-width:650px){#zt-webnews-home .zt-webnews-grid{grid-template-columns:1fr}#zt-webnews-home .zt-webnews-item:first-child{grid-column:1;grid-template-columns:1fr}#zt-webnews-home .zt-webnews-item:first-child img{height:auto}#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-info{padding:8px}}
+</style>"""
+    source = re.sub(r'<style id="zt-draft-webnews-center">[\\s\\S]*?</style>', "", source)
+    source = source.replace("</head>", draft_style + "\n</head>", 1)
+    # The video explorer is composed by the current homepage scripts. Move
+    # the existing panel after the explorer once it exists; never clone it.
+    draft_relocate = """<script id="zt-draft-webnews-relocate">
+(function(){
+  function place(){
+    var panel=document.getElementById('zt-webnews-home');
+    var videos=document.querySelector('.ztp-top-videos');
+    if(!panel||!videos||!videos.parentElement)return false;
+    if(panel.previousElementSibling!==videos)videos.insertAdjacentElement('afterend',panel);
+    return true;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',place);
+  else place();
+  var observer=new MutationObserver(function(){if(place())observer.disconnect();});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  setTimeout(function(){observer.disconnect();},15000);
+})();
+</script>"""
+    source = re.sub(r'<script id="zt-draft-webnews-relocate">[\\s\\S]*?</script>', "", source)
+    source = source.replace("</body>", draft_relocate + "\n</body>", 1)
+    # Two extra actual Tech article cards, distinct from those already shown.
+    box_match = re.search(r'(<!-- POPULAR_NEWS_ITEMS_START -->)([\\s\\S]*?)(<!-- POPULAR_NEWS_ITEMS_END -->)', source)
+    if box_match:
+        old_popular = box_match.group(2)
+        existing = set(re.findall(r'class="zt-popular-article" href="([^"]+)"', old_popular))
+        feed = source.split('<!-- ARTICLE_FEED_START -->',1)[-1].split('<!-- ARTICLE_FEED_END -->',1)[0]
+        extras = []
+        for article in re.findall(r'<article class="article-row"[^>]*data-post-category="tech"[^>]*>[\\s\\S]*?</article>', feed):
+            link = re.search(r'<h3><a href="([^"]+)">([\\s\\S]*?)</a></h3>',article)
+            picture = re.search(r'<img class="article-image" src="([^"]+)"',article)
+            if not link or not picture or ("/"+link.group(1)) in existing:
+                continue
+            href,title,img = "/"+link.group(1),link.group(2),picture.group(1)
+            extras.append('<a class="zt-popular-article" href="'+html_escape(href,quote=True)+'">'
+                          '<img src="'+html_escape(img,quote=True)+'" alt="'+title+'" loading="lazy">'
+                          '<span class="zt-popular-copy"><span class="zt-popular-category">TECNOLOGIA</span>'
+                          '<strong>'+title+'</strong></span></a>')
+            existing.add(href)
+            if len(extras)==2:break
+        if len(extras)==2:
+            replacement=box_match.group(1)+old_popular+"\n"+"\n".join(extras)+"\n"+box_match.group(3)
+            source=source[:box_match.start()]+replacement+source[box_match.end():]
     home.write_text(source, encoding="utf-8")
     print("HOME SOURCE RENDERED: forced square head +", len(tiles), "web stories", flush=True)
 
