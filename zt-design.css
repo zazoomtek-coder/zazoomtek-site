@@ -1933,3 +1933,76 @@ html body :is(
  object-position:50% 50%!important;
  transform:none!important;
 }
+
+
+/* ZT_EDITORIAL_UNIFIED_SQUARE_BOXES_20261023
+   Unify large editorial headings with RECENSIONI GAMING and small right-rail
+   headings with ALTRE NEWS. Square containers. Keep photos uncropped. */
+html body :is(
+ .page .module,.page .side-module,.page .side-box,
+ .page .ztp-news-column,.page .ztp-gaming-reviews,
+ .page .ztp-extra,.page .ztp-guide,
+ .page .ztp-editorial-archive,.page .zt-webnews,
+ .page .zt-special-box,.page .ztp-review-card,
+ .page .ztp-review-module,.page .zt-mix-editorial,
+ .page .ztp-final-three,.page .zt-rail-shorts,
+ .page .zt-shelf-card,.page .ztp-news-rail > section,
+ .news-layout .module,.detail-grid .module
+){border-radius:0!important}
+html body :is(
+ .module-head,.ztp-news-head,.ztp-review-head,.zt-webnews-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-final-rail-head,
+ .zt-special-head,.zt-shelf-head,.zt-mix-news-heading,
+ .zt-popular-head,.side-head,.ztp-editorial-archive > h2
+){
+ border-radius:0!important;box-shadow:none!important;
+ background-color:#202020!important;
+ background-image:linear-gradient(#d51232,#d51232)!important;
+ background-position:left bottom!important;
+ background-size:100% 3px!important;background-repeat:no-repeat!important;
+}
+html body :is(
+ .module-head,.ztp-news-head,.ztp-review-head,.zt-webnews-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-final-rail-head,
+ .zt-special-head,.zt-shelf-head,.zt-mix-news-heading,
+ .zt-popular-head,.side-head
+) > h2,
+html body .ztp-editorial-archive > h2 {
+ display:flex!important;align-items:center!important;
+ width:max-content!important;max-width:calc(100% - 18px)!important;
+ min-width:0!important;min-height:45px!important;
+ margin:0!important;padding:9px 32px 9px 14px!important;
+ background:#d51232!important;color:#fff!important;
+ border:0!important;border-radius:0!important;
+ clip-path:polygon(0 0,calc(100% - 15px) 0,100% 100%,0 100%)!important;
+ font:900 15px/1.2 Arial,Helvetica,sans-serif!important;
+ text-transform:uppercase!important;letter-spacing:.02em!important;
+ box-sizing:border-box!important;
+}
+html body .ztp-editorial-archive > h2 {
+ display:flex!important;min-height:46px!important;
+ font-size:13px!important;clip-path:none!important;
+ width:100%!important;max-width:none!important;
+ padding:0 14px!important;background-color:#202020!important;
+ border-left:0!important;isolation:isolate!important;
+}
+html body .ztp-editorial-archive > h2::before{
+ content:""!important;display:block!important;
+ position:absolute!important;inset:0 auto 3px 0!important;
+ width: min(82%,340px)!important;z-index:-1!important;
+ background:#d51232!important;border-radius:0!important;
+ clip-path:polygon(0 0,calc(100% - 15px) 0,100% 100%,0 100%)!important;
+}
+html body :is(.ztp-editorial-archive,.zt-webnews,.ztp-gaming-reviews,
+  .ztp-extra,.ztp-news-column,.zt-special-box) :is(img,.ztp-other-story,.ztp-editorial-story){
+ border-radius:0!important;
+}
+/* Avoid rounded cards only; buttons, site account controls and the video
+   playback UX are not changed. */
+@media(max-width:640px){
+ html body :is(.module-head,.ztp-news-head,.ztp-review-head,.zt-webnews-head,
+   .ztp-extra-head,.zt-home-guide-heading,.zt-special-head,
+   .zt-shelf-head,.ztp-editorial-archive > h2) > h2{
+  font-size:13px!important;
+ }
+}
