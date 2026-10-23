@@ -39,7 +39,7 @@ def main():
         assert 'id="zt-services10-popular-eight"' in result
         assert ':nth-of-type(-n+8)' in result and ':nth-of-type(n+9)' in result
         assert 'KEEP THIS' in result
-        assert popular.update(directory)==5
+        assert popular.update(directory)==8
         result=homepage.read_text(encoding="utf-8")
         assert result.count('id="zt-services10-popular-eight"')==1
 
