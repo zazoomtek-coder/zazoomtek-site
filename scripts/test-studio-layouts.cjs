@@ -8,8 +8,13 @@ const publisher=get("studio/publisher.js");
 const layouts=get("studio/layouts.js");
 const news=get("studio/template-news.html");
 const review=get("studio/template-review.html");
-assert.match(studio,/<script src="\/studio\/layouts\.js" defer><\/script>/);
+assert.match(studio,/<script src="\/studio\/editorial-seo\.js\?v=[a-zA-Z0-9]+" defer><\/script>/);
+assert.match(studio,/<script src="\/studio\/layouts\.js(?:\?v=[a-zA-Z0-9]+)?" defer><\/script>/);
 assert.ok(studio.indexOf("/studio/layouts.js")<studio.indexOf("/studio/publisher.js"),"Libreria deve precedere il pubblicatore");
+assert.ok(studio.indexOf("/studio/editorial-seo.js")<studio.indexOf("/studio/layouts.js"),"SEO deve essere caricato prima dell’impaginatore");
+assert.match(publisher,/ZTStudioSEOPrepare/);
+assert.match(layouts,/ZTStudioSEO\.apply/);
+assert.match(get("studio/edit-existing.js"),/seoAPI\.apply/);
 assert.match(publisher,/await window\.ZTStudioLayouts\.build\(/);
 assert.match(publisher,/recensione-studio-/);
 assert.doesNotMatch(publisher,/const html=articleHTML\(/);
@@ -29,7 +34,7 @@ assert.match(news,/<meta name="robots" content="noindex,nofollow">/);
 assert.match(review,/<meta name="robots" content="noindex,nofollow">/);
 const cloudflare=get("scripts/build-cloudflare-pages.py");
 const build=get("scripts/cloudflare-build-site.py");
-for(const file of ["layouts.js","template-news.html","template-review.html"]){
+for(const file of ["layouts.js","editorial-seo.js","template-news.html","template-review.html"]){
   assert.ok(cloudflare.includes('"'+file+'"'),"Cloudflare whitelist missing "+file);
   assert.ok(build.includes('studio/'+file),"Cloudflare build missing "+file);
 }
