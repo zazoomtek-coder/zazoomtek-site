@@ -1,0 +1,122 @@
+name: ZazoomTek services10 offline regression tests
+# Isolated full collaudo requested: no merge and no Cloudflare deploy.
+on:
+  pull_request:
+    paths:
+      - 'services10/**'
+      - '.github/workflows/services10-offline-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-youtube:
+    name: Real channel import - review only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # No third-party extractor: official YouTube Data API, optional key.
+      - name: Restore previously archived Community posts and 16:9 videos
+        run: |
+          python3 services10/state.py restore community
+          python3 services10/state.py restore videos
+          python3 services10/state.py restore pending
+      - name: Import public Community posts now
+        run: python3 services10/01-community.py
+      - name: Import real official YouTube video metadata now
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          ZT_CONFIRMED_16X9_IDS: ${{ vars.ZT_CONFIRMED_16X9_IDS }}
+          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
+          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
+          YOUTUBE_OAUTH_REFRESH_TOKEN: ${{ secrets.YOUTUBE_OAUTH_REFRESH_TOKEN }}
+        run: python3 services10/02-video-16x9.py
+      - name: Report real source verification
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for name, filename in [('community','community.json'),('videos','videos.json'),('pending','pending-videos.json')]:
+              path=Path('services10-data')/filename
+              data=json.loads(path.read_text()) if path.is_file() else []
+              print('LIVE_YOUTUBE_'+name.upper()+'_RECORDS='+str(len(data)))
+              if not data:
+                  print('WARNING: No verified '+name+' records imported; investigate live source')
+          PY
+      - name: Retain real-import data for preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-youtube-inputs
+          path: services10-data/*.json
+          if-no-files-found: warn
+          retention-days: 3
+  importer-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inventory remaining workflows in review branch
+        run: find .github/workflows -maxdepth 1 -type f -name "*.yml" -printf "%f\\n" | sort
+      - name: Compile all isolated components
+        run: python3 -m compileall -q services10
+      - name: Verify malformed Community/video records, archive retention and Shorts exclusion
+        run: python3 services10/test-importers.py
+      - name: Test persistent Git archive and concurrent saves
+        run: python3 services10/test-state.py
+      - name: Verify 4 Tech and 1 Gaming Home tiles without layout changes
+        run: python3 services10/test-featured.py
+      - name: Verify graphic layout of Web News and five Tech cards
+        run: python3 services10/test-layout.py
+      - name: Verify 24-hour RSS refresh and fallback with simulated outages
+        run: python3 services10/test-rss.py
+
+      - name: Verify Studio and independent static packaging
+        run: python3 services10/test-packaging.py
+      - name: Verify incremental Community articles and independent review catalog
+        run: python3 services10/test-content-pages.py
+      - name: Validate Cloudflare preview deploy invocation without network
+        run: python3 services10/test-cloudflare-publish.py
+      - name: Validate exact Rome time slots and complete independent chain
+        run: python3 services10/test-schedule.py
+
+  site-build:
+    needs: [real-youtube]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore real YouTube data from this same test execution
+        if: needs.real-youtube.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: real-youtube-inputs
+          path: services10-data
+      - name: Generate independent Community and video pages from available archives
+        run: python3 services10/03-home.py
+      - name: Render independent featured, popular, web and reviews modules
+        run: |
+          python3 services10/04-in-evidenza.py
+          python3 services10/05-da-non-perdere.py
+          python3 services10/06-notizie-web.py --offline
+          python3 services10/07-recensioni.py
+          python3 services10/08-studio.py
+      - name: Package actual repository HTML, CSS and assets independently
+        run: python3 services10/09-layout.py
+      - name: Audit actual full Cloudflare snapshot
+        run: python3 services10/audit-generated-site.py --dist dist
+      - name: Deploy isolated Cloudflare preview after audit
+        # An opt-in repo variable prevents consuming a Cloudflare deployment for every code commit.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.ZT_SERVICES10_PREVIEW_ENABLED == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: python3 services10/10-cloudflare-publish.py --branch zt-services10-review
