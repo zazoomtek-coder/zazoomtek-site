@@ -2006,3 +2006,58 @@ html body :is(.ztp-editorial-archive,.zt-webnews,.ztp-gaming-reviews,
   font-size:13px!important;
  }
 }
+
+/* ZT_SQUARE_HEADINGS_ENFORCED_20261023_V3
+   Intestazioni squadrate su tutte le pagine. Grandi: News in evidenza.
+   Piccole: Altre News. Nessun cambiamento alle foto o ai menu. */
+html body main.page :is(
+ .module,.side-module,.side-box,.ztp-news-column,.ztp-gaming-reviews,
+ .ztp-extra,.ztp-guide,.ztp-editorial-archive,.zt-webnews,
+ .zt-special-box,.ztp-review-module,.zt-mix-editorial,
+ .ztp-news-rail > section,.zt-final-rail-box,.zt-webnews-rail-box
+){border-top-left-radius:0!important;border-top-right-radius:0!important}
+html body main.page :is(
+ .module-head,.side-head,.ztp-news-head,.ztp-review-head,.zt-webnews-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-final-rail-head,
+ .zt-special-head,.zt-shelf-head,.zt-mix-news-heading,.zt-popular-head,
+ .zt-webnews-rail-box > header,.zt-webnews-extra > header,
+ .ztp-editorial-archive > h2,.ztp-other-news > h2,
+ .zt-side-mix .zt-mix-header,.zt-mix-header,
+ .ztp-news-rail > section > header,
+ .ztp-news-rail > section > h2
+){
+ border-radius:0!important;border-top-left-radius:0!important;
+ border-top-right-radius:0!important;border-bottom-left-radius:0!important;
+ border-bottom-right-radius:0!important;
+}
+html body main.page :is(
+ .module-head,.side-head,.ztp-news-head,.ztp-review-head,.zt-webnews-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-final-rail-head,
+ .zt-special-head,.zt-shelf-head,.zt-mix-news-heading,.zt-popular-head,
+ .zt-webnews-rail-box > header,.zt-webnews-extra > header,
+ .ztp-editorial-archive > h2,.ztp-other-news > h2,
+ .zt-side-mix .zt-mix-header,.zt-mix-header,
+ .ztp-news-rail > section > header,.ztp-news-rail > section > h2
+) :is(h1,h2,h3,span),
+html body main.page :is(
+ .module-head,.side-head,.ztp-news-head,.ztp-review-head,.zt-webnews-head,
+ .ztp-extra-head,.zt-home-guide-heading,.zt-final-rail-head,
+ .zt-special-head,.zt-shelf-head,.zt-mix-news-heading,.zt-popular-head
+)::before{
+ border-radius:0!important;border-top-left-radius:0!important;
+ border-top-right-radius:0!important;border-bottom-left-radius:0!important;
+ border-bottom-right-radius:0!important;
+}
+/* Colonna di destra: barra nera rettangolare, come ALTRE NEWS. */
+html body main.page #articoli .ztp-news-rail :is(
+ .zt-special-head,.zt-popular-head,.zt-final-rail-head,
+ .module-head,.side-head,.ztp-editorial-archive > h2,
+ .ztp-news-rail > section > header,.ztp-news-rail > section > h2
+){
+ border-radius:0!important;clip-path:none!important;
+}
+/* Nessuna clip arrotondata sulle intestazioni dei box editoriali grandi. */
+html body main.page :is(
+ .ztp-news-head,.ztp-review-head,.zt-shelf-head,
+ .zt-webnews-head,.zt-home-guide-heading,.ztp-extra-head
+){border-radius:0!important}
