@@ -1,35 +1,41 @@
-# ZazoomTek — migrazione a 10 servizi indipendenti (BOZZA, NON ATTIVA)
+# ZazoomTek — Migrazione ai 10 servizi indipendenti
 
-Obiettivo: mantenere contenuti e Home correnti; recuperare il funzionamento indipendente del 15–16 ottobre, adattando gli script a Cloudflare Pages, senza riattivare Firebase.
+Stato: **ramo di sviluppo, nessun merge e nessun deploy di produzione**.
 
-**Importante:** questo documento non abilita workflow, non rimuove il Master, non modifica `main`, non invia deploy a Cloudflare.
+## Servizi
 
-## I dieci contratti operativi
+1. `services10/01-community.py`: acquisizione dei post YouTube Community da più pagine ufficiali, senza perdere dati in caso di guasto temporaneo.
+2. `services10/02-video-16x9.py`: acquisizione di video YouTube orizzontali 16:9, controllando dimensioni dei flussi tramite yt-dlp. Shorts e video verticali non vengono importati.
+3. `services10/03-home.py`: pubblicazione incrementale di articoli Community e pagine Watch, conservando Home, archivi e contenuti preesistenti.
+4. `services10/04-in-evidenza.py`: quattro notizie Tech più una Gaming, aggiornate da articoli pubblicati e senza toccare CSS e box non posseduti.
+5. `services10/05-da-non-perdere.py`: esattamente cinque schede Tech visibili e correzione della vecchia regola che nascondeva la quarta e la quinta.
+6. `services10/06-notizie-web.py`: cinque notizie RSS, aggiornamento al massimo ogni 24 ore, una grande a sinistra e quattro piccole a destra, nessun «Vedi tutte».
+7. `services10/07-recensioni.py`: aggiornamento autonomo degli archivi recensioni, senza riscrivere recensioni, voti o immagini.
+8. `services10/08-studio.py`: pulsante Modifica nelle pagine interne, quando l'accesso Studio è attivo; Home esclusa.
+9. `services10/09-layout.py`: preparazione di una snapshot Cloudflare statica con HTML, CSS, immagini e asset invariati.
+10. `services10/10-cloudflare-publish.py`: comando reale Wrangler per Cloudflare Pages; in fase di review il ramo di destinazione è `zt-services10-review`, non `main`.
 
-1. `01-community.py` — sincronizza post Community da YouTube; scrive archivio persistente, non manipola il layout.
-2. `02-video-shorts.py` — sincronizza video e Shorts; salva manifest persistente, non modifica le news Community.
-3. `03-home.py` — genera le sezioni Home dai dati editoriali, mantenendo HTML e CSS approvati.
-4. `04-in-evidenza.py` — seleziona e aggiorna 4 Tech + 1 Gaming dalle news pubblicate, senza eliminare automaticamente le precedenti se non vi sono nuove notizie.
-5. `05-da-non-perdere.py` — rende *cinque* miniature Tech visibili, senza passaggi successivi che le sovrascrivano.
-6. `06-notizie-web.py` — aggiorna le cinque notizie da fonti configurate; una grande a sinistra e quattro verticali a destra; nessun «Vedi tutte»; posizionato dopo Esplora ultimi video.
-7. `07-recensioni.py` — pubblica recensioni e aggiorna indici Tech/Gaming, senza alterare la Home fuori dai relativi riquadri.
-8. `08-studio.py` — pubblicazioni manuali Studio/articoli e SEO, bottoni Modifica soltanto sulle pagine di dettaglio in sessione Studio.
-9. `09-layout.py` — applica assets/grafica autorizzata: nessuna importazione dati ha il diritto di modificare CSS o struttura Home.
-10. `10-cloudflare-publish.py` — costruisce e rilascia una snapshot completa del sito solo su richiesta manuale autorizzata o ai cinque slot previsti; purge cache dopo deploy riuscito.
+## GitHub Actions
 
-## Invarianti e dipendenze
+Solo due workflow nel ramo:
+- `services10-scheduled-cloudflare.yml`: cinque cron quotidiani Europe/Rome, 10:15, 12:45, 15:15, 17:45, 20:15. Le Actions pianificate non funzionano su questo ramo di prova: GitHub esegue gli schedule dal ramo predefinito.
+- `services10-offline-tests.yml`: compilazione Python, test degli importatori e degli archivi persistenti, verifica dei box e generazione dell'intero sito senza deploy.
 
-- Ogni processo opera indipendentemente su dati persistenti, con scrittura atomica e mantenimento dell'ultima versione buona.
-- Solo il servizio n. 10 esegue il deploy: evitare consumo incontrollato del limite mensile Cloudflare.
-- Il deploy non deve ricostruire contenuti a partire da cache vecchie sopra i dati appena importati.
-- Nessun servizio può sostituire markup delle sezioni possedute da un altro.
-- Gli script automatici possono aggiornare l'archivio senza generare automaticamente un deploy fuori dagli slot.
-- Il flusso manuale non deve dipendere dall'esecuzione dei cinque slot.
-- Versione precedente ripristinabile; controlli di integrità su snapshot e URL restano necessari per evitare pubblicazione corrotta.
-- Fino al collaudo offline i dieci script sono solo una specifica: nessuno va attivato, nessun vecchio script eliminato.
-- Riutilizzare il codice già collaudato degli importatori e degli editor, invece di riscriverlo arbitrariamente.
-- L'hosting di produzione resta Cloudflare Pages; nessun vecchio workflow Firebase può essere riattivato.
+I dati importati sono conservati dal servizio `services10/state.py` su un ramo dati indipendente, con unione delle versioni concorrenti.
 
-## Regola di rilascio
+## Verifiche eseguite
 
-Prima di integrare su `main`, confrontare la distribuzione generata con quella corrente, verificarne contenuti e grafica, disattivare in un solo rilascio le vecchie automazioni in conflitto e richiedere autorizzazione esplicita all'utente. Non abilitare due pubblicatori concorrenti.
+- Test con dati simulati: Community, video 16:9 senza Shorts, guasti per singolo elemento, archiviazione e recupero, Home, recensioni, Studio, layout, cron, RSS e argomenti Wrangler.
+- Generazione statica di **816 pagine HTML** eseguita su GitHub Actions.
+- Nell'ultima scansione sono rimasti **13 riferimenti storici mancanti**, non introdotti dai nuovi componenti.
+- Nessun deploy Cloudflare di anteprima o produzione eseguito finora per questa ricostruzione.
+
+## Da completare prima del merge
+
+- Testare l'acquisizione reale dei post Community dal canale: il lettore attuale rileva le pagine pubbliche disponibili, ma non copre ancora tutte le continuazioni/paginazioni storiche.
+- Collaudare il deploy su ramo Cloudflare **non di produzione**, una volta autorizzato il consumo di una pubblicazione di anteprima.
+- Verificare la resa grafica in un browser di Home, news, Watch e recensioni, e confrontarla visivamente con il sito online.
+- Recuperare, ove possibile, i 13 collegamenti storici mancanti senza inventare contenuti.
+- Aggiornare il workflow finale dalla branch preview a `main` soltanto dopo review e autorizzazione espressa.
+
+**Non sostituire `main` né attivare la pubblicazione live prima della review.**
