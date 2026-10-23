@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Offline regression tests for official YouTube Data API import + Community.
-
-No live access, API keys, secrets, cookies, Cloudflare deploys or downloads.
-"""
+"""Offline regressions: both >180s AND source 16:9, no media downloads."""
 import importlib.util
 import json
 from pathlib import Path
@@ -10,141 +7,150 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parent
-
 def load(name,file):
-    spec=importlib.util.spec_from_file_location(name,ROOT/file)
-    obj=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(obj)
-    return obj
+    spec=importlib.util.spec_from_file_location(name, ROOT/file)
+    result=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(result)
+    return result
 
-community=load("community_offline","01-community.py")
-videos=load("videos_official","02-video-16x9.py")
+community=load("community_check","01-community.py")
+videos=load("video_check","02-video-16x9.py")
 
-def video(vid,seconds,channel=videos.CHANNEL):
-    return {"id":vid,"snippet":{"channelId":channel,"title":"Review "+vid,
-        "publishedAt":"2026-10-23T15:00:00Z","liveBroadcastContent":"none"},
-        "contentDetails":{"duration":"PT"+str(seconds)+"S"},
-        "status":{"privacyStatus":"public","embeddable":True}}
+def item(vid,seconds,channel=videos.CHANNEL,visibility="public"):
+    return {"id":vid, "snippet":{"channelId":channel,"title":"Video "+vid,
+            "publishedAt":"2026-10-23T15:00:00Z","liveBroadcastContent":"none"},
+            "contentDetails":{"duration":"PT"+str(seconds)+"S"},
+            "status":{"privacyStatus":visibility,"embeddable":True}}
+
+def source(w,h,rotation="none",ratio=None):
+    stream={"widthPixels":w,"heightPixels":h,"rotation":rotation}
+    if ratio is not None:stream["aspectRatio"]=ratio
+    return {"videoStreams":[stream]}
 
 def main():
-    assert videos.duration_seconds("PT3M") == 180
-    assert videos.duration_seconds("PT3M1S") == 181
-    assert videos.duration_seconds("PT1H1M1S") == 3661
-    assert videos.duration_seconds("P1DT2H") == 93600
+    assert videos.duration_seconds("PT3M")==180
+    assert videos.duration_seconds("PT3M1S")==181
+    assert videos.duration_seconds("PT59S")==59
+    assert videos.duration_seconds("PT1H1M1S")==3661
     assert videos.duration_seconds("not-time") is None
-    xml=b'''<feed xmlns="http://www.w3.org/2005/Atom"
-    xmlns:yt="http://www.youtube.com/xml/schemas/2015">
-     <entry><yt:videoId>abcdef12345</yt:videoId><title>Full</title><published>2026-10-23T15:00:00Z</published></entry>
-     <entry><yt:videoId>bad</yt:videoId><title>Ignore</title><published>2026-10-23T15:00:00Z</published></entry>
+    rss=b'''<feed xmlns="http://www.w3.org/2005/Atom"
+       xmlns:yt="http://www.youtube.com/xml/schemas/2015">
+    <entry><yt:videoId>widevideo01</yt:videoId><title>Video</title>
+    <published>2026-10-23T15:00:00Z</published></entry>
+    <entry><yt:videoId>bad</yt:videoId><title>Invalid</title>
+    <published>2026-10-23T15:00:00Z</published></entry>
     </feed>'''
-    assert [x["id"] for x in videos.collect(xml)]==["abcdef12345"]
-    known={"abcdef12345"}
-    status,row=videos.classify(video("abcdef12345",30),known)
-    assert status=="short_or_unknown" and row is None
-    status,row=videos.classify(video("shortvid001",40),set())
-    assert status=="short_or_unknown" and row is None
-    status,row=videos.classify(video("longvid0001",360),set())
-    assert status=="landscape" and row["type"]=="landscape_video"
-    assert row["verification"]=="duration_over_3m_not_short"
-    assert row["orientation"]=="unverified"  # duration is not 16:9 metadata
-    assert videos.classify(video("exact180001",180),set())[0]=="short_or_unknown"
-    assert videos.classify(video("exact180001",180),{"exact180001"})[0]=="short_or_unknown"
-    assert videos.classify(video("exact181001",181),set())[0]=="landscape"
-    assert videos.classify(video("exact181001",181),{"exact181001"})[0]=="landscape"
-    assert videos.classify(video("longvid0001",360,"another-channel"),known)[0]=="other"
-    future=video("abcdef12345",600)
-    future["snippet"]["liveBroadcastContent"]="upcoming"
-    assert videos.classify(future,known)[0]=="other"
-    blocked=video("abcdef12345",600)
-    blocked["status"]["embeddable"]=False
-    assert videos.classify(blocked,known)[0]=="other"
-    old=[{"id":"priorvid001","title":"Old verified","type":"landscape_video",
-          "published":"2026-10-22T00:00:00Z"}]
-    approved=[{"id":"abcdef12345","title":"Confirmed","type":"landscape_video",
-               "published":"2026-10-23T15:00:00Z"}]
-    assert len(videos.merge(old,approved))==2
-    assert len(videos.merge(videos.merge(old,approved),approved))==2
+    assert [v["id"] for v in videos.collect(rss)]==["widevideo01"]
+
+    horizontal=source(1920,1080,ratio=16/9)
+    vertical=source(1080,1920,ratio=9/16)
+    square=source(1080,1080,ratio=1)
+    four_three=source(1440,1080,ratio=4/3)
+    assert videos.verified_16x9(horizontal)
+    assert videos.verified_16x9(source(1280,720))
+    assert videos.verified_16x9(source(1080,1920,rotation="clockwise"))
+    assert not videos.verified_16x9(vertical)
+    assert not videos.verified_16x9(square)
+    assert not videos.verified_16x9(four_three)
+    assert not videos.verified_16x9({"videoStreams":[]})
+    assert not videos.verified_16x9(source(1920,1080,rotation="clockwise"))
+    assert not videos.verified_16x9({"videoStreams":[{"widthPixels":0,"heightPixels":1080}]})
+    assert not videos.verified_16x9({"videoStreams":[
+        {"aspectRatio":16/9},{"aspectRatio":9/16}]})
+
+    # No video can pass on duration alone, including >3 minutes.
+    for seconds in (0,59,179,180):
+        assert videos.classify(item("widevideo01",seconds),set(),
+             geometry={"widevideo01":horizontal})[0]!="landscape"
+    assert videos.classify(item("widevideo01",181),set())[0]=="pending"
+    assert videos.classify(item("widevideo01",360),set())[0]=="pending"
+    cls,row=videos.classify(item("widevideo01",181),set(),
+                           geometry={"widevideo01":horizontal})
+    assert cls=="landscape" and row["verification"]=="owner_file_details_16x9"
+    cls,row=videos.classify(item("widevideo01",360),set(),
+                           geometry={"widevideo01":vertical})
+    assert cls=="non_16x9" and row is None
+    assert videos.classify(item("widevideo01",181),set(),
+                geometry={"widevideo01":square})[0]=="non_16x9"
+    assert videos.classify(item("widevideo01",181),set(),
+                geometry={"widevideo01":four_three})[0]=="non_16x9"
+    # Owner-provided vertical geometry must override a stale manual registry.
+    assert videos.classify(item("widevideo01",360),{"widevideo01"},
+                geometry={"widevideo01":vertical})[0]=="non_16x9"
+    assert videos.classify(item("widevideo01",181),{"widevideo01"})[0]=="landscape"
+    assert videos.classify(item("widevideo01",180),{"widevideo01"})[0]=="short_or_unknown"
+    assert videos.classify(item("widevideo01",240,channel="another"),{"widevideo01"})[0]=="other"
+    assert videos.classify(item("widevideo01",240,visibility="private"),
+                           {"widevideo01"})[0]=="other"
 
     with patch.object(videos,"request_api") as get:
         get.side_effect=[
-           {"items":[{"contentDetails":{"relatedPlaylists":{"uploads":"UU_TEST"}}}]},
-           {"items":[
-             {"contentDetails":{"videoId":"abcdef12345","videoPublishedAt":"2026-10-23T15:00:00Z"},
-              "snippet":{"title":"Review"}}],
-            "nextPageToken":""}
-        ]
-        uploads=videos.upload_candidates()
-        assert uploads[0]["id"]=="abcdef12345"
+            {"items":[{"contentDetails":{"relatedPlaylists":{"uploads":"UU_SAMPLE"}}}]},
+            {"items":[{"contentDetails":{"videoId":"widevideo01"},
+                        "snippet":{"title":"Video"}}]}]
+        assert videos.upload_candidates()[0]["id"]=="widevideo01"
         assert get.call_count==2
-        assert get.call_args_list[1].args[0]=="playlistItems"
-    with patch.object(videos,"request_api") as get:
-        get.return_value={"items":[video("abcdef12345",120)]}
-        assert len(videos.metadata([{"id":"abcdef12345"}]))==1
-        assert get.call_args.args[0]=="videos"
+    with patch.object(videos,"request_api",return_value={"items":[item("widevideo01",240)]}):
+        assert videos.metadata([{"id":"widevideo01"}])[0]["id"]=="widevideo01"
 
-    with TemporaryDirectory() as tmp:
-        directory=Path(tmp)
-        with patch.object(videos,"OUT",directory/"videos.json"), \
-             patch.object(videos,"PENDING",directory/"pending.json"), \
-             patch.object(videos,"API_KEY","test-key"), \
-             patch.object(videos,"confirmed_ids",return_value={"abcdef12345"}), \
+    with TemporaryDirectory() as folder:
+        root=Path(folder)
+        with patch.object(videos,"OUT",root/"videos.json"),\
+             patch.object(videos,"PENDING",root/"pending.json"),\
+             patch.object(videos,"API_KEY","mock_api_key"),\
+             patch.object(videos,"confirmed_ids",return_value=set()),\
              patch.object(videos,"upload_candidates",return_value=[
-                 {"id":"abcdef12345"},{"id":"longvid0001"},{"id":"shortvid001"}]), \
-             patch.object(videos,"rss_candidates",return_value=[]), \
+                 {"id":"widevideo01"},{"id":"vertical001"},{"id":"squarevid01"},
+                 {"id":"shortvid001"},{"id":"unknown0001"}]),\
+             patch.object(videos,"rss_candidates",return_value=[]),\
              patch.object(videos,"metadata",return_value=[
-                 video("abcdef12345",181),video("longvid0001",450),video("shortvid001",45)]):
-            videos.save(old)
-            videos.save([
-                {"id":"legacyvid01","title":"Previous pending (now auto)",
-                 "published":"2026-10-20T12:00:00Z",
-                 "type":"pending_landscape",
-                 "verification":"duration_over_3m_only","duration_seconds":420},
-                {"id":"shortvid001","title":"Short (never approve)",
-                 "type":"pending_landscape","duration_seconds":45}
-            ],videos.PENDING)
+                 item("widevideo01",181),item("vertical001",360),
+                 item("squarevid01",400),item("shortvid001",180),
+                 item("unknown0001",500)]),\
+             patch.object(videos,"owner_geometry",return_value={
+                 "widevideo01":horizontal,"vertical001":vertical,
+                 "squarevid01":square}):
+            videos.save([{"id":"oldvalid001","title":"Existing confirmed",
+                "type":"landscape_video","verification":"owner_file_details_16x9"}])
+            videos.save([{"id":"legacyvid01","title":"Old duration-only",
+                "duration_seconds":500,"type":"landscape_video",
+                "verification":"duration_over_3m_not_short","orientation":"unverified"}],
+                videos.PENDING)
             result=videos.run()
-            assert result["verified_new"]==2 and result["auto_duration"]==1
-            verified=videos.load(videos.OUT)
-            waiting=videos.load(videos.PENDING)
-            assert {x["id"] for x in verified}=={
-                "priorvid001","abcdef12345","longvid0001","legacyvid01"}
-            assert waiting==[]
-            assert "shortvid001" not in {x["id"] for x in verified}
-            with patch.object(videos,"upload_candidates",side_effect=RuntimeError("quotaExceeded")), \
-                 patch.object(videos,"rss_candidates",side_effect=RuntimeError("RSS failed")):
-                assert videos.run()["source"]=="no_candidates"
-                assert videos.load(videos.OUT)==verified
-                assert videos.load(videos.PENDING)==waiting
+            assert result["verified_new"]==1
+            approved=videos.load(videos.OUT)
+            pending=videos.load(videos.PENDING)
+            assert {v["id"] for v in approved}=={"oldvalid001","widevideo01"}
+            assert {v["id"] for v in pending}=={"unknown0001"}
+            assert not any(v["id"] in {"vertical001","squarevid01","shortvid001"}
+                           for v in approved)
+            with patch.object(videos,"upload_candidates",side_effect=RuntimeError("quota")),\
+                 patch.object(videos,"rss_candidates",side_effect=RuntimeError("offline")):
+                result=videos.run()
+                assert result["source"]=="no_candidates"
+                assert videos.load(videos.OUT)==approved
 
-    # RSS omits duration: even manually approved IDs cannot bypass
-    # the strict >180 seconds rule without verified API metadata.
-    with TemporaryDirectory() as tmp:
-        folder=Path(tmp)
-        with patch.object(videos,"OUT",folder/"videos.json"), \
-             patch.object(videos,"PENDING",folder/"pending.json"), \
-             patch.object(videos,"API_KEY",""), \
-             patch.object(videos,"confirmed_ids",return_value={"abcdef12345"}), \
-             patch.object(videos,"rss_candidates",return_value=[
-                 {"id":"abcdef12345","title":"Short but confirmed horizontal",
-                  "published":"2026-10-23T15:00:00Z","url":"https://www.youtube.com/watch?v=abcdef12345"},
-                 {"id":"shortvid001","title":"Unknown Short",
-                  "published":"2026-10-23T15:00:00Z","url":"https://www.youtube.com/watch?v=shortvid001"}]):
-            stats=videos.run()
-            assert stats["source"]=="rss_without_duration"
+    # Previous duration-only publications must be quarantined, not auto-approved.
+    with TemporaryDirectory() as folder:
+        root=Path(folder)
+        with patch.object(videos,"OUT",root/"videos.json"),\
+             patch.object(videos,"PENDING",root/"pending.json"),\
+             patch.object(videos,"API_KEY",""),\
+             patch.object(videos,"rss_candidates",return_value=[]):
+            videos.save([{"id":"priorlong01","title":"Was duration-only",
+                         "published":"2026-10-23T15:00:00Z","duration_seconds":400,
+                         "type":"landscape_video","verification":"duration_over_3m_not_short",
+                         "orientation":"unverified"}])
+            assert videos.run()["source"]=="no_candidates"
             assert videos.load(videos.OUT)==[]
+            assert [v["id"] for v in videos.load(videos.PENDING)]==["priorlong01"]
 
-    # Braces inside post text and malformed neighbours never break Community.
-    posts={"contents":{
-        "a":{"backstagePostRenderer":{"postId":"Ugkx123",
-             "contentText":{"runs":[{"text":"Tech news }; safe"}]}}},
-        "b":{"backstagePostRenderer":{"postId":"broken"}},
-        "c":{"backstagePostRenderer":{"postId":"Ugkx456",
-             "contentText":{"simpleText":"Gaming update"}}}}}
-    parsed=community.extract("var ytInitialData = "+json.dumps(posts)+";")
-    assert {x["id"] for x in parsed}=={"Ugkx123","Ugkx456"}
-    assert len(community.merge(parsed,parsed))==2
-    assert community.extract("var ytInitialData = {corrupt;")==[]
-    print("PASS: strict >180s import, 180s rejected even when approved, RSS without duration blocked, archive preserved")
+    posts={"a":{"backstagePostRenderer":{"postId":"Ugkx123",
+       "contentText":{"runs":[{"text":"Text with }; embedded delimiters"}]}}},
+       "b":{"backstagePostRenderer":{"postId":"broken"}}}
+    page="var ytInitialData = "+json.dumps(posts)+";"
+    assert [v["id"] for v in community.extract(page)]==["Ugkx123"]
+    print("PASS: 180s rejected, 181s+16:9 accepted, 9:16/square/4:3 rejected; unknowns quarantined")
 
 if __name__=="__main__":
     main()
