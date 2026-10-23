@@ -44,7 +44,11 @@ def main():
     status,row=videos.classify(video("shortvid001",40),set())
     assert status=="short_or_unknown" and row is None
     status,row=videos.classify(video("longvid0001",360),set())
-    assert status=="pending" and row["orientation"]=="unverified"
+    assert status=="landscape" and row["type"]=="landscape_video"
+    assert row["verification"]=="duration_over_3m_not_short"
+    assert row["orientation"]=="unverified"  # duration is not 16:9 metadata
+    assert videos.classify(video("exact180001",180),set())[0]=="short_or_unknown"
+    assert videos.classify(video("exact181001",181),set())[0]=="landscape"
     assert videos.classify(video("longvid0001",360,"another-channel"),known)[0]=="other"
     future=video("abcdef12345",600)
     future["snippet"]["liveBroadcastContent"]="upcoming"
@@ -58,10 +62,6 @@ def main():
                "published":"2026-10-23T15:00:00Z"}]
     assert len(videos.merge(old,approved))==2
     assert len(videos.merge(videos.merge(old,approved),approved))==2
-    pending=[{"id":"longvid0001","title":"Pending","type":"pending_landscape",
-              "published":"2026-10-23T15:00:00Z"}]
-    assert videos.merge_pending(pending,pending,set())==pending
-    assert videos.merge_pending(pending,[],{"longvid0001"})==[]
 
     with patch.object(videos,"request_api") as get:
         get.side_effect=[
@@ -92,12 +92,22 @@ def main():
              patch.object(videos,"metadata",return_value=[
                  video("abcdef12345",110),video("longvid0001",450),video("shortvid001",45)]):
             videos.save(old)
+            videos.save([
+                {"id":"legacyvid01","title":"Previous pending (now auto)",
+                 "published":"2026-10-20T12:00:00Z",
+                 "type":"pending_landscape",
+                 "verification":"duration_over_3m_only","duration_seconds":420},
+                {"id":"shortvid001","title":"Short (never approve)",
+                 "type":"pending_landscape","duration_seconds":45}
+            ],videos.PENDING)
             result=videos.run()
-            assert result["verified_new"]==1
+            assert result["verified_new"]==2 and result["auto_duration"]==1
             verified=videos.load(videos.OUT)
             waiting=videos.load(videos.PENDING)
-            assert {x["id"] for x in verified}=={"priorvid001","abcdef12345"}
-            assert [x["id"] for x in waiting]==["longvid0001"]
+            assert {x["id"] for x in verified}=={
+                "priorvid001","abcdef12345","longvid0001","legacyvid01"}
+            assert waiting==[]
+            assert "shortvid001" not in {x["id"] for x in verified}
             with patch.object(videos,"upload_candidates",side_effect=RuntimeError("quotaExceeded")), \
                  patch.object(videos,"rss_candidates",side_effect=RuntimeError("RSS failed")):
                 assert videos.run()["source"]=="no_candidates"
@@ -132,7 +142,7 @@ def main():
     assert {x["id"] for x in parsed}=={"Ugkx123","Ugkx456"}
     assert len(community.merge(parsed,parsed))==2
     assert community.extract("var ytInitialData = {corrupt;")==[]
-    print("PASS: official API, RSS fallback, strict 16:9 approval, pending longform, Shorts blocked, archives preserved")
+    print("PASS: official API imports all >180s, <=180s unapproved excluded, legacy pending migrated, archive preserved")
 
 if __name__=="__main__":
     main()
