@@ -7,7 +7,7 @@ const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLo
 const words=s=>strip(s).match(/[\p{L}\p{N}]+/gu)||[];
 const significant=s=>words(s).filter(x=>x.length>2&&!stop.has(norm(x)));
 const unique=a=>[...new Set(a.filter(Boolean))];
-const trim=(s,max)=>{s=String(s||"").replace(/\s+/g," ").trim();if(s.length<=max)return s;const p=s.slice(0,max+1),j=p.lastIndexOf(" ");return (j>max*.6?p.slice(0,j):p.slice(0,max)).replace(/[\s,;:–-]+$/,"").replace(/\s+(?:e|di|da|del|della|con|per|in|su|a|un|una|il|la|che|tra)$/i,"")};
+const trim=(s,max)=>{s=String(s||"").replace(/\s+/g," ").trim();if(s.length<=max)return s;const p=s.slice(0,max+1),j=p.lastIndexOf(" ");return (j>max*.6?p.slice(0,j):p.slice(0,max)).replace(/[\s,;:–-]+$/,"").replace(/\s+(?:e|di|da|del|della|con|per|in|su|a|un|una|il|la|che|tra|senza)$/i,"")};
 const abs=s=>{try{const u=new URL(s,"https://zazoomtek.it/");return u.hostname==="zazoomtek.it"&&u.protocol==="https:"?u.href:null}catch{return null}};
 const rating=s=>{const m=String(s||"").match(/\bvoto\s+finale\s*[:：-]?\s*(10(?:[.,]0+)?|[0-9](?:[.,]\d+)?)\s*\/\s*10\b/i);return m?Number(m[1].replace(",",".")):null};
 const typeFor=category=>/^Recensioni\b/i.test(category)?"Review":/^News\b/i.test(category)?"NewsArticle":"Article";
@@ -27,7 +27,12 @@ function analyze(data){
    const old=freq.get(key)||{text:value,count:0,match:0,n};old.count++;old.match=terms.slice(i,i+n).filter(t=>titleTerms.has(norm(t))).length;freq.set(key,old);
  }
  const candidates=[...freq.values()].sort((a,b)=>(b.match*3+b.n+b.count)-(a.match*3+a.n+a.count)).map(x=>x.text);
- const subject=title.split(/\s*[|–—:]\s*/)[0].replace(/\s+\b(?:recensione|review|guida|test)\b.*$/i,"").trim();
+ let subject=title.split(/\s*[|–—:]\s*/)[0].replace(/\s+\b(?:recensione|review|guida|test)\b.*$/i,"").trim();
+ const named=subject.match(/^([\p{L}\p{N}.-]+)\s+(?:annuncia|presenta|lancia|svela|introduce|rivela|mostra|aggiorna)\s+(.+)$/iu);
+ if(named){
+  const newsSubject=named[2].split(/\s+(?:per|con|su|nel|nella|tra|in|a)\s+/i)[0].replace(/^(?:il|la|lo|gli|le|un|una|nuovo|nuova)\s+/i,"");
+  if(newsSubject.length>=4)subject=named[1]+" "+newsSubject;
+ }
  const primary=trim(subject.length>=7&&subject.length<=65?subject:title,65);
  const secondary=unique(candidates.filter(x=>norm(x)!==norm(primary)&&x.split(" ").length>=2)).slice(0,6);
  const tags=unique([category,...secondary.slice(0,5),...significant(title).filter(x=>/\d/.test(x))]).slice(0,10);
