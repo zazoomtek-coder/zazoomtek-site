@@ -501,9 +501,15 @@
       const holder=pop.querySelector(".zt-popular-list");
       if(holder){
         const existing=new Set([...holder.querySelectorAll(".zt-popular-article")].map(articlePath).filter(Boolean));
+        const normalizeTitle=(value)=>String(value||"").normalize("NFKC").replace(/\s+/g," ").trim().toLocaleLowerCase("it");
+        const knownTitles=new Set([...holder.querySelectorAll(".zt-popular-article strong")]
+          .map(el=>normalizeTitle(el.textContent)).filter(Boolean));
         for(const item of olderTechForPopular){
+          if(holder.querySelectorAll(".zt-popular-article").length>=5)break;
+          const titleKey=normalizeTitle(item?.title);
           if(!item || !/^\/news-[A-Za-z0-9_-]+\.html$/.test(item.url) ||
-             !item.title || !item.image || used.has(item.url) || existing.has(item.url))continue;
+             !item.title || !item.image || !titleKey || knownTitles.has(titleKey) ||
+             used.has(item.url) || existing.has(item.url))continue;
           const card=document.createElement("a");
           card.className="zt-popular-article";card.href=item.url;card.title=item.title;
           const image=document.createElement("img");image.src=item.image;image.alt=item.title;image.loading="lazy";
@@ -511,8 +517,7 @@
           const category=document.createElement("span");category.className="zt-popular-category";category.textContent="TECNOLOGIA";
           const title=document.createElement("strong");title.textContent=item.title;
           copy.append(category,title);card.append(image,copy);holder.appendChild(card);
-          existing.add(item.url);
-          if(existing.size>=16)break;
+          existing.add(item.url);knownTitles.add(titleKey);
         }
       }
     }
@@ -582,7 +587,7 @@
       "#articoli .ztp-news-rail .zt-special-thumb img{width:100%!important;max-height:none!important;height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;object-position:center center!important;border-radius:9px!important;background:#172131!important}",
       "#articoli .ztp-news-rail .zt-special-item h3{font-size:11px!important;line-height:1.3!important;margin:7px 0 3px!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-article{display:block!important;padding:10px 11px!important;grid-template-columns:none!important}",
-      "#articoli .ztp-news-rail #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+4){display:none!important}",
+      "#articoli .ztp-news-rail #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6){display:none!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-article img{width:100%!important;height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;object-position:center!important;border-radius:9px!important;background:#141923!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-copy{display:block!important;margin-top:6px!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-copy strong{font-size:11px!important;line-height:1.32!important}",
