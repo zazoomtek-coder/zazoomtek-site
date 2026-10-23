@@ -4,9 +4,15 @@ name: ZazoomTek services10 isolated schedule candidate
 on:
   workflow_dispatch:
   schedule:
-    - cron: '15 10,15,20 * * *'
+    - cron: '15 10 * * *'
       timezone: 'Europe/Rome'
-    - cron: '45 12,17 * * *'
+    - cron: '45 12 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '15 15 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '45 17 * * *'
+      timezone: 'Europe/Rome'
+    - cron: '15 20 * * *'
       timezone: 'Europe/Rome'
 permissions:
   contents: read
