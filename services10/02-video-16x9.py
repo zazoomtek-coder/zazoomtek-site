@@ -3,10 +3,10 @@
 
 Uses channels.list, playlistItems.list and videos.list; API key remains in
 the environment, never a published file. YouTube's public API does NOT expose
-source frame geometry. By editorial policy, uploads lasting MORE than
-180 seconds are auto-published as standard non-Short videos. This is a
-duration-based rule, NOT proof of 16:9 aspect ratio. Previously approved
-shorter 16:9 videos remain eligible. Failed API lookups preserve the archive.
+source frame geometry. Both requirements are mandatory: >180 seconds
+AND proven source display aspect 16:9 (owner-authorized fileDetails, or a
+previously validated 16:9 registry). Unknown orientation stays in a separate
+queue. No cookies/scraping or insecure duration-only fallback.
 """
 from __future__ import annotations
 
@@ -137,6 +137,93 @@ def metadata(candidates: list[dict]) -> list[dict]:
             print("YouTube API metadata batch failed; other batches retained:", str(exc)[:100])
     return result
 
+def owner_geometry(items: list[dict]) -> dict[str, dict]:
+    """Read source aspect from official owner-authorized fileDetails.
+
+    A public API key cannot fetch this field. Optional OAuth secrets come
+    from GitHub Actions only; no credentials appear in URLs/logs/artifacts.
+    """
+    client_id = os.environ.get("YOUTUBE_OAUTH_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("YOUTUBE_OAUTH_CLIENT_SECRET", "").strip()
+    refresh = os.environ.get("YOUTUBE_OAUTH_REFRESH_TOKEN", "").strip()
+    if not (client_id and client_secret and refresh):
+        print("Owner fileDetails unavailable: OAuth connection not configured")
+        return {}
+    body = urllib.parse.urlencode({
+        "client_id": client_id, "client_secret": client_secret,
+        "refresh_token": refresh, "grant_type": "refresh_token"
+    }).encode("utf-8")
+    try:
+        req = urllib.request.Request("https://oauth2.googleapis.com/token", data=body,
+                                     headers={"Content-Type": "application/x-www-form-urlencoded"})
+        with urllib.request.urlopen(req, timeout=20) as response:
+            token = json.load(response).get("access_token")
+        if not isinstance(token, str) or not token:
+            raise ValueError("Missing access token")
+    except Exception:
+        print("Owner OAuth token unavailable; unknown orientations stay pending")
+        return {}
+    eligible_ids = [str(x.get("id")) for x in items if isinstance(x, dict)
+                    and VIDEO_ID.fullmatch(str(x.get("id") or ""))
+                    and (duration_seconds((x.get("contentDetails") or {}).get("duration") or "") or 0) > 180]
+    by_id: dict[str, dict] = {}
+    for start in range(0, len(eligible_ids), 50):
+        batch = eligible_ids[start:start + 50]
+        url = API_BASE + "videos?" + urllib.parse.urlencode({
+            "part": "fileDetails", "id": ",".join(batch), "maxResults": 50
+        })
+        try:
+            req = urllib.request.Request(
+                url, headers={"Authorization": "Bearer " + token,
+                              "Accept": "application/json",
+                              "User-Agent": "ZazoomTekSite/1.0"})
+            with urllib.request.urlopen(req, timeout=25) as response:
+                result = json.load(response)
+            for video in result.get("items") or []:
+                if isinstance(video, dict) and video.get("id") in batch:
+                    by_id[video["id"]] = video.get("fileDetails") or {}
+        except Exception:
+            print("Owner source geometry unavailable for batch; preserving queue")
+    return by_id
+
+
+def verified_16x9(file_details: dict) -> bool:
+    """Require display aspect ratio 16:9. Vertical, square and 4:3 fail.
+
+    Google documents aspectRatio as *display* aspect and width/height as
+    encoded geometry. Use width/height only when rotation can be resolved.
+    """
+    if not isinstance(file_details, dict):
+        return False
+    streams = file_details.get("videoStreams")
+    if not isinstance(streams, list) or not streams:
+        return False
+    shapes = []
+    for stream in streams:
+        if not isinstance(stream, dict):
+            continue
+        try:
+            rotation = str(stream.get("rotation") or "none")
+            aspect = stream.get("aspectRatio")
+            if aspect is not None:
+                ratio = float(aspect)
+            else:
+                width = int(stream.get("widthPixels"))
+                height = int(stream.get("heightPixels"))
+                if width <= 0 or height <= 0 or rotation not in (
+                        "none", "clockwise", "counterClockwise", "upsideDown"):
+                    return False
+                ratio = (height / width) if rotation in (
+                    "clockwise", "counterClockwise") else (width / height)
+            if not (ratio > 0):
+                return False
+            shapes.append(ratio)
+        except (ValueError, TypeError, OverflowError, ZeroDivisionError):
+            return False
+    # Reject mixed orientations and unverifiable streams.
+    return bool(shapes) and all(abs(ratio - (16 / 9)) <= 0.025 for ratio in shapes)
+
+
 def confirmed_ids(root: Path = ROOT) -> set[str]:
     """Manually confirmed frame geometry; not inferred from thumbnail/player size."""
     env = os.environ.get("ZT_CONFIRMED_16X9_IDS", "")
@@ -149,8 +236,9 @@ def confirmed_ids(root: Path = ROOT) -> set[str]:
                         and x.get("confirmed") is True)
     return approved
 
-def classify(item: dict, approved: set[str], channel: str = CHANNEL) -> tuple[str, dict | None]:
-    """No inaccurate 16:9 claim from thumbnails or embed player dimensions."""
+def classify(item: dict, approved: set[str], channel: str = CHANNEL,
+             geometry: dict[str, dict] | None = None) -> tuple[str, dict | None]:
+    """Approve only (>180 seconds) AND independently verified display 16:9."""
     vid = str(item.get("id") or "")
     snippet = item.get("snippet") or {}
     details = item.get("contentDetails") or {}
@@ -164,27 +252,31 @@ def classify(item: dict, approved: set[str], channel: str = CHANNEL) -> tuple[st
     if status.get("embeddable") is False:
         return "other", None
     seconds = duration_seconds(details.get("duration") or "")
-    if not seconds or seconds <= 0:
+    if seconds is None or seconds <= 0:
         return "other", None
+    if seconds <= 180:
+        return "short_or_unknown", None
     record = {"id": vid, "title": str(snippet.get("title") or ""),
               "published": str(snippet.get("publishedAt") or ""),
               "url": "https://www.youtube.com/watch?v=" + vid,
               "duration_seconds": seconds}
     if not record["title"]:
         return "other", None
-    # Strict boundary: even a previously confirmed or manually approved ID
-    # cannot be auto-imported when duration is 180 seconds or less.
-    if seconds <= 180:
-        return "short_or_unknown", None
-    # More than 180 seconds is eligible as a standard non-Short video.
-    # It does not, by itself, establish the source's aspect ratio.
-    verified_aspect = vid in approved
-    record.update({"type": "landscape_video",
-                   "verification": "confirmed_16x9_registry"
-                       if verified_aspect else "duration_over_3m_not_short",
-                   "orientation": "16:9_confirmed"
-                       if verified_aspect else "unverified"})
-    return "landscape", record
+    source_details = (geometry or {}).get(vid)
+    if source_details is not None:
+        # Owner-provided geometry takes precedence over any stale registry.
+        if not verified_16x9(source_details):
+            return "non_16x9", None
+        record.update({"type": "landscape_video", "verification": "owner_file_details_16x9",
+                       "orientation": "16:9_confirmed"})
+        return "landscape", record
+    if vid in approved:
+        record.update({"type": "landscape_video", "verification": "confirmed_16x9_registry",
+                       "orientation": "16:9_confirmed"})
+        return "landscape", record
+    record.update({"type": "pending_landscape", "verification": "duration_over_3m_only",
+                   "orientation": "unverified"})
+    return "pending", record
 
 def merge(previous: list[dict], incoming: list[dict]) -> list[dict]:
     by_id = {}
@@ -203,82 +295,80 @@ def merge_pending(previous: list[dict], incoming: list[dict], approved: set[str]
     return sorted(by_id.values(), key=lambda x: x.get("published", ""), reverse=True)
 
 def run() -> dict:
-    old = load(OUT)
+    previous = load(OUT)
     prior_pending = load(PENDING)
-    # Migrate previously fetched >3m entries, instead of requiring a new API
-    # lookup or leaving them in the legacy review queue.
-    already = {row.get("id") for row in old if isinstance(row, dict)}
-    promoted = [
-        {**row, "type": "landscape_video",
-         "verification": "duration_over_3m_not_short", "orientation": "unverified"}
-        for row in prior_pending
-        if isinstance(row, dict)
-        and row.get("type") == "pending_landscape"
-        and row.get("verification") == "duration_over_3m_only"
-        and VIDEO_ID.fullmatch(str(row.get("id") or ""))
-        and row.get("title")
-        and isinstance(row.get("duration_seconds"), (int, float))
-        and row["duration_seconds"] > 180
-        and row["id"] not in already
-    ]
-    if promoted:
-        old = merge(old, promoted)
+    # Quarantine records imported by the former duration-only rule, never
+    # quietly treat "orientation=unverified" as already confirmed 16:9.
+    unsafe = [row for row in previous if isinstance(row, dict) and
+              (row.get("verification") == "duration_over_3m_not_short" or
+               row.get("orientation") == "unverified")]
+    old = [row for row in previous if row not in unsafe]
+    if unsafe:
+        for row in unsafe:
+            if (isinstance(row.get("duration_seconds"), (int, float))
+                and row["duration_seconds"] > 180 and row.get("id")):
+                prior_pending.append({**row, "type": "pending_landscape",
+                                      "verification": "duration_over_3m_only"})
         save(old)
-        print("Migrated previously checked >3m videos:", len(promoted))
-    if prior_pending:
-        # Any remaining short/uncertain candidates stay excluded, never pending.
-        save([], PENDING)
-        print("Cleared obsolete orientation review queue:", len(prior_pending))
+        print("Quarantined unverified duration-only imports:", len(unsafe))
     candidates = []
     rss_ok = False
     if API_KEY:
         try:
             candidates = upload_candidates()
-            print("Official uploads playlist video candidates:", len(candidates))
+            print("Official uploads playlist candidates:", len(candidates))
         except Exception as exc:
-            print("Official uploads playlist unavailable; attempting RSS:", str(exc)[:105])
+            print("Official uploads playlist unavailable; trying RSS:", str(exc)[:105])
     try:
         rss = rss_candidates()
         rss_ok = True
         seen = {row["id"] for row in candidates}
         candidates.extend(row for row in rss if row["id"] not in seen)
         print("Official RSS candidates:", len(rss))
-    except Exception as exc:
-        print("RSS temporarily unavailable; keeping saved archive:", str(exc)[:105])
-    approved = confirmed_ids()
+    except Exception:
+        print("RSS unavailable; retaining prior archives")
     if not candidates:
-        print("No candidates: keeping prior archive and previously pending videos")
-        return {"source": "no_candidates", "verified_new": 0, "pending_new": 0, "retained": len(old)}
+        if unsafe:
+            save(merge_pending(prior_pending, [], set()), PENDING)
+        return {"source": "no_candidates", "verified_new": 0, "pending_new": len(prior_pending),
+                "retained": len(old)}
     if not API_KEY:
-        print("API key missing: RSS has no durations; no unknown IDs imported.")
+        if unsafe:
+            save(merge_pending(prior_pending, [], set()), PENDING)
+        print("Missing YouTube API key: RSS has no duration or source orientation")
         return {"source": "rss_without_duration", "verified_new": 0,
-                "pending_new": 0, "retained": len(old)}
+                "pending_new": len(prior_pending), "retained": len(old)}
     known = metadata(candidates)
     if not known:
-        print("YouTube API supplied no durations: retained verified archive; RSS cannot prove >180s")
+        if unsafe:
+            save(merge_pending(prior_pending, [], set()), PENDING)
         return {"source": "metadata_unavailable", "verified_new": 0,
-                "pending_new": 0, "retained": len(old)}
-    landscape = []
-    skips = 0
+                "pending_new": len(prior_pending), "retained": len(old)}
+    approved = confirmed_ids()
+    geometry = owner_geometry(known)
+    landscape, pending = [], []
+    excluded = 0
     for item in known:
-        category, row = classify(item, approved)
+        category, row = classify(item, approved, geometry=geometry)
         if category == "landscape":
             landscape.append(row)
+        elif category == "pending":
+            pending.append(row)
         else:
-            skips += 1
+            excluded += 1
     updated = merge(old, landscape)
-    if updated != old:
+    confirmed = {row["id"] for row in updated}
+    queue = merge_pending(prior_pending, pending, confirmed)
+    if updated != previous:
         save(updated)
-    auto_by_duration = sum(
-        row.get("verification") == "duration_over_3m_not_short"
-        for row in landscape
-    )
-    print("Official API result: accepted standard videos:", len(landscape),
-          "automatic >180s:", auto_by_duration,
-          "excluded short/unknown:", skips, "RSS read:", rss_ok)
+    if queue != load(PENDING):
+        save(queue, PENDING)
+    print("Official API result: confirmed >180s and 16:9:", len(landscape),
+          "pending aspect validation:", len(queue),
+          "excluded Shorts/non-16:9:", excluded,
+          "RSS read:", rss_ok)
     return {"source": "youtube_data_api_v3", "verified_new": len(landscape),
-            "auto_duration": auto_by_duration, "pending_new": 0,
-            "retained": len(updated)}
+            "pending_new": len(queue), "retained": len(updated)}
 
 def main() -> None:
     run()
