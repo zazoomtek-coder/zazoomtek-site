@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Offline Home graphic regression: popular eight cards, web news as screenshot hero plus four."""
+"""Offline Home graphic regression: popular five cards, web news as screenshot hero plus four."""
 import importlib.util
 import json
+import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -32,16 +33,29 @@ def main():
             'old</a><!-- POPULAR_NEWS_ITEMS_END -->'
             '<section id="zt-webnews-home"><p>Previous 2-column layout</p></section>'
             '</body></html>',encoding="utf-8")
-        assert popular.update(directory)==8
+        assert popular.update(directory)==5
         result=homepage.read_text(encoding="utf-8")
         box=result.split(popular.START,1)[1].split(popular.END,1)[0]
-        assert box.count('class="zt-popular-article"')==8
-        assert 'id="zt-services10-popular-eight"' in result
-        assert ':nth-of-type(-n+8)' in result and ':nth-of-type(n+9)' in result
+        assert box.count('class="zt-popular-article"')==5
+        assert 'id="zt-services10-popular-five"' in result
+        assert ':nth-of-type(-n+5)' in result and ':nth-of-type(n+6)' in result
         assert 'KEEP THIS' in result
-        assert popular.update(directory)==8
+        assert popular.update(directory)==5
         result=homepage.read_text(encoding="utf-8")
-        assert result.count('id="zt-services10-popular-eight"')==1
+        assert result.count('id="zt-services10-popular-five"')==1
+        # Titles are de-duplicated even with different whitespace/casing.
+        duplicated=result.replace('Tech 5</a>', 'TECH   1</a>')
+        duplicated=duplicated.replace('Tech 5</strong>', 'TECH   1</strong>')
+        homepage.write_text(duplicated,encoding="utf-8")
+        assert popular.update(directory)==5
+        card_section=homepage.read_text(encoding="utf-8").split(popular.START,1)[1].split(popular.END,1)[0]
+        titles=re.findall(r'<strong>([\s\S]*?)</strong>',card_section)
+        assert len(titles)==5
+        assert len(set(" ".join(v.casefold().split()) for v in titles))==5
+        # The browser CSS that formerly hid items 4+ must now hide only 6+.
+        script=(ROOT.parent/"zt-home-live.js").read_text(encoding="utf-8")
+        assert '#zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6)' in script
+        assert '#zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+4)' not in script
 
         stories=[{"url":f"https://example.org/news-{n}",
                   "image":f"/assets/notizie-dal-web/{n}.webp",
@@ -65,7 +79,7 @@ def main():
         updated=homepage.read_text(encoding="utf-8")
         assert updated.count('id="zt-services10-webnews-layout"')==1
         assert updated.count('id="zt-services10-webnews-place"')==1
-    print("PASS: Home layout remains intact; eight Tech cards and web news 1+4 with editorial archive")
+    print("PASS: Home layout remains intact; five Tech cards and web news 1+4 with editorial archive")
 
 if __name__=="__main__":
     main()
