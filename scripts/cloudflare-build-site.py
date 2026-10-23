@@ -98,7 +98,7 @@ def main() -> None:
     # Generators may refresh content, but must never rewrite locked Home layout.
     # Restore late-built YouTube watch-page revisions after all generators.
     run("studio-apply-overrides.py")
-    run("studio-inject-edit-button.py")
+    # Public edit controls disabled; Studio remains available at /studio/.
     run("build-cloudflare-pages.py")
     if master_active and (ROOT / "master-staging/editorial-boxes.json").is_file():
         run("master-json-renderer.py", "--postbuild-editorial")
