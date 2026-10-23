@@ -2064,3 +2064,28 @@ html body main.page :is(
 
 /* ZazoomTek owner request 2026-10-23: sharp corners everywhere */
 :where(.module,.side-module,.side-box,.compact-box,.news-card,.video-card,.article-card,.article-image,.news-row img,.video-thumb,.read-more,.news-read,.search-box,.zt-search,.search-top,.zt-review-card,.zt-video-stack,.zt-latest-videos,.zt-shorts-box,.section-head,.module-head,.module-title,.side-head,.card,.btn,button,input,select,textarea){border-radius:0!important;}
+
+/* Forzatura squadrata globale - 2026-10-23 */
+*, *::before, *::after, img, .block-title, .block-header, .card, .post, .thumb, .badge, div {
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+}
+/* No public Studio edit controls on editorial pages or archives. */
+.edit-link, .btn-edit, .zt-studio-card-edit, #zt-studio-edit-title,
+a[href*="/studio/?edit="], a[href*="edit"] { display: none !important; }
+/* Review summary: readable body, vote, pros and cons regardless of inherited dark styles. */
+:is(.review-summary,.review-snapshot,.review-at-a-glance,.recensione-in-sintesi,
+.zt-review-summary,.zt-review-snapshot,.zt-review-aside,.review-sidebar)
+{background:#fff!important;color:#222!important;border:1px solid #ddd!important;}
+:is(.review-summary,.review-snapshot,.review-at-a-glance,.recensione-in-sintesi,
+.zt-review-summary,.zt-review-snapshot,.zt-review-aside,.review-sidebar)
+:is(p,li,dd,dt,span,strong,small){color:#222!important;background:transparent!important;}
+:is(.review-summary,.review-snapshot,.review-at-a-glance,.recensione-in-sintesi,
+.zt-review-summary,.zt-review-snapshot,.zt-review-aside,.review-sidebar)
+:is(h2,h3,.module-head,.module-title,.side-head){color:#fff!important;background:#202020!important;}
+/* Restored typography and spacing for right-rail modules without inventing content. */
+:is(.article-side,.news-sidebar,.zt-side-mix,.sidebar) :is(.zt-amazon-partner,.zt-sidebar-editorial,.side-module,.side-box,.module)
+{overflow:hidden;border:1px solid #e5e5e5;background:#fff;color:#24282c;}
+:is(.article-side,.news-sidebar,.zt-side-mix,.sidebar) :is(.zt-amazon-partner,.zt-sidebar-editorial,.side-module,.side-box,.module) :is(p,li,small)
+{line-height:1.5;overflow-wrap:anywhere;}
