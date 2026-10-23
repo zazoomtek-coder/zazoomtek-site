@@ -40,7 +40,7 @@ def main():
     assert [x["id"] for x in videos.collect(xml)]==["abcdef12345"]
     known={"abcdef12345"}
     status,row=videos.classify(video("abcdef12345",30),known)
-    assert status=="landscape" and row["type"]=="landscape_video"
+    assert status=="short_or_unknown" and row is None
     status,row=videos.classify(video("shortvid001",40),set())
     assert status=="short_or_unknown" and row is None
     status,row=videos.classify(video("longvid0001",360),set())
@@ -48,7 +48,9 @@ def main():
     assert row["verification"]=="duration_over_3m_not_short"
     assert row["orientation"]=="unverified"  # duration is not 16:9 metadata
     assert videos.classify(video("exact180001",180),set())[0]=="short_or_unknown"
+    assert videos.classify(video("exact180001",180),{"exact180001"})[0]=="short_or_unknown"
     assert videos.classify(video("exact181001",181),set())[0]=="landscape"
+    assert videos.classify(video("exact181001",181),{"exact181001"})[0]=="landscape"
     assert videos.classify(video("longvid0001",360,"another-channel"),known)[0]=="other"
     future=video("abcdef12345",600)
     future["snippet"]["liveBroadcastContent"]="upcoming"
@@ -90,7 +92,7 @@ def main():
                  {"id":"abcdef12345"},{"id":"longvid0001"},{"id":"shortvid001"}]), \
              patch.object(videos,"rss_candidates",return_value=[]), \
              patch.object(videos,"metadata",return_value=[
-                 video("abcdef12345",110),video("longvid0001",450),video("shortvid001",45)]):
+                 video("abcdef12345",181),video("longvid0001",450),video("shortvid001",45)]):
             videos.save(old)
             videos.save([
                 {"id":"legacyvid01","title":"Previous pending (now auto)",
@@ -114,8 +116,8 @@ def main():
                 assert videos.load(videos.OUT)==verified
                 assert videos.load(videos.PENDING)==waiting
 
-    # Without a key or during API downtime, only manually verified 16:9 IDs
-    # may flow from RSS; unknown long videos and Shorts remain blocked.
+    # RSS omits duration: even manually approved IDs cannot bypass
+    # the strict >180 seconds rule without verified API metadata.
     with TemporaryDirectory() as tmp:
         folder=Path(tmp)
         with patch.object(videos,"OUT",folder/"videos.json"), \
@@ -128,8 +130,8 @@ def main():
                  {"id":"shortvid001","title":"Unknown Short",
                   "published":"2026-10-23T15:00:00Z","url":"https://www.youtube.com/watch?v=shortvid001"}]):
             stats=videos.run()
-            assert stats["source"]=="approved_rss_fallback"
-            assert {x["id"] for x in videos.load(videos.OUT)}=={"abcdef12345"}
+            assert stats["source"]=="rss_without_duration"
+            assert videos.load(videos.OUT)==[]
 
     # Braces inside post text and malformed neighbours never break Community.
     posts={"contents":{
@@ -142,7 +144,7 @@ def main():
     assert {x["id"] for x in parsed}=={"Ugkx123","Ugkx456"}
     assert len(community.merge(parsed,parsed))==2
     assert community.extract("var ytInitialData = {corrupt;")==[]
-    print("PASS: official API imports all >180s, <=180s unapproved excluded, legacy pending migrated, archive preserved")
+    print("PASS: strict >180s import, 180s rejected even when approved, RSS without duration blocked, archive preserved")
 
 if __name__=="__main__":
     main()
