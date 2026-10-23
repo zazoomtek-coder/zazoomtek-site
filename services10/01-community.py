@@ -4,6 +4,7 @@
 Uses only official channel pages. Malformed posts are skipped individually.
 """
 import html,json,os,re,tempfile,urllib.request
+from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"services10-data"/"community.json"
@@ -19,6 +20,21 @@ def text(node):
         if "simpleText" in node:return str(node["simpleText"])
         if "runs" in node:return "".join(str(x.get("text","")) for x in node["runs"] if isinstance(x,dict))
     return ""
+def image_from_attachment(post):
+    attachment=post.get("backstageAttachment") or post.get("backstageImageRenderer") or {}
+    if not isinstance(attachment,dict):
+        return ""
+    urls=[]
+    for part in walk(attachment):
+        images=part.get("thumbnails") if isinstance(part,dict) else None
+        if not isinstance(images,list):continue
+        for thumbnail in images:
+            if isinstance(thumbnail,dict):
+                value=str(thumbnail.get("url") or "")
+                if value.startswith("https://"):
+                    urls.append((int(thumbnail.get("width") or 0),value))
+    return max(urls,default=(0,""))[1]
+
 def extract(page):
     # Decode the complete nested JSON value. A non-greedy brace regex can
     # truncate an otherwise valid YouTube post collection.
@@ -43,7 +59,9 @@ def extract(page):
             if not pid or not msg or pid in seen:continue
             seen.add(pid)
             out.append({"id":pid,"title":msg[:160],"text":msg,
-                        "url":"https://www.youtube.com/post/"+pid})
+                        "url":"https://www.youtube.com/post/"+pid,
+                        "image":image_from_attachment(post),
+                        "first_seen":datetime.now(timezone.utc).isoformat()})
         except (TypeError,ValueError,KeyError,AttributeError):
             continue
     return out
@@ -51,8 +69,15 @@ def extract(page):
 def merge(old,new):
     posts={}
     for item in old+new:
-        if isinstance(item,dict) and item.get("id"):posts[item["id"]]=item
+        if not isinstance(item,dict) or not item.get("id"):continue
+        before=posts.get(item["id"],{})
+        merged={**before}
+        merged.update({key:value for key,value in item.items() if value not in ("",None,[])})
+        if before.get("first_seen"):
+            merged["first_seen"]=before["first_seen"]
+        posts[item["id"]]=merged
     return list(posts.values())
+
 def main():
     old=json.loads(OUT.read_text(encoding="utf-8")) if OUT.is_file() else []
     try:
