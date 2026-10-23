@@ -32,8 +32,27 @@ def test_community(folder):
         '<article class="news-row">Existing</article></body></html>',encoding="utf-8")
     path=root/"services10-data"/"community.json"
     path.write_text(json.dumps([post(1),post(2,"gaming")]),encoding="utf-8")
+    (root/"home-video-feed.json").write_text(json.dumps([
+        {"id":"existing0001","title":"Older horizontal video",
+         "publishedAt":"2026-10-20T12:00:00Z","short":False},
+        {"id":"short00001","title":"Old Shorts",
+         "publishedAt":"2026-10-20T11:00:00Z","short":True}]),encoding="utf-8")
+    (root/"services10-data"/"videos.json").write_text(json.dumps([
+        {"id":"newvideo001","title":"New video 16:9",
+         "published":"2026-10-23T16:30:00Z","type":"landscape_video"},
+        {"id":"vertical001","title":"Vertical not permitted",
+         "published":"2026-10-23T16:30:00Z","type":"vertical_video"}]),encoding="utf-8")
+
     result=home.update(root)
     assert result["created_pages"]==2
+    assert result["new_videos"]==1
+    assert (root/"watch"/"newvideo001.html").exists()
+    assert (root/"watch"/"index.html").exists()
+    assert not (root/"watch"/"vertical001.html").exists()
+    assert not (root/"watch"/"short00001.html").exists()
+    video_feed=json.loads((root/"home-video-feed.json").read_text())
+    assert {"newvideo001","existing0001","short00001"} == {
+        entry["id"] for entry in video_feed}
     assert len(list(root.glob("news-Ugkx*.html")))==2
     assert "<h1>" in (root/"news-UgkxABCDEF1.html").read_text()
     assert 'rel="canonical"' in (root/"news-UgkxABCDEF1.html").read_text()
