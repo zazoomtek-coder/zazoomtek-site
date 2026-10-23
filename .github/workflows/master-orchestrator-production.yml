@@ -73,7 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in 1 2 3; do
-            if ZT_RELEASE_SOURCE_SHA="$(git rev-parse HEAD)" python3 scripts/cloudflare-build-site.py; then
+            if ZT_YOUTUBE_LIVE_IMPORTED=1 ZT_RELEASE_SOURCE_SHA="$(git rev-parse HEAD)" python3 scripts/cloudflare-build-site.py; then
               echo "Editorial build succeeded on attempt $attempt"
               exit 0
             fi
