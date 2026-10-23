@@ -1,67 +1,67 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T18:59:02.637418+00:00",
+  "updated_at": "2026-10-23T08:30:39.602228+00:00",
   "image_policy": "RSS enclosure/media or article OpenGraph; 720x405 WebP with linked attribution",
   "items": [
     {
-      "id": "1309411a794633781e7e",
+      "id": "d52ca71f6787e23c6388",
       "source": "Tom's Hardware Italia",
-      "url": "https://www.tomshw.it/hardware/bluetooth-sparito-windows-11-controlli-driver-radio",
-      "title": "Il punto su Bluetooth sparito Windows farlo tornare",
-      "original_title": "Bluetooth sparito su Windows 11: come farlo tornare",
-      "excerpt": "La notizia riguarda Bluetooth sparito Windows farlo tornare. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T18:00:00+00:00",
-      "image": "/assets/notizie-dal-web/1309411a794633781e7e-33cecf4967.webp",
+      "url": "https://www.tomshw.it/business/nexxt-ai-factory-il-supercomputer-italiano-guadagna-nuovo-hardware-nvidia",
+      "title": "Il punto su NeXXt Factory supercomputer italiano guadagna hardware NVIDIA",
+      "original_title": "NeXXt AI Factory, il supercomputer italiano guadagna nuovo hardware NVIDIA",
+      "excerpt": "La notizia riguarda NeXXt Factory supercomputer italiano guadagna. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T08:27:37+00:00",
+      "image": "/assets/notizie-dal-web/d52ca71f6787e23c6388-d092a99a04.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119142/cover.png"
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119715/03-nexxt-ai-factory-nuovo-hardware-nvidia.jpg"
     },
     {
-      "id": "cd97b6ddb12e5132c129",
+      "id": "bdd982d80a4d74d8ca59",
       "source": "HDblog",
-      "url": "https://www.hdblog.it/smartphone/articoli/n674622/samsung-riparazione-elettrodomestici-garanzia/",
-      "title": "Il punto su Samsung permette ora acquistare online riparazione elettrodomestici",
-      "original_title": "Samsung permette ora di acquistare online la riparazione degli elettrodomestici fuori garanzia",
-      "excerpt": "La notizia riguarda Samsung permette acquistare online riparazione. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T17:30:00+00:00",
-      "image": "/assets/notizie-dal-web/cd97b6ddb12e5132c129-6c7540c2d7.webp",
+      "url": "https://www.hdblog.it/smartphone/articoli/n674652/vivo-x500-ultra-fotocamera-principale-sony-50-mp/",
+      "title": "Il punto su Vivo X500 Ultra fotocamera principale avrà meno",
+      "original_title": "Vivo X500 Ultra, la fotocamera principale avrà meno megapixel del Pro Max?",
+      "excerpt": "La notizia riguarda Vivo X500 Ultra fotocamera principale. HDblog pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T08:05:00+00:00",
+      "image": "/assets/notizie-dal-web/bdd982d80a4d74d8ca59-fceafab12a.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://hd2.tudocdn.net/1353572?w=660"
+      "image_source": "https://hd2.tudocdn.net/1372681?w=660"
     },
     {
-      "id": "5ea348460b6e63a527ac",
+      "id": "20ad4f01490eaed7fe1d",
       "source": "SmartWorld",
-      "url": "https://www.smartworld.it/news/insta360-mic-prezzo-caratteristiche-novita-e-ink.html",
-      "title": "Il punto su Insta360 Mic microfono wireless display E-Ink personalizzabile",
-      "original_title": "Insta360 Mic: il microfono wireless con display E-Ink personalizzabile con registrazione a 32 bit su microSD",
-      "excerpt": "La notizia riguarda Insta360 microfono wireless display E-Ink. SmartWorld pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T16:03:00+00:00",
-      "image": "/assets/notizie-dal-web/5ea348460b6e63a527ac-586f1b669f.webp",
+      "url": "https://www.smartworld.it/news/google-wallet-passaporto-digitale-italia-notifiche.html",
+      "title": "Il punto su Google Wallet arriva passaporto digitale Italia feed",
+      "original_title": "Google Wallet, arriva il passaporto digitale anche in Italia e c'è un nuovo feed di notifiche",
+      "excerpt": "La notizia riguarda Google Wallet arriva passaporto digitale. SmartWorld pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T01:16:00+00:00",
+      "image": "/assets/notizie-dal-web/20ad4f01490eaed7fe1d-a99bbb3a81.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://www.smartworld.it/images/2026/10/22/insta360-mic-orig.jpg"
+      "image_source": "https://www.smartworld.it/images/2026/09/11/google-wallet-orig.jpg"
     },
     {
-      "id": "342777800f998d6f1333",
+      "id": "7bf4a3b8bccc7d2c58ea",
       "source": "DDAY.it",
-      "url": "https://www.dday.it/redazione/59197/riparare-un-elettrodomestico-fuori-garanzia-come-uno-smartphone-samsung-estende-smart-repair",
-      "title": "Il punto su Riparare elettrodomestico fuori garanzia smartphone Samsung estende",
-      "original_title": "Riparare un elettrodomestico fuori garanzia come uno smartphone: Samsung estende Smart Repair",
-      "excerpt": "La notizia riguarda Riparare elettrodomestico fuori garanzia smartphone. DDAY.it pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T14:58:00+00:00",
-      "image": "/assets/notizie-dal-web/342777800f998d6f1333-ef094a7544.webp",
+      "url": "https://www.dday.it/redazione/59120/roborock-saros-20-neo-e-il-robot-aspirapolvere-lavapavimenti-che-toglie-di-mezzo-anche-gli-imprevisti",
+      "title": "Il punto su Roborock Saros Neo robot aspirapolvere lavapavimenti toglie",
+      "original_title": "Roborock Saros 20 Neo è il robot aspirapolvere lavapavimenti che toglie di mezzo anche gli imprevisti",
+      "excerpt": "La notizia riguarda Roborock Saros robot aspirapolvere lavapavimenti. DDAY.it pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T01:03:06+00:00",
+      "image": "/assets/notizie-dal-web/7bf4a3b8bccc7d2c58ea-a25eac417c.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://images.dday.it/dti_CHiqzBAdknSp5HaSuFq6iatZGuAgfcXY3V1NQgQ/w:329/h:256/rt:fill/plain/s3://dday-production/system/uploads/news/square_crop_img/59197/5bdb16_small_Screenshot_2026-10-22_alle_16.56.26_copia.png"
+      "image_source": "https://images.dday.it/lkfBM4xClC1cVBYiC0ANrFQsblWMGdqMyY1cmpScFsU/w:329/h:256/rt:fill/plain/s3://dday-production/system/uploads/news/square_crop_img/59120/dc3f6c_Roborock_Saros_20_Neo__Lifestyle__Black_25.jpg"
     },
     {
-      "id": "3044b73fcdba73ac1b7e",
+      "id": "76042fa0150cf651d8ce",
       "source": "Tom's Hardware Italia",
-      "url": "https://www.tomshw.it/business/vuoi-lai-di-meta-in-locale-servono-almeno-20000-euro-di-hardware-apple",
-      "title": "Il punto su Vuoi Meta locale Servono almeno 000 euro",
-      "original_title": "Vuoi l'AI di Meta in locale? Servono almeno 20.000 euro di hardware Apple",
-      "excerpt": "La notizia riguarda Vuoi Meta locale Servono almeno. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
-      "published": "2026-10-22T16:57:39+00:00",
-      "image": "/assets/notizie-dal-web/3044b73fcdba73ac1b7e-369a3412d9.webp",
+      "url": "https://www.tomshw.it/altro/openai-ha-il-suo-jev-come-funziona-il-modello-decisionale",
+      "title": "Il punto su OpenAI suo Jev funziona modello decisionale",
+      "original_title": "OpenAI ha il suo Jev, come funziona il modello decisionale",
+      "excerpt": "La notizia riguarda OpenAI funziona modello decisionale. Tom's Hardware Italia pubblica l'aggiornamento originale, con dettagli e contesto consultabili direttamente alla fonte.",
+      "published": "2026-10-23T08:12:00+00:00",
+      "image": "/assets/notizie-dal-web/76042fa0150cf651d8ce-f9a47f7c0c.webp",
       "image_origin": "rss-webp",
-      "image_source": "https://cdn.tomshw.it/storage/media/2026/10/119540/01-ai-meta-locale-hardware-apple.jpg"
+      "image_source": "https://cdn.tomshw.it/storage/media/2026/09/115483/gli-incidenti-con-lia-aumentano-a-vista-docchio-anthropic-e--a9eck8u.webp"
     }
   ]
 }
