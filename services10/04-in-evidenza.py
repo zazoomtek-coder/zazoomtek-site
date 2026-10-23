@@ -42,7 +42,7 @@ def select(current: list[dict], older: list[dict]) -> list[dict]:
         count=0
         for story in current+older:
             url=story.get("url") if isinstance(story,dict) else None
-            if story.get("section")!=section or not url or url in used:continue
+            if not isinstance(story,dict) or story.get("section")!=section or not url or url in used:continue
             chosen.append(story);used.add(url);count+=1
             if count==limit:break
     return chosen
@@ -84,10 +84,8 @@ def update(root: Path = ROOT) -> int:
     published=original[:start]+"\n"+render(selected)+"\n"+original[end:]
     if published!=original:home.write_text(published,encoding="utf-8")
     payload={"generated_utc":datetime.now(timezone.utc).isoformat(),"items":selected}
-    if (not manifest.is_file() or
-        json.loads(manifest.read_text(encoding="utf-8")).get("items")!=selected):
-        manifest.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",
-                            encoding="utf-8")
+    manifest.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",
+                        encoding="utf-8")
     print("Featured: 4 Tech and 1 Gaming refreshed")
     return len(selected)
 
