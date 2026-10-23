@@ -16,7 +16,7 @@ def load(name, filename):
     return module
 
 community = load("service_community", "01-community.py")
-videos = load("service_videos", "02-video-shorts.py")
+videos = load("service_videos", "02-video-16x9.py")
 
 def main():
     xml = b'''<?xml version="1.0"?>
