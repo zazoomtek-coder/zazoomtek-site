@@ -9,27 +9,31 @@ permissions:
   contents: read
 
 concurrency:
-  group: zazoomtek-manual-pages-deploy
+  group: zazoomtek-cloudflare-production-release
   cancel-in-progress: false
 
 jobs:
   publish:
+    if: github.event_name != 'push' || (!startsWith(github.event.head_commit.message, 'master:'))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build current main without invoking Master
-        env:
-          ZT_RELEASE_SOURCE_SHA: ${{ github.sha }}
-        run: python3 scripts/cloudflare-build-site.py
+      - name: Build latest main without invoking Master
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          ZT_RELEASE_SOURCE_SHA="$(git rev-parse HEAD)" python3 scripts/cloudflare-build-site.py
       - name: Deploy directly to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
