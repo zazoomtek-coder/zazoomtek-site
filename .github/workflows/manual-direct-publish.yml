@@ -1,0 +1,43 @@
+name: ZazoomTek MANUAL - direct main to Cloudflare
+# Any owner/editorial commit to main deploys directly. The scheduled Master is not invoked.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zazoomtek-manual-pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build current main without invoking Master
+        env:
+          ZT_RELEASE_SOURCE_SHA: ${{ github.sha }}
+        run: python3 scripts/cloudflare-build-site.py
+      - name: Deploy directly to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
+      - name: Purge Cloudflare cache immediately after successful deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID || vars.CLOUDFLARE_ZONE_ID }}
+        run: python3 scripts/cloudflare-purge-after-release.py
