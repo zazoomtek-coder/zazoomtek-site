@@ -59,9 +59,12 @@ def main() -> None:
         # build workspace; their approved JSON remains the Git source of truth.
         run("build-standard-news.py")
         run("apply-standard-news-featured.py")
-        run("update-youtube-posts.py", "--render-from-cache")
-        if (ROOT / ".youtube-master-render-cache.json").is_file():
-            run("update-youtube.py", "--render-from-cache")
+        # Scheduled importer already rendered current YouTube data in this checkout.
+        # Replaying the old committed cache here would overwrite today's imports.
+        if os.environ.get("ZT_YOUTUBE_LIVE_IMPORTED") != "1":
+            run("update-youtube-posts.py", "--render-from-cache")
+            if (ROOT / ".youtube-master-render-cache.json").is_file():
+                run("update-youtube.py", "--render-from-cache")
         # Editor-approved Impact/Inside pages and category archives share
         # this same disposable build; no independent Git writer survives cutover.
         run("publish-special-news.py")
