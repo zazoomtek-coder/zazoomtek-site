@@ -1,8 +1,6 @@
-name: ZazoomTek MASTER - direct main publisher
-# Publication directly from main: no PR queue, approval step or staging branch.
+name: ZazoomTek MASTER - scheduled editorial slots
+# Automatic editorial slots only. Manual commits have a separate deployment workflow.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '15 10,15,20 * * *'
