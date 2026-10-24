@@ -42,7 +42,7 @@ def main():
         manifest=json.loads((root/"featured-carousel.json").read_text())["items"]
         assert len(manifest)==4 and len({x["url"] for x in manifest})==4
         assert not any(x["url"] in ("/news-9.html","/news-10.html","/news-old.html") for x in manifest)
-        assert featured.update(root)==5
+        assert featured.update(root)==4
     print("PASS: Featured recent unique Tech/Gaming without obsolete fallback")
 
 if __name__=="__main__":
