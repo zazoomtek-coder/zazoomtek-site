@@ -124,8 +124,12 @@ jobs:
         run: python3 services10/14-release-layout.py
       - name: Assemble static Cloudflare snapshot without Master
         run: python3 services10/09-layout.py
-      - name: Apply global master: deduplicate snapshot, newest Home, shared menu and sidebars
-        run: python3 services10/15-master-structural.py
+      - name: News module — deduplicate articles and video catalog
+        run: python3 services10/15-master-structural.py --module news
+      - name: Home module — recent unique featured news and Tech
+        run: python3 services10/15-master-structural.py --module home
+      - name: Layout module — required common menu and editorial/related boxes
+        run: python3 services10/15-master-structural.py --module layout
       - name: Deploy published content to Cloudflare at scheduled slot
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
