@@ -1,5 +1,11 @@
 name: ZazoomTek structural source syntax
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'services10/**'
+      - 'studio/layouts.js'
+      - '.github/workflows/zt-source-syntax.yml'
   pull_request:
     paths:
       - 'services10/**'
