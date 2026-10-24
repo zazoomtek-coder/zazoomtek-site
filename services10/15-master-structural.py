@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 
 ROOT=Path(__file__).resolve().parents[1]
 DIST=ROOT/"dist"
+FALLBACK="/assets/zt-editorial-fallback.svg"
 START="<!-- ZT_MASTER_SIDEBAR_START -->"
 END="<!-- ZT_MASTER_SIDEBAR_END -->"
 HEAD='<link rel="stylesheet" href="/zt-master-template.css?v=20261024"><link rel="stylesheet" href="/zt-master-home-nav.css?v=20261024">'
@@ -86,13 +87,15 @@ def source_info(page):
                 image=d.get("src","");break
     if image.startswith("/") and not (DIST/image.lstrip("/")).is_file():image=""
     if not image.startswith(("https://","/")) or "ChatGPT.png" in image:image=""
-    category_attr=re.search(r"""data-post-category=["'](tech|gaming)["']""",content,re.I)
+    if not image:image=FALLBACK
+    category_attr=re.search(r"""data-post-category=["'](tech-impact|gaming-inside|speciali|extra|reviews|tech|gaming)["']""",content,re.I)
     if category_attr:category=category_attr.group(1).lower()
+    elif re.search(r"(?i)\b(?:SPECIALI|SPECIALE)\b",content[:1400]) and "news-" in page.name:category="speciali"
+    elif re.search(r"(?i)\bGAMING INSIDE\b",content[:1400]):category="gaming-inside"
+    elif re.search(r"(?i)\bTECH IMPACT\b",content[:1400]):category="tech-impact"
     elif "recensione" in page.stem.lower():category="reviews"
     elif "gaming" in page.stem.lower():category="gaming"
     elif "tech" in page.stem.lower():category="tech"
-    elif re.search(r"(?i)ZazoomTek\s*[·|]\s*SPECIALI\b",content):category="speciali"
-    elif re.search(r"(?i)ZazoomTek\s*[·|]\s*EXTRA\b",content):category="extra"
     return {"url":"/"+page.relative_to(DIST).as_posix(),"title":title,
             "image":image,"published":published,"category":category}
 
@@ -108,7 +111,7 @@ def keep_latest(entries):
     for item in entries:
         u=urlkey(item.get("url") or ("/watch/"+str(item.get("id") or "")+".html"))
         name=norm(item.get("title",""))
-        if not name or u in used_urls or name in used_titles:continue
+        if not name or u in used_urls:continue
         result.append(item);used_urls.add(u);used_titles.add(name)
     return result
 
@@ -117,19 +120,24 @@ def collect():
     for page in DIST.glob("*.html"):
         if page.name in ("index.html","ecoturismo.html","studio.html") or page.name.startswith(("anteprima-","recensioni-","watch-")):continue
         record=source_info(page)
-        if record["title"] and record["image"]:records.append(record)
+        if record["title"]:records.append(record)
     community=read_json(ROOT/"services10-data"/"community.json")
     for item in community if isinstance(community,list) else []:
         pid=str(item.get("id") or "")
         if not re.fullmatch(r"[A-Za-z0-9_-]{6,128}",pid):continue
         path=DIST/("news-"+pid+".html")
         if not path.is_file():continue
-        record={"url":"/"+path.name,"title":item.get("title") or "",
-                "image":item.get("image") or ((item.get("images") or [""])[0]),
+        raw=str(item.get("text") or item.get("title") or "")
+        first=next((l.strip().lstrip("🇮🇹 ").strip() for l in raw.splitlines() if l.strip()),"")
+        label=re.match(r"(?i)^(?:news\s+)?(tech\s+impact|gaming\s+inside|speciale|speciali|extra|tech|game|gaming|recensioni|review|reviews)\s*:",first)
+        category=(re.sub(r"\s+","-",label.group(1).lower()) if label else "news")
+        category={"speciale":"speciali","game":"gaming","recensioni":"reviews","review":"reviews"}.get(category,category)
+        photos=item.get("images") if isinstance(item.get("images"),list) else []
+        record={"url":"/"+path.name,"title":str(item.get("title") or "").strip(),
+                "image":item.get("image") or (photos[0] if photos else "") or FALLBACK,
                 "published":timestamp(item.get("published_iso") or item.get("first_seen")),
-                "category":"gaming" if re.match(r'(?i)^news gaming',item.get("title") or "")
-                else "tech" if re.match(r'(?i)^news tech',item.get("title") or "") else "news"}
-        if record["image"] and record["title"]:records.append(record)
+                "category":category}
+        if record["title"]:records.append(record)
     # Include existing archive records even when metadata is thin.
     for name in ("news.html","recensioni-tech.html","recensioni-gaming.html",
                  "tech-today.html","gaming-today.html","speciali.html"):
@@ -139,15 +147,17 @@ def collect():
             article=m.group()
             link=re.search(r'(?is)<h[23]\b[^>]*>\s*<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>',article)
             image=IMAGE.search(article)
-            if not link or not image:continue
+            if not link:continue
             target=urlkey(link.group(1))
             if not (DIST/target.lstrip("/")).is_file():continue
-            record={"url":target,"title":text(link.group(2)),"image":html.unescape(image.group(1)),
+            record={"url":target,"title":text(link.group(2)),"image":html.unescape(image.group(1)) if image else FALLBACK,
                     "published":timestamp(article),
                     "category":"gaming" if ("gaming" in name or 'data-post-category="gaming"' in article)
                     else "tech" if ("tech" in name or 'data-post-category="tech"' in article)
                     else "reviews" if "recensioni" in name else "news"}
-            if record["title"] and record["image"]:records.append(record)
+            if record["title"]:records.append(record)
+    for record in records:
+        if not record.get("image"):record["image"]=FALLBACK
     return keep_latest(records)
 
 def dedup_catalog():
@@ -253,24 +263,57 @@ def master_home(doc,items):
     return doc,total,hero
 
 def sidebar(items,current,main):
-    pool=[s for s in items if s["url"]!=current and s["image"]]
-    # deterministic diversity based on stable URL, latest content first.
-    words=max(1,len(text(main)))
-    limit=min(max(10,math.ceil(words/180)),max(0,len(pool)-4))
-    chosen=pool[:limit]
-    related=pool[limit:limit+4]
-    def card(s):
-        return '<a class="zt-master-card" href="'+html.escape(s["url"],quote=True)+'"><img src="'+html.escape(s["image"],quote=True)+'" loading="lazy" alt="'+html.escape(s["title"],quote=True)+'"><span>'+html.escape(s["title"])+'</span></a>'
+    """Return a portrait-photo rail plus a separate article-end related section."""
+    pool=[x for x in items if x.get("url")!=current and x.get("title")]
+    # Long editorial columns accompany the body without any text-only cards.
+    text_size=max(1,len(text(main)))
+    count=min(max(10,math.ceil(text_size/205)),max(0,len(pool)-4))
+    chosen=pool[:count]
+    related=pool[count:count+4]
+    if not related:related=pool[:min(4,len(pool))]
+    def card(item):
+        label=html.escape(item["title"],quote=True)
+        return ('<a class="zt-master-card" href="'+html.escape(item["url"],quote=True)+'">'+
+                '<img loading="lazy" decoding="async" src="'+html.escape(item.get("image") or FALLBACK,quote=True)+
+                '" onerror="this.onerror=null;this.src=\''+FALLBACK+'\'" alt="'+label+'">'+
+                '<span>'+label+'</span></a>')
     groups=[]
-    for n in range(0,len(chosen),6):
-        group=chosen[n:n+6]
-        heading="ULTIME NOTIZIE" if n==0 else "DALLA REDAZIONE"
-        groups.append('<section class="zt-master-group"><h2>'+heading+'</h2><div class="zt-master-grid">'+
-                      "".join(card(s) for s in group)+'</div></section>')
-    correlati='<section class="zt-master-related"><h2>ARTICOLI CORRELATI</h2><div class="zt-master-grid">'+\
-        "".join(card(s) for s in related)+'</div></section>'
-    return START+'<aside class="zt-master-rail" aria-label="Box editoriali e articoli correlati">'+\
-           "".join(groups)+correlati+'</aside>'+END
+    for start in range(0,len(chosen),5):
+        selection=chosen[start:start+5]
+        heading=("ULTIME NOTIZIE" if start==0 else
+                 "SPECIALE E APPROFONDIMENTI" if start%15==0 else "DALLA REDAZIONE")
+        groups.append('<section class="zt-master-group"><h2>'+heading+
+                      '</h2><div class="zt-master-grid">'+
+                      "".join(card(v) for v in selection)+'</div></section>')
+    rail=START+'<aside class="zt-master-rail" aria-label="Box editoriali">'+\
+         "".join(groups)+'</aside>'+END
+    footer=('<section class="zt-master-article-related" aria-label="Articoli Correlati">'+
+            '<h2>ARTICOLI CORRELATI</h2><div class="zt-master-related-list">'+
+            "".join(card(v) for v in related)+'</div></section>')
+    return rail,footer
+
+def insert_related_after_article(doc,section):
+    """Insert once inside the actual article container, not the right sidebar."""
+    begin="<!-- ZT_MASTER_RELATED_START -->"
+    end="<!-- ZT_MASTER_RELATED_END -->"
+    doc=re.sub(r"(?s)<!-- ZT_MASTER_RELATED_START -->.*?<!-- ZT_MASTER_RELATED_END -->","",doc)
+    opening=re.compile(r"""(?is)<(article|div|section)\b[^>]*class=["'][^"']*(?:article-main|article-body|content)\b[^"']*["'][^>]*>""")
+    choices=list(opening.finditer(doc))
+    # Prefer article-main; a generic content div may wrap the entire page.
+    choices.sort(key=lambda m:(0 if "article-main" in m.group(0) else 1 if "article-body" in m.group(0) else 2,m.start()))
+    for selected in choices:
+        tag=selected.group(1).lower()
+        # Match same-type nested tags to locate the actual closing element.
+        tokens=re.finditer(r"(?is)</?"+tag+r"\b[^>]*>",doc[selected.end():])
+        nesting=1
+        for token in tokens:
+            markup=token.group(0)
+            if markup.startswith("</"):nesting-=1
+            elif not markup.endswith("/>"):nesting+=1
+            if nesting==0:
+                target=selected.end()+token.start()
+                return doc[:target]+begin+section+end+doc[target:],True
+    return doc,False
 
 def add_class(tag,cls):
     """Add a CSS class without emitting a second HTML class attribute."""
@@ -331,7 +374,7 @@ def full_page(doc,page,items,header):
     main_close=doc.find("</main>",main_match.end())
     if main_close<0:return doc,False
     content=doc[main_match.end():main_close]
-    box=sidebar(items,"/"+page.relative_to(DIST).as_posix(),content)
+    box,related=sidebar(items,"/"+page.relative_to(DIST).as_posix(),content)
     if existing:
         # If <aside> was outside main, the surrounding .layout becomes the grid.
         at=existing.start()
@@ -348,6 +391,12 @@ def full_page(doc,page,items,header):
     else:
         doc=doc[:main_close]+box+doc[main_close:]
         doc=update_main_class(doc)
+    if (page.name not in ("news.html","speciali.html","extra.html","guide.html",
+                         "tech-today.html","gaming-today.html","recensioni.html",
+                         "recensioni-scritte.html","recensioni-gaming.html",
+                         "recensioni-tech.html","unboxing.html","test.html")
+            and not page.name.startswith("recensioni-")):
+        doc,_=insert_related_after_article(doc,related)
     return doc,True
 
 def ecoturismo_page(items):
@@ -422,8 +471,8 @@ def run(module="all"):
             doc=page.read_text(encoding="utf-8",errors="replace")
             doc,handled=full_page(doc,page,items,header)
             if not handled:continue
-            if HEAD not in doc:doc=doc.replace("</head>",HEAD+"\n</head>",1)
-            if HEAD_JS not in doc:doc=doc.replace("</body>",HEAD_JS+"\n</body>",1)
+            if "/zt-master-template.css" not in doc:doc=doc.replace("</head>",HEAD+"\n</head>",1)
+            if "/zt-master-template.js" not in doc:doc=doc.replace("</body>",HEAD_JS+"\n</body>",1)
             doc=re.sub(r'(?i)<body\b[^>]*>',
                        lambda m:add_class(m.group(0),"zt-master-page"),doc,count=1)
             page.write_text(doc,encoding="utf-8")
