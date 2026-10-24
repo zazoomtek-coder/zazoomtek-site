@@ -24,10 +24,43 @@ def git(*args: str, input: bytes | None = None, env=None, check=True):
                           check=check)
 
 def union(older, newer):
+    """Keep the richest archived record for every stable YouTube ID.
+
+    A response lacking text/images/metadata must never erase previously
+    imported content. This is used both on restore and concurrent branch save.
+    """
     by_id = {}
-    for item in (older if isinstance(older, list) else []) + (newer if isinstance(newer, list) else []):
-        if isinstance(item, dict) and item.get("id"):
-            by_id[str(item["id"])] = item
+    for item in (older if isinstance(older,list) else []) + (newer if isinstance(newer,list) else []):
+        if not isinstance(item,dict) or not item.get("id"):
+            continue
+        key=str(item["id"])
+        previous=by_id.get(key,{})
+        combined={**previous}
+        for field,value in item.items():
+            if value is None or value == "" or value == []:
+                continue
+            if field in ("published_iso","first_seen") and previous.get(field):
+                # Relative post timestamps must not drift when rescanned.
+                continue
+            if field=="text" and previous.get("text"):
+                old_text=str(previous["text"])
+                new_text=str(value)
+                if new_text.startswith(("Contenuto Community YouTube ",
+                                        "Post fotografico Community YouTube ",
+                                        "Sondaggio Community YouTube ",
+                                        "Video condiviso nella Community YouTube ")) and not old_text.startswith("Contenuto Community YouTube "):
+                    continue
+                if len(new_text)<len(old_text) and not old_text.startswith("Contenuto Community YouTube "):
+                    continue
+            if field=="images" and isinstance(value,list):
+                combined[field]=list(dict.fromkeys((previous.get(field) or [])+value))
+                continue
+            if field=="orientation" and previous.get(field)=="landscape" and value=="unverified":
+                continue
+            combined[field]=value
+        if combined.get("images") and not combined.get("image"):
+            combined["image"]=combined["images"][0]
+        by_id[key]=combined
     return list(by_id.values())
 
 def remote_ref():
