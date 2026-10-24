@@ -267,6 +267,37 @@ def sidebar(items,current,main):
     return START+'<aside class="zt-master-rail" aria-label="Box editoriali e articoli correlati">'+\
            "".join(groups)+correlati+'</aside>'+END
 
+def add_class(tag,cls):
+    """Add a CSS class without emitting a second HTML class attribute."""
+    found=re.search(r'class=(["\\'])(.*?)\\1',tag,re.I|re.S)
+    if found:
+        existing=found.group(2).split()
+        if cls not in existing:existing.append(cls)
+        return tag[:found.start()]+'class="'+html.escape(" ".join(existing),quote=True)+'"'+tag[found.end():]
+    return tag[:-1]+' class="'+cls+'">' if tag.endswith(">") else tag
+
+def update_main_class(doc):
+    return re.sub(r'(?i)<main\\b[^>]*>',lambda m:add_class(m.group(0),"zt-master-layout"),doc,count=1)
+
+def dedup_archive_cards(doc):
+    """Collapse exact repeated story rows in archive outputs; no article-body edits."""
+    if not re.search(r'\\bid=["\\'](?:newsList|reviewList|specialiList|guideList|extraList)["\\']',doc):
+        return doc,0
+    rows=list(ROW.finditer(doc))
+    seen_urls=set();seen_titles=set();removed=0;out=doc
+    # Keep the highest/newest positioned row (archives were date-sorted).
+    for match in reversed(rows):
+        card=match.group(0)
+        head=re.search(r'(?is)<h[23]\\b[^>]*>\\s*<a\\b[^>]*href=["\\']([^"\\']+)["\\'][^>]*>(.*?)</a>',card)
+        if not head:continue
+        url=urlkey(head.group(1));name=norm(head.group(2))
+        if url in seen_urls or (name and name in seen_titles):
+            out=out[:match.start()]+out[match.end():];removed+=1
+        else:
+            seen_urls.add(url)
+            if name:seen_titles.add(name)
+    return out,removed
+
 def full_page(doc,page,items,header):
     if not re.search(r"(?is)<main\b",doc):return doc,False
     if page.name=="index.html":
@@ -276,7 +307,9 @@ def full_page(doc,page,items,header):
                 '<a href="/extra.html">Extra</a><a href="/ecoturismo.html">Ecoturismo</a>',1)
         return doc,True
     # No nested legacy header survives in article output.
-    if not re.search(r'<header\b',doc,re.I):
+    first_header=re.search(r'<header\b',doc,re.I)
+    first_main=re.search(r'<main\b',doc,re.I)
+    if not first_header or (first_main and first_header.start()>first_main.start()):
         doc=re.sub(r'(?i)<body\b[^>]*>',lambda m:m.group()+"\n"+header,doc,count=1)
     else:
         doc=re.sub(r'(?is)<header\b[^>]*>.*?</header>',lambda _:header,doc,count=1)
@@ -299,15 +332,15 @@ def full_page(doc,page,items,header):
         parent=re.search(r'(?is)<(?:div|section)\b[^>]*class=["\'][^"\']*(?:layout|detail-grid|news-layout)[^"\']*["\'][^>]*>',doc)
         if parent:
             opening=parent.group()
-            doc=doc[:parent.start()]+opening.replace('class="','class="zt-master-layout ',1)+doc[parent.end():]
+            doc=doc[:parent.start()]+add_class(opening,"zt-master-layout")+doc[parent.end():]
         else:
             # If no recognizable grid parent, move the aside inside main.
             doc=doc.replace(box,"",1)
             doc=doc.replace("</main>",box+"</main>",1)
-            doc=re.sub(r'(?i)<main\b',"<main class=\"zt-master-layout\"",doc,count=1)
+            doc=update_main_class(doc)
     else:
         doc=doc[:main_close]+box+doc[main_close:]
-        doc=re.sub(r'(?i)<main\b',"<main class=\"zt-master-layout\"",doc,count=1)
+        doc=update_main_class(doc)
     return doc,True
 
 def ecoturismo_page(items):
@@ -338,6 +371,9 @@ def run():
         doc=page.read_text(encoding="utf-8",errors="replace")
         if page.name=="index.html" and page.parent==DIST:
             doc,home_dupes,hero=master_home(doc,items)
+        elif page.parent==DIST:
+            doc,removed=dedup_archive_cards(doc)
+            home_dupes+=removed
         doc,handled=full_page(doc,page,items,header)
         if not handled:continue
         if HEAD not in doc:doc=doc.replace("</head>",HEAD+"\n</head>",1)
