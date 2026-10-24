@@ -11,6 +11,7 @@ import json
 import math
 import re
 from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -85,7 +86,9 @@ def source_info(page):
                 image=d.get("src","");break
     if image.startswith("/") and not (DIST/image.lstrip("/")).is_file():image=""
     if not image.startswith(("https://","/")) or "ChatGPT.png" in image:image=""
-    if "recensione" in page.stem.lower():category="reviews"
+    category_attr=re.search(r'data-post-category=["\\'](tech|gaming)["\\']',content,re.I)
+    if category_attr:category=category_attr.group(1).lower()
+    elif "recensione" in page.stem.lower():category="reviews"
     elif "gaming" in page.stem.lower():category="gaming"
     elif "tech" in page.stem.lower():category="tech"
     return {"url":"/"+page.relative_to(DIST).as_posix(),"title":title,
@@ -98,7 +101,7 @@ def read_json(path):
 def keep_latest(entries):
     """Canonical URL plus normalized title; first/newest wins."""
     entries=sorted((v for v in entries if isinstance(v,dict)),
-                   key=lambda v:(v.get("published") or v.get("publishedAt") or "",v.get("url") or ""),reverse=True)
+                   key=lambda v:(v.get("published") or v.get("publishedAt") or "",bool(v.get("category")),v.get("url") or ""),reverse=True)
     used_urls=set();used_titles=set();result=[]
     for item in entries:
         u=urlkey(item.get("url") or ("/watch/"+str(item.get("id") or "")+".html"))
@@ -191,7 +194,7 @@ def dedup_region(doc,open_mark,close_mark):
     return doc[:start]+new+doc[stop:],removed
 
 def fresh(entries,section=None):
-    cutoff=(datetime.now(timezone.utc).date()-timedelta(days=2)).isoformat()
+    cutoff=(datetime.now(ZoneInfo("Europe/Rome")).date()-timedelta(days=2)).isoformat()
     return [s for s in entries if (not section or s.get("category")==section)
             and s.get("published","")>=cutoff and s["image"]]
 
@@ -234,7 +237,7 @@ def master_home(doc,items):
         ("ARTICLE_FEED_START","ARTICLE_FEED_END")):
         doc,removed=dedup_region(doc,opening,closing);total+=removed
     hero=featured(items)
-    if hero:doc=replace_between(doc,"FEATURED_NEWS_START","FEATURED_NEWS_END",
+    doc=replace_between(doc,"FEATURED_NEWS_START","FEATURED_NEWS_END",
                                 '<div class="zt-featured-grid" id="ztFeaturedGrid">'+
                                 "".join(feature_card(x) for x in hero)+"</div>")
     used={v["url"] for v in hero}
