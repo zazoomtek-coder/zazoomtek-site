@@ -39,3 +39,22 @@ body.zt-master-page .zt-master-layout>.zt-master-rail{max-width:350px}
 @media(max-width:1020px){.zt-master-headrow{flex-wrap:wrap;min-height:64px;padding:9px 0}.zt-master-toggle{display:block;margin-left:auto}.zt-master-nav{display:none;min-height:0;flex-basis:100%;flex-wrap:wrap;justify-content:flex-start}.zt-master-nav.open{display:flex}.zt-master-nav>a,.zt-master-dropdown>button{min-height:42px;padding:0 12px!important}.zt-master-sub{top:100%}}
 @media(max-width:900px){.zt-master-layout{grid-template-columns:1fr!important;display:block!important}.zt-master-layout>.zt-master-rail{max-width:none!important;margin-top:24px;display:block}.zt-master-group,.zt-master-related{margin-bottom:16px!important}}
 @media(max-width:530px){.zt-master-brand strong{font-size:19px}.zt-master-headrow{width:calc(100% - 22px)}}
+
+/* Unified editorial contract — October 2026: long portrait imagery / true article-end related */
+body.zt-master-page .zt-master-layout{min-height:0!important;align-items:start!important;grid-auto-flow:row;gap:20px!important}
+body.zt-master-page .zt-master-rail{align-self:stretch!important;max-width:350px;display:flex!important;flex-direction:column!important;gap:14px!important}
+body.zt-master-page .zt-master-group{flex:1 1 auto;display:flex;flex-direction:column;min-height:0!important}
+body.zt-master-page .zt-master-group>.zt-master-grid{display:flex!important;flex-direction:column;justify-content:space-between;flex:1 1 auto}
+body.zt-master-page .zt-master-rail .zt-master-card{grid-template-columns:minmax(0,45%) minmax(0,55%)!important;min-height:152px!important;gap:12px!important;padding:9px!important;align-items:center!important;overflow:hidden}
+body.zt-master-page .zt-master-rail .zt-master-card img{width:100%!important;height:151px!important;aspect-ratio:4/5!important;min-height:0!important;object-fit:cover!important;background:#202833!important;border-radius:0!important;display:block!important}
+body.zt-master-page .zt-master-rail .zt-master-card span{font-size:13px!important;line-height:1.42!important;font-weight:750!important;-webkit-line-clamp:5!important;overflow-wrap:anywhere}
+body.zt-master-page .zt-master-article-related{display:block!important;clear:both!important;border:1px solid #dedede!important;background:#fff!important;margin:28px 0 6px!important;padding:0!important;width:100%;max-width:100%;box-sizing:border-box}
+body.zt-master-page .zt-master-article-related>h2{background:#202020!important;color:#fff!important;border:0!important;border-left:5px solid #d51232!important;margin:0!important;padding:14px 16px!important;font:800 15px/1.3 Arial,Helvetica,sans-serif!important;letter-spacing:.2px}
+body.zt-master-page .zt-master-related-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0!important}
+body.zt-master-page .zt-master-related-list .zt-master-card{display:grid!important;grid-template-columns:minmax(95px,40%) minmax(0,1fr)!important;gap:10px!important;align-items:center!important;min-width:0!important;padding:12px!important;border:0!important;border-bottom:1px solid #e5e5e5!important}
+body.zt-master-page .zt-master-related-list .zt-master-card img{height:120px!important;min-width:0!important;aspect-ratio:4/5!important;object-fit:cover!important;background:#202833!important;display:block!important}
+body.zt-master-page .zt-master-related-list .zt-master-card span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;font:750 13px/1.4 Arial,Helvetica,sans-serif;overflow-wrap:anywhere}
+body.zt-master-page .zt-master-content>.zt-master-article-related{grid-column:1/-1!important}
+body.zt-master-page .zt-master-layout img{max-width:100%}
+@media(max-width:900px){body.zt-master-page .zt-master-rail{max-width:none!important;width:100%!important;margin:22px 0!important}body.zt-master-page .zt-master-rail .zt-master-card{min-height:140px!important}body.zt-master-page .zt-master-rail .zt-master-card img{height:140px!important}}
+@media(max-width:620px){body.zt-master-page .zt-master-related-list{grid-template-columns:1fr!important}body.zt-master-page .zt-master-related-list .zt-master-card img{height:110px!important}}
