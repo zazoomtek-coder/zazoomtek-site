@@ -1,0 +1,29 @@
+name: ZazoomTek structural source syntax
+on:
+  pull_request:
+    paths:
+      - 'services10/**'
+      - 'studio/layouts.js'
+      - 'zt-master-*.js'
+      - '.github/workflows/zt-source-syntax.yml'
+permissions:
+  contents: read
+jobs:
+  source-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse Python generation modules
+        run: |
+          python -m py_compile services10/01-community.py services10/03-home.py services10/04-in-evidenza.py services10/05-da-non-perdere.py services10/07-recensioni.py services10/15-master-structural.py
+      - name: Parse shared JavaScript templates
+        run: |
+          node --check studio/layouts.js
+          node --check zt-master-template.js
+          node --check zt-release-menu.js
