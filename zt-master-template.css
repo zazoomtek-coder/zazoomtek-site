@@ -68,3 +68,25 @@ body.zt-master-page .zt-master-layout img{max-width:100%}
 #ztFeaturedGrid.zt-home-primary-editorials .zt-home-editorial-card img[src="/assets/zt-editorial-fallback.svg"]{object-fit:cover!important}
 #zt-popular-box .zt-home-editorial-card img{display:block!important;object-fit:cover!important;background:#202833!important}
 @media(max-width:800px){#ztFeaturedGrid.zt-home-primary-editorials .zt-home-editorial-label{font-size:12px!important;padding:22px 9px 8px!important}}
+
+/* Every editorial tile has a legible headline and an article-derived teaser. */
+body.zt-master-page .zt-master-card .zt-master-copy{display:flex!important;flex-direction:column!important;justify-content:center;gap:9px;min-width:0;overflow:visible;line-height:1.4}
+body.zt-master-page .zt-master-card .zt-master-copy strong{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;overflow:hidden!important;font:800 13px/1.3 Arial,Helvetica,sans-serif!important;color:#171717!important}
+body.zt-master-page .zt-master-card .zt-master-copy .zt-card-snippet{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;overflow:hidden!important;font:400 12px/1.45 Arial,Helvetica,sans-serif!important;color:#555!important}
+body.zt-master-page .zt-master-related-list .zt-master-card .zt-master-copy{gap:6px}
+body.zt-master-page .zt-master-rail .zt-master-card{min-height:163px!important}
+.zt-archive-snippet{font:400 15px/1.55 Arial,Helvetica,sans-serif;color:#555;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:8px 0 12px!important}
+.news-list .news-row .zt-archive-snippet,.article-list .article-row .zt-archive-snippet{font-size:15px;line-height:1.5}
+.zt-archive-cover{display:block;min-width:0;overflow:hidden}
+.zt-archive-cover img{display:block;object-fit:cover;aspect-ratio:16/9;width:100%;height:auto}
+.nav .nav-drop.open>.nav-submenu,
+header.zt-master-header .nav .nav-drop.open>.nav-submenu,
+#zt-unified-header .nav .nav-drop.open>.nav-submenu{display:block!important}
+.nav .nav-drop>.nav-drop-trigger[aria-expanded="true"]{background:#d51232;color:#fff}
+header.zt-master-header .nav{overflow:visible}
+header.zt-master-header .nav .nav-drop{z-index:100}
+header.zt-master-header .nav .nav-submenu{z-index:1001;max-height:min(70vh,480px);overflow-y:auto}
+@media(max-width:750px){
+ header.zt-master-header .nav .nav-drop .nav-submenu,
+ #zt-unified-header .nav .nav-drop .nav-submenu{position:absolute;top:100%;left:0;right:auto;max-width:min(92vw,320px);min-width:180px}
+}
