@@ -1,9 +1,12 @@
 name: ZazoomTek MANUAL - direct main to Cloudflare
-# Independent editorial lane. Never call Master. Trigger on edits to main.
+# Explicit manual publishing lane. Source code pushes alone never deploy
+# outside the scheduled slots; "Ci penso io" hands release control to editor.
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-  workflow_dispatch:
+    paths:
+      - '.github/zt-manual-release-request-*.txt'
 permissions:
   contents: write
 concurrency:
