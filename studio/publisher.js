@@ -45,7 +45,42 @@ const local=document.querySelector(".local");if(local)local.textContent="● Stu
 const intro=document.querySelector(".intro");if(intro)intro.innerHTML='<span style="color:#d51232;font-size:19px">✎</span><span><strong>Editor completo:</strong> scrivi come su Patreon e usa <b>+</b> per immagini, video e altri contenuti. <strong>La home e gli script automatici non vengono toccati.</strong> La pubblicazione crea una nuova pagina e la registra nell’archivio dello Studio, senza inserirla automaticamente nelle sezioni del sito.</span>';
 const locks=document.querySelectorAll(".locked");locks.forEach(n=>{const t=n.textContent||"";if(/automatic|automatici|SEO|correlati/i.test(t))n.title="Le nuove pagine hanno i propri metadati SEO e un riquadro notizie; non vengono aggiunte automaticamente agli archivi storici."});
 const btn=$("publishBtn");if(btn){btn.textContent="Pubblica articolo";btn.onclick=publish;}
-const state=(t,error=false)=>{const n=$("ztConnection");n.textContent=t;n.className="zt-state "+(error?"error":token?"ok":"");try{if(token&&!error&&/^(Collegato|Collegato a)/i.test(t))localStorage.setItem("zt_studio_verified_until",String(Date.now()+8*3600000));if(!token&&/Disconnesso/.test(t))localStorage.removeItem("zt_studio_verified_until")}catch{}};
+const OWNER_LOGIN="zazoomtek-coder";
+const OWNER_SESSION_KEY="zt_studio_owner_session_v1";
+let ownerVerifiedToken="";
+function clearOwnerSession(){
+ ownerVerifiedToken="";
+ try{localStorage.removeItem(OWNER_SESSION_KEY);}catch{}
+}
+async function verifyOwnerIdentity(){
+ const current=token;
+ if(!current){clearOwnerSession();return false;}
+ try{
+   const response=await fetch("https://api.github.com/user",{
+    headers:{"Accept":"application/vnd.github+json",
+             "Authorization":"Bearer "+current,
+             "X-GitHub-Api-Version":"2022-11-28"},
+    cache:"no-store"});
+   if(!response.ok)throw Error("Identità GitHub non verificabile");
+   const account=await response.json();
+   if(token!==current)return false;
+   if(String(account.login||"").toLowerCase()!==OWNER_LOGIN.toLowerCase())
+     throw Error("L'account GitHub collegato non è il proprietario dello Studio");
+   ownerVerifiedToken=current;
+   localStorage.setItem(OWNER_SESSION_KEY,JSON.stringify({
+      login:OWNER_LOGIN,expires:Date.now()+8*3600000}));
+   return true;
+ }catch(error){
+   if(token===current){clearOwnerSession();console.warn("Studio: modifica riservata al proprietario",error.message);}
+   return false;
+ }
+}
+const state=(t,error=false)=>{
+ const n=$("ztConnection");n.textContent=t;n.className="zt-state "+(error?"error":token?"ok":"");
+ if(!token||error||/Disconnesso/.test(t))clearOwnerSession();
+ else if(/^(Collegato|Collegato a)/i.test(t))
+   verifyOwnerIdentity().catch(()=>clearOwnerSession());
+};
 
 // ZT_STUDIO_ENCRYPTED_VAULT_1. The GitHub PAT is never stored unencrypted.
 const VAULT_STORAGE_KEY="zazoomtek.studio.github.vault.v1";
@@ -232,10 +267,10 @@ return data;
 }
 // The edit-existing module receives only validated GitHub operations, never the PAT.
 window.ZTStudioGitHub={
- isAuthenticated:()=>!!token,
- read:async path=>{if(!token)throw Error("Accesso amministratore richiesto");return req("GET",path+"?ref="+BRANCH)},
+ isAuthenticated:()=>!!token&&ownerVerifiedToken===token,
+ read:async path=>{if(!token||ownerVerifiedToken!==token)throw Error("Accesso amministratore richiesto");return req("GET",path+"?ref="+BRANCH)},
  write:async(path,content,sha,message)=>{
-  if(!token)throw Error("Accesso amministratore richiesto");
+  if(!token||ownerVerifiedToken!==token)throw Error("Accesso amministratore richiesto");
   if(!((/^[a-zA-Z0-9_.-]+\.html$/.test(path)&&path!=="index.html")||/^watch\/[a-zA-Z0-9_-]{11}\.html$/.test(path)||/^editorial\/studio-overrides\/(?:watch\/)?[a-zA-Z0-9_.-]+\.json$/.test(path)))throw Error("Percorso non modificabile");
   return req("PUT",path,{message,content:b64UTF8(content),branch:BRANCH,...(sha?{sha}:{})});
  },
