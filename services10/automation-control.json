@@ -1,0 +1,7 @@
+{
+  "publishing": "automatic",
+  "importing": "automatic",
+  "schedule": "five editorial publication slots, plus independent hourly YouTube import",
+  "manual_stop_phrase": "Ci penso io",
+  "notes": "Only an explicit editor stop switches publishing to manual. Import jobs remain active so the durable YouTube archive is never interrupted."
+}
