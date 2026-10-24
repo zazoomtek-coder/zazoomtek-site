@@ -27,9 +27,21 @@ def clean(value):
     return re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]*>","",value or ""))).strip()
 
 def cover_from(text):
-    m=IMAGE_RE.search(text) or FIRST_IMG.search(text)
-    if not m:return ""
-    src=html.unescape(m.group(1)).strip()
+    """Read og:image regardless of HTML attribute order; never use header logo."""
+    src=""
+    for tag in re.findall(r"<meta\b[^>]*>",text,re.I):
+        if not re.search(r'property=["\']og:image["\']',tag,re.I):
+            continue
+        m=re.search(r'content=["\']([^"\']+)',tag,re.I)
+        if m:src=html.unescape(m.group(1)).strip();break
+    if not src:
+        main=re.search(r"(?is)<main\b",text)
+        fragment=text[main.start():] if main else ""
+        for tag in re.findall(r"<img\b[^>]*>",fragment,re.I):
+            if re.search(r'class=["\'][^"\']*(?:hero|cover|article-image)[^"\']*["\']',tag,re.I):
+                m=re.search(r'src=["\']([^"\']+)',tag,re.I)
+                if m:src=html.unescape(m.group(1)).strip();break
+    if not src:return ""
     if src.startswith("/") and not (ROOT/src.lstrip("/")).is_file():return ""
     return src if src.startswith(("https://","/")) else ""
 
