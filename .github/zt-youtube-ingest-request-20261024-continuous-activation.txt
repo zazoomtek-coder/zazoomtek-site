@@ -1,0 +1,7 @@
+ZazoomTek immediate activation of the independent continuous YouTube ingestion engine.
+Collect all accessible Community posts and public channel uploads (videos, Shorts, live),
+restore and merge durable archived IDs, scan complete uploads playlist if hourly full-reconcile applies,
+save cumulative state branch zt-services10-state, and report archive health.
+This request is INGESTION ONLY and must NOT trigger a Cloudflare deployment outside
+the five established scheduled publication slots. Automatic publishing remains
+enabled until the editor explicitly says: Ci penso io.
