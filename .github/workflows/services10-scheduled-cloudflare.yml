@@ -54,6 +54,7 @@ jobs:
       - name: Collect all public YouTube uploads with preserved metadata
         env:
           ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
+          ZT_YOUTUBE_MAX_PAGES: '3'
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           ZT_CONFIRMED_16X9_IDS: ${{ vars.ZT_CONFIRMED_16X9_IDS }}
           YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
@@ -118,10 +119,13 @@ jobs:
       - name: Update five Tech cards
         run: python3 services10/05-da-non-perdere.py
       - name: Update independent Web news
+        continue-on-error: true
         run: python3 services10/06-notizie-web.py
       - name: Refresh independent review lists
+        continue-on-error: true
         run: python3 services10/07-recensioni.py
       - name: Restore Studio edit link to interior pages
+        continue-on-error: true
         run: python3 services10/08-studio.py
       - name: Refresh dates, chronological lists and editorial sidebars
         run: python3 services10/11-editorial-consistency.py
