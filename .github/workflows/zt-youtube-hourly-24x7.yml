@@ -4,6 +4,10 @@ name: ZazoomTek YouTube hourly 24x7 archive
 on:
   schedule:
     - cron: '0 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/zt-youtube-ingest-request-*.txt'
   workflow_dispatch:
     inputs:
       full_reconcile:
