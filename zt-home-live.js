@@ -310,16 +310,16 @@
   let otherSignature="";
   let otherRendering=false;
   const isInternalArticle=(path)=>/^\/(?:[a-zA-Z0-9._-]+|watch\/[a-zA-Z0-9_-]{11})\.html$/.test(path);
-  const normalizeEditorialTitle=(value)=>String(value||"").normalize("NFKC").replace(/\\s+/g," ").trim().toLocaleLowerCase("it");
+  const normalizeEditorialTitle=(value)=>String(value||"").normalize("NFKC").replace(/\s+/g," ").trim().toLocaleLowerCase("it");
   const RIGHT_REFRESH_MS=24*60*60*1000;
   let lastRightRefresh=0;
   const shuffle=(rows)=>{
-    const result=rows.slice();
-    for(let i=result.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [result[i],result[j]]=[result[j],result[i]];
-    }
-    return result;
+    // Stable editorial order for one day; changes on the next UTC day.
+    const day=Math.floor(Date.now()/RIGHT_REFRESH_MS);
+    const hash=(item)=>{let h=(day+1)|0;const key=String(item?.url||item?.title||"");
+      for(let i=0;i<key.length;i++)h=Math.imul(h^key.charCodeAt(i),16777619);
+      return h>>>0;};
+    return rows.slice().sort((a,b)=>hash(a)-hash(b));
   };
   function loadOtherNews(){
     // At most one reload per 24 hours while the Home remains open.
@@ -463,8 +463,14 @@
       }catch(_){return "";}
     }
     const used=new Set();
+    const usedTitles=new Set();
+    function rememberTitle(node){
+      const key=normalizeEditorialTitle(node?.textContent||"");
+      if(key)usedTitles.add(key);
+    }
     for(const link of document.querySelectorAll("#ztFeaturedGrid > a[href]")){
       const path=articlePath(link);if(path)used.add(path);
+      rememberTitle(link);
     }
     // ALTRE NEWS must not repeat cards already visible in Guide/Extra,
     // Reviews or the 'Esplora Ultimi Video' gallery.
@@ -496,8 +502,10 @@
       const chosen=[],rest=[];
       for(const card of cards){
         const path=articlePath(card.matches("a[href]")?card:card.querySelector(linkSelector));
-        if(path && !used.has(path) && chosen.length<max){
-          used.add(path);chosen.push(card);
+        const titleNode=card.querySelector("h3,strong")||card;
+        const titleKey=normalizeEditorialTitle(titleNode.textContent);
+        if(path && !used.has(path) && titleKey && !usedTitles.has(titleKey) && chosen.length<max){
+          used.add(path);usedTitles.add(titleKey);chosen.push(card);
         }else rest.push(card);
       }
       const parent=cards[0].parentElement;
