@@ -11,7 +11,12 @@ function mount(){
   if(!img||img.tagName!=="IMG")return;
   if(!img.closest(".zt-master-card,.zt-feature-card,.news-row,.article-row,.article-main,.zt-master-article-related,.zt-master-rail"))return;
   var fallback="/assets/zt-editorial-fallback.svg";
-  if(img.getAttribute("src")===fallback)return;
+  var current=img.getAttribute("src")||"";
+  if(current===fallback)return;
+  var backup=img.getAttribute("data-image-backup")||"";
+  if(backup&&backup!==current&&img.dataset.backupAttempted!=="1"){
+   img.dataset.backupAttempted="1";img.src=backup;return;
+  }
   img.src=fallback;
  },true);
  document.querySelectorAll(".zt-master-card img,.zt-master-rail img,.zt-master-article-related img").forEach(function(img){
