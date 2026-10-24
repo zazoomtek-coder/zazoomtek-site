@@ -376,8 +376,10 @@ def update_archive_rails(root,stories):
         context={"href":"/"+filename,"title":filename,"date":"",
                  "category":"general"}
         rail=rail_html(stories,context,root)
-        if "</head>" in s:s=s.replace("</head>",STYLE+"\n</head>",1)
+        # Compute insertion before rewriting <head>: otherwise the saved
+        # </aside> offset points into the middle of the enlarged document.
         s=s[:end]+rail+s[end:]
+        if "</head>" in s:s=s.replace("</head>",STYLE+"\n</head>",1)
         path.write_text(s,encoding="utf-8")
         n+=1
     return n
