@@ -284,19 +284,20 @@ def dedup_archive_cards(doc):
     if not re.search(r"""\bid=["'](?:newsList|reviewList|specialiList|guideList|extraList)["']""",doc):
         return doc,0
     rows=list(ROW.finditer(doc))
-    seen_urls=set();seen_titles=set();removed=0;out=doc
-    # Keep the earliest card after the upstream newest-first sort.
-    for match in reversed(rows):
+    seen_urls=set();seen_titles=set();duplicates=[]
+    # Keep the earliest/newest card; delete redundant older copies in reverse order.
+    for match in rows:
         card=match.group(0)
         head=re.search(r"""(?is)<h[23]\b[^>]*>\s*<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>""",card)
         if not head:continue
         url=urlkey(head.group(1));name=norm(head.group(2))
-        if url in seen_urls or (name and name in seen_titles):
-            out=out[:match.start()]+out[match.end():];removed+=1
+        if url in seen_urls or (name and name in seen_titles):duplicates.append(match)
         else:
             seen_urls.add(url)
             if name:seen_titles.add(name)
-    return out,removed
+    out=doc
+    for match in reversed(duplicates):out=out[:match.start()]+out[match.end():]
+    return out,len(duplicates)
 
 
 def full_page(doc,page,items,header):
