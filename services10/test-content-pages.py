@@ -12,6 +12,7 @@ def load(name,filename):
     spec.loader.exec_module(module)
     return module
 home=load("zazoom_community_publisher","03-home.py")
+video=load("zazoom_video_publisher","02-video-pages.py")
 reviews=load("zazoom_reviews_publisher","07-recensioni.py")
 
 def post(i,section="tech"):
@@ -43,9 +44,10 @@ def test_community(folder):
         {"id":"vertical001","title":"Vertical not permitted",
          "published":"2026-10-23T16:30:00Z","type":"vertical_video"}]),encoding="utf-8")
 
+    video_result=video.sync_video_catalog(root)
+    assert video_result["new_videos"]==1
     result=home.update(root)
     assert result["created_pages"]==2
-    assert result["new_videos"]==1
     assert (root/"watch"/"newvideo001.html").exists()
     assert (root/"watch"/"index.html").exists()
     assert not (root/"watch"/"vertical001.html").exists()
@@ -67,7 +69,8 @@ def test_community(folder):
          "published":"2026-10-23T16:30:00Z","type":"landscape_video"},
         {"id":"newvideo002","title":"Second 16:9",
          "published":"2026-10-23T17:30:00Z","type":"landscape_video"}]))
-    assert home.update(root)["new_videos"]==1
+    assert video.sync_video_catalog(root)["new_videos"]==1
+    assert home.update(root)["created_pages"]==0
     assert (root/"watch"/"newvideo002.html").exists()
     watch_index=(root/"watch"/"index.html").read_text()
     assert "newvideo001" in watch_index and "newvideo002" in watch_index

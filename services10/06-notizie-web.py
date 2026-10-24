@@ -19,37 +19,57 @@ STYLE_ID="zt-services10-webnews-layout"
 SCRIPT_ID="zt-services10-webnews-place"
 
 STYLE='''<style id="zt-services10-webnews-layout">
-#zt-webnews-home{clear:both;margin:18px 0;border:1px solid #ddd;border-radius:0;background:white}
-#zt-webnews-home .zt-webnews-head{background:#1e1e1e;color:white;min-height:46px}
-#zt-webnews-home .zt-webnews-head h2{color:white;background:#d51232;display:inline-block;margin:0;padding:13px 18px;font:900 15px/1.3 Arial,sans-serif}
-#zt-webnews-home .zt-webnews-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-rows:repeat(4,minmax(95px,auto));gap:0;padding:9px}
-#zt-webnews-home .zt-webnews-item{display:grid;grid-template-columns:94px minmax(0,1fr);align-items:center;gap:10px;padding:8px;border-bottom:1px solid #eee;text-decoration:none;min-width:0}
-#zt-webnews-home .zt-webnews-item img{width:94px;height:78px;object-fit:cover}
-#zt-webnews-home .zt-webnews-item:first-child{grid-column:1;grid-row:1/5;display:block;padding:5px 13px 8px 5px;border-right:1px solid #eee;border-bottom:0}
-#zt-webnews-home .zt-webnews-item:first-child img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
-#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-info{display:block;margin:9px 3px}
-#zt-webnews-home .zt-webnews-item:first-child strong{font-size:18px;line-height:1.35}
-#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-excerpt{display:block;color:#666;font-size:13px;line-height:1.45;margin:7px 0}
-#zt-webnews-home .zt-webnews-item:not(:first-child) .zt-webnews-excerpt{display:none}
-@media(max-width:650px){#zt-webnews-home .zt-webnews-grid{display:flex;flex-direction:column}
-#zt-webnews-home .zt-webnews-item:first-child{border-right:0;border-bottom:1px solid #eee}
-#zt-webnews-home .zt-webnews-item:first-child img{height:auto}}
+/* Sora-style editorial layout supplied by the editor: hero left, four rows right. */
+#zt-webnews-home{box-sizing:border-box;width:100%;max-width:100%;min-width:0;clear:both;margin:18px 0 20px;border:0;border-radius:0;background:#fff;overflow:hidden}
+#zt-webnews-home *{box-sizing:border-box}
+#zt-webnews-home .zt-webnews-head{height:52px;display:flex;align-items:stretch;justify-content:space-between;background:#171719;color:#fff;border-radius:0}
+#zt-webnews-home .zt-webnews-head h2{display:flex;align-items:center;margin:0;padding:0 17px;background:transparent;color:#fff;font:900 clamp(15px,1.45vw,19px)/1.15 Arial,Helvetica,sans-serif;letter-spacing:.025em;border-radius:0!important;clip-path:none!important}
+#zt-webnews-home .zt-webnews-all{display:flex;align-items:center;justify-content:center;padding:0 20px;background:#f6525d;color:#fff;text-decoration:none;font:700 13px Arial,Helvetica,sans-serif}
+#zt-webnews-home .zt-webnews-all:hover,#zt-webnews-home .zt-webnews-all:focus-visible{background:#d51232;color:white}
+#zt-webnews-home .zt-webnews-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(16px,2.5vw,28px);padding:clamp(14px,2vw,24px) 0;align-items:stretch}
+#zt-webnews-home .zt-webnews-item{min-width:0;display:grid;grid-template-columns:minmax(88px,37%) minmax(0,1fr);align-items:start;gap:clamp(9px,1.2vw,16px);color:#171719;text-decoration:none;overflow:hidden}
+#zt-webnews-home .zt-webnews-item:not(:first-child){grid-column:2;align-self:start}
+#zt-webnews-home .zt-webnews-item img{display:block;width:100%;height:auto;aspect-ratio:1.52;object-fit:cover;border-radius:0}
+#zt-webnews-home .zt-webnews-info{min-width:0;display:flex;flex-direction:column;gap:7px}
+#zt-webnews-home .zt-webnews-item strong{display:block;margin:0;color:#18191b;font:800 clamp(13px,1.15vw,18px)/1.32 Arial,Helvetica,sans-serif;overflow-wrap:anywhere}
+#zt-webnews-home .zt-webnews-date{color:#8d8d8d;font:400 clamp(11px,.96vw,14px)/1.35 Arial,Helvetica,sans-serif}
+#zt-webnews-home .zt-webnews-item:first-child{grid-column:1;grid-row:1 / span 4;display:block}
+#zt-webnews-home .zt-webnews-item:first-child img{aspect-ratio:1.99;object-fit:cover}
+#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-category{display:inline-block;margin-top:-27px;position:relative;padding:7px 12px;background:#f6525d;color:white;font:700 12px Arial,sans-serif}
+#zt-webnews-home .zt-webnews-item:first-child strong{margin:12px 0 9px;font:900 clamp(21px,2vw,30px)/1.18 Arial,Helvetica,sans-serif}
+#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-date{font-size:clamp(12px,1.04vw,15px)}
+#zt-webnews-home .zt-webnews-excerpt{display:none;color:#777;font:400 clamp(13px,1.2vw,17px)/1.48 Arial,Helvetica,sans-serif}
+#zt-webnews-home .zt-webnews-item:first-child .zt-webnews-excerpt{display:block;margin-top:12px}
+#zt-webnews-home .zt-webnews-item:not(:first-child) .zt-webnews-category{display:none}
+#zt-webnews-home .zt-webnews-item:hover strong{color:#d51232}
+@media(max-width:820px){#zt-webnews-home .zt-webnews-grid{gap:18px}#zt-webnews-home .zt-webnews-item{grid-template-columns:39% 1fr}#zt-webnews-home .zt-webnews-item:first-child img{aspect-ratio:16/9}}
+@media(max-width:640px){#zt-webnews-home .zt-webnews-grid{display:flex;flex-direction:column;gap:16px;padding:14px 0}#zt-webnews-home .zt-webnews-item:first-child{border-bottom:1px solid #e7e7e7;padding-bottom:16px}#zt-webnews-home .zt-webnews-item:not(:first-child){gap:12px}#zt-webnews-home .zt-webnews-item:first-child strong{font-size:23px}#zt-webnews-home .zt-webnews-all{padding:0 13px}}
 </style>'''
 SCRIPT='''<script id="zt-services10-webnews-place">
 (function(){
+  "use strict";
   function place(){
     const block=document.getElementById("zt-webnews-home");
-    const videoExplorer=document.querySelector(".ztp-top-videos");
-    if(!block||!videoExplorer||!videoExplorer.parentNode)return false;
-    if(block.previousElementSibling!==videoExplorer)
-      videoExplorer.insertAdjacentElement("afterend",block);
+    const videoShelves=document.getElementById("zt-home-shelves");
+    // ESPLORA ULTIMI VIDEO is the full video shelf, not .ztp-top-videos
+    // (that other class denotes latest VIDEO REVIEWS).
+    if(!block||!videoShelves||!videoShelves.parentElement)return false;
+    const parent=videoShelves.parentElement;
+    if(block.parentElement!==parent||block.previousElementSibling!==videoShelves)
+      videoShelves.insertAdjacentElement("afterend",block);
+    block.style.width="100%";
+    block.style.maxWidth="100%";
+    block.style.boxSizing="border-box";
     return true;
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",place);
-  else place();
-  const observer=new MutationObserver(function(){if(place())observer.disconnect()});
-  observer.observe(document.documentElement,{childList:true,subtree:true});
-  setTimeout(function(){observer.disconnect()},15000);
+  function init(){
+    if(place())return;
+    const observer=new MutationObserver(function(){if(place())observer.disconnect()});
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    setTimeout(function(){observer.disconnect()},15000);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
+  else init();
 })();
 </script>'''
 
@@ -134,26 +154,74 @@ def refresh_rss(root:Path=ROOT,fetch=None,now=None):
     file.write_text(json.dumps(old,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     return 5
 
+def date_label(raw):
+    try:
+        moment=datetime.fromisoformat(str(raw).replace("Z","+00:00"))
+        return moment.strftime("%d/%m/%Y")
+    except (ValueError, TypeError, AttributeError):
+        try:return parsedate_to_datetime(str(raw)).strftime("%d/%m/%Y")
+        except (ValueError, TypeError, AttributeError):return ""
+
+def eligible(items):
+    result=[];seen_urls=set();seen_titles=set()
+    for item in items:
+        if not isinstance(item,dict):continue
+        url=str(item.get("url") or "").strip()
+        cover=str(item.get("image") or "").strip()
+        title=str(item.get("original_title") or item.get("title") or "").strip()
+        normalized=re.sub(r"\s+"," ",title).casefold()
+        if (not url.startswith("https://") or not cover or not title or
+                url in seen_urls or normalized in seen_titles):continue
+        seen_urls.add(url);seen_titles.add(normalized)
+        result.append(item)
+    return result
+
 def panel(items):
     tiles=[]
-    for item in items[:5]:
-        if not isinstance(item,dict):continue
-        url=str(item.get("url") or "")
-        cover=str(item.get("image") or "")
-        title=str(item.get("original_title") or item.get("title") or "")
-        excerpt=str(item.get("excerpt") or "")
-        origin=str(item.get("source") or "")
-        if not url.startswith("https://") or not cover or not title:continue
-        tiles.append('<a class="zt-webnews-item" href="'+html.escape(url,quote=True)+
-            '" target="_blank" rel="noopener noreferrer"><img src="'+
-            html.escape(cover,quote=True)+'" alt="'+html.escape(title,quote=True)+
-            '" loading="lazy"><span class="zt-webnews-info"><small>'+
-            html.escape(origin)+'</small><strong>'+html.escape(title)+
-            '</strong><span class="zt-webnews-excerpt">'+html.escape(excerpt)+
-            '</span></span></a>')
-    return ('<section id="zt-webnews-home" class="zt-webnews-home" aria-label="NOTIZIE DAL WEB">'
-        '<header class="zt-webnews-head"><h2>NOTIZIE DAL WEB</h2></header>'
+    for item in eligible(items)[:5]:
+        url=html.escape(str(item["url"]),quote=True)
+        cover=html.escape(str(item["image"]),quote=True)
+        title=html.escape(str(item.get("original_title") or item.get("title") or ""))
+        excerpt=html.escape(str(item.get("excerpt") or ""))
+        origin=html.escape(str(item.get("source") or "News"))
+        date=html.escape(date_label(item.get("published") or ""))
+        tiles.append('<a class="zt-webnews-item" href="'+url+
+          '" target="_blank" rel="noopener noreferrer"><span class="zt-webnews-media">'+
+          '<img src="'+cover+'" alt="'+title+'" loading="lazy"></span>'+
+          '<span class="zt-webnews-info"><span class="zt-webnews-category">'+origin+
+          '</span><strong>'+title+'</strong><span class="zt-webnews-date">'+date+
+          '</span><span class="zt-webnews-excerpt">'+excerpt+'</span></span></a>')
+    return ('<section id="zt-webnews-home" class="zt-webnews-home" aria-label="Notizie dal web">'
+        '<header class="zt-webnews-head"><h2>NOTIZIE DAL WEB</h2>'
+        '<a class="zt-webnews-all" href="/notizie-dal-web.html">VEDI TUTTE</a></header>'
         '<div class="zt-webnews-grid">'+''.join(tiles)+'</div></section>'),len(tiles)
+
+def render_archive(items):
+    rows=[]
+    for item in eligible(items):
+        title=html.escape(str(item.get("original_title") or item.get("title") or ""))
+        link=html.escape(str(item["url"]),quote=True)
+        source=html.escape(str(item.get("source") or ""))
+        stamp=html.escape(date_label(item.get("published") or ""))
+        rows.append('<article class="zt-webarchive-story"><h2><a href="'+link+
+          '" target="_blank" rel="noopener noreferrer">'+title+'</a></h2>'+
+          '<p>'+source+' · '+stamp+'</p></article>')
+    return ('<!doctype html><html lang="it"><head><meta charset="utf-8">'
+      '<meta name="viewport" content="width=device-width, initial-scale=1">'
+      '<title>Notizie dal web | ZazoomTek</title>'
+      '<meta name="description" content="Selezione di notizie tecnologia e gaming da fonti esterne">'
+      '<link rel="stylesheet" href="/zt-design.css">'
+      '<style>body{font-family:Arial,sans-serif;background:#eee;color:#202020;margin:0}'
+      'main{max-width:1080px;margin:28px auto;background:white;padding:24px}'
+      'header{background:#171719;padding:18px 24px}header a{color:white;font-weight:900}'
+      'h1{border-left:8px solid #d51232;padding-left:15px}'
+      '.zt-webarchive-story{padding:17px 0;border-bottom:1px solid #eee}'
+      '.zt-webarchive-story a{color:#171719;text-decoration:none}'
+      '.zt-webarchive-story a:hover{color:#d51232}'
+      '.zt-webarchive-story p{color:#888;font-size:13px}'
+      '</style></head><body><header><a href="/">ZazoomTek · Home</a></header>'
+      '<main><h1>NOTIZIE DAL WEB</h1><p>Rassegna stampa da fonti esterne.</p>'
+      +''.join(rows)+'</main></body></html>')
 
 def update(root:Path=ROOT,refresh:bool=False):
     if refresh:refresh_rss(root)
@@ -164,6 +232,8 @@ def update(root:Path=ROOT,refresh:bool=False):
     except (ValueError,AttributeError):return 0
     section,count=panel(items)
     if not count:return 0
+    archive=root/"notizie-dal-web.html"
+    archive.write_text(render_archive(items),encoding="utf-8")
     source=home.read_text(encoding="utf-8")
     pattern=r'<section\b[^>]*id="zt-webnews-home"[^>]*>[\s\S]*?</section>'
     source,n=re.subn(pattern,lambda _: section,source,count=1)

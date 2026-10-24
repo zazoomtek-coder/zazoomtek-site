@@ -66,6 +66,15 @@ jobs:
         run: python3 -m compileall -q services10
       - name: Verify malformed Community/video records, archive retention and Shorts exclusion
         run: python3 services10/test-importers.py
+      - name: Validate real Home and Studio browser JavaScript syntax
+        run: |
+          node --check zt-home-live.js
+          node --check studio/edit-button.js
+          node --check studio/edit-existing.js
+      - name: Verify rich written Community import, original date, photos and de-duplication
+        run: python3 services10/test-community-written.py
+      - name: Prove Community and video page builders do not require each other's archives
+        run: python3 services10/test-isolation.py
       - name: Test persistent Git archive and concurrent saves
         run: python3 services10/test-state.py
       - name: Verify 4 Tech and 1 Gaming Home tiles without layout changes
@@ -99,7 +108,9 @@ jobs:
         with:
           name: real-youtube-inputs
           path: services10-data
-      - name: Generate independent Community and video pages from available archives
+      - name: Generate verified video pages from independent archive
+        run: python3 services10/02-video-pages.py
+      - name: Generate written Community articles from independent archive
         run: python3 services10/03-home.py
       - name: Render independent featured, popular, web and reviews modules
         run: |

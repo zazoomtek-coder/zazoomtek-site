@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Offline Home graphic regression: popular five cards, web news 1+4."""
+"""Offline Home graphic regression: popular five cards, web news as screenshot hero plus four."""
 import importlib.util
 import json
+import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -20,7 +21,7 @@ def main():
         directory=Path(folder)
         homepage=directory/"index.html"
         rows=[]
-        for n in range(6):
+        for n in range(10):
             rows.append(f'<article class="article-row" data-post-category="tech">'
                 f'<a href="news-{n}.html"><img class="article-image" src="/assets/{n}.webp"></a>'
                 f'<div class="article-copy"><h3><a href="news-{n}.html">Tech {n}</a></h3></div></article>')
@@ -37,11 +38,24 @@ def main():
         box=result.split(popular.START,1)[1].split(popular.END,1)[0]
         assert box.count('class="zt-popular-article"')==5
         assert 'id="zt-services10-popular-five"' in result
-        assert ':nth-of-type(4)' in result and ':nth-of-type(5)' in result
+        assert ':nth-of-type(-n+5)' in result and ':nth-of-type(n+6)' in result
         assert 'KEEP THIS' in result
         assert popular.update(directory)==5
         result=homepage.read_text(encoding="utf-8")
         assert result.count('id="zt-services10-popular-five"')==1
+        # Titles are de-duplicated even with different whitespace/casing.
+        duplicated=result.replace('Tech 5</a>', 'TECH   1</a>')
+        duplicated=duplicated.replace('Tech 5</strong>', 'TECH   1</strong>')
+        homepage.write_text(duplicated,encoding="utf-8")
+        assert popular.update(directory)==5
+        card_section=homepage.read_text(encoding="utf-8").split(popular.START,1)[1].split(popular.END,1)[0]
+        titles=re.findall(r'<strong>([\s\S]*?)</strong>',card_section)
+        assert len(titles)==5
+        assert len(set(" ".join(v.casefold().split()) for v in titles))==5
+        # The browser CSS that formerly hid items 4+ must now hide only 6+.
+        script=(ROOT.parent/"zt-home-live.js").read_text(encoding="utf-8")
+        assert '#zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6)' in script
+        assert '#zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+4)' not in script
 
         stories=[{"url":f"https://example.org/news-{n}",
                   "image":f"/assets/notizie-dal-web/{n}.webp",
@@ -54,9 +68,10 @@ def main():
         section=updated.split('<section id="zt-webnews-home"',1)[1].split('</section>',1)[0]
         assert section.count('class="zt-webnews-item"')==5
         assert 'Description 0' in section
-        assert 'VEDI TUTTE' not in section
-        assert 'grid-row:1/5' in updated
-        assert 'querySelector(".ztp-top-videos")' in updated
+        assert 'VEDI TUTTE' in section
+        assert (directory/"notizie-dal-web.html").is_file()
+        assert 'grid-row:1 / span 4' in updated
+        assert 'getElementById("zt-home-shelves")' in updated
         assert updated.count('id="zt-services10-webnews-layout"')==1
         assert updated.count('id="zt-services10-webnews-place"')==1
         assert 'KEEP THIS' in updated
@@ -64,7 +79,19 @@ def main():
         updated=homepage.read_text(encoding="utf-8")
         assert updated.count('id="zt-services10-webnews-layout"')==1
         assert updated.count('id="zt-services10-webnews-place"')==1
-    print("PASS: Home layout remains intact; five Tech cards and web news 1+4")
+    browser=(ROOT.parent/"zt-home-live.js").read_text(encoding="utf-8")
+    style=(ROOT.parent/"index.html").read_text(encoding="utf-8")
+    global_css=(ROOT.parent/"zt-design.css").read_text(encoding="utf-8")
+    studio=(ROOT.parent/"studio"/"edit-button.js").read_text(encoding="utf-8")
+    assert "RIGHT_REFRESH_MS=24*60*60*1000" in browser
+    assert "setInterval(()=>{loadOtherNews();},RIGHT_REFRESH_MS)" in browser
+    assert "const normalizeEditorialTitle=" in browser
+    assert "titles.has(normalized)" in browser
+    assert "zt-20261024-square-editorial-headings" in style
+    assert "clip-path:none!important" in style and "clip-path:none!important" in global_css
+    assert "Modifica" in studio and "hrefFor(path)" in studio
+    assert "main.content h1, main.page h1, main h1" in studio
+    print("PASS: Home layout remains intact; five Tech cards and web news 1+4 with editorial archive")
 
 if __name__=="__main__":
     main()

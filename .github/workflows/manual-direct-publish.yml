@@ -31,6 +31,7 @@ jobs:
           python3 services10/state.py restore videos
       - name: Build published pages directly from approved source (no Master)
         run: |
+          python3 services10/02-video-pages.py
           python3 services10/03-home.py
           python3 services10/04-in-evidenza.py
           python3 services10/05-da-non-perdere.py

@@ -94,7 +94,9 @@ jobs:
       - name: Retain archived videos when video collector is unavailable
         if: needs.video.result != 'success'
         run: python3 services10/state.py restore videos
-      - name: Generate Community news and 16:9 Watch pages
+      - name: Generate verified Watch pages independently
+        run: python3 services10/02-video-pages.py
+      - name: Generate written Community news independently
         run: python3 services10/03-home.py
       - name: Update featured Tech and Gaming
         run: python3 services10/04-in-evidenza.py
