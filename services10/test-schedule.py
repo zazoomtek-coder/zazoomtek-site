@@ -7,7 +7,7 @@ WORKFLOW=ROOT/".github/workflows/services10-scheduled-cloudflare.yml"
 
 def main():
     source=WORKFLOW.read_text(encoding="utf-8")
-    expected=["15 10 * * *","45 12 * * *","15 15 * * *",
+    expected=["15 10 * * *","15 12 * * *","15 15 * * *",
               "45 17 * * *","15 20 * * *"]
     found=re.findall(r'^\s+- cron: ["\x27]([^"\x27]+)["\x27]\s*$',source,re.M)
     assert found==expected,(found,expected)
