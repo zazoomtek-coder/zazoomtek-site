@@ -185,7 +185,7 @@ def render_archive_card(item:dict)->str:
     picture=('<a href="'+href+'"><img src="'+html.escape(item["image"],quote=True)+
              '" alt="'+title+'" loading="lazy"></a>' if item["image"] else "")
     return ('<article class="news-row" data-post-category="'+item["section"]+
-       '" data-published-at="'+html.escape(item["first_seen"],quote=True)+'">'+
+       '" data-published-at="'+html.escape(item.get("published_iso") or item["first_seen"],quote=True)+'">'+
        picture+'<div class="news-copy"><h2><a href="'+href+'">'+title+
        '</a></h2><div class="news-meta">ZazoomTek · Community</div></div></article>')
 
@@ -223,7 +223,7 @@ def update(root:Path=ROOT)->dict:
             left=outside.index(HOME_START);right=outside.index(HOME_END,left)+len(HOME_END)
             outside=outside[:left]+outside[right:]
         fresh=[p for p in publications if 'href="'+p["url"]+'"' not in outside]
-        cards="\n".join(render_home_card(p) for p in fresh[:12])
+        cards="\n".join(render_home_card(p) for p in fresh[:40])
         if HOME_START in document and HOME_END in document:
             updated=replace_owned(document,HOME_START,HOME_END,cards)
         elif cards:

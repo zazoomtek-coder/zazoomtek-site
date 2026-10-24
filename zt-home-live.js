@@ -305,6 +305,7 @@
   otherBox.append(otherHead,otherList);
   rail.appendChild(otherBox);
   let otherPool=[];
+  let techPopularFallback=[];
   let otherRaf=0;
   let otherReady=false;
   let otherSignature="";
@@ -358,6 +359,10 @@
         }
         if(!found)break;
       }
+      // Backfill from actual technology articles; never invent stories.
+      techPopularFallback=Array.isArray(data.tech)?data.tech.filter(item=>
+        item && /^\/news-[A-Za-z0-9_-]+\.html$/.test(item.url||"")
+        && item.title && item.image):[];
       otherPool=records;
       otherReady=true;
       requestAnimationFrame(reconcileRight);
@@ -521,14 +526,15 @@
     // Older, verified Tech articles backfill DA NON PERDERE AFTER the
     // browser has finalized the ten newest Tech and Gaming columns.
     // The daily snapshot alone can overlap those asynchronous columns.
-    if(pop && olderTechForPopular.length){
+    if(pop){
       const holder=pop.querySelector(".zt-popular-list");
       if(holder){
         const existing=new Set([...holder.querySelectorAll(".zt-popular-article")].map(articlePath).filter(Boolean));
         const normalizeTitle=(value)=>String(value||"").normalize("NFKC").replace(/\s+/g," ").trim().toLocaleLowerCase("it");
         const knownTitles=new Set([...holder.querySelectorAll(".zt-popular-article strong")]
           .map(el=>normalizeTitle(el.textContent)).filter(Boolean));
-        for(const item of olderTechForPopular){
+        const techCandidates=[...olderTechForPopular,...techPopularFallback];
+        for(const item of techCandidates){
           if(holder.querySelectorAll(".zt-popular-article").length>=5)break;
           const titleKey=normalizeTitle(item?.title);
           if(!item || !/^\/news-[A-Za-z0-9_-]+\.html$/.test(item.url) ||
@@ -543,6 +549,13 @@
           copy.append(category,title);card.append(image,copy);holder.appendChild(card);
           existing.add(item.url);knownTitles.add(titleKey);
         }
+        [...holder.querySelectorAll(":scope>.zt-popular-article")].forEach((card,i)=>{
+          card.style.setProperty("display",i<5?"block":"none","important");
+          if(i<5){card.style.setProperty("visibility","visible","important");
+                  card.style.setProperty("opacity","1","important");}
+        });
+        holder.style.setProperty("max-height","none","important");
+        holder.style.setProperty("overflow","visible","important");
       }
     }
 
@@ -610,9 +623,10 @@
       "#articoli .ztp-news-rail .zt-special-thumb{display:block!important;width:100%!important}",
       "#articoli .ztp-news-rail .zt-special-thumb img{width:100%!important;max-height:none!important;height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;object-position:center center!important;border-radius:9px!important;background:#172131!important}",
       "#articoli .ztp-news-rail .zt-special-item h3{font-size:11px!important;line-height:1.3!important;margin:7px 0 3px!important}",
+      "#articoli .ztp-news-head h2 span,#articoli .ztp-news-head h2 b,#articoli #zt-popular-box .zt-popular-head h2,#articoli .ztp-news-rail .zt-special-head h2,#articoli .ztp-news-rail .ztp-other-news>h2{clip-path:none!important;border-radius:0!important;transform:none!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-article{display:block!important;padding:10px 11px!important;grid-template-columns:none!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6){display:none!important}",
-      "#articoli .ztp-news-rail #zt-popular-box .zt-popular-article img{width:100%!important;height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;object-position:center!important;border-radius:9px!important;background:#141923!important}",
+      "#articoli .ztp-news-rail #zt-popular-box .zt-popular-article img{width:100%!important;height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;object-position:center!important;border-radius:0!important;background:#141923!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-copy{display:block!important;margin-top:6px!important}",
       "#articoli .ztp-news-rail #zt-popular-box .zt-popular-copy strong{font-size:11px!important;line-height:1.32!important}",
       "#articoli .ztp-news-rail .zt-special-footer{display:block!important}",
@@ -1079,4 +1093,35 @@
     observer.observe(track,{childList:true,subtree:true});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+
+
+/* Emergency UI correction: override all delayed stylesheet injections that
+   reintroduce clip-path polygons after document CSS has already rendered. */
+(()=>{
+ "use strict";
+ function straighten(){
+   document.querySelectorAll(
+     "#articoli .ztp-news-rail .zt-special-head h2,"+
+     "#articoli .ztp-news-head h2 span,"+
+     "#articoli #zt-popular-box .zt-popular-head h2,"+
+     "#articoli .ztp-news-rail .ztp-other-news>h2,"+
+     ".zt-special-head h2,.side-head:before"
+   ).forEach(el=>{
+     if(getComputedStyle(el).clipPath!=="none" || el.style.clipPath!=="none"){
+       el.style.setProperty("clip-path","none","important");
+       el.style.setProperty("-webkit-clip-path","none","important");
+       el.style.setProperty("border-radius","0","important");
+     }
+   });
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",straighten,{once:true});
+ else straighten();
+ window.addEventListener("load",straighten,{once:true});
+ let queued=false;
+ const watcher=new MutationObserver(()=>{
+   if(queued)return;queued=true;
+   requestAnimationFrame(()=>{queued=false;straighten()});
+ });
+ watcher.observe(document.documentElement,{childList:true,subtree:true});
 })();
