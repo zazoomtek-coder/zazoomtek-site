@@ -1,0 +1,4 @@
+2026-10-24 Global ZazoomTek refactoring production refresh.
+Run both independent ingestion pipelines (services10/01-community.py and services10/02-video-16x9.py), restore persisted records, generate all public Watch including Shorts, Community news, News Tech, News Gaming, News Speciali including GTA 6, News Extra, Tech Impact and Gaming Inside.
+Recompute Home and category indexes, rebuild ALL public pages, apply universal navigation, portrait-thumbnail right sidebar, related immediately after article/video, and local SVG fallback for missing images. Deduplicate by canonical URL / YouTube ID, never by title alone. Deploy dist to Cloudflare Pages production; purge cache after success.
+Requested explicitly by owner. Do not erase history on source outage.
