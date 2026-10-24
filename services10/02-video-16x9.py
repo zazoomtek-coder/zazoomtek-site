@@ -91,6 +91,21 @@ def rss_candidates(channel: str = CHANNEL) -> list[dict]:
     with urllib.request.urlopen(req, timeout=25) as resp:
         return collect(resp.read())
 
+def rss_public_records(rows: list[dict]) -> list[dict]:
+    """Preserve IDs surfaced in YouTube's public RSS if API metadata is limited."""
+    found=[]
+    for row in rows:
+        if not isinstance(row,dict):continue
+        vid=str(row.get("id") or "")
+        if not VIDEO_ID.fullmatch(vid):continue
+        found.append({"id":vid,"title":str(row.get("title") or "Video ZazoomTek"),
+                      "published":str(row.get("published") or ""),
+                      "url":"https://www.youtube.com/watch?v="+vid,
+                      "type":"youtube_video","verification":"official_public_rss",
+                      "orientation":"unverified","short":False,
+                      "duration_seconds":0,"embeddable":True})
+    return found
+
 def upload_candidates(channel: str = CHANNEL, pages: int | None = None) -> list[dict]:
     """Read the uploads playlist with nextPageToken until exhausted.
 
@@ -332,6 +347,7 @@ def run() -> dict:
         save(old)
         print("Quarantined unverified duration-only imports:", len(unsafe))
     candidates = []
+    rss = []
     rss_ok = False
     if API_KEY:
         try:
@@ -353,17 +369,20 @@ def run() -> dict:
         return {"source": "no_candidates", "verified_new": 0, "pending_new": len(prior_pending),
                 "retained": len(old)}
     if not API_KEY:
-        if unsafe:
-            save(merge_pending(prior_pending, [], set()), PENDING)
-        print("Missing YouTube API key: RSS has no duration or source orientation")
-        return {"source": "rss_without_duration", "verified_new": 0,
-                "pending_new": len(prior_pending), "retained": len(old)}
+        updated=merge(old,rss_public_records(rss))
+        if updated!=previous:save(updated)
+        if unsafe:save(merge_pending(prior_pending,[],set()),PENDING)
+        print("YouTube API key missing; retained public RSS IDs without guessing duration")
+        return {"source":"rss_without_metadata","verified_new":len(updated)-len(old),
+                "pending_new":len(prior_pending),"retained":len(updated)}
     known = metadata(candidates)
     if not known:
-        if unsafe:
-            save(merge_pending(prior_pending, [], set()), PENDING)
-        return {"source": "metadata_unavailable", "verified_new": 0,
-                "pending_new": len(prior_pending), "retained": len(old)}
+        updated=merge(old,rss_public_records(rss))
+        if updated!=previous:save(updated)
+        if unsafe:save(merge_pending(prior_pending,[],set()),PENDING)
+        print("YouTube metadata temporarily unavailable; saved IDs from public RSS")
+        return {"source":"rss_metadata_fallback","verified_new":len(updated)-len(old),
+                "pending_new":len(prior_pending),"retained":len(updated)}
     approved = confirmed_ids()
     geometry = owner_geometry(known)
     landscape, pending = [], []
@@ -393,6 +412,9 @@ def run() -> dict:
         landscape.append({**archived, "type": "youtube_video",
                           "verification": "official_youtube_metadata_archived",
                           "orientation": "unverified", "short": seconds <= 180})
+    # Public RSS can include a brand-new upload missed by partial API batches.
+    # Keep only genuine RSS IDs here; official metadata overwrites RSS values.
+    landscape=merge(rss_public_records(rss),landscape)
     updated = merge(old, landscape)
     confirmed = {row["id"] for row in updated}
     queue = merge_pending(prior_pending, pending, confirmed)
