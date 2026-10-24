@@ -58,15 +58,11 @@ def inject(root: Path = ROOT) -> int:
                     'style="' + STYLE + '">✎ Modifica</a>')
             updated = updated[:heading.end()] + "\n" + link + updated[heading.end():]
 
-        scripts = list(SCRIPT_PATTERN.finditer(updated))
-        if scripts:
-            # Cache bust old broken Studio assets; don't inject twice.
-            first = scripts[0]
-            updated = (updated[:first.start()] + TAG + updated[first.end():])
-            updated = SCRIPT_PATTERN.sub("", updated, count=max(0, len(scripts)-1))
-        else:
-            updated = re.sub(r"</body>", lambda _: TAG + "\n</body>", updated,
-                             count=1, flags=re.I)
+        # Replace old/cached JS tag(s) and install exactly one versioned
+        # fallback beside the static button. JS is never required for visibility.
+        updated = SCRIPT_PATTERN.sub("", updated)
+        updated = re.sub(r"</body>", lambda _: TAG + "\n</body>", updated,
+                         count=1, flags=re.I)
 
         if updated != document:
             page.write_text(updated, encoding="utf-8")
