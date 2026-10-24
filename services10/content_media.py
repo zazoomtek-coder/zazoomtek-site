@@ -35,13 +35,13 @@ def media_url(value:str,root:Path|None=None)->str:
     if url.startswith("//"):url="https:"+url
     if url.lower().startswith(("data:","javascript:","blob:")):return ""
     if url.startswith("https://"):
-        if any(word in url.lower() for word in SKIP_IMAGE):return ""
+        if any(word in url.lower() for word in SKIP_IMAGE+("chatgpt.png","zt-editorial-fallback","favicon")):return ""
         return url
     if url.startswith("http://"):
         return "https://"+url[7:]
     if not url.startswith("/"):url="/"+url.lstrip("./")
     if re.search(r"\.(?:svg|png|jpe?g|webp|gif|avif)(?:[?#]|$)",url,re.I) is None:return ""
-    if any(word in url.lower() for word in SKIP_IMAGE):return ""
+    if any(word in url.lower() for word in SKIP_IMAGE+("chatgpt.png","zt-editorial-fallback","favicon")):return ""
     if root is not None and not (root/url.split("?")[0].lstrip("/")).is_file():
         return ""
     return url
