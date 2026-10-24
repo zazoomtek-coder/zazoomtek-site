@@ -269,7 +269,7 @@ def sidebar(items,current,main):
 
 def add_class(tag,cls):
     """Add a CSS class without emitting a second HTML class attribute."""
-    found=re.search(r'class=(["\\'])(.*?)\\1',tag,re.I|re.S)
+    found=re.search(r"""class=(["'])(.*?)\1""",tag,re.I|re.S)
     if found:
         existing=found.group(2).split()
         if cls not in existing:existing.append(cls)
@@ -277,18 +277,18 @@ def add_class(tag,cls):
     return tag[:-1]+' class="'+cls+'">' if tag.endswith(">") else tag
 
 def update_main_class(doc):
-    return re.sub(r'(?i)<main\\b[^>]*>',lambda m:add_class(m.group(0),"zt-master-layout"),doc,count=1)
+    return re.sub(r'(?i)<main\b[^>]*>',lambda m:add_class(m.group(0),"zt-master-layout"),doc,count=1)
 
 def dedup_archive_cards(doc):
     """Collapse exact repeated story rows in archive outputs; no article-body edits."""
-    if not re.search(r'\\bid=["\\'](?:newsList|reviewList|specialiList|guideList|extraList)["\\']',doc):
+    if not re.search(r"""\bid=["'](?:newsList|reviewList|specialiList|guideList|extraList)["']""",doc):
         return doc,0
     rows=list(ROW.finditer(doc))
     seen_urls=set();seen_titles=set();removed=0;out=doc
-    # Keep the highest/newest positioned row (archives were date-sorted).
+    # Keep the earliest card after the upstream newest-first sort.
     for match in reversed(rows):
         card=match.group(0)
-        head=re.search(r'(?is)<h[23]\\b[^>]*>\\s*<a\\b[^>]*href=["\\']([^"\\']+)["\\'][^>]*>(.*?)</a>',card)
+        head=re.search(r"""(?is)<h[23]\b[^>]*>\s*<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>""",card)
         if not head:continue
         url=urlkey(head.group(1));name=norm(head.group(2))
         if url in seen_urls or (name and name in seen_titles):
@@ -297,6 +297,7 @@ def dedup_archive_cards(doc):
             seen_urls.add(url)
             if name:seen_titles.add(name)
     return out,removed
+
 
 def full_page(doc,page,items,header):
     if not re.search(r"(?is)<main\b",doc):return doc,False
