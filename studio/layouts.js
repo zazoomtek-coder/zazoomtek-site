@@ -158,6 +158,8 @@ async function build(opt){
  const doc=new DOMParser().parseFromString(html,"text/html");
  putTextArticle(doc,opt,kind);
  if(kind==="review")doc.body.classList.add("zt-a900-unified-review");
+  if(!doc.querySelector('link[href^="/zt-release-layout.css"]')){const common=doc.createElement("link");common.rel="stylesheet";common.href="/zt-release-layout.css?v=20261024";doc.head.append(common);}
+  if(!doc.querySelector('script[src^="/zt-release-menu.js"]')){const nav=doc.createElement("script");nav.src="/zt-release-menu.js?v=20261024";nav.defer=true;doc.body.append(nav);}
  if(!doc.querySelector('link[href^="/zt-unified-editorial.css"]')){const css=doc.createElement("link");css.rel="stylesheet";css.href="/zt-unified-editorial.css?v=20261024";doc.head.append(css);}
  doc.title=opt.title+" | ZazoomTek";
  let canon=doc.querySelector('link[rel="canonical"]');if(!canon){canon=doc.createElement("link");canon.rel="canonical";doc.head.append(canon);}canon.href=canonical(opt.url);
