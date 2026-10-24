@@ -13,7 +13,7 @@ const SHORT_HEADINGS=["Pro","Contro","Vantaggi","Svantaggi"];
 const enc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const normal=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase().replace(/\s+/g," ");
 function categoryLabel(category){return REVIEW.test(category)?"Recensioni":(/^Speciali (Tech|Gaming)$/.test(category)?"Speciali":(category==="News Gaming"||category==="News Tech"?"News":category));}
-function categoryLink(category){return REVIEW.test(category)?"/recensioni-scritte.html":category==="News Gaming"?"/gaming-today.html":category==="News Tech"?"/news.html":category==="Guide"?"/guide.html":category==="Extra"?"/extra.html":category==="Tech Impact"?"/tech-today.html":category==="Gaming Inside"?"/gaming-today.html":/^Speciali (Tech|Gaming)$/.test(category)?"/speciali.html":category==="Test"?"/test.html":category==="Unboxing"?"/unboxing.html":"/news.html";}
+function categoryLink(category){return REVIEW.test(category)?"/recensioni-scritte.html":category==="News Gaming"?"/gaming-today.html":category==="News Tech"?"/news.html":category==="Guide"?"/guide.html":category==="Extra"?"/extra.html":category==="Tech Impact"?"/cybercultura/tech-in-back.html":category==="Gaming Inside"?"/cybercultura/inside-the-game.html":/^Speciali (Tech|Gaming)$/.test(category)?"/speciali.html":category==="Test"?"/test.html":category==="Unboxing"?"/unboxing.html":"/news.html";}
 function canonical(url){return "https://zazoomtek.it/"+String(url||"").replace(/^\/+/,"");}
 async function template(kind){
  if(!cache[kind])cache[kind]=fetch(SOURCES[kind],{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("Modello grafico "+kind+" non disponibile ("+r.status+"). Pubblicazione interrotta.");return r.text();}).catch(e=>{delete cache[kind];throw e;});
@@ -190,6 +190,10 @@ async function enforceMasterTemplate(doc){
    const el=doc.createElement("script");el.src=url;el.defer=true;doc.body.appendChild(el);
   }
  }
+ if(!doc.querySelector('script[src^="/zt-master-dropdowns.js"]')){
+  const nav=doc.createElement("script");nav.src="/zt-master-dropdowns.js?v=20261024";nav.defer=true;
+  doc.body.appendChild(nav);
+ }
  if(!doc.querySelector('link[href^="/zt-master-home-nav.css"]')){
   const homeCSS=doc.createElement("link");homeCSS.rel="stylesheet";
   homeCSS.href="/zt-master-home-nav.css?v=20261024";doc.head.appendChild(homeCSS);
@@ -220,12 +224,16 @@ async function enforceMasterTemplate(doc){
  const n=Math.max(1,Math.min(Math.max(1,pool.length-4),Math.ceil((article.textContent||"").length/205)));
  const selected=pool.slice(0,n),tail=pool.slice(n,n+4),related=tail.length?tail:pool.slice(0,Math.min(4,pool.length));
  const card=item=>{
-  const link=doc.createElement("a"),img=doc.createElement("img"),label=doc.createElement("span");
+  const link=doc.createElement("a"),img=doc.createElement("img"),
+        copy=doc.createElement("span"),title=doc.createElement("strong"),excerpt=doc.createElement("small");
   link.className="zt-master-card";link.href=item.url;
   img.src=item.image||"/assets/zt-editorial-fallback.svg";img.alt=item.title;img.loading="lazy";
-   img.onerror=()=>{img.onerror=null;img.src="/assets/zt-editorial-fallback.svg";};
-   label.textContent=item.title;
-  link.append(img,label);return link;
+  img.onerror=()=>{const backup=item.image_fallback||"/assets/zt-editorial-fallback.svg";
+    img.onerror=null;img.src=img.src.endsWith(backup)?"/assets/zt-editorial-fallback.svg":backup;};
+  copy.className="zt-master-copy";title.textContent=item.title;
+  excerpt.className="zt-card-snippet";
+  excerpt.textContent=item.snippet||"Leggi l'approfondimento completo.";
+  copy.append(title,excerpt);link.append(img,copy);return link;
  };
  const newsGrid=aside.querySelector(".zt-master-group .zt-master-grid");
  const relatedGrid=footer.querySelector(".zt-master-related-list");
