@@ -74,6 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -101,10 +103,11 @@ jobs:
       - name: Promote approved ZazoomTek release exactly at the second editorial slot
         if: github.event_name == 'schedule' && github.event.schedule == '45 12 * * *' && github.ref == 'refs/heads/main'
         run: |
+          if [ "$(TZ=Europe/Rome date +%F)" != "2026-10-24" ]; then exit 0; fi
           git config user.name "zazoomtek-editorial-release"
           git config user.email "actions@users.noreply.github.com"
           git fetch origin release-2026-10-24-1245
-          git merge --no-edit origin/release-2026-10-24-1245
+          git merge --no-edit FETCH_HEAD
           git push origin HEAD:main
       - name: Generate verified Watch pages independently
         run: python3 services10/02-video-pages.py
