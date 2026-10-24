@@ -91,8 +91,17 @@ def rss_candidates(channel: str = CHANNEL) -> list[dict]:
     with urllib.request.urlopen(req, timeout=25) as resp:
         return collect(resp.read())
 
-def upload_candidates(channel: str = CHANNEL, pages: int = 2) -> list[dict]:
-    """Read official uploads playlist, avoiding expensive search.list calls."""
+def upload_candidates(channel: str = CHANNEL, pages: int | None = None) -> list[dict]:
+    """Read the uploads playlist with nextPageToken until exhausted.
+
+    ZT_YOUTUBE_MAX_PAGES=3 bounds hourly incremental scans; setting it to 0
+    performs full reconciliation (used daily). Archived older uploads survive
+    every incremental run. API quota/outages are reported without data loss.
+    """
+    if pages is None:
+        pages=int(os.environ.get("ZT_YOUTUBE_MAX_PAGES","3"))
+    if pages < 0:
+        raise ValueError("ZT_YOUTUBE_MAX_PAGES must be >= 0")
     channel_data = request_api("channels", {"part": "contentDetails", "id": channel})
     items = channel_data.get("items") or []
     if not items:
@@ -102,7 +111,8 @@ def upload_candidates(channel: str = CHANNEL, pages: int = 2) -> list[dict]:
         raise RuntimeError("YouTube uploads playlist unavailable")
     candidates = []
     token = ""
-    for _ in range(max(1, min(pages, 4))):
+    page_no = 0
+    while True:
         params = {"part": "snippet,contentDetails", "playlistId": playlist, "maxResults": 50}
         if token:
             params["pageToken"] = token
@@ -117,8 +127,11 @@ def upload_candidates(channel: str = CHANNEL, pages: int = 2) -> list[dict]:
                                "published": details.get("videoPublishedAt") or snippet.get("publishedAt") or "",
                                "url": "https://www.youtube.com/watch?v=" + vid})
         token = data.get("nextPageToken") or ""
-        if not token:
+        page_no += 1
+        if not token or (pages and page_no >= pages):
             break
+    print("YouTube uploads playlist pages scanned:",page_no,
+          "full_sync:",pages == 0,"next_page_remaining:",bool(token))
     return candidates
 
 def metadata(candidates: list[dict]) -> list[dict]:
