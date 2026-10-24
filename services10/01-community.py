@@ -161,21 +161,39 @@ def extract(page):
     return found
 
 def merge(old,new):
+    """Merge by stable YouTube post ID without degrading complete older records."""
     by_id={}
     for item in (old if isinstance(old,list) else [])+(new if isinstance(new,list) else []):
-        if not isinstance(item,dict) or not POST_ID.fullmatch(str(item.get("id") or "")):continue
-        prior=by_id.get(item["id"],{})
-        updated={**prior}
-        updated.update({key:value for key,value in item.items() if value not in ("",None,[])})
-        if prior.get("first_seen"):updated["first_seen"]=prior["first_seen"]
-        if prior.get("published_iso"):
-            # YouTube's relative '2 hours ago' changes at every scan.
-            # Keep the first resolved publication date rather than drifting.
-            updated["published_iso"]=prior["published_iso"]
-        if prior.get("images") and not item.get("images"):
-            updated["images"]=prior["images"]
-        by_id[item["id"]]=updated
-    return list(by_id.values())
+        if not isinstance(item,dict) or not POST_ID.fullmatch(str(item.get("id") or "")):
+            continue
+        ident=item["id"]
+        previous=by_id.get(ident,{})
+        updated={**previous}
+        for key,value in item.items():
+            if value in ("",None,[]):continue
+            if key=="text" and previous.get("text"):
+                old_text=str(previous["text"])
+                new_text=str(value)
+                placeholder=new_text.startswith((
+                    "Contenuto Community YouTube ","Post fotografico Community YouTube ",
+                    "Video condiviso nella Community YouTube ","Sondaggio Community YouTube "))
+                if placeholder and not old_text.startswith("Contenuto Community YouTube "):
+                    continue
+                if len(new_text)<len(old_text) and not old_text.startswith("Contenuto Community YouTube "):
+                    continue
+            if key=="images":
+                merged=list(dict.fromkeys(
+                    (previous.get("images") or [])+(value if isinstance(value,list) else [])))
+                if merged:updated[key]=merged
+                continue
+            if key in ("first_seen","published_iso") and previous.get(key):
+                # Publication dates from relative labels must not drift on rescans.
+                continue
+            updated[key]=value
+        if updated.get("images") and not updated.get("image"):
+            updated["image"]=updated["images"][0]
+        by_id[ident]=updated
+    return sorted(by_id.values(),key=lambda p:str(p.get("published_iso") or p.get("first_seen") or ""),reverse=True)
 
 def main():
     try:
