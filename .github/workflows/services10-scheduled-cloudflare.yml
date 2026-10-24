@@ -44,7 +44,7 @@ jobs:
       # Official YouTube Data API v3: no extractor, browser cookies or scraping.
       - run: python3 services10/state.py restore videos
       - run: python3 services10/state.py restore pending
-      - name: Enforce >180 seconds AND source 16:9 (owner OAuth or validated registry)
+      - name: Collect all public YouTube uploads with preserved metadata
         env:
           ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -56,7 +56,7 @@ jobs:
         continue-on-error: true
       - name: Restore formerly pending public YouTube uploads
         run: python3 services10/13-pending-public.py
-      - name: Save confirmed video archive
+      - name: Save imported public video archive
         run: python3 services10/state.py save videos
       - name: Save pending orientation-review queue
         run: python3 services10/state.py save pending
@@ -102,7 +102,7 @@ jobs:
       - name: Retain archived videos when video collector is unavailable
         if: needs.video.result != 'success'
         run: python3 services10/state.py restore videos
-      - name: Generate verified Watch pages independently
+      - name: Generate Watch pages independently from archived YouTube data
         run: python3 services10/02-video-pages.py
       - name: Generate written Community news independently
         run: python3 services10/03-home.py
@@ -124,6 +124,8 @@ jobs:
         run: python3 services10/14-release-layout.py
       - name: Assemble static Cloudflare snapshot without Master
         run: python3 services10/09-layout.py
+      - name: Apply global master: deduplicate snapshot, newest Home, shared menu and sidebars
+        run: python3 services10/15-master-structural.py
       - name: Deploy published content to Cloudflare at scheduled slot
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
