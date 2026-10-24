@@ -79,6 +79,18 @@ def main():
         updated=homepage.read_text(encoding="utf-8")
         assert updated.count('id="zt-services10-webnews-layout"')==1
         assert updated.count('id="zt-services10-webnews-place"')==1
+    browser=(ROOT.parent/"zt-home-live.js").read_text(encoding="utf-8")
+    style=(ROOT.parent/"index.html").read_text(encoding="utf-8")
+    global_css=(ROOT.parent/"zt-design.css").read_text(encoding="utf-8")
+    studio=(ROOT.parent/"studio"/"edit-button.js").read_text(encoding="utf-8")
+    assert "RIGHT_REFRESH_MS=24*60*60*1000" in browser
+    assert "setInterval(()=>{loadOtherNews();},RIGHT_REFRESH_MS)" in browser
+    assert "const normalizeEditorialTitle=" in browser
+    assert "titles.has(normalized)" in browser
+    assert "zt-20261024-square-editorial-headings" in style
+    assert "clip-path:none!important" in style and "clip-path:none!important" in global_css
+    assert "Modifica" in studio and "hrefFor(path)" in studio
+    assert "main.content h1, main.page h1, main h1" in studio
     print("PASS: Home layout remains intact; five Tech cards and web news 1+4 with editorial archive")
 
 if __name__=="__main__":
