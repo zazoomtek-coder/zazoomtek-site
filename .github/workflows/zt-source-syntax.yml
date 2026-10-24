@@ -5,6 +5,9 @@ on:
     paths:
       - 'services10/**'
       - 'studio/layouts.js'
+      - 'studio/publisher.js'
+      - 'studio/edit-button.js'
+      - 'zt-master-*.js'
       - '.github/workflows/zt-source-syntax.yml'
   pull_request:
     paths:
@@ -33,6 +36,9 @@ jobs:
           node --check studio/layouts.js
           node --check zt-master-template.js
           node --check zt-release-menu.js
+          node --check zt-master-dropdowns.js
+          node --check studio/edit-button.js
+          node --check studio/publisher.js
       - name: Build self-contained snapshot without Cloudflare
         run: |
           python3 services10/09-layout.py
@@ -48,6 +54,12 @@ jobs:
           assert (dist/"index.html").is_file()
           assert (dist/"ecoturismo.html").is_file()
           assert 'href="/ecoturismo.html"' in (dist/"index.html").read_text(encoding="utf-8")
+          assert (dist/"cybercultura/tech-in-back.html").is_file()
+          assert (dist/"cybercultura/inside-the-game.html").is_file()
+          homepage=(dist/"index.html").read_text(encoding="utf-8")
+          assert 'zt-cybercultura-drop' in homepage
+          assert "zt-master-dropdowns.js" in homepage
+          assert 'TECH IN BACK' in homepage and 'INSIDE THE GAME' in homepage
           pages=[p for p in dist.glob("news-*.html") if p.is_file()]
           assert pages, "No real generated Community news to check"
           checked=0
@@ -58,6 +70,8 @@ jobs:
               assert "ARTICOLI CORRELATI" in text, path
               assert "zt-master-article-related" in text, path
               assert "zt-master-card" in text, path
+              assert "zt-card-snippet" in text, path
+              assert "zt-master-dropdowns.js" in text, path
               checked+=1
           print("Real saved pages with Master menu and thumbnail related links:",checked)
           PY
