@@ -16,27 +16,27 @@ def load_list(path:Path)->list[dict]:
         return []
 
 def sync_video_catalog(root:Path=ROOT)->dict:
-    """Publish only new confirmed 16:9 videos; preserve the old video archive."""
+    """Publish verified and aspect-unknown public YouTube uploads without duplicates."""
     new=load_list(root/"services10-data"/"videos.json")
     original=load_list(root/"home-video-feed.json")
     entries={x["id"]:x for x in original if isinstance(x,dict) and x.get("id")}
     added=0
     for video in new:
-        if not isinstance(video,dict) or video.get("type")!="landscape_video":
+        if not isinstance(video,dict) or video.get("type") not in ("landscape_video","youtube_video"):
             continue
         vid=str(video.get("id") or "")
         if not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid):continue
         if vid not in entries:
             entries[vid]={"id":vid,"title":str(video.get("title") or "Video ZazoomTek"),
                 "publishedAt":str(video.get("published") or ""),
-                "category":"video","short":False,"live":False,"completedLive":False}
+                "category":"video","short":bool(video.get("short",False)), "live":False,"completedLive":False}
             added+=1
     if added:
         catalog=sorted(entries.values(),key=lambda e:e.get("publishedAt",""),reverse=True)
         (root/"home-video-feed.json").write_text(
             json.dumps(catalog,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     horizontal=[v for v in entries.values()
-                if not v.get("short") and re.fullmatch(
+                if re.fullmatch(
                     r"[A-Za-z0-9_-]{11}",str(v.get("id") or ""))]
     folder=root/"watch";folder.mkdir(parents=True,exist_ok=True)
     created=0
@@ -72,7 +72,7 @@ def sync_video_catalog(root:Path=ROOT)->dict:
           '<title>Video ZazoomTek</title><link rel="stylesheet" href="/zt-design.css">'
           '</head><body><main><h1>Video orizzontali ZazoomTek</h1>'+cards+
           '</main></body></html>',encoding="utf-8")
-    print("Landscape video catalog:",added,"new videos,",created,"Watch pages")
+    print("Public YouTube video catalog:",added,"new videos,",created,"Watch pages")
     return {"new_videos":added,"watch_pages":created}
 
 
