@@ -1,0 +1,8 @@
+ZazoomTek emergency production refresh, 2026-10-24 13:45 Europe/Rome.
+Trigger the official services10 production workflow on main now:
+- restore and fetch Community posts with services10/01-community.py
+- restore and fetch all public YouTube uploads with services10/02-video-16x9.py and 13-pending-public.py
+- generate Community news, Watch/video, Unboxing, Review archive and homepage modules
+- deduplicate outputs, inject common navigation, editorial sidebars, related articles
+- build Cloudflare dist, deploy to production, then purge cache.
+This file is a dispatch marker only; do not serve it on the website.
