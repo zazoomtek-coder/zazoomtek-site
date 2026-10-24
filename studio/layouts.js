@@ -151,12 +151,86 @@ function putTextArticle(doc,opt,kind){
 }
 const EXTRA_CSS='.zt-studio-side-items{display:grid;gap:0}.zt-studio-side-items a{display:grid;grid-template-columns:93px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid #e8e8e8;color:#252525;text-decoration:none;align-items:center;font-size:12px;font-weight:750;line-height:1.35}.zt-studio-side-items img{width:93px;aspect-ratio:16/9;object-fit:cover}.zt-studio-video-link{padding:12px;font-size:13px}.zt-studio-video-link a{color:#b40f2a}.zt-related-grid .zt-related-card img{aspect-ratio:16/9;object-fit:cover}.zt-related-section{margin-top:24px}.article-body h2{font-weight:800}.article-body p{margin-bottom:12px}.proscons:has(section:only-child){grid-template-columns:1fr}';
 const SIDEBAR_SCRIPT="(function(){var path=location.pathname;fetch('/zt-sidebar-feed.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('feed');return r.json()}).then(function(feed){var arr=(feed.news||[]).filter(function(x){return x&&x.title&&x.url&&x.image&&x.url!==path;});var seen={};arr=arr.filter(function(x){if(seen[x.url])return false;seen[x.url]=1;return true;});arr.sort(function(){return Math.random()-.5;});var count=Math.min(arr.length,Math.max(12,Math.ceil((document.querySelector('article.article-main,.article-body')?.innerText?.length||0)/255)));var aside=document.querySelector('.zt-studio-side-items');if(aside){arr.slice(0,count).forEach(function(x){var a=document.createElement('a'),im=document.createElement('img'),b=document.createElement('span');a.className='zt-ue-card';a.href=x.url;im.src=x.image;im.loading='lazy';im.alt='';b.textContent=x.title;a.append(im,b);aside.append(a);});}var grid=document.querySelector('.zt-ue-related-list')||document.querySelector('.zt-related-grid');if(grid){arr.slice(count,count+4).forEach(function(x){var a=document.createElement('article'),ln=document.createElement('a'),im=document.createElement('img'),h=document.createElement('h3'),t=document.createElement('a');a.className='zt-related-card';ln.href=x.url;im.loading='lazy';im.src=x.image;im.alt=x.title;ln.append(im);t.href=x.url;t.textContent=x.title;h.append(t);var copy=document.createElement('div');copy.className='zt-related-copy';copy.append(h);a.append(ln,copy);grid.append(a);});}}).catch(function(){});document.addEventListener('click',function(e){var b=e.target.closest('.zt-player[data-yt] button');if(!b)return;var p=b.closest('.zt-player'),id=p.getAttribute('data-yt');if(!/^[A-Za-z0-9_-]{11}$/.test(id||''))return;var f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0';f.title='Video YouTube';f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');f.allowFullscreen=true;p.replaceChildren(f);});})();";
+async function enforceMasterTemplate(doc){
+ // The same source is used for Tech, Gaming, News, Speciali, Guide and Extra.
+ // Fail explicitly rather than publish a page without its navigation/rail.
+ const response=await fetch("/zt-master-header.html",{cache:"no-store"});
+ if(!response.ok)throw Error("Menu Master non disponibile: pubblicazione interrotta.");
+ const source=await response.text(),holder=doc.createElement("template");
+ holder.innerHTML=source;
+ const shared=holder.content.querySelector("header.zt-master-header");
+ if(!shared)throw Error("Menu Master incompleto: pubblicazione interrotta.");
+ const old=doc.body.querySelector("header");
+ if(old)old.replaceWith(doc.importNode(shared,true));
+ else doc.body.prepend(doc.importNode(shared,true));
+ const layout=doc.querySelector(".layout,.detail-grid");
+ if(!layout)throw Error("Layout Master non trovato nella pagina.");
+ layout.classList.add("zt-master-layout");
+ const article=layout.querySelector("main.content,article.article-main,.content,.article-main");
+ if(!article)throw Error("Colonna articolo mancante dal Master.");
+ article.classList.add("zt-master-content");
+ let aside=layout.querySelector("aside");
+ if(!aside){aside=doc.createElement("aside");layout.appendChild(aside);}
+ else if(aside.parentElement!==layout)layout.appendChild(aside);
+ aside.className="zt-master-rail";
+ aside.setAttribute("aria-label","Box editoriali e Articoli Correlati");
+ aside.innerHTML='<section class="zt-master-group"><h2>ULTIME NOTIZIE</h2><div class="zt-master-grid"></div></section>'+
+                 '<section class="zt-master-related"><h2>ARTICOLI CORRELATI</h2><div class="zt-master-grid"></div></section>';
+ doc.body.classList.add("zt-master-page");
+ for(const [tag,url] of [["link","/zt-master-template.css?v=20261024"],["script","/zt-master-template.js?v=20261024"]]){
+  if(tag==="link"&&!doc.querySelector('link[href^="/zt-master-template.css"]')){
+   const el=doc.createElement("link");el.rel="stylesheet";el.href=url;doc.head.appendChild(el);
+  }
+  if(tag==="script"&&!doc.querySelector('script[src^="/zt-master-template.js"]')){
+   const el=doc.createElement("script");el.src=url;el.defer=true;doc.body.appendChild(el);
+  }
+ }
+ if(!doc.querySelector('link[href^="/zt-master-home-nav.css"]')){
+  const homeCSS=doc.createElement("link");homeCSS.rel="stylesheet";
+  homeCSS.href="/zt-master-home-nav.css?v=20261024";doc.head.appendChild(homeCSS);
+ }
+ // Populate real thumbnail cards and related links directly in the generated
+ // HTML. Runtime hydration only refreshes as fallback, never creates an empty page.
+ let feed;
+ try{
+  const answer=await fetch("/zt-sidebar-feed.json",{cache:"no-store"});
+  if(!answer.ok)throw Error("HTTP "+answer.status);
+  feed=await answer.json();
+ }catch(e){throw Error("Archivio editoriale non disponibile: pagina non pubblicata senza box.");}
+ const posts=Array.isArray(feed.news)?feed.news:[];
+ const seenUrls=new Set(),seenTitles=new Set();
+ const self="/"+String(document.getElementById("slug")?.value||"").replace(/^\/+/, "");
+ const pool=posts.filter(item=>{
+  if(!item||!item.url||!item.title||!item.image)return false;
+  const url=String(item.url).split("?")[0].toLowerCase();
+  const title=normal(item.title);
+  if(url===self.toLowerCase()||seenUrls.has(url)||seenTitles.has(title))return false;
+  seenUrls.add(url);seenTitles.add(title);return true;
+ }).sort((a,b)=>String(b.published||"").localeCompare(String(a.published||"")));
+ if(!pool.length)throw Error("Archivio senza miniature valide: pubblicazione interrotta.");
+ const n=Math.max(1,Math.min(pool.length-4,Math.ceil((article.textContent||"").length/190)));
+ const selected=pool.slice(0,Math.max(1,n)),related=pool.slice(Math.max(1,n),Math.max(1,n)+4);
+ const card=item=>{
+  const link=doc.createElement("a"),img=doc.createElement("img"),label=doc.createElement("span");
+  link.className="zt-master-card";link.href=item.url;
+  img.src=item.image;img.alt=item.title;img.loading="lazy";label.textContent=item.title;
+  link.append(img,label);return link;
+ };
+ const newsGrid=aside.querySelector(".zt-master-group .zt-master-grid");
+ const relatedGrid=aside.querySelector(".zt-master-related .zt-master-grid");
+ selected.forEach(x=>newsGrid.append(card(x)));
+ related.forEach(x=>relatedGrid.append(card(x)));
+ if(!newsGrid.children.length||!relatedGrid.children.length)
+  throw Error("Mancano miniature o Articoli Correlati nel Master.");
+}
+
 async function build(opt){
  const kind=REVIEW.test(opt.category)?"review":"news";
  if(!opt.title||!opt.category||!opt.cover||!opt.body)throw Error("Titolo, categoria, copertina e testo obbligatori.");
  const html=await template(kind);
  const doc=new DOMParser().parseFromString(html,"text/html");
  putTextArticle(doc,opt,kind);
+ await enforceMasterTemplate(doc);
  if(kind==="review")doc.body.classList.add("zt-a900-unified-review");
   if(!doc.querySelector('link[href^="/zt-release-layout.css"]')){const common=doc.createElement("link");common.rel="stylesheet";common.href="/zt-release-layout.css?v=20261024";doc.head.append(common);}
   if(!doc.querySelector('script[src^="/zt-release-menu.js"]')){const nav=doc.createElement("script");nav.src="/zt-release-menu.js?v=20261024";nav.defer=true;doc.body.append(nav);}

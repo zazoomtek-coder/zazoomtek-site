@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Independent five-card 'Da non perdere' renderer; no legacy dependencies."""
 from pathlib import Path
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import html
 import re
 
@@ -17,69 +19,58 @@ html body #zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6)
 #zt-popular-box .zt-popular-list{max-height:none!important;height:auto!important;overflow:visible!important}
 </style>'''
 
-def cards_from_home(document: str) -> list[str]:
-    found=[];seen=set();titles=set()
-    if "<!-- ARTICLE_FEED_START -->" not in document:
-        return []
-    news=document.split("<!-- ARTICLE_FEED_START -->",1)[1].split("<!-- ARTICLE_FEED_END -->",1)[0]
-    for article in re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>',news,re.I):
-        if not re.search(r'data-post-category="tech"',article,re.I):
-            continue
-        title=re.search(r'<h3\b[^>]*>\s*<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)</a>',article,re.I)
-        picture=re.search(r'<img\b[^>]*\bsrc="([^"]+)"',article,re.I)
-        if not title or not picture:continue
-        href=html.unescape(title.group(1))
+def deduplicate_cards(document:str)->list[dict]:
+    """One recent Tech story per normalized URL/title, newest first."""
+    if "<!-- ARTICLE_FEED_START -->" not in document or "<!-- ARTICLE_FEED_END -->" not in document:return []
+    section=document.split("<!-- ARTICLE_FEED_START -->",1)[1].split("<!-- ARTICLE_FEED_END -->",1)[0]
+    cutoff=(datetime.now(ZoneInfo("Europe/Rome")).date()-timedelta(days=2)).isoformat()
+    rows=[]
+    for article in re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>',section,re.I):
+        if not re.search(r'data-post-category=["\']tech["\']',article,re.I):continue
+        title=re.search(r'<h3\b[^>]*>\s*<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>([\s\S]*?)</a>',article,re.I)
+        picture=re.search(r'<img\b[^>]*\bsrc=["\']([^"\']+)',article,re.I)
+        date=re.search(r'data-published-at=["\'](20\d\d-\d\d-\d\d)',article,re.I)
+        if not (title and picture and date) or date.group(1)<cutoff:continue
+        href=html.unescape(title.group(1)).split("?",1)[0].strip()
         if not href.startswith("/"):href="/"+href
-        if href in seen:continue
-        seen.add(href)
-        label=html.unescape(re.sub(r'<[^>]+>','',title.group(2))).strip()
-        if not label:continue
-        normalized=re.sub(r"\s+"," ",label).casefold()
-        if normalized in titles:continue
-        titles.add(normalized)
+        label=re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>","",title.group(2)))).strip()
         cover=html.unescape(picture.group(1))
-        found.append('<a class="zt-popular-article" href="'+html.escape(href,quote=True)+
-                     '" title="'+html.escape(label,quote=True)+'"><img src="'+
-                     html.escape(cover,quote=True)+'" alt="'+html.escape(label,quote=True)+
-                     '" loading="lazy"><span class="zt-popular-copy"><span '+
-                     'class="zt-popular-category">TECNOLOGIA</span><strong>'+
-                     html.escape(label)+'</strong></span></a>')
-        if len(found)==5:break
-    return found
+        if label and cover:rows.append(dict(url=href,title=label,image=cover,date=date.group(1)))
+    unique=[];seen_urls=set();seen_titles=set()
+    for entry in sorted(rows,key=lambda r:r["date"],reverse=True):
+        u=entry["url"].casefold();t=entry["title"].casefold()
+        if u in seen_urls or t in seen_titles:continue
+        seen_urls.add(u);seen_titles.add(t);unique.append(entry)
+    return unique
 
-def update(root:Path=ROOT) -> int:
+def cards_from_home(document:str)->list[str]:
+    out=[]
+    for item in deduplicate_cards(document)[:5]:
+        href=html.escape(item["url"],quote=True)
+        label=html.escape(item["title"],quote=True)
+        image=html.escape(item["image"],quote=True)
+        out.append('<a class="zt-popular-article" href="'+href+'" title="'+label+
+                   '"><img src="'+image+'" alt="'+label+
+                   '" loading="lazy"><span class="zt-popular-copy"><span '+
+                   'class="zt-popular-category">TECNOLOGIA</span><strong>'+
+                   label+'</strong></span></a>')
+    return out
+
+def update(root:Path=ROOT)->int:
     page=root/"index.html"
     if not page.is_file():return 0
-    document=page.read_text(encoding="utf-8")
-    if START not in document or END not in document:return 0
-    selected=cards_from_home(document)
-    if selected:
-        old=document.split(START,1)[1].split(END,1)[0]
-        existing=re.findall(r'<a class="zt-popular-article"[\s\S]*?</a>',old)
-        known={re.search(r'href="([^"]+)"',c).group(1) for c in selected}
-        known_titles=set()
-        for card in selected:
-            title=re.search(r'<strong>([\s\S]*?)</strong>',card)
-            if title:known_titles.add(re.sub(r"\s+"," ",html.unescape(title.group(1))).casefold())
-        for card in existing:
-            href=re.search(r'href="([^"]+)"',card)
-            title=re.search(r'<strong>([\s\S]*?)</strong>',card)
-            title_key=re.sub(r"\s+"," ",html.unescape(title.group(1))).casefold() if title else ""
-            if href and href.group(1) not in known and title_key not in known_titles and len(selected)<5:
-                selected.append(card);known.add(href.group(1));known_titles.add(title_key)
-    else:
-        selected=re.findall(r'<a class="zt-popular-article"[\s\S]*?</a>',
-                            document.split(START,1)[1].split(END,1)[0])[:5]
-    if selected:
-        a=document.index(START)+len(START)
-        b=document.index(END,a)
-        document=document[:a]+"\n"+"\n".join(selected[:5])+"\n"+document[b:]
-    for old_id in (STYLE_ID,'zt-services10-popular-eight'):
+    original=page.read_text(encoding="utf-8")
+    if START not in original or END not in original:return 0
+    selected=cards_from_home(original)
+    a=original.index(START)+len(START)
+    b=original.index(END,a)
+    document=original[:a]+"\n"+"\n".join(selected)+"\n"+original[b:]
+    for old_id in (STYLE_ID,"zt-services10-popular-eight"):
         document=re.sub(r'<style id="'+old_id+r'">[\s\S]*?</style>',"",document)
     document=document.replace("</head>",STYLE+"\n</head>",1)
-    page.write_text(document,encoding="utf-8")
-    print("Da non perdere:",min(len(selected),5),"unique visible Tech cards prepared")
-    return min(len(selected),5)
+    if document!=original:page.write_text(document,encoding="utf-8")
+    print("Da non perdere: latest 48-hour unique Tech stories:",len(selected))
+    return len(selected)
 
 if __name__=="__main__":
     update()

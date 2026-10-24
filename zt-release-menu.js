@@ -3,6 +3,7 @@
 (function(){
 'use strict';
 if(location.pathname==='/'||location.pathname==='/index.html')return;
+if(document.querySelector('.zt-master-header')||document.body?.classList.contains('zt-master-page'))return;
 var current=(location.pathname||'/').toLowerCase();
 var old=document.querySelector('body > header,body > .zt-header')||document.querySelector('header');
 if(!old)return;

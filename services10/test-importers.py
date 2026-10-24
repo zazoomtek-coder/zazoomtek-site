@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline regressions: both >180s AND source 16:9, no media downloads."""
+"""Offline regressions: all public videos, no false 16:9 claim or media downloads."""
 import importlib.util
 import json
 from pathlib import Path
@@ -58,27 +58,28 @@ def main():
     assert not videos.verified_16x9({"videoStreams":[
         {"aspectRatio":16/9},{"aspectRatio":9/16}]})
 
-    # No video can pass on duration alone, including >3 minutes.
+    # Source orientation is never invented: all public videos are indexed,
+    # but only verified horizontal streams may receive the 'landscape_video' type.
     for seconds in (0,59,179,180):
         assert videos.classify(item("widevideo01",seconds),set(),
              geometry={"widevideo01":horizontal})[0]!="landscape"
-    assert videos.classify(item("widevideo01",181),set())[0]=="pending"
-    assert videos.classify(item("widevideo01",360),set())[0]=="pending"
+    for seconds in (181,360):
+        category,rec=videos.classify(item("widevideo01",seconds),set())
+        assert category=="youtube"
+        assert rec["type"]=="youtube_video" and rec["orientation"]=="unverified"
     cls,row=videos.classify(item("widevideo01",181),set(),
                            geometry={"widevideo01":horizontal})
     assert cls=="landscape" and row["verification"]=="owner_file_details_16x9"
-    cls,row=videos.classify(item("widevideo01",360),set(),
-                           geometry={"widevideo01":vertical})
-    assert cls=="non_16x9" and row is None
-    assert videos.classify(item("widevideo01",181),set(),
-                geometry={"widevideo01":square})[0]=="non_16x9"
-    assert videos.classify(item("widevideo01",181),set(),
-                geometry={"widevideo01":four_three})[0]=="non_16x9"
-    # Owner-provided vertical geometry must override a stale manual registry.
+    for shape in (vertical,square,four_three):
+        cls,row=videos.classify(item("widevideo01",360),set(),
+                               geometry={"widevideo01":shape})
+        assert cls=="youtube" and row["orientation"]=="not_16x9"
+        assert row["type"]=="youtube_video"
     assert videos.classify(item("widevideo01",360),{"widevideo01"},
-                geometry={"widevideo01":vertical})[0]=="non_16x9"
+                geometry={"widevideo01":vertical})[0]=="youtube"
     assert videos.classify(item("widevideo01",181),{"widevideo01"})[0]=="landscape"
-    assert videos.classify(item("widevideo01",180),{"widevideo01"})[0]=="short_or_unknown"
+    short_cls,short=videos.classify(item("widevideo01",180),{"widevideo01"})
+    assert short_cls=="youtube" and short["short"] is True
     assert videos.classify(item("widevideo01",240,channel="another"),{"widevideo01"})[0]=="other"
     assert videos.classify(item("widevideo01",240,visibility="private"),
                            {"widevideo01"})[0]=="other"
@@ -117,13 +118,16 @@ def main():
                 "verification":"duration_over_3m_not_short","orientation":"unverified"}],
                 videos.PENDING)
             result=videos.run()
-            assert result["verified_new"]==1
             approved=videos.load(videos.OUT)
             pending=videos.load(videos.PENDING)
-            assert {v["id"] for v in approved}=={"oldvalid001","widevideo01"}
-            assert {v["id"] for v in pending}=={"unknown0001"}
-            assert not any(v["id"] in {"vertical001","squarevid01","shortvid001"}
-                           for v in approved)
+            # All real/public videos and the archived pending upload are retained.
+            assert result["verified_new"]==6
+            assert {v["id"] for v in approved}=={
+                "oldvalid001","legacyvid01","widevideo01","vertical001",
+                "squarevid01","shortvid001","unknown0001"}
+            assert not pending
+            assert next(v for v in approved if v["id"]=="vertical001")["orientation"]=="not_16x9"
+            assert next(v for v in approved if v["id"]=="shortvid001")["short"] is True
             with patch.object(videos,"upload_candidates",side_effect=RuntimeError("quota")),\
                  patch.object(videos,"rss_candidates",side_effect=RuntimeError("offline")):
                 result=videos.run()
@@ -150,7 +154,7 @@ def main():
        "b":{"backstagePostRenderer":{"postId":"broken"}}}
     page="var ytInitialData = "+json.dumps(posts)+";"
     assert [v["id"] for v in community.extract(page)]==["Ugkx123"]
-    print("PASS: 180s rejected, 181s+16:9 accepted, 9:16/square/4:3 rejected; unknowns quarantined")
+    print("PASS: all public videos indexed; verified 16:9 recognized; unknown geometry labeled honestly")
 
 if __name__=="__main__":
     main()

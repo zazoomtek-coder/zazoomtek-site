@@ -87,16 +87,50 @@ def article_content(text:str,title:str="",images:list[str]|None=None)->str:
         markup.insert(at,gallery)
     return "\n".join(markup)
 
-def items(root:Path=ROOT)->list[dict]:
-    found=[];seen=set()
-    for post in load_list(root/"services10-data"/"community.json"):
+def deduplicate_posts(posts:list[dict])->list[dict]:
+    """Deduplica i post della Community per ID e titolo, senza perdere revisioni."""
+    by_id={}
+    for post in posts:
         if not isinstance(post,dict):continue
         ident=str(post.get("id") or "")
-        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",ident) or ident in seen:
+        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",ident):continue
+        prior=by_id.get(ident)
+        # The more complete copy wins; preserve prior original dates/images.
+        if prior is None:
+            by_id[ident]=post
+        else:
+            preferred=post if len(str(post.get("text") or ""))>len(str(prior.get("text") or "")) else prior
+            merged={**prior,**{k:v for k,v in preferred.items() if v not in ("",None,[])}}
+            by_id[ident]=merged
+    unique=[];seen_titles=set()
+    for post in sorted(by_id.values(),key=lambda p:str(p.get("published_iso") or p.get("first_seen") or ""),reverse=True):
+        if not str(post.get("text") or "").strip():continue
+        key=re.sub(r"\s+"," ",title_of(post)).casefold().strip()
+        if key in seen_titles:continue
+        seen_titles.add(key);unique.append(post)
+    return unique
+
+def deduplicate_cards(cards:list[dict])->list[dict]:
+    """One published article per canonical URL/title, newest first."""
+    result=[];seen_urls=set();seen_titles=set()
+    for item in sorted(cards,key=lambda x:str(x.get("published_iso") or x.get("first_seen") or ""),reverse=True):
+        url=str(item.get("url") or "").split("?",1)[0].lower()
+        title=re.sub(r"\s+"," ",str(item.get("title") or "")).casefold().strip()
+        if not url or url in seen_urls or (title and title in seen_titles):continue
+        seen_urls.add(url)
+        if title:seen_titles.add(title)
+        result.append(item)
+    return result
+
+def items(root:Path=ROOT)->list[dict]:
+    found=[]
+    for post in deduplicate_posts(load_list(root/"services10-data"/"community.json")):
+        if not isinstance(post,dict):continue
+        ident=str(post.get("id") or "")
+        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",ident):
             continue
         body=str(post.get("text") or "").strip()
         if not body:continue
-        seen.add(ident)
         pictures=post.get("images") if isinstance(post.get("images"),list) else []
         found.append({"id":ident,"url":"/news-"+ident+".html",
                       "title":title_of(post),"text":body,
@@ -105,9 +139,7 @@ def items(root:Path=ROOT)->list[dict]:
                       "images":pictures,
                       "published_iso":str(post.get("published_iso") or ""),
                       "first_seen":str(post.get("first_seen") or "")})
-    return sorted(found,
-        key=lambda x:x.get("published_iso") or x.get("first_seen") or "",
-        reverse=True)
+    return deduplicate_cards(found)
 
 def replace_owned(source:str,start:str,end:str,new:str)->str:
     owned=start+"\n"+new+"\n"+end
@@ -209,9 +241,14 @@ def update(root:Path=ROOT)->dict:
     created=0
     for post in publications:
         target=root/post["url"].lstrip("/")
+        # Never overwrite an author's manually edited article.
         if not target.exists():
             target.write_text(render_detail(post),encoding="utf-8")
             created+=1
+        elif target.read_text(encoding="utf-8").lstrip().startswith("<!-- SERVICES10_GENERATED -->"):
+            latest=render_detail(post)
+            if target.read_text(encoding="utf-8")!=latest:
+                target.write_text(latest,encoding="utf-8")
     news=root/"news.html"
     if news.is_file():
         document=news.read_text(encoding="utf-8")
@@ -219,7 +256,7 @@ def update(root:Path=ROOT)->dict:
         if ARCH_START in outside and ARCH_END in outside:
             left=outside.index(ARCH_START);right=outside.index(ARCH_END,left)+len(ARCH_END)
             outside=outside[:left]+outside[right:]
-        fresh=[p for p in publications if 'href="'+p["url"]+'"' not in outside]
+        fresh=deduplicate_cards([p for p in publications if 'href="'+p["url"]+'"' not in outside])
         cards="\n".join(render_archive_card(p) for p in fresh)
         if ARCH_START in document and ARCH_END in document:
             updated=replace_owned(document,ARCH_START,ARCH_END,cards)
@@ -236,7 +273,7 @@ def update(root:Path=ROOT)->dict:
         if HOME_START in outside and HOME_END in outside:
             left=outside.index(HOME_START);right=outside.index(HOME_END,left)+len(HOME_END)
             outside=outside[:left]+outside[right:]
-        fresh=[p for p in publications if 'href="'+p["url"]+'"' not in outside]
+        fresh=deduplicate_cards([p for p in publications if 'href="'+p["url"]+'"' not in outside])
         cards="\n".join(render_home_card(p) for p in fresh[:40])
         if HOME_START in document and HOME_END in document:
             updated=replace_owned(document,HOME_START,HOME_END,cards)

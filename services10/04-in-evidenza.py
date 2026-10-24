@@ -8,7 +8,8 @@ from __future__ import annotations
 import html
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -36,16 +37,29 @@ def candidates(document: str) -> list[dict]:
             continue
     return found
 
+def deduplicate_stories(stories:list[dict])->list[dict]:
+    """Only unique recent dated items, sorted newest first; no legacy fallback."""
+    latest=[]
+    cutoff=(datetime.now(ZoneInfo("Europe/Rome")).date()-timedelta(days=2)).isoformat()
+    seen_urls=set();seen_titles=set()
+    ordered=sorted((s for s in stories if isinstance(s,dict)),
+                   key=lambda s:s.get("published_date") or "",reverse=True)
+    for story in ordered:
+        date=story.get("published_date") or ""
+        title=re.sub(r"\s+"," ",story.get("title") or "").casefold().strip()
+        url=str(story.get("url") or "").split("?",1)[0].casefold()
+        if date<cutoff or not date or not title or not url:continue
+        if url in seen_urls or title in seen_titles:continue
+        seen_urls.add(url);seen_titles.add(title);latest.append(story)
+    return latest
+
 def select(current: list[dict], older: list[dict]) -> list[dict]:
-    chosen=[];used=set()
+    """Never reintroduce old manifest stories into 'News in evidenza'."""
+    recent=deduplicate_stories(current)
+    selected=[]
     for section,limit in (("tech",4),("gaming",1)):
-        count=0
-        for story in current+older:
-            url=story.get("url") if isinstance(story,dict) else None
-            if not isinstance(story,dict) or story.get("section")!=section or not url or url in used:continue
-            chosen.append(story);used.add(url);count+=1
-            if count==limit:break
-    return chosen
+        selected.extend([story for story in recent if story.get("section")==section][:limit])
+    return selected
 
 def render(selected: list[dict]) -> str:
     anchors=[]
@@ -68,15 +82,9 @@ def update(root: Path = ROOT) -> int:
     manifest=root/"featured-carousel.json"
     if not home.is_file() or not feed.is_file():return 0
     current=candidates(feed.read_text(encoding="utf-8"))
-    older=[]
-    if manifest.is_file():
-        try:older=json.loads(manifest.read_text(encoding="utf-8")).get("items",[])
-        except (ValueError,AttributeError):pass
-    selected=select(current,older)
-    if len(selected)!=5:
-        # Keep the existing visible box rather than erase it on a sparse feed.
-        print("Featured: incomplete source, keeping previous box",len(selected))
-        return 0
+    selected=select(current,[])
+    # If fewer than 5 fresh stories are available, use fewer cards.
+    # Do not preserve or resurrect archived articles from days ago.
     original=home.read_text(encoding="utf-8")
     if original.count(START)!=1 or original.count(END)!=1:return 0
     start=original.index(START)+len(START)
@@ -86,7 +94,7 @@ def update(root: Path = ROOT) -> int:
     payload={"generated_utc":datetime.now(timezone.utc).isoformat(),"items":selected}
     manifest.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",
                         encoding="utf-8")
-    print("Featured: 4 Tech and 1 Gaming refreshed")
+    print("Featured: recent Tech/Gaming cards refreshed:",len(selected))
     return len(selected)
 
 if __name__=="__main__":

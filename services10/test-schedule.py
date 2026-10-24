@@ -7,7 +7,7 @@ WORKFLOW=ROOT/".github/workflows/services10-scheduled-cloudflare.yml"
 
 def main():
     source=WORKFLOW.read_text(encoding="utf-8")
-    expected=["15 10 * * *","15 12 * * *","15 15 * * *",
+    expected=["15 10 * * *","45 12 * * *","15 15 * * *",
               "45 17 * * *","15 20 * * *"]
     found=re.findall(r'^\s+- cron: ["\x27]([^"\x27]+)["\x27]\s*$',source,re.M)
     assert found==expected,(found,expected)
@@ -18,7 +18,7 @@ def main():
     assert "services10/09-layout.py" in source
     assert "services10/10-cloudflare-publish.py" in source
     expected_workflows={"services10-offline-tests.yml","services10-scheduled-cloudflare.yml",
-                        "manual-direct-publish.yml","cloudflare-site-health.yml"}
+                        "manual-direct-publish.yml","cloudflare-site-health.yml","zt-source-syntax.yml"}
     present={f.name for f in WORKFLOW.parent.glob("*.yml")}
     assert present==expected_workflows, ("Unexpected legacy workflow remains",present)
     assert "scripts/cloudflare-build-site.py" not in source
