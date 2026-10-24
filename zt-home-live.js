@@ -920,7 +920,7 @@
    function reviewCard(data){
      const c=document.createElement("article");c.className="video-card zt-review-card";
      const thumb=document.createElement("a");thumb.className="video-thumb zt-review-thumb";thumb.href=data.href;
-     const img=document.createElement("img");img.src=data.img;img.alt=data.title;img.loading="lazy";img.decoding="async";thumb.appendChild(img);
+     const img=document.createElement("img");img.src=data.img||"/ChatGPT.png";img.alt=data.title;img.loading="lazy";img.decoding="async";img.addEventListener("error",()=>{if(img.dataset.ztFallback)return;img.dataset.ztFallback="1";img.src="/ChatGPT.png";img.style.objectFit="contain";},{once:true});thumb.appendChild(img);
      const h=document.createElement("h3"),a=document.createElement("a");a.href=data.href;a.textContent=data.title;h.appendChild(a);
      c.append(thumb,h);
      if(data.kind){const date=document.createElement("small");date.textContent=data.kind;c.appendChild(date);}
@@ -934,14 +934,16 @@
        const archive=new DOMParser().parseFromString(markup,"text/html");
        const months={gennaio:1,febbraio:2,marzo:3,aprile:4,maggio:5,giugno:6,
          luglio:7,agosto:8,settembre:9,ottobre:10,novembre:11,dicembre:12};
-       const found=[],seen=new Set();
+       const found=[],seen=new Set(),seenTitles=new Set();
        archive.querySelectorAll("#reviewList .news-row").forEach(function(row){
-         const link=row.querySelector(".news-copy h2 a[href]"),picture=row.querySelector("img[src]");
-         if(!link||!picture)return;
-         const href=link.getAttribute("href")||"";
-         if(!/^\/[a-zA-Z0-9._-]+\.html$/.test(href)||seen.has(href))return;
-         const title=link.textContent.trim(),img=picture.getAttribute("src")||"";
-         if(!title||!img)return;
+         const link=row.querySelector(".news-copy h2 a[href]");
+         if(!link)return;
+         const href=(link.getAttribute("href")||"").split(/[?#]/)[0];
+         const title=link.textContent.trim();
+         const key=title.normalize("NFKC").toLocaleLowerCase("it").replace(/\s+/g," ").trim();
+         if(!/^\/[a-zA-Z0-9._-]+\.html$/.test(href)||seen.has(href)||!key||seenTitles.has(key))return;
+         const picture=row.querySelector(":scope>a img[src],:scope>img[src]");
+         const img=picture?.getAttribute("src")||"/ChatGPT.png";
          const meta=row.querySelector(".news-meta")?.textContent||"";
          const date=meta.toLowerCase().match(/(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s+(\d{4})/);
          const iso=meta.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/);
@@ -949,7 +951,7 @@
          const order=date?Number(date[3])*10000+months[date[2]]*100+Number(date[1]):
            Number(iso[1])*10000+Number(iso[2])*100+Number(iso[3]);
          const kind=date?date[1]+" "+date[2]+" "+date[3]:iso[3]+"/"+iso[2]+"/"+iso[1];
-         seen.add(href);found.push({href,title,img,kind,order});
+         seen.add(href);seenTitles.add(key);found.push({href,title,img,kind,order});
        });
        return found.sort(function(a,b){return b.order-a.order;}).slice(0,3);
      });

@@ -2125,3 +2125,21 @@ html body .module-head h2:after,html body .side-head:before {
 html body .module-head h2:after{content:none!important;display:none!important}
 html body .side-head:before{clip-path:none!important}
 html body .ztp-news-head h2 span{padding-right:14px!important}
+
+
+/* Gaming/Tech review image integrity on desktops, tablets and phones */
+.news-page #reviewList{min-width:0;max-width:100%}
+.news-page #reviewList>.news-row{min-width:0;align-items:start}
+.news-page #reviewList>.news-row>a:first-child{min-width:0;max-width:100%;display:block;overflow:hidden}
+.news-page #reviewList>.news-row>a:first-child img{
+ display:block;width:100%;max-width:100%;height:auto;aspect-ratio:16/9;
+ object-fit:cover;object-position:center;background:#151515;
+}
+.news-page #reviewList .news-copy{min-width:0;overflow-wrap:anywhere}
+#ztpGamingReviews .ztp-gaming-review-cards{min-width:0;max-width:100%}
+#ztpGamingReviews .ztp-gaming-review-cards .zt-review-card{min-width:0;overflow:hidden}
+#ztpGamingReviews .ztp-gaming-review-cards img{display:block;width:100%;max-width:100%;aspect-ratio:16/9;height:auto;object-fit:cover}
+@media(max-width:720px){
+ .news-page #reviewList>.news-row{grid-template-columns:minmax(0,1fr)}
+ #ztpGamingReviews .ztp-gaming-review-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr))}
+}
