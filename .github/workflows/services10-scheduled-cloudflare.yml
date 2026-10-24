@@ -3,6 +3,13 @@ name: ZazoomTek services10 production schedule
 # Community imports or deployment of previously verified content.
 on:
   workflow_dispatch:
+  # One-off production refresh is requested by creating a release marker on main.
+  # Avoid auto-deploys from arbitrary code pushes.
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/zt-production-release-request-*.txt'
   schedule:
     - cron: '15 10 * * *'
       timezone: 'Europe/Rome'
