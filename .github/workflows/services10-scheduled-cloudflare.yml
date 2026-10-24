@@ -137,13 +137,18 @@ jobs:
         run: python3 services10/15-master-structural.py --module home
       - name: Layout module — required common menu and editorial/related boxes
         run: python3 services10/15-master-structural.py --module layout
+      - name: Recheck latest editor publication control on main
+        id: editor_control
+        run: python3 services10/publishing-control.py --github-output
       - name: Deploy published content to Cloudflare at scheduled slot
+        if: steps.editor_control.outputs.publish == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
         run: python3 services10/10-cloudflare-publish.py --branch main --production
       - name: Purge Cloudflare production cache after successful deployment
+        if: steps.editor_control.outputs.publish == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID || vars.CLOUDFLARE_ZONE_ID }}
