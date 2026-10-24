@@ -185,9 +185,39 @@ async function enforceMasterTemplate(doc){
    const el=doc.createElement("script");el.src=url;el.defer=true;doc.body.appendChild(el);
   }
  }
- // Sidebar feed is filled by zt-master-template.js (and later by scheduled snapshot).
- if(!aside.querySelector(".zt-master-related h2")||!aside.querySelector(".zt-master-grid"))
-  throw Error("Articoli Correlati o box editoriali mancanti dal Master.");
+ // Populate real thumbnail cards and related links directly in the generated
+ // HTML. Runtime hydration only refreshes as fallback, never creates an empty page.
+ let feed;
+ try{
+  const answer=await fetch("/zt-sidebar-feed.json",{cache:"no-store"});
+  if(!answer.ok)throw Error("HTTP "+answer.status);
+  feed=await answer.json();
+ }catch(e){throw Error("Archivio editoriale non disponibile: pagina non pubblicata senza box.");}
+ const posts=Array.isArray(feed.news)?feed.news:[];
+ const seenUrls=new Set(),seenTitles=new Set();
+ const self="/"+String(document.getElementById("slug")?.value||"").replace(/^\/+/, "");
+ const pool=posts.filter(item=>{
+  if(!item||!item.url||!item.title||!item.image)return false;
+  const url=String(item.url).split("?")[0].toLowerCase();
+  const title=normal(item.title);
+  if(url===self.toLowerCase()||seenUrls.has(url)||seenTitles.has(title))return false;
+  seenUrls.add(url);seenTitles.add(title);return true;
+ }).sort((a,b)=>String(b.published||"").localeCompare(String(a.published||"")));
+ if(!pool.length)throw Error("Archivio senza miniature valide: pubblicazione interrotta.");
+ const n=Math.max(1,Math.min(pool.length-4,Math.ceil((article.textContent||"").length/190)));
+ const selected=pool.slice(0,Math.max(1,n)),related=pool.slice(Math.max(1,n),Math.max(1,n)+4);
+ const card=item=>{
+  const link=doc.createElement("a"),img=doc.createElement("img"),label=doc.createElement("span");
+  link.className="zt-master-card";link.href=item.url;
+  img.src=item.image;img.alt=item.title;img.loading="lazy";label.textContent=item.title;
+  link.append(img,label);return link;
+ };
+ const newsGrid=aside.querySelector(".zt-master-group .zt-master-grid");
+ const relatedGrid=aside.querySelector(".zt-master-related .zt-master-grid");
+ selected.forEach(x=>newsGrid.append(card(x)));
+ related.forEach(x=>relatedGrid.append(card(x)));
+ if(!newsGrid.children.length||!relatedGrid.children.length)
+  throw Error("Mancano miniature o Articoli Correlati nel Master.");
 }
 
 async function build(opt){
