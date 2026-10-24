@@ -117,6 +117,15 @@ def replace_owned(source:str,start:str,end:str,new:str)->str:
         return source[:before]+owned+source[after:]
     return source
 
+def published_label(item:dict)->str:
+    iso=str(item.get("published_iso") or item.get("first_seen") or "")
+    try:
+        dt=datetime.fromisoformat(iso.replace("Z","+00:00"))
+        months="gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre".split()
+        return f"{dt.day} {months[dt.month-1]} {dt.year}"
+    except (ValueError,TypeError):
+        return ""
+
 def render_detail(item:dict)->str:
     title=html.escape(item["title"])
     description=html.escape(" ".join(site_blocks(item["text"],item["title"]))[:155],quote=True)
@@ -124,6 +133,7 @@ def render_detail(item:dict)->str:
     content=article_content(item["text"],item["title"],item.get("images"))
     url="https://zazoomtek.it"+item["url"]
     published=html.escape(item.get("published_iso") or item.get("first_seen") or "",quote=True)
+    human_date=html.escape(published_label(item))
     cover=('<img class="article-hero" src="'+html.escape(item["image"],quote=True)+
            '" alt="'+title+'" loading="eager">' if item["image"] else "")
     return f'''<!-- SERVICES10_GENERATED -->\n<!DOCTYPE html>
@@ -160,7 +170,7 @@ def render_detail(item:dict)->str:
 <a href="/speciali.html">SPECIALI</a></nav></div></header>
 <main class="news-detail-page"><div class="zt-wrap"><article class="article-main">
 <div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / {category}</div>
-<h1>{title}</h1><div class="article-meta">ZazoomTek · {category}</div>
+<h1>{title}</h1><div class="article-meta">ZazoomTek · {category} · <time datetime="{published}">{human_date}</time></div>
 {cover}<div class="article-body">{content}</div>
 <p><a href="/news.html">← Torna alle news</a></p></article></div></main>
 <footer class="zt-content-footer"><a href="/">ZazoomTek.it</a> · Tech · Gaming</footer>
@@ -173,21 +183,25 @@ def render_home_card(item:dict)->str:
              html.escape(item["image"],quote=True)+'" alt="'+title+
              '" loading="lazy"></a>' if item["image"] else "")
     summary=html.escape(" ".join(site_blocks(item["text"],item["title"]))[:200])
+    label=html.escape(published_label(item))
+    stamp=html.escape(item.get("published_iso") or item.get("first_seen") or "",quote=True)
     return ('<article class="article-row" data-post-category="'+item["section"]+
        '" data-published-at="'+html.escape(item.get("published_iso") or item["first_seen"],quote=True)+'">'+picture+
        '<div class="article-copy"><h3><a href="'+href+'">'+title+
-       '</a></h3><div class="article-meta">ZazoomTek · Community</div><p>'+summary+
+       '</a></h3><div class="article-meta">ZazoomTek · <time datetime="'+stamp+'">'+label+'</time></div><p>'+summary+
        '…</p><a class="read-more" href="'+href+'">Leggi tutto ›</a></div></article>')
 
 def render_archive_card(item:dict)->str:
     title=html.escape(item["title"],quote=True)
+    label=html.escape(published_label(item))
+    stamp=html.escape(item.get("published_iso") or item.get("first_seen") or "",quote=True)
     href=html.escape(item["url"],quote=True)
     picture=('<a href="'+href+'"><img src="'+html.escape(item["image"],quote=True)+
              '" alt="'+title+'" loading="lazy"></a>' if item["image"] else "")
     return ('<article class="news-row" data-post-category="'+item["section"]+
        '" data-published-at="'+html.escape(item.get("published_iso") or item["first_seen"],quote=True)+'">'+
        picture+'<div class="news-copy"><h2><a href="'+href+'">'+title+
-       '</a></h2><div class="news-meta">ZazoomTek · Community</div></div></article>')
+       '</a></h2><div class="news-meta">ZazoomTek · <time datetime="'+stamp+'">'+label+'</time></div></div></article>')
 
 def update(root:Path=ROOT)->dict:
     publications=items(root)
