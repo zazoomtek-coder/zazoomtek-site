@@ -100,7 +100,8 @@ def build_rail(pool,path,article):
 
 def update(path,pool):
     document=path.read_text(encoding="utf-8")
-    if "<main" not in document.lower() or not TITLE_RE.search(document):return False
+    if "<main" not in document.lower():return False
+    if path.name not in ARCHIVES and not TITLE_RE.search(document):return False
     match=ASIDE_RE.search(document)
     if not match:return False
     # Elimina solo i rail generati in precedenza, non il corpo editoriale.
