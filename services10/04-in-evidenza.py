@@ -11,6 +11,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from pathlib import Path
+from editorial_workday import editorial_order, edition, FALLBACK
 
 ROOT=Path(__file__).resolve().parents[1]
 START="<!-- FEATURED_NEWS_START -->"
@@ -24,12 +25,12 @@ def candidates(document: str) -> list[dict]:
             link=re.search(r'<h2\b[^>]*>\s*<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)</a>',article,re.I)
             image=re.search(r'<img\b[^>]*src="([^"]+)"',article,re.I)
             date=re.search(r'data-published-at="([^"]+)"',article)
-            if not (category and link and image):continue
+            if not (category and link):continue
             url=html.unescape(link.group(1))
             if not url.startswith("/"):url="/"+url
             title=html.unescape(re.sub(r'<[^>]+>','',link.group(2))).strip()
-            cover=html.unescape(image.group(1))
-            if not title or not url or not cover:continue
+            cover=html.unescape(image.group(1)) if image else FALLBACK
+            if not title or not url:continue
             found.append({"section":category.group(1).lower(),"url":url,
                 "title":title,"image":cover,
                 "published_date":date.group(1)[:10] if date else ""})
@@ -38,41 +39,44 @@ def candidates(document: str) -> list[dict]:
     return found
 
 def deduplicate_stories(stories:list[dict])->list[dict]:
-    """Only unique recent dated items, sorted newest first; no legacy fallback."""
-    latest=[]
-    cutoff=(datetime.now(ZoneInfo("Europe/Rome")).date()-timedelta(days=2)).isoformat()
-    seen_urls=set();seen_titles=set()
-    ordered=sorted((s for s in stories if isinstance(s,dict)),
-                   key=lambda s:s.get("published_date") or "",reverse=True)
-    for story in ordered:
-        date=story.get("published_date") or ""
-        title=re.sub(r"\s+"," ",story.get("title") or "").casefold().strip()
-        url=str(story.get("url") or "").split("?",1)[0].casefold()
-        if date<cutoff or not date or not title or not url:continue
-        if url in seen_urls or title in seen_titles:continue
-        seen_urls.add(url);seen_titles.add(title);latest.append(story)
-    return latest
+    """Keep unique real URLs; allow same-title posts with different IDs."""
+    found=[];seen=set()
+    for row in sorted(stories,key=lambda r:r.get("published_date") or "",reverse=True):
+        url=str(row.get("url") or "").split("?",1)[0].lower()
+        if not url or url in seen or not row.get("title"):continue
+        seen.add(url);found.append(row)
+    return found
 
-def select(current: list[dict], older: list[dict]) -> list[dict]:
-    """Never reintroduce old manifest stories into 'News in evidenza'."""
-    recent=deduplicate_stories(current)
-    selected=[]
-    for section,limit in (("tech",4),("gaming",1)):
-        selected.extend([story for story in recent if story.get("section")==section][:limit])
-    return selected
+def select(current:list[dict],older:list[dict])->list[dict]:
+    """One workday and daily rotation; never leave editorial box empty."""
+    pool=deduplicate_stories(current)
+    dated=[{**row,"published":row.get("published_date") or ""} for row in pool]
+    selection=[];seen=set()
+    for category,max_items in (("tech",4),("gaming",1)):
+        ranked=editorial_order([x for x in dated if x["section"]==category],
+                               group=category,page="featured")
+        for row in ranked[:max_items]:
+            if row["url"] not in seen:selection.append(row);seen.add(row["url"])
+    for row in editorial_order(dated,group="news",page="featured-fill"):
+        if len(selection)>=5:break
+        if row["url"] not in seen:selection.append(row);seen.add(row["url"])
+    return selection
+
 
 def render(selected: list[dict]) -> str:
     anchors=[]
     for index,item in enumerate(selected):
         label=html.escape(item["title"],quote=True)
         href=html.escape(item["url"],quote=True)
-        cover=html.escape(item["image"],quote=True)
-        anchors.append('<a class="zt-feature-card zt-feature-small" data-feature-section="'
+        cover=html.escape(item.get("image") or FALLBACK,quote=True)
+        anchors.append('<a class="zt-feature-card zt-feature-small zt-home-editorial-card" data-feature-section="'
             +html.escape(item["section"])+'" href="'+href+'" title="'+label+
             '" aria-label="'+label+'"><img src="'+cover+'" alt="'+label+
             '" loading="'+("eager" if index==0 else "lazy")+
-            '" decoding="async"></a>')
-    return ('<div class="zt-featured-grid" id="ztFeaturedGrid" '
+            '" decoding="async" onerror="this.onerror=null;this.src=\''+FALLBACK+
+            '\'"><span class="zt-home-editorial-label">'+label+'</span></a>')
+    return ('<div class="zt-featured-grid zt-home-primary-editorials" id="ztFeaturedGrid" '+
+        'data-editorial-edition="'+edition()["edition_day"]+'" '
         'aria-label="Quattro news Tech e una news Gaming in evidenza">'
         +''.join(anchors)+'</div>')
 
@@ -83,18 +87,17 @@ def update(root: Path = ROOT) -> int:
     if not home.is_file() or not feed.is_file():return 0
     current=candidates(feed.read_text(encoding="utf-8"))
     selected=select(current,[])
-    # If fewer than 5 fresh stories are available, use fewer cards.
-    # Do not preserve or resurrect archived articles from days ago.
+    # Prefer todays news and refill from latest dates without faking their age.
     original=home.read_text(encoding="utf-8")
     if original.count(START)!=1 or original.count(END)!=1:return 0
     start=original.index(START)+len(START)
     end=original.index(END,start)
     published=original[:start]+"\n"+render(selected)+"\n"+original[end:]
     if published!=original:home.write_text(published,encoding="utf-8")
-    payload={"generated_utc":datetime.now(timezone.utc).isoformat(),"items":selected}
+    payload={**edition(),"items":selected}
     manifest.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",
                         encoding="utf-8")
-    print("Featured: recent Tech/Gaming cards refreshed:",len(selected))
+    print("Featured: workday synchronized editorial boxes:",len(selected))
     return len(selected)
 
 if __name__=="__main__":
