@@ -36,9 +36,11 @@
     // Standard imported news have <main><h1>…</h1><div class="article-copy">,
     // without an <article> wrapper. Only treat these as editorial detail pages.
     const contentPage = !!document.querySelector("main .article-copy,main .article-body,main .zt-watch-article,main .hero,main .article-hero,main .lead");
-    if (!detail && !contentPage) return;
+    // All eligible interior HTML pages have a Studio editing entry point.
+    // The Home and Studio remain protected by escPath above.
     const title = detail?.querySelector("h1") ||
       document.querySelector("main.content h1, main.page h1, main h1");
+    if (!detail && !contentPage && !title) return;
     if (!title) return;
     const b = document.createElement("a");
     b.id = "zt-studio-edit-title";
