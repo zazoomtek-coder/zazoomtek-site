@@ -86,7 +86,7 @@ def source_info(page):
                 image=d.get("src","");break
     if image.startswith("/") and not (DIST/image.lstrip("/")).is_file():image=""
     if not image.startswith(("https://","/")) or "ChatGPT.png" in image:image=""
-    category_attr=re.search(r'data-post-category=["\\'](tech|gaming)["\\']',content,re.I)
+    category_attr=re.search(r"""data-post-category=["'](tech|gaming)["']""",content,re.I)
     if category_attr:category=category_attr.group(1).lower()
     elif "recensione" in page.stem.lower():category="reviews"
     elif "gaming" in page.stem.lower():category="gaming"
