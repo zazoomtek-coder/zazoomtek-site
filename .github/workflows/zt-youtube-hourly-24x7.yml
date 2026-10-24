@@ -1,0 +1,69 @@
+name: ZazoomTek YouTube hourly 24x7 archive
+# Poll hourly; separate collection from the five daily Cloudflare publish slots.
+# Github cron is best-effort: the archive is cumulative across runs.
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      full_reconcile:
+        description: Scan the entire public YouTube uploads playlist
+        type: boolean
+        default: true
+permissions:
+  contents: write
+concurrency:
+  group: zazoomtek-youtube-hourly-archive
+  cancel-in-progress: false
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore previously archived Community and video records
+        run: |
+          python3 services10/state.py restore community
+          python3 services10/state.py restore videos
+          python3 services10/state.py restore pending
+      - name: Collect all available public Community posts
+        continue-on-error: true
+        run: python3 services10/01-community.py
+      - name: Preserve Community archive independently
+        run: python3 services10/state.py save community
+      - name: Set incremental or full uploads reconciliation
+        shell: bash
+        env:
+          MANUAL_FULL: ${{ inputs.full_reconcile }}
+        run: |
+          if [ "$MANUAL_FULL" = "true" ] || [ "$(date -u +%H)" = "03" ]; then
+            echo "ZT_YOUTUBE_MAX_PAGES=0" >> "$GITHUB_ENV"
+            echo "Full public uploads reconciliation"
+          else
+            echo "ZT_YOUTUBE_MAX_PAGES=3" >> "$GITHUB_ENV"
+            echo "Hourly incremental uploads reconciliation"
+          fi
+      - name: Collect videos Shorts and public uploads via YouTube API
+        continue-on-error: true
+        env:
+          ZT_YOUTUBE_CHANNEL_ID: UCJs0ZT10hUiPRD0UZtUpI1Q
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
+          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
+          YOUTUBE_OAUTH_REFRESH_TOKEN: ${{ secrets.YOUTUBE_OAUTH_REFRESH_TOKEN }}
+          ZT_CONFIRMED_16X9_IDS: ${{ vars.ZT_CONFIRMED_16X9_IDS }}
+        run: python3 services10/02-video-16x9.py
+      - name: Include archived pending public video IDs
+        run: python3 services10/13-pending-public.py
+      - name: Save cumulative public video archive and pending metadata
+        run: |
+          python3 services10/state.py save videos
+          python3 services10/state.py save pending
+      - name: Report cumulative archive coverage
+        run: python3 services10/youtube-archive-health.py
