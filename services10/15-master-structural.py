@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 from urllib.parse import urlparse
 from editorial_workday import edition, editorial_order, select
+from content_media import from_file, FALLBACK as MEDIA_FALLBACK
 
 ROOT=Path(__file__).resolve().parents[1]
 DIST=ROOT/"dist"
@@ -104,6 +105,71 @@ def read_json(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
     except (OSError,ValueError):return []
 
+def enrich_editorial(entries):
+    """Read original article body for snippets and backup covers before placeholders."""
+    result=[]
+    for row in entries:
+        url=row.get("url") or ""
+        local=DIST/url.split("?",1)[0].lstrip("/")
+        rich=from_file(local,DIST) if local.is_file() else {}
+        item={**row}
+        original_image=item.get("image") or ""
+        # Reject the generic fallback when the article contains a real cover.
+        if original_image in ("",FALLBACK):
+            item["image"]=rich.get("image") or FALLBACK
+        item["image_fallback"]=rich.get("body_image") or rich.get("image_fallback") or FALLBACK
+        item["snippet"]=item.get("snippet") or rich.get("snippet") or ""
+        result.append(item)
+    return result
+
+def ensure_archive_snippets(page):
+    """Require title, lead and image on every editorial archive/list card."""
+    raw=page.read_text(encoding="utf-8",errors="replace")
+    if not re.search(r'\b(?:newsList|reviewList|specialiList|extraList|articleList)\b',raw):
+        return 0
+    changed=0
+    def enhance(match):
+        nonlocal changed
+        card=match.group(0)
+        heading=re.search(r'(?is)<h[23]\b[^>]*>.*?</h[23]>',card)
+        if not heading:return card
+        link=LINK.search(card[heading.start():]) or LINK.search(card)
+        if not link:return card
+        url=urlkey(link.group(1))
+        article=DIST/url.lstrip("/")
+        if not article.is_file():return card
+        rich=from_file(article,DIST)
+        snippet=rich.get("snippet") or ""
+        has_preview=re.search(r'(?is)<p\b[^>]*>[\s\S]{40,}?</p>',card)
+        if not has_preview:
+            if not snippet:snippet="Approfondimento completo disponibile nell'articolo."
+            preview='<p class="zt-archive-snippet">'+html.escape(snippet[:220])+'</p>'
+            card=card[:heading.end()]+preview+card[heading.end():]
+            changed+=1
+        image=re.search(r'(?is)<img\b[^>]*>',card)
+        if image:
+            tag=image.group(0)
+            attrs_img=attrs(tag)
+            current=attrs_img.get("src") or ""
+            if not current or current==FALLBACK:
+                chosen=rich.get("body_image") or rich.get("image") or FALLBACK
+                if current:
+                    tag=tag.replace('src="'+current+'"','src="'+html.escape(chosen,quote=True)+'"',1)
+                else:
+                    tag=tag[:-1]+' src="'+html.escape(chosen,quote=True)+'">'
+                card=card[:image.start()]+tag+card[image.end():]
+                changed+=1
+        else:
+            chosen=rich.get("body_image") or rich.get("image") or FALLBACK
+            thumb='<a class="zt-archive-cover" href="'+html.escape(url,quote=True)+'"><img src="'+html.escape(chosen,quote=True)+'" alt="'+html.escape(text(heading.group(0)),quote=True)+'" loading="lazy"></a>'
+            card=card[:heading.start()]+thumb+card[heading.start():]
+            changed+=1
+        return card
+    # Only article/review rows; unrelated widgets are left intact.
+    transformed=re.sub(r'(?is)<article\b[^>]*\bclass=["\'][^"\']*(?:news-row|article-row|zt-review-card)[^"\']*["\'][^>]*>.*?</article>',enhance,raw)
+    if transformed!=raw:page.write_text(transformed,encoding="utf-8")
+    return changed
+
 def keep_latest(entries):
     """Canonical URL plus normalized title; first/newest wins."""
     entries=sorted((v for v in entries if isinstance(v,dict)),
@@ -170,7 +236,7 @@ def collect():
             if record["title"]:records.append(record)
     for record in records:
         if not record.get("image"):record["image"]=FALLBACK
-    return keep_latest(records)
+    return enrich_editorial(keep_latest(records))
 
 def dedup_catalog():
     path=DIST/"home-video-feed.json"
@@ -337,7 +403,8 @@ def sidebar(items,current,main):
         return ('<a class="zt-master-card" href="'+html.escape(item["url"],quote=True)+'">'+
                 '<img loading="lazy" decoding="async" src="'+html.escape(item.get("image") or FALLBACK,quote=True)+
                 '" onerror="this.onerror=null;this.src=\''+FALLBACK+'\'" alt="'+label+'">'+
-                '<span>'+label+'</span></a>')
+                '<span class="zt-master-copy"><strong>'+label+'</strong>'+
+                '<small class="zt-card-snippet">'+html.escape(item.get("snippet") or "Leggi l'approfondimento completo.",quote=True)+'</small></span></a>')
     groups=[]
     for start in range(0,len(chosen),5):
         selection=chosen[start:start+5]
@@ -535,6 +602,7 @@ def run(module="all"):
             changed,removed=dedup_archive_cards(original)
             if changed!=original:page.write_text(changed,encoding="utf-8")
             removed_articles+=removed
+            ensure_archive_snippets(page)
         print("MASTER NEWS:",{"archive_duplicates_removed":removed_articles,
                                "video_duplicates_removed":removed_videos})
     if module in ("home","all"):
@@ -574,6 +642,8 @@ def run(module="all"):
             json.dumps({**edition(),
                         "news":[{"url":x["url"],"title":x["title"],
                                  "image":x.get("image") or FALLBACK,
+                                 "image_fallback":x.get("image_fallback") or FALLBACK,
+                                 "snippet":x.get("snippet") or "",
                                  "published":x.get("published") or "",
                                  "category":x.get("category") or "news"}
                                 for x in current_order]},
