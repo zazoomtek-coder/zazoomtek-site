@@ -5,6 +5,18 @@
 (function(){
 "use strict";
 function mount(){
+ // A missing or blocked image never leaves a blank editorial/card position.
+ document.addEventListener("error",function(event){
+  var img=event.target;
+  if(!img||img.tagName!=="IMG")return;
+  if(!img.closest(".zt-master-card,.zt-feature-card,.news-row,.article-row,.article-main,.zt-master-article-related,.zt-master-rail"))return;
+  var fallback="/assets/zt-editorial-fallback.svg";
+  if(img.getAttribute("src")===fallback)return;
+  img.src=fallback;
+ },true);
+ document.querySelectorAll(".zt-master-card img,.zt-master-rail img,.zt-master-article-related img").forEach(function(img){
+  if(!img.getAttribute("src"))img.setAttribute("src","/assets/zt-editorial-fallback.svg");
+ });
  var body=document.body;
  if(!body||!body.classList.contains("zt-master-page"))return;
  var header=document.querySelector(".zt-master-header");
@@ -25,12 +37,12 @@ function mount(){
  fetch("/zt-sidebar-feed.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("feed unavailable");return r.json();}).then(function(feed){
   var pool=Array.isArray(feed.news)?feed.news:[];
   var path=location.pathname.toLowerCase();
-  var seenUrls=new Set(),seenTitles=new Set();
+  var seenUrls=new Set();
   pool=pool.filter(function(item){
-   if(!item||!item.url||!item.title||!item.image)return false;
+   if(!item||!item.url||!item.title)return false;
    var url=String(item.url).split("?")[0].toLowerCase(),title=String(item.title).toLowerCase().trim();
-   if(url===path||seenUrls.has(url)||seenTitles.has(title))return false;
-   seenUrls.add(url);seenTitles.add(title);return true;
+   if(url===path||seenUrls.has(url))return false;
+   seenUrls.add(url);return true;
   });
   pool.sort(function(a,b){return String(b.published||"").localeCompare(String(a.published||""));});
   var article=document.querySelector(".zt-master-content,.article-main,.article-body,main");
@@ -43,12 +55,12 @@ function mount(){
    items.forEach(function(item){
     var link=document.createElement("a"),img=document.createElement("img"),label=document.createElement("span");
     link.className="zt-master-card";link.href=item.url;
-    img.src=item.image;img.loading="lazy";img.alt=item.title;
+    img.src=item.image||"/assets/zt-editorial-fallback.svg";img.loading="lazy";img.alt=item.title;
     label.textContent=item.title;link.append(img,label);target.append(link);
    });
   }
   draw(current,rail.querySelector(".zt-master-group .zt-master-grid"));
-  draw(related,rail.querySelector(".zt-master-related .zt-master-grid"));
+  draw(related,document.querySelector(".zt-master-article-related .zt-master-related-list"));
  }).catch(function(){ /* Existing content stays visible if external feed is unavailable. */ });
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
