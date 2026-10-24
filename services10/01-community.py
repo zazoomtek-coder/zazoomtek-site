@@ -74,12 +74,12 @@ def published_at(label,now=None):
               "un giorno fa":timedelta(days=1),
               "un minuto fa":timedelta(minutes=1)}
     duration=relative.get(raw)
-    m=re.fullmatch(r"(\d+)\s+(secondi?|minuti?|ore|giorni?|settimane?)\s+fa",raw)
+    m=re.fullmatch(r"(\d+)\s+(second[oi]|minut[oi]|ora|ore|giorn[oi]|settiman[ae])\s+fa",raw)
     if m:
         n=int(m.group(1));unit=m.group(2)
         if unit.startswith("second"):duration=timedelta(seconds=n)
         elif unit.startswith("minut"):duration=timedelta(minutes=n)
-        elif unit=="ore":duration=timedelta(hours=n)
+        elif unit in ("ore","ora"):duration=timedelta(hours=n)
         elif unit.startswith("giorn"):duration=timedelta(days=n)
         elif unit.startswith("settiman"):duration=timedelta(weeks=n)
     if duration is not None:
@@ -140,6 +140,18 @@ def main():
         previous=json.loads(OUT.read_text(encoding="utf-8")) if OUT.is_file() else []
         if not isinstance(previous,list):previous=[]
     except (OSError,ValueError):previous=[]
+    # Repair previously archived posts labelled '1 giorno fa' / '1 settimana
+    # fa' whose original importer omitted the ISO timestamp. Anchor to the
+    # FIRST collection time; never falsely date them as today's posts.
+    for post in previous:
+        if not isinstance(post,dict) or post.get("published_iso") or not post.get("published"):
+            continue
+        try:
+            anchor=datetime.fromisoformat(str(post["first_seen"]).replace("Z","+00:00"))
+        except (KeyError,ValueError,TypeError):
+            anchor=datetime.now(timezone.utc)
+        iso=published_at(post["published"],now=anchor)
+        if iso:post["published_iso"]=iso
     discovered=[]
     urls=(f"https://www.youtube.com/@{HANDLE.lstrip('@')}/posts",
           f"https://www.youtube.com/@{HANDLE.lstrip('@')}/community",
