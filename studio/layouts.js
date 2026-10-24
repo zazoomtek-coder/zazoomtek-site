@@ -185,6 +185,10 @@ async function enforceMasterTemplate(doc){
    const el=doc.createElement("script");el.src=url;el.defer=true;doc.body.appendChild(el);
   }
  }
+ if(!doc.querySelector('link[href^="/zt-master-home-nav.css"]')){
+  const homeCSS=doc.createElement("link");homeCSS.rel="stylesheet";
+  homeCSS.href="/zt-master-home-nav.css?v=20261024";doc.head.appendChild(homeCSS);
+ }
  // Populate real thumbnail cards and related links directly in the generated
  // HTML. Runtime hydration only refreshes as fallback, never creates an empty page.
  let feed;
