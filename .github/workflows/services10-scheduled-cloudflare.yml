@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: '15 10 * * *'
       timezone: 'Europe/Rome'
-    - cron: '15 12 * * *'
+    - cron: '45 12 * * *'
       timezone: 'Europe/Rome'
     - cron: '15 15 * * *'
       timezone: 'Europe/Rome'
@@ -98,6 +98,14 @@ jobs:
       - name: Retain archived videos when video collector is unavailable
         if: needs.video.result != 'success'
         run: python3 services10/state.py restore videos
+      - name: Promote approved ZazoomTek release exactly at the second editorial slot
+        if: github.event_name == 'schedule' && github.event.schedule == '45 12 * * *' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "zazoomtek-editorial-release"
+          git config user.email "actions@users.noreply.github.com"
+          git fetch origin release-2026-10-24-1245
+          git merge --no-edit origin/release-2026-10-24-1245
+          git push origin HEAD:main
       - name: Generate verified Watch pages independently
         run: python3 services10/02-video-pages.py
       - name: Generate written Community news independently
@@ -112,6 +120,10 @@ jobs:
         run: python3 services10/07-recensioni.py
       - name: Restore Studio edit link to interior pages
         run: python3 services10/08-studio.py
+      - name: Refresh dates, chronological lists and editorial sidebars
+        run: python3 services10/11-editorial-consistency.py
+      - name: Apply unified A900 review layout and full-length thumbnail editorials
+        run: python3 services10/12-unified-editorial.py
       - name: Assemble static Cloudflare snapshot without Master
         run: python3 services10/09-layout.py
       - name: Deploy published content to Cloudflare at scheduled slot
