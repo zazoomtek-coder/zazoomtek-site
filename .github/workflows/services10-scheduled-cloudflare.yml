@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: '15 10 * * *'
       timezone: 'Europe/Rome'
-    - cron: '15 12 * * *'
+    - cron: '45 12 * * *'
       timezone: 'Europe/Rome'
     - cron: '15 15 * * *'
       timezone: 'Europe/Rome'
@@ -112,6 +112,10 @@ jobs:
         run: python3 services10/07-recensioni.py
       - name: Restore Studio edit link to interior pages
         run: python3 services10/08-studio.py
+      - name: Refresh dates, chronological lists and editorial sidebars
+        run: python3 services10/11-editorial-consistency.py
+      - name: Apply unified A900 review layout and full-length thumbnail editorials
+        run: python3 services10/12-unified-editorial.py
       - name: Assemble static Cloudflare snapshot without Master
         run: python3 services10/09-layout.py
       - name: Deploy published content to Cloudflare at scheduled slot
