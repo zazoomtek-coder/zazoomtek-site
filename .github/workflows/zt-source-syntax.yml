@@ -27,7 +27,7 @@ jobs:
           node-version: '22'
       - name: Parse Python generation modules
         run: |
-          python -m py_compile services10/01-community.py services10/03-home.py services10/04-in-evidenza.py services10/05-da-non-perdere.py services10/07-recensioni.py services10/15-master-structural.py
+          python -m compileall -q services10
       - name: Parse shared JavaScript templates
         run: |
           node --check studio/layouts.js
@@ -56,6 +56,7 @@ jobs:
               assert "zt-master-header" in text, path
               assert "zt-master-rail" in text, path
               assert "ARTICOLI CORRELATI" in text, path
+              assert "zt-master-article-related" in text, path
               assert "zt-master-card" in text, path
               checked+=1
           print("Real saved pages with Master menu and thumbnail related links:",checked)
