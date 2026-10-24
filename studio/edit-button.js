@@ -9,7 +9,8 @@
         || !!localStorage.getItem("zazoomtek.studio.github.vault.v1");
     } catch (_) { return false; }
   }
-  if (!studioBrowser()) return;
+  // Editing rights are enforced by Studio/GitHub, not by the visibility of
+  // this navigation link. Showing Modifica does not grant write access.
 
   const escPath = (raw) => {
     try {
