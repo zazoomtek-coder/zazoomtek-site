@@ -61,7 +61,7 @@ def inject(root: Path = ROOT) -> int:
         # Replace old/cached JS tag(s) and install exactly one versioned
         # fallback beside the static button. JS is never required for visibility.
         updated = SCRIPT_PATTERN.sub("", updated)
-        updated = re.sub(r"</body>", lambda _: TAG + "\n</body>", updated,
+        updated = re.sub(r"\s*</body>", lambda _: "\n" + TAG + "\n</body>", updated,
                          count=1, flags=re.I)
 
         if updated != document:
