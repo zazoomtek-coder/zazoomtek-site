@@ -19,7 +19,7 @@ ROOT=Path(__file__).resolve().parents[1]
 DIST=ROOT/"dist"
 START="<!-- ZT_MASTER_SIDEBAR_START -->"
 END="<!-- ZT_MASTER_SIDEBAR_END -->"
-HEAD='<link rel="stylesheet" href="/zt-master-template.css?v=20261024">'
+HEAD='<link rel="stylesheet" href="/zt-master-template.css?v=20261024"><link rel="stylesheet" href="/zt-master-home-nav.css?v=20261024">'
 HEAD_JS='<script defer src="/zt-master-template.js?v=20261024"></script>'
 MARKERS=("ARTICLE_FEED_START","SERVICES10_COMMUNITY_HOME_START","SERVICES10_COMMUNITY_ARCHIVE_START")
 MONTHS={"gennaio":1,"febbraio":2,"marzo":3,"aprile":4,"maggio":5,
@@ -389,7 +389,24 @@ def run(module="all"):
         print("MASTER HOME:",{"duplicates_removed":removed,
                               "current_featured":len(hero),"available":len(items)})
     if module in ("layout","all"):
-        header=(ROOT/"zt-master-header.html").read_text(encoding="utf-8").strip()
+        home=DIST/"index.html"
+        homepage=home.read_text(encoding="utf-8")
+        if 'href="/ecoturismo.html"' not in homepage:
+            homepage=homepage.replace('<a href="/extra.html">Extra</a>',
+                         '<a href="/extra.html">Extra</a><a href="/ecoturismo.html">Ecoturismo</a>',1)
+            home.write_text(homepage,encoding="utf-8")
+        match=re.search(r'(?is)<header\\b[^>]*>.*?</header>',homepage)
+        if match:
+            original=match.group(0)
+            ticker=original.find('<div class="ticker">')
+            if ticker>=0:original=original[:ticker]+"</header>"
+            header=original.replace("<header>","<header class=\"zt-master-header\">",1)
+            header=header.replace('<a class="active" href="/">Home</a>',
+                                  '<a href="/">Home</a>',1)
+            header=header.replace('src="ChatGPT.png"','src="/ChatGPT.png"')
+        else:
+            header=(ROOT/"zt-master-header.html").read_text(encoding="utf-8").strip()
+        (DIST/"zt-master-header.html").write_text(header+"\n",encoding="utf-8")
         items=collect()
         ecoturismo_page(items)
         (DIST/"zt-sidebar-feed.json").write_text(
