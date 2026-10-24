@@ -265,6 +265,33 @@ def replace_between(doc,first,last,payload):
     begin=doc.index(a)+len(a);end=doc.index(b,begin)
     return doc[:begin]+"\n"+payload+"\n"+doc[end:]
 
+def ensure_home_card_images(doc):
+    """Add local cover when a Home news row lacks any thumbnail source.
+
+    Operates only inside the Article Feed marker; never edits the original
+    article page. Browser onerror covers broken remote thumbnails.
+    """
+    open_tag="<!-- ARTICLE_FEED_START -->"
+    close_tag="<!-- ARTICLE_FEED_END -->"
+    if open_tag not in doc or close_tag not in doc:return doc
+    a=doc.index(open_tag)+len(open_tag);b=doc.index(close_tag,a)
+    section=doc[a:b]
+    def with_photo(found):
+        card=found.group()
+        if re.search(r'(?is)<img\b[^>]*\bsrc=["\']\S+',card):
+            return card
+        link=LINK.search(card)
+        if not link:return card
+        href=html.escape(link.group(1),quote=True)
+        opening=re.search(r'<article\b[^>]*>',card,re.I)
+        if not opening:return card
+        picture=('<a class="zt-home-editorial-thumb" href="'+href+
+                 '"><img class="article-image" src="'+FALLBACK+
+                 '" alt="Immagine editoriale ZazoomTek" loading="lazy"></a>')
+        return card[:opening.end()]+picture+card[opening.end():]
+    section=ROW.sub(with_photo,section)
+    return doc[:a]+section+doc[b:]
+
 def master_home(doc,items):
     # Deduplicate and date-order independent content feeds before selecting Home boxes.
     total=0
@@ -272,6 +299,9 @@ def master_home(doc,items):
         ("SERVICES10_COMMUNITY_HOME_START","SERVICES10_COMMUNITY_HOME_END"),
         ("ARTICLE_FEED_START","ARTICLE_FEED_END")):
         doc,removed=dedup_region(doc,opening,closing);total+=removed
+    doc=ensure_home_card_images(doc)
+    doc=doc.replace('<div class="article-list" id="articleList">',
+                    '<div class="article-list zt-home-editorial-collection" id="articleList">',1)
     hero=featured(items)
     day=edition()["edition_day"]
     doc=replace_between(doc,"FEATURED_NEWS_START","FEATURED_NEWS_END",
