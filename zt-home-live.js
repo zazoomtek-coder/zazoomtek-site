@@ -1094,3 +1094,34 @@
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
+
+
+/* Emergency UI correction: override all delayed stylesheet injections that
+   reintroduce clip-path polygons after document CSS has already rendered. */
+(()=>{
+ "use strict";
+ function straighten(){
+   document.querySelectorAll(
+     "#articoli .ztp-news-rail .zt-special-head h2,"+
+     "#articoli .ztp-news-head h2 span,"+
+     "#articoli #zt-popular-box .zt-popular-head h2,"+
+     "#articoli .ztp-news-rail .ztp-other-news>h2,"+
+     ".zt-special-head h2,.side-head:before"
+   ).forEach(el=>{
+     if(getComputedStyle(el).clipPath!=="none" || el.style.clipPath!=="none"){
+       el.style.setProperty("clip-path","none","important");
+       el.style.setProperty("-webkit-clip-path","none","important");
+       el.style.setProperty("border-radius","0","important");
+     }
+   });
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",straighten,{once:true});
+ else straighten();
+ window.addEventListener("load",straighten,{once:true});
+ let queued=false;
+ const watcher=new MutationObserver(()=>{
+   if(queued)return;queued=true;
+   requestAnimationFrame(()=>{queued=false;straighten()});
+ });
+ watcher.observe(document.documentElement,{childList:true,subtree:true});
+})();
