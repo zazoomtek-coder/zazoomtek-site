@@ -1,0 +1,1 @@
+Emergency complete Community + public-video import and full site rebuild, 2026-10-24. Preserve archived Speciali post UgkxKBTUhabToV7GNiqyCpZ9y8WDGGjHT3FN and route all News Speciali to speciali.html with deduplication; regenerate all category and main pages; publish Cloudflare main production and purge global cache. Requested explicitly by ZazoomTek editor.
