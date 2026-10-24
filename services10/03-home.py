@@ -105,7 +105,7 @@ def deduplicate_posts(posts:list[dict])->list[dict]:
     unique=[];seen_titles=set()
     for post in sorted(by_id.values(),key=lambda p:str(p.get("published_iso") or p.get("first_seen") or ""),reverse=True):
         if not str(post.get("text") or "").strip():continue
-        key=re.sub(r"\\s+"," ",title_of(post)).casefold().strip()
+        key=re.sub(r"\s+"," ",title_of(post)).casefold().strip()
         if key in seen_titles:continue
         seen_titles.add(key);unique.append(post)
     return unique
@@ -115,7 +115,7 @@ def deduplicate_cards(cards:list[dict])->list[dict]:
     result=[];seen_urls=set();seen_titles=set()
     for item in sorted(cards,key=lambda x:str(x.get("published_iso") or x.get("first_seen") or ""),reverse=True):
         url=str(item.get("url") or "").split("?",1)[0].lower()
-        title=re.sub(r"\\s+"," ",str(item.get("title") or "")).casefold().strip()
+        title=re.sub(r"\s+"," ",str(item.get("title") or "")).casefold().strip()
         if not url or url in seen_urls or (title and title in seen_titles):continue
         seen_urls.add(url)
         if title:seen_titles.add(title)
