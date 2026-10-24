@@ -22,7 +22,7 @@ def sync_video_catalog(root:Path=ROOT)->dict:
     entries={x["id"]:x for x in original if isinstance(x,dict) and x.get("id")}
     added=0
     for video in new:
-        if not isinstance(video,dict) or video.get("type") not in ("landscape_video","youtube_video"):
+        if not isinstance(video,dict):
             continue
         vid=str(video.get("id") or "")
         if not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid):continue
@@ -31,7 +31,7 @@ def sync_video_catalog(root:Path=ROOT)->dict:
                 "publishedAt":str(video.get("published") or ""),
                 "category":"video","short":bool(video.get("short",False)), "live":False,"completedLive":False}
             added+=1
-    if added:
+    if entries:
         catalog=sorted(entries.values(),key=lambda e:e.get("publishedAt",""),reverse=True)
         (root/"home-video-feed.json").write_text(
             json.dumps(catalog,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
@@ -43,7 +43,8 @@ def sync_video_catalog(root:Path=ROOT)->dict:
     for video in horizontal:
         vid=video["id"]
         page=folder/(vid+".html")
-        if page.exists():continue
+        if page.exists() and "SERVICES10_GENERATED" not in page.read_text(encoding="utf-8"):
+            continue
         title=html.escape(str(video.get("title") or "Video ZazoomTek"))
         page.write_text(
           '<!-- SERVICES10_GENERATED -->\\n<!doctype html><html lang="it"><head><meta charset="utf-8">'
