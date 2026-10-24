@@ -211,7 +211,11 @@ async function enforceMasterTemplate(doc){
   const title=normal(item.title);
   if(url===self.toLowerCase()||seenUrls.has(url)||seenTitles.has(title))return false;
   seenUrls.add(url);seenTitles.add(title);return true;
- }).sort((a,b)=>String(b.published||"").localeCompare(String(a.published||"")));
+ });
+ // The shared JSON feed is already ordered by workday edition and daily rotation.
+ // Re-sorting here would make freshly authored Studio pages disagree with Home.
+ const editorialDay=String(feed.edition_day||"");
+ if(editorialDay)doc.body.dataset.editorialEdition=editorialDay;
  if(!pool.length)throw Error("Archivio senza miniature valide: pubblicazione interrotta.");
  const n=Math.max(1,Math.min(Math.max(1,pool.length-4),Math.ceil((article.textContent||"").length/205)));
  const selected=pool.slice(0,n),tail=pool.slice(n,n+4),related=tail.length?tail:pool.slice(0,Math.min(4,pool.length));
