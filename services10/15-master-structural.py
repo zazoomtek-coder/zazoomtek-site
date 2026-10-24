@@ -121,6 +121,17 @@ def collect():
         if page.name in ("index.html","ecoturismo.html","studio.html") or page.name.startswith(("anteprima-","recensioni-","watch-")):continue
         record=source_info(page)
         if record["title"]:records.append(record)
+    video_manifest=read_json(DIST/"home-video-feed.json")
+    for video in video_manifest if isinstance(video_manifest,list) else []:
+        if not isinstance(video,dict):continue
+        vid=str(video.get("id") or "")
+        if not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid):continue
+        path=DIST/"watch"/(vid+".html")
+        if not path.is_file():continue
+        records.append({"url":"/watch/"+vid+".html","title":str(video.get("title") or "Video ZazoomTek"),
+                        "image":"https://i.ytimg.com/vi/"+vid+"/hqdefault.jpg",
+                        "published":timestamp(video.get("publishedAt")),
+                        "category":"video"})
     community=read_json(ROOT/"services10-data"/"community.json")
     for item in community if isinstance(community,list) else []:
         pid=str(item.get("id") or "")
@@ -297,7 +308,7 @@ def insert_related_after_article(doc,section):
     begin="<!-- ZT_MASTER_RELATED_START -->"
     end="<!-- ZT_MASTER_RELATED_END -->"
     doc=re.sub(r"(?s)<!-- ZT_MASTER_RELATED_START -->.*?<!-- ZT_MASTER_RELATED_END -->","",doc)
-    opening=re.compile(r"""(?is)<(article|div|section)\b[^>]*class=["'][^"']*(?:article-main|article-body|content)\b[^"']*["'][^>]*>""")
+    opening=re.compile(r"""(?is)<(article|div|section)\b[^>]*class=["'][^"']*(?:article-main|article-body|zt-watch-article|content)\b[^"']*["'][^>]*>""")
     choices=list(opening.finditer(doc))
     # Prefer article-main; a generic content div may wrap the entire page.
     choices.sort(key=lambda m:(0 if "article-main" in m.group(0) else 1 if "article-body" in m.group(0) else 2,m.start()))
