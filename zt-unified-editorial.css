@@ -1,0 +1,44 @@
+/* ZazoomTek · editoriali fotografici e modello unico recensioni A900 Ultra · 24/10/2026 */
+.zt-unified-editorial-aside{min-width:0;position:static!important;top:auto!important;align-self:stretch!important;display:flex!important;flex-direction:column;gap:0;box-sizing:border-box}
+.zt-unified-editorial-aside .zt-ue-rail,.zt-unified-editorial-aside .zt-ue-related{margin:0 0 16px!important;padding:0!important;overflow:hidden;background:#fff;border:1px solid #dedede;border-radius:0!important;box-shadow:0 3px 10px rgba(0,0,0,.05)}
+.zt-unified-editorial-aside .zt-ue-rail{display:flex;flex-direction:column;flex:1 0 auto}
+.zt-unified-editorial-aside .zt-ue-rail h2,.zt-unified-editorial-aside .zt-ue-related h2{display:block!important;margin:0!important;padding:12px 14px!important;background:#202020!important;color:white!important;border:0!important;border-left:5px solid #d51232!important;border-radius:0!important;clip-path:none!important;font:bold 14px/1.25 Arial,Helvetica,sans-serif!important;text-transform:uppercase}
+.zt-unified-editorial-aside .zt-ue-rail-list{display:flex;flex-direction:column;justify-content:space-between;flex:1}
+.zt-unified-editorial-aside .zt-ue-card{display:grid!important;grid-template-columns:minmax(98px,41%) minmax(0,1fr);gap:10px;align-items:center;padding:10px!important;margin:0!important;background:#fff!important;border:0!important;border-bottom:1px solid #ececec!important;color:#222!important;text-decoration:none!important;min-width:0}
+.zt-unified-editorial-aside .zt-ue-card:last-child{border-bottom:0!important}
+.zt-unified-editorial-aside .zt-ue-card img{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;aspect-ratio:16/9;object-fit:cover;object-position:center;border:0!important;border-radius:0!important;filter:none!important}
+.zt-unified-editorial-aside .zt-ue-card span{display:block;min-width:0}
+.zt-unified-editorial-aside .zt-ue-card strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;font:bold 12px/1.33 Arial,Helvetica,sans-serif;color:#222;letter-spacing:0}
+.zt-unified-editorial-aside .zt-ue-card:hover strong{color:#d51232}
+.zt-unified-editorial-aside .zt-ue-related{flex:0 0 auto;margin-top:auto!important}
+.zt-unified-editorial-aside .zt-ue-related-list{display:flex;flex-direction:column}
+body:has(.zt-unified-editorial-aside) .article-main .zt-related-section,
+body:has(.zt-unified-editorial-aside) .article-main .zt-ec-related{display:none!important}
+body:has(>main>.zt-unified-editorial-aside)>main{align-items:start}
+@media(max-width:1100px){.zt-unified-editorial-aside{align-self:start!important}}
+@media(max-width:700px){.zt-unified-editorial-aside{display:block!important}.zt-unified-editorial-aside .zt-ue-card{grid-template-columns:42% minmax(0,1fr)}.zt-unified-editorial-aside .zt-ue-card strong{font-size:13px}}
+/* Geometrie, tipografia e valutazioni in stile 70mai A900 Ultra per Tech e Gaming */
+body.zt-a900-unified-review .layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start;margin:20px auto 54px}
+body.zt-a900-unified-review .content{min-width:0;background:#fff;border:1px solid #dedede;padding:30px 36px 42px}
+body.zt-a900-unified-review .content h1{font-size:clamp(27px,3.25vw,41px);line-height:1.18;letter-spacing:-.025em;margin:0 0 12px;font-weight:900}
+body.zt-a900-unified-review .meta{font-size:12px;color:#777;display:flex;flex-wrap:wrap;gap:14px;margin-bottom:17px}
+body.zt-a900-unified-review .content img.hero{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#eee}
+body.zt-a900-unified-review .article-main p{margin:0 0 13px;font-size:16px;line-height:1.7}
+body.zt-a900-unified-review .article-main p.lead{font-weight:700;font-size:17px;color:#303030}
+body.zt-a900-unified-review .article-main h2{font-size:23px;color:#171717;line-height:1.25;border-left:5px solid #d51232;padding-left:13px;margin:25px 0 9px;font-weight:900}
+body.zt-a900-unified-review .article-main .editorial-media{margin:15px 0 21px}
+body.zt-a900-unified-review .article-main .editorial-media img{width:100%;height:auto;object-fit:cover;display:block}
+body.zt-a900-unified-review .article-main .rating{display:flex;align-items:center;gap:20px;border-top:4px solid #d51232;background:#f7f7f7;padding:24px;margin:27px 0}
+body.zt-a900-unified-review .article-main .rating div{flex-shrink:0;text-align:center}
+body.zt-a900-unified-review .article-main .rating small{font-size:12px;color:#bc1330;font-weight:900;display:block}
+body.zt-a900-unified-review .article-main .rating strong{font-size:60px;line-height:1.05}
+body.zt-a900-unified-review .article-main .rating strong span{font-size:29px;color:#888}
+body.zt-a900-unified-review .article-main .rating p{margin:0;font-size:14px}
+body.zt-a900-unified-review .article-main .proscons{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0 10px}
+body.zt-a900-unified-review .article-main .proscons section{background:#fbfbfb;border:1px solid #e8e8e8;padding:14px 17px}
+body.zt-a900-unified-review .article-main .proscons h2{padding:0;margin:0 0 10px;border:0;color:#2e7b4d;font-size:21px}
+body.zt-a900-unified-review .article-main .proscons .cons h2{color:#b8213c}
+body.zt-a900-unified-review .article-main .proscons ul{margin:0;padding-left:20px}
+body.zt-a900-unified-review .article-main .proscons li{margin:0 0 7px;font-size:14px;line-height:1.45}
+@media(max-width:1100px){body.zt-a900-unified-review .layout{grid-template-columns:1fr}}
+@media(max-width:700px){body.zt-a900-unified-review .content{padding:18px 15px 28px}body.zt-a900-unified-review .article-main .proscons{grid-template-columns:1fr}body.zt-a900-unified-review .article-main .rating strong{font-size:46px}}
