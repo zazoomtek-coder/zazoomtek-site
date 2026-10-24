@@ -400,9 +400,10 @@ def sidebar(items,current,main):
     if not related:related=pool[:min(4,len(pool))]
     def card(item):
         label=html.escape(item["title"],quote=True)
+        backup=html.escape(item.get("image_fallback") or FALLBACK,quote=True)
         return ('<a class="zt-master-card" href="'+html.escape(item["url"],quote=True)+'">'+
                 '<img loading="lazy" decoding="async" src="'+html.escape(item.get("image") or FALLBACK,quote=True)+
-                '" onerror="this.onerror=null;this.src=\''+FALLBACK+'\'" alt="'+label+'">'+
+                '" data-image-backup="'+backup+'" alt="'+label+'">'+
                 '<span class="zt-master-copy"><strong>'+label+'</strong>'+
                 '<small class="zt-card-snippet">'+html.escape(item.get("snippet") or "Leggi l'approfondimento completo.",quote=True)+'</small></span></a>')
     groups=[]
