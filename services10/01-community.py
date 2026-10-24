@@ -19,7 +19,7 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"services10-data"/"community.json"
 HANDLE=os.environ.get("ZT_YOUTUBE_HANDLE","ZazoomTek")
 CHANNEL=os.environ.get("ZT_YOUTUBE_CHANNEL_ID","UCJs0ZT10hUiPRD0UZtUpI1Q")
-POST_ID=re.compile(r"^Ugkx[A-Za-z0-9_-]{3,100}$")
+POST_ID=re.compile(r"^[A-Za-z0-9_-]{6,128}$")
 
 def walk(node):
     if isinstance(node,dict):
@@ -29,6 +29,7 @@ def walk(node):
         for child in node:yield from walk(child)
 
 def text(node):
+    if isinstance(node,str):return node
     if not isinstance(node,dict):return ""
     if node.get("simpleText") is not None:
         return str(node["simpleText"])
@@ -118,7 +119,7 @@ def extract(page):
     found=[];seen=set()
     now=datetime.now(timezone.utc).isoformat()
     for obj in walk(root):
-        post=obj.get("backstagePostRenderer") or obj.get("postRenderer")
+        post=obj.get("backstagePostRenderer") or obj.get("postRenderer") or obj.get("backstagePostThreadRenderer")
         if not isinstance(post,dict):continue
         pid=str(post.get("postId") or post.get("backstagePostId") or post.get("id") or "")
         if not POST_ID.fullmatch(pid) or pid in seen:continue
@@ -147,9 +148,10 @@ def extract(page):
             elif has_video:
                 body="Video condiviso nella Community YouTube "+pid
             else:
-                # An empty malformed renderer is not a real publishable post.
-                continue
-        label=text(post.get("publishedTimeText") or {})
+                # Save an identified post even if the frontend omitted its text.
+                # A later scan can replace the placeholder with complete content.
+                body="Contenuto Community YouTube "+pid
+        label=text(post.get("publishedTimeText") or post.get("publishedTime") or {})
         seen.add(pid)
         found.append({"id":pid,"title":body.splitlines()[0][:180],
            "text":body,"url":"https://www.youtube.com/post/"+pid,
@@ -214,7 +216,8 @@ def main():
                 print("Community source unavailable:",url,"attempt:",attempt+1,
                       "reason:",type(exc).__name__)
     if not discovered:
-        print("Community unavailable: retaining",len(previous),"existing posts")
+        print("Community source returned no parseable posts; retaining",
+              len(previous),"archived records; current coverage unverified")
         return
     result=merge(previous,discovered)
     OUT.parent.mkdir(parents=True,exist_ok=True)
