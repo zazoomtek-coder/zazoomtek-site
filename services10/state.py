@@ -60,13 +60,13 @@ def published_video_ids(commit: str) -> set[str]:
     except (ValueError, OSError):
         cached = []
     return {str(row["id"]) for row in union(from_branch(commit, FILES["videos"]), cached)
-            if row.get("type") == "landscape_video" and row.get("id")}
+            if row.get("type") in ("landscape_video", "youtube_video") and row.get("id")}
 
 def eligible_published_records(rows):
     """Never resurrect an explicitly unverified long video as a verified 16:9."""
     return [row for row in rows if isinstance(row, dict)
             and row.get("verification") != "duration_over_3m_not_short"
-            and row.get("orientation") != "unverified"]
+            and (row.get("orientation") != "unverified" or row.get("type") == "youtube_video")]
 
 
 def restore(kind: str):
