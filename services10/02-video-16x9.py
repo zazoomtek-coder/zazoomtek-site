@@ -250,29 +250,31 @@ def confirmed_ids(root: Path = ROOT) -> set[str]:
 
 def classify(item: dict, approved: set[str], channel: str = CHANNEL,
              geometry: dict[str, dict] | None = None) -> tuple[str, dict | None]:
-    """Approve only (>180 seconds) AND independently verified display 16:9."""
+    """Catalog all public channel uploads; classify their format without excluding them."""
     vid = str(item.get("id") or "")
     snippet = item.get("snippet") or {}
     details = item.get("contentDetails") or {}
     status = item.get("status") or {}
-    if not VIDEO_ID.fullmatch(vid) or snippet.get("channelId") != channel:
+    if not VIDEO_ID.fullmatch(vid) or snippet.get("channelId") not in (None,channel):
         return "other", None
-    if snippet.get("liveBroadcastContent") in ("live", "upcoming"):
-        return "other", None
+    # Only actually public uploads can be mirrored: private/deleted or
+    # unlisted owner content is not a public channel publication.
     if status.get("privacyStatus") not in (None, "public"):
         return "other", None
-    if status.get("embeddable") is False:
-        return "other", None
-    seconds = duration_seconds(details.get("duration") or "")
-    if seconds is None or seconds <= 0:
-        return "other", None
-    is_short = seconds <= 180
-    record = {"id": vid, "title": str(snippet.get("title") or ""),
+    seconds = duration_seconds(details.get("duration") or "") or 0
+    live_status=str(snippet.get("liveBroadcastContent") or "none")
+    is_short = bool(seconds > 0 and seconds <= 180 and live_status=="none")
+    record = {"id": vid, "title": str(snippet.get("title") or "Video ZazoomTek"),
               "published": str(snippet.get("publishedAt") or ""),
               "url": "https://www.youtube.com/watch?v=" + vid,
-              "duration_seconds": seconds, "short": is_short}
-    if not record["title"]:
-        return "other", None
+              "duration_seconds": seconds, "short": is_short,
+              "live": live_status, "embeddable": status.get("embeddable") is not False}
+    # Live/upcoming and duration-unknown public records must be indexed, even
+    # when YouTube does not yet report a final duration/frame geometry.
+    if live_status in ("live","upcoming") or seconds==0:
+        record.update({"type":"youtube_video","verification":"official_youtube_metadata",
+                       "orientation":"unverified"})
+        return "youtube",record
     if is_short:
         record.update({"type": "youtube_video", "verification": "official_youtube_metadata",
                        "orientation": "unverified"})
