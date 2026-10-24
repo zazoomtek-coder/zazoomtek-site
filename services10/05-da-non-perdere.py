@@ -25,15 +25,15 @@ def deduplicate_cards(document:str)->list[dict]:
     section=document.split("<!-- ARTICLE_FEED_START -->",1)[1].split("<!-- ARTICLE_FEED_END -->",1)[0]
     cutoff=(datetime.now(ZoneInfo("Europe/Rome")).date()-timedelta(days=2)).isoformat()
     rows=[]
-    for article in re.findall(r'<article\\b[^>]*class="article-row"[^>]*>[\\s\\S]*?</article>',section,re.I):
-        if not re.search(r'data-post-category=["\\']tech["\\']',article,re.I):continue
-        title=re.search(r'<h3\\b[^>]*>\\s*<a\\b[^>]*href=["\\']([^"\\']+)["\\'][^>]*>([\\s\\S]*?)</a>',article,re.I)
-        picture=re.search(r'<img\\b[^>]*\\bsrc=["\\']([^"\\']+)',article,re.I)
-        date=re.search(r'data-published-at=["\\'](20\\d\\d-\\d\\d-\\d\\d)',article,re.I)
+    for article in re.findall(r'<article\b[^>]*class="article-row"[^>]*>[\s\S]*?</article>',section,re.I):
+        if not re.search(r'data-post-category=["\']tech["\']',article,re.I):continue
+        title=re.search(r'<h3\b[^>]*>\s*<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>([\s\S]*?)</a>',article,re.I)
+        picture=re.search(r'<img\b[^>]*\bsrc=["\']([^"\']+)',article,re.I)
+        date=re.search(r'data-published-at=["\'](20\d\d-\d\d-\d\d)',article,re.I)
         if not (title and picture and date) or date.group(1)<cutoff:continue
         href=html.unescape(title.group(1)).split("?",1)[0].strip()
         if not href.startswith("/"):href="/"+href
-        label=re.sub(r"\\s+"," ",html.unescape(re.sub(r"<[^>]+>","",title.group(2)))).strip()
+        label=re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>","",title.group(2)))).strip()
         cover=html.unescape(picture.group(1))
         if label and cover:rows.append(dict(url=href,title=label,image=cover,date=date.group(1)))
     unique=[];seen_urls=set();seen_titles=set()
@@ -64,10 +64,10 @@ def update(root:Path=ROOT)->int:
     selected=cards_from_home(original)
     a=original.index(START)+len(START)
     b=original.index(END,a)
-    document=original[:a]+"\\n"+"\\n".join(selected)+"\\n"+original[b:]
+    document=original[:a]+"\n"+"\n".join(selected)+"\n"+original[b:]
     for old_id in (STYLE_ID,"zt-services10-popular-eight"):
-        document=re.sub(r'<style id="'+old_id+r'">[\\s\\S]*?</style>',"",document)
-    document=document.replace("</head>",STYLE+"\\n</head>",1)
+        document=re.sub(r'<style id="'+old_id+r'">[\s\S]*?</style>',"",document)
+    document=document.replace("</head>",STYLE+"\n</head>",1)
     if document!=original:page.write_text(document,encoding="utf-8")
     print("Da non perdere: latest 48-hour unique Tech stories:",len(selected))
     return len(selected)
