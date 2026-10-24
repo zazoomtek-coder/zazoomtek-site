@@ -271,7 +271,7 @@
 
   // Fill remaining vertical space with published articles, never blank padding.
   // Entries come from real, distinct archived news URLs on ZazoomTek.
-  const sidebarEditorials=[{"title":"Tales of Eternia Remastered è disponibile ora su PC e console","url":"/news-UgkxHKjqDM_6w4x_d1JfWv0MwO8uWY5mvxdT.html","image":"https://yt3.ggpht.com/NSskrfq9i9pljVhldYWumZrovdtp82LmvZfIW8rtDikqxnb4uoolWuacle8xv6glmVcqWcLjw0NEzg=s1600-rw-nd-v1"},{"title":"Galaxies Autumn Showcase 2026 presenta oltre 50 giochi tra Castlevania, THE FINALS, inZOI e Planet Zoo 2","url":"/news-UgkxmeHWU7RwhPehvkplGPHZSjz6XYDe4E4O.html","image":"https://yt3.ggpht.com/gSeRUTW_RIWbq87H9LzOZpXej9mDPHi_0HzFf_cKL5tS_4j4u3rx3hkp06GgNUrIq9_GZZrX_PAxVw=s1600-rw-nd-v1"},{"title":"PEAK arriva su console quest’autunno, edizione fisica PS5 il 9 dicembre con Buddy Code","url":"/news-Ugkx-OXj6pKP_zwDIxvYCYT3NmR331k4FNzI.html","image":"https://yt3.ggpht.com/ogtzPVCaC-4zyiiRaFxwo61JyFQIAmvUsHG06LOoOivOrrj7yfMtjaRsBdFvhPsaOOXw7f__iTfq=s1600-rw-nd-v1"},{"title":"Star Wars Zero Company, la Patch 1.2 introduce i Modificatori della campagna e nuove opzioni di difficoltà","url":"/news-UgkxfPFvMsM74hTZC1vCygxkY4P6ZVEVd3rz.html","image":"https://yt3.ggpht.com/STsF27-F5OGSpk1-DSrn_oRI6B0h9bqRxY-jzo0mUbH8w3LMeQ3lqM9ojtjMRa_Ep5klArdrcwUfCQ=s1600-rw-nd-v1"},{"title":"Acts of Blood arriva su PC il 4 dicembre, versioni PS5 e Xbox Series X|S nel 2027","url":"/news-UgkxanA_bg3ewHe8h6QlwNX-x68h4g3KFnJl.html","image":"https://yt3.ggpht.com/ecd6waU4I99z3DspUmPeHk0uRpu85SRaH2Y62whLuJ6ccAG4gk-al2PqPV6ZBPA8TNrEndVRLt0lYQ=s1600-rw-nd-v1"},{"title":"Wreckfest 2, l’aggiornamento 9 aggiunge Deathloop 2, nuove auto e modalità","url":"/news-UgkxnO7wMKAA5-asrOgA4z9nFwqxPBaShPTz.html","image":"https://yt3.ggpht.com/mj2HgBiZLuzl-NVQjYD67e4tY3EplPVGrj2gLMjOoRAQJJdZcIQoiMSx-zSyjFhMqpStFah17ENmdi4=s1600-rw-nd-v1"},{"title":"Forge of the Fae arriva a marzo 2027 con un JRPG ispirato all’Irlanda del XIX secolo","url":"/news-Ugkx5hB09T4oM2Oph87ieWwY9aaVQvh3ucFS.html","image":"https://yt3.ggpht.com/LrbgAzhcrSczu_JPGoEHWtIJLzMbtjISzsGlpGlvyZaojQDQssujy1_27J0Pl_hRbJowtr5ebCtAiHk=s1600-rw-nd-v1"},{"title":"It Takes Two arriva su Nintendo Switch 2 con upgrade gratuito e cross-play tramite Pass amici","url":"/news-UgkxmhTWoKHgoMFRBVCVwarDzbQ13biS-HcH.html","image":"https://yt3.ggpht.com/amVWYeD14sFZPuyG3TZHB1xA_9ST6teuh0AfUol8wjzXEJSvXG8hlLdh5Ms3LNsAz9LZiScmSken5Q=s1600-rw-nd-v1"},{"title":"GeForce NOW si aggiorna con NVIDIA DLSS 4.5 e 10 nuovi giochi in arrivo questa settimana","url":"/news-UgkxQY-hCQCCMw3WlbF-zCPiRlsc0UEmSE81.html","image":"https://yt3.ggpht.com/nFRoX0S_44wRJvGoK9RpxYmwb_IGmoJrpoG4chRdjUmchMrRrofxZbmsfmBM3wwQNoRpRkBxgL1kYAA=s1600-rw-nd-v1"},{"title":"WWE 2K26 incontra Street Fighter con un nuovo Elite Pack in arrivo il 28 ottobre","url":"/news-Ugkx9dHcFpP5d1qd5Qby_oVDcCx-FVADEW46.html","image":"https://yt3.ggpht.com/2WRvIMuOnbRtWY6x33k4bAQ6qfZDD8rbUJczrZF8Ta4yiQE0ChchUofLYysHvoKO3EUtwDTsA9Ix1Q=s1600-rw-nd-v1"},{"title":"Bluey’s Happy Snaps è disponibile ora su console e PC con esplorazione, fotografie e gioco creativo","url":"/news-UgkxPCOgryK5A4RSA43juUimmAUZVqL7vhSE.html","image":"https://yt3.ggpht.com/jPHEWNqf9UmyL_gsNDdRlpVxDBD4mIILZ4_3ajbI_xcAo8uuaIrgbeOaNFdLzeLXOotGguVC-tQJag=s1600-rw-nd-v1"},{"title":"VAULTBREAKERS apre l’alpha test pubblico con modalità PvPvE, cinque personaggi e due mappe","url":"/news-Ugkxh7FEm6Cn8P9uU9f6xvh_CJVfQqzEfahc.html","image":"https://yt3.ggpht.com/MF6iX-mRu2bmPVMKHQ1JToYE-zbWNhSs_C9PfoIM4CjIuuVPIa971zfy0FhdI15OFFUqcooous_3RGc=s1600-rw-nd-v1"}];
+  // Editorial rail uses live sidebar JSON refreshed daily; no embedded stale headline list.
   // Only ALTRE NEWS stays in this position. DALLA REDAZIONE is removed.
   const ytFollow=rail.querySelector(".zt-youtube-follow");
   // Some asynchronous Home enhancers mount another compact Tech-review panel
@@ -310,6 +310,9 @@
   let otherSignature="";
   let otherRendering=false;
   const isInternalArticle=(path)=>/^\/(?:[a-zA-Z0-9._-]+|watch\/[a-zA-Z0-9_-]{11})\.html$/.test(path);
+  const normalizeEditorialTitle=(value)=>String(value||"").normalize("NFKC").replace(/\\s+/g," ").trim().toLocaleLowerCase("it");
+  const RIGHT_REFRESH_MS=24*60*60*1000;
+  let lastRightRefresh=0;
   const shuffle=(rows)=>{
     const result=rows.slice();
     for(let i=result.length-1;i>0;i--){
@@ -319,6 +322,10 @@
     return result;
   };
   function loadOtherNews(){
+    // At most one reload per 24 hours while the Home remains open.
+    const now=Date.now();
+    if(lastRightRefresh && now-lastRightRefresh<RIGHT_REFRESH_MS)return;
+    lastRightRefresh=now;
     Promise.all([
       fetch("/zt-sidebar-feed.json",{cache:"no-store"}).then(r=>r.ok?r.json():{}).catch(()=>({})),
       fetch("/home-video-feed.json",{cache:"no-store"}).then(r=>r.ok?r.json():[]).catch(()=>[])
@@ -335,7 +342,7 @@
         image:"https://i.ytimg.com/vi/"+row.id+"/hqdefault.jpg"
       })):[];
       groups.push(shuffle(verifiedVideos).slice(0,20));
-      const urls=new Set(),records=[];
+      const urls=new Set(),titles=new Set(),records=[];
       for(let round=0;round<50;round++){
         let found=false;
         for(const group of groups){
@@ -344,8 +351,9 @@
           found=true;
           if(typeof item.title!=="string"||typeof item.image!=="string")continue;
           const url=String(item.url||"");
-          if(!isInternalArticle(url)||urls.has(url))continue;
-          urls.add(url);
+          const normalized=normalizeEditorialTitle(item.title);
+          if(!isInternalArticle(url)||urls.has(url)||!normalized||titles.has(normalized))continue;
+          urls.add(url);titles.add(normalized);
           records.push({title:item.title,url,image:item.image});
         }
         if(!found)break;
@@ -361,7 +369,12 @@
       return;
     }
     otherRendering=true;
-    const available=otherPool.filter(item=>!visible.has(item.url));
+    const displayedTitles=new Set([...document.querySelectorAll(
+      "#ztFeaturedGrid a[href],.ztp-news-column .article-copy h3 a[href],"+
+      "#zt-popular-box strong,.zt-special-box h3,.ztp-other-news-list strong"
+    )].filter(el=>!otherList.contains(el)).map(el=>normalizeEditorialTitle(el.textContent)).filter(Boolean));
+    const available=otherPool.filter(item=>!visible.has(item.url)
+      && !displayedTitles.has(normalizeEditorialTitle(item.title)));
     if(!available.length){
       otherBox.hidden=true;otherList.replaceChildren();
       otherSignature="";otherRendering=false;return;
@@ -428,6 +441,9 @@
     });
   }
   loadOtherNews();
+  // Daily refresh of the editorial rail; Cloudflare's five daily slots keep
+  // source JSON up to date independently of the browser refresh.
+  window.setInterval(()=>{loadOtherNews();},RIGHT_REFRESH_MS);
 
   // Home Shorts removed; editorial remains a real-news shelf.
   // Three large and real editorial images; keep article links, never inject placeholders.
