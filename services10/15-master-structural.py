@@ -395,7 +395,7 @@ def run(module="all"):
             homepage=homepage.replace('<a href="/extra.html">Extra</a>',
                          '<a href="/extra.html">Extra</a><a href="/ecoturismo.html">Ecoturismo</a>',1)
             home.write_text(homepage,encoding="utf-8")
-        match=re.search(r'(?is)<header\\b[^>]*>.*?</header>',homepage)
+        match=re.search(r'(?is)<header\b[^>]*>.*?</header>',homepage)
         if match:
             original=match.group(0)
             ticker=original.find('<div class="ticker">')
