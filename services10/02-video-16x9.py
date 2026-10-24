@@ -268,7 +268,9 @@ def classify(item: dict, approved: set[str], channel: str = CHANNEL,
     if source_details is not None:
         # Owner-provided geometry takes precedence over any stale registry.
         if not verified_16x9(source_details):
-            return "non_16x9", None
+            record.update({"type": "youtube_video", "verification": "official_youtube_metadata",
+                           "orientation": "not_16x9"})
+            return "youtube", record
         record.update({"type": "landscape_video", "verification": "owner_file_details_16x9",
                        "orientation": "16:9_confirmed"})
         return "landscape", record
