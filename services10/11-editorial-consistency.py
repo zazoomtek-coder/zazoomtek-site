@@ -194,8 +194,9 @@ def sort_archive(root,path,stories,cache,community):
     # Keep slots and intervening section markup/comments intact.
     ordered.sort(key=lambda v:(v[0],v[1]),reverse=True)
     new=region
-    for old,rec in reversed(list(zip(rows,ordered))):
-        new=new[:old.start()]+rec[2]+new[old.end():]
+    replacements=[r[2] for r in ordered]+[""]*max(0,len(rows)-len(ordered))
+    for old,new_card in reversed(list(zip(rows,replacements))):
+        new=new[:old.start()]+new_card+new[old.end():]
     updated=s[:match.end()]+new+s[stop:]
     if updated!=s:path.write_text(updated,encoding="utf-8")
     return updated!=s,len(ordered)
@@ -317,6 +318,70 @@ def update_detail(root,page,stories,cache,community):
     if changed!=doc:page.write_text(changed,encoding="utf-8")
     return changed!=doc
 
+def update_home_specials(root,stories):
+    """Two real, distinct editorial investigations; never duplicate Home posts."""
+    path=root/"index.html"
+    if not path.is_file():return 0
+    document=path.read_text(encoding="utf-8")
+    start="<!-- HOME_SPECIALI_CARDS_START -->"
+    end="<!-- HOME_SPECIALI_CARDS_END -->"
+    if start not in document or end not in document:return 0
+    a=document.index(start)+len(start);b=document.index(end,a)
+    elsewhere=document[:a]+document[b:]
+    candidates=[v for v in stories.values() if v["img"] and
+                (root/v["href"].lstrip("/")).is_file()]
+    # Speciali first; then authentic Insights in-depth stories, not fictional pages.
+    priority={"special":3,"tech":2,"gaming":2,"reviews":0,"general":0}
+    candidates.sort(key=lambda v:(priority.get(v["category"],0),v["date"]),reverse=True)
+    used_title=set();selected=[]
+    for x in candidates:
+        if x["category"] not in ("special","tech","gaming"):continue
+        if x["href"] in elsewhere and x["category"]!="special":continue
+        if x["href"] in (y["href"] for y in selected):continue
+        key=normal(x["title"])
+        if key in used_title:continue
+        used_title.add(key);selected.append(x)
+        if len(selected)==2:break
+    if len(selected)<2:
+        # Do not substitute an unrelated item merely to fill a design slot.
+        return len(selected)
+    cards=[]
+    for story in selected:
+        url=html.escape(story["href"],quote=True)
+        title=html.escape(story["title"],quote=True)
+        cover=html.escape(story["img"],quote=True)
+        stamp=(f'<time datetime="{story["date"]}">{format_date(story["date"])}</time>'
+               if story["date"] else "")
+        cards.append('<article class="zt-special-item"><a href="'+url+
+          '" class="zt-special-thumb" aria-label="'+title+'"><img src="'+cover+
+          '" loading="lazy" decoding="async" alt="'+title+'"></a><h3><a href="'+
+          url+'">'+title+'</a></h3>'+stamp+'</article>')
+    new=document[:a]+"\n"+"\n".join(cards)+"\n"+document[b:]
+    if new!=document:path.write_text(new,encoding="utf-8")
+    return len(selected)
+
+def update_archive_rails(root,stories):
+    """Fill the archive sidebar through the lower page, not just the first screen."""
+    n=0
+    for filename in ARCHIVES:
+        path=root/filename
+        if not path.is_file():continue
+        s=path.read_text(encoding="utf-8")
+        s=re.sub(r'(?s)<!-- ZT_EDITORIAL_RAIL_START -->.*?<!-- ZT_EDITORIAL_RAIL_END -->',"",s)
+        s=re.sub(r'(?s)<style id="zt-editorial-consistency-style">.*?</style>',"",s)
+        aside=re.search(r'<aside\b[^>]*class=["\'][^"\']*\bnews-sidebar\b[^"\']*["\'][^>]*>',s,re.I)
+        if not aside:continue
+        end=s.find("</aside>",aside.end())
+        if end<0:continue
+        context={"href":"/"+filename,"title":filename,"date":"",
+                 "category":"general"}
+        rail=rail_html(stories,context,root)
+        if "</head>" in s:s=s.replace("</head>",STYLE+"\n</head>",1)
+        s=s[:end]+rail+s[end:]
+        path.write_text(s,encoding="utf-8")
+        n+=1
+    return n
+
 def update(root=ROOT):
     cache={}; community=community_dates(root)
     stories=extract_rows(root,cache,community)
@@ -326,6 +391,8 @@ def update(root=ROOT):
         if not file.is_file():continue
         changed,n=sort_archive(root,file,stories,cache,community)
         counters["archives"]+=int(changed);counters["archive_cards"]+=n
+    counters["special_thumbnails"]=update_home_specials(root,stories)
+    counters["archive_rails"]=update_archive_rails(root,stories)
     for page in root.glob("*.html"):
         if page.name.startswith("news-") and re.match(r"news-\d+\.html",page.name):continue
         counters["details"]+=int(update_detail(root,page,stories,cache,community))
