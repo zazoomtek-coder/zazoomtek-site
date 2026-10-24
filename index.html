@@ -42,7 +42,7 @@ header{background:#171717;color:#fff;border-top:3px solid transparent;border-ima
 .sidebar{min-width:0;align-self:start;height:max-content;position:sticky;top:var(--zt-smart-sticky-top,16px)}
 .side-module{margin-bottom:20px;border:1px solid #dedede;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.07)}
 .side-head{height:50px;background:#111a23;color:#fff;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;text-transform:uppercase}
-.side-head:before{content:"";position:absolute;inset:0 auto 0 0;width:66%;background:#D51232;clip-path:polygon(0 0,88% 0,100% 100%,0 100%)}
+.side-head:before{content:"";position:absolute;inset:0 auto 0 0;width:66%;background:#D51232;clip-path:none}
 .side-head-title,.side-head-more{position:relative;z-index:1;display:flex;align-items:center;height:100%;color:#fff;text-decoration:none;font-weight:900}
 .side-head-title{padding:0 15px;font-size:.82rem;letter-spacing:.025em}
 .side-head-more{padding:0 13px;font-size:.64rem;color:#e7e7e7;white-space:nowrap}
@@ -307,7 +307,7 @@ footer{background:#161616;color:#aaa;margin-top:0;padding:26px 0}.footer-links,.
 /* Solo nuova sezione dopo il secondo banner Amazon nella Home. */
 #zt-popular-box{background:#fff;border:1px solid #e2e2e2;margin:0 0 20px;overflow:hidden}
 #zt-popular-box .zt-popular-head{height:49px;background:#202020;display:flex;align-items:stretch;color:#fff}
-#zt-popular-box .zt-popular-head h2{margin:0;display:flex;align-items:center;background:#d51232;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%);padding:0 34px 0 16px;font-size:16px;line-height:1;font-weight:900;letter-spacing:.025em;color:#fff}
+#zt-popular-box .zt-popular-head h2{margin:0;display:flex;align-items:center;background:#d51232;clip-path:none;padding:0 34px 0 16px;font-size:16px;line-height:1;font-weight:900;letter-spacing:.025em;color:#fff}
 #zt-popular-box .zt-popular-list{padding:11px 12px}
 #zt-popular-box .zt-popular-article{display:grid;grid-template-columns:89px minmax(0,1fr);gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid #e9e9e9;min-width:0;text-decoration:none}
 #zt-popular-box .zt-popular-article:last-child{border-bottom:0}
@@ -368,7 +368,7 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 /* GUIDE Home: approved perfectly symmetric two-card layout; preserve the actual published guides. */
 #ztHomeGuide{margin:0 10px 14px;display:block;min-width:0;background:#fff;border:1px solid #dfdfdf;box-shadow:0 2px 8px #0000000b;overflow:hidden}
 #ztHomeGuide .zt-home-guide-heading{height:48px;display:flex;align-items:center;justify-content:space-between;background:#202020;color:#fff}
-#ztHomeGuide .zt-home-guide-heading h2{height:100%;display:flex;align-items:center;margin:0;padding:0 38px 0 21px;background:#d51232;color:#fff;clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%);font-size:17px;font-weight:900;letter-spacing:.25px}
+#ztHomeGuide .zt-home-guide-heading h2{height:100%;display:flex;align-items:center;margin:0;padding:0 38px 0 21px;background:#d51232;color:#fff;clip-path:none;font-size:17px;font-weight:900;letter-spacing:.25px}
 #ztHomeGuide .zt-home-guide-heading a{font-size:11px;font-weight:900;margin-right:21px;color:#fff;letter-spacing:.3px}
 #ztHomeGuide .zt-home-guide-heading a:hover{text-decoration:underline}
 #ztHomeGuide .zt-home-guide-content{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,.87fr);gap:16px;padding:16px;align-items:stretch;height:380px}
@@ -426,7 +426,7 @@ footer.zt-unified-footer a[href="/chi-sono.html"]{display:none!important}
 .ztp-news-column{min-width:0;border:1px solid #dedede;background:white;overflow:hidden;box-shadow:0 1px 3px #00000009}
 .ztp-news-head{min-height:62px;background:#202020;color:#fff;display:flex;align-items:stretch;justify-content:space-between;gap:8px;overflow:hidden}
 .ztp-news-head h2{margin:0;display:flex;align-items:stretch;min-width:0;font:900 clamp(12px,1.05vw,17px)/1 Arial,Helvetica,sans-serif!important;color:#fff!important;letter-spacing:0!important}
-.ztp-news-head h2 span{display:flex;align-items:center;white-space:nowrap;padding:12px 18px 12px 13px;background:#d51232;clip-path:polygon(0 0,calc(100% - 11px) 0,100% 100%,0 100%)}
+.ztp-news-head h2 span{display:flex;align-items:center;white-space:nowrap;padding:12px 18px 12px 13px;background:#d51232;clip-path:none}
 .ztp-news-head h2 b{display:flex;align-items:center;white-space:nowrap;padding:12px 5px 12px 8px;color:white}
 .ztp-news-head small{font:700 11px Arial,sans-serif;color:#ddd;align-self:center;padding-right:11px;white-space:nowrap}
 .ztp-news-items{padding:0 12px}
@@ -781,6 +781,23 @@ html.ztp-home-live-ready #ztCanonicalNews{display:none!important}
 #articoli .ztp-news-head{background:#202020!important}
 #articoli .ztp-news-head h2 span{background:#d51232!important}
 #articoli .ztp-news-head h2 b{background:transparent!important}
+</style>
+<style id="zt-20261024-real-square-header-hotfix">
+#zt-popular-box .zt-popular-head h2,
+#ztHomeGuide .zt-home-guide-heading h2,
+#articoli .ztp-news-head h2 span,
+#articoli .ztp-news-head h2 b,
+.ztp-news-rail .zt-special-head h2,
+.ztp-news-rail .zt-special-head,
+.ztp-news-rail .ztp-other-news>h2,
+.module-head h2,.side-head:before {
+  clip-path:none!important;border-radius:0!important;
+  transform:none!important;skew:0deg!important;
+}
+.module-head h2:after,.side-head-title:after {content:none!important;display:none!important;}
+#zt-popular-box .zt-popular-list{height:auto!important;max-height:none!important;overflow:visible!important}
+#zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(-n+5){display:block!important;visibility:visible!important;opacity:1!important}
+#zt-popular-box .zt-popular-list>.zt-popular-article:nth-of-type(n+6){display:none!important}
 </style>
 </head>
 <body>
@@ -1705,7 +1722,7 @@ document.addEventListener('DOMContentLoaded',function(){ztInitSmartSticky('.side
 }());
 </script>
 
-<script defer src="/zt-home-live.js?v=20261023_railfix_v4"></script>
+<script defer src="/zt-home-live.js?v=20261024_hotfix_real_v1"></script>
 <script defer src="/zt-home-graphic-layout-20261016.js?v=9"></script>
 </body>
 </html>
