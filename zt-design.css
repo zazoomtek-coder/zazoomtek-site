@@ -2099,3 +2099,26 @@ html body div[class*="block"], html body div[class*="card"] {
     -webkit-border-radius: 0 !important;
     overflow: hidden !important;
 }
+
+
+/* ZazoomTek 2026-10-24: compact editorial boxes: square headings throughout */
+html body .module-head,html body .side-head,html body .module-title,
+html body .side-box .module-title,html body .side-box .side-head,
+html body .zt-special-head,html body .zt-home-guide-heading,
+html body .zt-games-title,html body .zt-popular-head,
+html body .ztp-news-head,html body .ztp-editorial-heading,
+html body .ztp-other-news > h2,html body .ztp-editorial-archive > h2 {
+  border-radius:0!important;clip-path:none!important;
+}
+html body .module-head h2,html body .side-head-title,
+html body .zt-games-title,html body .ztp-news-head h2 span,
+html body .ztp-news-head h2 b,html body .zt-popular-head h2,
+html body .zt-special-head h2 {
+  border-radius:0!important;clip-path:none!important;
+}
+html body .module-head h2:after,html body .side-head:before {
+  border:0!important;clip-path:none!important;border-radius:0!important;
+}
+html body .module-head h2:after{content:none!important;display:none!important}
+html body .side-head:before{clip-path:none!important}
+html body .ztp-news-head h2 span{padding-right:14px!important}
