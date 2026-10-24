@@ -32,7 +32,7 @@ def original_title(text:str)->str:
     lines=[l for l in lines if l]
     if not lines:return "News ZazoomTek"
     first=lines[0]
-    first=re.sub(r"(?i)^news(?:\s+(?:tech|game|gaming|extra))?\s*:?\s*","",first).strip()
+    first=re.sub(r"(?i)^(?:(?:news\s+)?(?:tech|game|gaming|speciale|speciali|extra|recensioni|review|reviews)\s*:\s*|news\s*:\s*)","",first).strip()
     if not first and len(lines)>1:first=lines[1]
     return first[:180] or "News ZazoomTek"
 
@@ -40,13 +40,19 @@ def title_of(post:dict)->str:
     return original_title(post.get("text") or post.get("title") or "")
 
 def classify(post:dict)->str:
-    text=str(post.get("text") or post.get("title") or "")
-    heading=next((s.strip().lstrip("🇮🇹 ").strip() for s in text.splitlines() if s.strip()),"")
-    route=re.match(r"(?i)^news\s+(tech|game|gaming|extra)\s*:",heading)
+    """Stable editorial routing: preserve every real YouTube Community category."""
+    body=str(post.get("text") or post.get("title") or "")
+    heading=next((line.strip().lstrip("🇮🇹 ").strip()
+                  for line in body.splitlines() if line.strip()),"")
+    route=re.match(r"(?i)^(?:news\s+)?(tech|game|gaming|speciale|speciali|extra|recensioni|review|reviews)\s*:",heading)
     if route:
-        kind=route.group(1).lower()
-        return {"game":"gaming"}.get(kind,kind)
+        value=route.group(1).lower()
+        return {"game":"gaming","speciale":"speciali","recensioni":"reviews",
+                "review":"reviews"}.get(value,value)
+    if re.match(r"(?i)^news\s*:\s*",heading):
+        return "news"
     label=heading[:280].lower()
+    if re.search(r"\b(recensione|review)\b",label):return "reviews"
     if re.search(r"\b(playstation|xbox|nintendo|ps5|steam|gameplay|videogioch[io])\b",label):
         return "gaming"
     if re.search(r"\b(smartphone|robot|notebook|laptop|intel|nvidia|amd|wi-fi|televisor|smartwatch|apple|samsung)\b",label):
@@ -88,27 +94,25 @@ def article_content(text:str,title:str="",images:list[str]|None=None)->str:
     return "\n".join(markup)
 
 def deduplicate_posts(posts:list[dict])->list[dict]:
-    """Deduplica i post della Community per ID e titolo, senza perdere revisioni."""
+    """One record per YouTube post ID. Never drop distinct posts with identical titles."""
     by_id={}
     for post in posts:
         if not isinstance(post,dict):continue
         ident=str(post.get("id") or "")
-        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",ident):continue
-        prior=by_id.get(ident)
-        # The more complete copy wins; preserve prior original dates/images.
-        if prior is None:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{6,128}",ident):continue
+        old=by_id.get(ident)
+        if old is None:
             by_id[ident]=post
-        else:
-            preferred=post if len(str(post.get("text") or ""))>len(str(prior.get("text") or "")) else prior
-            merged={**prior,**{k:v for k,v in preferred.items() if v not in ("",None,[])}}
-            by_id[ident]=merged
-    unique=[];seen_titles=set()
-    for post in sorted(by_id.values(),key=lambda p:str(p.get("published_iso") or p.get("first_seen") or ""),reverse=True):
-        if not str(post.get("text") or "").strip():continue
-        key=re.sub(r"\s+"," ",title_of(post)).casefold().strip()
-        if key in seen_titles:continue
-        seen_titles.add(key);unique.append(post)
-    return unique
+            continue
+        better=post if len(str(post.get("text") or ""))>len(str(old.get("text") or "")) else old
+        merged={**old,**{k:v for k,v in better.items() if v not in ("",None,[])}}
+        # Never lose an original publication timestamp or any existing images.
+        for key in ("published_iso","first_seen"):
+            if old.get(key):merged[key]=old[key]
+        images=list(dict.fromkeys((old.get("images") or [])+(post.get("images") or [])))
+        if images:merged["images"]=images
+        by_id[ident]=merged
+    return sorted(by_id.values(),key=lambda p:str(p.get("published_iso") or p.get("first_seen") or ""),reverse=True)
 
 def deduplicate_cards(cards:list[dict])->list[dict]:
     """One published article per canonical URL/title, newest first."""
@@ -116,7 +120,7 @@ def deduplicate_cards(cards:list[dict])->list[dict]:
     for item in sorted(cards,key=lambda x:str(x.get("published_iso") or x.get("first_seen") or ""),reverse=True):
         url=str(item.get("url") or "").split("?",1)[0].lower()
         title=re.sub(r"\s+"," ",str(item.get("title") or "")).casefold().strip()
-        if not url or url in seen_urls or (title and title in seen_titles):continue
+        if not url or url in seen_urls:continue
         seen_urls.add(url)
         if title:seen_titles.add(title)
         result.append(item)
@@ -127,7 +131,7 @@ def items(root:Path=ROOT)->list[dict]:
     for post in deduplicate_posts(load_list(root/"services10-data"/"community.json")):
         if not isinstance(post,dict):continue
         ident=str(post.get("id") or "")
-        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",ident):
+        if not re.fullmatch(r"[A-Za-z0-9_-]{6,128}",ident):
             continue
         body=str(post.get("text") or "").strip()
         if not body:continue
@@ -162,6 +166,8 @@ def render_detail(item:dict)->str:
     title=html.escape(item["title"])
     description=html.escape(" ".join(site_blocks(item["text"],item["title"]))[:155],quote=True)
     category=html.escape(item["section"].upper())
+    destination={"speciali":"/speciali.html","extra":"/extra.html",
+                 "reviews":"/recensioni-scritte.html"}.get(item["section"],"/news.html")
     content=article_content(item["text"],item["title"],item.get("images"))
     url="https://zazoomtek.it"+item["url"]
     published=html.escape(item.get("published_iso") or item.get("first_seen") or "",quote=True)
@@ -201,7 +207,7 @@ def render_detail(item:dict)->str:
 <a href="/recensioni-scritte.html">RECENSIONI</a><a href="/guide.html">GUIDE</a>
 <a href="/speciali.html">SPECIALI</a></nav></div></header>
 <main class="news-detail-page"><div class="zt-wrap"><article class="article-main">
-<div class="breadcrumbs"><a href="/">Home</a> / <a href="/news.html">News</a> / {category}</div>
+<div class="breadcrumbs"><a href="/">Home</a> / <a href="{destination}">{category}</a></div>
 <h1>{title}</h1><div class="article-meta">ZazoomTek · {category} · <time datetime="{published}">{human_date}</time></div>
 {cover}<div class="article-body">{content}</div>
 <p><a href="/news.html">← Torna alle news</a></p></article></div></main>
@@ -235,6 +241,51 @@ def render_archive_card(item:dict)->str:
        picture+'<div class="news-copy"><h2><a href="'+href+'">'+title+
        '</a></h2><div class="news-meta">ZazoomTek · <time datetime="'+stamp+'">'+label+'</time></div></div></article>')
 
+
+SECTION_TARGETS={
+    "speciali":("speciali.html","specialiList"),
+    "extra":("extra.html","extraList"),
+    "reviews":("recensioni-scritte.html","reviewList"),
+}
+
+def update_section_archives(root:Path,publications:list[dict])->dict:
+    """Build independent, idempotent sections from all matched Community records.
+
+    Stable IDs prevent duplicate cards. Every category retains its own record.
+    The approved existing layout/cards remain intact outside the owned block.
+    """
+    written={}
+    for category,(filename,element_id) in SECTION_TARGETS.items():
+        page=root/filename
+        if not page.is_file():
+            written[category]="missing archive"
+            continue
+        source=page.read_text(encoding="utf-8")
+        start="<!-- SERVICES10_CATEGORY_"+category.upper()+"_START -->"
+        end="<!-- SERVICES10_CATEGORY_"+category.upper()+"_END -->"
+        header=re.search(r'<div\b(?=[^>]*\bid=["\']'+re.escape(element_id)+r'["\'])[^>]*>',source,re.I)
+        if header is None:
+            written[category]="archive id not found"
+            continue
+        # Do not duplicate cards authored outside the managed region.
+        outside=source
+        if start in source and end in source:
+            p=source.index(start);q=source.index(end,p)+len(end)
+            outside=source[:p]+source[q:]
+        matched=[p for p in publications if p["section"]==category]
+        matched=deduplicate_cards(matched)
+        cards=[render_archive_card(p) for p in matched
+               if 'href="'+p["url"]+'"' not in outside]
+        owned=start+"\n"+"\n".join(cards)+"\n"+end
+        if start in source and end in source:
+            first=source.index(start);last=source.index(end,first)+len(end)
+            result=source[:first]+owned+source[last:]
+        else:
+            result=source[:header.end()]+"\n"+owned+source[header.end():]
+        if result!=source:page.write_text(result,encoding="utf-8")
+        written[category]=len(cards)
+    return written
+
 def update(root:Path=ROOT)->dict:
     publications=items(root)
     if not publications:return {"posts":0,"created_pages":0}
@@ -249,6 +300,7 @@ def update(root:Path=ROOT)->dict:
             latest=render_detail(post)
             if target.read_text(encoding="utf-8")!=latest:
                 target.write_text(latest,encoding="utf-8")
+    section_results=update_section_archives(root,publications)
     news=root/"news.html"
     if news.is_file():
         document=news.read_text(encoding="utf-8")
@@ -283,7 +335,7 @@ def update(root:Path=ROOT)->dict:
                   HOME_END,1)
         else:updated=document
         if updated!=document:home.write_text(updated,encoding="utf-8")
-    print("Community: archived",len(publications),"new pages",created)
+    print("Community: archived",len(publications),"new pages",created,"section archives",section_results)
     return {"posts":len(publications),"created_pages":created}
 
 if __name__=="__main__":
