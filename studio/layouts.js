@@ -174,9 +174,14 @@ async function enforceMasterTemplate(doc){
  else if(aside.parentElement!==layout)layout.appendChild(aside);
  aside.className="zt-master-rail";
  aside.setAttribute("aria-label","Box editoriali e Articoli Correlati");
- aside.innerHTML='<section class="zt-master-group"><h2>ULTIME NOTIZIE</h2><div class="zt-master-grid"></div></section>'+
-                 '<section class="zt-master-related"><h2>ARTICOLI CORRELATI</h2><div class="zt-master-grid"></div></section>';
- doc.body.classList.add("zt-master-page");
+ aside.innerHTML='<section class="zt-master-group"><h2>ULTIME NOTIZIE</h2><div class="zt-master-grid"></div></section>';
+  // Related content belongs immediately after the article text, not in the sidebar.
+  doc.querySelectorAll(".zt-related-section,.zt-ec-related,.zt-master-article-related").forEach(el=>el.remove());
+  const footer=doc.createElement("section");footer.className="zt-master-article-related";
+  footer.setAttribute("aria-label","Articoli Correlati");
+  footer.innerHTML='<h2>ARTICOLI CORRELATI</h2><div class="zt-master-related-list"></div>';
+  article.append(footer);
+  doc.body.classList.add("zt-master-page");
  for(const [tag,url] of [["link","/zt-master-template.css?v=20261024"],["script","/zt-master-template.js?v=20261024"]]){
   if(tag==="link"&&!doc.querySelector('link[href^="/zt-master-template.css"]')){
    const el=doc.createElement("link");el.rel="stylesheet";el.href=url;doc.head.appendChild(el);
@@ -201,23 +206,25 @@ async function enforceMasterTemplate(doc){
  const seenUrls=new Set(),seenTitles=new Set();
  const self="/"+String(document.getElementById("slug")?.value||"").replace(/^\/+/, "");
  const pool=posts.filter(item=>{
-  if(!item||!item.url||!item.title||!item.image)return false;
+  if(!item||!item.url||!item.title)return false;
   const url=String(item.url).split("?")[0].toLowerCase();
   const title=normal(item.title);
   if(url===self.toLowerCase()||seenUrls.has(url)||seenTitles.has(title))return false;
   seenUrls.add(url);seenTitles.add(title);return true;
  }).sort((a,b)=>String(b.published||"").localeCompare(String(a.published||"")));
  if(!pool.length)throw Error("Archivio senza miniature valide: pubblicazione interrotta.");
- const n=Math.max(1,Math.min(pool.length-4,Math.ceil((article.textContent||"").length/190)));
- const selected=pool.slice(0,Math.max(1,n)),related=pool.slice(Math.max(1,n),Math.max(1,n)+4);
+ const n=Math.max(1,Math.min(Math.max(1,pool.length-4),Math.ceil((article.textContent||"").length/205)));
+ const selected=pool.slice(0,n),tail=pool.slice(n,n+4),related=tail.length?tail:pool.slice(0,Math.min(4,pool.length));
  const card=item=>{
   const link=doc.createElement("a"),img=doc.createElement("img"),label=doc.createElement("span");
   link.className="zt-master-card";link.href=item.url;
-  img.src=item.image;img.alt=item.title;img.loading="lazy";label.textContent=item.title;
+  img.src=item.image||"/assets/zt-editorial-fallback.svg";img.alt=item.title;img.loading="lazy";
+   img.onerror=()=>{img.onerror=null;img.src="/assets/zt-editorial-fallback.svg";};
+   label.textContent=item.title;
   link.append(img,label);return link;
  };
  const newsGrid=aside.querySelector(".zt-master-group .zt-master-grid");
- const relatedGrid=aside.querySelector(".zt-master-related .zt-master-grid");
+ const relatedGrid=footer.querySelector(".zt-master-related-list");
  selected.forEach(x=>newsGrid.append(card(x)));
  related.forEach(x=>relatedGrid.append(card(x)));
  if(!newsGrid.children.length||!relatedGrid.children.length)
@@ -226,7 +233,8 @@ async function enforceMasterTemplate(doc){
 
 async function build(opt){
  const kind=REVIEW.test(opt.category)?"review":"news";
- if(!opt.title||!opt.category||!opt.cover||!opt.body)throw Error("Titolo, categoria, copertina e testo obbligatori.");
+ opt={...opt,cover:opt.cover||"/assets/zt-editorial-fallback.svg"};
+ if(!opt.title||!opt.category||!opt.body)throw Error("Titolo, categoria e testo obbligatori.");
  const html=await template(kind);
  const doc=new DOMParser().parseFromString(html,"text/html");
  putTextArticle(doc,opt,kind);
