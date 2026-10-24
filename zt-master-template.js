@@ -9,7 +9,7 @@ function mount(){
  if(!body||!body.classList.contains("zt-master-page"))return;
  var header=document.querySelector(".zt-master-header");
  if(header){
-  var toggle=header.querySelector(".zt-master-toggle"),nav=header.querySelector(".zt-master-nav"),drop=header.querySelector(".zt-master-dropdown"),btn=drop&&drop.querySelector("button");
+  var toggle=header.querySelector(".zt-master-toggle"),nav=header.querySelector(".zt-master-nav,.nav"),drop=header.querySelector(".zt-master-dropdown,.nav-drop"),btn=drop&&drop.querySelector("button");
   if(toggle&&nav)toggle.addEventListener("click",function(){var open=nav.classList.toggle("open");toggle.setAttribute("aria-expanded",String(open));});
   if(btn&&drop)btn.addEventListener("click",function(){var open=drop.classList.toggle("open");btn.setAttribute("aria-expanded",String(open));});
   document.addEventListener("click",function(e){if(drop&&btn&&!drop.contains(e.target)){drop.classList.remove("open");btn.setAttribute("aria-expanded","false");}});
