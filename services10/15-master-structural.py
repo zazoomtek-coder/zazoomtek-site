@@ -472,6 +472,51 @@ def ecoturismo_page(items):
        '</head><body><main><article class="article-main"><h1>ECOTURISMO</h1>'+cards+
        '</article></main></body></html>',encoding="utf-8")
 
+def normalized_cyberculture_navigation(doc):
+    """One identical Cybercultura/Recensioni submenu tree on every page.
+
+    The approved Home header remains the source of truth; existing nav URLs
+    are preserved except legacy flat Cybercultura which becomes a dropdown.
+    """
+    cyber=(
+      '<div class="nav-drop zt-cybercultura-drop">'
+      '<button class="nav-drop-trigger" type="button" aria-haspopup="true" '
+      'aria-expanded="false">Cybercultura</button>'
+      '<div class="nav-submenu">'
+      '<a href="/cybercultura.html">TUTTA CYBERCULTURA</a>'
+      '<a href="/cybercultura/tech-in-back.html">TECH IN BACK</a>'
+      '<a href="/cybercultura/inside-the-game.html">INSIDE THE GAME</a>'
+      '</div></div>'
+    )
+    if '<a href="/cybercultura.html">Cybercultura</a>' in doc:
+        doc=doc.replace('<a href="/cybercultura.html">Cybercultura</a>',cyber,1)
+    if 'class="nav-drop-trigger" type="button" aria-haspopup="true">Recensioni' in doc:
+        doc=doc.replace(
+            'class="nav-drop-trigger" type="button" aria-haspopup="true">Recensioni',
+            'class="nav-drop-trigger" type="button" aria-haspopup="true" '
+            'aria-expanded="false">Recensioni',1)
+    return doc
+
+def materialize_cyberculture_subpages():
+    """Keep both editorial subsections at stable child paths after each import.
+
+    Existing legacy URLs remain valid. New child pages point canonical to
+    the originals until an explicit editorial URL migration is authorized.
+    """
+    folder=DIST/"cybercultura"
+    folder.mkdir(parents=True,exist_ok=True)
+    for old,target in (("tech-today.html","tech-in-back.html"),
+                       ("gaming-today.html","inside-the-game.html")):
+        source=DIST/old
+        if not source.is_file():continue
+        rendered=source.read_text(encoding="utf-8")
+        if '<base href="/">' not in rendered:
+            rendered=rendered.replace("<head>","<head><base href=\"/\">",1)
+        # Keep one canonical URL until the old published links are migrated.
+        destination=folder/target
+        if not destination.is_file() or destination.read_text(encoding="utf-8")!=rendered:
+            destination.write_text(rendered,encoding="utf-8")
+
 def run(module="all"):
     """Independent snapshot modules, invoked after packaging and before deploy."""
     if module not in ("news","home","layout","all"):
@@ -502,11 +547,14 @@ def run(module="all"):
                               "current_featured":len(hero),"available":len(items)})
     if module in ("layout","all"):
         home=DIST/"index.html"
-        homepage=home.read_text(encoding="utf-8")
+        homepage=normalized_cyberculture_navigation(home.read_text(encoding="utf-8"))
         if 'href="/ecoturismo.html"' not in homepage:
             homepage=homepage.replace('<a href="/extra.html">Extra</a>',
                          '<a href="/extra.html">Extra</a><a href="/ecoturismo.html">Ecoturismo</a>',1)
             home.write_text(homepage,encoding="utf-8")
+        else:
+            home.write_text(homepage,encoding="utf-8")
+        materialize_cyberculture_subpages()
         match=re.search(r'(?is)<header\b[^>]*>.*?</header>',homepage)
         if match:
             original=match.group(0)
@@ -537,6 +585,8 @@ def run(module="all"):
             doc=page.read_text(encoding="utf-8",errors="replace")
             doc,handled=full_page(doc,page,items,header)
             if not handled:continue
+            if "/zt-master-dropdowns.js" not in doc:
+                doc=doc.replace("</body>",'<script defer src="/zt-master-dropdowns.js?v=20261024"></script></body>',1)
             if "/zt-master-template.css" not in doc:doc=doc.replace("</head>",HEAD+"\n</head>",1)
             if "/zt-master-template.js" not in doc:doc=doc.replace("</body>",HEAD_JS+"\n</body>",1)
             doc=re.sub(r'(?i)<body\b[^>]*>',
