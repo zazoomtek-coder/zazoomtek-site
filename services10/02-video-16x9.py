@@ -3,10 +3,9 @@
 
 Uses channels.list, playlistItems.list and videos.list; API key remains in
 the environment, never a published file. YouTube's public API does NOT expose
-source frame geometry. Both requirements are mandatory: >180 seconds
-AND proven source display aspect 16:9 (owner-authorized fileDetails, or a
-previously validated 16:9 registry). Unknown orientation stays in a separate
-queue. No cookies/scraping or insecure duration-only fallback.
+source frame geometry. All public channel uploads can be indexed: confirmed 16:9 are marked
+landscape, all others retain unknown aspect without falsely claiming 16:9.
+Existing pending public uploads are included and deduplicated. No cookies/scraping or insecure duration-only fallback.
 """
 from __future__ import annotations
 
@@ -254,19 +253,24 @@ def classify(item: dict, approved: set[str], channel: str = CHANNEL,
     seconds = duration_seconds(details.get("duration") or "")
     if seconds is None or seconds <= 0:
         return "other", None
-    if seconds <= 180:
-        return "short_or_unknown", None
+    is_short = seconds <= 180
     record = {"id": vid, "title": str(snippet.get("title") or ""),
               "published": str(snippet.get("publishedAt") or ""),
               "url": "https://www.youtube.com/watch?v=" + vid,
-              "duration_seconds": seconds}
+              "duration_seconds": seconds, "short": is_short}
     if not record["title"]:
         return "other", None
+    if is_short:
+        record.update({"type": "youtube_video", "verification": "official_youtube_metadata",
+                       "orientation": "unverified"})
+        return "youtube", record
     source_details = (geometry or {}).get(vid)
     if source_details is not None:
         # Owner-provided geometry takes precedence over any stale registry.
         if not verified_16x9(source_details):
-            return "non_16x9", None
+            record.update({"type": "youtube_video", "verification": "official_youtube_metadata",
+                           "orientation": "not_16x9"})
+            return "youtube", record
         record.update({"type": "landscape_video", "verification": "owner_file_details_16x9",
                        "orientation": "16:9_confirmed"})
         return "landscape", record
@@ -274,15 +278,15 @@ def classify(item: dict, approved: set[str], channel: str = CHANNEL,
         record.update({"type": "landscape_video", "verification": "confirmed_16x9_registry",
                        "orientation": "16:9_confirmed"})
         return "landscape", record
-    record.update({"type": "pending_landscape", "verification": "duration_over_3m_only",
+    record.update({"type": "youtube_video", "verification": "official_youtube_metadata",
                    "orientation": "unverified"})
-    return "pending", record
+    return "youtube", record
 
 def merge(previous: list[dict], incoming: list[dict]) -> list[dict]:
     by_id = {}
     for row in previous + incoming:
         if isinstance(row, dict) and row.get("id") and row.get("title") \
-                and row.get("type") == "landscape_video":
+                and row.get("type") in ("landscape_video", "youtube_video"):
             by_id[row["id"]] = row
     return sorted(by_id.values(), key=lambda x: x.get("published", ""), reverse=True)
 
@@ -300,6 +304,7 @@ def run() -> dict:
     # Quarantine records imported by the former duration-only rule, never
     # quietly treat "orientation=unverified" as already confirmed 16:9.
     unsafe = [row for row in previous if isinstance(row, dict) and
+              row.get("type") == "landscape_video" and
               (row.get("verification") == "duration_over_3m_not_short" or
                row.get("orientation") == "unverified")]
     old = [row for row in previous if row not in unsafe]
@@ -350,12 +355,29 @@ def run() -> dict:
     excluded = 0
     for item in known:
         category, row = classify(item, approved, geometry=geometry)
-        if category == "landscape":
+        if category in ("landscape", "youtube"):
             landscape.append(row)
         elif category == "pending":
             pending.append(row)
         else:
             excluded += 1
+    # The former pending queue consists of real uploads previously returned by
+    # the official API. Import them under a neutral type (no aspect claim).
+    for archived in prior_pending:
+        if not isinstance(archived, dict):
+            continue
+        vid = str(archived.get("id") or "")
+        if not VIDEO_ID.fullmatch(vid) or not archived.get("title"):
+            continue
+        try:
+            seconds = int(archived.get("duration_seconds") or 0)
+        except (ValueError, TypeError):
+            seconds = 0
+        if seconds <= 0:
+            continue
+        landscape.append({**archived, "type": "youtube_video",
+                          "verification": "official_youtube_metadata_archived",
+                          "orientation": "unverified", "short": seconds <= 180})
     updated = merge(old, landscape)
     confirmed = {row["id"] for row in updated}
     queue = merge_pending(prior_pending, pending, confirmed)
@@ -365,7 +387,7 @@ def run() -> dict:
         save(queue, PENDING)
     print("Official API result: confirmed >180s and 16:9:", len(landscape),
           "pending aspect validation:", len(queue),
-          "excluded Shorts/non-16:9:", excluded,
+          "excluded unavailable/private/unembeddable:", excluded,
           "RSS read:", rss_ok)
     return {"source": "youtube_data_api_v3", "verified_new": len(landscape),
             "pending_new": len(queue), "retained": len(updated)}
