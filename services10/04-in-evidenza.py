@@ -46,7 +46,7 @@ def deduplicate_stories(stories:list[dict])->list[dict]:
                    key=lambda s:s.get("published_date") or "",reverse=True)
     for story in ordered:
         date=story.get("published_date") or ""
-        title=re.sub(r"\\s+"," ",story.get("title") or "").casefold().strip()
+        title=re.sub(r"\s+"," ",story.get("title") or "").casefold().strip()
         url=str(story.get("url") or "").split("?",1)[0].casefold()
         if date<cutoff or not date or not title or not url:continue
         if url in seen_urls or title in seen_titles:continue
