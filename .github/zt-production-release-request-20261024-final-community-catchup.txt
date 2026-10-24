@@ -1,0 +1,5 @@
+Second and final immediate production refresh on 2026-10-24.
+Previous production workflow 40094696506 successfully uploaded and purged Cloudflare.
+Durable Community state branch gained another legitimate post (40 vs 39 in previous build artifact) while the previous production workflow was running.
+Re-run full YouTube fetch and all services10 modules from MAIN and deploy to production to include the newest archived Community record in generated news and home pages.
+Preserve deduplication and require Cloudflare purge.
