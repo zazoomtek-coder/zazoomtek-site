@@ -3,15 +3,17 @@
    by GitHub from the logged-in Studio and never use a public browser token. */
 (() => {
   "use strict";
+  // UI eligibility only. GitHub enforces write authorization in Studio.
+  // An existing encrypted vault is NOT proof of an authenticated owner.
+  const OWNER="zazoomtek-coder";
+  const OWNER_KEY="zt_studio_owner_session_v1";
   function studioBrowser() {
     try {
-      return Number(localStorage.getItem("zt_studio_verified_until") || 0) > Date.now()
-        || !!localStorage.getItem("zazoomtek.studio.github.vault.v1");
-    } catch (_) { return false; }
+      const session=JSON.parse(localStorage.getItem(OWNER_KEY)||"null");
+      return !!(session&&session.login===OWNER&&
+        Number(session.expires)>Date.now()&&Number(session.expires)<Date.now()+9*3600000);
+    }catch(_){return false;}
   }
-  // Editing rights are enforced by Studio/GitHub, not by the visibility of
-  // this navigation link. Showing Modifica does not grant write access.
-
   const escPath = (raw) => {
     try {
       const u = new URL(raw, location.origin);
@@ -31,7 +33,7 @@
 
   function installTitle() {
     const path = escPath(location.href);
-    if (!path || document.getElementById("zt-studio-edit-title")) return;
+    if (!path || !studioBrowser() || document.getElementById("zt-studio-edit-title")) return;
     // Some review templates place H1 in main.content OUTSIDE article.article-main.
     const detail = document.querySelector("article.article-main,article.story,article.zt-main,article.zt-article,article.article-body,article.zt-watch-article,main.content article");
     // Standard imported news have <main><h1>…</h1><div class="article-copy">,
@@ -53,8 +55,14 @@
   }
 
   function activate() {
+    const existing=document.getElementById("zt-studio-edit-title");
+    if(!studioBrowser()){if(existing)existing.remove();return;}
     installTitle();
   }
+  window.addEventListener("storage",event=>{
+    if(event.key===OWNER_KEY||event.key===null)schedule();
+  });
+  window.addEventListener("focus",()=>schedule());
   let running = false;
   function schedule() {
     if (running) return;
