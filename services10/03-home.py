@@ -11,6 +11,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from editorial_titles import clean_title
 
 ROOT=Path(__file__).resolve().parents[1]
 DATA=ROOT/"services10-data"
@@ -34,7 +35,7 @@ def original_title(text:str)->str:
     first=lines[0]
     first=re.sub(r"(?i)^(?:(?:news\s+)?(?:tech\s+impact|gaming\s+inside|tech|game|gaming|speciale|speciali|extra|recensioni|review|reviews)\s*:\s*|news\s*:\s*)","",first).strip()
     if not first and len(lines)>1:first=lines[1]
-    return first[:180] or "News ZazoomTek"
+    return clean_title(first)[:180] or "News ZazoomTek"
 
 def title_of(post:dict)->str:
     return original_title(post.get("text") or post.get("title") or "")
