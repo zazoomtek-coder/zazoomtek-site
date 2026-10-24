@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: zazoomtek-cloudflare-production-release
   cancel-in-progress: false
@@ -29,6 +29,12 @@ jobs:
         run: |
           python3 services10/state.py restore community
           python3 services10/state.py restore videos
+      - name: Refresh written YouTube Community independently (fail-soft)
+        continue-on-error: true
+        run: python3 services10/01-community.py
+      - name: Save Community archive separately from videos
+        continue-on-error: true
+        run: python3 services10/state.py save community
       - name: Build published pages directly from approved source (no Master)
         run: |
           python3 services10/02-video-pages.py
