@@ -32,7 +32,7 @@ def original_title(text:str)->str:
     lines=[l for l in lines if l]
     if not lines:return "News ZazoomTek"
     first=lines[0]
-    first=re.sub(r"(?i)^(?:(?:news\s+)?(?:tech|game|gaming|speciale|speciali|extra|recensioni|review|reviews)\s*:\s*|news\s*:\s*)","",first).strip()
+    first=re.sub(r"(?i)^(?:(?:news\s+)?(?:tech\s+impact|gaming\s+inside|tech|game|gaming|speciale|speciali|extra|recensioni|review|reviews)\s*:\s*|news\s*:\s*)","",first).strip()
     if not first and len(lines)>1:first=lines[1]
     return first[:180] or "News ZazoomTek"
 
@@ -40,18 +40,19 @@ def title_of(post:dict)->str:
     return original_title(post.get("text") or post.get("title") or "")
 
 def classify(post:dict)->str:
-    """Stable editorial routing: preserve every real YouTube Community category."""
+    """Map explicitly prefixed Community posts without losing unknown valid posts."""
     body=str(post.get("text") or post.get("title") or "")
-    heading=next((line.strip().lstrip("🇮🇹 ").strip()
-                  for line in body.splitlines() if line.strip()),"")
-    route=re.match(r"(?i)^(?:news\s+)?(tech|game|gaming|speciale|speciali|extra|recensioni|review|reviews)\s*:",heading)
+    first=next((line.strip().lstrip("🇮🇹 ").strip()
+                for line in body.splitlines() if line.strip()),"")
+    route=re.match(
+        r"(?i)^(?:news\s+)?(tech\s+impact|gaming\s+inside|tech|game|gaming|"
+        r"speciale|speciali|extra|recensioni|review|reviews)\s*:",first)
     if route:
-        value=route.group(1).lower()
+        category=re.sub(r"\s+","-",route.group(1).strip().lower())
         return {"game":"gaming","speciale":"speciali","recensioni":"reviews",
-                "review":"reviews"}.get(value,value)
-    if re.match(r"(?i)^news\s*:\s*",heading):
-        return "news"
-    label=heading[:280].lower()
+                "review":"reviews"}.get(category,category)
+    if re.match(r"(?i)^news\s*:",first):return "news"
+    label=first[:280].lower()
     if re.search(r"\b(recensione|review)\b",label):return "reviews"
     if re.search(r"\b(playstation|xbox|nintendo|ps5|steam|gameplay|videogioch[io])\b",label):
         return "gaming"
@@ -167,6 +168,7 @@ def render_detail(item:dict)->str:
     description=html.escape(" ".join(site_blocks(item["text"],item["title"]))[:155],quote=True)
     category=html.escape(item["section"].upper())
     destination={"speciali":"/speciali.html","extra":"/extra.html",
+                 "tech-impact":"/tech-today.html","gaming-inside":"/gaming-today.html",
                  "reviews":"/recensioni-scritte.html"}.get(item["section"],"/news.html")
     content=article_content(item["text"],item["title"],item.get("images"))
     url="https://zazoomtek.it"+item["url"]
@@ -246,6 +248,8 @@ SECTION_TARGETS={
     "speciali":("speciali.html","specialiList"),
     "extra":("extra.html","extraList"),
     "reviews":("recensioni-scritte.html","reviewList"),
+    "tech-impact":("tech-today.html","newsList"),
+    "gaming-inside":("gaming-today.html","newsList"),
 }
 
 def update_section_archives(root:Path,publications:list[dict])->dict:
