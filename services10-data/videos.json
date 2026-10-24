@@ -5,10 +5,10 @@
     "published": "2026-10-23T11:02:46Z",
     "url": "https://www.youtube.com/watch?v=-c995pZgzHQ",
     "duration_seconds": 477,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "WAd0VjmzaJ8",
@@ -38,10 +38,10 @@
     "published": "2026-10-20T12:22:14Z",
     "url": "https://www.youtube.com/watch?v=3biZz45pUJs",
     "duration_seconds": 448,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "e7rAYQprXTM",
@@ -60,10 +60,10 @@
     "published": "2026-10-13T08:39:35Z",
     "url": "https://www.youtube.com/watch?v=tEkXOj7XOwA",
     "duration_seconds": 2130,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "yFaamUx3h-Q",
@@ -82,10 +82,10 @@
     "published": "2026-10-12T10:45:27Z",
     "url": "https://www.youtube.com/watch?v=WwGAaKGfoGY",
     "duration_seconds": 383,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "ppvxEfeg_2k",
@@ -104,10 +104,10 @@
     "published": "2026-10-08T05:38:42Z",
     "url": "https://www.youtube.com/watch?v=nQ26PED9Rgc",
     "duration_seconds": 942,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "fKiuvUW5eKI",
@@ -115,10 +115,10 @@
     "published": "2026-10-05T12:28:27Z",
     "url": "https://www.youtube.com/watch?v=fKiuvUW5eKI",
     "duration_seconds": 284,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "RtHYQ7o5Gws",
@@ -126,10 +126,10 @@
     "published": "2026-10-05T06:34:20Z",
     "url": "https://www.youtube.com/watch?v=RtHYQ7o5Gws",
     "duration_seconds": 407,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "O6VxSf8cYt0",
@@ -137,10 +137,10 @@
     "published": "2026-10-04T10:22:15Z",
     "url": "https://www.youtube.com/watch?v=O6VxSf8cYt0",
     "duration_seconds": 192,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "4OFjVhrfrKc",
@@ -148,10 +148,10 @@
     "published": "2026-10-03T23:22:40Z",
     "url": "https://www.youtube.com/watch?v=4OFjVhrfrKc",
     "duration_seconds": 2320,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "t4QW2iZYHcs",
@@ -181,10 +181,10 @@
     "published": "2026-10-02T07:29:04Z",
     "url": "https://www.youtube.com/watch?v=1rs63drm2kw",
     "duration_seconds": 1181,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "by7Qm_XFO8c",
@@ -192,10 +192,10 @@
     "published": "2026-09-30T13:41:46Z",
     "url": "https://www.youtube.com/watch?v=by7Qm_XFO8c",
     "duration_seconds": 320,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "EaLvvrd6ysI",
@@ -214,10 +214,10 @@
     "published": "2026-09-29T09:38:49Z",
     "url": "https://www.youtube.com/watch?v=GscZEOmzX80",
     "duration_seconds": 336,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "FOy-9dAvFMM",
@@ -258,10 +258,10 @@
     "published": "2026-09-21T10:00:19Z",
     "url": "https://www.youtube.com/watch?v=6hLJq9njq5o",
     "duration_seconds": 241,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "hp6JW2xqa9Y",
@@ -269,10 +269,10 @@
     "published": "2026-09-19T10:08:15Z",
     "url": "https://www.youtube.com/watch?v=hp6JW2xqa9Y",
     "duration_seconds": 335,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "eZYHrpgEEKA",
@@ -335,10 +335,10 @@
     "published": "2026-09-14T14:34:41Z",
     "url": "https://www.youtube.com/watch?v=XrXF0t5OPtU",
     "duration_seconds": 386,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "4fN4h9nM0dk",
@@ -434,10 +434,10 @@
     "published": "2026-09-05T13:50:28Z",
     "url": "https://www.youtube.com/watch?v=X5qvA6u5lvo",
     "duration_seconds": 380,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "qs215B2wM0Q",
@@ -467,10 +467,10 @@
     "published": "2026-09-03T04:45:39Z",
     "url": "https://www.youtube.com/watch?v=1wb6Y0Y7DLs",
     "duration_seconds": 375,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "nBgAmwYchWY",
@@ -478,10 +478,10 @@
     "published": "2026-09-02T08:48:52Z",
     "url": "https://www.youtube.com/watch?v=nBgAmwYchWY",
     "duration_seconds": 803,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "JF_iMMUbu40",
@@ -500,10 +500,10 @@
     "published": "2026-09-01T15:46:05Z",
     "url": "https://www.youtube.com/watch?v=xyEMlTZZhjo",
     "duration_seconds": 188,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "bKd3-7F9DVU",
@@ -522,10 +522,10 @@
     "published": "2026-08-24T15:00:31Z",
     "url": "https://www.youtube.com/watch?v=1PlHs05dqQQ",
     "duration_seconds": 185,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "qcE0DLfZ8aE",
@@ -841,10 +841,10 @@
     "published": "2026-07-14T22:10:04Z",
     "url": "https://www.youtube.com/watch?v=rmEeOu50YeM",
     "duration_seconds": 194,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "35exe72DZ28",
@@ -918,10 +918,10 @@
     "published": "2026-06-26T04:30:38Z",
     "url": "https://www.youtube.com/watch?v=gUao2dBv68U",
     "duration_seconds": 216,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "PuoiSqrT7Zw",
@@ -984,10 +984,10 @@
     "published": "2026-06-24T07:05:56Z",
     "url": "https://www.youtube.com/watch?v=skB-5P3w6Wk",
     "duration_seconds": 257,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "FtxJXr6NDM8",
@@ -1017,10 +1017,10 @@
     "published": "2026-06-21T07:53:07Z",
     "url": "https://www.youtube.com/watch?v=wdbr3niVw0w",
     "duration_seconds": 1237,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "77xYb4iT6L8",
@@ -1028,10 +1028,10 @@
     "published": "2026-06-21T07:49:41Z",
     "url": "https://www.youtube.com/watch?v=77xYb4iT6L8",
     "duration_seconds": 1210,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "7xKuSukRvns",
@@ -1050,10 +1050,10 @@
     "published": "2026-06-20T09:03:16Z",
     "url": "https://www.youtube.com/watch?v=1OvAgmJe4Ks",
     "duration_seconds": 247,
+    "short": false,
     "type": "youtube_video",
-    "verification": "official_youtube_metadata_archived",
-    "orientation": "unverified",
-    "short": false
+    "verification": "official_youtube_metadata",
+    "orientation": "unverified"
   },
   {
     "id": "1gK2UCZEbCg",
