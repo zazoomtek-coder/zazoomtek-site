@@ -25,7 +25,7 @@ def main():
         rows=[]
         published=datetime.now(ZoneInfo('Europe/Rome')).date().isoformat()
         for n in range(10):
-            rows.append(f'<article class="article-row" data-post-category="tech" data-published-at="{published}T09:00:00+02:00">')
+            rows.append(f'<article class="article-row" data-post-category="tech" data-published-at="{published}T09:00:00+02:00">'
                 f'<a href="news-{n}.html"><img class="article-image" src="/assets/{n}.webp"></a>'
                 f'<div class="article-copy"><h3><a href="news-{n}.html">Tech {n}</a></h3></div></article>')
         homepage.write_text(
