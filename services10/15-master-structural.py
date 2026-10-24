@@ -91,6 +91,8 @@ def source_info(page):
     elif "recensione" in page.stem.lower():category="reviews"
     elif "gaming" in page.stem.lower():category="gaming"
     elif "tech" in page.stem.lower():category="tech"
+    elif re.search(r"(?i)ZazoomTek\s*[·|]\s*SPECIALI\b",content):category="speciali"
+    elif re.search(r"(?i)ZazoomTek\s*[·|]\s*EXTRA\b",content):category="extra"
     return {"url":"/"+page.relative_to(DIST).as_posix(),"title":title,
             "image":image,"published":published,"category":category}
 
@@ -119,7 +121,7 @@ def collect():
     community=read_json(ROOT/"services10-data"/"community.json")
     for item in community if isinstance(community,list) else []:
         pid=str(item.get("id") or "")
-        if not re.fullmatch(r"Ugkx[A-Za-z0-9_-]{3,100}",pid):continue
+        if not re.fullmatch(r"[A-Za-z0-9_-]{6,128}",pid):continue
         path=DIST/("news-"+pid+".html")
         if not path.is_file():continue
         record={"url":"/"+path.name,"title":item.get("title") or "",
