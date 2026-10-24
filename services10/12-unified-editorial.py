@@ -132,8 +132,14 @@ def update(path,pool):
     # Tutte le recensioni Tech/Gaming condividono le geometrie e i box voto
     # della A900 Ultra. Non modificare le sezioni editoriali, le immagini o i voti.
     if "recensione" in path.stem.lower() and path.name not in ARCHIVES:
-        if re.search(r'<body\b',doc,re.I) and "zt-a900-unified-review" not in doc:
-            doc=re.sub(r'(?i)<body\b',"<body class=\"zt-a900-unified-review\"",doc,count=1)
+        tag=re.search(r"<body\b[^>]*>",doc,re.I)
+        if tag and "zt-a900-unified-review" not in tag.group(0):
+            opening=tag.group(0)
+            if re.search(r'\bclass=["\']',opening,re.I):
+                opening=re.sub(r'(class=["\'])',r'\1zt-a900-unified-review ',opening,count=1)
+            else:
+                opening=re.sub(r"(?i)<body\b",'<body class="zt-a900-unified-review"',opening,count=1)
+            doc=doc[:tag.start()]+opening+doc[tag.end():]
     if doc!=document:path.write_text(doc,encoding="utf-8")
     return doc!=document
 
