@@ -21,13 +21,18 @@ function mount(){
  if(!body||!body.classList.contains("zt-master-page"))return;
  var header=document.querySelector(".zt-master-header");
  if(header){
-  var toggle=header.querySelector(".zt-master-toggle"),nav=header.querySelector(".zt-master-nav,.nav"),drop=header.querySelector(".zt-master-dropdown,.nav-drop"),btn=drop&&drop.querySelector("button");
-  if(toggle&&nav)toggle.addEventListener("click",function(){var open=nav.classList.toggle("open");toggle.setAttribute("aria-expanded",String(open));});
-  if(btn&&drop)btn.addEventListener("click",function(){var open=drop.classList.toggle("open");btn.setAttribute("aria-expanded",String(open));});
-  document.addEventListener("click",function(e){if(drop&&btn&&!drop.contains(e.target)){drop.classList.remove("open");btn.setAttribute("aria-expanded","false");}});
+  // Dropdowns are controlled ONLY by zt-master-dropdowns.js with
+  // delegated click handlers for every menu including Cybercultura.
+  var toggle=header.querySelector(".zt-master-toggle");
+  var nav=header.querySelector(".zt-master-nav,.nav");
+  if(toggle&&nav)toggle.addEventListener("click",function(){
+   var open=nav.classList.toggle("open");
+   toggle.setAttribute("aria-expanded",String(open));
+  });
   var current=location.pathname.replace(/\/$/,"/index.html");
   header.querySelectorAll('a[href^="/"]').forEach(function(link){
-   if(link.getAttribute("href")===current||current==="/index.html"&&link.getAttribute("href")==="/")link.setAttribute("aria-current","page");
+   if(link.getAttribute("href")===current||(current==="/index.html"&&link.getAttribute("href")==="/"))
+    link.setAttribute("aria-current","page");
   });
  }
  var rail=document.querySelector(".zt-master-rail");
@@ -44,7 +49,7 @@ function mount(){
    if(url===path||seenUrls.has(url))return false;
    seenUrls.add(url);return true;
   });
-  pool.sort(function(a,b){return String(b.published||"").localeCompare(String(a.published||""));});
+  // Preserve server workday edition and 24-hour sidebar rotation.
   var article=document.querySelector(".zt-master-content,.article-main,.article-body,main");
   var text=article?article.textContent.length:3000;
   var count=Math.max(8,Math.min(Math.ceil(text/220),Math.max(0,pool.length-4)));
@@ -53,10 +58,18 @@ function mount(){
    if(!target)return;
    target.replaceChildren();
    items.forEach(function(item){
-    var link=document.createElement("a"),img=document.createElement("img"),label=document.createElement("span");
+    var link=document.createElement("a"),img=document.createElement("img"),
+        label=document.createElement("span"),heading=document.createElement("strong"),
+        snippet=document.createElement("small");
     link.className="zt-master-card";link.href=item.url;
     img.src=item.image||"/assets/zt-editorial-fallback.svg";img.loading="lazy";img.alt=item.title;
-    label.textContent=item.title;link.append(img,label);target.append(link);
+    img.onerror=function(){
+     var backup=item.image_fallback||"/assets/zt-editorial-fallback.svg";
+     img.onerror=null;img.src=backup!==img.src?backup:"/assets/zt-editorial-fallback.svg";
+    };
+    label.className="zt-master-copy";heading.textContent=item.title;
+    snippet.className="zt-card-snippet";snippet.textContent=item.snippet||"Leggi l'approfondimento completo.";
+    label.append(heading,snippet);link.append(img,label);target.append(link);
    });
   }
   draw(current,rail.querySelector(".zt-master-group .zt-master-grid"));
