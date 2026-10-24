@@ -14,7 +14,21 @@ const enc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const normal=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase().replace(/\s+/g," ");
 function categoryLabel(category){return REVIEW.test(category)?"Recensioni":(/^Speciali (Tech|Gaming)$/.test(category)?"Speciali":(category==="News Gaming"||category==="News Tech"?"News":category));}
 function categoryLink(category){return REVIEW.test(category)?"/recensioni-scritte.html":category==="News Gaming"?"/gaming-today.html":category==="News Tech"?"/news.html":category==="Guide"?"/guide.html":category==="Extra"?"/extra.html":category==="Tech Impact"?"/cybercultura/tech-in-back.html":category==="Gaming Inside"?"/cybercultura/inside-the-game.html":/^Speciali (Tech|Gaming)$/.test(category)?"/speciali.html":category==="Test"?"/test.html":category==="Unboxing"?"/unboxing.html":"/news.html";}
-function canonical(url){return "https://zazoomtek.it/"+String(url||"").replace(/^\/+/,"");}
+function canonical(url){
+ const value=String(url||"").trim();
+ return /^https:\/\//i.test(value)?value:"https://zazoomtek.it/"+value.replace(/^\/+/,"");
+}
+function coverFromArticleBody(body){
+ const source=new DOMParser().parseFromString("<main>"+String(body||"")+"</main>","text/html");
+ for(const image of source.querySelectorAll("main img, main source, main video[poster]")){
+  const url=image.getAttribute("src")||image.getAttribute("data-src")||
+    image.getAttribute("data-lazy-src")||image.getAttribute("poster")||
+    String(image.getAttribute("srcset")||"").split(",")[0].trim().split(" ")[0];
+  if(!url||/chatgpt\.png|favicon|avatar|editorial-fallback/i.test(url))continue;
+  if(/^https:\/\//i.test(url)||/^\/(?!\/)/.test(url))return url;
+ }
+ return "";
+}
 async function template(kind){
  if(!cache[kind])cache[kind]=fetch(SOURCES[kind],{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("Modello grafico "+kind+" non disponibile ("+r.status+"). Pubblicazione interrotta.");return r.text();}).catch(e=>{delete cache[kind];throw e;});
  return cache[kind];
@@ -245,7 +259,7 @@ async function enforceMasterTemplate(doc){
 
 async function build(opt){
  const kind=REVIEW.test(opt.category)?"review":"news";
- opt={...opt,cover:opt.cover||"/assets/zt-editorial-fallback.svg"};
+ opt={...opt,cover:opt.cover||coverFromArticleBody(opt.body)||"/assets/zt-editorial-fallback.svg"};
  if(!opt.title||!opt.category||!opt.body)throw Error("Titolo, categoria e testo obbligatori.");
  const html=await template(kind);
  const doc=new DOMParser().parseFromString(html,"text/html");
