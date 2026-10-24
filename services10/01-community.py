@@ -133,7 +133,22 @@ def extract(page):
                         body=text(poll.get("question") or poll.get("questionText") or {})
                     if body:break
         if not body:
-            body="Post Community YouTube "+pid
+            attachment=post.get("backstageAttachment") or post.get("attachment") or {}
+            has_video=any("videoRenderer" in node or "reelItemRenderer" in node
+                          for node in walk(attachment))
+            has_poll=any("pollRenderer" in node and
+                         isinstance(node["pollRenderer"],dict) and
+                         bool(node["pollRenderer"].get("choices"))
+                         for node in walk(post))
+            if pictures:
+                body="Post fotografico Community YouTube "+pid
+            elif has_poll:
+                body="Sondaggio Community YouTube "+pid
+            elif has_video:
+                body="Video condiviso nella Community YouTube "+pid
+            else:
+                # An empty malformed renderer is not a real publishable post.
+                continue
         label=text(post.get("publishedTimeText") or {})
         seen.add(pid)
         found.append({"id":pid,"title":body.splitlines()[0][:180],
