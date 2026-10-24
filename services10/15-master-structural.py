@@ -360,35 +360,63 @@ def ecoturismo_page(items):
        '</head><body><main><article class="article-main"><h1>ECOTURISMO</h1>'+cards+
        '</article></main></body></html>',encoding="utf-8")
 
-def run():
-    if not (DIST/"index.html").is_file():raise SystemExit("Snapshot dist/ mancante")
-    header=(ROOT/"zt-master-header.html").read_text(encoding="utf-8").strip()
-    removed_videos=dedup_catalog()
-    items=collect()
-    ecoturismo_page(items)
-    (DIST/"zt-sidebar-feed.json").write_text(
-        json.dumps({"news":[{"url":x["url"],"title":x["title"],"image":x["image"],
-                            "published":x["published"]} for x in items]},ensure_ascii=False)+"\n",encoding="utf-8")
-    pages=0;home_dupes=0;hero=[]
-    for page in DIST.rglob("*.html"):
-        if page.relative_to(DIST).parts[0] in ("studio",) or page.name=="zt-master-header.html":
-            continue
-        doc=page.read_text(encoding="utf-8",errors="replace")
-        if page.name=="index.html" and page.parent==DIST:
-            doc,home_dupes,hero=master_home(doc,items)
-        elif page.parent==DIST:
-            doc,removed=dedup_archive_cards(doc)
-            home_dupes+=removed
-        doc,handled=full_page(doc,page,items,header)
-        if not handled:continue
-        if HEAD not in doc:doc=doc.replace("</head>",HEAD+"\n</head>",1)
-        if HEAD_JS not in doc:doc=doc.replace("</body>",HEAD_JS+"\n</body>",1)
-        doc=re.sub(r'(?i)<body(?=[\s>])',lambda m:m.group()+" class=\"zt-master-page\"" if "zt-master-page" not in doc[:doc.find("<body")+100] else m.group(),doc,count=1)
-        page.write_text(doc,encoding="utf-8")
-        pages+=1
-    print("MASTER STRUCTURAL:",{"pages_with_template":pages,
-        "unique_editorial_records":len(items),"home_duplicates_removed":home_dupes,
-        "featured_current":len(hero),"video_duplicates_removed":removed_videos})
-    return pages
+def run(module="all"):
+    """Independent snapshot modules, invoked after packaging and before deploy."""
+    if module not in ("news","home","layout","all"):
+        raise ValueError("Unsupported editorial module: "+str(module))
+    if not (DIST/"index.html").is_file():
+        raise SystemExit("Snapshot dist/ mancante")
+    if module in ("news","all"):
+        removed_videos=dedup_catalog()
+        removed_articles=0
+        for filename in ("news.html","recensioni-tech.html","recensioni-gaming.html",
+                         "recensioni-scritte.html","speciali.html","tech-today.html",
+                         "gaming-today.html","guide.html","extra.html"):
+            page=DIST/filename
+            if not page.is_file():continue
+            original=page.read_text(encoding="utf-8",errors="replace")
+            changed,removed=dedup_archive_cards(original)
+            if changed!=original:page.write_text(changed,encoding="utf-8")
+            removed_articles+=removed
+        print("MASTER NEWS:",{"archive_duplicates_removed":removed_articles,
+                               "video_duplicates_removed":removed_videos})
+    if module in ("home","all"):
+        items=collect()
+        home=DIST/"index.html"
+        original=home.read_text(encoding="utf-8",errors="replace")
+        updated,removed,hero=master_home(original,items)
+        if updated!=original:home.write_text(updated,encoding="utf-8")
+        print("MASTER HOME:",{"duplicates_removed":removed,
+                              "current_featured":len(hero),"available":len(items)})
+    if module in ("layout","all"):
+        header=(ROOT/"zt-master-header.html").read_text(encoding="utf-8").strip()
+        items=collect()
+        ecoturismo_page(items)
+        (DIST/"zt-sidebar-feed.json").write_text(
+            json.dumps({"news":[{"url":x["url"],"title":x["title"],
+                                "image":x["image"],"published":x["published"]}
+                                for x in items]},ensure_ascii=False)+"\n",encoding="utf-8")
+        pages=0
+        for page in DIST.rglob("*.html"):
+            if page.relative_to(DIST).parts[0] == "studio" or page.name=="zt-master-header.html":
+                continue
+            doc=page.read_text(encoding="utf-8",errors="replace")
+            doc,handled=full_page(doc,page,items,header)
+            if not handled:continue
+            if HEAD not in doc:doc=doc.replace("</head>",HEAD+"\n</head>",1)
+            if HEAD_JS not in doc:doc=doc.replace("</body>",HEAD_JS+"\n</body>",1)
+            doc=re.sub(r'(?i)<body\b[^>]*>',
+                       lambda m:add_class(m.group(0),"zt-master-page"),doc,count=1)
+            page.write_text(doc,encoding="utf-8")
+            pages+=1
+        print("MASTER LAYOUT:",{"pages_with_shared_menu_and_rail":pages,
+                                "unique_editorial_records":len(items)})
+    return True
 
-if __name__=="__main__":run()
+if __name__=="__main__":
+    import argparse
+    parser=argparse.ArgumentParser(description="Moduli editoriali indipendenti")
+    parser.add_argument("--module",choices=("news","home","layout","all"),default="all")
+    args=parser.parse_args()
+    run(args.module)
+
