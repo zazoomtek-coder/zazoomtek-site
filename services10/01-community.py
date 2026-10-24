@@ -94,23 +94,48 @@ def published_at(label,now=None):
     return ""
 
 def extract(page):
-    marker=re.search(r"(?:var\s+ytInitialData\s*=|window\[[\"']ytInitialData[\"']\]\s*=)\s*",page)
-    if not marker:return []
-    try:root,_=json.JSONDecoder().raw_decode(page[marker.end():].lstrip())
-    except (json.JSONDecodeError,ValueError):return []
+    """Extract public Community posts from supported YouTube bootstrap layouts.
+
+    This parser is intentionally independent of news rendering and video
+    metadata. Unknown layouts never delete the previously saved archive.
+    """
+    candidates=(
+        r"(?:var\s+)?ytInitialData\s*=",
+        r"""window\[['"]ytInitialData['"]\]\s*=""",
+        r"window\.ytInitialData\s*=",
+    )
+    root=None
+    for pattern in candidates:
+        marker=re.search(pattern,page)
+        if marker is None:continue
+        try:
+            root,_=json.JSONDecoder().raw_decode(page[marker.end():].lstrip())
+            if isinstance(root,dict):break
+        except (json.JSONDecodeError,ValueError):
+            continue
+    if not isinstance(root,dict):
+        return []
     found=[];seen=set()
+    now=datetime.now(timezone.utc).isoformat()
     for obj in walk(root):
         post=obj.get("backstagePostRenderer") or obj.get("postRenderer")
         if not isinstance(post,dict):continue
         pid=str(post.get("postId") or post.get("backstagePostId") or post.get("id") or "")
         if not POST_ID.fullmatch(pid) or pid in seen:continue
         body=text(post.get("contentText") or post.get("backstagePostText") or post.get("content") or {}).strip()
-        # Text is mandatory. Other YouTube uploads are owned by the video importer.
-        if not body:continue
-        seen.add(pid)
         pictures=images_from_post(post)
+        # Public polls and image-only posts are also Community posts.
+        if not body:
+            for item in walk(post):
+                if "pollRenderer" in item:
+                    poll=item["pollRenderer"]
+                    if isinstance(poll,dict):
+                        body=text(poll.get("question") or poll.get("questionText") or {})
+                    if body:break
+        if not body:
+            body="Post Community YouTube "+pid
         label=text(post.get("publishedTimeText") or {})
-        now=datetime.now(timezone.utc).isoformat()
+        seen.add(pid)
         found.append({"id":pid,"title":body.splitlines()[0][:180],
            "text":body,"url":"https://www.youtube.com/post/"+pid,
            "image":pictures[0] if pictures else "",
@@ -157,16 +182,22 @@ def main():
           f"https://www.youtube.com/@{HANDLE.lstrip('@')}/community",
           f"https://www.youtube.com/channel/{CHANNEL}/community")
     for url in urls:
-        try:
-            request=urllib.request.Request(url,headers={
-                "User-Agent":"Mozilla/5.0",
-                "Accept-Language":"it-IT,it;q=0.9",
-                "Cache-Control":"no-cache"})
-            with urllib.request.urlopen(request,timeout=20) as response:
-                page=response.read().decode("utf-8","replace")
-            discovered=merge(discovered,extract(page))
-        except Exception as exc:
-            print("Community source temporarily unavailable:",str(exc)[:120])
+        for attempt in range(2):
+            try:
+                request=urllib.request.Request(url,headers={
+                    "User-Agent":"Mozilla/5.0 (compatible; ZazoomTekCommunity/1.0)",
+                    "Accept-Language":"it-IT,it;q=0.9",
+                    "Cache-Control":"no-cache",
+                    "Accept":"text/html,application/xhtml+xml"})
+                with urllib.request.urlopen(request,timeout=20) as response:
+                    page=response.read().decode("utf-8","replace")
+                parsed=extract(page)
+                discovered=merge(discovered,parsed)
+                if parsed:break
+                print("Community page returned no recognized posts:",url)
+            except Exception as exc:
+                print("Community source unavailable:",url,"attempt:",attempt+1,
+                      "reason:",type(exc).__name__)
     if not discovered:
         print("Community unavailable: retaining",len(previous),"existing posts")
         return
