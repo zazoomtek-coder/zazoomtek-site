@@ -1,0 +1,332 @@
+{
+  "pages": [
+    {
+      "slug": "privacy-policy",
+      "title": "Privacy Policy",
+      "updated": "Ultimo aggiornamento: 16 ottobre 2026.",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Questa informativa descrive il trattamento dei dati personali degli utenti che visitano ZazoomTek."
+        },
+        {
+          "type": "heading",
+          "text": "Contatti del sito"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per richieste relative alla privacy è possibile scrivere a zazoomtek@gmail.com."
+        },
+        {
+          "type": "heading",
+          "text": "Dati di navigazione"
+        },
+        {
+          "type": "paragraph",
+          "text": "Durante la navigazione, i sistemi utilizzati per erogare il sito possono trattare dati tecnici necessari al funzionamento e alla sicurezza, come indirizzo IP, tipo di browser, data e ora della richiesta. Il sito è ospitato tramite Cloudflare Pages. Cloudflare può trattare dati tecnici necessari alla distribuzione dei contenuti e alla sicurezza del sito secondo la propria informativa sulla privacy."
+        },
+        {
+          "type": "heading",
+          "text": "Contatti via email"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il sito non richiede registrazione. Se scegli di contattare ZazoomTek via email, verranno trattati il tuo indirizzo email e le informazioni contenute nel messaggio per rispondere alla richiesta e, quando necessario, gestire il rapporto professionale o editoriale."
+        },
+        {
+          "type": "heading",
+          "text": "Google Analytics 4"
+        },
+        {
+          "type": "paragraph",
+          "text": "Previo consenso dell'utente, ZazoomTek utilizza Google Analytics 4 per ottenere statistiche aggregate su utenti, sessioni, visualizzazioni di pagina, provenienza del traffico, dispositivi e interazioni con il sito. Il servizio è fornito da Google."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il tag Analytics di ZazoomTek viene caricato soltanto dopo l'accettazione e utilizza l'ID di misurazione G-01F6Q4BGTC. È possibile rifiutare il consenso o modificare la propria scelta in seguito tramite il pulsante Cookie disponibile sul sito."
+        },
+        {
+          "type": "heading",
+          "text": "Servizi esterni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il sito contiene collegamenti verso servizi esterni come YouTube, TikTok, WhatsApp e Patreon. Quando apri tali servizi, il trattamento dei dati è regolato dalle loro informative."
+        },
+        {
+          "type": "paragraph",
+          "text": "I lettori YouTube vengono caricati solo dopo il clic dell'utente e utilizzano la modalità privacy avanzata tramite youtube-nocookie.com."
+        },
+        {
+          "type": "heading",
+          "text": "Conservazione e diritti"
+        },
+        {
+          "type": "paragraph",
+          "text": "I dati inviati volontariamente vengono conservati per il tempo necessario a gestire la richiesta e gli eventuali obblighi applicabili. Nei casi previsti dalla normativa puoi chiedere accesso, rettifica, cancellazione, limitazione o opposizione al trattamento dei tuoi dati."
+        },
+        {
+          "type": "paragraph",
+          "text": "Questa informativa riguarda il sito ZazoomTek e non sostituisce le informative dei servizi esterni collegati."
+        }
+      ]
+    },
+    {
+      "slug": "cookie-policy",
+      "title": "Cookie Policy",
+      "updated": "Ultimo aggiornamento: 8 ottobre 2026.",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Questa pagina descrive l'uso di cookie e tecnologie simili sul sito ZazoomTek."
+        },
+        {
+          "type": "heading",
+          "text": "Cookie e strumenti di misurazione"
+        },
+        {
+          "type": "paragraph",
+          "text": "ZazoomTek utilizza Google Analytics 4 esclusivamente dopo il consenso dell'utente, per misurare il traffico del sito e comprendere in forma aggregata quali contenuti vengono consultati. Il codice di misurazione utilizzato dal sito è G-01F6Q4BGTC."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se rifiuti Analytics, il relativo script non viene caricato. La scelta viene memorizzata localmente nel browser e può essere modificata in qualsiasi momento tramite il pulsante Cookie presente sul sito."
+        },
+        {
+          "type": "paragraph",
+          "text": "La configurazione di ZazoomTek disattiva i segnali Google e la personalizzazione pubblicitaria nel tag Analytics. Google può comunque trattare dati tecnici secondo la propria informativa quando Analytics viene autorizzato."
+        },
+        {
+          "type": "heading",
+          "text": "Video YouTube"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le pagine possono mostrare miniature di video ospitate sui server di YouTube. Il lettore video viene caricato soltanto quando l'utente sceglie di riprodurre il contenuto."
+        },
+        {
+          "type": "paragraph",
+          "text": "Gli embed utilizzano la modalità privacy avanzata tramite youtube-nocookie.com. Dopo l'avvio di un video, YouTube/Google può comunque trattare dati tecnici o utilizzare proprie tecnologie in base alle impostazioni dell'utente e alle proprie informative."
+        },
+        {
+          "type": "heading",
+          "text": "Link esterni"
+        },
+        {
+          "type": "paragraph",
+          "text": "I link verso YouTube, TikTok, WhatsApp e Patreon portano a servizi esterni. Gli eventuali cookie utilizzati dopo l'apertura di tali servizi sono gestiti dai rispettivi fornitori."
+        },
+        {
+          "type": "heading",
+          "text": "Gestione dal browser"
+        },
+        {
+          "type": "paragraph",
+          "text": "Puoi gestire, bloccare o cancellare i cookie tramite le impostazioni del tuo browser. Il blocco di alcune tecnologie può limitare il funzionamento di contenuti o servizi esterni."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il consenso ad Analytics è facoltativo e non condiziona l'accesso ai contenuti di ZazoomTek. Eventuali futuri strumenti pubblicitari o ulteriori tecnologie non essenziali verranno descritti qui prima della loro attivazione."
+        }
+      ]
+    },
+    {
+      "slug": "disclaimer",
+      "title": "Disclaimer",
+      "updated": "Ultimo aggiornamento: 6 ottobre 2026.",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "ZazoomTek è un progetto editoriale indipendente dedicato a tecnologia, videogiochi, recensioni, test, unboxing e informazione di settore."
+        },
+        {
+          "type": "heading",
+          "text": "Finalità dei contenuti"
+        },
+        {
+          "type": "paragraph",
+          "text": "I contenuti pubblicati hanno finalità informative, editoriali e di intrattenimento. Opinioni, voti e valutazioni rappresentano il giudizio editoriale dell'autore e non costituiscono consulenza tecnica, legale, finanziaria, medica o professionale."
+        },
+        {
+          "type": "heading",
+          "text": "Accuratezza, aggiornamenti e disponibilità"
+        },
+        {
+          "type": "paragraph",
+          "text": "Viene posta attenzione all'accuratezza delle informazioni, ma prezzi, disponibilità, caratteristiche tecniche, firmware, software, servizi, promozioni e condizioni commerciali possono cambiare dopo la pubblicazione. Prima di effettuare acquisti o prendere decisioni basate su tali informazioni, verifica sempre i dati presso il produttore, lo sviluppatore, il venditore o il fornitore del servizio."
+        },
+        {
+          "type": "paragraph",
+          "text": "ZazoomTek può correggere, aggiornare, integrare o rimuovere contenuti quando emergono nuove informazioni o errori, senza obbligo di preavviso."
+        },
+        {
+          "type": "heading",
+          "text": "Copyright, licenze e materiali di terzi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Salvo diversa indicazione, i contenuti originali pubblicati su ZazoomTek sono distribuiti con licenza Creative Commons CC BY-NC-ND 4.0. Tale licenza riguarda esclusivamente i contenuti originali di ZazoomTek e non si estende automaticamente a materiali di terzi."
+        },
+        {
+          "type": "paragraph",
+          "text": "Marchi, loghi, nomi commerciali, screenshot, immagini promozionali, trailer, artwork e altri materiali appartenenti a terzi restano di proprietà dei rispettivi titolari e sono utilizzati a fini informativi, editoriali, identificativi o di recensione."
+        },
+        {
+          "type": "heading",
+          "text": "Segnalazioni relative a diritti"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se ritieni che un contenuto pubblicato su ZazoomTek violi diritti d'autore, marchi o altri diritti, invia una segnalazione a zazoomtek@gmail.com indicando l'URL interessato, il materiale contestato e le informazioni utili a identificare il diritto rivendicato. La segnalazione sarà verificata e, se fondata, il contenuto verrà corretto o rimosso tempestivamente."
+        },
+        {
+          "type": "heading",
+          "text": "Prodotti ricevuti, collaborazioni e sponsorizzazioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Alcuni prodotti possono essere acquistati autonomamente oppure ricevuti come sample, unità stampa o prodotti in prova. La ricezione di un prodotto non comporta automaticamente una valutazione positiva. Eventuali collaborazioni commerciali o contenuti sponsorizzati vengono indicati quando applicabile e non modificano il principio di indipendenza editoriale."
+        },
+        {
+          "type": "heading",
+          "text": "Affiliazioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Alcune pagine possono contenere link di affiliazione. In qualità di Affiliato Amazon io ricevo un guadagno dagli acquisti idonei. L'eventuale commissione non modifica il giudizio editoriale espresso nei contenuti."
+        },
+        {
+          "type": "heading",
+          "text": "Link e servizi esterni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il sito può contenere collegamenti a siti, piattaforme e servizi di terze parti. ZazoomTek non controlla tali servizi e non è responsabile dei loro contenuti, disponibilità, sicurezza, prezzi, condizioni di vendita, politiche sulla privacy o successive modifiche."
+        },
+        {
+          "type": "heading",
+          "text": "Marchi e rapporti con le aziende"
+        },
+        {
+          "type": "paragraph",
+          "text": "La citazione di aziende, prodotti, marchi o servizi non implica sponsorizzazione, approvazione o partnership, salvo quando espressamente dichiarato nel relativo contenuto."
+        },
+        {
+          "type": "heading",
+          "text": "Contatti"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per segnalazioni, richieste di rettifica o questioni relative ai contenuti puoi scrivere a zazoomtek@gmail.com."
+        },
+        {
+          "type": "paragraph",
+          "text": "Questa pagina descrive le regole editoriali e le limitazioni del sito; non sostituisce una consulenza legale professionale."
+        }
+      ]
+    },
+    {
+      "slug": "note-legali",
+      "title": "Note legali",
+      "updated": "Ultimo aggiornamento: 6 ottobre 2026.",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Questa pagina raccoglie le principali informazioni legali e le condizioni editoriali applicate ai contenuti pubblicati su ZazoomTek."
+        },
+        {
+          "type": "heading",
+          "text": "Copyright e licenze"
+        },
+        {
+          "type": "paragraph",
+          "text": "Salvo diversa indicazione, i contenuti originali pubblicati su ZazoomTek sono distribuiti con licenza Creative Commons CC BY-NC-ND 4.0. La licenza riguarda esclusivamente i contenuti originali di ZazoomTek e non si estende automaticamente a materiali di terzi."
+        },
+        {
+          "type": "heading",
+          "text": "Marchi, immagini e materiali di terzi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Marchi, loghi, nomi commerciali, screenshot, immagini promozionali, trailer, artwork e altri materiali appartenenti a terzi restano di proprietà dei rispettivi titolari e sono utilizzati esclusivamente a fini informativi, editoriali, identificativi o di recensione."
+        },
+        {
+          "type": "heading",
+          "text": "Segnalazioni relative a diritti"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se ritieni che un contenuto pubblicato su ZazoomTek violi diritti d'autore, marchi o altri diritti, invia una segnalazione a zazoomtek@gmail.com indicando l'URL interessato, il materiale contestato e le informazioni utili a identificare il diritto rivendicato. La segnalazione sarà verificata e, se fondata, il contenuto verrà corretto o rimosso tempestivamente."
+        },
+        {
+          "type": "heading",
+          "text": "Affiliazioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Alcune pagine possono contenere link di affiliazione. In qualità di Affiliato Amazon io ricevo un guadagno dagli acquisti idonei. L'eventuale commissione non comporta costi aggiuntivi per l'utente e non modifica il giudizio editoriale espresso nei contenuti."
+        },
+        {
+          "type": "heading",
+          "text": "Prodotti ricevuti, sample, collaborazioni e sponsorizzazioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Alcuni prodotti possono essere acquistati autonomamente oppure ricevuti come sample, unità stampa o prodotti in prova. La ricezione di un prodotto non comporta automaticamente una valutazione positiva. Eventuali collaborazioni commerciali o contenuti sponsorizzati vengono indicati quando applicabile."
+        },
+        {
+          "type": "heading",
+          "text": "Indipendenza editoriale"
+        },
+        {
+          "type": "paragraph",
+          "text": "Recensioni, voti e valutazioni riflettono il giudizio editoriale di ZazoomTek. La presenza di link affiliati, sample o collaborazioni non determina automaticamente il contenuto o l'esito di una recensione."
+        },
+        {
+          "type": "heading",
+          "text": "Accuratezza e aggiornamento delle informazioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Viene posta attenzione all'accuratezza delle informazioni, ma prezzi, disponibilità, caratteristiche tecniche, firmware, software, servizi, promozioni e condizioni commerciali possono cambiare dopo la pubblicazione. Prima di effettuare un acquisto o prendere decisioni sulla base di tali informazioni, verifica sempre i dati presso produttore, sviluppatore, venditore o fornitore del servizio."
+        },
+        {
+          "type": "heading",
+          "text": "Finalità dei contenuti"
+        },
+        {
+          "type": "paragraph",
+          "text": "I contenuti pubblicati hanno finalità informative, editoriali e di intrattenimento e non costituiscono consulenza tecnica, legale, finanziaria, medica o professionale."
+        },
+        {
+          "type": "heading",
+          "text": "Link e servizi esterni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il sito può contenere collegamenti a siti, piattaforme e servizi di terze parti. ZazoomTek non controlla tali servizi e non è responsabile dei loro contenuti, disponibilità, sicurezza, prezzi, condizioni di vendita, politiche sulla privacy o successive modifiche."
+        },
+        {
+          "type": "heading",
+          "text": "Rapporti con aziende e marchi"
+        },
+        {
+          "type": "paragraph",
+          "text": "La citazione di aziende, prodotti, marchi o servizi non implica sponsorizzazione, approvazione, partnership o rapporto commerciale, salvo quando espressamente dichiarato nel relativo contenuto."
+        },
+        {
+          "type": "heading",
+          "text": "Modifiche e correzioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "ZazoomTek può correggere, aggiornare, integrare o rimuovere contenuti quando emergono nuove informazioni, errori o richieste fondate, senza obbligo di preavviso."
+        },
+        {
+          "type": "paragraph",
+          "text": "Per richieste legali, segnalazioni o rettifiche: zazoomtek@gmail.com"
+        }
+      ]
+    }
+  ]
+}

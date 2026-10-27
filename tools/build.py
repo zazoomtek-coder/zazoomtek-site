@@ -185,9 +185,40 @@ def playlist_cards():
 def video_cards(rows):
  if not rows:return blank()
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
+LEGAL_LINKS=[("Privacy Policy","/privacy-policy.html"),("Cookie Policy","/cookie-policy.html"),
+             ("Disclaimer","/disclaimer.html"),("Note legali","/note-legali.html")]
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-compact-17"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
+ footer=('<footer class="footer"><div class="wrap"><nav class="footer-legal" aria-label="Informative e note legali">'+footer_links+'</nav>'
+         '<div class="footer-brand">© 2026 ZazoomTek · Tecnologia e Gaming.</div></div></footer>')
+ cookie=('<button id="cookie-preferences" class="cookie-shortcut" type="button" aria-controls="cookie-panel" aria-expanded="false">Cookie</button>'
+         '<section id="cookie-panel" class="cookie-panel" role="dialog" aria-modal="false" aria-label="Preferenze cookie" hidden>'
+         '<h2>Preferenze cookie</h2><p>Google Analytics 4 è facoltativo e si attiva soltanto con il tuo consenso.</p>'
+         '<div class="cookie-actions"><button id="cookie-reject" type="button">Rifiuta</button>'
+         '<button id="cookie-accept" type="button">Accetta Analytics</button></div>'
+         '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+         '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-legal-18"></head><body>'
+         '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
+         '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
+         '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
+         '<main class="wrap">'+inner+'</main>'+footer+cookie+
+         '<script defer src="/assets/js/site.js?v=20261027-legal-18"></script></body></html>')
+def legal_pages():
+ data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
+ allowed={"privacy-policy","cookie-policy","disclaimer","note-legali"}
+ if len(data["pages"])!=4 or set(p["slug"] for p in data["pages"])!=allowed:raise ValueError("Missing required legal pages")
+ for page in data["pages"]:
+  body='<article class="legal-article"><h1>'+esc(page["title"])+'</h1><p class="legal-updated">'+esc(page["updated"])+'</p>'
+  for block in page["blocks"]:
+   if block["type"]=="heading":body+='<h2>'+esc(block["text"])+'</h2>'
+   elif block["type"]=="paragraph":body+='<p>'+esc(block["text"])+'</p>'
+   else:raise ValueError("Invalid legal content block")
+  body+='</article>'
+  (O/(page["slug"]+".html")).write_text(shell(page["title"],body),encoding="utf-8")
+
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -503,7 +534,7 @@ def article(r,rows):
  cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if bool(safe_image(r.get("image",""))) else ""
  text=''.join('<p>'+render_paragraph(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str) and p.strip())
  if r.get("is_excerpt"):text='<p class="excerpt-notice">Archivio parziale: questo è un estratto, non il testo integrale del post YouTube.</p>'+text
- video=('<div class="player"><iframe title="Video YouTube" loading="lazy" allowfullscreen src="https://www.youtube-nocookie.com/embed/'+r["youtube_id"]+'"></iframe></div>') if re.fullmatch(r"[A-Za-z0-9_-]{11}",r.get("youtube_id","")) else ""
+ video=('<div class="player"><button type="button" class="video-start" data-youtube-id="'+esc(r["youtube_id"],quote=True)+'" aria-label="Riproduci su YouTube: '+esc(r["title"],quote=True)+'"><img loading="lazy" src="https://i.ytimg.com/vi/'+r["youtube_id"]+'/hqdefault.jpg" alt=""><span class="video-start-label">▶ Riproduci il video</span></button></div>') if re.fullmatch(r"[A-Za-z0-9_-]{11}",r.get("youtube_id","")) else ""
  body='<article class="article"><h1>'+esc(r["title"])+'</h1><p class="category">'+esc(TYPES[r["category"]])+'</p>'+cover+video+'<div class="article-text">'+text+'</div></article>'
  return inside(r["title"],body,rows,r["slug"],r["category"])
 def main():
@@ -521,6 +552,7 @@ def main():
    for page in range(2,max(1,math.ceil(count/ARCHIVE_PAGE_SIZE))+1):
     (O/(key+"-page-"+str(page)+".html")).write_text(archive(key,rows,page),encoding="utf-8")
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
+ legal_pages()
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")

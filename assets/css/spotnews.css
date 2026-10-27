@@ -334,3 +334,42 @@ main.wrap{padding-top:28px;overflow:visible}
 @media(max-width:780px){
  .home-sidebar .sidebar-stack{position:static;inset:auto;height:auto;max-height:none;overflow:visible}
 }
+
+/* Universal legal footer and standalone policy pages */
+.footer{background:#171717;color:#dedede;text-align:center;padding:24px 0;margin-top:42px}
+.footer .wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.footer-legal{display:flex;justify-content:center;flex-wrap:wrap;gap:9px 22px}
+.footer-legal a{color:#f0f0f0;text-decoration:none;font-size:13px;font-weight:700}
+.footer-legal a:hover,.footer-legal a:focus-visible{color:#ff5c68;text-decoration:underline}
+.footer-brand{font-size:12px;color:#bdbdbd}
+.legal-article{max-width:850px;width:100%;margin:18px auto 54px;padding:26px 28px;background:#fff;border:1px solid #ebebeb;overflow-wrap:anywhere}
+.legal-article h1{font-size:clamp(26px,3vw,36px);line-height:1.2;margin:0 0 14px}
+.legal-article .legal-updated{font-size:13px;color:#747474;margin:0 0 22px}
+.legal-article h2{font-size:19px;line-height:1.35;margin:25px 0 10px;padding-left:12px;border-left:4px solid #f44756;color:#161616}
+.legal-article p{font-size:15px;line-height:1.75;margin:0 0 14px;color:#2b2b2b}
+.cookie-shortcut{position:fixed;bottom:10px;left:10px;z-index:1100;background:#fff;color:#111;
+ padding:7px 12px;border:1px solid #bbb;box-shadow:0 2px 12px #0002;
+ font-size:12px;font-weight:800;cursor:pointer}
+.cookie-panel[hidden]{display:none!important}
+.cookie-panel{position:fixed;bottom:47px;left:10px;z-index:1101;width:min(370px,calc(100vw - 20px));
+ padding:18px 18px 15px;border:1px solid #ccc;background:#fff;color:#111;
+ box-shadow:0 6px 30px #0004;text-align:left}
+.cookie-panel h2{font-size:19px;margin:0 0 10px}
+.cookie-panel p{font-size:13px;line-height:1.5;margin:0 0 12px}
+.cookie-panel a{font-size:12px;text-decoration:underline;color:#111}
+.cookie-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.cookie-actions button{cursor:pointer;padding:9px 13px;font-size:13px;font-weight:800}
+#cookie-reject{background:#eee;color:#111;border:1px solid #aaa}
+#cookie-accept{background:#e33144;color:#fff;border:1px solid #e33144}
+.video-start{position:relative;display:block;width:100%;aspect-ratio:16/9;overflow:hidden;border:0;padding:0;cursor:pointer;background:#141414;color:#fff}
+.video-start img{display:block;width:100%;height:100%;object-fit:cover;opacity:.88}
+.video-start-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+ color:#fff;background:#e9002b;padding:12px 18px;border-radius:8px;
+ font-weight:900;white-space:nowrap;box-shadow:0 3px 14px #0006}
+.player iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
+@media(max-width:600px){
+ .legal-article{padding:20px 16px;margin:10px auto 36px}
+ .legal-article p{font-size:14px}
+ .footer-legal{gap:11px 16px}
+ .video-start-label{padding:9px 12px;font-size:12px}
+}
