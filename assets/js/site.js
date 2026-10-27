@@ -120,4 +120,13 @@
  syncEditorialRails();
  window.addEventListener("load",syncEditorialRails,{once:true});
  window.addEventListener("resize",syncEditorialRails);
+
+ // Broken or unavailable media always falls back to a filled 16:9 editorial title card.
+ for(const image of document.querySelectorAll(".editorial-media-frame .editorial-media-fg")){
+  const frame=image.closest(".editorial-media-frame");
+  if(!frame)continue;
+  const fail=()=>frame.classList.add("is-fallback");
+  image.addEventListener("error",fail,{once:true});
+  if(image.complete&&image.naturalWidth===0)fail();
+ }
 })();

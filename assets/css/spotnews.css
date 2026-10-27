@@ -580,3 +580,63 @@ main.wrap{padding-top:28px;overflow:visible}
  .story-article{padding:16px!important}
  .story-article .article-text{font-size:15px!important}
 }
+
+
+/* 2026-10-27 v23 | Four large reviews, two large Specials, standalone Guide+Extra. */
+.home-column>.section>.cards,.specials-showcase>.cards{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:17px!important;align-items:stretch!important
+}
+.home-column>.section>.cards .card,.specials-showcase .card{
+ display:block!important;min-width:0!important;max-width:100%!important;
+ background:#fff!important;border:1px solid #e1e1e1!important;padding:0 0 11px!important;overflow:visible!important
+}
+.home-column>.section>.cards .thumb,.specials-showcase .card .thumb{
+ display:block!important;width:100%!important;aspect-ratio:16/9!important;
+ overflow:hidden!important;background:#1d2d40!important
+}
+.home-column>.section>.cards .card small,.specials-showcase .card small{
+ margin:10px 13px 0!important;font-size:11px!important;display:block!important
+}
+.home-column>.section>.cards .card h3,.specials-showcase .card h3{
+ margin:5px 13px 0!important;font-size:16px!important;line-height:1.38!important
+}
+.standalone-feature-pair{margin:0 0 28px}
+.standalone-feature-pair>.feature-editorial{min-width:0}
+.standalone-feature-pair .feature-main-thumb,.standalone-feature-pair .compact-item-image{
+ width:100%!important;aspect-ratio:16/9!important;position:relative!important;
+ overflow:hidden!important;display:block!important;background:#1d2d40!important
+}
+/* Preserve the entire original image; fill unused 16:9 space with a softly blurred duplicate. */
+.editorial-media-frame{display:block!important;width:100%!important;height:100%!important;
+ aspect-ratio:16/9!important;position:relative!important;overflow:hidden!important;
+ isolation:isolate;background:linear-gradient(130deg,#25384d,#141f32)!important
+}
+.editorial-media-frame img.editorial-media-bg{
+ display:block!important;position:absolute!important;inset:-10%!important;
+ width:120%!important;height:120%!important;object-fit:cover!important;
+ opacity:.58!important;filter:blur(14px) saturate(.82)!important;transform:scale(1.08);
+}
+.editorial-media-frame img.editorial-media-fg{
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;object-fit:contain!important;
+ z-index:2!important;max-width:none!important;filter:none!important
+}
+.editorial-media-fallback{display:none!important;position:absolute;inset:0;z-index:3;
+ padding:14px 17px;align-items:center;justify-content:center;flex-direction:column;
+ text-align:center;background:linear-gradient(130deg,#182c40,#34475b);
+ color:#fff!important;gap:8px;overflow-wrap:anywhere;
+}
+.editorial-media-fallback small{background:#e7374b!important;color:#fff!important;
+ font-weight:900!important;letter-spacing:.3px!important;padding:5px 8px!important;margin:0!important}
+.editorial-media-fallback strong{color:#fff;font-weight:900;font-size:clamp(12px,1.6vw,18px);line-height:1.32}
+.editorial-media-frame.is-fallback .editorial-media-fallback{display:flex!important}
+.editorial-media-frame.is-fallback img{display:none!important}
+@media(max-width:780px){
+ .home-column>.section>.cards,.specials-showcase>.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .standalone-feature-pair{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:22px}
+}
+@media(max-width:510px){
+ .home-column>.section>.cards,.specials-showcase>.cards{grid-template-columns:minmax(0,1fr)!important}
+ .editorial-media-fallback strong{font-size:14px}
+}

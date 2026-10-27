@@ -234,12 +234,12 @@ def shell(title,inner):
          '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-spotnews-final-22"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-covers-23"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
          '<main class="wrap">'+inner+'</main>'+footer+cookie+
-         '<script defer src="/assets/js/site.js?v=20261027-layout-22"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261027-covers-23"></script></body></html>')
 def legal_pages():
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
  allowed={"privacy-policy","cookie-policy","disclaimer","note-legali"}
@@ -255,24 +255,34 @@ def legal_pages():
 
 def safe_image(value):
  if not isinstance(value,str):return ""
- if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
+ if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):
+  return value if (P/value.lstrip("/")).is_file() else ""
  from urllib.parse import urlparse
  u=urlparse(value)
  if u.scheme=="https" and u.hostname in ("yt3.ggpht.com","i.ytimg.com","mcusercontent.com") and not u.username and not u.password:return value
  return ""
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
+def editorial_cover(row):
+ """Every cover is a complete original photo within a 16:9 frame; the same photo fills the background."""
+ url=safe_image(row.get("image",""))
+ title=esc(clean_title(row.get("title","ZazoomTek")))
+ section=esc(TYPES.get(row.get("category"),"ZazoomTek"))
+ if url:
+  src=esc(url,quote=True)
+  return ('<span class="editorial-media-frame">'
+          '<img class="editorial-media-bg" loading="lazy" src="'+src+'" alt="" aria-hidden="true">'
+          '<img class="editorial-media-fg" loading="lazy" src="'+src+'" alt="'+title+'">'
+          '<span class="editorial-media-fallback" aria-hidden="true"><small>'+section+'</small><strong>'+title+'</strong></span>'
+          '</span>')
+ return '<span class="editorial-media-frame is-fallback"><span class="editorial-media-fallback"><small>'+section+'</small><strong>'+title+'</strong></span></span>'
 def cards(rows):
  if not rows:return ""
  entries=[]
  for r in rows:
-  cover=safe_image(r.get("image",""))
-  if cover:
-   visual='<img loading="lazy" src="'+esc(cover,quote=True)+'" alt="">'
-  else:
-   # Explicit editorial visual when the original post has no image (not a fake photograph).
-   visual='<span class="editorial-cover"><span>'+esc(TYPES[r["category"]])+'</span><strong>'+esc(r["title"])+'</strong></span>'
   url="/"+r["slug"]+".html"
-  entries.append('<article class="card"><a class="thumb" href="'+url+'">'+visual+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(r["title"])+'</a></h3></article>')
+  visual=editorial_cover(r)
+  entries.append('<article class="card"><a class="thumb" href="'+url+'">'+visual+'</a>'
+                 '<small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
  return '<div class="cards">'+''.join(entries)+'</div>'
 SECTION_URLS={"In evidenza":"/news.html","News Tech":"/news-tech.html","News Gaming":"/news-gaming.html","Ultime Recensioni":"/recensioni.html","Guide e Extra":"/guide.html","Speciali":"/speciali.html","Ultimi Video":"https://www.youtube.com/@ZazoomTek","Notizie Web":"/notizie-web.html"}
 def bar(title,link,style="section"):
@@ -376,13 +386,10 @@ def compact_cards(rows):
  out=[]
  for r in rows:
   href="/"+r["slug"]+".html"
-  image=safe_image(r.get("image",""))
-  media=('<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else
-         '<span class="compact-card-fallback">'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</span>')
   day=date_label(r)
-  out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+media+'</a>'
+  out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+editorial_cover(r)+'</a>'
              '<div class="compact-item-text"><span class="compact-item-type">'+esc(TYPES.get(r["category"],""))+'</span>'
-             '<h3><a href="'+href+'">'+esc(r["title"])+'</a></h3>'
+             '<h3><a href="'+href+'">'+esc(clean_title(r["title"]))+'</a></h3>'
              +('<time>'+esc(day)+'</time>' if day else "")+'</div></article>')
  return '<div class="cards-compact">'+''.join(out)+'</div>'
 def feature_box(label,items):
@@ -390,15 +397,15 @@ def feature_box(label,items):
  if not items:return ""
  primary=items[0]
  url="/"+primary["slug"]+".html"
- cover=safe_image(primary.get("image",""))
- pic=('<img loading="lazy" src="'+esc(cover,quote=True)+'" alt="">' if cover else
-      '<span class="feature-main-fallback">'+esc(TYPES.get(primary["category"],label))+'</span>')
- main=('<article class="feature-main-item"><a class="feature-main-thumb" href="'+url+'">'+pic+'</a>'
+ main=('<article class="feature-main-item"><a class="feature-main-thumb" href="'+url+'">'
+       +editorial_cover(primary)+'</a>'
        '<div class="feature-main-description"><h3><a href="'+url+'">'+esc(clean_title(primary["title"]))+'</a></h3></div></article>')
  small=compact_cards(items[1:3]) if len(items)>1 else ""
  return '<div class="spotnews-feature feature-editorial">'+bar(label,href,"feature")+main+small+'</div>'
+def feature_pair(guides,extras):
+ return '<div class="feature-pair standalone-feature-pair">'+feature_box("GUIDE",guides)+feature_box("EXTRA",extras)+'</div>'
 def special_gallery(rows):
- return '<div class="specials-thumbnails">'+compact_cards(rows)+'</div>' if rows else ""
+ return '<div class="specials-showcase">'+cards(rows)+'</div>' if rows else ""
 def feature_pair(guides,extras):
  return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("EXTRA",extras)+'</div>'
 # Feed RSS pubblici di sei testate italiane, un articolo per testata, fonte esterna esplicita.
@@ -562,7 +569,7 @@ def home(rows):
  sections=[
   ("News Tech",cards(tech_low)),
   ("News Gaming",cards(gaming_low)),
-  ("Ultime Recensioni",compact_cards(reviews)),
+  ("Ultime Recensioni",cards(reviews)),
   ("Speciali",special_gallery(specials)),
   ("Guide e Extra",feature_pair(guides,extras)),
   ("Ultimi Video",video_section),
@@ -571,7 +578,7 @@ def home(rows):
  # Sidebar is last by design, so its articles can never duplicate the primary blocks.
  sidebar_html=sidebar(rows,True,global_used)
  top=section("In evidenza",featured_showcase(spotlight))
- return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
+ return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name=="Guide e Extra" else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
 def web_archive(rows):
  content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni collegamento apre la notizia sul sito originale.</p>'+web_news_cards(web_news())
  return inside("Notizie Web",content,rows,show_related=False)
@@ -642,9 +649,8 @@ def legacy_article_redirects(rows):
 def main():
  rows=posts()
  if O.exists():shutil.rmtree(O)
- (O/"assets/css").mkdir(parents=True);(O/"assets/js").mkdir(parents=True)
- shutil.copy2(P/"assets/css/spotnews.css",O/"assets/css/spotnews.css")
- shutil.copy2(P/"assets/js/site.js",O/"assets/js/site.js")
+ # Copy the actual covers and other local editorial assets, not CSS/JS alone.
+ shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
  (O/"index.html").write_text(home(rows),encoding="utf-8")
  for key in GROUPS:
   (O/(key+".html")).write_text(archive(key,rows),encoding="utf-8")
