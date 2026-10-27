@@ -711,3 +711,39 @@ main.wrap{padding-top:28px;overflow:visible}
  .story-article .article-text>p{margin-bottom:12px!important}
  .story-article .article-text>h2{margin-top:21px!important;margin-bottom:10px!important}
 }
+
+
+/* Universal footer, social channels, contacts and floating return-to-top — v28 */
+.footer{background:#171717!important;color:#e9e9e9!important;margin-top:42px!important;padding:29px 15px 25px!important;text-align:center!important}
+.footer .wrap{display:flex!important;flex-direction:column!important;align-items:center!important;gap:12px!important}
+.footer-main-links,.footer-social-links,.footer-legal{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;column-gap:18px!important;row-gap:9px!important;width:100%}
+.footer-main-links{margin-bottom:2px}
+.footer-main-links a{font-size:12px;color:#f1f1f1!important;font-weight:650;text-decoration:none}
+.footer-social-links a{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#f3f3f3!important;font-weight:600;text-decoration:none}
+.footer-social-symbol{display:inline-block;font-weight:900;color:#ff4860;font-size:14px;line-height:1}
+.footer-legal a{font-size:12px;color:#cfcfcf!important;text-decoration:none}
+.footer-main-links a:hover,.footer-social-links a:hover,.footer-legal a:hover{color:#ff5c68!important;text-decoration:underline}
+.footer-main-links a:focus-visible,.footer-social-links a:focus-visible,.footer-legal a:focus-visible{outline:2px solid #ff4962;outline-offset:4px}
+.footer-brand{font-size:12px!important;color:#aaa!important;margin-top:1px}
+.contacts-article{background:#fff;max-width:930px;margin:23px auto 30px;padding:34px 37px 40px;border:1px solid #e7e7e7}
+.contacts-article h1{color:#171717;font-size:clamp(29px,3.2vw,40px);font-weight:900;line-height:1.25;margin:0 0 24px}
+.contacts-article p{font-size:16px;line-height:1.75;color:#242424;margin:0 0 19px}
+.contacts-article .contacts-email{font-weight:900;font-size:18px;margin-top:22px}
+.contacts-article .contacts-email a{color:#db1835;text-decoration:underline;text-underline-offset:3px}
+.back-to-top{position:fixed;right:24px;bottom:26px;z-index:1080;display:grid;place-items:center;
+ width:58px;height:58px;background:#e40035;border:0;border-radius:0;color:#fff;cursor:pointer;
+ box-shadow:0 5px 22px #0003;transition:background-color .15s,transform .15s}
+.back-to-top span{font-weight:500;font-size:35px;line-height:1}
+.back-to-top:hover{background:#ba002e;transform:translateY(-3px)}
+.back-to-top:focus-visible{outline:3px solid #141414;outline-offset:3px}
+.back-to-top[hidden]{display:none!important}
+@media(max-width:650px){
+ .contacts-article{margin:12px 0 20px;padding:22px 18px}
+ .contacts-article p{font-size:15px}
+ .footer{padding:25px 10px!important}
+ .footer-main-links,.footer-social-links,.footer-legal{column-gap:13px!important;row-gap:10px!important}
+ .footer-main-links a,.footer-legal a{font-size:12px}
+ .back-to-top{right:14px;bottom:18px;width:48px;height:48px}
+ .back-to-top span{font-size:29px}
+}
+@media(prefers-reduced-motion:reduce){.back-to-top{transition:none}}

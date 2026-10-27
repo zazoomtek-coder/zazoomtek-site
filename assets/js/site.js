@@ -129,4 +129,16 @@
   image.addEventListener("error",fail,{once:true});
   if(image.complete&&image.naturalWidth===0)fail();
  }
+
+ const returnTop=document.querySelector("#back-to-top");
+ if(returnTop){
+  const updateScrollTop=()=>{
+   returnTop.hidden=window.scrollY<300;
+  };
+  returnTop.addEventListener("click",()=>{
+   window.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
+  });
+  window.addEventListener("scroll",updateScrollTop,{passive:true});
+  updateScrollTop();
+ }
 })();

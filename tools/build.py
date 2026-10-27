@@ -224,25 +224,47 @@ def video_cards(rows):
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 LEGAL_LINKS=[("Privacy Policy","/privacy-policy"),("Cookie Policy","/cookie-policy"),
              ("Disclaimer","/disclaimer"),("Note legali","/note-legali")]
+FOOTER_SOCIAL_LINKS=[
+ ("▶","YouTube","https://www.youtube.com/@ZazoomTek"),
+ ("♥","Patreon","https://www.patreon.com/cw/ZazoomTek"),
+ ("♫","TikTok","https://www.tiktok.com/@zazoomtek"),
+ ("◉","WhatsApp","https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S"),
+ ("◔","RSS","/feed.xml"),
+ ("✉","Contatti","/contatti")
+]
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
+ footer_menu="".join('<a href="'+esc(url,quote=True)+'">'+esc(label.title())+'</a>' for label,url in NAV)
  footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
- footer=('<footer class="footer"><div class="wrap"><nav class="footer-legal" aria-label="Informative e note legali">'+footer_links+'</nav>'
-         '<div class="footer-brand">© 2026 ZazoomTek · Tecnologia e Gaming.</div></div></footer>')
+ social_links="".join('<a href="'+esc(url,quote=True)+'"'+
+                      (' target="_blank" rel="noopener noreferrer"' if url.startswith("https://") else '')+
+                      '><span aria-hidden="true" class="footer-social-symbol">'+esc(symbol)+'</span> '+esc(name)+'</a>'
+                      for symbol,name,url in FOOTER_SOCIAL_LINKS)
+ footer=('<footer class="footer"><div class="wrap">'
+         '<nav class="footer-main-links" aria-label="Navigazione nel footer">'+footer_menu+'</nav>'
+         '<nav class="footer-social-links" aria-label="Canali ZazoomTek e contatti">'+social_links+'</nav>'
+         '<nav class="footer-legal" aria-label="Informative e note legali">'+footer_links+'</nav>'
+         '<div class="footer-brand">© 2026 ZazoomTek · Tecnologia e Gaming.</div>'
+         '</div></footer>')
  cookie=('<button id="cookie-preferences" class="cookie-shortcut" type="button" aria-controls="cookie-panel" aria-expanded="false">Cookie</button>'
          '<section id="cookie-panel" class="cookie-panel" role="dialog" aria-modal="false" aria-label="Preferenze cookie" hidden>'
          '<h2>Preferenze cookie</h2><p>Google Analytics 4 è facoltativo e si attiva soltanto con il tuo consenso.</p>'
          '<div class="cookie-actions"><button id="cookie-reject" type="button">Rifiuta</button>'
          '<button id="cookie-accept" type="button">Accetta Analytics</button></div>'
          '<a href="/cookie-policy">Leggi la Cookie Policy</a></section>')
+ scroll_top=('<button type="button" class="back-to-top" id="back-to-top"'
+             ' aria-label="Torna all’inizio della pagina" title="Torna su" hidden>'
+             '<span aria-hidden="true">↑</span></button>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-paragraphs-27"></head><body>'
+         '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-footer-28"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
-         '<main class="wrap">'+inner+'</main>'+footer+cookie+
-         '<script defer src="/assets/js/site.js?v=20261027-routes-26"></script></body></html>')
+         '<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
+         '<script defer src="/assets/js/site.js?v=20261027-footer-28"></script></body></html>')
+
 def legal_pages():
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
  allowed={"privacy-policy","cookie-policy","disclaimer","note-legali"}
@@ -660,6 +682,59 @@ def legacy_article_redirects(rows):
  (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
+def contacts_page():
+ # Editor-approved Italian text. The email link opens the reader's own mail app.
+ lines=[
+ "Vuoi collaborare con ZazoomTek? Sei un'azienda, un brand, un'agenzia PR o un appassionato di tecnologia e videogiochi?",
+ "ZazoomTek.it è un portale dedicato al mondo della tecnologia e del gaming, affiancato dal canale YouTube ZazoomTek, dove condividiamo recensioni, prove prodotto, unboxing, gameplay, notizie e approfondimenti.",
+ "Siamo disponibili a valutare collaborazioni con aziende e agenzie di comunicazione, richieste di recensioni, invio di prodotti da testare, codici review per videogiochi, comunicati stampa e anteprime.",
+ "Il nostro obiettivo è offrire contenuti originali, informativi e indipendenti, aiutando lettori e spettatori a conoscere meglio prodotti, tecnologie e videogiochi.",
+ "Hai una proposta, vuoi segnalarci una notizia o semplicemente entrare in contatto con la redazione?",
+ "Scrivici direttamente via email. Saremo lieti di valutare il tuo messaggio."
+ ]
+ body='<article class="contacts-article"><h1>Contatti</h1>'+''.join('<p>'+esc(line)+'</p>' for line in lines)
+ body+='<p class="contacts-email">✉ <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a></p></article>'
+ (O/"contatti.html").write_text(shell("Contatti",body),encoding="utf-8")
+
+def rss_feed(rows):
+ """Generate a real RSS 2.0 feed with only first-party editorial content."""
+ from xml.etree.ElementTree import Element,SubElement,ElementTree
+ from email.utils import format_datetime
+ from datetime import datetime,timezone
+ base=(os.getenv("CF_PAGES_URL") or ("https://zazoomtek-spotnews-preview.pages.dev" if PREVIEW else "https://zazoomtek.it")).rstrip("/")
+ # CF_PAGES_URL might not be set in a local build; never emit localhost links.
+ if not base.startswith("https://"):base="https://zazoomtek.it"
+ rss=Element("rss",{"version":"2.0"})
+ channel=SubElement(rss,"channel")
+ for key,value in (("title","ZazoomTek - Tecnologia e Gaming"),("link",base+"/"),("description","Ultime notizie, recensioni, guide e approfondimenti di ZazoomTek."),("language","it-it")):
+  SubElement(channel,key).text=value
+ posted=set()
+ for row in sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True):
+  slug=row.get("slug","")
+  if not slug or slug in posted:continue
+  if row.get("category") not in TYPES or row.get("category")=="video":continue
+  posted.add(slug)
+  item=SubElement(channel,"item")
+  url=base+"/"+slug
+  SubElement(item,"title").text=clean_title(row.get("title") or "")
+  SubElement(item,"link").text=url
+  SubElement(item,"guid",{"isPermaLink":"true"}).text=url
+  data=row.get("published_at") or row.get("date") or ""
+  try:
+   when=datetime.fromisoformat(str(data).replace("Z","+00:00"))
+   if when.tzinfo is None:when=when.replace(tzinfo=timezone.utc)
+   SubElement(item,"pubDate").text=format_datetime(when)
+  except (ValueError,TypeError):pass
+  SubElement(item,"category").text=TYPES.get(row.get("category"),"Articolo")
+  body=row.get("body") or []
+  if isinstance(body,str):body=[body]
+  first=next((v for v in body if isinstance(v,str) and v.strip() and not v.strip().startswith(("##","**"))),"")
+  SubElement(item,"description").text=first.strip()[:500]
+  if len(posted)>=50:break
+ (O/"feed.xml").parent.mkdir(parents=True,exist_ok=True)
+ ElementTree(rss).write(O/"feed.xml",encoding="utf-8",xml_declaration=True)
+ print("RSS feed generated:",len(posted),"articles",flush=True)
+
 def main():
  from verify_article_typography import verify
  verify()
@@ -677,6 +752,8 @@ def main():
     (O/(key+"-page-"+str(page)+".html")).write_text(archive(key,rows,page),encoding="utf-8")
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
  legal_pages()
+ contacts_page()
+ rss_feed(rows)
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  legacy_article_redirects(rows)
  (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")

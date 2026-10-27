@@ -32,6 +32,9 @@ def check_dist(root):
     if not (root/path.lstrip("/")).is_file():errors.append(f"{doc.name} links to missing asset {path}")
     continue
    if path=="/":continue
+   if path=="/feed.xml":
+    if not (root/"feed.xml").is_file():errors.append("RSS feed missing: /feed.xml")
+    continue
    if path.endswith(".html"):
     errors.append(f"{doc.name} uses noncanonical .html URL: {path}")
    route=pretty(path)
@@ -62,8 +65,16 @@ def check_dist(root):
  # Explicitly verify all four legal pages and editorial archives.
  for name in ("news","news-tech","news-gaming","recensioni","recensioni-tech",
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
-              "cookie-policy","disclaimer","note-legali"):
+              "cookie-policy","disclaimer","note-legali","contatti"):
   if name not in real_pages:errors.append("Required page missing: /"+name)
+ if not (root/"feed.xml").is_file():errors.append("Required RSS feed missing")
+ else:
+  from xml.etree.ElementTree import parse
+  try:
+   parsed=parse(root/"feed.xml").getroot()
+   if parsed.tag!="rss" or not parsed.find("./channel/item"):
+    errors.append("RSS feed is empty or invalid")
+  except Exception as exc:errors.append("RSS XML could not be parsed: "+str(exc))
  if errors:
   raise ValueError("Site route verification failed:\n"+"\n".join(errors[:50]))
  print(f"Route verification successful: {len(documents)} HTML pages, all links resolved, {len(redirects)} safe redirect aliases",flush=True)
