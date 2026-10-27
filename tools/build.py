@@ -13,7 +13,22 @@ NAV=[("HOME","/"),("NEWS","/news.html"),("RECENSIONI","/recensioni.html"),("GUID
 TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra","video":"Video"}
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
+def original_routes():
+ data=json.loads((P/"data/editorial_classification.json").read_text(encoding="utf-8"))
+ if len(data.get("items",[]))!=14:raise ValueError("Editorial classification manifest incomplete")
+ return data["items"]
+def classification_for_post(item):
+ pid=str(item.get("id") or "").casefold()
+ slug=str(item.get("slug") or item.get("original_slug") or "").casefold()
+ title=str(item.get("title") or "")
+ for row in original_routes():
+  if pid and str(row.get("post_id") or "").casefold()==pid:return row["category"]
+  if slug and slug in (str(row["path"]).casefold(),str(row.get("canonical_slug") or "").casefold()):return row["category"]
+  if title and normalized_title(title)==normalized_title(row["title"]):return row["category"]
+ return None
 def category_for_post(item):
+ locked=classification_for_post(item)
+ if locked:return locked
  explicit=item.get("category")
  if explicit in TYPES and explicit!="video":return explicit
  kind=str(item.get("type","")).strip().lower()
@@ -108,6 +123,7 @@ def posts():
   slug=r.get("slug","")
   if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug) or slug in GROUPS:continue
   if r.get("category") not in TYPES or not isinstance(r.get("title"),str):continue
+  r["category"]=classification_for_post(r) or r["category"]
   key=(r["category"],normalized_title(r["title"]))
   if not key[1]:continue
   current=unique.get(key)
@@ -200,7 +216,7 @@ def shell(title,inner):
          '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-articles-19"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-routing-20"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
@@ -318,12 +334,25 @@ def feature_mini_cards(items):
   rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
  # Do not generate empty placeholders or invented articles.
  return '<div class="cards">'+''.join(rendered)+'</div>'
+def compact_cards(rows):
+ if not rows:return ""
+ out=[]
+ for r in rows:
+  href="/"+r["slug"]+".html"
+  image=safe_image(r.get("image",""))
+  media=('<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else
+         '<span class="compact-card-fallback">'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</span>')
+  day=date_label(r)
+  out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+media+'</a>'
+             '<div class="compact-item-text"><span class="compact-item-type">'+esc(TYPES.get(r["category"],""))+'</span>'
+             '<h3><a href="'+href+'">'+esc(r["title"])+'</a></h3>'
+             +('<time>'+esc(day)+'</time>' if day else "")+'</div></article>')
+ return '<div class="cards-compact">'+''.join(out)+'</div>'
 def feature_box(label,items):
- primary=items[:1]; secondary=items[1:3]
  href="/guide.html" if label=="GUIDE" else "/extra.html"
- return '<div class="spotnews-feature">'+bar(label,href,"feature")+'<div class="feature-main">'+cards(primary)+'</div>'+('<div class="feature-small">'+feature_mini_cards(secondary)+'</div>' if secondary else '')+'</div>'
+ return '<div class="spotnews-feature">'+bar(label,href,"feature")+compact_cards(items)+'</div>'
 def special_gallery(rows):
- return '<div class="specials-thumbnails">'+cards(rows[:2])+'</div>' if rows else blank()
+ return '<div class="specials-thumbnails">'+compact_cards(rows)+'</div>' if rows else ""
 def feature_pair(guides,extras):
  return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("EXTRA",extras)+'</div>'
 # Feed RSS pubblici di sei testate italiane, un articolo per testata, fonte esterna esplicita.
@@ -469,13 +498,13 @@ def home(rows):
  all_news=sort_by_date_desc(tech+gaming)
  # The latest dated news leads regardless of category or editorial flag.
  # Reserve the Special/Guide/Extra blocks before news so duplicate archive categories cannot consume Specials.
- specials=take_unique([r for r in rows if r["category"]=="speciali"],2,global_used)
- guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
- extras=take_unique([r for r in rows if r["category"]=="extra"],2,global_used)
+ specials=take_unique([r for r in rows if r["category"]=="speciali"],8,global_used)
+ guides=take_unique([r for r in rows if r["category"]=="guide"],8,global_used)
+ extras=take_unique([r for r in rows if r["category"]=="extra"],12,global_used)
  spotlight=adaptive_news(all_news,5,global_used)
  tech_low=adaptive_news(tech,6,global_used)
  gaming_low=adaptive_news(gaming,4,global_used)
- reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full")],4,global_used)
+ reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full")],12,global_used)
  video_section=playlist_cards()
  external=web_news()
  # URLs/titles selected for Notizie Web are external; mark them as used to avoid repeated home references.
@@ -487,7 +516,7 @@ def home(rows):
  sections=[
   ("News Tech",cards(tech_low)),
   ("News Gaming",cards(gaming_low)),
-  ("Ultime Recensioni",cards(reviews)),
+  ("Ultime Recensioni",compact_cards(reviews)),
   ("Speciali",special_gallery(specials)+feature_pair(guides,extras)),
   ("Ultimi Video",video_section),
   ("Notizie Web",web_news_cards(unique_web))
@@ -529,6 +558,33 @@ def archive(key,rows,page=1):
 def article(r,rows):
  from article_templates import render
  return inside(r["title"],render(r,safe_image),rows,r["slug"],r["category"])
+def legacy_article_redirects(rows):
+ # Legacy public article URLs work inside the staging preview and point to the one canonical article.
+ by_slug={r["slug"]:r for r in rows}
+ by_title={normalized_title(r["title"]):r for r in rows}
+ lines=[];used=set();linked=0
+ for entry in original_routes():
+  old=str(entry["path"])
+  if not re.fullmatch(r"[A-Za-z0-9_-]+(?:\.html)?",old):continue
+  slug=entry.get("canonical_slug") or ""
+  post_id=entry.get("post_id") or ""
+  if not slug and post_id:
+   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
+  found=by_slug.get(slug) or by_title.get(normalized_title(entry["title"]))
+  if not found:
+   print("Missing source material for legacy URL:",old,flush=True)
+   continue
+  if found["category"]!=entry["category"]:
+   raise ValueError("Incorrect category for "+old+": "+found["category"])
+  canonical="/"+found["slug"]+".html"
+  path="/"+old.removesuffix(".html")
+  for alias in (path,path+".html"):
+   if alias==canonical or alias in used:continue
+   lines.append(alias+" "+canonical+" 301")
+   used.add(alias)
+  linked+=1
+ (O/"_redirects").write_text("\n".join(lines)+"\n",encoding="utf-8")
+ print("Legacy redirects:",linked,"of",len(original_routes()),flush=True)
 def main():
  rows=posts()
  if O.exists():shutil.rmtree(O)
@@ -546,6 +602,7 @@ def main():
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
  legal_pages()
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
+ legacy_article_redirects(rows)
  (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
  print("SpotNews build OK:",len(rows),"articoli,",len(GROUPS)+2,"pagine.")
