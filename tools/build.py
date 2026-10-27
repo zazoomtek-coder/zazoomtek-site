@@ -533,13 +533,20 @@ def sidebar(rows,home=False,used=None):
   # Until genuine view counts exist, show recent Tech news rather than invent rankings.
   if any(isinstance(r.get("views"),int) and r["views"]>0 for r in tech):
    tech=sorted(tech,key=lambda r:(r.get("views",0),str(r.get("date") or "")),reverse=True)
-  first=sidebar_select(tech,18,used)
+  first=sidebar_select(tech,12,used)
   if first:selected.append(box("I più letti",first))
   selected.append(amazon_provisional_box())
   mixed=daily_shuffle(news,"home-random-news")
-  for label in ("Da non perdere","Dalla redazione","Altre news"):
-   subset=sidebar_select(mixed,22,used)
-   if subset:selected.append(box(label,subset))
+  # Reserve at least three unique stories for EACH editorial group first.
+  # Additional rows are allocated round-robin to avoid starving "Altre news".
+  labels=("Da non perdere","Dalla redazione","Altre news")
+  groups={label:sidebar_select(mixed,3,used) for label in labels}
+  for _ in range(17):
+   for label in labels:
+    found=sidebar_select(mixed,1,used)
+    if found:groups[label].extend(found)
+  for label in labels:
+   if groups[label]:selected.append(box(label,groups[label]))
  else:
   latest_news=sidebar_select(news,12,used)
   latest_reviews=sidebar_select(reviews,12,used)
@@ -554,6 +561,250 @@ def sidebar(rows,home=False,used=None):
    if subset:selected.append(box(label,subset))
  return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(selected)+'</div></aside>'
 
+def related_articles(rows,exclude="",category=None):
+ candidates=sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ same=[r for r in candidates if r.get("category")==category]
+ different=[r for r in candidates if r.get("category")!=category]
+ chosen=[];seen=set()
+ for row in same+different:
+  if row.get("slug")==exclude:continue
+  key=normalized_title(row.get("title",""))
+  if not key or key in seen:continue
+  if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",str(row.get("slug",""))):continue
+  seen.add(key);chosen.append(row)
+  if len(chosen)==3:break
+ if len(chosen)!=3:raise ValueError("Exactly three distinct related articles required: "+exclude)
+ return chosen
+
+def related_markup(chosen):
+ if len(chosen)!=3:raise ValueError("Related markup needs exactly three articles")
+ return '<section class="related"><h2>Articoli correlati</h2><ul>'+''.join(
+  '<li><a href="/'+r["slug"]+'"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
+  for r in chosen)+'</ul></section>'
+
+def feature_mini_cards(items):
+ if not items:return ""
+ rendered=[]
+ for r in items[:2]:
+  href="/"+r["slug"]
+  image=safe_image(r.get("image",""))
+  pic='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
+  rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
+ # Do not generate empty placeholders or invented articles.
+ return '<div class="cards">'+''.join(rendered)+'</div>'
+
+def compact_cards(rows):
+ if not rows:return ""
+ out=[]
+ for r in rows:
+  href="/"+r["slug"]
+  day=date_label(r)
+  out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+editorial_cover(r)+'</a>'
+             '<div class="compact-item-text"><span class="compact-item-type">'+esc(TYPES.get(r["category"],""))+'</span>'
+             '<h3><a href="'+href+'">'+esc(clean_title(r["title"]))+'</a></h3>'
+             +('<time>'+esc(day)+'</time>' if day else "")+'</div></article>')
+ return '<div class="cards-compact">'+''.join(out)+'</div>'
+
+def feature_box(label,items):
+ href="/guide" if label=="GUIDE" else "/extra"
+ if not items:return ""
+ primary=items[0]
+ url="/"+primary["slug"]
+ main=('<article class="feature-main-item"><a class="feature-main-thumb" href="'+url+'">'
+       +editorial_cover(primary)+'</a>'
+       '<div class="feature-main-description"><h3><a href="'+url+'">'+esc(clean_title(primary["title"]))+'</a></h3></div></article>')
+ small=compact_cards(items[1:3]) if len(items)>1 else ""
+ return '<div class="spotnews-feature feature-editorial">'+bar(label,href,"feature")+main+small+'</div>'
+
+def feature_pair(guides,extras):
+ return '<div class="feature-pair standalone-feature-pair">'+feature_box("GUIDE",guides)+feature_box("EXTRA",extras)+'</div>'
+
+def special_gallery(rows):
+ return '<div class="specials-showcase">'+cards(rows)+'</div>' if rows else ""
+
+def tech_sources():
+ return json.loads((P/"data/web_sources.json").read_text(encoding="utf-8"))["sources"]
+
+def clean_feed_text(value):
+ return re.sub(r"\s+"," ",unesc(re.sub(r"<[^>]*>"," ",str(value or "")))).strip()
+
+def tech_article_link(value,site_domain):
+ u=urlparse(unesc(str(value or "").strip()))
+ domain=(u.hostname or "").lower()
+ domain=domain.removeprefix("www.")
+ return u.scheme=="https" and (domain==site_domain or domain.endswith("."+site_domain)) and not u.username and not u.password
+
+def rss_card_for_source(source,cutoff):
+ from email.utils import parsedate_to_datetime
+ u=source["feed"]
+ try:
+  req=urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekWebNews/1.0; +https://zazoomtek.it)","Accept":"application/rss+xml, application/atom+xml, application/xml, text/xml, */*"})
+  with urllib.request.urlopen(req,timeout=5) as response:
+   xml=ET.fromstring(response.read(1_800_000))
+ except Exception:
+  return None
+ ns_media="{http://search.yahoo.com/mrss/}"
+ ns_content="{http://purl.org/rss/1.0/modules/content/}"
+ ns_dc="{http://purl.org/dc/elements/1.1/}"
+ rows=xml.findall(".//item")
+ if not rows:rows=xml.findall("{http://www.w3.org/2005/Atom}entry")
+ best=None
+ for en in rows[:30]:
+  title=clean_feed_text(en.findtext("title") or en.findtext("{http://www.w3.org/2005/Atom}title"))
+  url=en.findtext("link")
+  if not url:
+   al=en.find("{http://www.w3.org/2005/Atom}link")
+   if al is not None:url=al.get("href")
+  if not title or not tech_article_link(url,source["domain"]):continue
+  raw_date=en.findtext("pubDate") or en.findtext(ns_dc+"date") or en.findtext("{http://www.w3.org/2005/Atom}published") or en.findtext("{http://www.w3.org/2005/Atom}updated")
+  if not raw_date:continue
+  day=parse_day(raw_date)
+  if day is None:
+   try:day=parsedate_to_datetime(raw_date).date()
+   except (TypeError,ValueError):continue
+  if day<cutoff or day>datetime.now(timezone.utc).date():continue
+  img=""
+  for node in (en.find(ns_media+"content"),en.find(ns_media+"thumbnail"),en.find("enclosure"),en.find("{http://www.w3.org/2005/Atom}link")):
+   if node is None:continue
+   proposed=node.get("url","") if node.tag!="{http://www.w3.org/2005/Atom}link" else ""
+   if proposed.startswith("https://") and (node.get("type","").startswith("image/") or proposed.lower().split("?")[0].endswith((".jpg",".jpeg",".png",".webp")) or node.tag in (ns_media+"content",ns_media+"thumbnail")):
+    img=proposed;break
+  if not img:
+   content=en.findtext(ns_content+"encoded") or en.findtext("description") or en.findtext("{http://www.w3.org/2005/Atom}summary") or ""
+   m=re.search(r'<img[^>]+(?:src|data-src)\s*=\s*["\'](https://[^"\']+)',unesc(content),re.I)
+   if m:img=m.group(1)
+  if not img.startswith("https://") or len(img)>1500:img=""
+  row={"source":source["name"],"title":title,"url":url.strip(),"image":img,"date":day.isoformat(),"from_feed":True}
+  if best is None or row["date"]>best["date"]:best=row
+ return best
+
+def web_news():
+ global _WEB_NEWS_CACHE
+ if _WEB_NEWS_CACHE is not None:return _WEB_NEWS_CACHE
+ sources=tech_sources()
+ snapshots=json.loads((P/"data/web.json").read_text(encoding="utf-8")).get("items",[])
+ backup={x.get("source"):x for x in snapshots if isinstance(x,dict)}
+ cutoff=datetime.now(timezone.utc).date()-timedelta(days=14)
+ from concurrent.futures import ThreadPoolExecutor
+ with ThreadPoolExecutor(max_workers=6) as pool:
+  future=[pool.submit(rss_card_for_source,s,cutoff) for s in sources]
+  live=[]
+  for f in future:
+   try:live.append(f.result())
+   except Exception:live.append(None)
+ cards=[]
+ for source,actual in zip(sources,live):
+  if actual:cards.append(actual);continue
+  b=backup.get(source["name"])
+  if b and tech_article_link(b.get("url"),source["domain"]) and (parse_day(b.get("date")) or datetime.min.date())>=cutoff:
+   cards.append({"source":source["name"],"title":b["title"],"url":b["url"],"image":b.get("image",""),"date":b.get("date",""),"from_feed":False})
+  else:
+   # Unavailable feed: link to source only, never a fabricated article.
+   cards.append({"source":source["name"],"title":"Leggi le ultime notizie di "+source["name"],"url":source["home"],"image":"","date":"","from_feed":False,"source_only":True})
+ _WEB_NEWS_CACHE=cards
+ return cards
+
+def web_news_cards(items):
+ if not items:return blank()
+ out=[]
+ for item in items[:6]:
+  url=esc(item["url"],quote=True)
+  name=esc(item["source"])
+  title=esc(item["title"])
+  image=item.get("image","")
+  safe_image_url=image if isinstance(image,str) and image.startswith("https://") and not any(ch in image for ch in '<>"\'') else ""
+  visual=('<img src="'+esc(safe_image_url,quote=True)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true">' if safe_image_url else '<span class="web-news-fallback">'+name+'</span>')
+  datelabel=str(item.get("date",""))
+  when='<time datetime="'+esc(datelabel,quote=True)+'">'+esc(datelabel[8:10]+"/"+datelabel[5:7]+"/"+datelabel[0:4])+'</time>' if re.fullmatch(r"\d{4}-\d{2}-\d{2}",datelabel) else ""
+  sub='<span class="web-source">'+name+'</span>'
+  if item.get("source_only"):sub+='<span class="web-source-only">Feed temporaneamente non disponibile</span>'
+  out.append('<article class="web-news-card"><a class="web-news-thumb" href="'+url+'" target="_blank" rel="noopener noreferrer" aria-label="Apri la fonte originale: '+title+'">'+visual+'</a>'+sub+'<h3><a href="'+url+'" target="_blank" rel="noopener noreferrer">'+title+'</a></h3>'+when+'</article>')
+ return '<div class="web-news-grid">'+''.join(out)+'</div>'
+
+# Every Home content is allocated once: the same post/video/url is never placed in two widgets.
+
+def home_keys(r):
+ keys=set()
+ title=re.sub(r"[^a-z0-9]+","",unesc(str(r.get("title","")).casefold()))
+ if title:keys.add("title:"+title)
+ url=str(r.get("source_url") or r.get("url") or "").strip().lower()
+ if url.startswith("https://"):keys.add("url:"+url.split("?",1)[0].rstrip("/"))
+ body=r.get("body",[])
+ if isinstance(body,list) and body:
+  opening=re.sub(r"[^a-z0-9]+","",unesc(str(body[0]).casefold()))
+  if len(opening)>=95:keys.add("opening:"+opening[:95])
+ if not keys:keys.add("slug:"+str(r.get("slug","")))
+ return keys
+
+def sort_by_date_desc(items):
+ # Use exact publisher timestamp when provided. If only the day exists, preserve source order.
+ return sorted(items,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+
+def take_unique(items,count,used):
+ result=[]
+ for row in sort_by_date_desc(items):
+  keys=home_keys(row)
+  if used.intersection(keys):continue
+  used.update(keys);result.append(row)
+  if len(result)>=count:break
+ return result
+
+def adaptive_news(items,count,used):
+ today=datetime.now(timezone.utc).date()
+ # Priority: last 14 days, then 21, then any earlier authentic archive entry.
+ for days in (14,21,None):
+  if days is None:pool=items
+  else:
+   cutoff=today-timedelta(days=days)
+   pool=[r for r in items if (parse_day(r.get("date")) or datetime.min.date())>=cutoff]
+  # Candidates are passed to the same global registry on every pass.
+  if days==14:result=[]
+  for r in sort_by_date_desc(pool):
+   keys=home_keys(r)
+   if used.intersection(keys):continue
+   result.append(r);used.update(keys)
+   if len(result)==count:return result
+ return result
+
+def home(rows):
+ global_used=set()
+ tech=[r for r in rows if r["category"]=="news-tech"]
+ gaming=[r for r in rows if r["category"]=="news-gaming"]
+ all_news=sort_by_date_desc(tech+gaming)
+ # The latest dated news leads regardless of category or editorial flag.
+ # Reserve the Special/Guide/Extra blocks before news so duplicate archive categories cannot consume Specials.
+ specials=take_unique([r for r in rows if r["category"]=="speciali"],2,global_used)
+ guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
+ extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
+ spotlight=adaptive_news(all_news,5,global_used)
+ tech_low=adaptive_news(tech,6,global_used)
+ gaming_low=adaptive_news(gaming,5,global_used)
+ reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],4,global_used)
+ video_section=playlist_cards()
+ external=web_news()
+ # URLs/titles selected for Notizie Web are external; mark them as used to avoid repeated home references.
+ unique_web=[]
+ for entry in sort_by_date_desc(external):
+  identities=home_keys(entry)
+  if global_used.intersection(identities):continue
+  global_used.update(identities);unique_web.append(entry)
+ sections=[
+  ("News Tech",cards(tech_low)),
+  ("News Gaming",gaming_magazine(gaming_low)),
+  ("Ultime Recensioni",cards(reviews)),
+  ("Speciali",special_gallery(specials)),
+  ("Guide e Extra",feature_pair(guides,extras)),
+  ("Ultimi Video",video_section),
+  ("Notizie Web",web_news_cards(unique_web))
+ ]
+ # Sidebar is last by design, so its articles can never duplicate the primary blocks.
+ sidebar_html=sidebar(rows,True,global_used)
+ top=section("In evidenza",featured_showcase(spotlight))
+ return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name=="Guide e Extra" else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
+
+def web_archive(rows):
+ content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni collegamento apre la notizia sul sito originale.</p>'+web_news_cards(web_news())
+ return inside("Notizie Web",content,rows,show_related=False)
 def inside(title,content,rows,exclude="",cat=None,show_related=True):
  # One two-column grid: page content and matching-height sidebar on row one;
  # related links occupy only the article column on row two.
