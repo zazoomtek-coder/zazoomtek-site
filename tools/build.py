@@ -162,10 +162,20 @@ def sidebar(rows,home=False):
 def related(rows,exclude="",category=None):
  found=[r for r in rows if r["slug"]!=exclude and (category is None or r["category"]==category)][:8]
  return '<section class="related"><h2>Articoli correlati</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html"><strong>'+esc(r["title"])+'</strong></a></li>' for r in found)+'</ul>' if found else blank())+'</section>'
+def feature_mini_cards(items):
+ rendered=[]
+ for r in items[:2]:
+  href="/"+r["slug"]+".html"
+  image=safe_image(r.get("image",""))
+  pic='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else ""
+  rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
+ for _ in range(2-len(rendered)):
+  rendered.append('<div class="mini-empty" aria-label="Posizione riservata a una prossima notizia">Nuove guide in arrivo</div>')
+ return '<div class="cards">'+''.join(rendered)+'</div>'
 def feature_box(label,items):
  primary=items[:1]; secondary=items[1:3]
  href="/guide.html" if label=="GUIDE" else "/speciali.html"
- return '<div class="spotnews-feature">'+bar(label,href,"feature")+'<div class="feature-main">'+cards(primary)+'</div><div class="feature-small">'+cards(secondary)+'</div></div>'
+ return '<div class="spotnews-feature">'+bar(label,href,"feature")+'<div class="feature-main">'+cards(primary)+'</div><div class="feature-small">'+feature_mini_cards(secondary)+'</div></div>'
 def feature_pair(guides,extras):
  return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("SPECIALI ED EXTRA",extras)+'</div>'
 def home(rows):
