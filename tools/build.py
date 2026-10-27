@@ -187,7 +187,7 @@ def video_cards(rows):
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-community-full-15"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-compact-16"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -236,22 +236,19 @@ def featured_showcase(rows):
  # More compact grid when there are fewer than five authentic reports.
  return '<div class="spotlight-grid">'+markup+'</div>'
 def box(name,rows,notice=""):
- archive={"I più letti":"","Da non perdere":"/news.html","Dalla redazione":"/speciali.html",
-          "Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html",
-          "News Tech":"/news-tech.html","News Gaming":"/news-gaming.html",
-          "Guide e Extra":"/guide.html","Speciali":"/speciali.html"}.get(name,"")
- heading=bar(name,archive,"sidebar")
- if not rows:
-  return '<section class="box editorial-box">'+heading+'<p class="editorial-status">'+esc(notice or "Non ci sono ancora articoli disponibili.")+'</p></section>'
- big=overlay_card(rows[0],"editorial-hero")
- compact=[]
- for r in rows[1:3]:
-  link="/"+r["slug"]+".html"
-  pic=safe_image(r.get("image",""))
-  image='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
-  stamp=date_label(r)
-  compact.append('<article class="editorial-row"><a class="editorial-thumb" href="'+link+'">'+image+'</a><div class="editorial-row-copy"><a href="'+link+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(stamp)+'</time>' if stamp else "")+'</div></article>')
- return '<section class="box editorial-box">'+heading+big+'<div class="editorial-links">'+''.join(compact)+'</div></section>'
+ archives={"I più letti":"","Da non perdere":"/news.html","Dalla redazione":"/speciali.html",
+           "Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html",
+           "Archivio Tech":"/news-tech.html","Archivio Gaming":"/news-gaming.html",
+           "Dagli archivi":"/news.html"}
+ if not rows:return ""
+ cards=[]
+ for r in rows:
+  href="/"+r["slug"]+".html"
+  image=safe_image(r.get("image",""))
+  thumb='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
+  date=date_label(r)
+  cards.append('<article class="editorial-row"><a class="editorial-thumb" href="'+href+'">'+thumb+'</a><div class="editorial-row-copy"><a href="'+href+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(date)+'</time>' if date else '')+'</div></article>')
+ return '<section class="box editorial-box compact-editorial-box">'+bar(name,archives.get(name,""),"sidebar")+'<div class="editorial-links">'+''.join(cards)+'</div></section>'
 def sidebar(rows,home=False,used=None):
  used=used if used is not None else set()
  # Sidebar home only receives content not already displayed anywhere else on Home.
@@ -267,8 +264,15 @@ def sidebar(rows,home=False,used=None):
   selected=take_unique(candidates,3,used)
   if selected:result.append(box(label,selected))
  # Any remaining real posts can complete the last editorial box without duplicating.
- remaining=take_unique(rows,3,used)
- if remaining:result.append(box("Dagli archivi",remaining))
+ # More compact authentic stories extend the sidebar without repeating Home articles.
+ for heading,pool in (("Archivio Tech",[r for r in rows if r["category"]=="news-tech"]),
+                      ("Archivio Gaming",[r for r in rows if r["category"]=="news-gaming"])):
+  chunk=take_unique(pool,8,used)
+  if chunk:result.append(box(heading,chunk))
+ for _ in range(4 if home else 1):
+  chunk=take_unique(rows,8,used)
+  if not chunk:break
+  result.append(box("Dagli archivi",chunk))
  return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(result)+'</div></aside>'
 def related(rows,exclude="",category=None):
  found=[r for r in rows if r["slug"]!=exclude and (category is None or r["category"]==category)][:8]
@@ -433,13 +437,14 @@ def home(rows):
  gaming=[r for r in rows if r["category"]=="news-gaming"]
  all_news=sort_by_date_desc(tech+gaming)
  # The latest dated news leads regardless of category or editorial flag.
+ # Reserve the Special/Guide/Extra blocks before news so duplicate archive categories cannot consume Specials.
+ specials=take_unique([r for r in rows if r["category"]=="speciali"],2,global_used)
+ guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
+ extras=take_unique([r for r in rows if r["category"]=="extra"],2,global_used)
  spotlight=adaptive_news(all_news,5,global_used)
  tech_low=adaptive_news(tech,6,global_used)
  gaming_low=adaptive_news(gaming,4,global_used)
  reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full")],4,global_used)
- specials=take_unique([r for r in rows if r["category"]=="speciali"],2,global_used)
- guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
- extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
  video_section=playlist_cards()
  external=web_news()
  # URLs/titles selected for Notizie Web are external; mark them as used to avoid repeated home references.
