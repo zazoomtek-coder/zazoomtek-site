@@ -67,6 +67,33 @@ def check_dist(root):
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
               "cookie-policy","disclaimer","note-legali","contatti"):
   if name not in real_pages:errors.append("Required page missing: /"+name)
+ # Internal search and breaking news datasets must resolve to actual published articles.
+ for name,key in (("search-index.json","articles"),("news-ticker.json","items")):
+  target=root/name
+  if not target.is_file():
+   errors.append("Missing discovery dataset: "+name)
+   continue
+  try:
+   import json
+   payload=json.loads(target.read_text(encoding="utf-8"))
+   entries=payload.get(key)
+   if not isinstance(entries,list):raise ValueError("Expected JSON array "+key)
+   if name=="search-index.json" and not entries:
+    raise ValueError("Search index is empty")
+   if name=="news-ticker.json" and len(entries)<10:
+    raise ValueError("Breaking ticker has fewer than 10 real headlines")
+   seen=set()
+   for entry in entries:
+    path=entry.get("url","")
+    if not isinstance(path,str) or not path.startswith("/") or path.endswith(".html"):
+     raise ValueError("Invalid canonical entry URL "+str(path))
+    if path.lstrip("/") not in real_pages:
+     raise ValueError("Linked article does not exist "+path)
+    if name=="news-ticker.json":
+     if path in seen:raise ValueError("Duplicate ticker headline "+path)
+     seen.add(path)
+  except (ValueError,TypeError,KeyError) as error:
+   errors.append("Invalid discovery dataset "+name+": "+str(error))
  if not (root/"feed.xml").is_file():errors.append("Required RSS feed missing")
  else:
   from xml.etree.ElementTree import parse

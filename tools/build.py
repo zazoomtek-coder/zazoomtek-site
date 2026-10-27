@@ -13,6 +13,7 @@ NAV=[("HOME","/"),("NEWS","/news"),("RECENSIONI","/recensioni"),("GUIDE","/guide
 TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra","video":"Video"}
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
+TICKER_ROWS=[]  # Populated before all page shells are generated.
 def original_routes():
  data=json.loads((P/"data/editorial_classification.json").read_text(encoding="utf-8"))
  if len(data.get("items",[]))!=14:raise ValueError("Editorial classification manifest incomplete")
@@ -239,8 +240,90 @@ FOOTER_SOCIAL_LINKS=[
  ("◔","RSS","/feed.xml"),
  ("✉","Contatti","/contatti")
 ]
+def ticker_items(rows):
+ """Twelve most recent published Tech/Gaming headlines, regardless of current homepage slots."""
+ news=sort_by_date_desc([r for r in rows if r.get("category") in ("news-tech","news-gaming")])
+ result=[];seen=set()
+ for r in news:
+  key=normalized_title(r.get("title",""))
+  if not key or key in seen:continue
+  seen.add(key)
+  result.append({"title":clean_title(r["title"]),"url":"/"+r["slug"],
+                 "date":str(r.get("date") or r.get("published_at") or "")[:10],
+                 "category":TYPES.get(r["category"],"News")})
+  if len(result)==12:break
+ if len(result)<10:raise ValueError("Breaking ticker requires at least 10 authentic news articles")
+ return result
+
+def breaking_ticker_markup():
+ """Server-rendered accessible ticker. JS duplicates the group for seamless movement."""
+ if not TICKER_ROWS:return ""
+ links="".join('<a href="'+esc(x["url"],quote=True)+'" class="ticker-link">'
+               '<span class="ticker-dot" aria-hidden="true"></span>'
+               +esc(x["title"])+'</a>' for x in TICKER_ROWS)
+ return ('<section class="breaking-ticker" aria-label="Notizie in primo piano">'
+         '<div class="wrap breaking-ticker-inner">'
+         '<span class="breaking-label">IN PRIMO PIANO</span>'
+         '<div class="ticker-viewport" id="ticker-viewport" tabindex="0" aria-label="Scorri le ultime notizie">'
+         '<div class="ticker-track" id="ticker-track"><div class="ticker-group">'+links+'</div></div></div>'
+         '<button id="ticker-pause" class="ticker-pause" type="button"'
+         ' aria-pressed="false" aria-label="Metti in pausa lo scorrimento delle notizie" title="Pausa ticker">'
+         '<span aria-hidden="true">Ⅱ</span></button></div></section>')
+
+def build_live_discovery(rows):
+ """Write two small, same-origin datasets at every site build, including YouTube import cycles."""
+ from datetime import datetime,timezone
+ items=[]
+ for r in rows:
+  slug=r.get("slug") or ""
+  if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):continue
+  body=r.get("body") or []
+  if isinstance(body,str):body=[body]
+  text=" ".join(block.strip() for block in body if isinstance(block,str))
+  text=re.sub(r"\s+"," ",re.sub(r"(?m)^\s*#{1,3}\s+","",text)).strip()
+  items.append({
+   "title":clean_title(r.get("title","")),
+   "category":TYPES.get(r.get("category"),"Articolo"),
+   "date":str(r.get("date") or r.get("published_at") or "")[:10],
+   "url":"/"+slug,
+   "excerpt":text[:245],
+   "text":text[:36000]
+  })
+ if not items:raise ValueError("Cannot publish an empty internal search index")
+ (O/"search-index.json").write_text(json.dumps({
+  "version":1,"updated_utc":datetime.now(timezone.utc).isoformat(),
+  "count":len(items),"articles":items
+ },ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+ ticker=ticker_items(rows)
+ (O/"news-ticker.json").write_text(json.dumps({"version":1,"items":ticker},
+  ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+ print("Discovery:",len(items),"searchable articles,",len(ticker),"ticker headlines",flush=True)
+ return ticker
+
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
+ search_control=('<button id="site-search-open" class="site-search-open" type="button"'
+                 ' aria-label="Cerca nel sito" aria-controls="site-search-panel" aria-expanded="false"'
+                 ' title="Cerca nel sito">'
+                 '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="23" height="23"'
+                 ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+                 ' stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle>'
+                 '<path d="m20 20-4-4"></path></svg></button>')
+ search_panel=('<section id="site-search-panel" class="site-search-panel" hidden'
+               ' role="search" aria-label="Ricerca interna ZazoomTek">'
+               '<div class="wrap site-search-inner">'
+               '<form id="site-search-form" role="search" autocomplete="off">'
+               '<label for="site-search-input">Cerca fra news, recensioni, guide e articoli</label>'
+               '<div class="site-search-form-row"><input id="site-search-input" type="search"'
+               ' placeholder="Cerca un argomento, prodotto o videogame..."'
+               ' aria-describedby="site-search-status" maxlength="120">'
+               '<button class="site-search-submit" type="submit">Cerca</button>'
+               '<button id="site-search-close" class="site-search-close" type="button"'
+               ' aria-label="Chiudi la ricerca">×</button></div></form>'
+               '<p id="site-search-status" class="site-search-status" aria-live="polite"></p>'
+               '<div id="site-search-results" class="site-search-results"></div>'
+               '<button id="site-search-more" type="button" class="site-search-more" hidden>'
+               'Mostra altri risultati</button></div></section>')
  footer_menu="".join('<a href="'+esc(url,quote=True)+'">'+esc(label.title())+'</a>' for label,url in NAV)
  footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
  social_links="".join('<a href="'+esc(url,quote=True)+'"'+
@@ -265,12 +348,13 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-gaming-magazine-29"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-search-ticker-30"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
-         '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
-         '<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261027-footer-28"></script></body></html>')
+         '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
+         +search_panel+breaking_ticker_markup()
+         +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
+         '<script defer src="/assets/js/site.js?v=20261027-search-ticker-30"></script></body></html>')
 
 def legal_pages():
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
@@ -847,6 +931,8 @@ def main():
  if O.exists():shutil.rmtree(O)
  # Copy the actual covers and other local editorial assets, not CSS/JS alone.
  shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
+ global TICKER_ROWS
+ TICKER_ROWS=build_live_discovery(rows)
  (O/"index.html").write_text(home(rows),encoding="utf-8")
  for key in GROUPS:
   (O/(key+".html")).write_text(archive(key,rows),encoding="utf-8")
