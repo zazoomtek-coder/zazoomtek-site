@@ -121,14 +121,14 @@ def playlist_cards():
    url="https://www.youtube.com/playlist?list="+pid
    pic=p.get("thumbnail","");title=p["playlist"];sub="Playlist · ultimo video non verificato"
   img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else ""
-  result.append('<article class="card video-card"><a class="thumb" href="'+esc(url,quote=True)+'" rel="noopener">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
+  result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
  return '<div class="cards">'+''.join(result)+'</div>'
 def video_cards(rows):
  if not rows:return blank()
- return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
+ return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-playlists-3"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-pro-box-4"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -139,9 +139,15 @@ def safe_image(value):
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
 def cards(rows):
  return '<div class="cards">'+''.join('<article class="card"><a class="thumb" href="/'+r["slug"]+'.html">'+('<img loading="lazy" src="'+esc(r["image"],quote=True)+'" alt="">' if bool(safe_image(r.get("image",""))) else "")+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></h3></article>' for r in rows)+'</div>' if rows else blank()
-def section(title,content):return '<section class="section"><h2>'+title+'</h2>'+content+'</section>'
+SECTION_URLS={"In evidenza":"/news.html","News Tech":"/news-tech.html","News Gaming":"/news-gaming.html","Ultime Recensioni":"/recensioni.html","Guide e Extra":"/guide.html","Ultimi Video":"https://www.youtube.com/@ZazoomTek","Notizie Web":"/notizie-web.html"}
+def bar(title,link,style="section"):
+ tag="h2" if style=="section" else "h3"
+ button='<a class="bar-more" href="'+esc(link,quote=True)+'">Vedi tutte</a>' if link else ""
+ return '<div class="bar bar-'+style+'"><'+tag+'>'+esc(title)+'</'+tag+'>'+button+'</div>'
+def section(title,content):
+ return '<section class="section">'+bar(title,SECTION_URLS.get(title,""))+content+'</section>'
 def box(name,rows):
- return '<section class="box"><h2>'+name+'</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></li>' for r in rows)+'</ul>' if rows else blank())+'</section>'
+ return '<section class="box">'+bar(name,{"Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html"}.get(name,""),"sidebar")+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></li>' for r in rows)+'</ul>' if rows else blank())+'</section>'
 def sidebar(rows,home=False):
  seen=set()
  def select(stream):
@@ -158,7 +164,8 @@ def related(rows,exclude="",category=None):
  return '<section class="related"><h2>Articoli correlati</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html"><strong>'+esc(r["title"])+'</strong></a></li>' for r in found)+'</ul>' if found else blank())+'</section>'
 def feature_box(label,items):
  primary=items[:1]; secondary=items[1:3]
- return '<div class="spotnews-feature"><h3>'+esc(label)+'</h3><div class="feature-main">'+cards(primary)+'</div><div class="feature-small">'+cards(secondary)+'</div></div>'
+ href="/guide.html" if label=="GUIDE" else "/speciali.html"
+ return '<div class="spotnews-feature">'+bar(label,href,"feature")+'<div class="feature-main">'+cards(primary)+'</div><div class="feature-small">'+cards(secondary)+'</div></div>'
 def feature_pair(guides,extras):
  return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("SPECIALI ED EXTRA",extras)+'</div>'
 def home(rows):
@@ -169,6 +176,11 @@ def home(rows):
  links='<ul>'+''.join('<li><a rel="noopener noreferrer" href="'+esc(w["url"],quote=True)+'">'+esc(w["title"])+'</a></li>' for w in web[:8])+'</ul>' if web else blank()
  sections=[("In evidenza",cards(features)),("News Tech",cards(by("news-tech")[:6])),("News Gaming",cards(by("news-gaming")[:6])),("Ultime Recensioni",cards([r for r in by("recensioni-tech","recensioni-gaming") if r.get("source")=="youtube-community"][:6])),("Guide e Extra",feature_pair(by("guide"),by("speciali","extra"))),("Ultimi Video",playlist_cards()),("Notizie Web",links)]
  return shell("Home",'<div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar(rows,True)+'</div>')
+def web_archive(rows):
+ items=json.loads((P/"data/web.json").read_text(encoding="utf-8")).get("items",[])
+ links=['<li><a href="'+esc(item["url"],quote=True)+'" target="_blank" rel="noopener noreferrer">'+esc(item["title"])+'</a></li>' for item in items if isinstance(item,dict) and isinstance(item.get("title"),str) and isinstance(item.get("url"),str) and item["url"].startswith("https://")]
+ content='<h1>Notizie Web</h1>'+('<ul class="web-links">'+''.join(links)+'</ul>' if links else blank())
+ return inside("Notizie Web",content,rows)
 def inside(title,content,rows,exclude="",cat=None):
  return shell(title,'<div class="inner-layout"><div class="inner-column">'+content+'</div>'+sidebar(rows)+'</div>'+related(rows,exclude,cat))
 def archive(key,rows):
@@ -188,6 +200,7 @@ def main():
  shutil.copy2(P/"assets/js/site.js",O/"assets/js/site.js")
  (O/"index.html").write_text(home(rows),encoding="utf-8")
  for key in GROUPS:(O/(key+".html")).write_text(archive(key,rows),encoding="utf-8")
+ (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
