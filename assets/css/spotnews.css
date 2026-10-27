@@ -1521,3 +1521,69 @@ main.wrap:has(>.featured-wide){
 @media(prefers-reduced-motion:reduce){
  .breaking-ticker .ticker-link{transition:none!important}
 }
+
+
+/* v37 — keep sidebar inside Home through the end of Notizie Web.
+   The grid height is determined ONLY by the content column.
+   JS progressively reveals complete articles; [hidden] must beat forced display:grid. */
+@media(min-width:781px){
+ .home-layout{
+  position:relative!important;
+  align-items:start!important;
+ }
+ .home-layout>.home-sidebar{
+  position:absolute!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  left:auto!important;
+  box-sizing:border-box!important;
+  width:295px!important;
+  height:auto!important;
+  max-height:100%!important;
+  min-height:0!important;
+  display:block!important;
+  overflow:hidden!important;
+  padding-left:14px!important;
+  border-left:1px solid var(--line)!important;
+ }
+ .home-layout>.home-sidebar>.sidebar-stack{
+  position:relative!important;
+  inset:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:11px!important;
+ }
+}
+@media(min-width:781px) and (max-width:1100px){
+ .home-layout>.home-sidebar{width:260px!important}
+}
+/* Important: these display:none rules override the explicit display:grid
+   of individual sidebar cards and prevent rows from leaking into the footer. */
+.sidebar .editorial-box[hidden],
+.sidebar .editorial-row[hidden],
+.sidebar .compact-editorial-box[hidden],
+.sidebar .compact-editorial-box .editorial-row[hidden]{
+ display:none!important;
+}
+@media(max-width:780px){
+ .home-layout>.home-sidebar{
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-left:0!important;
+  border-left:0!important;
+ }
+}
+/* v37: one headline at a time. Reduced-motion visitors see instant 3.5s
+   transitions instead of a moving or fading headline. */
+@media(prefers-reduced-motion:reduce){
+ .breaking-ticker .ticker-link{transition:none!important}
+}

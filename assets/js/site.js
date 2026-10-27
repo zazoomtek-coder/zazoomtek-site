@@ -94,8 +94,10 @@
    aside.classList.add("rail-ready");
    return;
   }
+  // The aside itself never contributes to Home grid height: compare against
+  // the independent primary column, ending with the Notizie Web section.
   const target=Math.max(0,Math.floor(column.getBoundingClientRect().height)-3);
-  if(target<100)return;
+  if(target<100){aside.classList.add("rail-ready");return}
   const fits=()=>stack.scrollHeight<=target+1;
   const mandatory=home?boxes.length:Math.min(2,boxes.length);
   // Show all fixed Home panels, at least first two inner panels.
@@ -120,6 +122,11 @@
     changed=true;
    }
   }
+  // Never leave a box showing only its header when no complete item fits.
+  // The sponsored Amazon card has no editorial rows and must remain visible.
+  boxes.forEach((box,i)=>{
+   if(contents[i].length&&contents[i].every(row=>row.hidden))box.hidden=true;
+  });
   // Remaining small gaps are distributed between intact sections, not inside cropped cards.
   const remaining=Math.max(0,target-stack.scrollHeight);
   const shown=boxes.filter(box=>!box.hidden).length;
@@ -364,10 +371,10 @@
   fetchTickerUpdates();
   // Every cycle replaces the visible headline. Never show multiple headlines at once.
   setInterval(()=>{
-   if(document.hidden||tickerReduceMotion.matches)return;
+   if(document.hidden)return;
    const count=tickerGroup.querySelectorAll("a.ticker-link").length;
    if(count>1){activeTicker=(activeTicker+1)%count;paintActiveTicker()}
-  },5200);
+  },3500);
   // Keep a long-lived tab in sync with the current published news.
   setInterval(()=>{if(!document.hidden)fetchTickerUpdates()},300000);
   let frame=0;
