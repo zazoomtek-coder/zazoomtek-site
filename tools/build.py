@@ -200,7 +200,7 @@ def shell(title,inner):
          '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-legal-18"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-articles-19"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
@@ -526,17 +526,9 @@ def archive(key,rows,page=1):
  visible=selected[offset:offset+ARCHIVE_PAGE_SIZE]
  content='<h1>'+esc(label)+'</h1>'+cards(visible)+pagination_links(key,page,count)
  return inside(label,content,rows,show_related=False)
-def render_paragraph(value):
- # Preserve the author's full prose, newlines and emphasis safely (no truncated summaries).
- safe=esc(value).replace("\n","<br>")
- return re.sub(r"\*\*(.+?)\*\*",r"<strong>\1</strong>",safe)
 def article(r,rows):
- cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if bool(safe_image(r.get("image",""))) else ""
- text=''.join('<p>'+render_paragraph(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str) and p.strip())
- if r.get("is_excerpt"):text='<p class="excerpt-notice">Archivio parziale: questo è un estratto, non il testo integrale del post YouTube.</p>'+text
- video=('<div class="player"><button type="button" class="video-start" data-youtube-id="'+esc(r["youtube_id"],quote=True)+'" aria-label="Riproduci su YouTube: '+esc(r["title"],quote=True)+'"><img loading="lazy" src="https://i.ytimg.com/vi/'+r["youtube_id"]+'/hqdefault.jpg" alt=""><span class="video-start-label">▶ Riproduci il video</span></button></div>') if re.fullmatch(r"[A-Za-z0-9_-]{11}",r.get("youtube_id","")) else ""
- body='<article class="article"><h1>'+esc(r["title"])+'</h1><p class="category">'+esc(TYPES[r["category"]])+'</p>'+cover+video+'<div class="article-text">'+text+'</div></article>'
- return inside(r["title"],body,rows,r["slug"],r["category"])
+ from article_templates import render
+ return inside(r["title"],render(r,safe_image),rows,r["slug"],r["category"])
 def main():
  rows=posts()
  if O.exists():shutil.rmtree(O)

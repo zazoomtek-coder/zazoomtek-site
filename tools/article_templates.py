@@ -126,7 +126,7 @@ def image_block(review,image_validator,extra=False):
   if not src:continue
   caption=plain(item.get("caption",""))
   image='<img loading="lazy" src="'+esc(src,quote=True)+'" alt="'+esc(caption or plain(review.get("title")),quote=True)+'">'
-  result.append('<figure class="story-figure">'+image+('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
+  result.append('<figure class="story-figure">'+image+'<figcaption>'+esc(caption if caption else 'Immagine in evidenza: '+plain(review.get('title')))+'</figcaption></figure>')
  return ''.join(result)
 
 def video(review):
@@ -209,6 +209,9 @@ def render(review,image_validator):
  machine=('<p class="review-equipment"><strong>'+("Piattaforma" if category(review)=="recensioni-gaming" else "Dispositivo")+':</strong> '
           +esc(equipment(review))+'</p>' if reviews else "")
  media=image_block(review,image_validator)
+ if not media:
+  media=('<div class="story-cover-fallback" role="img" aria-label="Copertina editoriale senza fotografia originale">'
+         '<span>'+esc("Recensione" if reviews else "Articolo")+'</span><strong>'+title+'</strong></div>')
  extra=image_block(review,image_validator,extra=True)
  notice='<p class="excerpt-notice">Questo contenuto proviene da un estratto di archivio: il testo originale completo non è disponibile.</p>' if review.get("is_excerpt") else ""
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'">'
