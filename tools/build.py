@@ -563,7 +563,8 @@ def home(rows):
   ("News Tech",cards(tech_low)),
   ("News Gaming",cards(gaming_low)),
   ("Ultime Recensioni",compact_cards(reviews)),
-  ("Speciali",special_gallery(specials)+feature_pair(guides,extras)),
+  ("Speciali",special_gallery(specials)),
+  ("Guide e Extra",feature_pair(guides,extras)),
   ("Ultimi Video",video_section),
   ("Notizie Web",web_news_cards(unique_web))
  ]
