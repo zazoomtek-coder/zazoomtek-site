@@ -14,6 +14,7 @@ TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Re
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
 TICKER_ROWS=[]  # Populated before all page shells are generated.
+_WEB_NEWS_CACHE=None  # Cached external tech feeds; initialize before the Home calls web_news().
 def original_routes():
  data=json.loads((P/"data/editorial_classification.json").read_text(encoding="utf-8"))
  if len(data.get("items",[]))!=14:raise ValueError("Editorial classification manifest incomplete")
