@@ -91,8 +91,56 @@ def equipment(review):
  return re.sub(r"\s*[|–-]?\s*(?:recensione|review)\b.*$","",title,flags=re.I)[:130] or "Dispositivo non indicato"
 
 def rich_text(text):
- safe=esc(str(text)).replace("\n","<br>")
+ # A source paragraph may wrap across multiple lines; those are not HTML breaks.
+ # Preserve real list formatting only for lines explicitly marked as list items.
+ raw=str(text or "").replace("\r\n","\n").replace("\r","\n")
+ is_list=bool(re.search(r"(?m)^\s*(?:[-•]|\d+[.)])\s+\S",raw))
+ if is_list:
+  safe=esc(raw)
+  safe=re.sub(r"[ \t]*\n[ \t]*","<br>",safe)
+ else:
+  raw=re.sub(r"\s*\n\s*"," ",raw)
+  safe=esc(re.sub(r"[ \t]{2,}"," ",raw).strip())
  return re.sub(r"\*\*(.+?)\*\*",r"<strong>\1</strong>",safe)
+
+def compact_prose_html(parts):
+ """Join short prose fragments into comfortable paragraphs, without touching H2s or lists.
+ Source text is not shortened or rewritten. Source headings remain hard boundaries.
+ """
+ output=[];pending=[];pending_chars=0
+ def flush():
+  nonlocal pending_chars
+  if pending:
+   output.append("<p>"+" ".join(pending)+"</p>")
+   pending.clear()
+   pending_chars=0
+ for element in parts:
+  if not (element.startswith("<p>") and element.endswith("</p>")):
+   flush()
+   output.append(element)
+   continue
+  inside=element[3:-4].strip()
+  if not inside:continue
+  length=len(re.sub(r"<[^>]*>","",inside))
+  # Explicit numbered/bulleted lists and source paragraphs of substantial length stay intact.
+  if "<br>" in inside or length>=340:
+   flush()
+   output.append("<p>"+inside+"</p>")
+   continue
+  # Group only the source's short, adjacent paragraphs. Never glue a question to
+  # preceding text, and never cross a heading (handled by the non-paragraph branch).
+  question=bool(re.search(r"[?？]\s*$",re.sub(r"<[^>]*>","",inside)))
+  if question:
+   flush()
+   output.append("<p>"+inside+"</p>")
+   continue
+  if pending and pending_chars+length>535:
+   flush()
+  pending.append(inside)
+  pending_chars+=length
+  if pending_chars>=350:flush()
+ flush()
+ return "".join(output)
 
 def score(review,blocks):
  candidate=review.get("score",review.get("rating",review.get("vote")))
@@ -231,7 +279,7 @@ def news_body(review,blocks):
    result.append('<h2>'+esc(clean_heading(paragraph))+'</h2>')
   else:
    result.append('<p>'+rich_text(paragraph)+'</p>')
- return ''.join(result)
+ return compact_prose_html(result)
 
 def sectioned_body(review):
  blocks=editorial_blocks(review)
@@ -292,7 +340,7 @@ def sectioned_body(review):
  if conclusion:
   rendered.append('<h2>Conclusioni</h2>')
   rendered.extend('<p>'+rich_text(p)+'</p>' for p in conclusion)
- return ''.join(rendered)
+ return compact_prose_html(rendered)
 
 def verdict(review):
  value=score(review,paragraphs(review))
@@ -322,7 +370,7 @@ def render(review,image_validator):
  notice='<p class="excerpt-notice">Questo contenuto proviene da un estratto di archivio: il testo originale completo non è disponibile.</p>' if review.get("is_excerpt") else ""
  source_notes=review.get("ending_notes",[]) if reviews else []
  if not isinstance(source_notes,list):source_notes=[]
- retained_notes=''.join('<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip())
+ retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
          +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'

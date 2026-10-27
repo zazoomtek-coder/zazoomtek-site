@@ -693,3 +693,21 @@ main.wrap{padding-top:28px;overflow:visible}
  .story-article.news-article>.article-text{font-size:15px!important}
  .story-article.news-article>.story-meta{column-gap:10px!important}
 }
+
+
+/* v27 – compact, natural editorial paragraphs across all article categories.
+   A paragraph is one flowing text block; headings remain explicit separators. */
+.story-article .article-text{line-height:1.68!important}
+.story-article .article-text>p{margin:0 0 13px!important;line-height:1.68!important}
+.story-article.news-article>.article-text>p,
+.story-article.review-article>.article-text>p{margin:0 0 13px!important;line-height:1.68!important}
+.story-article.news-article>.article-text>h2,
+.story-article.review-article>.article-text>h2{
+ margin:24px 0 11px!important;
+ line-height:1.34!important;
+}
+.story-article .article-text>h2+p{margin-top:0!important}
+@media(max-width:650px){
+ .story-article .article-text>p{margin-bottom:12px!important}
+ .story-article .article-text>h2{margin-top:21px!important;margin-bottom:10px!important}
+}

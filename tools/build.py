@@ -237,7 +237,7 @@ def shell(title,inner):
          '<a href="/cookie-policy">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-routes-26"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-paragraphs-27"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
@@ -661,6 +661,8 @@ def legacy_article_redirects(rows):
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
 def main():
+ from verify_article_typography import verify
+ verify()
  rows=posts()
  if O.exists():shutil.rmtree(O)
  # Copy the actual covers and other local editorial assets, not CSS/JS alone.
