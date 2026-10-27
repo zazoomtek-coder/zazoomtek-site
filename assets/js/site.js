@@ -69,8 +69,8 @@
   btn.replaceWith(iframe);
  });
 
- // Match each editorial rail to the real article/Home column height.
- // Only whole cards are rendered, without cropping or reusing articles.
+ // Fill each right-hand editorial rail, respecting the height of the actual article column.
+ // Fixed Home order: I più letti, Amazon, Da non perdere, Dalla redazione, Altre news.
  function sizeEditorialRail(aside){
   const stack=aside.querySelector(".sidebar-stack");
   if(!stack)return;
@@ -81,45 +81,69 @@
   if(!column)return;
   stack.style.minHeight="";
   stack.style.justifyContent="";
-  const sections=[...stack.querySelectorAll(":scope > .editorial-box")];
-  for(const box of sections){
-   box.hidden=true;
-   for(const row of box.querySelectorAll(".editorial-row"))row.hidden=true;
+  const boxes=[...stack.querySelectorAll(":scope > .editorial-box")];
+  const contents=boxes.map(box=>[...box.querySelectorAll(".editorial-row")]);
+  for(const box of boxes)box.hidden=true;
+  for(const rows of contents)for(const row of rows)row.hidden=true;
+  if(compact){
+   // On phones and tablets the rail stacks below content; never hide the Amazon panel.
+   boxes.forEach((box,i)=>{
+    box.hidden=false;
+    contents[i].slice(0,4).forEach(row=>row.hidden=false);
+   });
+   aside.classList.add("rail-ready");
+   return;
   }
-  const maxHeight=compact?Number.POSITIVE_INFINITY:Math.max(0,Math.floor(column.getBoundingClientRect().height)-2);
-  const maxSections=compact?3:30;
-  const perSection=compact?2:(home?4:3);
-  let visibleSections=0;
-  for(const box of sections){
-   if(visibleSections>=maxSections)break;
-   const entries=[...box.querySelectorAll(".editorial-row")];
-   if(!entries.length)continue;
+  const target=Math.max(0,Math.floor(column.getBoundingClientRect().height)-3);
+  if(target<100)return;
+  const fits=()=>stack.scrollHeight<=target+1;
+  const mandatory=home?boxes.length:Math.min(2,boxes.length);
+  // Show all fixed Home panels, at least first two inner panels.
+  boxes.forEach((box,i)=>{
    box.hidden=false;
-   let shown=0;
-   for(const row of entries){
-    if(shown>=perSection)break;
-    row.hidden=false;
-    if(!compact&&stack.scrollHeight>maxHeight+2){
-     row.hidden=true;
-     break;
-    }
-    shown++;
+   if(!fits()&&i>=mandatory){box.hidden=true;return}
+   const first=contents[i][0];
+   if(first){
+    first.hidden=false;
+    if(!fits())first.hidden=true;
    }
-   if(!shown){box.hidden=true;break}
-   visibleSections++;
+  });
+  let changed=true;
+  while(changed){
+   changed=false;
+   for(let i=0;i<boxes.length;i++){
+    if(boxes[i].hidden)continue;
+    const next=contents[i].find(row=>row.hidden);
+    if(!next)continue;
+    next.hidden=false;
+    if(!fits()){next.hidden=true;continue}
+    changed=true;
+   }
   }
-  if(!compact&&visibleSections>1){
-   const remaining=maxHeight-stack.scrollHeight;
-   if(remaining>30){stack.style.minHeight=maxHeight+"px";stack.style.justifyContent="space-between"}
+  // Remaining small gaps are distributed between intact sections, not inside cropped cards.
+  const remaining=Math.max(0,target-stack.scrollHeight);
+  const shown=boxes.filter(box=>!box.hidden).length;
+  if(remaining>14&&shown>1&&remaining/shown<115){
+   stack.style.minHeight=target+"px";
+   stack.style.justifyContent="space-between";
   }
   aside.classList.add("rail-ready");
  }
  function syncEditorialRails(){
-  for(const aside of document.querySelectorAll(".home-sidebar,.inner-sidebar"))sizeEditorialRail(aside);
+  document.querySelectorAll(".home-sidebar,.inner-sidebar").forEach(sizeEditorialRail);
  }
- syncEditorialRails();
- window.addEventListener("load",syncEditorialRails,{once:true});
- window.addEventListener("resize",syncEditorialRails);
+ let editorialResizeFrame=0;
+ function scheduleEditorialSizing(){
+  cancelAnimationFrame(editorialResizeFrame);
+  editorialResizeFrame=requestAnimationFrame(syncEditorialRails);
+ }
+ scheduleEditorialSizing();
+ window.addEventListener("load",scheduleEditorialSizing,{once:true});
+ window.addEventListener("resize",scheduleEditorialSizing,{passive:true});
+ if(typeof ResizeObserver!=="undefined"){
+  const railObserver=new ResizeObserver(scheduleEditorialSizing);
+  document.querySelectorAll(".home-column,.inner-column").forEach(col=>railObserver.observe(col));
+ }
 
  // Broken or unavailable media always falls back to a filled 16:9 editorial title card.
  for(const image of document.querySelectorAll(".editorial-media-frame .editorial-media-fg")){
