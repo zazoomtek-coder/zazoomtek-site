@@ -1,4 +1,293 @@
 {
-  "source": "YouTube Community ZazoomTek - solo post originali verificati",
-  "posts": []
+  "source": "Estratti editoriali recuperati dal precedente archivio di ZazoomTek; contenuti completi ancora da sincronizzare",
+  "posts": [
+    {
+      "id": "n-tech-irobot-roomba-20261019",
+      "date": "2026-10-19",
+      "category": "news-tech",
+      "title": "iRobot presenta i nuovi Roomba Combo 115, 415, 515 e 575",
+      "text": "iRobot amplia la propria gamma di robot aspirapolvere con i nuovi Roomba Combo 115, Plus 415 Combo, Plus 515 Combo e Plus 575 Combo, progettati per muoversi meglio sotto mobili, letti e tra gli ostacoli domestici.",
+      "type": "news",
+      "topic": "tech",
+      "featured": true
+    },
+    {
+      "id": "n-tech-dyson-nurovi-20261019",
+      "date": "2026-10-19",
+      "category": "news-tech",
+      "title": "Dyson porta in Italia i robot R1 Nurovi Dry e R2 Nurovi Wash+Dry",
+      "text": "Dyson annuncia l’arrivo in Italia dei nuovi robot aspirapolvere R1 Nurovi Dry e R2 Nurovi Wash+Dry, progettati per gestire polvere, detriti e sporco su diversi tipi di pavimento.",
+      "type": "news",
+      "topic": "tech",
+      "featured": true
+    },
+    {
+      "id": "n-tech-cisco-clickfix-20261019",
+      "date": "2026-10-19",
+      "category": "news-tech",
+      "title": "Cisco Talos scopre campagne ClickFix che sfruttano Google Docs",
+      "text": "Cisco Talos ha individuato due campagne ClickFix che sfruttano servizi cloud affidabili e comuni fogli Google per convincere gli utenti a eseguire codice malevolo sui propri dispositivi.",
+      "type": "news",
+      "topic": "tech",
+      "featured": true
+    },
+    {
+      "id": "n-tech-amazon-luna-20261019",
+      "date": "2026-10-19",
+      "category": "news-tech",
+      "title": "Amazon Luna arriva su Prime Video in Italia per gli abbonati Prime",
+      "text": "Amazon Luna è disponibile direttamente nell’app Prime Video sui dispositivi Fire TV in Italia, Francia, Spagna e Canada, senza costi aggiuntivi per gli abbonati Prime.",
+      "type": "news",
+      "topic": "tech",
+      "featured": false
+    },
+    {
+      "id": "n-tech-nvidia-rtx-spark-20261016",
+      "date": "2026-10-16",
+      "category": "news-tech",
+      "title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale",
+      "text": "NVIDIA annuncia la disponibilità dei nuovi laptop RTX Spark, sistemi Windows sottili progettati per combinare grafica RTX, strumenti di intelligenza artificiale e fino a 128 GB di memoria.",
+      "type": "news",
+      "topic": "tech",
+      "featured": false
+    },
+    {
+      "id": "n-tech-midea-powerinfi-20261016",
+      "date": "2026-10-16",
+      "category": "news-tech",
+      "title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh",
+      "text": "Midea amplia la propria offerta per il residenziale con PowerInfi G2 All-In-One, nuovo sistema di accumulo energetico sviluppato da Midea Hiconics.",
+      "type": "news",
+      "topic": "tech",
+      "featured": false
+    },
+    {
+      "id": "n-tech-checkpoint-20261016",
+      "date": "2026-10-16",
+      "category": "news-tech",
+      "title": "Check Point rileva 3.190 attacchi informatici settimanali in Italia",
+      "text": "Check Point Research fotografa un settembre 2026 particolarmente critico per la sicurezza informatica in Italia, con una media di 3.190 attacchi a settimana per organizzazione.",
+      "type": "news",
+      "topic": "tech",
+      "featured": false
+    },
+    {
+      "id": "n-tech-cisco-ai-20261013",
+      "date": "2026-10-13",
+      "category": "news-tech",
+      "title": "Studio Cisco sull’AI: mercato più maturo e nuove opportunità",
+      "text": "Uno studio Cisco analizza le opportunità e le sfide delle aziende nell'adozione dell'intelligenza artificiale, tra infrastrutture e governance.",
+      "type": "news",
+      "topic": "tech",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-fritz-lucca-20261022",
+      "date": "2026-10-22",
+      "category": "news-gaming",
+      "title": "FRITZ! arriva a Lucca Comics & Games 2026 tra gaming, streaming e rete domestica",
+      "text": "FRITZ! sarà presente a Lucca Comics & Games 2026 dal 28 ottobre al 1° novembre con attività dedicate a gaming, streaming e connettività domestica. Il brand parteciperà nell’area VIP Level Up e al Giardino degli Osservanti.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": true
+    },
+    {
+      "id": "n-gaming-delve-survivors-20261018",
+      "date": "2026-10-18",
+      "category": "news-gaming",
+      "title": "Delve Survivors porta il gameplay Survivors a turni allo Steam Next Fest",
+      "text": "Delve Survivors sarà protagonista dello Steam Next Fest dal 19 al 26 ottobre 2026 con una demo ampliata che combina la progressione tipica dei Survivors con il combattimento tattico a turni.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-lego-harry-potter-20261018",
+      "date": "2026-10-18",
+      "category": "news-gaming",
+      "title": "LEGO Harry Potter Collection è disponibile su Nintendo Switch 2",
+      "text": "Warner Bros. Games, TT Games e il Gruppo LEGO annunciano l’arrivo di LEGO Harry Potter Collection su Nintendo Switch 2, sia in formato digitale sia fisico.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-flipping-is-hard-20261018",
+      "date": "2026-10-18",
+      "category": "news-gaming",
+      "title": "Flipping Is Hard è disponibile su Steam",
+      "text": "Flipping Is Hard è disponibile su Steam per PC, con un prezzo di 14,99 dollari e uno sconto di lancio che porta il costo a 9,74 dollari. Il gioco è sviluppato dallo studio lituano Elegant Horse.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-resident-evil-switch-20261018",
+      "date": "2026-10-18",
+      "category": "news-gaming",
+      "title": "Resident Evil 2, 3 e 4 arrivano su Nintendo Switch 2",
+      "text": "Capcom porta su Nintendo Switch 2 tre remake della saga Resident Evil: Resident Evil 2 Deluxe Edition, Resident Evil 3 e Resident Evil 4 Gold Edition.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-quarantine-miami-20261017",
+      "date": "2026-10-17",
+      "category": "news-gaming",
+      "title": "Quarantine Zone: The Last Check si espande con Miami Zero",
+      "text": "Quarantine Zone: The Last Check riceve Miami Zero, un’espansione gratuita che porta l’azione nelle strade di Miami e amplia il simulatore di checkpoint zombie.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-cod-wutang-20261017",
+      "date": "2026-10-17",
+      "category": "news-gaming",
+      "title": "Call of Duty: Modern Warfare 4 rilancia C.R.E.A.M. dei Wu-Tang Clan",
+      "text": "Call of Duty: Modern Warfare 4 porterà nel gioco una nuova versione di C.R.E.A.M., reinterpretata da LEE YOUNGJI, E SENS e Jay Park.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-peak-20261016",
+      "date": "2026-10-16",
+      "category": "news-gaming",
+      "title": "PEAK arriva su console: edizione fisica PS5 il 9 dicembre",
+      "text": "PEAK, gioco cooperativo di arrampicata sviluppato da Landfall e Aggro Crab, arriverà su console nell’autunno 2026, con un'edizione fisica per PlayStation 5 annunciata da Skybound Games.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-it-takes-two-20261015",
+      "date": "2026-10-15",
+      "category": "news-gaming",
+      "title": "It Takes Two arriva su Nintendo Switch 2 con upgrade gratuito",
+      "text": "It Takes Two è disponibile su Nintendo Switch 2, portando il titolo cooperativo di Hazelight Studios sulla nuova console Nintendo con un aggiornamento gratuito per chi possiede la versione precedente.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "n-gaming-warhammer-boltgun2-20261015",
+      "date": "2026-10-15",
+      "category": "news-gaming",
+      "title": "Warhammer 40,000: Boltgun 2 è disponibile su PC, PS5 e Xbox Series X|S",
+      "text": "Warhammer 40,000: Boltgun 2 è disponibile su PC, PlayStation 5 e Xbox Series X|S. Auroch Digital e Big Fan Games riportano in scena l’azione brutale della serie.",
+      "type": "news",
+      "topic": "gaming",
+      "featured": false
+    },
+    {
+      "id": "r-walto",
+      "category": "recensioni-gaming",
+      "title": "WALTO Recensione PC",
+      "text": "WALTO prende un'immagine apparentemente innocua come quella di un mondo popolato da conigli e la trasforma in qualcosa di oscuro, aggressivo e decisamente meno rassicurante.",
+      "date": null,
+      "type": "review",
+      "topic": "gaming"
+    },
+    {
+      "id": "r-lous-lagoon",
+      "category": "recensioni-gaming",
+      "title": "Lou's Lagoon | Recensione PC",
+      "text": "Un idrovolante, un enorme arcipelago tropicale da esplorare e uno zio misteriosamente scomparso. Lou's Lagoon parte da una premessa apparentemente semplice.",
+      "date": null,
+      "type": "review",
+      "topic": "gaming"
+    },
+    {
+      "id": "r-ace-combat-8",
+      "category": "recensioni-gaming",
+      "title": "ACE COMBAT 8: WINGS OF THEVE | Recensione PS5",
+      "text": "ACE COMBAT 8: WINGS OF THEVE segna il ritorno della serie principale dopo sette anni e lo fa senza cercare rivoluzioni inutili.",
+      "date": null,
+      "type": "review",
+      "topic": "gaming"
+    },
+    {
+      "id": "r-nba-2k27",
+      "category": "recensioni-gaming",
+      "title": "NBA 2K27 | Recensione PS5",
+      "text": "NBA 2K27 arriva su PlayStation 5 con un obiettivo chiaro: non limitarsi al classico aggiornamento di roster, divise e valutazioni, ma migliorare concretamente il basket giocato.",
+      "date": null,
+      "type": "review",
+      "topic": "gaming"
+    },
+    {
+      "id": "r-iifactor-m08e",
+      "category": "recensioni-tech",
+      "title": "IIFACTOR M08E AI Smart Glasses | Recensione",
+      "text": "Fotocamera Sony da 13 MP, intelligenza artificiale, traduzione in tempo reale, audio open-ear e una montatura che cerca di assomigliare il più possibile a un normale paio di occhiali.",
+      "date": null,
+      "type": "review",
+      "topic": "tech"
+    },
+    {
+      "id": "r-marvels-wolverine",
+      "category": "recensioni-gaming",
+      "title": "Marvel's Wolverine | Recensione PS5",
+      "text": "Marvel's Wolverine porta su PlayStation 5 un Logan brutale, diretto e fisico, costruendo l'intera esperienza intorno alla sensazione di controllare un personaggio quasi impossibile da fermare.",
+      "date": null,
+      "type": "review",
+      "topic": "gaming"
+    },
+    {
+      "id": "r-70mai-a900",
+      "category": "recensioni-tech",
+      "title": "70mai Dash Cam 4K A900 | Recensione",
+      "text": "La 70mai Dash Cam 4K A900 nasce con un obiettivo preciso: offrire registrazione 4K non soltanto davanti all'auto, ma anche sul canale posteriore, mantenendo HDR attivo in entrambe le direzioni.",
+      "date": null,
+      "type": "review",
+      "topic": "tech"
+    },
+    {
+      "id": "r-transport-fever-3",
+      "category": "recensioni-gaming",
+      "title": "TRANSPORT FEVER 3 | Recensione PS5",
+      "text": "Transport Fever 3 porta su PlayStation 5 la formula gestionale di Urban Games in una versione ancora più ampia, profonda e ambiziosa.",
+      "date": null,
+      "type": "review",
+      "topic": "gaming"
+    },
+    {
+      "id": "g-ps5-sotto-20",
+      "date": "2026-10-18",
+      "category": "guide",
+      "title": "10 giochi PS5 a meno di 20 euro: i migliori da acquistare su PlayStation Store",
+      "text": "Spendere poco non significa rinunciare a giochi PS5 completi e di qualità. Il catalogo digitale di PlayStation comprende esperienze diverse tra loro.",
+      "type": "guide",
+      "topic": "tech"
+    },
+    {
+      "id": "e-silki-3d",
+      "date": "2026-10-15",
+      "category": "extra",
+      "title": "SILKI: la sedia stampata in 3D con seta riciclata",
+      "text": "Dagli scarti dell'industria tessile nasce SILKI, una seduta stampata in 3D che combina seta recuperata, un materiale biodegradabile e traccianti ottici invisibili.",
+      "type": "extra",
+      "topic": "tech"
+    },
+    {
+      "id": "e-superlega-vbtv",
+      "date": "2026-10-15",
+      "category": "extra",
+      "title": "SuperLega Credem Banca 2026/27 al via: tutte le partite su VBTV e Fantasy Game",
+      "text": "La SuperLega Credem Banca 2026/27 parte il 17 ottobre con Rana Verona contro Cucine Lube Civitanova. Tutte le partite saranno trasmesse su VBTV e debutta il Fantasy Game ufficiale.",
+      "type": "extra",
+      "topic": "tech"
+    },
+    {
+      "id": "s-videogiochi-terapia",
+      "date": "2026-10-18",
+      "category": "speciali",
+      "title": "Videogiochi e terapia: come il gaming può entrare nei percorsi clinici",
+      "text": "Il videogioco può diventare qualcosa di più di un semplice strumento di intrattenimento quando viene inserito in un percorso terapeutico strutturato e seguito da un professionista.",
+      "type": "speciali",
+      "topic": "tech"
+    }
+  ]
 }
