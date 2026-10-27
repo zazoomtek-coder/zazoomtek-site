@@ -269,13 +269,13 @@
   const onDesktop=window.matchMedia("(min-width: 781px)").matches;
   tickerViewport.style.removeProperty("width");
   tickerViewport.classList.remove("ticker-desktop-capped");
-  if(!onDesktop||!lastMenuLink||!tickerPause)return;
+  if(!onDesktop||!lastMenuLink)return;
   const lastLinkRect=lastMenuLink.getBoundingClientRect();
   const viewportRect=tickerViewport.getBoundingClientRect();
   const containerRect=tickerViewport.parentElement.getBoundingClientRect();
   if(!lastLinkRect.width||!viewportRect.width)return;
-  const target=lastLinkRect.right-viewportRect.left-tickerPause.getBoundingClientRect().width;
-  const limit=containerRect.right-viewportRect.left-tickerPause.getBoundingClientRect().width;
+  const target=lastLinkRect.right-viewportRect.left;
+  const limit=containerRect.right-viewportRect.left;
   const next=Math.max(180,Math.min(target,limit));
   tickerViewport.style.width=next.toFixed(1)+"px";
   tickerViewport.classList.add("ticker-desktop-capped");
