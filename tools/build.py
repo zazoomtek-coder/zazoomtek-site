@@ -146,6 +146,8 @@ def posts():
   seen_slugs.add(r["slug"])
   deduplicated.append(r)
  rows=sorted(deduplicated,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ from review_image_archive import populate_review_covers
+ populate_review_covers(rows,P,safe_image)
  review_data=json.loads((P/"data/review_editorial.json").read_text(encoding="utf-8")).get("editorial_data",{})
  for r in rows:
   # Normalize *display* title only after category and canonical-slug resolution.
@@ -235,7 +237,7 @@ def shell(title,inner):
          '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-article-standard-24"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-reviewed-covers-25"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
@@ -558,7 +560,7 @@ def home(rows):
  spotlight=adaptive_news(all_news,5,global_used)
  tech_low=adaptive_news(tech,6,global_used)
  gaming_low=adaptive_news(gaming,4,global_used)
- reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full")],4,global_used)
+ reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],4,global_used)
  video_section=playlist_cards()
  external=web_news()
  # URLs/titles selected for Notizie Web are external; mark them as used to avoid repeated home references.

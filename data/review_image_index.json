@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "purpose": "First-party review-cover archive. A written review does not require or acquire a video player.",
+  "entries": [
+    {
+      "review_slug": "call-of-duty-modern-warfare-4-recensione-ps5",
+      "product_name": "Call of Duty Modern Warfare 4",
+      "video_id": "-c995pZgzHQ",
+      "thumbnail_url": "https://i.ytimg.com/vi/-c995pZgzHQ/hqdefault.jpg",
+      "source": "ZazoomTek video-thumbnail archive",
+      "verified_archive_id": true
+    },
+    {
+      "review_slug": "70mai-a900-ultra-recensione-dual-4k",
+      "product_name": "70mai A900 Ultra",
+      "video_id": "3biZz45pUJs",
+      "thumbnail_url": "https://i.ytimg.com/vi/3biZz45pUJs/hqdefault.jpg",
+      "source": "ZazoomTek video-thumbnail archive",
+      "verified_archive_id": true
+    },
+    {
+      "review_slug": "thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1",
+      "product_name": "ThermoMate 2500W",
+      "video_id": "e7rAYQprXTM",
+      "thumbnail_url": "https://i.ytimg.com/vi/e7rAYQprXTM/hqdefault.jpg",
+      "source": "ZazoomTek video-thumbnail archive",
+      "verified_archive_id": true
+    }
+  ]
+}
