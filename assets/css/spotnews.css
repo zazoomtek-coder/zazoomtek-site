@@ -452,3 +452,47 @@ main.wrap{padding-top:28px;overflow:visible}
  .compact-item{grid-template-columns:110px minmax(0,1fr)}
  .compact-item-image{width:110px}
 }
+
+
+/* Editorial v21. Never crop the end of a sidebar card or its headline. */
+@media(min-width:781px){
+ .inner-layout{display:grid!important;grid-template-columns:minmax(0,7fr) minmax(235px,3fr);align-items:start;column-gap:16px;position:relative;overflow:visible!important}
+ .inner-layout>.inner-column{width:auto!important;min-width:0;max-width:none;overflow:visible!important}
+ .inner-layout>.inner-sidebar{position:static!important;inset:auto!important;width:auto!important;max-width:none!important;
+  min-height:0!important;height:auto!important;max-height:none!important;overflow:visible!important;display:block!important}
+ .inner-sidebar .sidebar-stack{position:static!important;inset:auto!important;height:auto!important;max-height:none!important;overflow:visible!important}
+ .related{width:calc(70% - 12px)!important}
+ .home-layout{align-items:start!important;overflow:visible!important}
+ .home-sidebar{position:static!important;inset:auto!important;width:auto!important;height:auto!important;
+   max-height:none!important;overflow:visible!important;align-self:start!important}
+ .home-sidebar .sidebar-stack{position:static!important;inset:auto!important;width:auto!important;height:auto!important;
+   max-height:none!important;overflow:visible!important;display:flex!important;flex-direction:column!important;gap:12px!important}
+}
+.sidebar,.sidebar-stack,.sidebar .compact-editorial-box,.sidebar .compact-editorial-box .editorial-links,
+.sidebar .compact-editorial-box .editorial-row,.compact-item,.compact-item-text,.cards-compact{
+  max-height:none!important;text-overflow:clip!important;
+}
+.sidebar .compact-editorial-box{height:auto!important;min-height:0!important;overflow:visible!important}
+.sidebar .compact-editorial-box .editorial-row{height:auto!important;min-height:66px;overflow:visible!important}
+.sidebar .compact-editorial-box .editorial-row-copy{overflow-wrap:anywhere;white-space:normal!important;overflow:visible!important}
+.sidebar .compact-editorial-box .editorial-row-copy a,
+.sidebar .compact-editorial-box .editorial-row-copy strong,
+.compact-item h3,.compact-item h3 a{
+ display:block;white-space:normal!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;
+ max-height:none!important;overflow:visible!important;text-overflow:clip!important;word-break:normal;overflow-wrap:anywhere
+}
+.sidebar .compact-editorial-box .editorial-thumb{flex:0 0 92px}
+.sidebar .compact-editorial-box .editorial-thumb img,.compact-item-image img,
+.cards .thumb img,.spotlight-grid img{
+ object-fit:contain!important;background:#202e3d
+}
+.compact-item{overflow:visible!important;height:auto!important;min-height:77px}
+.compact-item-image{overflow:hidden;flex-shrink:0}
+.related ul{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.related li{display:block;overflow-wrap:anywhere}
+@media(max-width:780px){
+ .inner-layout{display:block!important;overflow:visible!important}
+ .inner-layout>.inner-sidebar{position:static!important;inset:auto!important;width:100%!important;max-height:none!important;overflow:visible!important}
+ .inner-layout>.inner-column,.related{width:100%!important}
+ .home-sidebar,.home-sidebar .sidebar-stack{position:static!important;inset:auto!important;height:auto!important;max-height:none!important;overflow:visible!important}
+}
