@@ -68,4 +68,56 @@
   iframe.src="https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1";
   btn.replaceWith(iframe);
  });
+
+ // Match each editorial rail to the real article/Home column height.
+ // Only whole cards are rendered, without cropping or reusing articles.
+ function sizeEditorialRail(aside){
+  const stack=aside.querySelector(".sidebar-stack");
+  if(!stack)return;
+  const home=aside.classList.contains("home-sidebar");
+  const compact=window.matchMedia("(max-width:780px)").matches;
+  const column=home?aside.closest(".home-layout")?.querySelector(".home-column"):
+                    aside.closest(".inner-layout")?.querySelector(".inner-column");
+  if(!column)return;
+  stack.style.minHeight="";
+  stack.style.justifyContent="";
+  const sections=[...stack.querySelectorAll(":scope > .editorial-box")];
+  for(const box of sections){
+   box.hidden=true;
+   for(const row of box.querySelectorAll(".editorial-row"))row.hidden=true;
+  }
+  const maxHeight=compact?Number.POSITIVE_INFINITY:Math.max(0,Math.floor(column.getBoundingClientRect().height)-2);
+  const maxSections=compact?3:30;
+  const perSection=compact?2:(home?4:3);
+  let visibleSections=0;
+  for(const box of sections){
+   if(visibleSections>=maxSections)break;
+   const entries=[...box.querySelectorAll(".editorial-row")];
+   if(!entries.length)continue;
+   box.hidden=false;
+   let shown=0;
+   for(const row of entries){
+    if(shown>=perSection)break;
+    row.hidden=false;
+    if(!compact&&stack.scrollHeight>maxHeight+2){
+     row.hidden=true;
+     break;
+    }
+    shown++;
+   }
+   if(!shown){box.hidden=true;break}
+   visibleSections++;
+  }
+  if(!compact&&visibleSections>1){
+   const remaining=maxHeight-stack.scrollHeight;
+   if(remaining>30){stack.style.minHeight=maxHeight+"px";stack.style.justifyContent="space-between"}
+  }
+  aside.classList.add("rail-ready");
+ }
+ function syncEditorialRails(){
+  for(const aside of document.querySelectorAll(".home-sidebar,.inner-sidebar"))sizeEditorialRail(aside);
+ }
+ syncEditorialRails();
+ window.addEventListener("load",syncEditorialRails,{once:true});
+ window.addEventListener("resize",syncEditorialRails);
 })();
