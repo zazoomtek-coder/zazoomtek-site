@@ -73,17 +73,24 @@ def community_posts():
  if not isinstance(raw,dict) or not isinstance(raw.get("posts"),list):
   raise ValueError("Invalid stored Community data")
  historical=raw["posts"]
+ alias_entries=json.loads((P/"data/community_aliases.json").read_text(encoding="utf-8")).get("entries",[])
+ if len(alias_entries)!=30:raise ValueError("30 Community short-to-full aliases expected")
+ abbreviated={entry["old_id"] for entry in alias_entries}
+ canonical_category={entry["new_id"]:entry["category"] for entry in alias_entries}
  archive_path=P/"data/community_full.json"
  archived=json.loads(archive_path.read_text(encoding="utf-8")).get("posts",[]) if archive_path.exists() else []
  live=load_remote_community()
  result=[]
  for item in list(live)+list(archived)+list(historical):
   if not isinstance(item,dict):continue
+  if str(item.get("id") or "") in abbreviated:
+   continue  # The full archive version supersedes this historical short excerpt.
   text=item.get("text")
   if not isinstance(text,str) or not text.strip():continue
   cat=category_for_post(item)
-  if not cat:continue
   post_id=str(item.get("id","")).strip()
+  cat=canonical_category.get(post_id,cat)
+  if not cat:continue
   if not post_id:continue
   youtube_full=bool(item.get("text_complete")) and bool(re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id))
   archive_full=bool(item.get("archived_full")) and len(text)>=500
@@ -285,6 +292,10 @@ def safe_image(value):
  from urllib.parse import urlparse
  u=urlparse(value)
  if u.scheme=="https" and u.hostname in ("yt3.ggpht.com","i.ytimg.com","mcusercontent.com") and not u.username and not u.password:return value
+ # Verified public-domain Sony PS2 product photograph by Evan-Amos on Wikimedia Commons.
+ if (u.scheme=="https" and u.hostname=="upload.wikimedia.org" and
+     u.path=="/wikipedia/commons/c/c3/Sony-PlayStation-2-30001-wController-L.jpg" and
+     not u.username and not u.password):return value
  return ""
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
 def editorial_cover(row):
@@ -679,6 +690,22 @@ def legacy_article_redirects(rows):
    sources.add(alias)
    lines.append(alias+" "+dest+" 301")
   linked+=1
+ # Abbreviated historic Community posts must open their full-text canonicals.
+ alias_entries=json.loads((P/"data/community_aliases.json").read_text(encoding="utf-8")).get("entries",[])
+ for entry in alias_entries:
+  old="community-"+re.sub(r"[^a-z0-9]+","-",entry["old_id"].lower()).strip("-")
+  target="community-"+re.sub(r"[^a-z0-9]+","-",entry["new_id"].lower()).strip("-")
+  if old==target or old in occupied:continue
+  # Some exact-title Community posts may be superseded by a preferred archive edition.
+  found=by_slug.get(target)
+  if not found:
+   target=next((r["slug"] for r in rows if normalized_title(r["title"])==normalized_title(entry["full_title"]) and r["category"]==entry["category"]),"")
+  if not target:
+   raise ValueError("Missing full-text alias target for "+entry["short_title"])
+  for alias in ("/"+old,"/"+old+".html"):
+   if alias in sources:continue
+   sources.add(alias)
+   lines.append(alias+" /"+target+" 301")
  (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
@@ -735,10 +762,36 @@ def rss_feed(rows):
  ElementTree(rss).write(O/"feed.xml",encoding="utf-8",xml_declaration=True)
  print("RSS feed generated:",len(posted),"articles",flush=True)
 
+def audit_published_articles(rows):
+ """A whole-site audit: no article with only a title, cover or archived snippet."""
+ issues=[]
+ for row in rows:
+  body=row.get("body") or []
+  if isinstance(body,str):body=[body]
+  text=" ".join(block for block in body if isinstance(block,str) and not block.lstrip().startswith(("## ","# "))).strip()
+  if len(text)<260 or row.get("is_excerpt"):
+   issues.append((row.get("slug"),len(text),bool(row.get("is_excerpt"))))
+ for needed in (
+  "guida-come-usare-playstation-2-tv-4k-moderna",
+  "news-ugkxkbtuhabtov7gniqycpz9y8wdggjht3fn",
+  "news-ugkxkcgzvny03vubwn5axlj9ewtxj-nqr69p",
+  "news-ugkx0t7fvagel0nyuihyegzoxio0wc9nvsm7",
+  "news-ugkxyi2ggon-auahc8nr5898ffno84i-kepe"
+ ):
+  if not any(r.get("slug")==needed for r in rows):
+   issues.append((needed,"missing",True))
+ ps2=next((r for r in rows if r.get("slug")=="guida-come-usare-playstation-2-tv-4k-moderna"),{})
+ if not safe_image(ps2.get("image","")):
+  issues.append(("PS2 cover","missing",True))
+ if issues:
+  raise ValueError("Editorial audit failed: "+repr(issues[:25]))
+ print("Editorial audit PASS:",len(rows),"unique published articles with substantive text, 0 excerpts, PS2 photo ready",flush=True)
+
 def main():
  from verify_article_typography import verify
  verify()
  rows=posts()
+ audit_published_articles(rows)
  if O.exists():shutil.rmtree(O)
  # Copy the actual covers and other local editorial assets, not CSS/JS alone.
  shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
