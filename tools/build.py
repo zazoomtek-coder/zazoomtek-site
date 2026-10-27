@@ -128,7 +128,7 @@ def video_cards(rows):
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-exact-8"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-newsweb-9"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -228,14 +228,106 @@ def special_gallery(rows):
  return '<div class="specials-thumbnails">'+cards(rows[:2])+'</div>' if rows else blank()
 def feature_pair(guides,extras):
  return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("EXTRA",extras)+'</div>'
+# Feed RSS pubblici di sei testate italiane, un articolo per testata, fonte esterna esplicita.
+_WEB_NEWS_CACHE=None
+def tech_sources():
+ return json.loads((P/"data/web_sources.json").read_text(encoding="utf-8"))["sources"]
+def clean_feed_text(value):
+ return re.sub(r"\s+"," ",unesc(re.sub(r"<[^>]*>"," ",str(value or "")))).strip()
+def tech_article_link(value,site_domain):
+ u=urlparse(unesc(str(value or "").strip()))
+ domain=(u.hostname or "").lower()
+ domain=domain.removeprefix("www.")
+ return u.scheme=="https" and (domain==site_domain or domain.endswith("."+site_domain)) and not u.username and not u.password
+def rss_card_for_source(source,cutoff):
+ from email.utils import parsedate_to_datetime
+ u=source["feed"]
+ try:
+  req=urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekWebNews/1.0; +https://zazoomtek.it)","Accept":"application/rss+xml, application/atom+xml, application/xml, text/xml, */*"})
+  with urllib.request.urlopen(req,timeout=5) as response:
+   xml=ET.fromstring(response.read(1_800_000))
+ except Exception:
+  return None
+ ns_media="{http://search.yahoo.com/mrss/}"
+ ns_content="{http://purl.org/rss/1.0/modules/content/}"
+ ns_dc="{http://purl.org/dc/elements/1.1/}"
+ rows=xml.findall(".//item")
+ if not rows:rows=xml.findall("{http://www.w3.org/2005/Atom}entry")
+ best=None
+ for en in rows[:30]:
+  title=clean_feed_text(en.findtext("title") or en.findtext("{http://www.w3.org/2005/Atom}title"))
+  url=en.findtext("link")
+  if not url:
+   al=en.find("{http://www.w3.org/2005/Atom}link")
+   if al is not None:url=al.get("href")
+  if not title or not tech_article_link(url,source["domain"]):continue
+  raw_date=en.findtext("pubDate") or en.findtext(ns_dc+"date") or en.findtext("{http://www.w3.org/2005/Atom}published") or en.findtext("{http://www.w3.org/2005/Atom}updated")
+  if not raw_date:continue
+  day=parse_day(raw_date)
+  if day is None:
+   try:day=parsedate_to_datetime(raw_date).date()
+   except (TypeError,ValueError):continue
+  if day<cutoff or day>datetime.now(timezone.utc).date():continue
+  img=""
+  for node in (en.find(ns_media+"content"),en.find(ns_media+"thumbnail"),en.find("enclosure"),en.find("{http://www.w3.org/2005/Atom}link")):
+   if node is None:continue
+   proposed=node.get("url","") if node.tag!="{http://www.w3.org/2005/Atom}link" else ""
+   if proposed.startswith("https://") and (node.get("type","").startswith("image/") or proposed.lower().split("?")[0].endswith((".jpg",".jpeg",".png",".webp")) or node.tag in (ns_media+"content",ns_media+"thumbnail")):
+    img=proposed;break
+  if not img:
+   content=en.findtext(ns_content+"encoded") or en.findtext("description") or en.findtext("{http://www.w3.org/2005/Atom}summary") or ""
+   m=re.search(r'<img[^>]+(?:src|data-src)\s*=\s*["\'](https://[^"\']+)',unesc(content),re.I)
+   if m:img=m.group(1)
+  if not img.startswith("https://") or len(img)>1500:img=""
+  row={"source":source["name"],"title":title,"url":url.strip(),"image":img,"date":day.isoformat(),"from_feed":True}
+  if best is None or row["date"]>best["date"]:best=row
+ return best
+def web_news():
+ global _WEB_NEWS_CACHE
+ if _WEB_NEWS_CACHE is not None:return _WEB_NEWS_CACHE
+ sources=tech_sources()
+ snapshots=json.loads((P/"data/web.json").read_text(encoding="utf-8")).get("items",[])
+ backup={x.get("source"):x for x in snapshots if isinstance(x,dict)}
+ cutoff=datetime.now(timezone.utc).date()-timedelta(days=14)
+ from concurrent.futures import ThreadPoolExecutor
+ with ThreadPoolExecutor(max_workers=6) as pool:
+  future=[pool.submit(rss_card_for_source,s,cutoff) for s in sources]
+  live=[]
+  for f in future:
+   try:live.append(f.result())
+   except Exception:live.append(None)
+ cards=[]
+ for source,actual in zip(sources,live):
+  if actual:cards.append(actual);continue
+  b=backup.get(source["name"])
+  if b and tech_article_link(b.get("url"),source["domain"]) and (parse_day(b.get("date")) or datetime.min.date())>=cutoff:
+   cards.append({"source":source["name"],"title":b["title"],"url":b["url"],"image":b.get("image",""),"date":b.get("date",""),"from_feed":False})
+  else:
+   # Unavailable feed: link to source only, never a fabricated article.
+   cards.append({"source":source["name"],"title":"Leggi le ultime notizie di "+source["name"],"url":source["home"],"image":"","date":"","from_feed":False,"source_only":True})
+ _WEB_NEWS_CACHE=cards
+ return cards
+def web_news_cards(items):
+ if not items:return blank()
+ out=[]
+ for item in items[:6]:
+  url=esc(item["url"],quote=True)
+  name=esc(item["source"])
+  title=esc(item["title"])
+  image=item.get("image","")
+  safe_image_url=image if isinstance(image,str) and image.startswith("https://") and not any(ch in image for ch in '<>"\'') else ""
+  visual=('<img src="'+esc(safe_image_url,quote=True)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true">' if safe_image_url else '<span class="web-news-fallback">'+name+'</span>')
+  datelabel=str(item.get("date",""))
+  when='<time datetime="'+esc(datelabel,quote=True)+'">'+esc(datelabel[8:10]+"/"+datelabel[5:7]+"/"+datelabel[0:4])+'</time>' if re.fullmatch(r"\d{4}-\d{2}-\d{2}",datelabel) else ""
+  sub='<span class="web-source">'+name+'</span>'
+  if item.get("source_only"):sub+='<span class="web-source-only">Feed temporaneamente non disponibile</span>'
+  out.append('<article class="web-news-card"><a class="web-news-thumb" href="'+url+'" target="_blank" rel="noopener noreferrer" aria-label="Apri la fonte originale: '+title+'">'+visual+'</a>'+sub+'<h3><a href="'+url+'" target="_blank" rel="noopener noreferrer">'+title+'</a></h3>'+when+'</article>')
+ return '<div class="web-news-grid">'+''.join(out)+'</div>'
 def home(rows):
  def by(*keys):return [r for r in rows if r["category"] in keys]
  candidates=by("news-tech","news-gaming")
  marked=[p for p in candidates if p.get("featured")]
  features=(marked+[p for p in candidates if p["slug"] not in {f["slug"] for f in marked} and bool(safe_image(p.get("image","")))])[:5]
- raw=json.loads((P/"data/web.json").read_text(encoding="utf-8"))["items"]
- web=[w for w in raw if isinstance(w,dict) and isinstance(w.get("url"),str) and w["url"].startswith("https://") and isinstance(w.get("title"),str)]
- links='<ul>'+''.join('<li><a rel="noopener noreferrer" href="'+esc(w["url"],quote=True)+'">'+esc(w["title"])+'</a></li>' for w in web[:8])+'</ul>' if web else blank()
  top=section("In evidenza",featured_showcase(features))
  sections=[
   ("News Tech",cards(by("news-tech")[:6])),
@@ -243,14 +335,12 @@ def home(rows):
   ("Ultime Recensioni",cards([r for r in by("recensioni-tech","recensioni-gaming") if r.get("source")=="youtube-community"][:4])),
   ("Speciali",special_gallery(by("speciali"))+feature_pair(by("guide"),by("extra"))),
   ("Ultimi Video",playlist_cards()),
-  ("Notizie Web",links)
+  ("Notizie Web",web_news_cards(web_news()))
  ]
  return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar(rows,True)+'</div>')
 def web_archive(rows):
- items=json.loads((P/"data/web.json").read_text(encoding="utf-8")).get("items",[])
- links=['<li><a href="'+esc(item["url"],quote=True)+'" target="_blank" rel="noopener noreferrer">'+esc(item["title"])+'</a></li>' for item in items if isinstance(item,dict) and isinstance(item.get("title"),str) and isinstance(item.get("url"),str) and item["url"].startswith("https://")]
- content='<h1>Notizie Web</h1>'+('<ul class="web-links">'+''.join(links)+'</ul>' if links else blank())
- return inside("Notizie Web",content,rows)
+ content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni collegamento apre la notizia sul sito originale.</p>'+web_news_cards(web_news())
+ return inside("Notizie Web",content,rows,show_related=False)
 def inside(title,content,rows,exclude="",cat=None,show_related=True):
  # Article/archive content determines the height. Related articles always start after its end.
  extra=related(rows,exclude,cat) if show_related else ""

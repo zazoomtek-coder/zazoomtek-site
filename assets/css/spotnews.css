@@ -256,3 +256,20 @@ main.wrap{padding-top:28px;overflow:visible}
  .specials-thumbnails>.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  .specials-thumbnails .card h3{font-size:12px}
 }
+
+/* "Notizie Web": 6 publisher cards in a 3-by-2 magazine grid, directly linked to source. */
+.web-news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 20px;min-width:0;background:#fff;padding:15px 0 5px}
+.web-news-card{min-width:0;overflow-wrap:anywhere}
+.web-news-thumb{display:block;position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:linear-gradient(130deg,#111b27,#334e69)}
+.web-news-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.web-news-thumb img[hidden]{display:none}
+.web-news-fallback{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:linear-gradient(140deg,#0b1727,#435e7f);color:#fff;font-weight:900;text-align:center;font-size:18px;padding:12px}
+.web-news-card>.web-source{display:inline-block;margin:9px 0 1px;padding:3px 6px;background:#fa4651;color:#fff;text-transform:uppercase;font-size:10px;font-weight:900;line-height:1.3}
+.web-news-source{margin:8px 0}
+.web-news-card h3{font-size:15px;font-weight:900;line-height:1.38;margin:6px 0;min-width:0;overflow-wrap:anywhere}
+.web-news-card h3 a:hover{color:#db2536}
+.web-news-card time{font-size:11px;color:#7c7c7c;line-height:1.3}
+.web-news-card .web-source-only{display:block;font-size:11px;color:#777}
+.web-archive-intro{font-size:14px;margin:4px 0 16px}
+@media(max-width:780px){.web-news-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}}
+@media(max-width:500px){.web-news-grid{grid-template-columns:minmax(0,1fr);gap:20px}}

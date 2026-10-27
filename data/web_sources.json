@@ -1,0 +1,40 @@
+{
+  "sources": [
+    {
+      "name": "HDblog",
+      "home": "https://www.hdblog.it/",
+      "domain": "hdblog.it",
+      "feed": "https://www.hdblog.it/rss/"
+    },
+    {
+      "name": "SmartWorld",
+      "home": "https://www.smartworld.it/",
+      "domain": "smartworld.it",
+      "feed": "https://www.smartworld.it/feed/"
+    },
+    {
+      "name": "DDay.it",
+      "home": "https://www.dday.it/",
+      "domain": "dday.it",
+      "feed": "https://www.dday.it/rss"
+    },
+    {
+      "name": "Tom's Hardware",
+      "home": "https://www.tomshw.it/",
+      "domain": "tomshw.it",
+      "feed": "https://www.tomshw.it/feed/"
+    },
+    {
+      "name": "Hardware Upgrade",
+      "home": "https://www.hwupgrade.it/",
+      "domain": "hwupgrade.it",
+      "feed": "https://feeds.hwupgrade.it/rss_news.xml"
+    },
+    {
+      "name": "Punto Informatico",
+      "home": "https://www.punto-informatico.it/",
+      "domain": "punto-informatico.it",
+      "feed": "https://www.punto-informatico.it/feed/"
+    }
+  ]
+}
