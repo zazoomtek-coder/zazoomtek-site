@@ -107,6 +107,7 @@ def community_posts():
    "published_at":str(item.get("published_at") or item.get("date") or ""),
    "source":"youtube-community" if youtube_full else ("community-archive-full" if archive_full else "archived-community-excerpt"),
    "is_excerpt":not is_full,"source_url":original_url,"image":image,
+   "headings":item.get("headings",[]) if isinstance(item.get("headings"),list) else [],
    "featured":bool(item.get("featured",False)),
    "editorial_pick":bool(item.get("editorial_pick",False))
   })
@@ -234,7 +235,7 @@ def shell(title,inner):
          '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-covers-23"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-article-standard-24"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'

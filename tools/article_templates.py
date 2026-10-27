@@ -51,7 +51,15 @@ def paragraphs(review):
  if not isinstance(arr,list):return []
  result=[]
  for item in arr:
-  if isinstance(item,str) and item.strip():
+  if isinstance(item,dict):
+   raw=item.get("text") if isinstance(item.get("text"),str) else item.get("content")
+   if not isinstance(raw,str) or not raw.strip():continue
+   kind=str(item.get("type") or item.get("kind") or "").casefold()
+   if kind in ("h2","heading","section-title","subtitle"):
+    result.append("## "+clean_heading(raw))
+   elif kind in ("paragraph","text","p"):
+    result.extend(part.strip() for part in re.split(r"\n\s*\n",raw) if part.strip())
+  elif isinstance(item,str) and item.strip():
    result.extend(part.strip() for part in re.split(r"\n\s*\n",item) if part.strip())
  return result
 
@@ -105,18 +113,27 @@ def short_points(review,key):
  if not isinstance(raw,list):return []
  return [plain(x) for x in raw if isinstance(x,str) and plain(x)][:8]
 
+ITALIAN_MONTHS=("","gennaio","febbraio","marzo","aprile","maggio","giugno",
+                "luglio","agosto","settembre","ottobre","novembre","dicembre")
 def meta(review):
  typ=category(review)
  label={"news-tech":"News Tech","news-gaming":"News Gaming",
         "recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming",
         "speciali":"Speciali","extra":"Extra","guide":"Guide"}.get(typ,"Articolo")
- d=plain(review.get("date") or review.get("published_at"))
+ d=plain(review.get("published_at") or review.get("date"))
  valid_date=bool(DATE.match(d))
- when='<time datetime="'+esc(d[:10],quote=True)+'">'+esc(date_label(review))+'</time>' if valid_date else '<span>Data non disponibile</span>'
- return ('<div class="story-meta"><span class="story-badge">'+esc(label)+'</span>'
-         '<span><strong>Autore:</strong> '+esc(author(review))+'</span>'
-         '<span><strong>Data:</strong> '+when+'</span>'
-         '<span><strong>Categoria:</strong> '+esc(label)+'</span></div>')
+ when="Data non disponibile"
+ if valid_date:
+  try:
+   from datetime import date
+   day=date.fromisoformat(d[:10])
+   when=('<time datetime="'+esc(day.isoformat(),quote=True)+'">'+
+         str(day.day)+" "+ITALIAN_MONTHS[day.month]+" "+str(day.year)+'</time>')
+  except ValueError:pass
+ return ('<div class="story-meta" aria-label="Informazioni sull’articolo">'
+         '<span class="story-meta-author"><strong>Autore:</strong> '+esc(author(review))+'</span>'
+         '<span class="story-meta-date"><strong>Data:</strong> '+when+'</span>'
+         '<span class="story-meta-category"><strong>Categoria:</strong> '+esc(label)+'</span></div>')
 
 def image_block(review,image_validator,extra=False):
  candidates=[]
@@ -130,7 +147,7 @@ def image_block(review,image_validator,extra=False):
   if not src:continue
   caption=plain(item.get("caption",""))
   image='<img loading="lazy" src="'+esc(src,quote=True)+'" alt="'+esc(caption or plain(review.get("title")),quote=True)+'">'
-  result.append('<figure class="story-figure">'+image+'<figcaption>'+esc(caption if caption else 'Immagine in evidenza: '+plain(review.get('title')))+'</figcaption></figure>')
+  result.append('<figure class="story-figure">'+image+('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
  return ''.join(result)
 
 def video(review):
@@ -176,23 +193,51 @@ def editorial_blocks(review):
   if first:cleaned[0]=first
  return cleaned
 
+def source_plain_h2(block,following,position):
+ """Promote an existing *isolated source line*, never generate new section text."""
+ raw=str(block).strip()
+ if position==0 or not isinstance(following,str) or len(following.strip())<115:return False
+ if not 12<=len(raw)<=95 or "\n" in raw or len(raw.split())>15:return False
+ if raw.startswith(("#","-","•","http","www.","⭐")):return False
+ if re.search(r"(?:!|…|;)$",raw):return False
+ if raw.count(".")>1:return False
+ if re.fullmatch(r"(?i)(?:Subscribe|Iscriviti|Commenta|Seguici).*",raw):return False
+ if not raw[0].isupper():return False
+ # A standalone line before detailed prose is source-provided editorial structure.
+ return True
+
+def supplied_h2(review):
+ """Optional exact positions/titles carried by Studio or archived source materials."""
+ headings={}
+ for entry in review.get("headings",[]) if isinstance(review.get("headings"),list) else []:
+  if not isinstance(entry,dict):continue
+  idx=entry.get("before_paragraph")
+  title=entry.get("title")
+  if isinstance(idx,int) and not isinstance(idx,bool) and idx>=0 and isinstance(title,str):
+   label=clean_heading(title)
+   if 3<=len(label)<=95 and "\n" not in label:headings[idx]=label
+ return headings
+
+def news_body(review,blocks):
+ result=[]
+ headings=supplied_h2(review)
+ for i,paragraph in enumerate(blocks):
+  heading=named_section(paragraph)
+  if i in headings and (not heading or clean_heading(heading).casefold()!=headings[i].casefold()):
+   result.append('<h2>'+esc(headings[i])+'</h2>')
+  if heading and heading.casefold() not in ("voto finale","pro","contro"):
+   result.append('<h2>'+esc(heading)+'</h2>')
+  elif source_plain_h2(paragraph,blocks[i+1] if i+1<len(blocks) else "",i):
+   result.append('<h2>'+esc(clean_heading(paragraph))+'</h2>')
+  else:
+   result.append('<p>'+rich_text(paragraph)+'</p>')
+ return ''.join(result)
+
 def sectioned_body(review):
  blocks=editorial_blocks(review)
  if not blocks:return "<p>Il testo integrale dell'articolo non è ancora disponibile nell'archivio.</p>"
  if not is_review(review):
-  # Keep source H2s. For the FRITZ! article, the editor supplied the exact H2 in
-  # the reference layout, although the Community export lost its heading markup.
-  title=plain(review.get("title")).casefold()
-  supplied_h2={1:"Gaming e streaming al centro dell’esperienza"} if title.startswith("fritz! arriva a lucca comics") else {}
-  pieces=[]
-  for i,p in enumerate(blocks):
-   if i in supplied_h2 and not any(named_section(x) for x in blocks):
-    pieces.append('<h2>'+esc(supplied_h2[i])+'</h2>')
-   heading=named_section(p)
-   if heading and heading.casefold() not in ("voto finale","pro","contro"):
-    pieces.append('<h2>'+esc(heading)+'</h2>')
-   else:pieces.append('<p>'+rich_text(p)+'</p>')
-  return ''.join(pieces)
+  return news_body(review,blocks)
 
  # The score and final reader question follow the actual conclusion in original Community reviews.
  marker=next((idx for idx,p in enumerate(blocks) if ONLY_SCORE.fullmatch(p.strip()) or
