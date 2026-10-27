@@ -320,7 +320,10 @@ def render(review,image_validator):
          '<span>'+esc("Recensione" if reviews else "Articolo")+'</span><strong>'+title+'</strong></div>')
  extra=image_block(review,image_validator,extra=True)
  notice='<p class="excerpt-notice">Questo contenuto proviene da un estratto di archivio: il testo originale completo non è disponibile.</p>' if review.get("is_excerpt") else ""
+ source_notes=review.get("ending_notes",[]) if reviews else []
+ if not isinstance(source_notes,list):source_notes=[]
+ retained_notes=''.join('<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip())
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+extra+'</div>'
+         +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
