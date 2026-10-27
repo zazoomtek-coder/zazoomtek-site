@@ -111,6 +111,13 @@ def community_posts():
    "editorial_pick":bool(item.get("editorial_pick",False))
   })
  return result
+def clean_title(text):
+ """Avoid category labels, image numbering and arbitrary editorial prefixes in titles/H1/cards."""
+ title=str(text or "").strip()
+ title=re.sub(r"^\s*#*\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*[:\u2013\u2014-]\s*","",title,flags=re.I)
+ title=re.sub(r"^\s*(?:Foto|Immagine|Picture|Photo)\s*\d+\s*[:\u2013\u2014-]\s*","",title,flags=re.I)
+ title=re.sub(r"\s*[\u2013\u2014|:-]\s*(?:Foto|Immagine|Picture|Photo)\s*(?:n[.°]\s*)?\d+\s*$","",title,flags=re.I)
+ return title.strip()
 def normalized_title(text):
  text=re.sub(r"(?i)^\s*#*\s*(news\s*(?:tech|gaming)?|review\s*(?:tech|gaming)?|recensione|guida|guide|speciale|extra)\s*:\s*","",str(text)).strip()
  return re.sub(r"[^a-z0-9]+","",unesc(text.casefold()))
@@ -138,6 +145,17 @@ def posts():
   seen_slugs.add(r["slug"])
   deduplicated.append(r)
  rows=sorted(deduplicated,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ review_data=json.loads((P/"data/review_editorial.json").read_text(encoding="utf-8")).get("editorial_data",{})
+ for r in rows:
+  # Normalize *display* title only after category and canonical-slug resolution.
+  if r["category"].startswith("recensioni-"):
+   post_id=str(r.get("slug","")).removeprefix("community-")
+   extra=next((v for k,v in review_data.items() if
+               (k.lower().replace("_","-")==post_id) or k==r["slug"]),None)
+   if extra:
+    for field in ("score","pros","cons","conclusion"):
+     if field in extra and not r.get(field):r[field]=extra[field]
+  r["title"]=clean_title(r["title"])
  print("Articles:",len(rows),"verified Community:",sum(x.get("source")=="youtube-community" for x in rows),
        "archived excerpts:",sum(x.get("is_excerpt",False) for x in rows),flush=True)
  return rows
@@ -216,7 +234,7 @@ def shell(title,inner):
          '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-routing-20"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-editorial-21"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
@@ -298,32 +316,45 @@ def box(name,rows,notice=""):
  return '<section class="box editorial-box compact-editorial-box">'+bar(name,archives.get(name,""),"sidebar")+'<div class="editorial-links">'+''.join(cards)+'</div></section>'
 def sidebar(rows,home=False,used=None):
  used=used if used is not None else set()
- # Sidebar home only receives content not already displayed anywhere else on Home.
- groups=[
+ # Never clip the rail. Budget its entries instead: fewer complete cards, no half-visible text/images.
+ candidate_groups=[
   ("I più letti",sort_by_date_desc([r for r in rows if isinstance(r.get("views"),int) and r["views"]>0])),
   ("Da non perdere",[r for r in rows if r.get("featured")]),
   ("Dalla redazione",[r for r in rows if r.get("editorial_pick") or r["category"] in ("speciali","guide","extra")]),
   ("Ultime notizie",[r for r in rows if r["category"].startswith("news-")]),
-  ("Ultime recensioni",[r for r in rows if r["category"].startswith("recensioni-") and r.get("source") in ("youtube-community","community-archive-full")])
+  ("Ultime recensioni",[r for r in rows if r["category"].startswith("recensioni-")]),
+  ("Archivio Tech",[r for r in rows if r["category"]=="news-tech"]),
+  ("Archivio Gaming",[r for r in rows if r["category"]=="news-gaming"]),
+  ("Dagli archivi",rows)
  ]
- result=[]
- for label,candidates in groups:
-  selected=take_unique(candidates,3,used)
-  if selected:result.append(box(label,selected))
- # Any remaining real posts can complete the last editorial box without duplicating.
- # More compact authentic stories extend the sidebar without repeating Home articles.
- for heading,pool in (("Archivio Tech",[r for r in rows if r["category"]=="news-tech"]),
-                      ("Archivio Gaming",[r for r in rows if r["category"]=="news-gaming"])):
-  chunk=take_unique(pool,8,used)
-  if chunk:result.append(box(heading,chunk))
- for _ in range(4 if home else 1):
-  chunk=take_unique(rows,8,used)
-  if not chunk:break
-  result.append(box("Dagli archivi",chunk))
+ budget=24 if home else 5
+ group_limit=7 if home else 3
+ per_group=4 if home else 2
+ used_rows=0;result=[]
+ for label,items in candidate_groups:
+  if used_rows>=budget or len(result)>=group_limit:break
+  selected=take_unique(items,min(per_group,budget-used_rows),used)
+  if not selected:continue
+  result.append(box(label,selected))
+  used_rows+=len(selected)
  return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(result)+'</div></aside>'
 def related(rows,exclude="",category=None):
- found=[r for r in rows if r["slug"]!=exclude and (category is None or r["category"]==category)][:8]
- return '<section class="related"><h2>Articoli correlati</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html"><strong>'+esc(r["title"])+'</strong></a></li>' for r in found)+'</ul>' if found else blank())+'</section>'
+ # Precisely three working related-article links, preferring the same category.
+ # De-duplicate by canonical title, then use other editorial categories to reach three.
+ candidates=sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ same=[r for r in candidates if r.get("category")==category]
+ others=[r for r in candidates if r.get("category")!=category]
+ selected=[];seen=set()
+ for r in same+others:
+  if r.get("slug")==exclude:continue
+  key=normalized_title(r.get("title",""))
+  if not key or key in seen:continue
+  if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",str(r.get("slug",""))):continue
+  seen.add(key);selected.append(r)
+  if len(selected)==3:break
+ if len(selected)!=3:raise ValueError("Three related articles could not be selected for "+exclude)
+ return '<section class="related"><h2>Articoli correlati</h2><ul>'+''.join(
+  '<li><a href="/'+r["slug"]+'.html"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>' for r in selected)+'</ul></section>'
 def feature_mini_cards(items):
  if not items:return ""
  rendered=[]
@@ -530,7 +561,7 @@ def web_archive(rows):
  return inside("Notizie Web",content,rows,show_related=False)
 def inside(title,content,rows,exclude="",cat=None,show_related=True):
  # Article/archive content determines the height. Related articles always start after its end.
- extra=related(rows,exclude,cat) if show_related else ""
+ extra=related(rows,exclude,cat)
  return shell(title,'<div class="inner-layout"><div class="inner-column">'+content+'</div>'+sidebar(rows)+'</div>'+extra)
 ARCHIVE_PAGE_SIZE=9
 def pagination_links(key,page,total_pages):
