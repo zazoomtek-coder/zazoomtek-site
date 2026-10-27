@@ -231,3 +231,9 @@ main.wrap{padding-top:28px;overflow:visible}
  .wrap{width:calc(100% - 24px)}
  .home-sidebar .sidebar-stack,.inner-sidebar .sidebar-stack{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Prevent archive pagination from being treated as the mobile navigation overlay. */
+.pagination{position:static;left:auto;right:auto;top:auto;bottom:auto;z-index:auto;display:flex;flex-direction:row;gap:8px;align-items:center;justify-content:center;box-shadow:none;background:transparent}
+.pagination a{display:inline-flex;align-items:center;justify-content:center;line-height:1.2}
+@media(max-width:780px){nav.pagination{position:static;display:flex;flex-direction:row;padding:22px 0 6px;box-shadow:none;background:transparent}nav.pagination a{display:inline-flex;padding:7px 10px;border:1px solid #ddd}}
