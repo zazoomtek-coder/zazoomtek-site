@@ -60,7 +60,7 @@ def community_posts():
   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
   if not slug or len(slug)>150:continue
   image=item.get("image","")
-  if not isinstance(image,str) or not image.startswith("/") or ".." in image:image=""
+  image=safe_image(image)
   result.append({"slug":slug,"category":cat,"title":title.strip(),"body":[p.strip() for p in re.split(r"\n\s*\n",text) if p.strip()],"date":day.isoformat() if day else "","source":"youtube-community","image":image,"source_url":item.get("url",""),"featured":bool(item.get("featured",False)),"editorial_pick":bool(item.get("editorial_pick",False))})
  return result
 def posts():
@@ -129,9 +129,16 @@ def video_cards(rows):
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-playlists-3"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+def safe_image(value):
+ if not isinstance(value,str):return ""
+ if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
+ from urllib.parse import urlparse
+ u=urlparse(value)
+ if u.scheme=="https" and u.hostname in ("yt3.ggpht.com","i.ytimg.com","mcusercontent.com") and not u.username and not u.password:return value
+ return ""
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
 def cards(rows):
- return '<div class="cards">'+''.join('<article class="card"><a class="thumb" href="/'+r["slug"]+'.html">'+('<img loading="lazy" src="'+esc(r["image"],quote=True)+'" alt="">' if r.get("image","").startswith("/") and ".." not in r.get("image","") else "")+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></h3></article>' for r in rows)+'</div>' if rows else blank()
+ return '<div class="cards">'+''.join('<article class="card"><a class="thumb" href="/'+r["slug"]+'.html">'+('<img loading="lazy" src="'+esc(r["image"],quote=True)+'" alt="">' if bool(safe_image(r.get("image",""))) else "")+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></h3></article>' for r in rows)+'</div>' if rows else blank()
 def section(title,content):return '<section class="section"><h2>'+title+'</h2>'+content+'</section>'
 def box(name,rows):
  return '<section class="box"><h2>'+name+'</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></li>' for r in rows)+'</ul>' if rows else blank())+'</section>'
@@ -168,7 +175,7 @@ def archive(key,rows):
  categories=GROUPS[key]; label=key.replace("-"," ").title()
  return inside(label,'<h1>'+esc(label)+'</h1>'+(playlist_cards() if key=="video" else cards([r for r in rows if r["category"] in categories])),rows,cat=categories[0] if len(categories)==1 else None)
 def article(r,rows):
- cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if r.get("image","").startswith("/") and ".." not in r.get("image","") else ""
+ cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if bool(safe_image(r.get("image",""))) else ""
  text=''.join('<p>'+esc(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str))
  video=('<div class="player"><iframe title="Video YouTube" loading="lazy" allowfullscreen src="https://www.youtube-nocookie.com/embed/'+r["youtube_id"]+'"></iframe></div>') if re.fullmatch(r"[A-Za-z0-9_-]{11}",r.get("youtube_id","")) else ""
  body='<article class="article"><h1>'+esc(r["title"])+'</h1><p class="category">'+esc(TYPES[r["category"]])+'</p>'+cover+video+'<div class="article-text">'+text+'</div></article>'
