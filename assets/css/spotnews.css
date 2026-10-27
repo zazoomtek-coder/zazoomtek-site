@@ -980,3 +980,50 @@ main.wrap{padding-top:28px;overflow:visible}
  .ticker-track.ticker-running{animation:none!important}
  .ticker-viewport{overflow-x:auto}
 }
+
+
+/* v31 — Native-style automatic news strip.
+   News typography smaller; visible ticker ends vertically beneath MENU > VIDEO.
+   The exact stopping coordinate is measured from the real navigation label in JS. */
+.breaking-ticker .ticker-link{
+ font-size:10.5px!important;
+ font-weight:600!important;
+ line-height:1.3!important;
+ letter-spacing:0!important;
+ padding:8px 17px!important;
+}
+.breaking-ticker .ticker-dot{width:4px!important;height:4px!important;margin-right:9px!important}
+.breaking-ticker .ticker-viewport.ticker-desktop-capped{
+ flex:0 1 auto!important;
+ min-width:180px!important;
+ max-width:100%!important;
+ overflow:hidden!important;
+}
+.breaking-ticker .ticker-track.ticker-running{
+ animation:breaking-scroll var(--ticker-duration,78s) linear infinite!important;
+ will-change:transform;
+ animation-play-state:running!important;
+}
+.breaking-ticker .ticker-track.ticker-user-paused{
+ animation-play-state:paused!important;
+}
+/* Mouse hover and normal keyboard focus no longer freeze the ticker.
+   The explicit pause button is the sole ordinary play/pause control. */
+.breaking-ticker .ticker-viewport:hover .ticker-track:not(.ticker-user-paused),
+.breaking-ticker .ticker-viewport:focus-within .ticker-track:not(.ticker-user-paused){
+ animation-play-state:running!important;
+}
+@media(max-width:780px){
+ .breaking-ticker .ticker-viewport{
+  flex:1 1 auto!important;
+  width:auto!important;
+  max-width:none!important;
+  min-width:0!important;
+ }
+ .breaking-ticker .ticker-link{font-size:10px!important;padding:8px 13px!important}
+}
+/* Respect visitors who explicitly request reduced motion. */
+@media(prefers-reduced-motion:reduce){
+ .breaking-ticker .ticker-track.ticker-running{animation:none!important}
+ .breaking-ticker .ticker-track:not(.ticker-user-paused){animation:none!important}
+}

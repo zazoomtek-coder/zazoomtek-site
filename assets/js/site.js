@@ -261,6 +261,25 @@
  const tickerPause=document.querySelector("#ticker-pause");
  const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)");
  let manuallyPaused=false,tickerSignature="";
+ // The news bar must end directly below the last menu link ("VIDEO").
+ // Measure it rather than estimating a fixed pixel position.
+ function fitTickerToMenu(){
+  if(!tickerViewport)return;
+  const lastMenuLink=document.querySelector("#nav a:last-child");
+  const onDesktop=window.matchMedia("(min-width: 781px)").matches;
+  tickerViewport.style.removeProperty("width");
+  tickerViewport.classList.remove("ticker-desktop-capped");
+  if(!onDesktop||!lastMenuLink||!tickerPause)return;
+  const lastLinkRect=lastMenuLink.getBoundingClientRect();
+  const viewportRect=tickerViewport.getBoundingClientRect();
+  const containerRect=tickerViewport.parentElement.getBoundingClientRect();
+  if(!lastLinkRect.width||!viewportRect.width)return;
+  const target=lastLinkRect.right-viewportRect.left-tickerPause.getBoundingClientRect().width;
+  const limit=containerRect.right-viewportRect.left-tickerPause.getBoundingClientRect().width;
+  const next=Math.max(180,Math.min(target,limit));
+  tickerViewport.style.width=next.toFixed(1)+"px";
+  tickerViewport.classList.add("ticker-desktop-capped");
+ }
  function setTickerPaused(pause){
   manuallyPaused=pause;
   tickerTrack?.classList.toggle("ticker-user-paused",pause);
@@ -282,7 +301,8 @@
   copy.querySelectorAll("a").forEach(a=>a.setAttribute("tabindex","-1"));
   tickerTrack.append(copy);
   const distance=group.getBoundingClientRect().width;
-  tickerTrack.style.setProperty("--ticker-duration",Math.max(35,distance/70).toFixed(2)+"s");
+  // 82 CSS pixels per second: native-news-ticker-like constant movement.
+  tickerTrack.style.setProperty("--ticker-duration",Math.max(28,distance/82).toFixed(2)+"s");
   tickerTrack.classList.add("ticker-running");
   tickerTrack.classList.toggle("ticker-user-paused",manuallyPaused);
  }
@@ -318,12 +338,25 @@
   }catch(_){/* Retain already server-rendered real headlines if temporarily offline. */}
  }
  if(tickerTrack){
+  fitTickerToMenu();
   restartTicker();
+  // The server already rendered the same headlines; avoid restarting on first fetch.
+  const initialGroup=tickerTrack.querySelector(".ticker-group");
+  if(initialGroup){
+   tickerSignature=JSON.stringify([...initialGroup.querySelectorAll("a.ticker-link")].map(a=>[
+    a.textContent.trim(),new URL(a.href).pathname
+   ]));
+  }
   refreshTicker();
-  // A visitor keeping this tab open receives new published headlines without reloading.
-  const tickerRefresh=setInterval(()=>{if(!document.hidden)refreshTicker()},300000);
+  // Newly published stories are fetched without reloading or interrupting current motion.
+  setInterval(()=>{if(!document.hidden)refreshTicker()},300000);
   tickerPause?.addEventListener("click",()=>setTickerPaused(!manuallyPaused));
-  window.addEventListener("load",restartTicker,{once:true});
-  window.addEventListener("resize",restartTicker,{passive:true});
+  let resizeFrame=0;
+  window.addEventListener("resize",()=>{
+   cancelAnimationFrame(resizeFrame);
+   resizeFrame=requestAnimationFrame(fitTickerToMenu);
+  },{passive:true});
+  // Fonts may settle after first paint. Re-measure alignment without restarting the animation.
+  window.addEventListener("load",fitTickerToMenu,{once:true});
  }
 })();
