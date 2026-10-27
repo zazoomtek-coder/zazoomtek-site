@@ -138,8 +138,9 @@ def discover(limit=160,max_pages=12):
   try:
    detail=post_records(webpage_json(fetch(item["url"]+"?hl=it",timeout=7)))
    matched=next((x for x in detail if x["id"]==item["id"]),None)
-   if matched and len(matched["text"])>len(item["text"]):
+   if matched and len(matched["text"])>=len(item["text"]):
     item.update(matched)
+    item["verified_detail"]=True
   except Exception:pass
   return item
  with ThreadPoolExecutor(max_workers=6) as executor:
@@ -148,11 +149,14 @@ def discover(limit=160,max_pages=12):
  for ix,item in enumerate(collected):
   text=item["text"].strip()
   title,kind=title_type(text)
-  if not kind or len(text)<60:continue
+  if not kind or len(text)<60 or not item.get("verified_detail"):continue
   date=date_from_relative(item.get("when",""),reference)
   # YouTube relative dates are estimates, not a guaranteed precise published timestamp.
+  heading=title.lower()
+  explicit_topic="gaming" if heading.startswith(("news gaming","review gaming")) else ("tech" if heading.startswith(("news tech","review tech")) else "")
   item.update(title=title,type=kind,date=date[:10] if date else None,
-    published_at=date or "",rank=ix,channel_id=CHANNEL_ID,text_complete=True)
+    published_at=date or "",rank=ix,channel_id=CHANNEL_ID,text_complete=True,
+    **({"topic":explicit_topic} if explicit_topic else {}))
   output.append(item)
  return output
 
