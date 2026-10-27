@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "reason": "30 abbreviated historical Community records mapped to the corresponding full-text archive entries; preserve legacy aliases.",
+  "entries": [
+    {
+      "old_id": "n-tech-irobot-roomba-20261019",
+      "new_id": "UgkxXhA_nA53_EpjKVaJtVdrcn1tdqYQFv0I",
+      "category": "news-tech",
+      "short_title": "iRobot presenta i nuovi Roomba Combo 115, 415, 515 e 575",
+      "full_title": "iRobot presenta i nuovi Roomba Combo 115, 415, 515 e 575, più compatti e potenti"
+    },
+    {
+      "old_id": "n-tech-dyson-nurovi-20261019",
+      "new_id": "UgkxQnyZ_3Qv-X5igTpP62iNghRMMquqf9AK",
+      "category": "news-tech",
+      "short_title": "Dyson porta in Italia i robot R1 Nurovi Dry e R2 Nurovi Wash+Dry",
+      "full_title": "Dyson porta in Italia i robot R1 Nurovi Dry e R2 Nurovi Wash+Dry con pulizia automatizzata e stazione ciclonica"
+    },
+    {
+      "old_id": "n-tech-cisco-clickfix-20261019",
+      "new_id": "UgkxDGgP7IWYNGCwxWwbLtvHpRrb7IPSPxJa",
+      "category": "news-tech",
+      "short_title": "Cisco Talos scopre campagne ClickFix che sfruttano Google Docs",
+      "full_title": "Cisco Talos scopre campagne ClickFix che sfruttano Google Docs per rubare criptovalute e credenziali"
+    },
+    {
+      "old_id": "n-tech-amazon-luna-20261019",
+      "new_id": "UgkxH5BL42iGXVvyBNeYA-PjX07cSZ1eEvQk",
+      "category": "news-tech",
+      "short_title": "Amazon Luna arriva su Prime Video in Italia per gli abbonati Prime",
+      "full_title": "Amazon Luna arriva su Prime Video in Italia, giochi inclusi per gli abbonati Prime su Fire TV"
+    },
+    {
+      "old_id": "n-tech-nvidia-rtx-spark-20261016",
+      "new_id": "UgkxaeNnzUdRcebZ5qqCYUzRh8-mQywlIa9I",
+      "category": "news-tech",
+      "short_title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale",
+      "full_title": "NVIDIA RTX Spark debutta sui laptop Windows con AI locale, fino a 128 GB di memoria e prezzi da 2.999 euro"
+    },
+    {
+      "old_id": "n-tech-midea-powerinfi-20261016",
+      "new_id": "UgkxBK8ILfL_RZz8exfFznI391GfZ3PgP_3-",
+      "category": "news-tech",
+      "short_title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh",
+      "full_title": "Midea presenta PowerInfi G2, sistema di accumulo All-In-One fino a 60 kWh"
+    },
+    {
+      "old_id": "n-tech-checkpoint-20261016",
+      "new_id": "Ugkxen-5-Kun7OOspCirTy4yVeAgS-9Yxlb_",
+      "category": "news-tech",
+      "short_title": "Check Point rileva 3.190 attacchi informatici settimanali in Italia",
+      "full_title": "News Tech Impact: Check Point rileva 3.190 attacchi informatici a settimana in Italia, +46% su base annua"
+    },
+    {
+      "old_id": "n-tech-cisco-ai-20261013",
+      "new_id": "UgkxO88DdI4dnZK5TJbEmPiz3ySaj3OuUu0g",
+      "category": "news-tech",
+      "short_title": "Studio Cisco sull’AI: mercato più maturo e nuove opportunità",
+      "full_title": "Studio Cisco sull’AI, mercato più maturo e nuove opportunità per i Partner"
+    },
+    {
+      "old_id": "n-gaming-fritz-lucca-20261022",
+      "new_id": "Ugkxfir4oCZ8yoFVjANTwum2kspHR4v5Rpec",
+      "category": "news-gaming",
+      "short_title": "FRITZ! arriva a Lucca Comics & Games 2026 tra gaming, streaming e rete domestica",
+      "full_title": "FRITZ! arriva a Lucca Comics & Games 2026 tra gaming, streaming e rete domestica"
+    },
+    {
+      "old_id": "n-gaming-delve-survivors-20261018",
+      "new_id": "Ugkxo3isjD7St5R9-Wsekg0mNavQvW93OuVi",
+      "category": "news-gaming",
+      "short_title": "Delve Survivors porta il gameplay Survivors a turni allo Steam Next Fest",
+      "full_title": "Delve Survivors porta il gameplay Survivors a turni allo Steam Next Fest con una demo ampliata"
+    },
+    {
+      "old_id": "n-gaming-lego-harry-potter-20261018",
+      "new_id": "Ugkx4n9zqt-mBBVbGx98IYs8SV2NtjFLqa9q",
+      "category": "news-gaming",
+      "short_title": "LEGO Harry Potter Collection è disponibile su Nintendo Switch 2",
+      "full_title": "LEGO Harry Potter Collection è disponibile ora su Nintendo Switch 2 con tutti i DLC inclusi"
+    },
+    {
+      "old_id": "n-gaming-flipping-is-hard-20261018",
+      "new_id": "Ugkx5KR5LlC0cBr-9bpWfsQK8u5Eu--thENN",
+      "category": "news-gaming",
+      "short_title": "Flipping Is Hard è disponibile su Steam",
+      "full_title": "Flipping Is Hard è disponibile su Steam con una scalata 3D pensata per mettere alla prova la pazienza"
+    },
+    {
+      "old_id": "n-gaming-resident-evil-switch-20261018",
+      "new_id": "Ugkx9NnJZ_8CuadyP2wM4LxFSWzODtHkxrct",
+      "category": "news-gaming",
+      "short_title": "Resident Evil 2, 3 e 4 arrivano su Nintendo Switch 2",
+      "full_title": "Resident Evil 2, Resident Evil 3 e Resident Evil 4 arrivano oggi su Nintendo Switch 2"
+    },
+    {
+      "old_id": "n-gaming-quarantine-miami-20261017",
+      "new_id": "UgkxWPyvf95j1OEU2XGY9FsZhxP0ngjcYyJB",
+      "category": "news-gaming",
+      "short_title": "Quarantine Zone: The Last Check si espande con Miami Zero",
+      "full_title": "Quarantine Zone: The Last Check si espande con Miami Zero, DLC gratuito disponibile ora su PC e Xbox"
+    },
+    {
+      "old_id": "n-gaming-cod-wutang-20261017",
+      "new_id": "UgkxfIh0ZHrL9LuQ-csbvsb0cH_Ha-wMIXYc",
+      "category": "news-gaming",
+      "short_title": "Call of Duty: Modern Warfare 4 rilancia C.R.E.A.M. dei Wu-Tang Clan",
+      "full_title": "Call of Duty: Modern Warfare 4 rilancia C.R.E.A.M. dei Wu-Tang Clan con un remix hip hop coreano"
+    },
+    {
+      "old_id": "n-gaming-peak-20261016",
+      "new_id": "Ugkx-OXj6pKP_zwDIxvYCYT3NmR331k4FNzI",
+      "category": "news-gaming",
+      "short_title": "PEAK arriva su console: edizione fisica PS5 il 9 dicembre",
+      "full_title": "PEAK arriva su console quest’autunno, edizione fisica PS5 il 9 dicembre con Buddy Code"
+    },
+    {
+      "old_id": "n-gaming-it-takes-two-20261015",
+      "new_id": "UgkxmhTWoKHgoMFRBVCVwarDzbQ13biS-HcH",
+      "category": "news-gaming",
+      "short_title": "It Takes Two arriva su Nintendo Switch 2 con upgrade gratuito",
+      "full_title": "It Takes Two arriva su Nintendo Switch 2 con upgrade gratuito e cross-play tramite Pass amici"
+    },
+    {
+      "old_id": "n-gaming-warhammer-boltgun2-20261015",
+      "new_id": "Ugkx0XrraZeL8gDr7Zj3AJIlAda2O845G1am",
+      "category": "news-gaming",
+      "short_title": "Warhammer 40,000: Boltgun 2 è disponibile su PC, PS5 e Xbox Series X|S",
+      "full_title": "Warhammer 40,000: Boltgun 2 è disponibile su PC, PS5 e Xbox Series X|S"
+    },
+    {
+      "old_id": "r-walto",
+      "new_id": "Ugkx1MzCpfD6F193kzdDtyqQU2ErUHi6FEu1",
+      "category": "recensioni-gaming",
+      "short_title": "WALTO Recensione PC",
+      "full_title": "WALTO Recensione PC"
+    },
+    {
+      "old_id": "r-lous-lagoon",
+      "new_id": "UgkxHri44VrpYrRtskxdyK_msdY_oNiaK4aj",
+      "category": "recensioni-gaming",
+      "short_title": "Lou's Lagoon | Recensione PC",
+      "full_title": "Lou's Lagoon | Recensione PC"
+    },
+    {
+      "old_id": "r-ace-combat-8",
+      "new_id": "UgkxPQVLBegGEPWvHmDjVq-rA5b8EwFeFrtk",
+      "category": "recensioni-gaming",
+      "short_title": "ACE COMBAT 8: WINGS OF THEVE | Recensione PS5",
+      "full_title": "ACE COMBAT 8: WINGS OF THEVE | Recensione PS5"
+    },
+    {
+      "old_id": "r-nba-2k27",
+      "new_id": "UgkxUyzI3zn3urxvkpRPcd349swqkNqHFXEK",
+      "category": "recensioni-gaming",
+      "short_title": "NBA 2K27 | Recensione PS5",
+      "full_title": "NBA 2K27 | Recensione PS5"
+    },
+    {
+      "old_id": "r-iifactor-m08e",
+      "new_id": "UgkxguG9cYYVBHc9hJSR5xDsjFePliUGScQg",
+      "category": "recensioni-tech",
+      "short_title": "IIFACTOR M08E AI Smart Glasses | Recensione",
+      "full_title": "IIFACTOR M08E AI Smart Glasses | Recensione"
+    },
+    {
+      "old_id": "r-marvels-wolverine",
+      "new_id": "Ugkxq4wPsbAKxSo1aB0OptleaGIR5iyfIuyz",
+      "category": "recensioni-gaming",
+      "short_title": "Marvel's Wolverine | Recensione PS5",
+      "full_title": "Marvel's Wolverine | Recensione PS5"
+    },
+    {
+      "old_id": "r-70mai-a900",
+      "new_id": "Ugkxs-Pzxksjwszh4KPPFAG-h-xZxJgFc1js",
+      "category": "recensioni-tech",
+      "short_title": "70mai Dash Cam 4K A900 | Recensione",
+      "full_title": "70mai Dash Cam 4K A900 | Recensione"
+    },
+    {
+      "old_id": "r-transport-fever-3",
+      "new_id": "Ugkxvpi4bKV_hiuDy7XJQb0-qw7CTJc5Is33",
+      "category": "recensioni-gaming",
+      "short_title": "TRANSPORT FEVER 3 | Recensione PS5",
+      "full_title": "TRANSPORT FEVER 3 | Recensione PS5"
+    },
+    {
+      "old_id": "g-ps5-sotto-20",
+      "new_id": "guida-ps5-10-migliori-giochi-sotto-20-euro-ottobre-2026",
+      "category": "guide",
+      "short_title": "10 giochi PS5 a meno di 20 euro: i migliori da acquistare su PlayStation Store",
+      "full_title": "10 giochi PS5 a meno di 20 euro: i migliori da acquistare su PlayStation Store"
+    },
+    {
+      "old_id": "e-silki-3d",
+      "new_id": "extra-silki-sedia-3d-seta-riciclata-tracciabilita",
+      "category": "extra",
+      "short_title": "SILKI: la sedia stampata in 3D con seta riciclata",
+      "full_title": "SILKI: la sedia stampata in 3D con seta riciclata che rende verificabile l'origine dei materiali"
+    },
+    {
+      "old_id": "e-superlega-vbtv",
+      "new_id": "extra-superlega-credem-banca-2026-27-vbtv-fantasy-game",
+      "category": "extra",
+      "short_title": "SuperLega Credem Banca 2026/27 al via: tutte le partite su VBTV e Fantasy Game",
+      "full_title": "SuperLega Credem Banca 2026/27 al via: tutte le partite su VBTV e Fantasy Game"
+    },
+    {
+      "old_id": "s-videogiochi-terapia",
+      "new_id": "Ugkx9FTLi4RyOu6-kk1A1I1Acj6na5FKh-8c",
+      "category": "speciali",
+      "short_title": "Videogiochi e terapia: come il gaming può entrare nei percorsi clinici",
+      "full_title": "News Tech Impact: Videogiochi e terapia, come il gaming può entrare nei percorsi clinici"
+    }
+  ]
+}
