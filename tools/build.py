@@ -122,13 +122,13 @@ def playlist_cards():
    pic=p.get("thumbnail","");title=p["playlist"];sub="Playlist · ultimo video non verificato"
   img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else ""
   result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
- return '<div class="cards">'+''.join(result)+'</div>'
+ return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>'
 def video_cards(rows):
  if not rows:return blank()
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-pro-box-4"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-layout-5"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -146,19 +146,59 @@ def bar(title,link,style="section"):
  return '<div class="bar bar-'+style+'"><'+tag+'>'+esc(title)+'</'+tag+'>'+button+'</div>'
 def section(title,content):
  return '<section class="section">'+bar(title,SECTION_URLS.get(title,""))+content+'</section>'
+def date_label(r):
+ value=str(r.get("date",""))[:10]
+ try:return datetime.strptime(value,"%Y-%m-%d").strftime("%d/%m/%Y")
+ except ValueError:return ""
+def overlay_card(r,kind="feature-tile"):
+ link="/"+r["slug"]+".html"
+ pic=safe_image(r.get("image",""))
+ image='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic else '<span class="tile-no-image"></span>'
+ label=esc(TYPES.get(r["category"],"ZazoomTek"))
+ date=date_label(r)
+ stamp='<span class="tile-date">'+esc(date)+'</span>' if date else ""
+ return '<article class="'+kind+'"><a class="tile-link" href="'+esc(link,quote=True)+'">'+image+'<span class="tile-gradient"></span><span class="tile-copy"><span class="tile-category">'+label+'</span><strong class="tile-title">'+esc(r["title"])+'</strong>'+stamp+'</span></a></article>'
+def featured_showcase(rows):
+ if not rows:return blank()
+ lead=next((p for p in rows if p["category"]=="news-tech"),rows[0])
+ rest=[p for p in rows if p["slug"]!=lead["slug"]][:4]
+ markup=overlay_card(lead,"spotlight-hero")+''.join(overlay_card(r,"spotlight-tile") for r in rest)
+ if len(rest)<4:
+  markup+=''.join('<div class="spotlight-placeholder" aria-hidden="true"></div>' for _ in range(4-len(rest)))
+ return '<div class="spotlight-grid">'+markup+'</div>'
 def box(name,rows):
- return '<section class="box">'+bar(name,{"Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html"}.get(name,""),"sidebar")+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></li>' for r in rows)+'</ul>' if rows else blank())+'</section>'
+ archive={"Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html","Tecnologia":"/news-tech.html","Gaming":"/news-gaming.html","Guide":"/guide.html","Speciali ed Extra":"/speciali.html"}.get(name,"")
+ heading=bar(name,archive,"sidebar")
+ if not rows:return '<section class="box editorial-box">'+heading+blank()+'</section>'
+ big=overlay_card(rows[0],"editorial-hero")
+ compact=[]
+ for r in rows[1:3]:
+  link="/"+r["slug"]+".html"
+  pic=safe_image(r.get("image",""))
+  image='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic else '<span class="editorial-image-fallback"></span>'
+  stamp=date_label(r)
+  compact.append('<article class="editorial-row"><a class="editorial-thumb" href="'+link+'">'+image+'</a><div class="editorial-row-copy"><a href="'+link+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(stamp)+'</time>' if stamp else "")+'</div></article>')
+ return '<section class="box editorial-box">'+heading+big+'<div class="editorial-links">'+''.join(compact)+'</div></section>'
 def sidebar(rows,home=False):
- seen=set()
- def select(stream):
-  chosen=[]
-  for r in stream:
-   if r["slug"] not in seen:
-    chosen.append(r);seen.add(r["slug"])
-   if len(chosen)==5:break
-  return chosen
- parts=[("I più letti",select(sorted([r for r in rows if isinstance(r.get("views"),int) and r["views"]>0],key=lambda r:r["views"],reverse=True))),("Da non perdere",select(r for r in rows if r.get("featured"))),("Dalla redazione",select(r for r in rows if r.get("editorial_pick"))),("Ultime notizie",select(r for r in rows if r["category"].startswith("news-"))),("Ultime recensioni",select(r for r in rows if r["category"].startswith("recensioni-")))]
- return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'">' + ''.join(box(name,subset) for name,subset in parts)+'</aside>'
+ def choose(items,n=3):
+  seen=set();out=[]
+  for item in items:
+   if item["slug"] in seen:continue
+   seen.add(item["slug"]);out.append(item)
+   if len(out)>=n:break
+  return out
+ popular=choose(sorted([r for r in rows if isinstance(r.get("views"),int) and r["views"]>0],key=lambda r:r["views"],reverse=True))
+ picks=choose([r for r in rows if r.get("featured")])
+ editorial=choose([r for r in rows if r.get("editorial_pick")])
+ technology=choose([r for r in rows if r["category"]=="news-tech"])
+ gaming=choose([r for r in rows if r["category"]=="news-gaming"])
+ recent=choose([r for r in rows if r["category"].startswith("news-")])
+ reviews=choose([r for r in rows if r["category"].startswith("recensioni-") and r.get("source")=="youtube-community"])
+ guides=choose([r for r in rows if r["category"] in ("guide","speciali","extra")])
+ parts=[("I più letti",popular),("Da non perdere",picks),("Dalla redazione",editorial),("Tecnologia",technology),("Gaming",gaming),("Ultime notizie",recent),("Ultime recensioni",reviews),("Guide",guides)]
+ # Box senza dati affidabili (letture/editoriale) non mostrano notizie attribuite arbitrariamente.
+ visible=[(title,content) for title,content in parts if content]
+ return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali">'+''.join(box(name,subset) for name,subset in visible)+'</aside>'
 def related(rows,exclude="",category=None):
  found=[r for r in rows if r["slug"]!=exclude and (category is None or r["category"]==category)][:8]
  return '<section class="related"><h2>Articoli correlati</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html"><strong>'+esc(r["title"])+'</strong></a></li>' for r in found)+'</ul>' if found else blank())+'</section>'
@@ -180,12 +220,22 @@ def feature_pair(guides,extras):
  return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("SPECIALI ED EXTRA",extras)+'</div>'
 def home(rows):
  def by(*keys):return [r for r in rows if r["category"] in keys]
- features=[r for r in by("news-tech","news-gaming") if r.get("featured")][:4]
+ candidates=by("news-tech","news-gaming")
+ marked=[p for p in candidates if p.get("featured")]
+ features=(marked+[p for p in candidates if p["slug"] not in {f["slug"] for f in marked} and bool(safe_image(p.get("image","")))])[:5]
  raw=json.loads((P/"data/web.json").read_text(encoding="utf-8"))["items"]
  web=[w for w in raw if isinstance(w,dict) and isinstance(w.get("url"),str) and w["url"].startswith("https://") and isinstance(w.get("title"),str)]
  links='<ul>'+''.join('<li><a rel="noopener noreferrer" href="'+esc(w["url"],quote=True)+'">'+esc(w["title"])+'</a></li>' for w in web[:8])+'</ul>' if web else blank()
- sections=[("In evidenza",cards(features)),("News Tech",cards(by("news-tech")[:6])),("News Gaming",cards(by("news-gaming")[:6])),("Ultime Recensioni",cards([r for r in by("recensioni-tech","recensioni-gaming") if r.get("source")=="youtube-community"][:6])),("Guide e Extra",feature_pair(by("guide"),by("speciali","extra"))),("Ultimi Video",playlist_cards()),("Notizie Web",links)]
- return shell("Home",'<div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar(rows,True)+'</div>')
+ top=section("In evidenza",featured_showcase(features))
+ sections=[
+  ("News Tech",cards(by("news-tech")[:6])),
+  ("News Gaming",cards(by("news-gaming")[:6])),
+  ("Ultime Recensioni",cards([r for r in by("recensioni-tech","recensioni-gaming") if r.get("source")=="youtube-community"][:6])),
+  ("Guide e Extra",feature_pair(by("guide"),by("speciali","extra"))),
+  ("Ultimi Video",playlist_cards()),
+  ("Notizie Web",links)
+ ]
+ return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar(rows,True)+'</div>')
 def web_archive(rows):
  items=json.loads((P/"data/web.json").read_text(encoding="utf-8")).get("items",[])
  links=['<li><a href="'+esc(item["url"],quote=True)+'" target="_blank" rel="noopener noreferrer">'+esc(item["title"])+'</a></li>' for item in items if isinstance(item,dict) and isinstance(item.get("title"),str) and isinstance(item.get("url"),str) and item["url"].startswith("https://")]
