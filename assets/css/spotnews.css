@@ -496,3 +496,87 @@ main.wrap{padding-top:28px;overflow:visible}
  .inner-layout>.inner-column,.related{width:100%!important}
  .home-sidebar,.home-sidebar .sidebar-stack{position:static!important;inset:auto!important;height:auto!important;max-height:none!important;overflow:visible!important}
 }
+
+
+/* SpotNews universal page grid + exact editorial counts v22 */
+[hidden],.sidebar .compact-editorial-box[hidden],.sidebar .editorial-row[hidden]{display:none!important}
+/* Guide and Extra: one true featured card + two small images in the same panel. */
+.feature-editorial>.bar{margin-bottom:10px}
+.feature-editorial .feature-main-item{background:#fff;border:1px solid #e5e5e5;margin-bottom:10px;min-width:0}
+.feature-editorial .feature-main-thumb{display:block;width:100%;aspect-ratio:16/9;overflow:hidden;background:#203040}
+.feature-editorial .feature-main-thumb>img{width:100%;height:100%;display:block;object-fit:contain;background:#203040}
+.feature-editorial .feature-main-fallback{height:100%;display:flex;align-items:center;justify-content:center;padding:18px;color:#fff;font-weight:900;background:linear-gradient(120deg,#203040,#34495d)}
+.feature-editorial .feature-main-description{padding:10px 12px 12px}
+.feature-editorial .feature-main-description h3{font-size:16px;line-height:1.35;font-weight:900;margin:0;overflow-wrap:anywhere}
+.feature-pair .feature-editorial>.cards-compact{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:0 0 12px!important}
+.feature-pair .feature-editorial .compact-item{display:block!important;min-width:0!important;height:auto!important;padding:0 0 10px!important;overflow:visible!important;border:1px solid #e3e3e3!important;background:#fff}
+.feature-pair .feature-editorial .compact-item-image{display:block;width:100%!important;aspect-ratio:16/9;overflow:hidden}
+.feature-pair .feature-editorial .compact-item-image img{width:100%;height:100%;object-fit:contain!important;background:#203040}
+.feature-pair .feature-editorial .compact-item-text{padding:7px 8px 0}
+.feature-pair .feature-editorial .compact-item h3{font-size:12px;line-height:1.38;overflow-wrap:anywhere}
+/* Professional news/article order and visual style (headline > metadata > cover > body). */
+.story-article{padding:28px 34px!important}
+.story-article h1{font-size:clamp(29px,3.1vw,40px)!important;font-weight:900!important;line-height:1.22!important;margin:0 0 15px!important}
+.story-article .story-meta{margin:0 0 22px!important;padding:0 0 14px!important;display:flex!important;align-items:center;gap:9px 17px!important;font-size:13px}
+.story-article .story-figure{margin:0 0 24px}
+.story-article .story-figure img{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:auto!important;object-fit:contain!important;background:#f7f7f7}
+.story-article .article-text{font-size:16.5px!important;line-height:1.8!important;color:#222!important}
+.story-article .article-text p{margin:0 0 20px!important}
+.story-article .article-text h2{font-size:clamp(19px,2.4vw,23px)!important;font-weight:900!important;
+ color:#181818!important;border:0!important;border-left:4px solid #ed2f47!important;
+ padding:0 0 0 13px!important;margin:32px 0 18px!important;line-height:1.37!important}
+.story-article .article-text h2+p{margin-top:0!important}
+.related{margin-top:20px!important;max-width:100%;background:white}
+.related h2{font-size:20px;font-weight:900}
+.related ul{display:grid;grid-template-columns:minmax(0,1fr)}
+.related li{padding:12px 0}
+.related li a{font-weight:900;line-height:1.5;overflow-wrap:anywhere}
+/* The sidebar belongs only to the article row; related links are a second row. */
+@media(min-width:781px){
+ .inner-layout{
+  display:grid!important;grid-template-columns:minmax(0,70fr) minmax(240px,30fr)!important;
+  grid-template-areas:"story rail" "related .";grid-template-rows:auto auto;
+  column-gap:18px!important;row-gap:0!important;align-items:start!important;
+  position:relative!important;overflow:visible!important
+ }
+ .inner-layout>.inner-column{grid-area:story;width:auto!important;min-width:0!important;max-width:none!important}
+ .inner-layout>.inner-sidebar{grid-area:rail;position:relative!important;inset:auto!important;top:auto!important;
+  right:auto!important;bottom:auto!important;left:auto!important;display:block!important;
+  min-width:0!important;width:auto!important;max-width:none!important;
+  height:0!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+  align-self:start!important;padding:0!important;border:0!important}
+ .inner-layout>.related{grid-area:related;width:100%!important;margin-top:20px!important}
+ .inner-sidebar .sidebar-stack{position:relative!important;inset:auto!important;display:flex!important;
+  flex-direction:column!important;gap:12px!important;height:auto!important;max-height:none!important;overflow:visible!important}
+ .home-layout{display:grid!important;align-items:start!important;overflow:visible!important}
+ .home-layout>.home-sidebar{position:relative!important;inset:auto!important;display:block!important;
+  width:auto!important;height:0!important;min-height:0!important;max-height:none!important;
+  padding:0 0 0 13px!important;align-self:start!important;overflow:visible!important}
+ .home-sidebar .sidebar-stack{position:relative!important;inset:auto!important;display:flex!important;
+  flex-direction:column!important;gap:12px!important;height:auto!important;max-height:none!important;overflow:visible!important}
+ .sidebar-stack{align-content:start}
+}
+.sidebar .compact-editorial-box{display:block;overflow:visible!important;height:auto!important;min-height:0!important}
+.sidebar .compact-editorial-box .editorial-links{padding-bottom:4px}
+.sidebar .compact-editorial-box .editorial-row{overflow:visible!important;max-height:none!important}
+.sidebar .compact-editorial-box .editorial-thumb img{object-fit:contain!important}
+.sidebar .compact-editorial-box .editorial-row-copy a{white-space:normal!important;overflow-wrap:anywhere!important}
+/* Correct stacking and readable text on narrow screens. */
+@media(max-width:780px){
+ .inner-layout{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0}
+ .inner-layout>.inner-column{order:0;width:100%!important}
+ .inner-layout>.related{order:1;width:100%!important;margin-top:18px!important}
+ .inner-layout>.inner-sidebar{order:2;position:static!important;width:100%!important;
+  height:auto!important;min-height:0!important;overflow:visible!important;margin-top:23px!important}
+ .home-sidebar{height:auto!important;overflow:visible!important}
+ .home-sidebar .sidebar-stack,.inner-sidebar .sidebar-stack{position:static!important;display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));height:auto!important;min-height:0!important;overflow:visible!important}
+ .feature-pair{grid-template-columns:minmax(0,1fr)!important}
+ .story-article{padding:21px!important}
+}
+@media(max-width:560px){
+ .home-sidebar .sidebar-stack,.inner-sidebar .sidebar-stack{grid-template-columns:minmax(0,1fr)!important}
+ .feature-pair .feature-editorial>.cards-compact{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .story-article{padding:16px!important}
+ .story-article .article-text{font-size:15px!important}
+}
