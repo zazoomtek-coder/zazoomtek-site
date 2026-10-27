@@ -3,22 +3,91 @@
 from pathlib import Path
 from html import escape as esc
 import json,os,re,shutil
+from datetime import datetime,timezone,timedelta
+from urllib.parse import urlparse
 P=Path(__file__).resolve().parents[1]; O=P/"dist"
-NAV=[("HOME","/"),("NEWS","/news.html"),("RECENSIONI","/recensioni.html"),("GUIDE","/guide.html"),("SPECIALI","/speciali.html"),("EXTRA","/extra.html"),("VIDEO","/video.html")]
+NAV=[("HOME","/"),("NEWS","/news.html"),("RECENSIONI","/recensioni.html"),("GUIDE","/guide.html"),("SPECIALI","/speciali.html"),("EXTRA","/extra.html"),("VIDEO","https://www.youtube.com/@ZazoomTek")]
 TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra","video":"Video"}
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
+def category_for_post(item):
+ explicit=item.get("category")
+ if explicit in TYPES and explicit!="video":return explicit
+ kind=str(item.get("type","")).strip().lower()
+ text=(str(item.get("title",""))+" "+str(item.get("text",""))[:250]).lower()
+ if kind not in ("news","review","recensione","guida","guide","speciale","speciali","extra"):
+  if text.startswith("news:"):kind="news"
+  elif text.startswith(("review:","recensione:")):kind="review"
+  elif text.startswith(("guida:","guide:")):kind="guide"
+  elif text.startswith(("speciale:","special:")):kind="speciali"
+  elif text.startswith("extra:"):kind="extra"
+  else:return None
+ if kind in ("guida","guide"):return "guide"
+ if kind in ("speciale","speciali"):return "speciali"
+ if kind=="extra":return "extra"
+ topic=str(item.get("topic","")).lower()
+ if topic not in ("tech","gaming"):
+  gaming=("gaming","videogioc","playstation"," ps5"," ps4","xbox","nintendo","switch 2","gameplay","gta ","call of duty","modern warfare","walto","sesame street","ace combat","battlefield","tomb raider")
+  tech=("tecnologia","hardware","smartphone","smart glasses","occhiali","dash cam","70mai","thermomate","intel","ryzen","nvidia","notebook","mini pc","router","android","apple","iphone","fotocamera","elettronica","stampante 3d")
+  is_game=any(w in text for w in gaming); is_tech=any(w in text for w in tech)
+  if is_game==is_tech:return None
+  topic="gaming" if is_game else "tech"
+ return ("news-" if kind=="news" else "recensioni-")+topic
+def parse_day(value):
+ try:return datetime.fromisoformat(str(value).replace("Z","+00:00")).date()
+ except (ValueError,TypeError):return None
+def community_posts():
+ """Le Community sono importate SOLO da testo autentico in data/community.json."""
+ path=P/"data/community.json"
+ if not path.exists():return []
+ raw=json.loads(path.read_text(encoding="utf-8"))
+ if not isinstance(raw,dict) or not isinstance(raw.get("posts"),list):raise ValueError("Invalid community data")
+ cutoff=datetime.now(timezone.utc).date()-timedelta(days=14)
+ today=datetime.now(timezone.utc).date()
+ result=[]
+ for item in raw["posts"]:
+  if not isinstance(item,dict):continue
+  cat=category_for_post(item)
+  day=parse_day(item.get("date"))
+  if not cat or not day or day>today:continue
+  if cat.startswith("news-") and day<cutoff:continue
+  title=item.get("title"); text=item.get("text")
+  if not isinstance(title,str) or not title.strip() or not isinstance(text,str) or not text.strip():continue
+  post_id=str(item.get("id",""))
+  if not post_id:continue
+  slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
+  if not slug or len(slug)>120:continue
+  image=item.get("image","")
+  if not isinstance(image,str) or not image.startswith("/") or ".." in image:image=""
+  result.append({"slug":slug,"category":cat,"title":title.strip(),"body":[p.strip() for p in re.split(r"\n\s*\n",text) if p.strip()],"date":day.isoformat(),"image":image,"source_url":item.get("url",""),"featured":bool(item.get("featured",False)),"editorial_pick":bool(item.get("editorial_pick",False))})
+ return result
 def posts():
- obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8")); rows=obj["posts"]; seen=set()
+ obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
+ if not isinstance(obj.get("posts"),list):raise ValueError("posts must be a list")
+ rows=obj["posts"]+community_posts(); seen=set()
+ cutoff=datetime.now(timezone.utc).date()-timedelta(days=14)
  for r in rows:
   slug=r["slug"]
   if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug) or slug in seen or slug in GROUPS:raise ValueError("Slug invalid/duplicate")
   if r["category"] not in TYPES or not isinstance(r["title"],str):raise ValueError("Post category/title invalid")
   seen.add(slug)
- return sorted(rows,key=lambda x:x.get("date",""),reverse=True)
+ return sorted([r for r in rows if not r["category"].startswith("news-") or (parse_day(r.get("date")) is not None and parse_day(r["date"])>=cutoff)],key=lambda x:x.get("date",""),reverse=True)
+def videos():
+ obj=json.loads((P/"data/videos.json").read_text(encoding="utf-8"))
+ allowed={"review","test","unboxing"}
+ seen=set();result=[]
+ for v in obj.get("videos",[]):
+  vid=v.get("id","")
+  if not isinstance(vid,str) or not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) or vid in seen:continue
+  if v.get("kind") not in allowed or v.get("topic") not in ("tech","gaming") or not isinstance(v.get("title"),str):continue
+  seen.add(vid);result.append(v)
+ return sorted(result,key=lambda x:x.get("date",""),reverse=True)
+def video_cards(rows):
+ if not rows:return blank()
+ return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-menu-2"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-youtube-1"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
 def cards(rows):
  return '<div class="cards">'+''.join('<article class="card"><a class="thumb" href="/'+r["slug"]+'.html">'+('<img loading="lazy" src="'+esc(r["image"],quote=True)+'" alt="">' if r.get("image","").startswith("/") and ".." not in r.get("image","") else "")+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></h3></article>' for r in rows)+'</div>' if rows else blank()
@@ -45,13 +114,13 @@ def home(rows):
  raw=json.loads((P/"data/web.json").read_text(encoding="utf-8"))["items"]
  web=[w for w in raw if isinstance(w,dict) and isinstance(w.get("url"),str) and w["url"].startswith("https://") and isinstance(w.get("title"),str)]
  links='<ul>'+''.join('<li><a rel="noopener noreferrer" href="'+esc(w["url"],quote=True)+'">'+esc(w["title"])+'</a></li>' for w in web[:8])+'</ul>' if web else blank()
- sections=[("In evidenza",cards(features)),("News Tech",cards(by("news-tech")[:6])),("News Gaming",cards(by("news-gaming")[:6])),("Ultime Recensioni",cards(by("recensioni-tech","recensioni-gaming")[:6])),("Guide e Extra",cards(by("guide","extra")[:6])),("Ultimi Video",cards(by("video")[:6])),("Notizie Web",links)]
+ sections=[("In evidenza",cards(features)),("News Tech",cards(by("news-tech")[:6])),("News Gaming",cards(by("news-gaming")[:6])),("Ultime Recensioni",cards(by("recensioni-tech","recensioni-gaming")[:6])),("Guide e Extra",cards(by("guide","extra")[:6])),("Ultimi Video",video_cards(videos()[:6])),("Notizie Web",links)]
  return shell("Home",'<div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar(rows,True)+'</div>')
 def inside(title,content,rows,exclude="",cat=None):
  return shell(title,'<div class="inner-layout"><div class="inner-column">'+content+'</div>'+sidebar(rows)+'</div>'+related(rows,exclude,cat))
 def archive(key,rows):
  categories=GROUPS[key]; label=key.replace("-"," ").title()
- return inside(label,'<h1>'+esc(label)+'</h1>'+cards([r for r in rows if r["category"] in categories]),rows,cat=categories[0] if len(categories)==1 else None)
+ return inside(label,'<h1>'+esc(label)+'</h1>'+(video_cards(videos()) if key=="video" else cards([r for r in rows if r["category"] in categories])),rows,cat=categories[0] if len(categories)==1 else None)
 def article(r,rows):
  cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if r.get("image","").startswith("/") and ".." not in r.get("image","") else ""
  text=''.join('<p>'+esc(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str))
