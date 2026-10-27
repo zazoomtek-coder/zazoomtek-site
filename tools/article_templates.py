@@ -34,6 +34,10 @@ def clean_heading(value):
  return s.strip()
 
 def named_section(text):
+ raw=str(text).strip()
+ # Preserve real headings from the original Community/Studio text.
+ if re.fullmatch(r"\*\*[^*\n]{3,90}\*\*",raw):return clean_heading(raw)
+ if re.fullmatch(r"#{1,3}\s+[^\n]{3,90}",raw):return clean_heading(raw)
  title=clean_heading(text)
  if len(title)>85 or "\n" in title:return None
  normalized=title.casefold()
@@ -267,6 +271,6 @@ def render(review,image_validator):
  extra=image_block(review,image_validator,extra=True)
  notice='<p class="excerpt-notice">Questo contenuto proviene da un estratto di archivio: il testo originale completo non è disponibile.</p>' if review.get("is_excerpt") else ""
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'">'
-         +heading+meta(review)+'<h1>'+title+'</h1>'+machine+media
+         +'<h1>'+title+'</h1>'+meta(review)+machine+media
          +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+extra+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
