@@ -128,7 +128,7 @@ def video_cards(rows):
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-layout-5"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-unified-6"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -166,10 +166,14 @@ def featured_showcase(rows):
  if len(rest)<4:
   markup+=''.join('<div class="spotlight-placeholder" aria-hidden="true"></div>' for _ in range(4-len(rest)))
  return '<div class="spotlight-grid">'+markup+'</div>'
-def box(name,rows):
- archive={"Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html","Tecnologia":"/news-tech.html","Gaming":"/news-gaming.html","Guide":"/guide.html","Speciali ed Extra":"/speciali.html"}.get(name,"")
+def box(name,rows,notice=""):
+ archive={"I più letti":"","Da non perdere":"/news.html","Dalla redazione":"/speciali.html",
+          "Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html",
+          "News Tech":"/news-tech.html","News Gaming":"/news-gaming.html",
+          "Guide e Extra":"/guide.html","Speciali":"/speciali.html"}.get(name,"")
  heading=bar(name,archive,"sidebar")
- if not rows:return '<section class="box editorial-box">'+heading+blank()+'</section>'
+ if not rows:
+  return '<section class="box editorial-box">'+heading+'<p class="editorial-status">'+esc(notice or "Non ci sono ancora articoli disponibili.")+'</p></section>'
  big=overlay_card(rows[0],"editorial-hero")
  compact=[]
  for r in rows[1:3]:
@@ -188,17 +192,21 @@ def sidebar(rows,home=False):
    if len(out)>=n:break
   return out
  popular=choose(sorted([r for r in rows if isinstance(r.get("views"),int) and r["views"]>0],key=lambda r:r["views"],reverse=True))
- picks=choose([r for r in rows if r.get("featured")])
- editorial=choose([r for r in rows if r.get("editorial_pick")])
- technology=choose([r for r in rows if r["category"]=="news-tech"])
- gaming=choose([r for r in rows if r["category"]=="news-gaming"])
- recent=choose([r for r in rows if r["category"].startswith("news-")])
- reviews=choose([r for r in rows if r["category"].startswith("recensioni-") and r.get("source")=="youtube-community"])
- guides=choose([r for r in rows if r["category"] in ("guide","speciali","extra")])
- parts=[("I più letti",popular),("Da non perdere",picks),("Dalla redazione",editorial),("Tecnologia",technology),("Gaming",gaming),("Ultime notizie",recent),("Ultime recensioni",reviews),("Guide",guides)]
- # Box senza dati affidabili (letture/editoriale) non mostrano notizie attribuite arbitrariamente.
- visible=[(title,content) for title,content in parts if content]
- return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali">'+''.join(box(name,subset) for name,subset in visible)+'</aside>'
+ picks=choose(r for r in rows if r.get("featured"))
+ editorial=choose(r for r in rows if r.get("editorial_pick"))
+ if not editorial:editorial=choose(r for r in rows if r["category"] in ("speciali","guide","extra"))
+ tech=choose(r for r in rows if r["category"]=="news-tech")
+ gaming=choose(r for r in rows if r["category"]=="news-gaming")
+ recent=choose(r for r in rows if r["category"].startswith("news-"))
+ reviews=choose(r for r in rows if r["category"].startswith("recensioni-") and r.get("source")=="youtube-community")
+ guides=choose(r for r in rows if r["category"] in ("guide","speciali","extra"))
+ # The homepage retains all editorial labels, including statistics pending for Most Read.
+ sections=[("I più letti",popular),("Da non perdere",picks),("Dalla redazione",editorial),
+           ("News Tech",tech),("News Gaming",gaming),("Ultime notizie",recent),
+           ("Ultime recensioni",reviews),("Guide e Extra",guides)]
+ inner=''.join(box(label,entries,"Dati di lettura non ancora disponibili.") for label,entries in sections)
+ # On article pages, the sidebar is clipped to the actual text column, never the related stories.
+ return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali"><div class="sidebar-stack">'+inner+'</div></aside>'
 def related(rows,exclude="",category=None):
  found=[r for r in rows if r["slug"]!=exclude and (category is None or r["category"]==category)][:8]
  return '<section class="related"><h2>Articoli correlati</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html"><strong>'+esc(r["title"])+'</strong></a></li>' for r in found)+'</ul>' if found else blank())+'</section>'
@@ -241,11 +249,33 @@ def web_archive(rows):
  links=['<li><a href="'+esc(item["url"],quote=True)+'" target="_blank" rel="noopener noreferrer">'+esc(item["title"])+'</a></li>' for item in items if isinstance(item,dict) and isinstance(item.get("title"),str) and isinstance(item.get("url"),str) and item["url"].startswith("https://")]
  content='<h1>Notizie Web</h1>'+('<ul class="web-links">'+''.join(links)+'</ul>' if links else blank())
  return inside("Notizie Web",content,rows)
-def inside(title,content,rows,exclude="",cat=None):
- return shell(title,'<div class="inner-layout"><div class="inner-column">'+content+'</div>'+sidebar(rows)+'</div>'+related(rows,exclude,cat))
-def archive(key,rows):
- categories=GROUPS[key]; label=key.replace("-"," ").title()
- return inside(label,'<h1>'+esc(label)+'</h1>'+(playlist_cards() if key=="video" else cards([r for r in rows if r["category"] in categories])),rows,cat=categories[0] if len(categories)==1 else None)
+def inside(title,content,rows,exclude="",cat=None,show_related=True):
+ # Article/archive content determines the height. Related articles always start after its end.
+ extra=related(rows,exclude,cat) if show_related else ""
+ return shell(title,'<div class="inner-layout"><div class="inner-column">'+content+'</div>'+sidebar(rows)+'</div>'+extra)
+ARCHIVE_PAGE_SIZE=9
+def pagination_links(key,page,total_pages):
+ if total_pages<=1:return ""
+ links=[]
+ for n in range(1,total_pages+1):
+  href="/"+key+(".html" if n==1 else "-page-"+str(n)+".html")
+  if n==page:links.append('<span class="page-current" aria-current="page">'+str(n)+'</span>')
+  else:links.append('<a href="'+href+'" aria-label="Pagina '+str(n)+'">'+str(n)+'</a>')
+ return '<nav class="pagination" aria-label="Paginazione archivio">'+''.join(links)+'</nav>'
+def archive(key,rows,page=1):
+ categories=GROUPS[key]
+ label={"news":"News","news-tech":"News Tech","news-gaming":"News Gaming",
+        "recensioni":"Recensioni","recensioni-tech":"Recensioni Tech",
+        "recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali",
+        "extra":"Extra","video":"Video"}.get(key,key.replace("-"," ").title())
+ selected=[r for r in rows if r["category"] in categories]
+ if key=="video":return inside(label,'<h1>'+esc(label)+'</h1>'+playlist_cards(),rows,show_related=False)
+ import math
+ count=max(1,math.ceil(len(selected)/ARCHIVE_PAGE_SIZE))
+ offset=(page-1)*ARCHIVE_PAGE_SIZE
+ visible=selected[offset:offset+ARCHIVE_PAGE_SIZE]
+ content='<h1>'+esc(label)+'</h1>'+cards(visible)+pagination_links(key,page,count)
+ return inside(label,content,rows,show_related=False)
 def article(r,rows):
  cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if bool(safe_image(r.get("image",""))) else ""
  text=''.join('<p>'+esc(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str))
@@ -259,7 +289,13 @@ def main():
  shutil.copy2(P/"assets/css/spotnews.css",O/"assets/css/spotnews.css")
  shutil.copy2(P/"assets/js/site.js",O/"assets/js/site.js")
  (O/"index.html").write_text(home(rows),encoding="utf-8")
- for key in GROUPS:(O/(key+".html")).write_text(archive(key,rows),encoding="utf-8")
+ for key in GROUPS:
+  (O/(key+".html")).write_text(archive(key,rows),encoding="utf-8")
+  if key!="video":
+   import math
+   count=sum(r["category"] in GROUPS[key] for r in rows)
+   for page in range(2,max(1,math.ceil(count/ARCHIVE_PAGE_SIZE))+1):
+    (O/(key+"-page-"+str(page)+".html")).write_text(archive(key,rows,page),encoding="utf-8")
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")
