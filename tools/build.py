@@ -265,7 +265,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-footer-28"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-gaming-magazine-29"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
@@ -320,6 +320,58 @@ def cards(rows):
   entries.append('<article class="card"><a class="thumb" href="'+url+'">'+visual+'</a>'
                  '<small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
  return '<div class="cards">'+''.join(entries)+'</div>'
+def gaming_article_preview(row,limit=225):
+ """Excerpt from authentic imported prose. Never use filler or invented copy."""
+ body=row.get("body") or []
+ if isinstance(body,str):body=[body]
+ for part in body:
+  if not isinstance(part,str):continue
+  candidate=part.strip()
+  if not candidate or candidate.startswith(("## ","# ","**")):continue
+  candidate=re.sub(r"\*\*(.*?)\*\*",r"\1",candidate)
+  candidate=re.sub(r"\s+"," ",candidate).strip()
+  if not candidate:continue
+  # Remove a duplicated source headline but retain the original news narrative.
+  title=clean_title(row.get("title",""))
+  if candidate.casefold().startswith(title.casefold()) and len(candidate)>len(title)+30:
+   candidate=candidate[len(title):].lstrip(" :.-–—")
+  if not candidate:continue
+  if len(candidate)>limit:
+   excerpt=candidate[:limit].rsplit(" ",1)[0].rstrip(".,;:") or candidate[:limit]
+   return excerpt+"…"
+  return candidate
+ return ""
+
+def gaming_magazine(rows):
+ """SpotNews editorial layout: one large story left, up to four compact vertical items right."""
+ if not rows:return ""
+ lead=rows[0]
+ url="/"+lead["slug"]
+ title=esc(clean_title(lead["title"]))
+ author=esc(str(lead.get("author") or "Redazione ZazoomTek"))
+ date=date_label(lead)
+ excerpt=gaming_article_preview(lead)
+ feature=('<article class="gaming-magazine-lead">'
+          '<a class="gaming-magazine-lead-image" href="'+url+'">'+editorial_cover(lead)+'</a>'
+          '<span class="gaming-magazine-badge">News Gaming</span>'
+          '<h3><a href="'+url+'">'+title+'</a></h3>'
+          '<p class="gaming-magazine-byline">di <strong>'+author+'</strong>'+
+          (' · <time>'+esc(date)+'</time>' if date else "")+'</p>'
+          +(('<p class="gaming-magazine-excerpt">'+esc(excerpt)+'</p>') if excerpt else '')+
+          '</article>')
+ compact=[]
+ for row in rows[1:5]:
+  href="/"+row["slug"]
+  date=date_label(row)
+  compact.append('<article class="gaming-magazine-item">'
+                 '<a class="gaming-magazine-thumb" href="'+href+'">'+editorial_cover(row)+'</a>'
+                 '<div class="gaming-magazine-item-copy">'
+                 '<h3><a href="'+href+'">'+esc(clean_title(row["title"]))+'</a></h3>'
+                 +('<time>'+esc(date)+'</time>' if date else '')+
+                 '</div></article>')
+ return ('<div class="gaming-magazine">'
+         +feature+'<div class="gaming-magazine-list">'+''.join(compact)+'</div></div>')
+
 SECTION_URLS={"In evidenza":"/news","News Tech":"/news-tech","News Gaming":"/news-gaming","Ultime Recensioni":"/recensioni","Guide e Extra":"/guide","Speciali":"/speciali","Ultimi Video":"https://www.youtube.com/@ZazoomTek","Notizie Web":"/notizie-web"}
 def bar(title,link,style="section"):
  tag="h2" if style=="section" else "h3"
@@ -592,7 +644,7 @@ def home(rows):
  extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
  spotlight=adaptive_news(all_news,5,global_used)
  tech_low=adaptive_news(tech,6,global_used)
- gaming_low=adaptive_news(gaming,4,global_used)
+ gaming_low=adaptive_news(gaming,5,global_used)
  reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],4,global_used)
  video_section=playlist_cards()
  external=web_news()
@@ -604,7 +656,7 @@ def home(rows):
   global_used.update(identities);unique_web.append(entry)
  sections=[
   ("News Tech",cards(tech_low)),
-  ("News Gaming",cards(gaming_low)),
+  ("News Gaming",gaming_magazine(gaming_low)),
   ("Ultime Recensioni",cards(reviews)),
   ("Speciali",special_gallery(specials)),
   ("Guide e Extra",feature_pair(guides,extras)),

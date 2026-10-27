@@ -747,3 +747,150 @@ main.wrap{padding-top:28px;overflow:visible}
  .back-to-top span{font-size:29px}
 }
 @media(prefers-reduced-motion:reduce){.back-to-top{transition:none}}
+
+
+/* v29: NEWS GAMING editorial magazine (reference photo 2).
+   One prominent 16:9 lead on the left, four image-and-headline items in a vertical right rail. */
+.home-column .gaming-magazine{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ column-gap:20px!important;
+ align-items:start!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0 0 12px!important;
+ background:transparent;
+}
+.gaming-magazine .gaming-magazine-lead,
+.gaming-magazine .gaming-magazine-item{
+ min-width:0!important;
+ background:transparent!important;
+ border:0!important;
+ overflow:visible!important;
+}
+.gaming-magazine .gaming-magazine-lead-image{
+ display:block!important;
+ width:100%!important;
+ aspect-ratio:16/9!important;
+ overflow:hidden!important;
+ background:#24364a!important;
+}
+.gaming-magazine .gaming-magazine-lead-image .editorial-media-frame,
+.gaming-magazine .gaming-magazine-thumb .editorial-media-frame{
+ width:100%!important;
+ height:100%!important;
+ aspect-ratio:16/9!important;
+}
+.gaming-magazine .gaming-magazine-badge{
+ display:inline-block!important;
+ position:relative!important;
+ margin:-27px 0 10px!important;
+ padding:5px 10px!important;
+ background:#f23d53!important;
+ color:#fff!important;
+ font-size:11px!important;
+ font-weight:800!important;
+ line-height:1.25!important;
+ text-transform:uppercase!important;
+ z-index:3;
+}
+.gaming-magazine .gaming-magazine-lead h3{
+ font-size:clamp(18px,2vw,24px)!important;
+ font-weight:900!important;
+ line-height:1.32!important;
+ margin:5px 0 12px!important;
+ padding:0!important;
+ overflow-wrap:anywhere!important;
+}
+.gaming-magazine .gaming-magazine-byline{
+ color:#777!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ margin:0 0 12px!important;
+}
+.gaming-magazine .gaming-magazine-byline strong{
+ color:#e8374b!important;
+ font-weight:800!important;
+}
+.gaming-magazine .gaming-magazine-excerpt{
+ color:#4a4a4a!important;
+ font-size:13px!important;
+ line-height:1.6!important;
+ margin:0 0 6px!important;
+ overflow-wrap:anywhere!important;
+}
+.gaming-magazine .gaming-magazine-list{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:17px!important;
+ width:100%!important;
+ min-width:0!important;
+}
+.gaming-magazine .gaming-magazine-item{
+ display:grid!important;
+ grid-template-columns:minmax(100px,35%) minmax(0,1fr)!important;
+ gap:14px!important;
+ align-items:start!important;
+ padding:0!important;
+ margin:0!important;
+}
+.gaming-magazine .gaming-magazine-thumb{
+ display:block!important;
+ width:100%!important;
+ aspect-ratio:16/9!important;
+ background:#24364a!important;
+ overflow:hidden!important;
+ min-width:0!important;
+}
+.gaming-magazine .gaming-magazine-item-copy{
+ min-width:0!important;
+}
+.gaming-magazine .gaming-magazine-item h3{
+ font-size:clamp(13px,1.5vw,17px)!important;
+ line-height:1.34!important;
+ font-weight:900!important;
+ margin:0 0 9px!important;
+ padding:0!important;
+ overflow-wrap:anywhere!important;
+ word-break:normal!important;
+}
+.gaming-magazine .gaming-magazine-item time{
+ display:block!important;
+ color:#898989!important;
+ font-size:12px!important;
+ line-height:1.4!important;
+ margin:0!important;
+}
+.gaming-magazine a:hover{color:#e5364b}
+@media(max-width:1000px){
+ .home-column .gaming-magazine{
+  grid-template-columns:minmax(0,1fr)!important;
+  row-gap:20px!important;
+ }
+ .gaming-magazine .gaming-magazine-list{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:15px!important;
+ }
+ .gaming-magazine .gaming-magazine-item{
+  grid-template-columns:minmax(96px,38%) minmax(0,1fr)!important;
+  gap:10px!important;
+ }
+}
+@media(max-width:570px){
+ .gaming-magazine .gaming-magazine-list{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:16px!important;
+ }
+ .gaming-magazine .gaming-magazine-item{
+  grid-template-columns:minmax(110px,37%) minmax(0,1fr)!important;
+  gap:12px!important;
+ }
+ .gaming-magazine .gaming-magazine-item h3{
+  font-size:14px!important;
+ }
+ .gaming-magazine .gaming-magazine-lead h3{
+  font-size:21px!important;
+ }
+}
