@@ -2,7 +2,8 @@
 """ZazoomTek SpotNews: generatore statico con menu/layout universali."""
 from pathlib import Path
 from html import escape as esc
-import json,os,re,shutil
+import json,os,re,shutil,sys
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 import urllib.request,xml.etree.ElementTree as ET
 from html import unescape as unesc
 from datetime import datetime,timezone,timedelta
@@ -38,42 +39,85 @@ def category_for_post(item):
 def parse_day(value):
  try:return datetime.fromisoformat(str(value).replace("Z","+00:00")).date()
  except (ValueError,TypeError):return None
+def load_remote_community():
+ """Extract canonical FULL Community posts at each build, without YouTube Data API."""
+ try:
+  from community_youtube import discover
+  live=discover(limit=160,max_pages=12)
+  print("Community YouTube: full posts verified:",len(live),flush=True)
+  return live
+ except Exception as exc:
+  print("Community YouTube temporarily unavailable:",type(exc).__name__,str(exc)[:300],flush=True)
+  return []
 def community_posts():
- """Le Community sono importate SOLO da testo autentico in data/community.json."""
+ """Merge verified full-text public posts with the existing archived extracts.
+    Older short excerpts are labeled as such, never presented as complete.
+ """
  path=P/"data/community.json"
- if not path.exists():return []
- raw=json.loads(path.read_text(encoding="utf-8"))
- if not isinstance(raw,dict) or not isinstance(raw.get("posts"),list):raise ValueError("Invalid community data")
- cutoff=datetime.now(timezone.utc).date()-timedelta(days=14)
- today=datetime.now(timezone.utc).date()
+ raw=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"posts":[]}
+ if not isinstance(raw,dict) or not isinstance(raw.get("posts"),list):
+  raise ValueError("Invalid stored Community data")
+ historical=raw["posts"]
+ live=load_remote_community()
  result=[]
- for item in raw["posts"]:
+ for item in list(live)+list(historical):
   if not isinstance(item,dict):continue
+  text=item.get("text")
+  if not isinstance(text,str) or not text.strip():continue
   cat=category_for_post(item)
-  day=parse_day(item.get("date"))
-  if not cat or (not day and cat.startswith("news-")) or (day and day>today):continue
-  # News historical entries stay available; the home allocator expands 14d -> 21d -> archive if needed.
-  title=item.get("title"); text=item.get("text")
-  if not isinstance(title,str) or not title.strip() or not isinstance(text,str) or not text.strip():continue
-  post_id=str(item.get("id",""))
+  if not cat:continue
+  post_id=str(item.get("id","")).strip()
   if not post_id:continue
+  is_full=bool(item.get("text_complete")) and bool(re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id))
   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
-  if not slug or len(slug)>150:continue
-  image=item.get("image","")
-  image=safe_image(image)
-  result.append({"slug":slug,"category":cat,"title":title.strip(),"body":[p.strip() for p in re.split(r"\n\s*\n",text) if p.strip()],"date":day.isoformat() if day else "","published_at":str(item.get("published_at") or item.get("date") or ""),"source":"youtube-community","image":image,"source_url":item.get("url",""),"featured":bool(item.get("featured",False)),"editorial_pick":bool(item.get("editorial_pick",False))})
+  if len(slug)>150 or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):continue
+  date=parse_day(item.get("date"))
+  if not date and cat.startswith("news-"):continue
+  if date and date>datetime.now(timezone.utc).date():continue
+  title=item.get("title")
+  if not isinstance(title,str) or not title.strip():continue
+  image=safe_image(item.get("image",""))
+  original_url=str(item.get("url") or item.get("source_url") or "")
+  if is_full and not re.fullmatch(r"https://www\.youtube\.com/post/Ug[A-Za-z0-9_-]{12,}",original_url):
+   original_url="https://www.youtube.com/post/"+post_id
+  if not is_full:original_url=""
+  result.append({
+   "slug":slug,"category":cat,"title":title.strip(),
+   "body":[part.strip() for part in re.split(r"\n\s*\n",text) if part.strip()],
+   "date":date.isoformat() if date else "",
+   "published_at":str(item.get("published_at") or item.get("date") or ""),
+   "source":"youtube-community" if is_full else "archived-community-excerpt",
+   "is_excerpt":not is_full,"source_url":original_url,"image":image,
+   "featured":bool(item.get("featured",False)),
+   "editorial_pick":bool(item.get("editorial_pick",False))
+  })
  return result
+def normalized_title(text):
+ text=re.sub(r"(?i)^\s*#*\s*(news\s*(?:tech|gaming)?|review\s*(?:tech|gaming)?|recensione|guida|guide|speciale|extra)\s*:\s*","",str(text)).strip()
+ return re.sub(r"[^a-z0-9]+","",unesc(text.casefold()))
 def posts():
  obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
  if not isinstance(obj.get("posts"),list):raise ValueError("posts must be a list")
- rows=obj["posts"]+community_posts(); seen=set()
- cutoff=datetime.now(timezone.utc).date()-timedelta(days=14)
+ all_rows=obj["posts"]+community_posts()
+ unique={};seen_slugs=set()
+ for r in all_rows:
+  slug=r.get("slug","")
+  if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug) or slug in GROUPS:continue
+  if r.get("category") not in TYPES or not isinstance(r.get("title"),str):continue
+  key=(r["category"],normalized_title(r["title"]))
+  if not key[1]:continue
+  current=unique.get(key)
+  # A full verified post always supersedes an excerpt with the same title.
+  if current is None or (current.get("is_excerpt",False) and not r.get("is_excerpt",False)):
+   unique[key]=r
+ rows=list(unique.values())
  for r in rows:
-  slug=r["slug"]
-  if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug) or slug in seen or slug in GROUPS:raise ValueError("Slug invalid/duplicate")
-  if r["category"] not in TYPES or not isinstance(r["title"],str):raise ValueError("Post category/title invalid")
-  seen.add(slug)
- return sorted([r for r in rows if not r["category"].startswith("news-") or parse_day(r.get("date")) is not None],key=lambda x:(x.get("published_at") or x.get("date") or ""),reverse=True)
+  if r["slug"] in seen_slugs:raise ValueError("Duplicate post slug "+r["slug"])
+  seen_slugs.add(r["slug"])
+ rows=sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ print("Articles:",len(rows),"verified Community:",sum(x.get("source")=="youtube-community" for x in rows),
+       "archived excerpts:",sum(x.get("is_excerpt",False) for x in rows),flush=True)
+ return rows
 def videos():
  obj=json.loads((P/"data/videos.json").read_text(encoding="utf-8"))
  allowed={"review","test","unboxing"}
@@ -136,7 +180,7 @@ def video_cards(rows):
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-homeunique-12"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-community-full-13"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def safe_image(value):
  if not isinstance(value,str):return ""
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):return value
@@ -435,9 +479,14 @@ def archive(key,rows,page=1):
  visible=selected[offset:offset+ARCHIVE_PAGE_SIZE]
  content='<h1>'+esc(label)+'</h1>'+cards(visible)+pagination_links(key,page,count)
  return inside(label,content,rows,show_related=False)
+def render_paragraph(value):
+ # Preserve the author's full prose, newlines and emphasis safely (no truncated summaries).
+ safe=esc(value).replace("\n","<br>")
+ return re.sub(r"\*\*(.+?)\*\*",r"<strong>\1</strong>",safe)
 def article(r,rows):
  cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if bool(safe_image(r.get("image",""))) else ""
- text=''.join('<p>'+esc(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str))
+ text=''.join('<p>'+render_paragraph(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str) and p.strip())
+ if r.get("is_excerpt"):text='<p class="excerpt-notice">Archivio parziale: questo è un estratto, non il testo integrale del post YouTube.</p>'+text
  video=('<div class="player"><iframe title="Video YouTube" loading="lazy" allowfullscreen src="https://www.youtube-nocookie.com/embed/'+r["youtube_id"]+'"></iframe></div>') if re.fullmatch(r"[A-Za-z0-9_-]{11}",r.get("youtube_id","")) else ""
  body='<article class="article"><h1>'+esc(r["title"])+'</h1><p class="category">'+esc(TYPES[r["category"]])+'</p>'+cover+video+'<div class="article-text">'+text+'</div></article>'
  return inside(r["title"],body,rows,r["slug"],r["category"])
