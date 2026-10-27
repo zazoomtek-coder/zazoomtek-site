@@ -149,57 +149,109 @@ def video(review):
          '<img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/hqdefault.jpg" alt="">'
          '<span class="video-start-label">▶ Riproduci il video</span></button></div></div>')
 
+def editorial_blocks(review):
+ """Keep the author's article; remove social-signature and hashtag tails from main editorial content."""
+ pieces=paragraphs(review)
+ cleaned=[]
+ for p in pieces:
+  p=p.strip()
+  # Social boilerplate belongs in navigation, not in the text of an article.
+  p=re.split(r"(?im)^\s*(?:Subscribe\b|Iscriviti\b|🌐\s*zazoomtek\.it\b|▶\ufe0f?\s*YouTube\s*:|#\w+(?:\s+#\w+){2,}\s*$)",p,maxsplit=1)[0].strip()
+  if not p:break
+  if re.fullmatch(r"(?i)(?:Foto|Photo|Immagine|Picture)\s*(?:n[.°]\s*)?\d+",clean_heading(p)):continue
+  if re.match(r"(?i)^#(?:\w+)(?:\s+#\w+)*\s*$",p):break
+  cleaned.append(p)
+ # Remove duplicate headline/category prefix inside the opening paragraph, not the real prose.
+ if cleaned:
+  first=cleaned[0]
+  first=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
+  title=plain(review.get("title",""))
+  lines=first.split("\n",1)
+  if len(lines)>1 and re.sub(r"[^a-z0-9]","",lines[0].casefold())==re.sub(r"[^a-z0-9]","",title.casefold()):
+   first=lines[1].strip()
+  if first:cleaned[0]=first
+ return cleaned
+
 def sectioned_body(review):
- blocks=paragraphs(review)
- if not blocks:return "<p>Il testo dell’articolo non è ancora disponibile.</p>"
- explicit=any(named_section(p) for p in blocks)
- filtered=[block for block in blocks if not (is_review(review) and ONLY_SCORE.fullmatch(block.strip()))]
- if explicit:
-  out=[]
-  for block in filtered:
-   heading=named_section(block)
-   if heading and heading.lower() not in ("pro","contro","voto finale"):
-    out.append('<h2>'+esc(heading)+'</h2>')
-   elif heading and heading.lower() in ("pro","contro","voto finale"):
-    # Original text is preserved in the article; score also appears in the review box.
-    out.append('<h2>'+esc(heading)+'</h2>')
-   else:out.append('<p>'+rich_text(block)+'</p>')
-  return ''.join(out)
+ blocks=editorial_blocks(review)
+ if not blocks:return "<p>Il testo integrale dell'articolo non è ancora disponibile nell'archivio.</p>"
  if not is_review(review):
-  content=[]
-  for i,p in enumerate(filtered):
-   if i==2:content.append('<h2>Approfondimento</h2>')
-   if i==5:content.append('<h2>Contesto e dettagli</h2>')
-   content.append('<p>'+rich_text(p)+'</p>')
-  return ''.join(content)
- # Existing unheaded full-text reviews: preserve paragraph order and group in the native ZazoomTek format.
- if len(filtered)<4:return ''.join('<p>'+rich_text(p)+'</p>' for p in filtered)
- outline=REVIEW_GAMING if category(review)=="recensioni-gaming" else REVIEW_TECH
- middle=filtered[1:-1]
- groups=[[] for _ in range(3)]
- for idx,p in enumerate(middle):
-  portion=min(2,(idx*3)//len(middle))
-  groups[portion].append(p)
- result=['<h2>Introduzione</h2>','<p>'+rich_text(filtered[0])+'</p>']
- for heading,group in zip(outline[:3],groups):
-  if group:result.append('<h2>'+esc(heading)+'</h2>')
-  result.extend('<p>'+rich_text(p)+'</p>' for p in group)
- result.extend(['<h2>Conclusioni</h2>','<p>'+rich_text(filtered[-1])+'</p>'])
- return ''.join(result)
+  # Do not manufacture arbitrary headings every third paragraph: use genuine source headings.
+  pieces=[]
+  for p in blocks:
+   heading=named_section(p)
+   if heading and heading.casefold() not in ("voto finale","pro","contro"):
+    pieces.append('<h2>'+esc(heading)+'</h2>')
+   else:pieces.append('<p>'+rich_text(p)+'</p>')
+  return ''.join(pieces)
+
+ # The score and final reader question follow the actual conclusion in original Community reviews.
+ marker=next((idx for idx,p in enumerate(blocks) if ONLY_SCORE.fullmatch(p.strip()) or
+              (p.strip().startswith(("⭐","Voto finale:")) and SCORE.search(p))),len(blocks))
+ prose=blocks[:marker]
+ prose=[p for p in prose if not ONLY_SCORE.fullmatch(p.strip())]
+ if not prose:prose=["Recensione archivistica in attesa del testo integrale."]
+ # Use the original conclusion, not the last comment-call-to-action or hashtags.
+ editorial_conclusion=review.get("conclusion")
+ explicit_indices=[idx for idx,p in enumerate(prose) if named_section(p) and clean_heading(p).casefold() in ("conclusioni","conclusione")]
+ if explicit_indices:
+  split=explicit_indices[-1]
+  core=[p for p in prose[:split] if p.strip()]
+  ending=[p for p in prose[split+1:] if p.strip() and not named_section(p)]
+  conclusion=([editorial_conclusion] if editorial_conclusion else ending)
+ elif editorial_conclusion:
+  core=prose
+  conclusion=[editorial_conclusion]
+ else:
+  # Long-form reviews may have multi-paragraph conclusions; preserve all of them.
+  n=len(prose)
+  num=4 if n>=27 else (3 if n>=19 else 1)
+  num=min(num,max(1,n-1))
+  core=prose[:-num]
+  conclusion=prose[-num:]
+  if not core:core=prose;conclusion=[]
+ # Prevent duplicated concluding text when source already has the same conclusion.
+ if editorial_conclusion:
+  conclusion=[editorial_conclusion]
+  core=[p for p in core if p.strip()!=str(editorial_conclusion).strip()]
+ rendered=[]
+ if any(named_section(x) for x in core):
+  for p in core:
+   heading=named_section(p)
+   if heading:
+    if heading.casefold() in ("voto finale","pro","contro","conclusioni"):continue
+    rendered.append('<h2>'+esc(heading)+'</h2>')
+   else:rendered.append('<p>'+rich_text(p)+'</p>')
+ else:
+  # Four native review blocks with factual text kept in the original order.
+  outline=REVIEW_GAMING if category(review)=="recensioni-gaming" else REVIEW_TECH
+  if core:
+   rendered.extend(['<h2>Introduzione</h2>','<p>'+rich_text(core[0])+'</p>'])
+   middle=core[1:]
+   groups=[[] for _ in range(3)]
+   for idx,p in enumerate(middle):
+    groups[min(2,(idx*3)//max(1,len(middle)))].append(p)
+   for heading,group in zip(outline[:3],groups):
+    if group:
+     rendered.append('<h2>'+esc(heading)+'</h2>')
+     rendered.extend('<p>'+rich_text(p)+'</p>' for p in group)
+ if conclusion:
+  rendered.append('<h2>Conclusioni</h2>')
+  rendered.extend('<p>'+rich_text(p)+'</p>' for p in conclusion)
+ return ''.join(rendered)
 
 def verdict(review):
- blocks=paragraphs(review)
- value=score(review,blocks)
+ value=score(review,paragraphs(review))
  pros=short_points(review,"pros")
  cons=short_points(review,"cons")
- def list_points(items):
+ def list_points(items,label):
   if items:return '<ul>'+''.join('<li>'+esc(x)+'</li>' for x in items)+'</ul>'
-  return '<p class="review-data-missing">Non specificati nel testo originale.</p>'
- label=value+'/10' if value is not None else "Non assegnato"
+  return '<p class="review-data-missing">Nessun elemento verificato nel testo attualmente disponibile.</p>'
+ label=value+'/10' if value is not None else "Voto non disponibile"
  return ('<section class="review-verdict" aria-label="Valutazione finale">'
          '<div class="verdict-heading"><h2>Voto finale</h2><strong class="verdict-score">'+esc(label)+'</strong></div>'
-         '<div class="verdict-grid"><div class="verdict-pro"><h3>Pro</h3>'+list_points(pros)+'</div>'
-         '<div class="verdict-con"><h3>Contro</h3>'+list_points(cons)+'</div></div></section>')
+         '<div class="verdict-grid"><div class="verdict-pro"><h3>Pro</h3>'+list_points(pros,"pro")+'</div>'
+         '<div class="verdict-con"><h3>Contro</h3>'+list_points(cons,"contro")+'</div></div></section>')
 
 def render(review,image_validator):
  reviews=is_review(review)
