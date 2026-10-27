@@ -320,3 +320,17 @@ main.wrap{padding-top:28px;overflow:visible}
  .home-sidebar .sidebar-stack,.inner-sidebar .sidebar-stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 }
 @media(max-width:500px){.home-sidebar .sidebar-stack,.inner-sidebar .sidebar-stack{grid-template-columns:minmax(0,1fr)}}
+
+/* Bound compact editorial stack precisely to Home article-column height on desktop. */
+@media(min-width:781px){
+ .home-layout{align-items:stretch}
+ .home-sidebar{position:relative;min-height:0;align-self:stretch;overflow:hidden}
+ .home-sidebar .sidebar-stack{
+  position:absolute;top:0;right:0;bottom:0;left:14px;
+  height:auto;max-height:100%;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-start;gap:14px;
+ }
+}
+@media(max-width:780px){
+ .home-sidebar .sidebar-stack{position:static;inset:auto;height:auto;max-height:none;overflow:visible}
+}
