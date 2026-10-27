@@ -279,14 +279,14 @@
   }
  });
 
- // Seamless breaking ticker: twelve real news headlines, updated when a new build is deployed.
+
+ // Native-style compact headline rotator: exactly one of ten genuine news items visible.
  const tickerTrack=document.querySelector("#ticker-track");
  const tickerViewport=document.querySelector("#ticker-viewport");
- const tickerPause=document.querySelector("#ticker-pause");
- const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)");
- let manuallyPaused=false,tickerSignature="";
- // The news bar must end directly below the last menu link ("VIDEO").
- // Measure it rather than estimating a fixed pixel position.
+ const tickerGroup=tickerTrack?.querySelector(".ticker-group");
+ const tickerReduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)");
+ let tickerSignature="",activeTicker=0;
+
  function fitTickerToMenu(){
   if(!tickerViewport)return;
   const lastMenuLink=document.querySelector("#nav a:last-child");
@@ -294,93 +294,88 @@
   tickerViewport.style.removeProperty("width");
   tickerViewport.classList.remove("ticker-desktop-capped");
   if(!onDesktop||!lastMenuLink)return;
-  const lastLinkRect=lastMenuLink.getBoundingClientRect();
-  const viewportRect=tickerViewport.getBoundingClientRect();
+  const lastRect=lastMenuLink.getBoundingClientRect();
+  const tickerRect=tickerViewport.getBoundingClientRect();
   const containerRect=tickerViewport.parentElement.getBoundingClientRect();
-  if(!lastLinkRect.width||!viewportRect.width)return;
-  const target=lastLinkRect.right-viewportRect.left;
-  const limit=containerRect.right-viewportRect.left;
-  const next=Math.max(180,Math.min(target,limit));
-  tickerViewport.style.width=next.toFixed(1)+"px";
+  if(!lastRect.width||!tickerRect.width)return;
+  const target=Math.max(140,Math.min(lastRect.right-tickerRect.left,containerRect.right-tickerRect.left));
+  tickerViewport.style.width=target.toFixed(1)+"px";
   tickerViewport.classList.add("ticker-desktop-capped");
  }
- function setTickerPaused(pause){
-  manuallyPaused=pause;
-  tickerTrack?.classList.toggle("ticker-user-paused",pause);
-  if(tickerPause){
-   tickerPause.setAttribute("aria-pressed",String(pause));
-   tickerPause.setAttribute("aria-label",pause?"Riprendi lo scorrimento delle notizie":"Metti in pausa lo scorrimento delle notizie");
-   tickerPause.querySelector("span").textContent=pause?"▶":"Ⅱ";
+
+ function paintActiveTicker(){
+  if(!tickerGroup)return;
+  const links=[...tickerGroup.querySelectorAll("a.ticker-link")];
+  if(!links.length)return;
+  activeTicker=((activeTicker%links.length)+links.length)%links.length;
+  links.forEach((a,i)=>{
+   const visible=i===activeTicker;
+   a.classList.toggle("ticker-active",visible);
+   a.tabIndex=visible?0:-1;
+   if(visible)a.removeAttribute("aria-hidden");
+   else a.setAttribute("aria-hidden","true");
+  });
+  tickerGroup.classList.add("ticker-carousel-ready");
+ }
+
+ function refreshTickerEntries(items){
+  if(!tickerGroup||!Array.isArray(items))return;
+  const news=items.filter(x=>typeof x?.title==="string"&&/^\/[a-z0-9-]+$/.test(x.url||"")).slice(0,10);
+  if(news.length!==10)return;
+  const sig=JSON.stringify(news.map(x=>[x.title,x.url]));
+  if(sig===tickerSignature)return;
+  const previous=tickerGroup.querySelectorAll("a.ticker-link")[activeTicker]?.getAttribute("href");
+  tickerSignature=sig;
+  const fragment=document.createDocumentFragment();
+  for(const item of news){
+   const link=document.createElement("a");
+   link.href=item.url;
+   link.className="ticker-link";
+   link.textContent=item.title;
+   fragment.append(link);
   }
+  tickerGroup.replaceChildren(fragment);
+  const previousIndex=news.findIndex(x=>x.url===previous);
+  activeTicker=previousIndex>=0?previousIndex:0;
+  paintActiveTicker();
  }
- function restartTicker(){
-  if(!tickerTrack)return;
-  const group=tickerTrack.querySelector(".ticker-group");
-  if(!group)return;
-  tickerTrack.querySelectorAll(".ticker-group[aria-hidden='true']").forEach(x=>x.remove());
-  const links=[...group.querySelectorAll("a.ticker-link")];
-  if(links.length<10)return;
-  const copy=group.cloneNode(true);
-  copy.setAttribute("aria-hidden","true");
-  copy.querySelectorAll("a").forEach(a=>a.setAttribute("tabindex","-1"));
-  tickerTrack.append(copy);
-  const distance=group.getBoundingClientRect().width;
-  // 82 CSS pixels per second: native-news-ticker-like constant movement.
-  tickerTrack.style.setProperty("--ticker-duration",Math.max(28,distance/82).toFixed(2)+"s");
-  tickerTrack.classList.add("ticker-running");
-  tickerTrack.classList.toggle("ticker-user-paused",manuallyPaused);
- }
- function updateTickerStories(items){
-  if(!tickerTrack||!Array.isArray(items)||items.length<10)return;
-  const rows=items.filter(x=>typeof x.title==="string"&&/^\/[a-z0-9-]+$/.test(x.url||"")).slice(0,15);
-  if(rows.length<10)return;
-  const signature=JSON.stringify(rows.map(x=>[x.title,x.url]));
-  if(signature===tickerSignature)return;
-  tickerSignature=signature;
-  const group=tickerTrack.querySelector(".ticker-group");
-  if(!group)return;
-  group.replaceChildren();
-  for(const x of rows){
-   const a=document.createElement("a");
-   a.className="ticker-link";
-   a.href=x.url;
-   const dot=document.createElement("span");
-   dot.className="ticker-dot";
-   dot.setAttribute("aria-hidden","true");
-   a.append(dot,document.createTextNode(x.title));
-   group.append(a);
-  }
-  restartTicker();
- }
- async function refreshTicker(){
-  if(!tickerTrack)return;
+
+ async function fetchTickerUpdates(){
+  if(!tickerGroup)return;
   try{
    const response=await fetch("/news-ticker.json",{cache:"no-store"});
-   if(!response.ok)throw new Error("Ticker HTTP "+response.status);
-   const obj=await response.json();
-   updateTickerStories(obj.items);
-  }catch(_){/* Retain already server-rendered real headlines if temporarily offline. */}
- }
- if(tickerTrack){
-  fitTickerToMenu();
-  restartTicker();
-  // The server already rendered the same headlines; avoid restarting on first fetch.
-  const initialGroup=tickerTrack.querySelector(".ticker-group");
-  if(initialGroup){
-   tickerSignature=JSON.stringify([...initialGroup.querySelectorAll("a.ticker-link")].map(a=>[
-    a.textContent.trim(),new URL(a.href).pathname
-   ]));
+   if(!response.ok)throw new Error("News feed HTTP "+response.status);
+   const data=await response.json();
+   refreshTickerEntries(data.items);
+  }catch(_){
+   // Keep the server-rendered headlines even if refresh fails.
   }
-  refreshTicker();
-  // Newly published stories are fetched without reloading or interrupting current motion.
-  setInterval(()=>{if(!document.hidden)refreshTicker()},300000);
-  tickerPause?.addEventListener("click",()=>setTickerPaused(!manuallyPaused));
-  let resizeFrame=0;
+ }
+
+ if(tickerGroup){
+  // Ensure only the first server-rendered headline is visible before the first refresh.
+  const original=[...tickerGroup.querySelectorAll("a.ticker-link")].slice(0,10);
+  for(const excess of [...tickerGroup.querySelectorAll("a.ticker-link")].slice(10))excess.remove();
+  if(original.length===10){
+   tickerSignature=JSON.stringify(original.map(a=>[a.textContent.trim(),a.getAttribute("href")]));
+  }
+  paintActiveTicker();
+  fitTickerToMenu();
+  fetchTickerUpdates();
+  // Every cycle replaces the visible headline. Never show multiple headlines at once.
+  setInterval(()=>{
+   if(document.hidden||tickerReduceMotion.matches)return;
+   const count=tickerGroup.querySelectorAll("a.ticker-link").length;
+   if(count>1){activeTicker=(activeTicker+1)%count;paintActiveTicker()}
+  },5200);
+  // Keep a long-lived tab in sync with the current published news.
+  setInterval(()=>{if(!document.hidden)fetchTickerUpdates()},300000);
+  let frame=0;
   window.addEventListener("resize",()=>{
-   cancelAnimationFrame(resizeFrame);
-   resizeFrame=requestAnimationFrame(fitTickerToMenu);
+   cancelAnimationFrame(frame);
+   frame=requestAnimationFrame(fitTickerToMenu);
   },{passive:true});
-  // Fonts may settle after first paint. Re-measure alignment without restarting the animation.
   window.addEventListener("load",fitTickerToMenu,{once:true});
  }
+
 })();

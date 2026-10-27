@@ -80,7 +80,7 @@ def check_dist(root):
    if not isinstance(entries,list):raise ValueError("Expected JSON array "+key)
    if name=="search-index.json" and not entries:
     raise ValueError("Search index is empty")
-   if name=="news-ticker.json" and len(entries)<10:
+   if name=="news-ticker.json" and len(entries)!=10:
     raise ValueError("Breaking ticker has fewer than 10 real headlines")
    seen=set()
    for entry in entries:

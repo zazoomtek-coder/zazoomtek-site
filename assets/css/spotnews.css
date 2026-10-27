@@ -1387,3 +1387,137 @@ main.wrap{padding-top:28px;overflow:visible}
  .home-column .gaming-magazine .gaming-magazine-item h3{font-size:15px!important}
  .home-review-web-grid .home-review-web-card h3{font-size:16px!important}
 }
+
+
+/* v36 — Ten-story ticker with one visible headline, and only a small gap before In evidenza. */
+main.wrap:has(>.featured-wide){
+ padding-top:4px!important;
+ margin-top:0!important;
+}
+.breaking-ticker .ticker-viewport,
+.breaking-ticker .ticker-viewport.ticker-desktop-capped{
+ overflow:hidden!important;
+ position:relative!important;
+}
+.breaking-ticker .ticker-track,
+.breaking-ticker .ticker-track.ticker-running{
+ display:block!important;
+ width:100%!important;
+ height:29px!important;
+ transform:none!important;
+ animation:none!important;
+ will-change:auto!important;
+}
+.breaking-ticker .ticker-group{
+ display:block!important;
+ position:relative!important;
+ width:100%!important;
+ height:29px!important;
+ overflow:hidden!important;
+}
+.breaking-ticker .ticker-link{
+ display:flex!important;
+ align-items:center!important;
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ height:100%!important;
+ min-height:0!important;
+ padding:0 0 0 2px!important;
+ margin:0!important;
+ overflow:hidden!important;
+ white-space:nowrap!important;
+ text-overflow:ellipsis!important;
+ color:#1a1a1a!important;
+ font-weight:600!important;
+ font-size:11px!important;
+ line-height:1.35!important;
+ opacity:0!important;
+ transform:translateX(20px)!important;
+ pointer-events:none!important;
+ z-index:0!important;
+ transition:opacity .42s ease,transform .42s ease!important;
+}
+.breaking-ticker .ticker-group:not(.ticker-carousel-ready) .ticker-link:first-child,
+.breaking-ticker .ticker-group.ticker-carousel-ready .ticker-link.ticker-active{
+ opacity:1!important;
+ transform:translateX(0)!important;
+ pointer-events:auto!important;
+ z-index:1!important;
+}
+.breaking-ticker .ticker-dot{display:none!important}
+/* Entire-site compact editorial rail; do not alter Amazon or primary feature cards. */
+.sidebar .compact-editorial-box .editorial-row{
+ display:grid!important;
+ grid-template-columns:minmax(112px,43%) minmax(0,1fr)!important;
+ gap:10px!important;
+ align-items:start!important;
+ padding:9px 0!important;
+ min-height:0!important;
+}
+.sidebar .compact-editorial-box .editorial-thumb{
+ display:block!important;
+ width:100%!important;
+ height:auto!important;
+ min-width:0!important;
+ aspect-ratio:16/9!important;
+ flex:0 1 auto!important;
+ background:#253444!important;
+ overflow:hidden!important;
+}
+.sidebar .compact-editorial-box .editorial-thumb img{
+ width:100%!important;
+ height:100%!important;
+ object-fit:contain!important;
+}
+.sidebar .compact-editorial-box .editorial-cover-mini{
+ width:100%!important;
+ height:100%!important;
+ min-height:0!important;
+}
+.sidebar .compact-editorial-box .editorial-row-copy{
+ min-width:0!important;
+ overflow:visible!important;
+}
+.sidebar .compact-editorial-box .editorial-row-copy a,
+.sidebar .compact-editorial-box .editorial-row-copy a strong{
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:11px!important;
+ font-weight:400!important;
+ line-height:1.42!important;
+ letter-spacing:0!important;
+ color:#222!important;
+ white-space:normal!important;
+ overflow:visible!important;
+ word-break:normal!important;
+ overflow-wrap:anywhere!important;
+}
+.sidebar .compact-editorial-box .editorial-row-copy a:hover{
+ color:#db3149!important;
+}
+.sidebar .compact-editorial-box .editorial-row-copy time{
+ font-size:10px!important;
+ line-height:1.35!important;
+ margin-top:4px!important;
+ color:#777!important;
+}
+@media(max-width:780px){
+ main.wrap:has(>.featured-wide){padding-top:5px!important}
+ .breaking-ticker .ticker-viewport{overflow:hidden!important}
+ .sidebar .compact-editorial-box .editorial-row{
+  grid-template-columns:minmax(116px,40%) minmax(0,1fr)!important;
+ }
+}
+@media(max-width:450px){
+ .sidebar .compact-editorial-box .editorial-row{
+  grid-template-columns:minmax(112px,42%) minmax(0,1fr)!important;
+ }
+ .sidebar .compact-editorial-box .editorial-row-copy a,
+ .sidebar .compact-editorial-box .editorial-row-copy a strong{
+  font-size:12px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .breaking-ticker .ticker-link{transition:none!important}
+}

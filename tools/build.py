@@ -242,7 +242,7 @@ FOOTER_SOCIAL_LINKS=[
  ("✉","Contatti","/contatti")
 ]
 def ticker_items(rows):
- """Twelve most recent published Tech/Gaming headlines, regardless of current homepage slots."""
+ """Ten most recent genuine Tech/Gaming headlines, one displayed at a time."""
  news=sort_by_date_desc([r for r in rows if r.get("category") in ("news-tech","news-gaming")])
  result=[];seen=set()
  for r in news:
@@ -252,7 +252,7 @@ def ticker_items(rows):
   result.append({"title":clean_title(r["title"]),"url":"/"+r["slug"],
                  "date":str(r.get("date") or r.get("published_at") or "")[:10],
                  "category":TYPES.get(r["category"],"News")})
-  if len(result)==12:break
+  if len(result)==10:break
  if len(result)<10:raise ValueError("Breaking ticker requires at least 10 authentic news articles")
  return result
 
@@ -260,13 +260,13 @@ def breaking_ticker_markup():
  """Server-rendered accessible ticker. JS duplicates the group for seamless movement."""
  if not TICKER_ROWS:return ""
  links="".join('<a href="'+esc(x["url"],quote=True)+'" class="ticker-link">'
-               '<span class="ticker-dot" aria-hidden="true"></span>'
+               ''
                +esc(x["title"])+'</a>' for x in TICKER_ROWS)
  return ('<section class="breaking-ticker" aria-label="Notizie in primo piano">'
          '<div class="wrap breaking-ticker-inner">'
          '<span class="breaking-label">PRIMO PIANO</span>'
          '<div class="ticker-viewport" id="ticker-viewport" tabindex="0" aria-label="Scorri le ultime notizie">'
-         '<div class="ticker-track" id="ticker-track"><div class="ticker-group">'+links+'</div></div></div>'
+         '<div class="ticker-track" id="ticker-track"><div class="ticker-group" aria-live="off">'+links+'</div></div></div>'
          '</div></section>')
 
 def build_live_discovery(rows):
@@ -347,13 +347,13 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-gaming-reviews-35"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-one-news-sidebar-36"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261027-sidebar-layout-33"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261027-one-news-sidebar-36"></script></body></html>')
 
 def legal_pages():
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
