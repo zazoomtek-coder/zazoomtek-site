@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Spazio Amazon in preparazione">
+<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#202830"/><stop offset="1" stop-color="#465567"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#b)"/>
+<rect x="22" y="22" width="596" height="316" fill="none" stroke="#b4bfcd" stroke-opacity=".45" stroke-width="2"/>
+<path d="M254 132l66-35 68 35-68 35zM254 132v82l66 37v-84zM388 132v82l-68 37v-84z" fill="#e3ad60" stroke="#f9d9a2" stroke-width="4" stroke-linejoin="round"/>
+<text x="320" y="63" fill="#fff" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" font-size="30">SPAZIO AMAZON</text>
+<text x="320" y="303" fill="#fff" font-family="Arial,sans-serif" text-anchor="middle" font-size="22">Vetrina in preparazione</text>
+</svg>
