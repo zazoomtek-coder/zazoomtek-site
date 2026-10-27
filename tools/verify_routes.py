@@ -94,6 +94,27 @@ def check_dist(root):
      seen.add(path)
   except (ValueError,TypeError,KeyError) as error:
    errors.append("Invalid discovery dataset "+name+": "+str(error))
+ # Verify the Home-only Amazon showcase and its requested affiliate destination.
+ homepage=root/"index.html"
+ if homepage.is_file():
+  markup=homepage.read_text(encoding="utf-8")
+  a=markup.find('class="box editorial-box amazon-feature-box"')
+  first=markup.find("I più letti")
+  after=markup.find("Da non perdere",a)
+  if min(a,first,after)<0 or not(first<a<after):
+   errors.append("Amazon showcase not between I più letti and Da non perdere")
+  for phrase in (
+   "Prodotti recensiti da ZazoomTek",
+   "Scopri su Amazon i prodotti tech, accessori e gadget recensiti e consigliati da ZazoomTek.",
+   "Link affiliato Amazon. In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.",
+   'href="https://link.amazon/A0dJXv9PO"',
+   'rel="sponsored noopener noreferrer"'
+  ):
+   if phrase not in markup:errors.append("Amazon box lacks correct content: "+phrase[:48])
+  for asset in ("amazon-laptop.svg","amazon-smartphone.svg","amazon-headphones.svg"):
+   if not (root/"assets/images"/asset).is_file():
+    errors.append("Amazon asset missing: "+asset)
+ else:errors.append("Home not found for Amazon showcase verification")
  if not (root/"feed.xml").is_file():errors.append("Required RSS feed missing")
  else:
   from xml.etree.ElementTree import parse

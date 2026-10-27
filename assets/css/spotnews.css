@@ -1210,3 +1210,88 @@ main.wrap{padding-top:28px;overflow:visible}
   grid-template-columns:minmax(0,1fr)!important;
  }
 }
+
+
+/* v34: Affiliate showcase inside the second Home editorial slot. */
+.sidebar .amazon-feature-box{
+ display:block!important;flex:0 0 auto!important;
+ min-width:0!important;overflow:hidden!important;
+ background:linear-gradient(145deg,#fffdf8,#fff5e5 60%,#fff)!important;
+ border:1px solid #eeddbd!important;border-top:4px solid #ff9b0c!important;
+ border-radius:11px!important;margin:0!important;
+ padding:15px 12px 13px!important;
+ box-shadow:0 6px 19px rgba(80,43,0,.09)!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-labels{
+ display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;
+ margin:0 0 11px!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-badge{
+ background:#ff9e19!important;color:#161616!important;border-radius:4px!important;
+ font-weight:900!important;font-size:9px!important;letter-spacing:.25px!important;
+ padding:5px 7px!important;line-height:1.15!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-partner{
+ color:#6c655c!important;font-size:10px!important;font-weight:700!important;
+}
+.sidebar .amazon-feature-box h2.amazon-feature-title{
+ border:0!important;padding:0!important;margin:0 0 9px!important;
+ font-size:19px!important;line-height:1.2!important;letter-spacing:-.35px!important;
+ color:#171717!important;font-weight:900!important;overflow-wrap:break-word!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-intro{
+ font-size:12px!important;font-weight:500!important;line-height:1.48!important;
+ color:#484441!important;margin:0 0 13px!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-products{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:5px!important;margin:0 0 14px!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-product{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ gap:6px!important;min-width:0!important;padding:5px 3px 7px!important;
+ border:1px solid #ece3d5!important;border-radius:7px!important;background:#fff!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-product img{
+ width:100%!important;height:auto!important;aspect-ratio:4/3!important;
+ display:block!important;object-fit:contain!important;background:#f8f5f0!important;
+ border-radius:5px!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-product small{
+ font-size:9px!important;line-height:1.2!important;font-weight:800!important;
+ color:#333!important;text-align:center!important;
+ overflow-wrap:anywhere!important;white-space:normal!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-disclosure{
+ margin:0 0 13px!important;padding:2px 0 2px 9px!important;
+ border-left:3px solid #cebda8!important;
+ color:#5f5a54!important;font-style:italic!important;
+ font-size:10px!important;line-height:1.48!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-cta{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+ background:linear-gradient(100deg,#ffae19,#fa9102)!important;color:#111!important;
+ border:1px solid #e28704!important;border-radius:7px!important;
+ width:100%!important;min-height:42px!important;
+ padding:11px 7px!important;text-decoration:none!important;
+ text-align:center!important;font-weight:900!important;
+ font-size:11px!important;line-height:1.3!important;
+ white-space:normal!important;
+ transition:filter .16s ease,transform .16s ease;
+}
+.sidebar .amazon-feature-box .amazon-feature-cta span{
+ font-size:15px!important;line-height:1!important;
+}
+.sidebar .amazon-feature-box .amazon-feature-cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.sidebar .amazon-feature-box .amazon-feature-cta:focus-visible{outline:3px solid #161616;outline-offset:3px}
+@media(max-width:540px){
+ .sidebar .amazon-feature-box{padding:18px!important}
+ .sidebar .amazon-feature-box h2.amazon-feature-title{font-size:22px!important}
+ .sidebar .amazon-feature-box .amazon-feature-intro{font-size:13px!important}
+ .sidebar .amazon-feature-box .amazon-feature-product small{font-size:11px!important}
+ .sidebar .amazon-feature-box .amazon-feature-disclosure{font-size:11px!important}
+ .sidebar .amazon-feature-box .amazon-feature-cta{font-size:13px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .sidebar .amazon-feature-box .amazon-feature-cta{transition:none!important}
+}

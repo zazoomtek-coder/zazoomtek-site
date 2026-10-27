@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-sidebar-layout-33"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-amazon-feature-34"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -516,13 +516,30 @@ def daily_shuffle(items,salt="home"):
  return result
 
 def amazon_provisional_box():
- """Reserved promotional space only, not a live Amazon affiliate link."""
- return ('<section class="box editorial-box amazon-placeholder-box" aria-label="Box Amazon provvisorio">'
-         +bar("Amazon","","sidebar")
-         +'<div class="amazon-placeholder-thumb"><img loading="lazy" width="640" height="360"'
-         ' src="/assets/images/amazon-placeholder.svg" alt="Spazio Amazon, vetrina in preparazione"></div>'
-         '<p class="amazon-placeholder-note">Spazio riservato alla futura vetrina Amazon.</p>'
-         '</section>')
+ """ZazoomTek Amazon Associates showcase — second Home sidebar element only."""
+ url="https://link.amazon/A0dJXv9PO"
+ products=(
+  ("Laptop","/assets/images/amazon-laptop.svg"),
+  ("Smartphone","/assets/images/amazon-smartphone.svg"),
+  ("Accessori","/assets/images/amazon-headphones.svg"),
+ )
+ thumbs="".join('<span class="amazon-feature-product">'
+                '<img loading="lazy" decoding="async" width="240" height="180"'
+                ' src="'+esc(img,quote=True)+'" alt="'+esc(label,quote=True)+'">'
+                '<small>'+esc(label)+'</small></span>'
+                for label,img in products)
+ return ('<section class="box editorial-box amazon-feature-box" aria-labelledby="amazon-feature-title">'
+         '<div class="amazon-feature-labels"><span class="amazon-feature-badge">VETRINA TECH</span>'
+         '<span class="amazon-feature-partner">Amazon Partners</span></div>'
+         '<h2 class="amazon-feature-title" id="amazon-feature-title">Prodotti recensiti da ZazoomTek</h2>'
+         '<p class="amazon-feature-intro">Scopri su Amazon i prodotti tech, accessori e gadget recensiti e consigliati da ZazoomTek.</p>'
+         '<div class="amazon-feature-products" aria-label="Categorie di prodotti tech">'+thumbs+'</div>'
+         '<p class="amazon-feature-disclosure">Link affiliato Amazon. In qualità di Affiliato Amazon '
+         'ricevo un guadagno dagli acquisti idonei senza alcun costo per l’utente.</p>'
+         '<a class="amazon-feature-cta" href="'+esc(url,quote=True)+'" target="_blank"'
+         ' rel="sponsored noopener noreferrer"'
+         ' aria-label="Vedi i prodotti recensiti su Amazon, link affiliato">'
+         'VEDI I PRODOTTI SU AMAZON <span aria-hidden="true">↗</span></a></section>')
 
 def sidebar(rows,home=False,used=None):
  used=set(used or ())
