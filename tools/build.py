@@ -3,6 +3,8 @@
 from pathlib import Path
 from html import escape as esc
 import json,os,re,shutil
+import urllib.request,xml.etree.ElementTree as ET
+from html import unescape as unesc
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlparse
 P=Path(__file__).resolve().parents[1]; O=P/"dist"
@@ -49,17 +51,17 @@ def community_posts():
   if not isinstance(item,dict):continue
   cat=category_for_post(item)
   day=parse_day(item.get("date"))
-  if not cat or not day or day>today:continue
+  if not cat or (not day and cat.startswith("news-")) or (day and day>today):continue
   if cat.startswith("news-") and day<cutoff:continue
   title=item.get("title"); text=item.get("text")
   if not isinstance(title,str) or not title.strip() or not isinstance(text,str) or not text.strip():continue
   post_id=str(item.get("id",""))
   if not post_id:continue
   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
-  if not slug or len(slug)>120:continue
+  if not slug or len(slug)>150:continue
   image=item.get("image","")
   if not isinstance(image,str) or not image.startswith("/") or ".." in image:image=""
-  result.append({"slug":slug,"category":cat,"title":title.strip(),"body":[p.strip() for p in re.split(r"\n\s*\n",text) if p.strip()],"date":day.isoformat(),"image":image,"source_url":item.get("url",""),"featured":bool(item.get("featured",False)),"editorial_pick":bool(item.get("editorial_pick",False))})
+  result.append({"slug":slug,"category":cat,"title":title.strip(),"body":[p.strip() for p in re.split(r"\n\s*\n",text) if p.strip()],"date":day.isoformat() if day else "","source":"youtube-community","image":image,"source_url":item.get("url",""),"featured":bool(item.get("featured",False)),"editorial_pick":bool(item.get("editorial_pick",False))})
  return result
 def posts():
  obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
@@ -82,12 +84,51 @@ def videos():
   if v.get("kind") not in allowed or v.get("topic") not in ("tech","gaming") or not isinstance(v.get("title"),str):continue
   seen.add(vid);result.append(v)
  return sorted(result,key=lambda x:x.get("date",""),reverse=True)
+def playlist_latest():
+ """Fetch playlist RSS, selecting newest PUBLISHED entry per playlist; never mix playlists."""
+ playlists=json.loads((P/"data/playlists.json").read_text(encoding="utf-8")).get("playlists",[])
+ output=[]
+ ns={"atom":"http://www.w3.org/2005/Atom","yt":"http://www.youtube.com/xml/schemas/2015"}
+ for pl in playlists:
+  pid=pl.get("id","")
+  if not re.fullmatch(r"PL[A-Za-z0-9_-]{10,}",pid):continue
+  record=None
+  try:
+   req=urllib.request.Request("https://www.youtube.com/feeds/videos.xml?playlist_id="+pid,headers={"User-Agent":"Mozilla/5.0"})
+   with urllib.request.urlopen(req,timeout=6) as res:xml=ET.fromstring(res.read(1024*1024))
+   for en in xml.findall("atom:entry",ns):
+    vid=en.findtext("yt:videoId",namespaces=ns,default="")
+    pub=en.findtext("atom:published",namespaces=ns,default="")
+    name=en.findtext("atom:title",namespaces=ns,default="")
+    if re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) and pub and name and (record is None or pub>record["date"]):
+     record={"id":vid,"title":name,"date":pub}
+  except Exception:pass
+  # When the feed is inaccessible, do NOT masquerade the playlist cover as its latest video.
+  output.append({"playlist_id":pid,"playlist":pl["title"],"video":record})
+ return output
+def playlist_cards():
+ rows=playlist_latest()
+ if not rows:return blank()
+ result=[]
+ for p in rows:
+  pid=p["playlist_id"]; v=p.get("video")
+  if v:
+   vid=v["id"]
+   url="https://www.youtube.com/watch?v="+vid+"&list="+pid
+   pic="https://i.ytimg.com/vi/"+vid+"/hqdefault.jpg"
+   title=v["title"];sub=p["playlist"]
+  else:
+   url="https://www.youtube.com/playlist?list="+pid
+   pic=p.get("thumbnail","");title=p["playlist"];sub="Playlist · ultimo video non verificato"
+  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else ""
+  result.append('<article class="card video-card"><a class="thumb" href="'+esc(url,quote=True)+'" rel="noopener">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
+ return '<div class="cards">'+''.join(result)+'</div>'
 def video_cards(rows):
  if not rows:return blank()
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-youtube-1"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'"><link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-playlists-3"></head><body><header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a><button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button><nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header><main class="wrap">'+inner+'</main><footer class="footer"><div class="wrap">ZazoomTek.it · Tecnologia e Gaming</div></footer><script defer src="/assets/js/site.js"></script></body></html>')
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
 def cards(rows):
  return '<div class="cards">'+''.join('<article class="card"><a class="thumb" href="/'+r["slug"]+'.html">'+('<img loading="lazy" src="'+esc(r["image"],quote=True)+'" alt="">' if r.get("image","").startswith("/") and ".." not in r.get("image","") else "")+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="/'+r["slug"]+'.html">'+esc(r["title"])+'</a></h3></article>' for r in rows)+'</div>' if rows else blank()
@@ -108,19 +149,24 @@ def sidebar(rows,home=False):
 def related(rows,exclude="",category=None):
  found=[r for r in rows if r["slug"]!=exclude and (category is None or r["category"]==category)][:8]
  return '<section class="related"><h2>Articoli correlati</h2>'+('<ul>'+''.join('<li><a href="/'+r["slug"]+'.html"><strong>'+esc(r["title"])+'</strong></a></li>' for r in found)+'</ul>' if found else blank())+'</section>'
+def feature_box(label,items):
+ primary=items[:1]; secondary=items[1:3]
+ return '<div class="spotnews-feature"><h3>'+esc(label)+'</h3><div class="feature-main">'+cards(primary)+'</div><div class="feature-small">'+cards(secondary)+'</div></div>'
+def feature_pair(guides,extras):
+ return '<div class="feature-pair">'+feature_box("GUIDE",guides)+feature_box("SPECIALI ED EXTRA",extras)+'</div>'
 def home(rows):
  def by(*keys):return [r for r in rows if r["category"] in keys]
  features=[r for r in by("news-tech","news-gaming") if r.get("featured")][:4]
  raw=json.loads((P/"data/web.json").read_text(encoding="utf-8"))["items"]
  web=[w for w in raw if isinstance(w,dict) and isinstance(w.get("url"),str) and w["url"].startswith("https://") and isinstance(w.get("title"),str)]
  links='<ul>'+''.join('<li><a rel="noopener noreferrer" href="'+esc(w["url"],quote=True)+'">'+esc(w["title"])+'</a></li>' for w in web[:8])+'</ul>' if web else blank()
- sections=[("In evidenza",cards(features)),("News Tech",cards(by("news-tech")[:6])),("News Gaming",cards(by("news-gaming")[:6])),("Ultime Recensioni",cards(by("recensioni-tech","recensioni-gaming")[:6])),("Guide e Extra",cards(by("guide","extra")[:6])),("Ultimi Video",video_cards(videos()[:6])),("Notizie Web",links)]
+ sections=[("In evidenza",cards(features)),("News Tech",cards(by("news-tech")[:6])),("News Gaming",cards(by("news-gaming")[:6])),("Ultime Recensioni",cards([r for r in by("recensioni-tech","recensioni-gaming") if r.get("source")=="youtube-community"][:6])),("Guide e Extra",feature_pair(by("guide"),by("speciali","extra"))),("Ultimi Video",playlist_cards()),("Notizie Web",links)]
  return shell("Home",'<div class="home-layout"><div class="home-column">'+''.join(section(name,content) for name,content in sections)+'</div>'+sidebar(rows,True)+'</div>')
 def inside(title,content,rows,exclude="",cat=None):
  return shell(title,'<div class="inner-layout"><div class="inner-column">'+content+'</div>'+sidebar(rows)+'</div>'+related(rows,exclude,cat))
 def archive(key,rows):
  categories=GROUPS[key]; label=key.replace("-"," ").title()
- return inside(label,'<h1>'+esc(label)+'</h1>'+(video_cards(videos()) if key=="video" else cards([r for r in rows if r["category"] in categories])),rows,cat=categories[0] if len(categories)==1 else None)
+ return inside(label,'<h1>'+esc(label)+'</h1>'+(playlist_cards() if key=="video" else cards([r for r in rows if r["category"] in categories])),rows,cat=categories[0] if len(categories)==1 else None)
 def article(r,rows):
  cover=('<img class="cover" src="'+esc(r["image"],quote=True)+'" alt="">') if r.get("image","").startswith("/") and ".." not in r.get("image","") else ""
  text=''.join('<p>'+esc(p)+'</p>' for p in r.get("body",[]) if isinstance(p,str))

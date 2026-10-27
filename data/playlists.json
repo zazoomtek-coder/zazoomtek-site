@@ -1,0 +1,34 @@
+{
+  "playlists": [
+    {
+      "id": "PL7dvpppAJr00pUmHZxvOyTspS8Htczfr-",
+      "title": "Reviews",
+      "thumbnail": "https://i.ytimg.com/vi/-c995pZgzHQ/hqdefault.jpg"
+    },
+    {
+      "id": "PL7dvpppAJr03SBwNej9rwT4nIvgYzJwzT",
+      "title": "Test Lab",
+      "thumbnail": "https://i.ytimg.com/vi/WAd0VjmzaJ8/hqdefault.jpg"
+    },
+    {
+      "id": "PL7dvpppAJr03Tdqg6YeNWepK4sMOgIXvB",
+      "title": "Unboxing",
+      "thumbnail": "https://i.ytimg.com/vi/3EYmnIXvSP8/hqdefault.jpg"
+    },
+    {
+      "id": "PL7dvpppAJr01wOyi0xZob2R5g5NfoZGZZ",
+      "title": "Gaming & GamePlay",
+      "thumbnail": "https://i.ytimg.com/vi/tEkXOj7XOwA/hqdefault.jpg"
+    },
+    {
+      "id": "PL7dvpppAJr02AQM7WP0D151c_JvKu_OaI",
+      "title": "AnalogicTek",
+      "thumbnail": "https://i.ytimg.com/vi/An2RZr9_Cxs/hqdefault.jpg"
+    },
+    {
+      "id": "PL7dvpppAJr033jKpInUtpeUVSmw7iWR2x",
+      "title": "Shorts",
+      "thumbnail": "https://i.ytimg.com/vi/D_uQ2-NBmRQ/hqdefault.jpg"
+    }
+  ]
+}
