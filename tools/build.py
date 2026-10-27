@@ -85,42 +85,50 @@ def videos():
   seen.add(vid);result.append(v)
  return sorted(result,key=lambda x:x.get("date",""),reverse=True)
 def playlist_latest():
- """Fetch playlist RSS, selecting newest PUBLISHED entry per playlist; never mix playlists."""
+ """Newest distinct, verifiable YouTube upload from each selected playlist, ordered globally."""
  playlists=json.loads((P/"data/playlists.json").read_text(encoding="utf-8")).get("playlists",[])
- output=[]
  ns={"atom":"http://www.w3.org/2005/Atom","yt":"http://www.youtube.com/xml/schemas/2015"}
- for pl in playlists:
+ from concurrent.futures import ThreadPoolExecutor
+ def read_playlist(pl):
   pid=pl.get("id","")
-  if not re.fullmatch(r"PL[A-Za-z0-9_-]{10,}",pid):continue
-  record=None
+  if not re.fullmatch(r"PL[A-Za-z0-9_-]{10,}",pid):return pl,[]
+  entries=[]
   try:
    req=urllib.request.Request("https://www.youtube.com/feeds/videos.xml?playlist_id="+pid,headers={"User-Agent":"Mozilla/5.0"})
-   with urllib.request.urlopen(req,timeout=6) as res:xml=ET.fromstring(res.read(1024*1024))
-   for en in xml.findall("atom:entry",ns):
-    vid=en.findtext("yt:videoId",namespaces=ns,default="")
-    pub=en.findtext("atom:published",namespaces=ns,default="")
-    name=en.findtext("atom:title",namespaces=ns,default="")
-    if re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) and pub and name and (record is None or pub>record["date"]):
-     record={"id":vid,"title":name,"date":pub}
+   with urllib.request.urlopen(req,timeout=7) as response:xml=ET.fromstring(response.read(1024*1024))
+   for item in xml.findall("atom:entry",ns):
+    video_id=item.findtext("yt:videoId",default="",namespaces=ns)
+    published=item.findtext("atom:published",default="",namespaces=ns)
+    title=item.findtext("atom:title",default="",namespaces=ns)
+    if re.fullmatch(r"[A-Za-z0-9_-]{11}",video_id) and published and title:
+     entries.append({"id":video_id,"title":title,"date":published})
   except Exception:pass
-  # When the feed is inaccessible, do NOT masquerade the playlist cover as its latest video.
-  output.append({"playlist_id":pid,"playlist":pl["title"],"video":record})
- return output
+  return pl,sorted(entries,key=lambda x:x["date"],reverse=True)
+ with ThreadPoolExecutor(max_workers=4) as pool:
+  collections=list(pool.map(read_playlist,playlists))
+ picked=[];seen=set()
+ # Allocate newest playlists first, then avoid duplicate video IDs between playlists.
+ collections.sort(key=lambda row:row[1][0]["date"] if row[1] else "",reverse=True)
+ for pl,entries in collections:
+  chosen=next((v for v in entries if v["id"] not in seen),None)
+  if chosen:seen.add(chosen["id"])
+  picked.append({"playlist_id":pl["id"],"playlist":pl["title"],"video":chosen,"thumbnail":pl.get("thumbnail","")})
+ return picked
 def playlist_cards():
  rows=playlist_latest()
- if not rows:return blank()
+ if not rows:return ""
  result=[]
  for p in rows:
-  pid=p["playlist_id"]; v=p.get("video")
+  pid=p["playlist_id"];v=p["video"]
   if v:
-   vid=v["id"]
-   url="https://www.youtube.com/watch?v="+vid+"&list="+pid
+   vid=v["id"];url="https://www.youtube.com/watch?v="+vid+"&list="+pid
    pic="https://i.ytimg.com/vi/"+vid+"/hqdefault.jpg"
    title=v["title"];sub=p["playlist"]
   else:
    url="https://www.youtube.com/playlist?list="+pid
-   pic=p.get("thumbnail","");title=p["playlist"];sub="Playlist · ultimo video non verificato"
-  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else ""
+   pic=p.get("thumbnail","")
+   title=p["playlist"];sub="Playlist · ultimo video non verificato"
+  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else '<span class="video-thumb-fallback">'+esc(sub)+'</span>'
   result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
  return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>'
 def video_cards(rows):
@@ -352,9 +360,8 @@ def adaptive_news(items,count,used):
   else:
    cutoff=today-timedelta(days=days)
    pool=[r for r in items if (parse_day(r.get("date")) or datetime.min.date())>=cutoff]
-  remaining=count-len([x for x in used if x.startswith("home:")]) if False else None
   # Candidates are passed to the same global registry on every pass.
-  result=[] if days==14 else result
+  if days==14:result=[]
   for r in sort_by_date_desc(pool):
    key=home_identity(r)
    if key in used:continue

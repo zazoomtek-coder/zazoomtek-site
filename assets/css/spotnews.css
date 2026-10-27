@@ -273,3 +273,31 @@ main.wrap{padding-top:28px;overflow:visible}
 .web-archive-intro{font-size:14px;margin:4px 0 16px}
 @media(max-width:780px){.web-news-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}}
 @media(max-width:500px){.web-news-grid{grid-template-columns:minmax(0,1fr);gap:20px}}
+
+/* No grey/empty thumbnail frames: clearly styled text cover when original has no picture. */
+.editorial-cover{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
+ height:100%;min-height:100%;width:100%;padding:12px;gap:10px;
+ background:linear-gradient(145deg,#243d57 0%,#172332 55%,#0d111c 100%);
+ color:#fff;overflow:hidden}
+.editorial-cover>span{font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:#ff7580;font-weight:900}
+.editorial-cover>strong{font-size:clamp(13px,1.4vw,18px);font-weight:900;line-height:1.3;display:-webkit-box;
+ -webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.editorial-cover-mini{padding:7px}
+.editorial-cover-mini>strong{font-size:11px}
+.tile-no-image{display:flex;align-items:flex-end;padding:12px}
+.tile-no-image>strong{color:#fff;line-height:1.3;font-size:13px}
+.video-thumb-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;background:#1f2e42;padding:15px;text-align:center;font-weight:900}
+/* Stretch authentic editorial cards down the Home, with no blank widgets. */
+.home-sidebar{height:100%;max-height:none}
+.home-sidebar .sidebar-stack{height:100%;display:flex;flex-direction:column;gap:16px;justify-content:stretch;overflow:visible}
+.home-sidebar .editorial-box{display:flex;flex-direction:column;flex:1 1 0;min-height:250px;background:#fff}
+.home-sidebar .editorial-hero{flex:1 1 auto;height:auto;min-height:155px}
+.home-sidebar .editorial-hero .tile-link{height:100%;min-height:155px}
+.home-sidebar .editorial-links{margin-top:0;flex:0 0 auto}
+@media(max-width:780px){
+ .home-sidebar{height:auto;overflow:visible}
+ .home-sidebar .sidebar-stack{height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+ .home-sidebar .editorial-box{flex:unset;min-height:0}
+ .home-sidebar .editorial-hero{height:190px;min-height:0}
+}
+@media(max-width:500px){.home-sidebar .sidebar-stack{grid-template-columns:1fr}}
