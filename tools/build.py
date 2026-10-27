@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-amazon-feature-34"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-gaming-reviews-35"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -404,24 +404,24 @@ def cards(rows):
                  '<small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
  return '<div class="cards">'+''.join(entries)+'</div>'
 def gaming_article_preview(row,limit=225):
- """Excerpt from authentic imported prose. Never use filler or invented copy."""
+ """Preserve useful news prose, remove only duplicate category/title from the original excerpt."""
  body=row.get("body") or []
  if isinstance(body,str):body=[body]
+ headline=clean_title(row.get("title","")).strip()
  for part in body:
   if not isinstance(part,str):continue
   candidate=part.strip()
   if not candidate or candidate.startswith(("## ","# ","**")):continue
   candidate=re.sub(r"\*\*(.*?)\*\*",r"\1",candidate)
   candidate=re.sub(r"\s+"," ",candidate).strip()
-  if not candidate:continue
-  # Remove a duplicated source headline but retain the original news narrative.
-  title=clean_title(row.get("title",""))
-  if candidate.casefold().startswith(title.casefold()) and len(candidate)>len(title)+30:
-   candidate=candidate[len(title):].lstrip(" :.-–—")
-  if not candidate:continue
+  candidate=re.sub(r"^(?:News\s+Gaming|Gaming\s+News)\s*[:\u2013\u2014-]\s*","",candidate,flags=re.I)
+  # Imported Community text sometimes repeats the full article headline as its first line.
+  if headline and candidate.casefold().startswith(headline.casefold()):
+   candidate=candidate[len(headline):].lstrip(" :.-–—")
+  if len(candidate)<18:continue
   if len(candidate)>limit:
-   excerpt=candidate[:limit].rsplit(" ",1)[0].rstrip(".,;:") or candidate[:limit]
-   return excerpt+"…"
+   short=candidate[:limit].rsplit(" ",1)[0].rstrip(".,;:") or candidate[:limit]
+   return short+"…"
   return candidate
  return ""
 
@@ -454,6 +454,24 @@ def gaming_magazine(rows):
                  '</div></article>')
  return ('<div class="gaming-magazine">'
          +feature+'<div class="gaming-magazine-list">'+''.join(compact)+'</div></div>')
+
+def reviews_three_column(rows):
+ """Native Notizie Web gallery styling, with exactly three latest unique written reviews."""
+ if not rows:return ""
+ out=[]
+ for item in rows[:3]:
+  href="/"+item["slug"]
+  title=esc(clean_title(item["title"]))
+  category=esc(TYPES.get(item["category"],"Recensione"))
+  date=date_label(item)
+  date_html='<time datetime="'+esc(str(item.get("date",""))[:10],quote=True)+'">'+esc(date)+'</time>' if date else ""
+  out.append('<article class="web-news-card home-review-web-card">'
+             '<a class="web-news-thumb" href="'+href+'" aria-label="Apri recensione: '+title+'">'
+             +editorial_cover(item)+'</a>'
+             '<span class="web-source">'+category+'</span>'
+             '<h3><a href="'+href+'">'+title+'</a></h3>'
+             +date_html+'</article>')
+ return '<div class="web-news-grid home-review-web-grid">'+''.join(out)+'</div>'
 
 SECTION_URLS={"In evidenza":"/news","News Tech":"/news-tech","News Gaming":"/news-gaming","Ultime Recensioni":"/recensioni","Guide e Extra":"/guide","Speciali":"/speciali","Ultimi Video":"https://www.youtube.com/@ZazoomTek","Notizie Web":"/notizie-web"}
 def bar(title,link,style="section"):
@@ -797,7 +815,7 @@ def home(rows):
  spotlight=adaptive_news(all_news,5,global_used)
  tech_low=adaptive_news(tech,6,global_used)
  gaming_low=adaptive_news(gaming,5,global_used)
- reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],4,global_used)
+ reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],3,global_used)
  video_section=playlist_cards()
  external=web_news()
  # URLs/titles selected for Notizie Web are external; mark them as used to avoid repeated home references.
@@ -809,7 +827,7 @@ def home(rows):
  sections=[
   ("News Tech",cards(tech_low)),
   ("News Gaming",gaming_magazine(gaming_low)),
-  ("Ultime Recensioni",cards(reviews)),
+  ("Ultime Recensioni",reviews_three_column(reviews)),
   ("Speciali",special_gallery(specials)),
   ("Guide e Extra",feature_pair(guides,extras)),
   ("Ultimi Video",video_section),
