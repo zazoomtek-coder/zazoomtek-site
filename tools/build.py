@@ -9,7 +9,7 @@ from html import unescape as unesc
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlparse
 P=Path(__file__).resolve().parents[1]; O=P/"dist"
-NAV=[("HOME","/"),("NEWS","/news.html"),("RECENSIONI","/recensioni.html"),("GUIDE","/guide.html"),("SPECIALI","/speciali.html"),("EXTRA","/extra.html"),("VIDEO","https://www.youtube.com/@ZazoomTek")]
+NAV=[("HOME","/"),("NEWS","/news"),("RECENSIONI","/recensioni"),("GUIDE","/guide"),("SPECIALI","/speciali"),("EXTRA","/extra"),("VIDEO","https://www.youtube.com/@ZazoomTek")]
 TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra","video":"Video"}
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
@@ -222,8 +222,8 @@ def playlist_cards():
 def video_cards(rows):
  if not rows:return blank()
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
-LEGAL_LINKS=[("Privacy Policy","/privacy-policy.html"),("Cookie Policy","/cookie-policy.html"),
-             ("Disclaimer","/disclaimer.html"),("Note legali","/note-legali.html")]
+LEGAL_LINKS=[("Privacy Policy","/privacy-policy"),("Cookie Policy","/cookie-policy"),
+             ("Disclaimer","/disclaimer"),("Note legali","/note-legali")]
 def shell(title,inner):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
  footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
@@ -234,15 +234,15 @@ def shell(title,inner):
          '<h2>Preferenze cookie</h2><p>Google Analytics 4 è facoltativo e si attiva soltanto con il tuo consenso.</p>'
          '<div class="cookie-actions"><button id="cookie-reject" type="button">Rifiuta</button>'
          '<button id="cookie-accept" type="button">Accetta Analytics</button></div>'
-         '<a href="/cookie-policy.html">Leggi la Cookie Policy</a></section>')
+         '<a href="/cookie-policy">Leggi la Cookie Policy</a></section>')
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-reviewed-covers-25"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-routes-26"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav></div></header>'
          '<main class="wrap">'+inner+'</main>'+footer+cookie+
-         '<script defer src="/assets/js/site.js?v=20261027-covers-23"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261027-routes-26"></script></body></html>')
 def legal_pages():
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
  allowed={"privacy-policy","cookie-policy","disclaimer","note-legali"}
@@ -282,12 +282,12 @@ def cards(rows):
  if not rows:return ""
  entries=[]
  for r in rows:
-  url="/"+r["slug"]+".html"
+  url="/"+r["slug"]
   visual=editorial_cover(r)
   entries.append('<article class="card"><a class="thumb" href="'+url+'">'+visual+'</a>'
                  '<small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
  return '<div class="cards">'+''.join(entries)+'</div>'
-SECTION_URLS={"In evidenza":"/news.html","News Tech":"/news-tech.html","News Gaming":"/news-gaming.html","Ultime Recensioni":"/recensioni.html","Guide e Extra":"/guide.html","Speciali":"/speciali.html","Ultimi Video":"https://www.youtube.com/@ZazoomTek","Notizie Web":"/notizie-web.html"}
+SECTION_URLS={"In evidenza":"/news","News Tech":"/news-tech","News Gaming":"/news-gaming","Ultime Recensioni":"/recensioni","Guide e Extra":"/guide","Speciali":"/speciali","Ultimi Video":"https://www.youtube.com/@ZazoomTek","Notizie Web":"/notizie-web"}
 def bar(title,link,style="section"):
  tag="h2" if style=="section" else "h3"
  button='<a class="bar-more" href="'+esc(link,quote=True)+'">Vedi tutte</a>' if link else ""
@@ -299,7 +299,7 @@ def date_label(r):
  try:return datetime.strptime(value,"%Y-%m-%d").strftime("%d/%m/%Y")
  except ValueError:return ""
 def overlay_card(r,kind="feature-tile"):
- link="/"+r["slug"]+".html"
+ link="/"+r["slug"]
  pic=safe_image(r.get("image",""))
  image='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>'
  label=esc(TYPES.get(r["category"],"ZazoomTek"))
@@ -314,14 +314,14 @@ def featured_showcase(rows):
  # More compact grid when there are fewer than five authentic reports.
  return '<div class="spotlight-grid">'+markup+'</div>'
 def box(name,rows,notice=""):
- archives={"I più letti":"","Da non perdere":"/news.html","Dalla redazione":"/speciali.html",
-           "Ultime notizie":"/news.html","Ultime recensioni":"/recensioni.html",
-           "Archivio Tech":"/news-tech.html","Archivio Gaming":"/news-gaming.html",
-           "Dagli archivi":"/news.html"}
+ archives={"I più letti":"","Da non perdere":"/news","Dalla redazione":"/speciali",
+           "Ultime notizie":"/news","Ultime recensioni":"/recensioni",
+           "Archivio Tech":"/news-tech","Archivio Gaming":"/news-gaming",
+           "Dagli archivi":"/news"}
  if not rows:return ""
  cards=[]
  for r in rows:
-  href="/"+r["slug"]+".html"
+  href="/"+r["slug"]
   image=safe_image(r.get("image",""))
   thumb='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
@@ -372,13 +372,13 @@ def related_articles(rows,exclude="",category=None):
 def related_markup(chosen):
  if len(chosen)!=3:raise ValueError("Related markup needs exactly three articles")
  return '<section class="related"><h2>Articoli correlati</h2><ul>'+''.join(
-  '<li><a href="/'+r["slug"]+'.html"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
+  '<li><a href="/'+r["slug"]+'"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
   for r in chosen)+'</ul></section>'
 def feature_mini_cards(items):
  if not items:return ""
  rendered=[]
  for r in items[:2]:
-  href="/"+r["slug"]+".html"
+  href="/"+r["slug"]
   image=safe_image(r.get("image",""))
   pic='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
   rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
@@ -388,7 +388,7 @@ def compact_cards(rows):
  if not rows:return ""
  out=[]
  for r in rows:
-  href="/"+r["slug"]+".html"
+  href="/"+r["slug"]
   day=date_label(r)
   out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+editorial_cover(r)+'</a>'
              '<div class="compact-item-text"><span class="compact-item-type">'+esc(TYPES.get(r["category"],""))+'</span>'
@@ -396,10 +396,10 @@ def compact_cards(rows):
              +('<time>'+esc(day)+'</time>' if day else "")+'</div></article>')
  return '<div class="cards-compact">'+''.join(out)+'</div>'
 def feature_box(label,items):
- href="/guide.html" if label=="GUIDE" else "/extra.html"
+ href="/guide" if label=="GUIDE" else "/extra"
  if not items:return ""
  primary=items[0]
- url="/"+primary["slug"]+".html"
+ url="/"+primary["slug"]
  main=('<article class="feature-main-item"><a class="feature-main-thumb" href="'+url+'">'
        +editorial_cover(primary)+'</a>'
        '<div class="feature-main-description"><h3><a href="'+url+'">'+esc(clean_title(primary["title"]))+'</a></h3></div></article>')
@@ -601,7 +601,7 @@ def pagination_links(key,page,total_pages):
  if total_pages<=1:return ""
  links=[]
  for n in range(1,total_pages+1):
-  href="/"+key+(".html" if n==1 else "-page-"+str(n)+".html")
+  href="/"+key+("" if n==1 else "-page-"+str(n))
   if n==page:links.append('<span class="page-current" aria-current="page">'+str(n)+'</span>')
   else:links.append('<a href="'+href+'" aria-label="Pagina '+str(n)+'">'+str(n)+'</a>')
  return '<nav class="pagination" aria-label="Paginazione archivio">'+''.join(links)+'</nav>'
@@ -623,32 +623,43 @@ def article(r,rows):
  from article_templates import render
  return inside(r["title"],render(r,safe_image),rows,r["slug"],r["category"])
 def legacy_article_redirects(rows):
- # Legacy public article URLs work inside the staging preview and point to the one canonical article.
+ """Only redirect genuine legacy ALIASES to extensionless canonical pages.
+ A physical slug.html is automatically served at /slug by Cloudflare Pages.
+ Neither /slug nor /slug.html may redirect back to each other.
+ """
  by_slug={r["slug"]:r for r in rows}
  by_title={normalized_title(r["title"]):r for r in rows}
- lines=[];used=set();linked=0
+ # This excludes archives, legal pages, news and all canonical articles.
+ occupied={p.stem for p in O.glob("*.html")}
+ lines=[];sources=set();linked=0
  for entry in original_routes():
-  old=str(entry["path"])
-  if not re.fullmatch(r"[A-Za-z0-9_-]+(?:\.html)?",old):continue
-  slug=entry.get("canonical_slug") or ""
+  old=str(entry["path"]).removesuffix(".html")
+  if not re.fullmatch(r"[A-Za-z0-9_-]+",old):
+   raise ValueError("Unsafe legacy article path: "+old)
+  desired=entry.get("canonical_slug") or ""
   post_id=entry.get("post_id") or ""
-  if not slug and post_id:
-   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
-  found=by_slug.get(slug) or by_title.get(normalized_title(entry["title"]))
+  if not desired and post_id:
+   desired="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
+  found=by_slug.get(desired) or by_title.get(normalized_title(entry["title"]))
   if not found:
-   print("Missing source material for legacy URL:",old,flush=True)
+   print("Unresolved legacy source, no redirect created:",old,flush=True)
    continue
   if found["category"]!=entry["category"]:
-   raise ValueError("Incorrect category for "+old+": "+found["category"])
-  canonical="/"+found["slug"]+".html"
-  path="/"+old.removesuffix(".html")
-  for alias in (path,path+".html"):
-   if alias==canonical or alias in used:continue
-   lines.append(alias+" "+canonical+" 301")
-   used.add(alias)
+   raise ValueError("Legacy URL category disagrees with article: "+old)
+  dest="/"+found["slug"]
+  # Physical pages and clean paths resolve to the same Cloudflare destination.
+  if old==found["slug"] or old in occupied:
+   continue
+  for alias in ("/"+old,"/"+old+".html"):
+   canonicalized_alias=alias.removesuffix(".html")
+   if canonicalized_alias==dest:continue
+   if alias in sources:continue
+   sources.add(alias)
+   lines.append(alias+" "+dest+" 301")
   linked+=1
- (O/"_redirects").write_text("\n".join(lines)+"\n",encoding="utf-8")
- print("Legacy redirects:",linked,"of",len(original_routes()),flush=True)
+ (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
+ print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
+
 def main():
  rows=posts()
  if O.exists():shutil.rmtree(O)
@@ -668,5 +679,7 @@ def main():
  legacy_article_redirects(rows)
  (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
+ from verify_routes import check_dist
+ check_dist(O)
  print("SpotNews build OK:",len(rows),"articoli,",len(GROUPS)+2,"pagine.")
 if __name__=="__main__":main()
