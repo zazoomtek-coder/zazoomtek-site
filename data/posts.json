@@ -25,6 +25,64 @@
         "Quali passaggi mancano e cosa conviene seguire.",
         "L'EU KIDS Act è una proposta di regolamento ancora sottoposta al percorso europeo: Parlamento e Consiglio dovranno confrontarsi sul testo prima di un'eventuale adozione. Anche il confronto italiano richiede passaggi istituzionali ulteriori. I documenti pubblicati in queste settimane non autorizzano quindi ad annunciare oggi un cambiamento già applicato a console, negozi digitali e multiplayer. Ogni articolo che presenta quei limiti come immediatamente obbligatori confonde il dibattito con la legge."
       ]
+    },
+    {
+      "slug": "guida-x2-pro-game-stick-lite-tv-menu-hardware",
+      "title": "X2 Pro Game Stick Lite: guida completa a collegamento TV, menu e hardware",
+      "date": "2026-10-11",
+      "image": "",
+      "body": [
+        "The X2 Pro Game Stick Lite is a compact HDMI device designed for use with a television and wireless controllers. This practical guide explains its connections, EmuELEC menus, hardware layout and everyday operation.",
+        "La X2 Pro Game Stick Lite è una piccola unità HDMI che concentra in pochi centimetri alimentazione, memoria e un'interfaccia gestibile dal controller. Per utilizzarla non occorre installare programmi sul televisore: basta collegare i cavi, selezionare la sorgente video corretta e attendere il caricamento del sistema. Abbiamo osservato da vicino la confezione, i connettori, il software e perfino la scheda elettronica interna, così da preparare una guida concreta basata sull'esemplare effettivamente esaminato.",
+        "**Confezione e accessori: cosa troviamo nella scatola**",
+        "La confezione riporta chiaramente il nome X2 Pro e la dicitura commerciale relativa ai controller wireless a 2,4 GHz. All'interno sono presenti la pennetta principale, due controller, un piccolo ricevitore USB, il cavo di alimentazione, una prolunga HDMI, la scheda microSD e un manuale con lo schema di collegamento. È consigliabile disporre tutti gli accessori sul tavolo prima di procedere, verificando che i connettori non siano danneggiati e che la scheda sia correttamente inserita.",
+        "**Design e collegamenti della pennetta**",
+        "Il corpo dell'unità è realizzato in plastica nera, con una forma allungata e spigolosa. Il connettore HDMI permette di inserirla direttamente nella TV; quando lo spazio sul retro del pannello è ridotto, la prolunga in dotazione offre una soluzione più comoda. Sono presenti inoltre una porta USB per il ricevitore, un ingresso di alimentazione micro-USB e lo slot della scheda di memoria. La scocca non integra una ventola: il raffreddamento è passivo e il funzionamento non produce rumore meccanico.",
+        "**Come collegare la X2 Pro al televisore**",
+        "Per il primo avvio si inserisce la pennetta in una porta HDMI libera e si collega il ricevitore wireless alla sua porta USB. Successivamente si connette il cavo di alimentazione micro-USB: l'altra estremità può essere inserita in una porta USB del televisore, se in grado di fornire corrente sufficiente, oppure in un alimentatore compatibile a 5 volt. Il connettore HDMI trasporta audio e video, ma non sostituisce l'alimentazione USB.",
+        "Una volta completati i collegamenti, con il telecomando della TV bisogna selezionare l'ingresso HDMI corrispondente. Dopo l'accensione compare l'interfaccia del sistema. In caso di schermo nero conviene controllare prima la sorgente selezionata, poi il cavo di alimentazione e l'eventuale prolunga HDMI. È importante evitare di collegare o scollegare continuamente il dispositivo mentre sta caricando i dati.",
+        "**Controller wireless e navigazione**",
+        "I due pad inclusi utilizzano un collegamento radio tramite ricevitore USB a 2,4 GHz: non va confuso con la connessione Wi-Fi della rete domestica. Sui controller troviamo due stick analogici, croce direzionale, pulsanti frontali, dorsali e tasti funzione. Dal divano è possibile spostarsi tra le voci del sistema, confermare una selezione, tornare indietro e aprire le opzioni disponibili.",
+        "**Il menu principale di EmuELEC**",
+        "Il centro della configurazione è il menu principale di EmuELEC. Qui si trovano le voci dedicate a controller, aspetto dell'interfaccia, impostazioni sonore, configurazione della rete, aggiornamenti e opzioni di sistema. La schermata è utile soprattutto per individuare rapidamente dove intervenire quando occorre regolare l'audio, cambiare un'impostazione grafica o verificare la connessione.",
+        "**Processore, Linux e informazioni di sistema**",
+        "La schermata «Informazioni» permette di controllare i dati identificativi dell'unità. Nell'esemplare fotografato il sistema indica Linux 3.14.29 e un processore Amlogic S905L rev c. Sono presenti anche le sezioni dedicate all'architettura, all'utilizzo del disco utente, alla temperatura e al numero di CPU. La schermata riporta un utilizzo dello spazio utente pari a 1,56 GB su 1,94 GB al momento della rilevazione: questo valore non rappresenta la capacità complessiva della microSD.",
+        "**MicroSD, spegnimento e manutenzione**",
+        "Nel nostro esemplare è presente una microSD da 128 GB, che contiene i file indispensabili per l'avvio. È opportuno non estrarla mentre il dispositivo è alimentato. Se si desidera effettuare un backup, conviene lavorare da computer quando la pennetta è completamente spenta. Per lo spegnimento normale è preferibile utilizzare l'apposita voce del sistema e soltanto dopo scollegare l'alimentazione.",
+        "**Conclusioni**",
+        "La X2 Pro Game Stick Lite è un dispositivo dalla struttura semplice: HDMI per il collegamento video, USB per l'alimentazione e ricevitore dedicato ai controller. L'interfaccia EmuELEC consente di gestire le funzioni principali senza periferiche aggiuntive, mentre la schermata Informazioni fornisce dati utili sul sistema e sul processore installato. Conoscere i collegamenti corretti, preservare la microSD e garantire un minimo di ventilazione sono le accortezze più importanti per un utilizzo regolare."
+      ],
+      "category": "guide",
+      "published_at": "2026-10-11",
+      "source": "archivio-originale-zazoomtek",
+      "is_excerpt": false
+    },
+    {
+      "slug": "guida-the-witcher-3-remastered-pc-aumentare-fps",
+      "title": "The Witcher 3 Remastered su PC: come aumentare gli FPS con due soluzioni",
+      "date": "2026-10-11",
+      "image": "https://yt3.ggpht.com/HUtVz8TiSYDDfNziGTGdre88AVXGQSB9XZx9yclu1by_FS7zkW2CRcPQXhPMyi4GN24wRSvi_6CAGA=s1600-rw-nd-v1",
+      "body": [
+        "The Witcher 3: Wild Hunt — Remastered riporta l’avventura di Geralt di Rivia su PC con un comparto tecnico aggiornato, ma impostazioni avanzate come ray tracing e path tracing possono incidere sensibilmente sulla fluidità. Dopo le prime segnalazioni della community, CD Projekt RED ha pubblicato diversi interventi correttivi. Restano comunque alcune regolazioni utili per chi vuole trovare un equilibrio migliore tra qualità dell’immagine e prestazioni, senza rinunciare completamente agli effetti più spettacolari.",
+        "In questa guida vediamo due strade diverse: ridurre il peso di NVIDIA HairWorks direttamente dal menu del gioco e utilizzare una mod che ottimizza il rendering con ray tracing e path tracing. Sono interventi reversibili, ma non garantiscono lo stesso incremento di FPS su tutte le configurazioni.",
+        "**1. NVIDIA HairWorks: quando conviene disattivarlo**",
+        "NVIDIA HairWorks gestisce la simulazione di capelli e pellicce, migliorandone movimenti e dettaglio. Durante il lancio della remaster alcuni utenti hanno riscontrato cali di prestazioni particolarmente marcati con questa funzione attiva. CD Projekt RED ne aveva consigliato temporaneamente la disattivazione, ma bisogna precisare che l’hotfix 5.00c del 1° ottobre 2026 ha già annullato una modifica responsabile di problemi visivi e prestazionali con HairWorks. Non è quindi corretto presentare il difetto iniziale come ancora interamente irrisolto.",
+        "Questo non significa che HairWorks sia gratuito in termini di risorse: su un PC che fatica a mantenere un frame rate stabile, spegnerlo può essere un buon compromesso. Per farlo, avviate il gioco e aprite Opzioni → Video → Grafica, individuate NVIDIA HairWorks, selezionate Disattivato e applicate la modifica. La posizione esatta della voce può variare leggermente in base alla versione e all’interfaccia.",
+        "**2. Una mod per alleggerire ray tracing e path tracing**",
+        "La seconda opzione è Path Tracing and Ray Tracing Optimization (Remastered), realizzata dal modder HourLines e distribuita su Nexus Mods. Il progetto permette di intervenire su alcuni parametri del rendering avanzato, in particolare sul numero di rimbalzi della luce, una delle operazioni più impegnative per la GPU quando il path tracing è attivo.",
+        "Con l’impostazione ottimizzata, i rimbalzi della luce possono passare da due a uno. Secondo la descrizione dello sviluppatore, ciò può produrre miglioramenti indicativi di circa il 10% all’aperto e fino al 30% negli interni; la versione 2.1 Beta riporta inoltre, in alcuni scenari, incrementi nell’ordine del 15% nelle aree aperte e fino al 45% nelle città affollate. Sono stime e risultati dichiarati dall’autore, non test indipendenti eseguiti da ZazoomTek: hardware, risoluzione e impostazioni possono cambiare molto il risultato.",
+        "**Come installare la mod in modo corretto**",
+        "Prima di iniziare, verificate che The Witcher 3 Remastered sia aggiornato alla patch 5.01, pubblicata l’8 ottobre 2026. La versione 2.1 Beta della mod è dichiarata compatibile con questa patch, ma rimane una versione di prova: leggete sempre la pagina del progetto e fate una copia di sicurezza dei file interessati.",
+        "La mod è indicata dall’autore come compatibile con le versioni Steam e GOG e con GPU NVIDIA e AMD. Può tuttavia entrare in conflitto con altre modifiche che impiegano lo stesso file xinput9_1_0.dll. In caso di problemi, seguite le istruzioni di disinstallazione pubblicate su Nexus Mods invece di eliminare file a caso.",
+        "**Qualità grafica: cosa cambia con un solo rimbalzo della luce**",
+        "L’ottimizzazione non è priva di compromessi. Riducendo il numero di rimbalzi, alcune stanze e gli angoli meno illuminati possono risultare più scuri. La mod offre un controllo per compensare in parte la luminosità della luce indiretta, insieme ad altre opzioni relative alle ombre ray traced e ad alcuni effetti dell’acqua. Il risultato migliore non è necessariamente quello con più FPS in assoluto, ma quello che conserva un’illuminazione convincente senza appesantire inutilmente la scheda video.",
+        "**Conclusioni: quale soluzione scegliere?**",
+        "Se l’obiettivo è un intervento rapido e privo di installazioni esterne, provate prima a disattivare HairWorks e misurate la differenza. Chi preferisce mantenere ray tracing e path tracing può valutare la modifica di HourLines, accettando possibili variazioni nell’illuminazione e i rischi di una versione Beta. In entrambi i casi, aggiornamenti ufficiali e confronti eseguiti con metodo contano più di qualsiasi percentuale promessa."
+      ],
+      "category": "guide",
+      "published_at": "2026-10-11",
+      "source": "archivio-originale-zazoomtek",
+      "is_excerpt": false
     }
   ]
 }
