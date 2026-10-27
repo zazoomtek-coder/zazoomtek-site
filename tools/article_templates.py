@@ -180,9 +180,14 @@ def sectioned_body(review):
  blocks=editorial_blocks(review)
  if not blocks:return "<p>Il testo integrale dell'articolo non è ancora disponibile nell'archivio.</p>"
  if not is_review(review):
-  # Do not manufacture arbitrary headings every third paragraph: use genuine source headings.
+  # Keep source H2s. For the FRITZ! article, the editor supplied the exact H2 in
+  # the reference layout, although the Community export lost its heading markup.
+  title=plain(review.get("title")).casefold()
+  supplied_h2={1:"Gaming e streaming al centro dell’esperienza"} if title.startswith("fritz! arriva a lucca comics") else {}
   pieces=[]
-  for p in blocks:
+  for i,p in enumerate(blocks):
+   if i in supplied_h2 and not any(named_section(x) for x in blocks):
+    pieces.append('<h2>'+esc(supplied_h2[i])+'</h2>')
    heading=named_section(p)
    if heading and heading.casefold() not in ("voto finale","pro","contro"):
     pieces.append('<h2>'+esc(heading)+'</h2>')
