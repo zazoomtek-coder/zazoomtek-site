@@ -1906,3 +1906,49 @@ main.wrap .home-column .gaming-magazine .gaming-magazine-item h3 a{
     font-size:9.5px!important;
   }
 }
+
+/* v42 — editorial sidebars follow the center column in all inside pages.
+   Never hide the entire rail, never crop half a box, and never extend into
+   the footer. Home uses its existing independently approved styling. */
+@media(min-width:781px){
+ .inner-layout>.inner-sidebar{
+   display:block!important;
+   height:auto!important;
+   min-height:0!important;
+   max-height:none!important;
+   overflow:visible!important;
+   align-self:start!important;
+ }
+ .inner-layout>.inner-sidebar.rail-ready{
+   height:var(--inner-rail-height,auto)!important;
+   max-height:var(--inner-rail-height,none)!important;
+   overflow:hidden!important;
+ }
+ .inner-layout>.inner-sidebar>.sidebar-stack{
+   display:flex!important;
+   flex-direction:column!important;
+   align-items:stretch!important;
+   width:100%!important;
+   height:auto!important;
+   max-height:none!important;
+   gap:10px!important;
+   overflow:visible!important;
+ }
+}
+.inner-layout>.inner-sidebar .editorial-box[hidden],
+.inner-layout>.inner-sidebar .editorial-row[hidden]{
+ display:none!important;
+}
+@media(max-width:780px){
+ .inner-layout>.inner-sidebar,
+ .inner-layout>.inner-sidebar.rail-ready{
+   position:static!important;
+   height:auto!important;
+   max-height:none!important;
+   overflow:visible!important;
+ }
+ .inner-layout>.inner-sidebar>.sidebar-stack{
+   min-height:0!important;
+   display:grid!important;
+ }
+}

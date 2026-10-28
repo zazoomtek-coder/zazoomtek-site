@@ -94,6 +94,56 @@
    aside.classList.add("rail-ready");
    return;
   }
+  if(!home){
+   // Every interior page gets a complete, visible editorial rail, independent
+   // from the length of the archive, review, news story or special.
+   const target=Math.max(0,Math.floor(column.getBoundingClientRect().height));
+   aside.style.setProperty("--inner-rail-height",target+"px");
+   const fits=()=>stack.scrollHeight<=target+1;
+   if(target<100){
+    const first=boxes.findIndex((_,i)=>contents[i].length);
+    if(first>=0){boxes[first].hidden=false;contents[first][0].hidden=false;}
+    aside.classList.add("rail-ready");
+    return;
+   }
+   // A panel is displayed only when its heading AND its first article fit.
+   for(let i=0;i<boxes.length;i++){
+    if(!contents[i].length)continue;
+    boxes[i].hidden=false;
+    contents[i][0].hidden=false;
+    if(!fits()){
+     contents[i][0].hidden=true;
+     boxes[i].hidden=true;
+    }
+   }
+   // Fill any free space with remaining DISTINCT items, one complete row at a time.
+   let changed=true;
+   while(changed){
+    changed=false;
+    for(let i=0;i<boxes.length;i++){
+     if(boxes[i].hidden)continue;
+     const next=contents[i].find(row=>row.hidden);
+     if(!next)continue;
+     next.hidden=false;
+     if(!fits()){next.hidden=true;continue;}
+     changed=true;
+    }
+   }
+   let visible=boxes.filter(box=>!box.hidden);
+   if(!visible.length){
+    // If the viewport is unusually short, never erase the entire rail.
+    const first=boxes.findIndex((_,i)=>contents[i].length);
+    if(first>=0){boxes[first].hidden=false;contents[first][0].hidden=false;}
+    visible=boxes.filter(box=>!box.hidden);
+   }
+   if(visible.length>=2){
+    // The last complete panel finishes at the same bottom edge as the article column.
+    stack.style.minHeight=target+"px";
+    stack.style.justifyContent="space-between";
+   }
+   aside.classList.add("rail-ready");
+   return;
+  }
   // The aside itself never contributes to Home grid height: compare against
   // the independent primary column, ending with the Notizie Web section.
   const target=Math.max(0,Math.floor(column.getBoundingClientRect().height)-3);
