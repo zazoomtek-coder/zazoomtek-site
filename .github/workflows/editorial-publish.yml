@@ -1,8 +1,10 @@
 name: ZazoomTek - slot pubblicazione Roma
 on:
   schedule:
-    # Un solo avvio automatico per ciascuno dei due slot quotidiani.
-    - cron: '30 12,19 * * *'
+    # Preavvio a :25 senza pubblicare e avvio regolare a :30.
+    # ENTRAMBI possono pubblicare solo a 12:30 o 19:30 (guardia qui sotto).
+    # Questo riduce i mancati slot causati dai ritardi dello scheduler GitHub.
+    - cron: '25,30 12,19 * * *'
       timezone: Europe/Rome
   workflow_dispatch:
 permissions:
@@ -36,6 +38,13 @@ jobs:
           slot=""
           for h in (12,19):
               target=now.replace(hour=h,minute=30,second=0,microsecond=0)
+              if timedelta(minutes=-5)<=now-target<timedelta(0):
+                  # PREPARAZIONE anticipata; nessun deploy prima del target.
+                  import time
+                  seconds=(target-now).total_seconds()+1
+                  print("Preavvio attivo, pubblicazione non prima delle",target.isoformat(),flush=True)
+                  time.sleep(max(0,seconds))
+                  now=datetime.now(ZoneInfo("Europe/Rome"))
               if timedelta(0)<=now-target<=timedelta(minutes=5):
                   slot=f"{h:02d}:30"
                   break
