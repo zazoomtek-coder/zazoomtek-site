@@ -415,7 +415,7 @@ async function save(mode){
   const row=collect();
   if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
   const response=await api("v2-save",{mode,record:row,creating:state.newContent});
-  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Pubblicazione richiesta sul SOLO branch SpotNews di prova.");
+  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Contenuto accodato: pubblicazione al prossimo slot editoriale.");
   if(mode==="draft"){
    state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit"};
   }else{
