@@ -10,6 +10,7 @@ from datetime import datetime,timezone,timedelta
 from urllib.parse import urlparse
 P=Path(__file__).resolve().parents[1]; O=P/"dist"
 JS_ASSET_VERSION=hashlib.sha256((P/"assets/js/site.js").read_bytes()).hexdigest()[:12]
+CSS_ASSET_VERSION=hashlib.sha256((P/"assets/css/spotnews.css").read_bytes()).hexdigest()[:12]
 NAV=[("HOME","/"),("NEWS","/news"),("RECENSIONI","/recensioni"),("GUIDE","/guide"),("SPECIALI","/speciali"),("EXTRA","/extra"),("VIDEO","https://www.youtube.com/@ZazoomTek")]
 TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra","video":"Video"}
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
@@ -385,7 +386,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags+
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-spotnews-production-1"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v='+CSS_ASSET_VERSION+'"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
