@@ -1,0 +1,1 @@
+Explicit user authorization: first import actual 75 queued YouTube Community posts and RSS, verify new posts saved, then single extraordinary Cloudflare Pages deploy. Never deploy stale data.
