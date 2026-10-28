@@ -1693,3 +1693,144 @@ main.wrap img[hidden]{display:none!important}
   line-height:inherit!important;
   letter-spacing:inherit!important;
 }
+
+/* v40 — image-first editorial cards throughout SpotNews.
+   Increase thumbnail share in right-hand editorial boxes without changing
+   the approved column/sidebar geometry or the 16:9 image crop. */
+main.wrap .sidebar .compact-editorial-box .editorial-row {
+  display:grid!important;
+  grid-template-columns:minmax(0,70%) minmax(0,1fr)!important;
+  gap:7px!important;
+  align-items:center!important;
+  padding:5px 0!important;
+  min-height:0!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-thumb {
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-thumb img {
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy {
+  min-width:0!important;
+  overflow:hidden!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy a,
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy a strong {
+  display:-webkit-box!important;
+  -webkit-line-clamp:3!important;
+  -webkit-box-orient:vertical!important;
+  line-clamp:3!important;
+  overflow:hidden!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:9.5px!important;
+  line-height:1.23!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+  overflow-wrap:anywhere!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy time {
+  font-size:8px!important;
+  line-height:1.1!important;
+  margin-top:2px!important;
+}
+/* Main editorial grids already show 16:9 thumbnails full width:
+   compress the title/label footprint instead of changing their card count. */
+main.wrap .home-column > .section > .cards .card,
+main.wrap .home-column .specials-showcase .card,
+main.wrap .home-column .home-review-web-grid .home-review-web-card,
+main.wrap .home-column .web-news-grid .web-news-card,
+main.wrap .home-column .standalone-feature-pair .feature-main-item,
+main.wrap .home-column .standalone-feature-pair .compact-item {
+  padding-bottom:4px!important;
+}
+main.wrap .home-column > .section > .cards .card h3,
+main.wrap .home-column .specials-showcase .card h3,
+main.wrap .home-column .standalone-feature-pair .feature-main-description h3,
+main.wrap .home-column .standalone-feature-pair .compact-item h3,
+main.wrap .home-column > .section > .web-news-grid .web-news-card h3 {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:12px!important;
+  line-height:1.29!important;
+  font-weight:700!important;
+  letter-spacing:normal!important;
+  margin-top:3px!important;
+  margin-bottom:4px!important;
+}
+main.wrap .home-column .specials-showcase .card h3,
+main.wrap .home-column > .section > .cards .card h3 {
+  margin-left:8px!important;
+  margin-right:8px!important;
+}
+main.wrap .home-column .standalone-feature-pair .feature-main-description {
+  padding:5px 7px!important;
+}
+main.wrap .home-column .standalone-feature-pair .compact-item-text {
+  padding:4px 5px 0!important;
+}
+main.wrap .home-column :is(.specials-showcase,.standalone-feature-pair,.web-news-grid) .card small,
+main.wrap .home-column .standalone-feature-pair .compact-item-type,
+main.wrap .home-column .web-news-grid .web-source {
+  font-size:9px!important;
+  line-height:1.15!important;
+  margin-top:3px!important;
+  margin-bottom:2px!important;
+}
+main.wrap .home-column .web-news-grid .web-news-card time,
+main.wrap .home-column .home-review-web-grid .home-review-web-card time {
+  font-size:9px!important;
+  line-height:1.1!important;
+  margin:2px 0!important;
+}
+main.wrap .home-column .home-review-web-grid .home-review-web-card h3 {
+  font-size:12px!important;
+  line-height:1.29!important;
+  margin:3px 0 4px!important;
+}
+main.wrap .home-column .home-review-web-grid .home-review-web-card .web-source {
+  font-size:9px!important;
+  margin:3px 0 2px!important;
+}
+/* News Gaming's small editorial thumbnails become the dominant row content. */
+main.wrap .home-column .gaming-magazine .gaming-magazine-item {
+  grid-template-columns:minmax(0,58%) minmax(0,1fr)!important;
+  column-gap:8px!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-item h3 {
+  font-size:11px!important;
+  line-height:1.22!important;
+  margin:0 0 3px!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-item time {
+  font-size:9px!important;
+  line-height:1.14!important;
+}
+/* Small screens: preserve image priority without creating horizontal overflow. */
+@media(max-width:780px) {
+  main.wrap .sidebar .compact-editorial-box .editorial-row {
+    grid-template-columns:minmax(0,65%) minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+  main.wrap .home-column .gaming-magazine .gaming-magazine-item {
+    grid-template-columns:minmax(0,55%) minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+}
+@media(max-width:450px) {
+  main.wrap .sidebar .compact-editorial-box .editorial-row {
+    grid-template-columns:minmax(0,65%) minmax(0,1fr)!important;
+  }
+  main.wrap .sidebar .compact-editorial-box .editorial-row-copy a,
+  main.wrap .sidebar .compact-editorial-box .editorial-row-copy a strong {
+    font-size:10px!important;
+  }
+}
