@@ -180,6 +180,64 @@
   document.querySelectorAll(".home-column,.inner-column").forEach(col=>railObserver.observe(col));
  }
 
+ // v49: content-aware artwork. No blind center-crop of embedded headlines.
+ // A small ratio mismatch permits normal zoom; a larger one shows the ENTIRE
+ // sharp source over a full-bleed duplicate, with no empty side bands.
+ const artFrames=[
+  ".editorial-media-frame",".spotlight-grid .tile-link",".editorial-thumb",
+  ".web-news-thumb",".thumb",".compact-item-image",".feature-main-thumb",
+  ".gaming-magazine-lead-image",".gaming-magazine-thumb",".editorial-hero",
+  ".video-start",".story-figure",".amazon-placeholder-thumb",
+  ".amazon-feature-product"
+ ].join(",");
+ const artImages=[...document.querySelectorAll("main.wrap img")].filter(img=>
+  !img.classList.contains("editorial-media-bg")&&
+  !img.classList.contains("spotlight-cover-backdrop")&&!!img.closest(artFrames)
+ );
+ const normalizeFocus=(input)=>{
+  const value=Number.parseFloat(input);
+  return Number.isFinite(value)?Math.min(100,Math.max(0,value)):50;
+ };
+ const fitArtwork=img=>{
+  if(!img.naturalWidth||!img.naturalHeight)return;
+  const box=img.closest(artFrames);
+  const rect=box?.getBoundingClientRect();
+  if(!box||!rect||rect.width<8||rect.height<8)return;
+  const data=img.closest("[data-cover-focus-x],[data-cover-focus-y],[data-cover-fit]");
+  const x=normalizeFocus(data?.dataset.coverFocusX??50);
+  const y=normalizeFocus(data?.dataset.coverFocusY??50);
+  const override=data?.dataset.coverFit;
+  const ratio=(img.naturalWidth/img.naturalHeight)/(rect.width/rect.height);
+  // Only mildly incompatible dimensions can safely be filled by zoom.
+  const fit=override==="cover"||override==="contain"?override:
+   Math.abs(Math.log(ratio))<=0.09?"cover":"contain";
+  const url=img.currentSrc||img.src;
+  if(!url||!(/^(https?:|\/)/i).test(url))return;
+  box.classList.add("smart-cover-frame");
+  img.classList.add("smart-cover-front");
+  box.style.setProperty("--smart-cover-x",x+"%");
+  box.style.setProperty("--smart-cover-y",y+"%");
+  box.style.setProperty("--smart-cover-fit",fit);
+  box.style.setProperty("--smart-cover-art","url("+JSON.stringify(url)+")");
+ };
+ const fitAllArtwork=()=>artImages.forEach(fitArtwork);
+ artImages.forEach(img=>{
+  img.addEventListener("load",()=>{
+   fitArtwork(img);
+   if(img.closest(".sidebar"))scheduleEditorialSizing();
+  },{passive:true});
+  if(img.complete&&img.naturalWidth)fitArtwork(img);
+ });
+ let artFrame=0;
+ const scheduleArtwork=()=>{
+  cancelAnimationFrame(artFrame);
+  artFrame=requestAnimationFrame(fitAllArtwork);
+ };
+ scheduleArtwork();
+ window.addEventListener("load",scheduleArtwork,{once:true});
+ window.addEventListener("resize",scheduleArtwork,{passive:true});
+ window.addEventListener("pageshow",scheduleArtwork,{passive:true});
+
  // Broken or unavailable media always falls back to a filled 16:9 editorial title card.
  for(const image of document.querySelectorAll(".editorial-media-frame .editorial-media-fg")){
   const frame=image.closest(".editorial-media-frame");

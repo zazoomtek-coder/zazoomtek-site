@@ -2462,3 +2462,75 @@ main.wrap .inner-column>.story-article .article-text>h2+p{
   padding-left:10px!important;
  }
 }
+
+/* v49 — geometrically safe zoom with full-bleed art. ALL media slots share
+   this measured rule: matching-aspect covers zoom to fill; incompatible ratios
+   preserve their entire artwork and embedded lettering, with a copy of the
+   SAME cover filling every unused pixel. No black or empty left/right bars.
+   Custom per-cover focal point takes priority over object centering. */
+main.wrap .smart-cover-frame{
+  background-color:#1a2432!important;
+  background-image:var(--smart-cover-art,none)!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  background-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+}
+main.wrap :is(
+  .editorial-media-frame.smart-cover-frame,
+  .spotlight-grid .tile-link.smart-cover-frame,
+  .home-column .news-tech-showcase .news-tech-cover.smart-cover-frame,
+  .sidebar .compact-editorial-box .editorial-thumb.smart-cover-frame,
+  .home-sidebar .compact-editorial-box .editorial-thumb.smart-cover-frame,
+  .feature-pair .compact-item-image.smart-cover-frame,
+  .web-news-thumb.smart-cover-frame,
+  .gaming-magazine .gaming-magazine-lead-image.smart-cover-frame,
+  .gaming-magazine .gaming-magazine-thumb.smart-cover-frame,
+  .story-figure.smart-cover-frame,
+  .thumb.smart-cover-frame,
+  .video-start.smart-cover-frame,
+  .editorial-hero.smart-cover-frame,
+  .compact-item-image.smart-cover-frame,
+  .feature-main-thumb.smart-cover-frame,
+  .amazon-placeholder-thumb.smart-cover-frame,
+  .amazon-feature-product.smart-cover-frame
+) img.smart-cover-front{
+  object-fit:var(--smart-cover-fit,contain)!important;
+  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+  background:transparent!important;
+  transform:none!important;
+}
+main.wrap .editorial-media-frame.smart-cover-frame img.editorial-media-fg.smart-cover-front,
+main.wrap .home-column .news-tech-showcase .news-tech-cover .editorial-media-frame.smart-cover-frame img.editorial-media-fg.smart-cover-front{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:var(--smart-cover-fit,contain)!important;
+  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+  background:transparent!important;
+  transform:none!important;
+  z-index:2!important;
+}
+main.wrap .spotlight-grid .tile-link.smart-cover-frame>img.spotlight-cover-foreground.smart-cover-front{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:var(--smart-cover-fit,contain)!important;
+  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+  transform:none!important;
+  z-index:1!important;
+}
+main.wrap .spotlight-grid .tile-link.smart-cover-frame>img.spotlight-cover-backdrop,
+main.wrap .editorial-media-frame.smart-cover-frame img.editorial-media-bg{
+  display:block!important;
+  object-fit:cover!important;
+  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+}
+main.wrap .smart-cover-frame .smart-cover-front[hidden]{
+  display:none!important;
+}
+/* Preserve native 16:9 card/image boxes without changing their grid width,
+   headline type, footer placement, clickable links or desktop/mobile layout. */

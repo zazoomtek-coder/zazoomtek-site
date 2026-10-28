@@ -347,13 +347,13 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-universal-editorial-audit-48"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-typography-cover-focus-49"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261028-rail-boundary-44"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261028-cover-focus-49"></script></body></html>')
 
 def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
@@ -381,6 +381,27 @@ def safe_image(value):
      not u.username and not u.password):return value
  return ""
 def blank():return '<div class="blank">Nessun contenuto pubblicato</div>'
+def cover_focus_attributes(row):
+ """Per-cover focus percentages; Studio/import data may supply focus_x/focus_y.
+ The Trust Black Friday artwork explicitly protects the LEFT-side lettering.
+ """
+ x=row.get("cover_focus_x",row.get("focus_x"))
+ y=row.get("cover_focus_y",row.get("focus_y"))
+ mode=str(row.get("cover_fit") or "").lower()
+ name=clean_title(row.get("title","")).casefold()
+ if x is None and "trust" in name and "black friday" in name:
+  x=0
+  mode="cover"
+ attrs=[]
+ for axis,value in (("x",x),("y",y)):
+  try:
+   if value is not None:
+    number=float(str(value).strip().rstrip("%"))
+    if 0<=number<=100:attrs.append(' data-cover-focus-'+axis+'="'+str(round(number,2))+'"')
+  except (ValueError,TypeError):pass
+ if mode in ("cover","contain"):attrs.append(' data-cover-fit="'+mode+'"')
+ return "".join(attrs)
+
 def editorial_cover(row):
  """Every cover is a complete original photo within a 16:9 frame; the same photo fills the background."""
  url=safe_image(row.get("image",""))
@@ -388,7 +409,7 @@ def editorial_cover(row):
  section=esc(TYPES.get(row.get("category"),"ZazoomTek"))
  if url:
   src=esc(url,quote=True)
-  return ('<span class="editorial-media-frame">'
+  return ('<span class="editorial-media-frame"'+cover_focus_attributes(row)+'>'
           '<img class="editorial-media-bg" loading="lazy" src="'+src+'" alt="" aria-hidden="true">'
           '<img class="editorial-media-fg" loading="lazy" src="'+src+'" alt="'+title+'">'
           '<span class="editorial-media-fallback" aria-hidden="true"><small>'+section+'</small><strong>'+title+'</strong></span>'
@@ -518,7 +539,7 @@ def overlay_card(r,kind="feature-tile"):
  label=esc(TYPES.get(r["category"],"ZazoomTek"))
  date=date_label(r)
  stamp='<span class="tile-date">'+esc(date)+'</span>' if date else ""
- return '<article class="'+kind+'"><a class="tile-link" href="'+esc(link,quote=True)+'">'+image+'<span class="tile-gradient"></span><span class="tile-copy"><span class="tile-category">'+label+'</span><strong class="tile-title">'+esc(r["title"])+'</strong>'+stamp+'</span></a></article>'
+ return '<article class="'+kind+'"'+cover_focus_attributes(r)+'><a class="tile-link" href="'+esc(link,quote=True)+'">'+image+'<span class="tile-gradient"></span><span class="tile-copy"><span class="tile-category">'+label+'</span><strong class="tile-title">'+esc(r["title"])+'</strong>'+stamp+'</span></a></article>'
 def featured_showcase(rows):
  """Five latest first-party news: Tech hero + three Tech, Gaming bottom right."""
  if not rows:return blank()
@@ -540,7 +561,7 @@ def box(name,rows,notice=""):
   image=safe_image(r.get("image",""))
   thumb='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
-  cards.append('<article class="editorial-row"><a class="editorial-thumb" href="'+href+'">'+thumb+'</a><div class="editorial-row-copy"><a href="'+href+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(date)+'</time>' if date else '')+'</div></article>')
+  cards.append('<article class="editorial-row"><a class="editorial-thumb" href="'+href+'"'+cover_focus_attributes(r)+'>'+thumb+'</a><div class="editorial-row-copy"><a href="'+href+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(date)+'</time>' if date else '')+'</div></article>')
  return '<section class="box editorial-box compact-editorial-box">'+bar(name,archives.get(name,""),"sidebar")+'<div class="editorial-links">'+''.join(cards)+'</div></section>'
 def sidebar_select(items,count,used):
  """Preserve editorial order; one card per story across Home and sidebars."""
