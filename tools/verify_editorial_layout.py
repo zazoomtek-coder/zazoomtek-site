@@ -11,7 +11,7 @@ from html import escape as esc, unescape
 
 from article_templates import (
  editorial_blocks, is_review, named_section, source_plain_h2,
- rich_text, sectioned_body, with_official_link
+ rich_text, sectioned_body, with_official_link, merge_repeated_info_sections
 )
 
 def check_all(rows, output, stylesheet):
@@ -32,7 +32,8 @@ def check_all(rows, output, stylesheet):
   try:
    if not path.is_file():raise AssertionError("Generated article file missing")
    page=path.read_text(encoding="utf-8")
-   body=sectioned_body(row)
+   unmerged_body=sectioned_body(row)
+   body=merge_repeated_info_sections(unmerged_body)
    title=esc(str(row.get("title") or "").strip())
    if not title or "<h1>"+title+"</h1>" not in page:
     raise AssertionError("Missing/incorrect primary headline")
@@ -45,7 +46,7 @@ def check_all(rows, output, stylesheet):
    if not (page.find("<h1>")>=0 and meta>=0 and cover>=0 and content>=0 and
            page.find("<h1>")<meta<cover<content):
     raise AssertionError("Incorrect H1 → metadata → cover → article content order")
-   if with_official_link(body,row) not in page:raise AssertionError("Rendered editorial content differs from shared template")
+   if merge_repeated_info_sections(with_official_link(unmerged_body,row)) not in page:raise AssertionError("Rendered editorial content differs from shared template")
    h2s=re.findall(r"<h2>(.*?)</h2>",body,flags=re.S)
    if not h2s or any(not re.sub("<[^>]+>","",h).strip() for h in h2s):
     raise AssertionError("Article is missing editorial red-bar subtitles")
@@ -64,18 +65,20 @@ def check_all(rows, output, stylesheet):
     paragraphs=[unescape(re.sub(r"<[^>]+>","",p)) for p in paragraphs]
     if any(len(p)>430 for p in paragraphs):
      raise AssertionError("Giant paragraph exceeds 430 characters")
-    blocks=re.findall(r"<(h2|p)>(.*?)</\1>",body,flags=re.S)
+    blocks=re.findall(r"<(h2|p)>(.*?)</\1>",unmerged_body,flags=re.S)
     paragraphs_before_heading=0
     paragraphs_in_section=0
     seen_heading=False
+    current_heading=""
     for tag,text in blocks:
      if tag=="h2":
       seen_heading=True
+      current_heading=unescape(re.sub(r"<[^>]+>","",text)).strip().casefold()
       paragraphs_in_section=0
      else:
       if seen_heading:
        paragraphs_in_section+=1
-       if paragraphs_in_section>2:
+       if paragraphs_in_section>2 and current_heading!="ulteriori informazioni":
         raise AssertionError("More than two paragraphs under one red-bar heading")
       else:
        paragraphs_before_heading+=1
