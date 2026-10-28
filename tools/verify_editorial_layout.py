@@ -56,7 +56,7 @@ def check_all(rows, output, stylesheet):
    if re.search(r"<p>\s*(?:#{1,3}\s+|\*\*)[^<]+</p>",body):
     raise AssertionError("Markdown heading was not rendered structurally")
 
-   if not is_review(row):
+   if not is_review(row) and not row.get('studio_blocks'):
     # Catch the original defect: one giant wall of text under a single subtitle.
     # Every ordinary paragraph is bounded, and every section contains <=2
     # paragraphs. This check now rejects Expedition-style broken layouts.

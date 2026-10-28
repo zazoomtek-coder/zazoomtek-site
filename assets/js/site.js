@@ -413,4 +413,30 @@
   window.addEventListener("load",fitTickerToMenu,{once:true});
  }
 
+ // Admin-only edit button: NEVER trust browser storage or a CSS "admin" flag.
+ // The button is created only after the server validates the Access JWT,
+ // associated with a durable Cloudflare Access browser cookie.
+ const editableArticle=document.querySelector(".story-article[data-studio-slug]");
+ if(editableArticle){
+  const slug=editableArticle.getAttribute("data-studio-slug");
+  if(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug||"")){
+   fetch("/api/studio/session",{credentials:"same-origin",cache:"no-store",redirect:"manual"})
+    .then(async response=>{
+     if(!response.ok||!(response.headers.get("content-type")||"").includes("application/json"))
+      return null;
+     return response.json();
+    })
+    .then(session=>{
+     if(session?.admin!==true||session.authenticated!==true)return;
+     const edit=document.createElement("a");
+     edit.className="studio-admin-edit";
+     edit.href="/studio/?edit="+encodeURIComponent(slug);
+     edit.textContent="Modifica";
+     edit.setAttribute("aria-label","Modifica questo contenuto nello Studio amministratore");
+     editableArticle.insertAdjacentElement("afterbegin",edit);
+    })
+    .catch(()=>{});
+  }
+ }
+
 })();

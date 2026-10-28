@@ -390,7 +390,89 @@ def news_body(review,blocks):
  return "".join(rendered)
 
 
+
+def studio_link(value):
+ """Allow only relative same-origin and https: URLs in editor-supplied blocks."""
+ value=str(value or "").strip()
+ if value.startswith("/") and not value.startswith("//") and not any(x in value for x in ('<','>','"',"'",'\\')):
+  return value
+ try:
+  parsed=urlparse(value)
+  if parsed.scheme=="https" and parsed.hostname and not parsed.username and not parsed.password and len(value)<1800:
+   return value
+ except ValueError:pass
+ return ""
+
+def studio_inline(value):
+ """Limited Markdown hyperlinks and bold, with escaped labels and safe URLs."""
+ raw=str(value or "").strip()
+ pattern=re.compile(r'\[([^\]\n]{1,160})\]\((https://[^()\s]+|/[^()\s]+)\)')
+ out=[]
+ index=0
+ for match in pattern.finditer(raw):
+  head=esc(raw[index:match.start()])
+  out.append(re.sub(r'\*\*(.+?)\*\*',r'<strong>\1</strong>',head))
+  url=studio_link(match.group(2))
+  if url:
+   extra=' target="_blank" rel="noopener noreferrer external"' if url.startswith("https://") else ''
+   out.append('<a href="'+esc(url,quote=True)+'"'+extra+'>'+esc(match.group(1))+'</a>')
+  else:out.append(esc(match.group(0)))
+  index=match.end()
+ out.append(re.sub(r'\*\*(.+?)\*\*',r'<strong>\1</strong>',esc(raw[index:])))
+ return ''.join(out)
+
+def studio_sectioned_body(review):
+ """Render block order exactly: paragraphs, H2, links, images, video and CTA."""
+ from urllib.parse import parse_qs
+ result=[]
+ headings=0
+ for block in review.get("body",[]):
+  if not isinstance(block,dict):continue
+  kind=str(block.get("type") or "")
+  value=str(block.get("text") or "").strip()
+  if kind=="heading" and value:
+   result.append('<h2>'+esc(value)+'</h2>')
+   headings+=1
+  elif kind=="paragraph" and value:
+   result.append('<p>'+studio_inline(value)+'</p>')
+  elif kind=="quote" and value:
+   result.append('<blockquote class="studio-content-quote">'+studio_inline(value)+'</blockquote>')
+  elif kind=="image":
+   url=studio_link(block.get("url"))
+   if not url:continue
+   title=str(block.get("alt") or review.get("title") or "")
+   caption=str(block.get("caption") or "")
+   result.append('<figure class="story-figure studio-content-image"><img loading="lazy" src="'+
+                 esc(url,quote=True)+'" alt="'+esc(title,quote=True)+'">'+
+                 ('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
+  elif kind=="button":
+   url=studio_link(block.get("url"))
+   if not url or not value:continue
+   rel=' target="_blank" rel="noopener noreferrer external"' if url.startswith("https://") else ""
+   result.append('<p class="studio-content-action"><a href="'+esc(url,quote=True)+'"'+rel+'>'+esc(value)+'</a></p>')
+  elif kind=="video":
+   url=studio_link(block.get("url"))
+   vid=""
+   if url:
+    parsed=urlparse(url)
+    host=(parsed.hostname or "").casefold()
+    if host=="youtu.be":vid=parsed.path.strip("/")
+    elif host in ("www.youtube.com","youtube.com","m.youtube.com","www.youtube-nocookie.com"):
+     vid=parse_qs(parsed.query).get("v",[""])[0]
+     if not vid and parsed.path.startswith(("/embed/","/shorts/")):vid=parsed.path.split("/",2)[2]
+   if VIDEO_ID.fullmatch(vid):
+    result.append('<div class="player studio-content-video"><button type="button" class="video-start" data-youtube-id="'+
+                  esc(vid,quote=True)+'" aria-label="Riproduci il video"><img loading="lazy" src="https://i.ytimg.com/vi/'+
+                  esc(vid,quote=True)+'/hqdefault.jpg" alt=""><span class="video-start-label">▶ Riproduci video</span></button></div>')
+ if not headings:
+  # Never discard source blocks or their order; supply one editorial heading
+  # before the first prose paragraph when the editor did not write any H2.
+  result.insert(0,'<h2>Approfondimento</h2>')
+ return ''.join(result)
+
+
 def sectioned_body(review):
+ if review.get("studio_blocks"):return studio_sectioned_body(review)
  blocks=editorial_blocks(review)
  if not blocks:return "<p>Il testo integrale dell'articolo non è ancora disponibile nell'archivio.</p>"
  if not is_review(review):
@@ -480,7 +562,7 @@ def render(review,image_validator):
  source_notes=review.get("ending_notes",[]) if reviews else []
  if not isinstance(source_notes,list):source_notes=[]
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
- return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'">'
+ return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
          +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'
          +(verdict(review) if reviews else '')+'</article>')

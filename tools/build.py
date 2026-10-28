@@ -134,7 +134,8 @@ def normalized_title(text):
 def posts():
  obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
  if not isinstance(obj.get("posts"),list):raise ValueError("posts must be a list")
- all_rows=obj["posts"]+community_posts()
+ studio_data=json.loads((P/"data/studio_posts.json").read_text(encoding="utf-8"))
+ all_rows=obj["posts"]+community_posts()+studio_data.get("posts",[])
  unique={};seen_slugs=set()
  for r in all_rows:
   slug=r.get("slug","")
@@ -154,6 +155,16 @@ def posts():
   if r["slug"] in seen_slugs:continue
   seen_slugs.add(r["slug"])
   deduplicated.append(r)
+ # Studio edits win over YouTube imports without modifying the original post.
+ overrides=json.loads((P/"data/studio_overrides.json").read_text(encoding="utf-8")).get("overrides",{})
+ for row in deduplicated:
+  changed=overrides.get(row.get("slug"))
+  if isinstance(changed,dict):
+   for key,value in changed.items():
+    if key not in ("slug","date","published_at","id","source_url","is_excerpt"):
+     row[key]=value
+   row["studio_blocks"]=True
+   row["source"]="studio-editor"
  rows=sorted(deduplicated,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
  from review_image_archive import populate_review_covers
  populate_review_covers(rows,P,safe_image)
@@ -348,13 +359,13 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags+
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-web-gateways-51"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-studio-auth-52"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261028-single-image-clean-50"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261028-studio-auth-52"></script></body></html>')
 
 def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
@@ -376,6 +387,10 @@ def safe_image(value):
  from urllib.parse import urlparse
  u=urlparse(value)
  if u.scheme=="https" and u.hostname in ("yt3.ggpht.com","i.ytimg.com","mcusercontent.com","images.volleyballworld.com") and not u.username and not u.password:return value
+ # Studio supports editor-supplied HTTPS covers; no data:, javascript: or
+ # SVG-based active content is permitted as an uploaded image.
+ if u.scheme=="https" and u.hostname and not u.username and not u.password and len(value)<1800 and not u.path.lower().endswith(".svg"):
+  return value
  # Verified public-domain Sony PS2 product photograph by Evan-Amos on Wikimedia Commons.
  if (u.scheme=="https" and u.hostname=="upload.wikimedia.org" and
      u.path=="/wikipedia/commons/c/c3/Sony-PlayStation-2-30001-wController-L.jpg" and
@@ -888,7 +903,7 @@ def home(rows):
  spotlight=latest_featured_news(tech,gaming,global_used)
  tech_low=adaptive_news(tech,8,global_used)
  gaming_low=adaptive_news(gaming,5,global_used)
- reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],3,global_used)
+ reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial","studio-editor")],3,global_used)
  video_section=playlist_cards()
  external=web_news()
  # URLs/titles selected for Notizie Web are external; mark them as used to avoid repeated home references.
@@ -1054,7 +1069,9 @@ def rss_feed(rows):
   SubElement(item,"category").text=TYPES.get(row.get("category"),"Articolo")
   body=row.get("body") or []
   if isinstance(body,str):body=[body]
-  first=next((v for v in body if isinstance(v,str) and v.strip() and not v.strip().startswith(("##","**"))),"")
+  first=next((v if isinstance(v,str) else str(v.get("text") or "") for v in body
+   if (isinstance(v,str) and v.strip() and not v.strip().startswith(("##","**"))) or
+      (isinstance(v,dict) and v.get("type")=="paragraph" and str(v.get("text") or "").strip())),"")
   SubElement(item,"description").text=first.strip()[:500]
   if len(posted)>=50:break
  (O/"feed.xml").parent.mkdir(parents=True,exist_ok=True)
@@ -1067,7 +1084,11 @@ def audit_published_articles(rows):
  for row in rows:
   body=row.get("body") or []
   if isinstance(body,str):body=[body]
-  text=" ".join(block for block in body if isinstance(block,str) and not block.lstrip().startswith(("## ","# "))).strip()
+  text=" ".join(
+   block if isinstance(block,str) else str(block.get("text") or "")
+   for block in body if (isinstance(block,str) and not block.lstrip().startswith(("## ","# "))) or
+   (isinstance(block,dict) and block.get("type") in ("paragraph","quote"))
+  ).strip()
   if len(text)<260 or row.get("is_excerpt"):
    issues.append((row.get("slug"),len(text),bool(row.get("is_excerpt"))))
  for needed in (
@@ -1096,6 +1117,8 @@ def main():
  if O.exists():shutil.rmtree(O)
  # Copy the actual covers and other local editorial assets, not CSS/JS alone.
  shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
+ from studio_build import build_studio
+ build_studio(O,rows)
  global TICKER_ROWS
  TICKER_ROWS=build_live_discovery(rows)
  (O/"index.html").write_text(home(rows),encoding="utf-8")
@@ -1121,6 +1144,8 @@ def main():
  contacts_page(rows)
  rss_feed(rows)
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
+ from verify_studio import verify_studio
+ verify_studio(O,rows)
  from verify_editorial_layout import check_all
  check_all(rows,O,P/"assets/css/spotnews.css")
  legacy_article_redirects(rows)
@@ -1128,7 +1153,16 @@ def main():
                "<h1>Pagina non trovata</h1><p>Il contenuto richiesto non è disponibile.</p>"
                "<p><a href=\"/\">Torna alla Home di ZazoomTek</a></p></article>")
  (O/"404.html").write_text(inside("Pagina non trovata",missing_page,rows,show_related=False,seo_path="/404"),encoding="utf-8")
- (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
+ (O/"_headers").write_text(
+  "/*\n  X-Content-Type-Options: nosniff\n"+
+  ("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else "")+
+  "/studio/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: private, no-store\n",
+  encoding="utf-8")
+ # Pages Functions invoke ONLY protected Studio endpoints. Static traffic stays
+ # free and cacheable; public pages are never routed through the editor API.
+ (O/"_routes.json").write_text(json.dumps({
+  "version":1,"include":["/api/studio/*"],"exclude":[]
+ },separators=(",",":")),encoding="utf-8")
  from seo import write_indexing
  write_indexing(O,rows,GROUPS,ARCHIVE_PAGE_SIZE,PREVIEW)
  from verify_cover_layout import check_media

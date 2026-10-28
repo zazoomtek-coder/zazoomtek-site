@@ -2454,3 +2454,32 @@ main.wrap .web-gateway .web-gateway-note{font-size:12px!important;color:#626262!
  main.wrap .web-gateway .web-gateway-related h2{font-size:18px!important}
  main.wrap .web-gateway .web-gateway-primary p{font-size:14px!important}
 }
+
+
+/* v52 — Verified Cloudflare Access administrator edit control only. */
+main.wrap .story-article>.studio-admin-edit{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;padding:9px 15px!important;margin:0 0 18px auto!important;
+ border:1px solid #d82640!important;border-radius:6px!important;
+ background:#ed344b!important;color:#fff!important;font-size:13px!important;
+ font-family:Arial,sans-serif!important;font-weight:750!important;text-decoration:none!important;
+ position:relative!important;z-index:5!important
+}
+main.wrap .story-article>.studio-admin-edit:hover{background:#171717!important;color:#fff!important}
+/* Studio block types preserve article grid, SEO H2 and red-bar styling. */
+main.wrap .story-article .article-text .studio-content-action{margin:15px 0!important}
+main.wrap .story-article .article-text .studio-content-action>a{
+ display:inline-block!important;color:#fff!important;background:#ed344b!important;
+ border-radius:5px!important;padding:12px 17px!important;text-decoration:none!important;
+ font-size:14px!important;font-weight:750!important
+}
+main.wrap .story-article .article-text .studio-content-quote{
+ margin:15px 0!important;border-left:4px solid #e03b51!important;
+ background:#f9f9fa!important;padding:14px 18px!important;font-style:italic!important
+}
+main.wrap .story-article .article-text .studio-content-image{margin:20px 0!important;width:100%!important}
+main.wrap .story-article .article-text .studio-content-image img{
+ max-width:100%!important;height:auto!important;object-fit:contain!important
+}
+main.wrap .story-article .article-text .studio-content-video{margin:24px 0!important}
+
