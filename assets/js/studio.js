@@ -214,6 +214,7 @@ function upload(block){
  });choose.click();
 }
 async function authenticated(session){
+ location.replace('/studio-v2/'+location.search);return;
  state.admin=true;await loadCatalog();
  E("studio-auth").hidden=true;E("studio-app").hidden=false;
  E("studio-account-name").textContent="Account GitHub: "+session.login;
