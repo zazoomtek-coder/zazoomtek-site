@@ -50,7 +50,7 @@ def run():
         raise SystemExit("EDITORIAL_SLOT must be 12:30 or 19:30")
     # Scheduled jobs can start late, but cannot publish the next window early.
     target=local.replace(hour=int(slot[:2]),minute=30,second=0,microsecond=0)
-    if local.date()!=target.date() or local<target:
+    if local.date()!=target.date() or local<target or local>target+timedelta(minutes=45):
         raise SystemExit("Slot not reached: "+slot)
     cutoff=target.replace(hour=int(slot[:2]),minute=20,second=0,microsecond=0).astimezone(timezone.utc)
     changed=False
