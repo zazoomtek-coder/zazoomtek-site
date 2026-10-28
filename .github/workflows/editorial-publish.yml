@@ -1,11 +1,10 @@
-name: ZazoomTek - slot pubblicazione Roma
+name: ZazoomTek - 2 slot importazione e pubblicazione (Roma)
 on:
   schedule:
-    # Preavvio a :25 senza pubblicare e avvio regolare a :30.
-    # ENTRAMBI possono pubblicare solo a 12:30 o 19:30 (guardia qui sotto).
-    # Questo riduce i mancati slot causati dai ritardi dello scheduler GitHub.
-    - cron: '25,30 12,19 * * *'
-      timezone: Europe/Rome
+    # Tentativi anticipati: mai tre deploy. Il primo riuscito chiude lo slot.
+    # Ogni tentativo prepara i dati e attende le 12:30 o le 19:30.
+    - cron: '20,25,30 12,19 * * *'
+      timezone: "Europe/Rome"
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,87 +13,70 @@ concurrency:
   group: zazoomtek-pages-production
   cancel-in-progress: false
 jobs:
-  publish:
+  import-and-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 24
     env:
       CF_PAGES_BRANCH: main
       CF_PAGES_URL: https://zazoomtek.it
     steps:
-      - uses: actions/checkout@v4
+      - name: Carica la versione ufficiale di main
+        uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 1
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Blocca esecuzioni tardive o fuori dagli slot 12:30 e 19:30
+
+      # 1. IMPORTAZIONE REALE in data/, mai soltanto il vecchio JSON.
+      # La coda editoriale e' una riserva, non un prerequisito.
+      - name: Recupera eventuale coda YouTube senza bloccare il caricamento diretto
+        run: git fetch --no-tags origin editorial-queue || echo "Coda non raggiungibile; importazione diretta ancora disponibile"
+      - name: IMPORTA ORA i nuovi post Community, video YouTube e notizie RSS
+        run: python3 tools/scheduled_editorial_import.py
+      - name: Confronta i dati reali con l'ultima pubblicazione riuscita
+        run: python3 tools/editorial_slot_gate.py prepare
+
+      # Nessun aggiornamento? NESSUN deploy, nessun file grafico toccato.
+      - name: Salva i nuovi articoli nella cartella ufficiale data/
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: |
-          python3 - <<'PY'
-          import os
-          from datetime import datetime,timedelta
-          from zoneinfo import ZoneInfo
-          now=datetime.now(ZoneInfo("Europe/Rome"))
-          slot=""
-          for h in (12,19):
-              target=now.replace(hour=h,minute=30,second=0,microsecond=0)
-              if timedelta(minutes=-5)<=now-target<timedelta(0):
-                  # PREPARAZIONE anticipata; nessun deploy prima del target.
-                  import time
-                  seconds=(target-now).total_seconds()+1
-                  print("Preavvio attivo, pubblicazione non prima delle",target.isoformat(),flush=True)
-                  time.sleep(max(0,seconds))
-                  now=datetime.now(ZoneInfo("Europe/Rome"))
-              if timedelta(0)<=now-target<=timedelta(minutes=5):
-                  slot=f"{h:02d}:30"
-                  break
-          with open(os.environ["GITHUB_ENV"],"a") as output:
-              output.write("EDITORIAL_SLOT="+slot+"\n")
-          print("Ora Roma:",now.isoformat(),"slot autorizzato:",slot or "nessuno")
-          PY
-      - name: Acquisisci la coda senza modificare editorial-queue
-        if: env.EDITORIAL_SLOT != ''
-        run: git fetch --no-tags --depth=1 origin editorial-queue
-      - name: Applica gli articoli e video in un solo blocco
-        if: env.EDITORIAL_SLOT != ''
-        run: python3 tools/queue_publish.py
-      - name: Arricchisci le news Community con eventuali siti ufficiali (non bloccante)
-        if: env.EDITORIAL_SLOT != ''
-        run: |
-          # At most 20 seconds; search or connection failures never stop publishing.
-          timeout 20s python3 tools/enrich_official_links.py || echo "Sito ufficiale non verificato: pubblica normalmente la news originale"
-      - name: Pubblica su main solo nuovi contenuti o configurazioni già approvate
-        if: env.EDITORIAL_SLOT != ''
-        run: |
-          git add data/videos.json data/community_imported.json data/studio_posts.json data/studio_overrides.json
-          # A failed/unmatched link lookup must NOT create a new deployment by itself.
+          git add data/community_imported.json data/videos.json data/web.json
           if ! git diff --cached --quiet; then
-            git add data/official_links.json
-          fi
-          if [ -f .github/STUDIO_PENDING_PRODUCTION_DEPLOY ]; then
-            git rm .github/STUDIO_PENDING_PRODUCTION_DEPLOY
-            echo "Rilascio Studio V2: sessione Production pronta per lo slot autorizzato"
-          fi
-          if ! git diff --cached --quiet; then
-            git config user.name "ZazoomTek Publish Bot"
+            git config user.name "ZazoomTek Scheduled Import"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "[CF-Pages-Skip] Slot ${EDITORIAL_SLOT} Europe/Rome: aggiorna coda ZazoomTek"
+            git commit -m "[CF-Pages-Skip] Importa realmente YouTube e RSS prima del deploy autorizzato"
             git push origin HEAD:main
-            echo "DID_PUBLISH=true" >> "$GITHUB_ENV"
           else
-            echo "Slot senza nuovi contenuti, nessun deploy"
+            echo "Nessun nuovo elemento da scrivere: verificare eventuale deploy precedente incompleto."
           fi
-      - name: Genera il sito dal nuovo snapshot editoriale
-        if: env.DID_PUBLISH == 'true'
+      - name: Rigenera il sito SpotNews con le notizie appena importate
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/build.py
-      - name: Controlla i file di produzione
-        if: env.DID_PUBLISH == 'true'
-        run: test -s dist/index.html && test -s dist/_routes.json && test -s dist/sitemap.xml
-      - name: Pubblica direttamente su Cloudflare Pages, senza integrazione Git
-        if: env.DID_PUBLISH == 'true'
+      - name: Verifica presenza dei file editoriali generati
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
+
+      # 2. PUBBLICAZIONE SOLO NEI DUE SLOT. Nessun trigger cron
+      # puo' bypassare il controllo temporale.
+      - name: Attendi l'ora esatta e impedisci deploy fuori dalle 12:30/19:30
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: python3 tools/editorial_slot_gate.py authorize
+      - name: Pubblica i nuovi dati su Cloudflare Pages zazoomtek.it
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Memorizza conferma del deploy riuscito ed evita doppioni nello slot
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
+        run: |
+          python3 tools/editorial_slot_gate.py stamp
+          git add data/editorial_release_state.json
+          git config user.name "ZazoomTek Release Receipt"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "[CF-Pages-Skip] Conferma deploy editoriale dello slot ${EDITORIAL_TARGET}"
+          git push origin HEAD:main
