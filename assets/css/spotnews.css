@@ -2089,3 +2089,133 @@ main.wrap .sidebar .compact-editorial-box .editorial-row[hidden] {
   overflow:visible!important;
  }
 }
+
+/* v45 — News Tech image-led 2+6: scoped ONLY to the Home's News Tech module.
+   True first-party ZazoomTek stories, in original descending publication order.
+   Other sections, page grid, sidebar width and editorial types stay untouched. */
+main.wrap .home-column .news-tech-showcase{
+  display:block!important;
+  min-width:0!important;
+  width:100%!important;
+  background:#fff!important;
+  margin:0!important;
+  padding:0 0 6px!important;
+}
+main.wrap .home-column .news-tech-showcase :is(.news-tech-lead-grid,.news-tech-small-grid){
+  display:grid!important;
+  align-items:start!important;
+  min-width:0!important;
+  width:100%!important;
+  padding:0!important;
+  margin:0!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-lead-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  column-gap:16px!important;
+  row-gap:16px!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-small-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  column-gap:14px!important;
+  row-gap:17px!important;
+  margin-top:18px!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card{
+  display:block!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:0!important;
+  margin:0!important;
+  background:#fff!important;
+  border:0!important;
+  overflow-wrap:anywhere!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-cover{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+  background:#203040!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-cover>.editorial-media-frame{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-cover img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-category{
+  display:inline-block!important;
+  background:#f44353!important;
+  color:#fff!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  text-transform:uppercase!important;
+  padding:3px 6px!important;
+  margin:7px 0 3px!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card h3{
+  font-family:Arial,Helvetica,sans-serif!important;
+  color:#151515!important;
+  font-weight:700!important;
+  letter-spacing:0!important;
+  line-height:1.32!important;
+  margin:3px 0 6px!important;
+  padding:0!important;
+  overflow-wrap:anywhere!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card-large h3{
+  font-size:15px!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card-small h3{
+  font-size:11.5px!important;
+  line-height:1.28!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card h3 a{
+  color:inherit!important;
+  font-weight:inherit!important;
+  font-size:inherit!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card h3 a:hover{
+  color:#db2536!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-card time{
+  display:block!important;
+  margin:0!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:10px!important;
+  line-height:1.3!important;
+  color:#777!important;
+}
+@media(max-width:680px){
+  main.wrap .home-column .news-tech-showcase .news-tech-small-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+}
+@media(max-width:450px){
+  main.wrap .home-column .news-tech-showcase .news-tech-lead-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:16px!important;
+  }
+  main.wrap .home-column .news-tech-showcase .news-tech-small-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+  main.wrap .home-column .news-tech-showcase .news-tech-card-large h3{
+    font-size:14px!important;
+  }
+  main.wrap .home-column .news-tech-showcase .news-tech-card-small h3{
+    font-size:11px!important;
+  }
+}

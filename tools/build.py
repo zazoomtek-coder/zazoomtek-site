@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-rail-boundary-44"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-news-tech-2plus6-45"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -423,6 +423,31 @@ def gaming_article_preview(row,limit=225):
    return short+"…"
   return candidate
  return ""
+
+def news_tech_magazine(rows):
+ """Homepage-only, image-first News Tech: 2 large stories + 6 smaller (3x2).
+ All records come from the same dated, deduplicated first-party YouTube feed.
+ No external example articles, fake image cards or alterations to other modules.
+ """
+ if not rows:return ""
+ def item(row,large=False):
+  href="/"+row["slug"]
+  title=esc(clean_title(row["title"]))
+  stamp=date_label(row)
+  raw_date=str(row.get("date") or row.get("published_at") or "")[:10]
+  date_html=('<time datetime="'+esc(raw_date,quote=True)+'">'+esc(stamp)+'</time>' if stamp else "")
+  return ('<article class="news-tech-card '+("news-tech-card-large" if large else "news-tech-card-small")+'">'
+          '<a class="news-tech-cover" href="'+href+'" aria-label="Leggi News Tech: '+esc(clean_title(row["title"]),quote=True)+'">'
+          +editorial_cover(row)+'</a>'
+          '<span class="news-tech-category">News Tech</span>'
+          '<h3><a href="'+href+'">'+title+'</a></h3>'
+          +date_html+'</article>')
+ big="".join(item(row,True) for row in rows[:2])
+ small="".join(item(row) for row in rows[2:8])
+ return ('<div class="news-tech-showcase" aria-label="Ultime otto News Tech">'
+         '<div class="news-tech-lead-grid">'+big+'</div>'
+         +('<div class="news-tech-small-grid">'+small+'</div>' if small else '')+
+         '</div>')
 
 def gaming_magazine(rows):
  """SpotNews editorial layout: one large story left, up to four compact vertical items right."""
@@ -817,7 +842,7 @@ def home(rows):
  guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
  extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
  spotlight=adaptive_news(all_news,5,global_used)
- tech_low=adaptive_news(tech,6,global_used)
+ tech_low=adaptive_news(tech,8,global_used)
  gaming_low=adaptive_news(gaming,5,global_used)
  reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],3,global_used)
  video_section=playlist_cards()
@@ -829,7 +854,7 @@ def home(rows):
   if global_used.intersection(identities):continue
   global_used.update(identities);unique_web.append(entry)
  sections=[
-  ("News Tech",cards(tech_low)),
+  ("News Tech",news_tech_magazine(tech_low)),
   ("News Gaming",gaming_magazine(gaming_low)),
   ("Ultime Recensioni",reviews_three_column(reviews)),
   ("Speciali",special_gallery(specials)),
