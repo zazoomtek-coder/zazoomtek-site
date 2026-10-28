@@ -477,11 +477,12 @@ def cards(rows):
   entries.append('<article class="card"><a class="thumb" href="'+url+'">'+visual+'</a>'
                  '<small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
  return '<div class="cards">'+''.join(entries)+'</div>'
-def gaming_article_preview(row,limit=225):
- """Preserve useful news prose, remove only duplicate category/title from the original excerpt."""
+def gaming_article_preview(row,limit=640):
+ """News Gaming lead only: use the authentic article's prose to fill its left column."""
  body=row.get("body") or []
  if isinstance(body,str):body=[body]
  headline=clean_title(row.get("title","")).strip()
+ parts=[]
  for part in body:
   if not isinstance(part,str):continue
   candidate=part.strip()
@@ -489,15 +490,16 @@ def gaming_article_preview(row,limit=225):
   candidate=re.sub(r"\*\*(.*?)\*\*",r"\1",candidate)
   candidate=re.sub(r"\s+"," ",candidate).strip()
   candidate=re.sub(r"^(?:News\s+Gaming|Gaming\s+News)\s*[:\u2013\u2014-]\s*","",candidate,flags=re.I)
-  # Imported Community text sometimes repeats the full article headline as its first line.
   if headline and candidate.casefold().startswith(headline.casefold()):
    candidate=candidate[len(headline):].lstrip(" :.-–—")
   if len(candidate)<18:continue
-  if len(candidate)>limit:
-   short=candidate[:limit].rsplit(" ",1)[0].rstrip(".,;:") or candidate[:limit]
-   return short+"…"
-  return candidate
- return ""
+  parts.append(candidate)
+  if sum(len(part) for part in parts)>=limit+160:break
+ combined=" ".join(parts)
+ if len(combined)>limit:
+  short=combined[:limit].rsplit(" ",1)[0].rstrip(".,;:") or combined[:limit]
+  return short+"…"
+ return combined
 
 def news_tech_magazine(rows):
  """Homepage-only, image-first News Tech: 2 large stories + 6 smaller (3x2).
@@ -999,9 +1001,43 @@ def archive(key,rows,page=1):
  visible=selected[offset:offset+ARCHIVE_PAGE_SIZE]
  content='<h1>'+esc(label)+'</h1>'+cards(visible)+pagination_links(key,page,count)
  return inside(label,content,rows,show_related=False,seo_path="/"+key+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio "+label+" di ZazoomTek con notizie, recensioni e contenuti originali in ordine di pubblicazione."+((" Pagina "+str(page)+".") if page>1 else ""))
+def matching_review_video_id(row):
+ """Use only a real published YouTube review, never a gameplay, test or unboxing."""
+ if not str(row.get("category") or "").startswith("recensioni-"):return ""
+ try:
+  catalog=json.loads((P/"data/videos.json").read_text(encoding="utf-8")).get("videos",[])
+ except (FileNotFoundError,ValueError,TypeError):return ""
+ published={v.get("id") for v in catalog if v.get("kind")=="review"}
+ title=re.sub(r"[^a-z0-9]+"," ",unesc(str(row.get("title") or "")).casefold()).strip()
+ # Known exact review pairings, including Italian/English title variants.
+ matches=(
+  (("70mai","a900","ultra"),"3biZz45pUJs"),
+  (("thermomate","2500w"),"e7rAYQprXTM"),
+  (("call","of","duty","modern","warfare","4"),"-c995pZgzHQ"),
+  (("sesame","street"),"WwGAaKGfoGY"),
+  (("walto",),"fKiuvUW5eKI"),
+  (("ace","combat","8"),"RtHYQ7o5Gws"),
+  (("nba","2k27"),"X5qvA6u5lvo"),
+  (("marvel","wolverine"),"hp6JW2xqa9Y"),
+  (("70mai","dash","cam","a900"),"by7Qm_XFO8c"),
+  (("serious","sam","shatterverse"),"xyEMlTZZhjo"),
+  (("princess","water","lilies"),"eZYHrpgEEKA"),
+  (("realme","buds","t500"),"6hLJq9njq5o"),
+  (("dt","h03"),"Dq0TXVZINVQ"),
+ )
+ # Prefer the Ultra review over a different 70mai A900 review.
+ for words,vid in matches:
+  if all(re.search(r"\b"+re.escape(w)+r"\b",title) for w in words) and vid in published:
+   return vid
+ return ""
+
 def article(r,rows):
  from article_templates import render
- return inside(r["title"],render(r,safe_image),rows,r["slug"],r["category"],seo_row=r,seo_path="/"+r["slug"])
+ page=dict(r)
+ if str(page.get("category") or "").startswith("recensioni-") and not (page.get("youtube_id") or page.get("video_url")):
+  video_id=matching_review_video_id(page)
+  if video_id:page["youtube_id"]=video_id
+ return inside(page["title"],render(page,safe_image),rows,page["slug"],page["category"],seo_row=page,seo_path="/"+page["slug"])
 def legacy_article_redirects(rows):
  """Only redirect genuine legacy ALIASES to extensionless canonical pages.
  A physical slug.html is automatically served at /slug by Cloudflare Pages.
