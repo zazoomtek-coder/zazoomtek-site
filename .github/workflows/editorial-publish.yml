@@ -49,10 +49,14 @@ jobs:
       - name: Applica gli articoli e video in un solo blocco
         if: env.EDITORIAL_SLOT != ''
         run: python3 tools/queue_publish.py
-      - name: Pubblica su main solo se ci sono variazioni editoriali
+      - name: Pubblica su main solo nuovi contenuti o configurazioni già approvate
         if: env.EDITORIAL_SLOT != ''
         run: |
           git add data/videos.json data/community_imported.json data/studio_posts.json data/studio_overrides.json
+          if [ -f .github/STUDIO_PENDING_PRODUCTION_DEPLOY ]; then
+            git rm .github/STUDIO_PENDING_PRODUCTION_DEPLOY
+            echo "Rilascio Studio V2: sessione Production pronta per lo slot autorizzato"
+          fi
           if ! git diff --cached --quiet; then
             git config user.name "ZazoomTek Publish Bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
