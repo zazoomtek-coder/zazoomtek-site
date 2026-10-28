@@ -210,22 +210,41 @@ def playlist_latest():
  return [{"playlist_id":pl.get("id",""),"playlist":pl.get("title","Playlist"),
   "video":None,"thumbnail":pl.get("thumbnail","")} for pl in playlists]
 def playlist_cards():
- rows=playlist_latest()
- if not rows:return ""
+ """Always render the latest verified channel uploads, including gameplay and Shorts.
+
+ Video cards are sourced from the same approved data/videos.json snapshot
+ that the editor publishes to Cloudflare. Only fall back to curated playlists
+ when the imported upload collection is actually empty.
+ """
+ raw=json.loads((P/"data/videos.json").read_text(encoding="utf-8")).get("videos",[])
+ recent=[]
+ seen=set()
+ for v in sorted(raw,key=chronological_key,reverse=True):
+  vid=str(v.get("id") or "")
+  title=str(v.get("title") or "").strip()
+  if not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) or not title or vid in seen:continue
+  seen.add(vid);recent.append(v)
+  if len(recent)==4:break
  result=[]
- for p in rows:
-  pid=p["playlist_id"];v=p["video"]
-  if v:
-   vid=v["id"];url="https://www.youtube.com/watch?v="+vid+"&list="+pid
-   pic="https://i.ytimg.com/vi/"+vid+"/hqdefault.jpg"
-   title=v["title"];sub=p["playlist"]
-  else:
-   url="https://www.youtube.com/playlist?list="+pid
-   pic=p.get("thumbnail","")
-   title=p["playlist"];sub="Playlist · ultimo video non verificato"
-  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else '<span class="video-thumb-fallback">'+esc(sub)+'</span>'
+ for v in recent:
+  vid=v["id"];title=v["title"]
+  url="https://www.youtube.com/watch?v="+vid
+  pic="https://i.ytimg.com/vi/"+vid+"/hqdefault.jpg"
+  kind={"review":"Recensione","unboxing":"Unboxing","test":"Test","gameplay":"Gameplay","short":"Short","trailer":"Trailer"}.get(str(v.get("kind") or "").lower(),"Video")
+  sub=kind+" · "+str(v.get("date") or "")[:10]
+  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">'
   result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
- return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>'
+ if result:
+  return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>'
+ rows=playlist_latest()
+ for p in rows:
+  pid=p["playlist_id"]
+  url="https://www.youtube.com/playlist?list="+pid
+  pic=p.get("thumbnail","")
+  title=p["playlist"]
+  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else '<span class="video-thumb-fallback">Playlist</span>'
+  result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>Playlist</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
+ return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>' if result else ""
 def video_cards(rows):
  if not rows:return blank()
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
