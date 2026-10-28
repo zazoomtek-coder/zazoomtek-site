@@ -1,8 +1,5 @@
 name: ZazoomTek - importa davvero YouTube RSS e PUBBLICA (una tantum)
 on:
-  push:
-    branches: [main]
-    paths: [tools/IMPORT_AND_PUBLISH_APPROVED_20261028.txt]
   workflow_dispatch:
 permissions:
   contents: write
