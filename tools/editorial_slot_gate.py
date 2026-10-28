@@ -21,6 +21,12 @@ FILES = (
     "data/community_imported.json",
     "data/videos.json",
     "data/web.json",
+    # Approved Studio editor features are delivered at the next editorial slot,
+    # even if no new news happens to arrive. Otherwise a changed editor could
+    # remain unpublished indefinitely while all editorial JSON is unchanged.
+    "tools/studio_v2_build.py",
+    "assets/js/studio-v2.js",
+    "assets/css/studio-v2.css",
 )
 ROME = ZoneInfo("Europe/Rome")
 
