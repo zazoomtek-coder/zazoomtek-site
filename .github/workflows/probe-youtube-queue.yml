@@ -1,8 +1,5 @@
 name: ZazoomTek - diagnosi reale importazione YouTube (no deploy)
 on:
-  push:
-    branches: [main]
-    paths: [tools/PROBE_COLLECTOR_20261028.txt]
   workflow_dispatch:
 permissions:
   contents: write
