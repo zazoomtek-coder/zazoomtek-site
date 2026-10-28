@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-spotlight-4tech-1gaming-46"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-cover-text-safe-47"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -389,6 +389,7 @@ def editorial_cover(row):
  if url:
   src=esc(url,quote=True)
   return ('<span class="editorial-media-frame">'
+          '<img class="editorial-media-bg" loading="lazy" src="'+src+'" alt="" aria-hidden="true">'
           '<img class="editorial-media-fg" loading="lazy" src="'+src+'" alt="'+title+'">'
           '<span class="editorial-media-fallback" aria-hidden="true"><small>'+section+'</small><strong>'+title+'</strong></span>'
           '</span>')
@@ -511,7 +512,9 @@ def date_label(r):
 def overlay_card(r,kind="feature-tile"):
  link="/"+r["slug"]
  pic=safe_image(r.get("image",""))
- image='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>'
+ image=('<img class="spotlight-cover-backdrop" loading="lazy" src="'+esc(pic,quote=True)+'" alt="" aria-hidden="true">'
+        '<img class="spotlight-cover-foreground" loading="lazy" src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
+        if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>')
  label=esc(TYPES.get(r["category"],"ZazoomTek"))
  date=date_label(r)
  stamp='<span class="tile-date">'+esc(date)+'</span>' if date else ""
