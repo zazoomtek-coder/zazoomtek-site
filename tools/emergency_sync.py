@@ -34,6 +34,19 @@ def save(name, obj):
         return True
     return False
 
+def classify_upload(title):
+    original = classify(title)
+    if original:
+        return original
+    low = title.casefold()
+    if "short" in low:
+        return "short", "general"
+    if "gameplay" in low:
+        return "gameplay", "gaming"
+    if "trailer" in low:
+        return "trailer", "gaming"
+    return "video", "general"
+
 def youtube_videos():
     db = load("videos.json", "videos")
     known = {r.get("id"): r for r in db["videos"] if r.get("id")}
@@ -52,10 +65,9 @@ def youtube_videos():
                 continue
             if published_at[:10] >= CATCHUP_FROM:
                 recent.append((published_at[:10], title))
-            category = classify(title)
-            if video_id in known or not category:
+            if video_id in known:
                 continue
-            kind, topic = category
+            kind, topic = classify_upload(title)
             known[video_id] = {"id": video_id, "title": title, "date": published_at, "topic": topic, "kind": kind}
             count += 1
         db["videos"] = sorted(known.values(), key=lambda x: x.get("date", ""), reverse=True)
