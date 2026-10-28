@@ -178,6 +178,26 @@ def posts():
    row["studio_blocks"]=True
    row["source"]="studio-editor"
  rows=sorted(deduplicated,key=chronological_key,reverse=True)
+ # Only pre-verified official game/device links saved by the two editorial slots.
+ # Network fetching never occurs during static page generation.
+ try:
+  registry=json.loads((P/"data/official_links.json").read_text(encoding="utf-8")).get("links",{})
+ except (OSError,ValueError,TypeError):
+  registry={}
+ if not isinstance(registry,dict):registry={}
+ for row in rows:
+  if not str(row.get("slug") or "").startswith("community-") or row.get("category") not in ("news-tech","news-gaming"):
+   continue
+  verified=registry.get(row["slug"])
+  if not isinstance(verified,dict) or verified.get("category")!=row["category"]:
+   continue
+  from enrich_official_links import norm, headline, safe_url
+  topic=str(verified.get("topic") or "")
+  if not topic or norm(headline(row["title"],row["category"]))!=norm(topic):
+   continue  # A later Studio title edit cannot inherit an unrelated old link.
+  url=safe_url(verified.get("url"))
+  if url and verified.get("source") in ("publisher_verified","wikidata:P856"):
+   row["official_link"]={"url":url,"label":str(verified.get("label") or "")}
  from review_image_archive import populate_review_covers
  populate_review_covers(rows,P,safe_image)
  review_data=json.loads((P/"data/review_editorial.json").read_text(encoding="utf-8")).get("editorial_data",{})
