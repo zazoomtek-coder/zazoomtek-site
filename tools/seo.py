@@ -110,6 +110,10 @@ def article_schema(row,url,desc,image):
 def metadata(title,path="/",row=None,preview=True,summary=None):
  url=canonical(path)
  head=title_tag(row) if row else ("ZazoomTek | Tecnologia e Gaming" if path=="/" else plain(title)+" | ZazoomTek")
+ # SERP title only: never truncate the real editorial H1.
+ # Web gateway / archival headlines can exceed Google's practical title length.
+ if len(head)>115:
+  head=head[:115].rsplit(" ",1)[0].rstrip(" ,;:-–—")
  desc=description(row) if row else (summary or DESC)
  image=full_image(row.get("image")) if row else ""
  robot=("noindex,nofollow" if preview or path=="/404" else
