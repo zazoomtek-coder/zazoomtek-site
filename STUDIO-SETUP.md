@@ -1,7 +1,7 @@
 # ZazoomTek Studio — sistema nuovo, accesso una sola volta
 
 Studio è stato ricreato da zero esclusivamente per il branch
-`feature/spotnews-clean-rebuild`, senza Cloudflare Zero Trust.
+`editorial-queue`, senza Cloudflare Zero Trust.
 
 ## Una sola configurazione prima del primo login
 
@@ -34,7 +34,7 @@ Zero Trust, CF_ACCESS_AUD o segreti GitHub permanenti nel server.
    `Modifica` appare solo se il server verifica il cookie. Cliccandolo
    si apre direttamente Studio sull'articolo selezionato.
 6. Nuovi contenuti e modifiche agli importati scrivono **soltanto**
-   sul branch SpotNews: `data/studio_posts.json` e
+   sul branch editorial-queue: `data/studio_posts.json` e
    `data/studio_overrides.json`. Ogni salvataggio produce una nuova
    build di preview. Il branch `main` e zazoomtek.it restano invariati.
 
