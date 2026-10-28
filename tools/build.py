@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-news-tech-2plus6-45"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-spotlight-4tech-1gaming-46"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -517,11 +517,13 @@ def overlay_card(r,kind="feature-tile"):
  stamp='<span class="tile-date">'+esc(date)+'</span>' if date else ""
  return '<article class="'+kind+'"><a class="tile-link" href="'+esc(link,quote=True)+'">'+image+'<span class="tile-gradient"></span><span class="tile-copy"><span class="tile-category">'+label+'</span><strong class="tile-title">'+esc(r["title"])+'</strong>'+stamp+'</span></a></article>'
 def featured_showcase(rows):
+ """Five latest first-party news: Tech hero + three Tech, Gaming bottom right."""
  if not rows:return blank()
- lead=rows[0]
+ lead=rows[0]  # Most recently published News Tech, selected first.
  rest=[p for p in rows if p["slug"]!=lead["slug"]][:4]
- markup=overlay_card(lead,"spotlight-hero")+''.join(overlay_card(r,"spotlight-tile") for r in rest)
- # More compact grid when there are fewer than five authentic reports.
+ markup=overlay_card(lead,"spotlight-hero")+''.join(
+  overlay_card(r,"spotlight-tile"+(" spotlight-gaming" if r["category"]=="news-gaming" else ""))
+  for r in rest)
  return '<div class="spotlight-grid">'+markup+'</div>'
 def box(name,rows,notice=""):
  archives={"I più letti":"/news-tech","Amazon":"",
@@ -831,17 +833,27 @@ def adaptive_news(items,count,used):
    if len(result)==count:return result
  return result
 
+def latest_featured_news(tech,gaming,used):
+ """Reserve precisely the newest four Tech and newest one Gaming for the Home.
+ Re-evaluate after EVERY build/import/Studio change; used prevents duplicates
+ in lower Home grids and editorial sidebars. Replaced items rejoin their pool.
+ """
+ featured_tech=take_unique(tech,4,used)
+ featured_gaming=take_unique(gaming,1,used)
+ return featured_tech+featured_gaming
+
 def home(rows):
  global_used=set()
  tech=[r for r in rows if r["category"]=="news-tech"]
  gaming=[r for r in rows if r["category"]=="news-gaming"]
- all_news=sort_by_date_desc(tech+gaming)
- # The latest dated news leads regardless of category or editorial flag.
- # Reserve the Special/Guide/Extra blocks before news so duplicate archive categories cannot consume Specials.
+ # The newest first-party Tech and Gaming stories are reserved for Spotlight,
+ # BEFORE lower Home modules. Categories are independent, so a fresh Gaming post
+ # never displaces any Tech card (and vice versa).
+ # Reserve Special/Guide/Extra before news: their classifications are distinct.
  specials=take_unique([r for r in rows if r["category"]=="speciali"],2,global_used)
  guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
  extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
- spotlight=adaptive_news(all_news,5,global_used)
+ spotlight=latest_featured_news(tech,gaming,global_used)
  tech_low=adaptive_news(tech,8,global_used)
  gaming_low=adaptive_news(gaming,5,global_used)
  reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial")],3,global_used)

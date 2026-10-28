@@ -2219,3 +2219,19 @@ main.wrap .home-column .news-tech-showcase .news-tech-card time{
     font-size:11px!important;
   }
 }
+
+/* v46 — In evidenza always prioritizes four latest Tech news and one latest
+   Gaming news. The Gaming news stays in the BOTTOM RIGHT tile at all sizes.
+   Scoped to spotlight so News Tech, News Gaming, other cards and rail stay intact. */
+@media(min-width:781px){
+ main.wrap .spotlight-grid>.spotlight-tile.spotlight-gaming{
+  grid-column:3!important;
+  grid-row:2!important;
+ }
+}
+@media(max-width:780px){
+ main.wrap .spotlight-grid>.spotlight-tile.spotlight-gaming{
+  grid-column:2!important;
+  grid-row:3!important;
+ }
+}
