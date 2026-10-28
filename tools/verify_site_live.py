@@ -56,7 +56,7 @@ try:
   response_body=error.read(1200).decode("utf-8","replace")
  print("STUDIO API", "HTTP",status,"STATUS",response_body[:350])
  if status==503 and "SETUP_REQUIRED" in response_body:
-  print("STUDIO LOGIN NEEDS CLOUDFLARE PRODUCTION STUDIO_SESSION_SECRET")
+  print("STUDIO LOGIN NEEDS CLOUDFLARE PRODUCTION STUDIO_SESSION_SECRET; must wait for approved next slot deployment")
  elif status==401 and "UNAUTHENTICATED" in response_body:
   print("STUDIO LOGIN SERVER CONFIGURED; administrator login required")
 except Exception as error:
