@@ -98,7 +98,7 @@ def build_studio_v2(output,rows):
 })();
 </script>
 <title>Studio V2 — Anteprima | ZazoomTek</title>
-<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-rich-4">
+<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
 <script src="/assets/js/studio-v2.js?v=20261028-rich-4" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
@@ -158,8 +158,9 @@ def build_studio_v2(output,rows):
     <div><div class="v2-eyebrow">EDITOR VISUALE</div><h1 id="v2-editor-heading">Modifica contenuto</h1>
      <p id="v2-editor-note">Scrivi e modifica liberamente, come su Patreon.</p></div>
     <div class="v2-editor-actions">
-      <button id="v2-save-draft" class="v2-soft">Salva in bozza</button>
-      <button id="v2-publish" class="v2-primary">Salva e pubblica</button>
+      <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
+      <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza</button>
+      <button type="button" id="v2-publish" class="v2-primary">Pubblica</button>
     </div>
    </div>
    <div class="v2-editor-layout">
@@ -176,8 +177,10 @@ def build_studio_v2(output,rows):
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
       <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
      </article>
-     <div class="v2-footer-actions"><button id="v2-draft-bottom" class="v2-soft">Salva in bozza</button>
-      <button id="v2-publish-bottom" class="v2-primary">Salva e pubblica</button></div>
+     <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
+      <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza</button>
+      <button type="button" id="v2-publish-bottom" class="v2-primary">Pubblica</button></div>
+    <p id="v2-autosave-status" class="v2-autosave-status" role="status" aria-live="polite">Bozza locale: protezione automatica del testo.</p>
     </div>
     <aside class="v2-settings">
      <div class="v2-settings-header"><strong>Impostazioni</strong><span>CONTENUTO</span></div>
@@ -202,13 +205,19 @@ def build_studio_v2(output,rows):
        <div>Descrizione</div><span id="v2-seo-description">Ottimizzata automaticamente dal contenuto completo.</span></div>
      </div>
      <div class="v2-settings-section"><div class="v2-setting-title">Pubblicazione</div>
-      <p class="v2-settings-hint">La bozza non modifica il sito. Salva e pubblica mette il contenuto in coda per le 12:30 o le 19:30.</p>
+      <p class="v2-settings-hint">Anteprima non salva né pubblica. Salva bozza conserva il testo nel repository di prova. Pubblica mette l\u0027articolo in coda per le 12:30 o le 19:30. Il testo è protetto anche da un salvataggio automatico locale.</p>
       <a id="v2-public-link" href="#" target="_blank" rel="noopener noreferrer" hidden>↗ Apri articolo pubblicato</a>
      </div>
     </aside>
    </div>
   </div>
   <div id="v2-toast" class="v2-toast" role="status" aria-live="polite" hidden></div>
+ <div id="v2-article-preview" class="v2-article-preview" role="dialog" aria-modal="true" aria-label="Anteprima dell\u0027articolo" hidden>
+  <div class="v2-preview-sheet"><div class="v2-preview-toolbar"><strong>ANTEPRIMA ARTICOLO · SOLO LOCALE</strong><button type="button" id="v2-close-preview">Chiudi anteprima ×</button></div>
+   <article class="v2-preview-article" id="v2-preview-article-content"></article>
+   <p class="v2-preview-disclaimer">Questa anteprima non pubblica nulla e riproduce titolo, immagine, paragrafi e sottotitoli editoriali.</p>
+  </div>
+ </div>
  </main>
 </div>
 <div id="v2-insert-menu" class="v2-insert-menu" hidden role="dialog" aria-label="Inserisci contenuto">
