@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261027-ticker-sidebar-37"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-center-16x9-38"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -389,7 +389,6 @@ def editorial_cover(row):
  if url:
   src=esc(url,quote=True)
   return ('<span class="editorial-media-frame">'
-          '<img class="editorial-media-bg" loading="lazy" src="'+src+'" alt="" aria-hidden="true">'
           '<img class="editorial-media-fg" loading="lazy" src="'+src+'" alt="'+title+'">'
           '<span class="editorial-media-fallback" aria-hidden="true"><small>'+section+'</small><strong>'+title+'</strong></span>'
           '</span>')

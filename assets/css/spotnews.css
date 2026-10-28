@@ -1587,3 +1587,84 @@ main.wrap:has(>.featured-wide){
 @media(prefers-reduced-motion:reduce){
  .breaking-ticker .ticker-link{transition:none!important}
 }
+
+/* v38 — center-cropped images: force 16:9 sitewide.
+   No contain, blurred padding or letterboxing on editorial imagery.
+   Favor the middle (including image-embedded lettering) over outer edges. */
+main.wrap img:not(.editorial-media-bg) {
+  aspect-ratio:16/9!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+}
+/* Editorial 16:9 slots: Home, archives, news, reviews, sidebar, guides, video. */
+main.wrap :is(
+  .thumb,.editorial-thumb,.compact-item-image,.feature-main-thumb,
+  .gaming-magazine-lead-image,.gaming-magazine-thumb,.web-news-thumb,
+  .video-start,.amazon-placeholder-thumb,.editorial-media-frame,.editorial-hero
+) {
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+}
+main.wrap :is(
+  .thumb,.editorial-thumb,.compact-item-image,.feature-main-thumb,
+  .gaming-magazine-lead-image,.gaming-magazine-thumb,.web-news-thumb,
+  .video-start,.amazon-placeholder-thumb,.editorial-hero,.tile-link
+) img {
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  background:transparent!important;
+}
+/* Show one zoomed source cover, not two layers (blurred background + contain). */
+main.wrap .editorial-media-frame img.editorial-media-bg{display:none!important}
+main.wrap .editorial-media-frame img.editorial-media-fg{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:16/9!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  background:transparent!important;
+  filter:none!important;
+  z-index:2!important;
+}
+/* Override all older high-specificity object-fit:contain styles. */
+main.wrap .sidebar .compact-editorial-box .editorial-thumb img,
+main.wrap .home-sidebar .compact-editorial-box .editorial-thumb img,
+main.wrap .feature-pair .feature-editorial .compact-item-image img,
+main.wrap .feature-editorial .feature-main-thumb > img,
+main.wrap .sidebar .amazon-placeholder-thumb img,
+main.wrap .sidebar .amazon-feature-box .amazon-feature-product img{
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  background:transparent!important;
+}
+main.wrap .sidebar .amazon-feature-box .amazon-feature-product img{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+}
+main.wrap .video-magazine .video-feature .video-card .thumb{
+  aspect-ratio:16/9!important;
+}
+/* The same strict crop is applied to main article, review and inline photos. */
+main.wrap .story-article .story-figure img,
+main.wrap .story-article.news-article > .story-figure img,
+main.wrap .story-article.review-article > .story-figure img,
+main.wrap .story-article .article-text img,
+main.wrap .article .cover{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  background:transparent!important;
+}
+/* Preserve title-based fallbacks if an original cover is genuinely unavailable. */
+main.wrap .editorial-media-frame.is-fallback .editorial-media-fallback{display:flex!important}
+main.wrap img[hidden]{display:none!important}
