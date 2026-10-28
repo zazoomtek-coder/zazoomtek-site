@@ -49,6 +49,182 @@ function signature(parts){
   .replace(/\s+/g," ").trim();
 }
 
+
+/* Article BODY only: the Github PAT remains exclusively in the encrypted HttpOnly
+   session cookie. This local recovery copy is not an authentication mechanism. */
+const BACKUP_PREFIX="zazoomtek:studio-v2:article:";
+let backupTimer=0;
+function backupKey(){
+ return BACKUP_PREFIX+(state.newContent?"new":String(state.current?.slug||"new"));
+}
+function backupNow(){
+ if(state.mode!=="editor"||!state.restoreReady)return;
+ try{
+  const payload={record:collect(),updated_at:Date.now()};
+  localStorage.setItem(backupKey(),JSON.stringify(payload));
+  const label=E("v2-autosave-status");
+  if(label)label.textContent="Testo protetto sul dispositivo · "+new Date(payload.updated_at).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+ }catch(e){
+  const label=E("v2-autosave-status");
+  if(label)label.textContent="Salvataggio automatico locale non disponibile: premi Salva bozza.";
+ }
+}
+function scheduleBackup(){
+ if(state.mode!=="editor"||!state.restoreReady)return;
+ clearTimeout(backupTimer);
+ backupTimer=setTimeout(backupNow,250);
+}
+function restoreBackup(){
+ try{
+  const cached=JSON.parse(localStorage.getItem(backupKey())||"null");
+  if(!cached||!cached.record||!Array.isArray(cached.record.body))return;
+  const slug=state.newContent?String(cached.record.slug||""):String(state.current?.slug||"");
+  const server=state.drafts[slug];
+  const serverTime=Date.parse(server?.updated_at||"")||0;
+  if(cached.updated_at < serverTime)return;
+  // Never inherit the slug from another published article.
+  const copy={...cached.record,slug:state.newContent?cached.record.slug:state.current.slug};
+  editorFields(copy);
+  notify("Testo recuperato dal salvataggio automatico del browser. Premi Salva bozza per conservarlo anche su GitHub.");
+ }catch(e){}
+}
+function sentenceParts(text,limit=370){
+ const pieces=String(text||"").replace(/\s+/g," ").trim().split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý0-9«“"'])/u);
+ const output=[];let current="";
+ for(let piece of pieces){
+  if(!piece)continue;
+  if((current?current.length+1:0)+piece.length<=limit){current+=(current?" ":"")+piece;continue}
+  if(current){output.push(current);current=""}
+  while(piece.length>limit){
+   let cut=piece.lastIndexOf(" ",limit);
+   if(cut<160)cut=piece.indexOf(" ",limit);
+   if(cut<0)break;
+   output.push(piece.slice(0,cut).trim());piece=piece.slice(cut+1).trim();
+  }
+  current=piece;
+ }
+ if(current)output.push(current);
+ return output;
+}
+function articleHeading(paragraph,used){
+ const p=String(paragraph).toLowerCase();
+ const choices=[
+  [/\b(prezzo|prezzi|euro|sconto|sconti)\b|€/i,"Prezzi e offerte"],
+  [/\b(disponibile|disponibilità|uscita|arriva|debutta|lancio)\b/i,"Uscita e disponibilità"],
+  [/\b(gameplay|giocatori|missioni|combattimento|modalità)\b/i,"Gameplay e contenuti"],
+  [/\b(storia|avventura|personaggi|ambientazione)\b/i,"Storia e ambientazione"],
+  [/\b(aggiornamento|espansione|dlc|patch|novità)\b/i,"Contenuti e novità"],
+  [/\b(funzioni|funzionalità|software|intelligenza artificiale|sensori)\b/i,"Funzioni e tecnologia"],
+  [/\b(design|materiali|schermo|display|hardware)\b/i,"Design e caratteristiche"],
+  [/\b(prestazioni|autonomia|batteria|velocità)\b/i,"Prestazioni e caratteristiche"]
+ ];
+ for(const [re,name] of choices)if(re.test(p)&&!used.has(name.toLowerCase()))return name;
+ for(const name of ["Tutti i dettagli","Gli elementi principali","Altri dettagli","Il quadro completo","Ulteriori informazioni"])
+  if(!used.has(name.toLowerCase()))return name;
+ return "Approfondimento";
+}
+function formattedTextBlocks(input,category,title){
+ const raw=String(input||"").replace(/\r\n?/g,"\n").trim();
+ if(!raw)return [{type:"paragraph",text:""}];
+ const chunks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
+ // A paste with a separate line per editorial paragraph, but no blank lines.
+ if(chunks.length===1&&raw.split("\n").filter(x=>x.trim()).length>=4){
+  const rows=raw.split("\n").map(x=>x.trim()).filter(Boolean);
+  chunks.splice(0,1,...rows);
+ }
+ const tokens=[];
+ for(let i=0;i<chunks.length;i++){
+  let piece=chunks[i],heading="";
+  if(/^#{1,3}\s+\S/.test(piece))heading=piece.replace(/^#{1,3}\s+/,"");
+  else if(/^\*\*[^*\n]{3,100}\*\*$/.test(piece))heading=piece.slice(2,-2);
+  else if(piece.indexOf("\n")<0&&piece.length<=80&&piece.split(/\s+/).length<=12
+       &&i+1<chunks.length&&chunks[i+1].length>95
+       &&/^[A-ZÀ-Ý]/.test(piece)&&!/[.!?;,]$/.test(piece))
+   heading=piece;
+  if(heading){
+   if(i===0&&(heading.toLowerCase()===String(title||"").toLowerCase()||/^news (tech|gaming):/i.test(heading)))continue;
+   tokens.push({type:"heading",text:heading});continue;
+  }
+  if(i===0&&piece.split("\n").length>1){
+   const lines=piece.split("\n");
+   if(lines[0].trim().replace(/^#\s*/,"").toLowerCase()===String(title||"").trim().toLowerCase())
+    piece=lines.slice(1).join("\n").trim();
+  }
+  for(const part of sentenceParts(piece))if(part)tokens.push({type:"paragraph",text:part});
+ }
+ if(!tokens.length)return [{type:"paragraph",text:""}];
+ const output=[],explicit=new Set(tokens.filter(x=>x.type==="heading").map(x=>x.text.toLowerCase()));
+ let n=0,lead=0,hadHeading=false;
+ const review=String(category||"").startsWith("recensioni-");
+ const outline=category==="recensioni-gaming"
+  ?["Introduzione","Storia","Gameplay","Aspetto tecnico","Conclusioni"]
+  :["Introduzione","Materiali e Design","Hardware e Prestazioni","Esperienza d'uso quotidiana","Conclusioni"];
+ const explicitHeadings=tokens.some(x=>x.type==="heading");
+ for(const token of tokens){
+  if(token.type==="heading"){
+   const label=token.text.trim().toLowerCase();
+   if(!output.some(x=>x.type==="heading"&&x.text.toLowerCase()===label)){
+    output.push(token);hadHeading=true;n=0;explicit.add(label)
+   }
+   continue;
+  }
+  if(review&&!explicitHeadings){
+   if(!hadHeading||n>=2){
+    const name=outline[Math.min(4,Math.floor(lead/2))];
+    if(!output.some(x=>x.type==="heading"&&x.text===name))output.push({type:"heading",text:name});
+    hadHeading=true;n=0;
+   }
+  }else if((!hadHeading&&lead>=2)||(hadHeading&&n>=2)){
+   const name=articleHeading(token.text,explicit);explicit.add(name.toLowerCase());
+   output.push({type:"heading",text:name});hadHeading=true;n=0;
+  }
+  output.push(token);n++;lead++;
+ }
+ return output;
+}
+function editorialBodyForDisplay(){
+ const onlyText=state.body.every(b=>["paragraph","heading","quote"].includes(b.type));
+ const hasHeading=state.body.some(b=>b.type==="heading");
+ if(onlyText&&!hasHeading){
+  return formattedTextBlocks(state.body.map(b=>b.text||"").join("\n\n"),val("v2-category"),val("v2-title"));
+ }
+ return state.body.map(b=>({...b}));
+}
+function applyEditorialFormat(){
+ const formatted=editorialBodyForDisplay();
+ if(JSON.stringify(formatted)!==JSON.stringify(state.body)){
+  state.body=formatted;renderBlocks();scheduleBackup();
+ }
+}
+function showArticlePreview(){
+ const article=E("v2-preview-article-content");article.replaceChildren();
+ article.append(S("div","v2-preview-category",cats[val("v2-category")]||"Articolo"));
+ article.append(S("h1","",val("v2-title")||"Titolo dell'articolo"));
+ if(state.cover||state.coverPreview){
+  const img=S("img","v2-preview-cover");img.alt="Copertina";img.src=state.coverPreview||state.cover;
+  img.style.objectPosition=state.coverFocusX+"% "+state.coverFocusY+"%";
+  article.append(img);
+ }
+ for(const block of editorialBodyForDisplay()){
+  const typ=block.type,t=String(block.text||"");
+  if(["paragraph","heading","quote"].includes(typ)){
+   const el=S(typ==="heading"?"h2":typ==="quote"?"blockquote":"p");
+   el.append(richContent(t));article.append(el);
+  }else if(typ==="image"){
+   const figure=S("figure"),im=S("img");im.alt=block.alt||"";im.src=block.preview||block.url||"";
+   figure.append(im);if(block.caption)figure.append(S("figcaption","",block.caption));article.append(figure);
+  }else if(typ==="video"){article.append(S("p","v2-preview-media","▶ "+(block.caption||"Video YouTube")))}
+  else if(typ==="button"){const link=S("a","v2-preview-action",block.text||"Apri collegamento");link.href=block.url||"#";article.append(link)}
+  else if(typ==="divider")article.append(S("hr"));
+  else if(typ==="poll")article.append(S("h3","",block.text||"Sondaggio"));
+  else if(typ==="audio")article.append(S("p","",block.text||"Audio"));
+  else if(typ==="attachment")article.append(S("p","",block.text||"Allegato"));
+ }
+ backupNow(); // preview is read-only, but protect the current in-memory work.
+ E("v2-article-preview").hidden=false;
+}
+function closeArticlePreview(){E("v2-article-preview").hidden=true}
+
 function seoStatus(){
  const lock=state.current?.seo_lock;
  E("v2-seo-status").textContent=lock&&!state.newContent
@@ -91,13 +267,14 @@ function showHome(){
  renderList();history.replaceState({}, "", "/studio-v2/");
 }
 function showEditor(row,newContent){
- state.current=row;state.newContent=!!newContent;state.mode="editor";
+ state.current=row;state.newContent=!!newContent;state.mode="editor";state.restoreReady=false;
  E("v2-home").hidden=true;E("v2-editor").hidden=false;E("v2-back").hidden=false;
  E("v2-home-nav").classList.remove("on");
  E("v2-editor-heading").textContent=newContent?"Crea un nuovo contenuto":"Modifica il contenuto";
  E("v2-editor-note").textContent=newContent?"Scrivi e pubblica quando vuoi.":"Puoi cambiare tutto, senza aprire altri pannelli.";
  E("v2-crumb").textContent="Studio / "+(newContent?"Nuovo contenuto":"Modifica");
  editorFields(row);
+ restoreBackup();state.restoreReady=true;
  history.replaceState({}, "", "/studio-v2/"+(newContent?"?new=1":"?edit="+encodeURIComponent(row.slug)));
  window.scrollTo(0,0);
 }
@@ -199,8 +376,18 @@ function richValue(node){
 }
 function safePaste(e){
  e.preventDefault();
+ const raw=e.clipboardData?.getData("text/plain")||"";
+ const idx=Number(e.currentTarget.closest("[data-index]")?.dataset.index);
+ const current=state.body[idx];
+ if(current&&current.type==="paragraph"&&!String(current.text||"").trim()
+    &&(raw.includes("\n")||raw.length>370)){
+  const blocks=formattedTextBlocks(raw,val("v2-category"),val("v2-title"));
+  state.body.splice(idx,1,...blocks);renderBlocks();seoStatus();scheduleBackup();
+  notify("Testo inserito e impaginato secondo il modello editoriale ZazoomTek.");
+  return;
+ }
  const sel=window.getSelection();if(!sel?.rangeCount)return;
- const r=sel.getRangeAt(0),node=document.createTextNode(e.clipboardData?.getData("text/plain")||"");
+ const r=sel.getRangeAt(0),node=document.createTextNode(raw);
  r.deleteContents();r.insertNode(node);r.setStartAfter(node);r.collapse(true);
  sel.removeAllRanges();sel.addRange(r);e.currentTarget.dispatchEvent(new Event("input",{bubbles:true}));
 }
@@ -264,7 +451,7 @@ function renderBlocks(){
    editable.setAttribute("aria-label",b.type==="heading"?"Modifica sottotitolo":"Modifica il testo");
    editable.dataset.placeholder=b.type==="heading"?"Scrivi un sottotitolo...":"Clicca per scrivere...";
    editable.append(richContent(b.text||""));
-   editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus()});
+   editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus();scheduleBackup()});
    editable.addEventListener("paste",safePaste);
    for(const event of ["focus","click","keyup","mouseup"])editable.addEventListener(event,()=>cursorHere(i,editable));
    row.append(editable);
@@ -301,6 +488,7 @@ function renderBlocks(){
   }
   host.append(row);
  });
+ scheduleBackup();
 }
 
 function actionButton(text,callback){
@@ -409,16 +597,21 @@ function collect(){
 async function save(mode){
  if(state.busy)return;
  state.busy=true;
- const buttons=[E("v2-save-draft"),E("v2-publish"),E("v2-draft-bottom"),E("v2-publish-bottom")];
+ const buttons=[E("v2-save-draft"),E("v2-publish"),E("v2-draft-bottom"),E("v2-publish-bottom"),E("v2-preview-top"),E("v2-preview-bottom")];
  buttons.forEach(b=>b.disabled=true);
  try{
+  applyEditorialFormat();
   const row=collect();
+  backupNow();
   if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
   const response=await api("v2-save",{mode,record:row,creating:state.newContent});
   notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Contenuto accodato: pubblicazione al prossimo slot editoriale.");
   if(mode==="draft"){
-   state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit"};
+   state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:new Date().toISOString()};
+   E("v2-autosave-status").textContent="Bozza salvata anche su GitHub. Il sito pubblico non è stato modificato.";
   }else{
+   try{localStorage.removeItem(backupKey())}catch(e){}
+   E("v2-autosave-status").textContent="Contenuto accodato per lo slot editoriale.";
    delete state.drafts[row.slug];
    E("v2-public-link").hidden=false;E("v2-public-link").href="/"+row.slug;
   }
@@ -462,6 +655,14 @@ E("v2-cover-sidebar").onclick=editCover;
 E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));seoStatus()};
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
 E("v2-modal-apply").onclick=()=>{if(state.modalApply?.()!==false)closeModal()};
+E("v2-preview-top").onclick=showArticlePreview;E("v2-preview-bottom").onclick=showArticlePreview;
+E("v2-close-preview").onclick=closeArticlePreview;
+E("v2-article-preview").addEventListener("click",e=>{if(e.target===E("v2-article-preview"))closeArticlePreview()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!E("v2-article-preview").hidden)closeArticlePreview()});
+E("v2-editor").addEventListener("input",scheduleBackup);
+E("v2-editor").addEventListener("change",scheduleBackup);
+window.addEventListener("pagehide",backupNow);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)backupNow()});
 E("v2-save-draft").onclick=()=>save("draft");E("v2-draft-bottom").onclick=()=>save("draft");
 E("v2-publish").onclick=()=>save("publish");E("v2-publish-bottom").onclick=()=>save("publish");
 
