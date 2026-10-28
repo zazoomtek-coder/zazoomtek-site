@@ -1,0 +1,43 @@
+name: ZazoomTek - deploy manuale su zazoomtek.it
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica configurazione credenziali
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ]; then
+            echo "::error::Aggiungi CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID nei repository Secrets."
+            exit 1
+          fi
+      - name: Genera il sito ufficiale
+        run: python3 tools/build.py
+      - name: Controlla file indispensabili
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
+      - name: Pubblica su zazoomtek-site con Cloudflare Wrangler
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
