@@ -1,0 +1,57 @@
+name: ZazoomTek - ZIP anteprima completa SpotNews (SOLO OFFLINE)
+on:
+  push:
+    branches:
+      - feature/spotnews-gaming-video-preview-20261028
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-zip:
+    name: Genera ZIP locale senza deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/spotnews-gaming-video-preview-20261028
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica sintassi degli script
+        run: python3 -m py_compile tools/build.py tools/article_templates.py tools/package_offline_preview.py
+      - name: Genera sito reale con dati editoriali completi
+        run: python3 tools/build.py
+      - name: Verifica le tre modifiche richieste e le immagini originali
+        run: |
+          python3 - <<'PY'
+          import html,re
+          from pathlib import Path
+          h=Path('dist/index.html').read_text(encoding='utf-8')
+          css=Path('dist/assets/css/spotnews.css').read_text(encoding='utf-8')
+          m=re.search(r'<p class="gaming-magazine-excerpt">(.*?)</p>',h,re.S)
+          assert m and len(html.unescape(m.group(1)))>=350, 'Gaming main article excerpt not extended'
+          assert 'ZAZOOMTEK OFFLINE PREVIEW 2026-10-28' in css, 'New CSS missing'
+          for slug,vid in [
+           ('thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1','e7rAYQprXTM'),
+           ('70mai-a900-ultra-recensione-dual-4k','3biZz45pUJs'),
+           ('call-of-duty-modern-warfare-4-recensione-ps5','-c995pZgzHQ'),
+           ('sesame-street-amici-e-risate-recensione-ps5','WwGAaKGfoGY')]:
+            p=Path('dist/'+slug+'.html')
+            assert p.is_file(), 'Review missing: '+slug
+            s=p.read_text(encoding='utf-8')
+            assert 'GUARDA LA VIDEORECENSIONE SU YOUTUBE' in s, 'Review video button missing: '+slug
+            assert 'watch?v='+vid in s, 'Review video id mismatch: '+slug
+          print('PREVIEW AUDIT OK: big Gaming text, side titles, four real video CTA links, original templates')
+          PY
+      - name: Crea anteprima offline ZIP navigabile
+        run: python3 tools/package_offline_preview.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-SpotNews-Anteprima-Completa-28-10-2026
+          path: ZazoomTek_SpotNews_Anteprima_Completa_28-10-2026.zip
+          if-no-files-found: error
+          retention-days: 30
