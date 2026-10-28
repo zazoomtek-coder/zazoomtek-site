@@ -1834,3 +1834,75 @@ main.wrap .home-column .gaming-magazine .gaming-magazine-item time {
     font-size:10px!important;
   }
 }
+
+/* v41 — smaller near-black editorial titles, full text instead of 3-line truncation.
+   Do not change image size, 70% sidebar photo width, backgrounds or overall grid. */
+main.wrap .sidebar .compact-editorial-box .editorial-row {
+  align-items:start!important;
+  height:auto!important;
+  min-height:0!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy,
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy a,
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy a strong {
+  max-height:none!important;
+  min-height:0!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  text-overflow:clip!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy a,
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy a strong {
+  display:block!important;
+  -webkit-line-clamp:unset!important;
+  line-clamp:unset!important;
+  -webkit-box-orient:unset!important;
+  font-size:9.2px!important;
+  line-height:1.2!important;
+  font-weight:400!important;
+  color:#101010!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+}
+main.wrap .sidebar .compact-editorial-box .editorial-row-copy time {
+  color:#404040!important;
+  font-size:8px!important;
+}
+/* More complete titles in the image-led editorial grids, without shrinking photos. */
+main.wrap .home-column > .section > .cards .card h3,
+main.wrap .home-column .specials-showcase .card h3,
+main.wrap .home-column .standalone-feature-pair .feature-main-description h3,
+main.wrap .home-column .standalone-feature-pair .compact-item h3,
+main.wrap .home-column > .section > .web-news-grid .web-news-card h3,
+main.wrap .home-column .home-review-web-grid .home-review-web-card h3 {
+  font-size:11.5px!important;
+  line-height:1.28!important;
+  color:#101010!important;
+  -webkit-line-clamp:unset!important;
+  line-clamp:unset!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+main.wrap .home-column > .section > .cards .card h3 a,
+main.wrap .home-column .specials-showcase .card h3 a,
+main.wrap .home-column .standalone-feature-pair :is(.feature-main-description,.compact-item) h3 a,
+main.wrap .home-column > .section > .web-news-grid .web-news-card h3 a{
+  color:#101010!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-item h3{
+  font-size:10.5px!important;
+  line-height:1.22!important;
+  color:#101010!important;
+  -webkit-line-clamp:unset!important;
+  line-clamp:unset!important;
+  max-height:none!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-item h3 a{
+  color:inherit!important;
+}
+@media(max-width:450px) {
+  main.wrap .sidebar .compact-editorial-box .editorial-row-copy a,
+  main.wrap .sidebar .compact-editorial-box .editorial-row-copy a strong{
+    font-size:9.5px!important;
+  }
+}
