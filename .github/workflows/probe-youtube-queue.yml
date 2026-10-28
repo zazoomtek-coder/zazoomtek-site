@@ -1,0 +1,58 @@
+name: ZazoomTek - diagnosi reale importazione YouTube (no deploy)
+on:
+  push:
+    branches: [main]
+    paths: [tools/PROBE_COLLECTOR_20261028.txt]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: editorial-queue
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prova fetch YouTube e importazione Community senza pubblicare
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          import urllib.request
+          now=datetime.now(ZoneInfo("Europe/Rome"))
+          print("DIAGNOSTIC TIME ROME:",now.isoformat(),flush=True)
+          for url in ("https://www.youtube.com/@ZazoomTek/posts?hl=it&persist_hl=1",
+                      "https://www.youtube.com/feeds/videos.xml?channel_id=UCJs0ZT10hUiPRD0UZtUpI1Q"):
+            try:
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"})
+              with urllib.request.urlopen(req,timeout=12) as r:
+                blob=r.read(1000000)
+                print("SOURCE",url,"STATUS",r.status,"BYTES",len(blob),"HAS POST RENDERER",b"backstagePostRenderer" in blob or b"postRenderer" in blob,flush=True)
+            except Exception as e:print("SOURCE ERROR",url,type(e).__name__,str(e)[:150],flush=True)
+          PY
+          timeout 90s python3 tools/queue_collect.py || echo "Collector exception/timeout; queue preserved"
+      - name: Conta nuovi video e post acquisiti
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for key in ("queue_community","queue_videos"):
+            ob=json.loads(Path("data/"+key+".json").read_text())
+            rows=ob.get("posts",ob.get("videos",[]))
+            print("QUEUED",key,len(rows),flush=True)
+            for p in rows[-3:]:print("  ",str(p.get("title",""))[:100],flush=True)
+          PY
+      - name: Salva coda separata, senza deploy
+        run: |
+          git add data/queue_community.json data/queue_videos.json
+          if ! git diff --cached --quiet; then
+            git config user.name "ZazoomTek Editorial Intake"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Diagnose and recover pending YouTube intake"
+            git push origin HEAD:editorial-queue
+          fi
