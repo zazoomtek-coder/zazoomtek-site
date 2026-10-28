@@ -306,44 +306,89 @@ def automatic_news_heading(paragraph,used):
   if label not in used:return label
  return "Ulteriori informazioni"
 
-def news_body(review,blocks):
- """One uniform source-faithful paragraph and red-H2 layout, every imported or manual news."""
+def split_news_prose(raw,limit=470):
+ """Break a long imported paragraph into readable parts WITHOUT changing facts.
+ Preserve punctuation and original order; split first on sentence boundaries.
+ If a post has no punctuation, a word/clause boundary is the last resort.
+ """
+ raw=str(raw).strip()
+ if not raw:return []
+ if len(raw)<=limit or re.search(r"(?m)^\s*(?:[-•]|\d+[.)])\s+",raw):
+  return [raw]
+ sentence_parts=re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý0-9«“'\"])",raw)
+ if len(sentence_parts)==1:
+  sentence_parts=re.split(r"(?<=[;:])\s+",raw)
  result=[]
- supplied=supplied_h2(review)
- standalone={}
- for i,block in enumerate(blocks):
-  heading=named_section(block)
-  if not heading and source_plain_h2(block,blocks[i+1] if i+1<len(blocks) else "",i):
-   heading=clean_heading(block)
-  if heading:standalone[i]=heading
- prose_indices=[i for i in range(len(blocks)) if i not in standalone]
- total=len(prose_indices)
- used={h for h in supplied.values()}
- used.update(standalone.values())
- since=0
- section_started=False
- for i,p in enumerate(blocks):
-  if i in supplied and (i not in standalone or supplied[i].casefold()!=standalone[i].casefold()):
-   result.append('<h2>'+esc(supplied[i])+'</h2>')
-   since=0
-   section_started=True
-  if i in standalone:
-   if standalone[i].casefold() not in ("pro","contro","voto finale"):
-    result.append('<h2>'+esc(standalone[i])+'</h2>')
-    section_started=True
-    since=0
+ current=""
+ for part in sentence_parts:
+  if len(current)+len(part)+(1 if current else 0)<=limit:
+   current=(current+" "+part if current else part)
    continue
-  last=(i==prose_indices[-1]) if prose_indices else True
-  if ((not section_started and total==1) or since>=2 or
-      (not section_started and total==2 and last)):
-   heading=automatic_news_heading(p,used)
-   used.add(heading)
-   result.append('<h2>'+esc(heading)+'</h2>')
+  if current:result.append(current)
+  current=part
+  # Oversized sentences are split on whitespace, without dropping any words.
+  while len(current)>limit:
+   boundary=current.rfind(" ",max(180,limit//2),limit+1)
+   if boundary<0:boundary=current.find(" ",limit)
+   if boundary<0:break
+   result.append(current[:boundary].strip())
+   current=current[boundary+1:].strip()
+ if current:result.append(current)
+ return result or [raw]
+
+def news_body(review,blocks):
+ """The approved Hearthstone structure for ALL news and non-review articles.
+ Opening lead -> compact <p>s -> semantic red-bar <h2> sections with 1-2
+ paragraphs each. Original source wording is preserved in original order.
+ """
+ supplied=supplied_h2(review)
+ tokens=[]
+ for i,raw in enumerate(blocks):
+  if i in supplied:tokens.append(("h2",supplied[i]))
+  heading=named_section(raw)
+  if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
+   heading=clean_heading(raw)
+  if heading:
+   if not tokens or tokens[-1]!=("h2",heading):
+    if heading.casefold() not in ("pro","contro","voto finale"):
+     tokens.append(("h2",heading))
+   continue
+  for paragraph in split_news_prose(raw):
+   tokens.append(("p",paragraph))
+ prose=[t for kind,t in tokens if kind=="p"]
+ if not prose:return ""
+ rendered=[]
+ titles={value for kind,value in tokens if kind=="h2"}
+ had_heading=False
+ since=0
+ emitted_p=0
+ limit=2
+ for kind,value in tokens:
+  if kind=="h2":
+   if rendered and rendered[-1].startswith("<h2>"):
+    # Remove orphaned duplicate/adjacent headings rather than empty sections.
+    rendered[-1]="<h2>"+esc(value)+"</h2>"
+   else:rendered.append("<h2>"+esc(value)+"</h2>")
+   had_heading=True
    since=0
-   section_started=True
-  result.append('<p>'+rich_text(p)+'</p>')
+   continue
+  # Two short lead paragraphs are allowed before the first red-bar subtitle.
+  # For a one-paragraph brief, the lead itself receives a subtitle.
+  first_section=(not had_heading and
+                 (emitted_p>=2 or (len(prose)<=2 and emitted_p==len(prose)-1)))
+  continue_section=(had_heading and since>=limit)
+  if first_section or continue_section:
+   title=automatic_news_heading(value,titles)
+   titles.add(title)
+   rendered.append("<h2>"+esc(title)+"</h2>")
+   had_heading=True
+   since=0
+  rendered.append("<p>"+rich_text(value)+"</p>")
   since+=1
- return ''.join(result)
+  emitted_p+=1
+ # Never leave an unstructured giant paragraph: split_news_prose enforces a bound.
+ return "".join(rendered)
+
 
 def sectioned_body(review):
  blocks=editorial_blocks(review)

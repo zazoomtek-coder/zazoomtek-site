@@ -7,7 +7,7 @@ No original prose is rewritten by this verifier.
 from collections import Counter
 from pathlib import Path
 import re
-from html import escape as esc
+from html import escape as esc, unescape
 
 from article_templates import (
  editorial_blocks, is_review, named_section, source_plain_h2,
@@ -57,15 +57,47 @@ def check_all(rows, output, stylesheet):
     raise AssertionError("Markdown heading was not rendered structurally")
 
    if not is_review(row):
+    # Catch the original defect: one giant wall of text under a single subtitle.
+    # Every ordinary paragraph is bounded, and every section contains <=2
+    # paragraphs. This check now rejects Expedition-style broken layouts.
+    paragraphs=re.findall(r"<p>(.*?)</p>",body,flags=re.S)
+    paragraphs=[unescape(re.sub(r"<[^>]+>","",p)) for p in paragraphs]
+    if any(len(p)>520 for p in paragraphs):
+     raise AssertionError("Giant paragraph exceeds 520 characters")
+    blocks=re.findall(r"<(h2|p)>(.*?)</\1>",body,flags=re.S)
+    paragraphs_before_heading=0
+    paragraphs_in_section=0
+    seen_heading=False
+    for tag,text in blocks:
+     if tag=="h2":
+      seen_heading=True
+      paragraphs_in_section=0
+     else:
+      if seen_heading:
+       paragraphs_in_section+=1
+       if paragraphs_in_section>2:
+        raise AssertionError("More than two paragraphs under one red-bar heading")
+      else:
+       paragraphs_before_heading+=1
+       if paragraphs_before_heading>2:
+        raise AssertionError("More than two introductory paragraphs without a heading")
+    # Full source prose must survive, in order, without added or omitted words.
+    # Splitting paragraphs changes markup but must NOT change the source prose.
     source=editorial_blocks(row)
-    # All real source paragraphs must survive exactly, without fabricated facts.
+    original=[]
     for i,block in enumerate(source):
      if named_section(block):continue
      following=source[i+1] if i+1<len(source) else ""
      if source_plain_h2(block,following,i):continue
-     expected="<p>"+rich_text(block)+"</p>"
-     if expected not in body:
-      raise AssertionError("Source paragraph missing: "+block[:85])
+     original.append(block)
+    expected=re.sub(r"\*\*(.*?)\*\*",r"\1"," ".join(original),flags=re.S)
+    without_titles=re.sub(r"<h2>.*?</h2>"," ",body,flags=re.S)
+    without_titles=re.sub(r"</p>|<br\s*/?>"," ",without_titles,flags=re.I)
+    actual=unescape(re.sub(r"<[^>]*>","",without_titles))
+    def norm(x):
+     return re.sub(r"\s+"," ",x).strip()
+    if norm(expected)!=norm(actual):
+     raise AssertionError("Original prose differs after reformatting")
    category=str(row.get("category") or "other")
    checked[category]+=1
    heading_counts[category]+=len(h2s)

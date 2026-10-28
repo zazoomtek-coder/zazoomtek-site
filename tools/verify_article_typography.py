@@ -60,5 +60,26 @@ def verify():
  assert formatted.count("<h2>")>=3
  assert all(formatted.count("<p>"+p+"</p>")==1 for p in sample)
  assert [formatted.index(p) for p in sample]==sorted(formatted.index(p) for p in sample)
+
+ # Regression for the long, run-on Expeditions: Samurai-style Community post.
+ # It must become several short paragraphs and multiple red-bar headings,
+ # without losing/rewording any single original sentence.
+ import re
+ from html import unescape
+ original=(
+  "Expeditions: Samurai continua a espandere il proprio mondo. "
+  "Il diario degli sviluppatori presenta il villaggio personale dell'Atto 3. "
+  "La fase finale dell'avventura porterà un sistema di gestione diverso. "
+  "I giocatori potranno costruire il villaggio e sviluppare la comunità. "
+  "I dettagli del progetto descrivono la progressione del protagonista. "
+  "L'ambientazione riprende il periodo Sengoku e le sue trasformazioni. "
+ )*7
+ output=sectioned_body({"category":"news-gaming","body":[original]})
+ parts=re.findall(r"<p>(.*?)</p>",output,flags=re.S)
+ assert len(parts)>=5, "Long YouTube text must be divided into readable paragraphs"
+ assert output.count("<h2>")>=2, "Long news needs multiple editorial subsections"
+ assert all(len(unescape(re.sub(r"<[^>]+>","",p)))<=520 for p in parts)
+ joined=" ".join(unescape(re.sub(r"<[^>]+>","",p)) for p in parts)
+ assert re.sub(r"\s+"," ",joined).strip()==re.sub(r"\s+"," ",original).strip()
  print("Article paragraph typography tests OK",flush=True)
 if __name__=="__main__":verify()
