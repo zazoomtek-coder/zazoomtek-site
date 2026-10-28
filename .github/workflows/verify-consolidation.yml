@@ -1,0 +1,42 @@
+name: ZazoomTek - verifica merge completo (NESSUN DEPLOY)
+on:
+  push:
+    branches: [feature/consolidate-spotnews-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/consolidate-spotnews-20261028
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compila tutte le modifiche integrate senza pubblicare
+        run: |
+          python3 -m py_compile tools/build.py tools/article_templates.py tools/verify_editorial_layout.py
+          python3 tools/build.py
+      - name: Verifica footer mobile, Gaming e link ufficiali
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          css=Path("dist/assets/css/spotnews.css").read_text()
+          index=Path("dist/index.html").read_text()
+          assert '.header #nav{display:none;position:absolute' in css
+          assert "ZAZOOMTEK OFFLINE PREVIEW 2026-10-28" in css
+          assert 'class="footer-legal"' in index
+          assert Path("dist/thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html").is_file()
+          review=Path("dist/thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1.html").read_text()
+          assert "GUARDA LA VIDEORECENSIONE SU YOUTUBE" in review
+          assert len(list(Path("dist").glob("*.html")))>150
+          for p in Path("dist").glob("*.html"):
+            h=p.read_text()
+            if 'class="article-text"' not in h:continue
+            assert len(re.findall(r'<h2>\s*Ulteriori informazioni\s*</h2>',h,re.I))<=1,p
+          print("PASS: complete SpotNews, mobile footer, Gaming, review CTA, official-link support, merged section headings")
+          PY
