@@ -2370,3 +2370,95 @@ main.wrap .article .cover{
 }
 /* Fall back to the verified publisher name if an external web image fails. */
 main.wrap img[hidden]{display:none!important}
+
+/* v48 — one editorial article format for all categories: imported, Studio,
+   manual, past and future. Follows the approved Hearthstone example:
+   H1, compact author/date/category, full-width clean cover, readable prose,
+   black H2 with a narrow RED LEFT bar. Reviews retain their rating elements. */
+main.wrap .inner-column>.story-article{
+  background:#fff!important;
+  color:#171717!important;
+  padding:26px 32px 30px!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-wrap:break-word!important;
+}
+main.wrap .inner-column>.story-article>h1{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(28px,2.95vw,38px)!important;
+  font-weight:900!important;
+  letter-spacing:-.22px!important;
+  line-height:1.2!important;
+  color:#171717!important;
+  margin:0 0 12px!important;
+}
+main.wrap .inner-column>.story-article>.story-meta{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:6px 15px!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:11px!important;
+  font-weight:400!important;
+  line-height:1.4!important;
+  color:#616161!important;
+  margin:0 0 18px!important;
+  padding:0 0 11px!important;
+  border-bottom:1px solid #ebebeb!important;
+}
+main.wrap .inner-column>.story-article>.story-figure{
+  display:block!important;
+  max-width:100%!important;
+  width:100%!important;
+  padding:0!important;
+  margin:0 0 20px!important;
+}
+main.wrap .inner-column>.story-article>.story-figure img{
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  display:block!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+main.wrap .inner-column>.story-article .article-text{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:15px!important;
+  font-weight:400!important;
+  color:#232323!important;
+  line-height:1.7!important;
+  overflow-wrap:anywhere!important;
+}
+main.wrap .inner-column>.story-article .article-text>p{
+  margin:0 0 16px!important;
+  padding:0!important;
+  font:inherit!important;
+  line-height:1.7!important;
+  color:#232323!important;
+}
+main.wrap .inner-column>.story-article .article-text>h2{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(18px,1.8vw,21px)!important;
+  font-weight:900!important;
+  line-height:1.32!important;
+  letter-spacing:0!important;
+  color:#181818!important;
+  background:transparent!important;
+  border:0!important;
+  border-left:4px solid #ed304b!important;
+  border-radius:0!important;
+  margin:26px 0 12px!important;
+  padding:0 0 0 12px!important;
+}
+main.wrap .inner-column>.story-article .article-text>h2+p{
+  margin-top:0!important;
+}
+@media(max-width:650px){
+ main.wrap .inner-column>.story-article{padding:18px 15px 23px!important}
+ main.wrap .inner-column>.story-article>h1{font-size:clamp(26px,6vw,34px)!important}
+ main.wrap .inner-column>.story-article .article-text{font-size:14.5px!important}
+ main.wrap .inner-column>.story-article .article-text>h2{
+  font-size:18px!important;
+  margin:22px 0 10px!important;
+  padding-left:10px!important;
+ }
+}

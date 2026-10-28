@@ -1,0 +1,87 @@
+"""Exhaustive build-time QA for all published ZazoomTek editorial pages.
+
+Covers the actual generated articles, not a handful of mockup pages.
+A new Studio article or YouTube Community import is checked at every build.
+No original prose is rewritten by this verifier.
+"""
+from collections import Counter
+from pathlib import Path
+import re
+from html import escape as esc
+
+from article_templates import (
+ editorial_blocks, is_review, named_section, source_plain_h2,
+ rich_text, sectioned_body
+)
+
+def check_all(rows, output, stylesheet):
+ output=Path(output)
+ sheet=Path(stylesheet).read_text(encoding="utf-8")
+ if "v43 — universal article/news template" not in sheet:
+  raise AssertionError("Universal headline/cover/red-H2 stylesheet missing")
+ if "border-left:4px solid #ed304b!important" not in sheet:
+  raise AssertionError("Red-bar editorial subtitle rule missing")
+
+ checked=Counter()
+ heading_counts=Counter()
+ fallback=0
+ problems=[]
+ for row in rows:
+  slug=str(row.get("slug") or "")
+  path=output/(slug+".html")
+  try:
+   if not path.is_file():raise AssertionError("Generated article file missing")
+   page=path.read_text(encoding="utf-8")
+   body=sectioned_body(row)
+   title=esc(str(row.get("title") or "").strip())
+   if not title or "<h1>"+title+"</h1>" not in page:
+    raise AssertionError("Missing/incorrect primary headline")
+   meta=page.find('class="story-meta"')
+   cover=page.find('class="story-figure"')
+   if cover<0:
+    cover=page.find('class="story-cover-fallback"')
+    if cover>=0:fallback+=1
+   content=page.find('class="article-text"')
+   if not (page.find("<h1>")>=0 and meta>=0 and cover>=0 and content>=0 and
+           page.find("<h1>")<meta<cover<content):
+    raise AssertionError("Incorrect H1 → metadata → cover → article content order")
+   if body not in page:raise AssertionError("Rendered editorial content differs from shared template")
+   h2s=re.findall(r"<h2>(.*?)</h2>",body,flags=re.S)
+   if not h2s or any(not re.sub("<[^>]+>","",h).strip() for h in h2s):
+    raise AssertionError("Article is missing editorial red-bar subtitles")
+   if not re.search(r"<p>[^<\s]",body):
+    raise AssertionError("Article has no readable paragraphs")
+   if re.search(r"</h2>\s*<h2>",body):
+    raise AssertionError("Consecutive orphan editorial subtitles")
+   if re.search(r"<p>\s*(?:#{1,3}\s+|\*\*)[^<]+</p>",body):
+    raise AssertionError("Markdown heading was not rendered structurally")
+
+   if not is_review(row):
+    source=editorial_blocks(row)
+    # All real source paragraphs must survive exactly, without fabricated facts.
+    for i,block in enumerate(source):
+     if named_section(block):continue
+     following=source[i+1] if i+1<len(source) else ""
+     if source_plain_h2(block,following,i):continue
+     expected="<p>"+rich_text(block)+"</p>"
+     if expected not in body:
+      raise AssertionError("Source paragraph missing: "+block[:85])
+   category=str(row.get("category") or "other")
+   checked[category]+=1
+   heading_counts[category]+=len(h2s)
+  except Exception as exc:
+   problems.append((slug, str(exc)))
+
+ if problems:
+  sample="; ".join(slug+": "+issue for slug,issue in problems[:20])
+  raise AssertionError("Global article-format audit FAILED for "+
+   str(len(problems))+" of "+str(len(rows))+" articles: "+sample)
+ if sum(checked.values())!=len(rows):
+  raise AssertionError("Not all editorial pages were inspected")
+ print("GLOBAL EDITORIAL FORMAT AUDIT PASS:",
+       sum(checked.values()),"generated pages;",
+       sum(heading_counts.values()),"H2 editorial sections;",
+       fallback,"authentic-cover fallbacks;",dict(checked),flush=True)
+
+if __name__=="__main__":
+ raise SystemExit("Run after all articles are generated in tools/build.py")

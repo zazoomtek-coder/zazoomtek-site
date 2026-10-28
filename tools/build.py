@@ -347,7 +347,7 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-cover-text-safe-47"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-universal-editorial-audit-48"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -1080,6 +1080,8 @@ def main():
  contacts_page(rows)
  rss_feed(rows)
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
+ from verify_editorial_layout import check_all
+ check_all(rows,O,P/"assets/css/spotnews.css")
  legacy_article_redirects(rows)
  missing_page=("<article class=\"legal-article\" style=\"min-height:320px\">"
                "<h1>Pagina non trovata</h1><p>Il contenuto richiesto non è disponibile.</p>"

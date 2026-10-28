@@ -45,6 +45,25 @@ def named_section(text):
  if title.startswith(("1. ","2. ","3. ","4. ")) and len(title)<60:return title
  return None
 
+def split_source_sections(raw):
+ """Extract isolated Markdown subtitles embedded in source paragraphs, unmodified."""
+ result=[]
+ pending=[]
+ def flush():
+  if pending:
+   value="\n".join(pending).strip()
+   if value:result.append(value)
+   pending.clear()
+ for line in str(raw).replace("\r\n","\n").replace("\r","\n").split("\n"):
+  stripped=line.strip()
+  if (re.fullmatch(r"#{1,3}\s+[^\n#]{3,95}",stripped) or
+      re.fullmatch(r"\*\*[^*\n]{3,95}\*\*",stripped)):
+   flush()
+   result.append(stripped)
+  else:pending.append(line)
+ flush()
+ return result
+
 def paragraphs(review):
  arr=review.get("body",[])
  if isinstance(arr,str):arr=re.split(r"\n\s*\n",arr)
@@ -58,9 +77,11 @@ def paragraphs(review):
    if kind in ("h2","heading","section-title","subtitle"):
     result.append("## "+clean_heading(raw))
    elif kind in ("paragraph","text","p"):
-    result.extend(part.strip() for part in re.split(r"\n\s*\n",raw) if part.strip())
+    for part in re.split(r"\n\s*\n",raw):
+     result.extend(split_source_sections(part))
   elif isinstance(item,str) and item.strip():
-   result.extend(part.strip() for part in re.split(r"\n\s*\n",item) if part.strip())
+   for part in re.split(r"\n\s*\n",item):
+    result.extend(split_source_sections(part))
  return result
 
 def author(review):
@@ -247,7 +268,7 @@ def source_plain_h2(block,following,position):
  if position==0 or not isinstance(following,str) or len(following.strip())<115:return False
  if not 12<=len(raw)<=95 or "\n" in raw or len(raw.split())>15:return False
  if raw.startswith(("#","-","•","http","www.","⭐")):return False
- if re.search(r"(?:!|…|;)$",raw):return False
+ if re.search(r"(?:[.!?…;,])$",raw):return False
  if raw.count(".")>1:return False
  if re.fullmatch(r"(?i)(?:Subscribe|Iscriviti|Commenta|Seguici).*",raw):return False
  if not raw[0].isupper():return False
@@ -286,29 +307,42 @@ def automatic_news_heading(paragraph,used):
  return "Ulteriori informazioni"
 
 def news_body(review,blocks):
+ """One uniform source-faithful paragraph and red-H2 layout, every imported or manual news."""
  result=[]
- headings=supplied_h2(review)
- # Original headings from YouTube or Studio always take precedence.
- existing=bool(headings) or any(named_section(p) or source_plain_h2(p,blocks[i+1] if i+1<len(blocks) else "",i)
-                                for i,p in enumerate(blocks))
- automatic_titles=set()
- for i,paragraph in enumerate(blocks):
-  heading=named_section(paragraph)
-  if i in headings and (not heading or clean_heading(heading).casefold()!=headings[i].casefold()):
-   result.append('<h2>'+esc(headings[i])+'</h2>')
-  if heading and heading.casefold() not in ("voto finale","pro","contro"):
+ supplied=supplied_h2(review)
+ standalone={}
+ for i,block in enumerate(blocks):
+  heading=named_section(block)
+  if not heading and source_plain_h2(block,blocks[i+1] if i+1<len(blocks) else "",i):
+   heading=clean_heading(block)
+  if heading:standalone[i]=heading
+ prose_indices=[i for i in range(len(blocks)) if i not in standalone]
+ total=len(prose_indices)
+ used={h for h in supplied.values()}
+ used.update(standalone.values())
+ since=0
+ section_started=False
+ for i,p in enumerate(blocks):
+  if i in supplied and (i not in standalone or supplied[i].casefold()!=standalone[i].casefold()):
+   result.append('<h2>'+esc(supplied[i])+'</h2>')
+   since=0
+   section_started=True
+  if i in standalone:
+   if standalone[i].casefold() not in ("pro","contro","voto finale"):
+    result.append('<h2>'+esc(standalone[i])+'</h2>')
+    section_started=True
+    since=0
+   continue
+  last=(i==prose_indices[-1]) if prose_indices else True
+  if ((not section_started and total==1) or since>=2 or
+      (not section_started and total==2 and last)):
+   heading=automatic_news_heading(p,used)
+   used.add(heading)
    result.append('<h2>'+esc(heading)+'</h2>')
-  elif source_plain_h2(paragraph,blocks[i+1] if i+1<len(blocks) else "",i):
-   result.append('<h2>'+esc(clean_heading(paragraph))+'</h2>')
-  else:
-   # An opening lead is followed by balanced red-rule editorial sections,
-   # while every source paragraph keeps its original text and order.
-   if not existing and (i==1 or (i>1 and i%2==1) or (i==0 and len(blocks)==1)):
-    title=automatic_news_heading(paragraph,automatic_titles)
-    automatic_titles.add(title)
-    result.append('<h2>'+esc(title)+'</h2>')
-   result.append('<p>'+rich_text(paragraph)+'</p>')
- # Keep source paragraph boundaries, unlike the previous short-text merger.
+   since=0
+   section_started=True
+  result.append('<p>'+rich_text(p)+'</p>')
+  since+=1
  return ''.join(result)
 
 def sectioned_body(review):
