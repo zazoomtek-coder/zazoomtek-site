@@ -14,6 +14,16 @@ ROOT=Path(__file__).resolve().parents[1]
 DATA=ROOT/"data"
 ROME=ZoneInfo("Europe/Rome")
 
+def classify_upload(title):
+    """Keep every authentic channel upload for Ultimi Video, not only reviews."""
+    original=classify(title)
+    if original:return original
+    low=title.casefold()
+    if "short" in low:return "short","general"
+    if "gameplay" in low:return "gameplay","gaming"
+    if "trailer" in low:return "trailer","gaming"
+    return "video","general"
+
 def write_if_changed(path, payload):
     value=json.dumps(payload,ensure_ascii=False,indent=2)+"\n"
     if not path.exists() or path.read_text(encoding="utf-8")!=value:
@@ -56,9 +66,7 @@ def ingest(now=None):
             published_at=entry.findtext("atom:published",default="",namespaces=NS)
             if not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) or not title or not published_at or vid in known:
                 continue
-            kindtopic=classify(title)
-            if not kindtopic: continue
-            kind,topic=kindtopic
+            kind,topic=classify_upload(title)
             videos.append({"id":vid,"title":title,"date":published_at,
                 "topic":topic,"kind":kind,"first_seen_at":stamp})
             known.add(vid)
