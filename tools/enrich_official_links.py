@@ -192,6 +192,8 @@ def main():
                 print("Official source unavailable; skipping", slug, type(exc).__name__, flush=True)
                 continue  # Do not cache network failures.
         if selected:
+            selected["topic"] = headline(title, category)
+            selected["category"] = category
             links[slug] = selected
             misses.pop(slug, None)
             new_found += 1
