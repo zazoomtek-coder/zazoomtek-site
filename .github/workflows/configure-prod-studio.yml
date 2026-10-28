@@ -1,8 +1,5 @@
 name: ZazoomTek - configura accesso Studio Production (no deploy)
 on:
-  push:
-    branches: [main]
-    paths: [tools/configure_prod_studio.py]
   workflow_dispatch:
 permissions:
   contents: read
