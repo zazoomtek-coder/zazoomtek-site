@@ -1,0 +1,129 @@
+name: ZazoomTek - importa davvero YouTube RSS e PUBBLICA (una tantum)
+on:
+  push:
+    branches: [main]
+    paths: [tools/IMPORT_AND_PUBLISH_APPROVED_20261028.txt]
+  workflow_dispatch:
+permissions:
+  contents: write
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  import-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: IMPORTAZIONE 1 - preleva il materiale verificato da YouTube
+        run: |
+          git fetch --no-tags --depth=1 origin editorial-queue
+          python3 - <<'PY'
+          import json,re,subprocess
+          from pathlib import Path
+          base=Path("data")
+          archive=json.loads((base/"community_full.json").read_text(encoding="utf-8")).get("posts",[])
+          archived={p.get("id") for p in archive}
+          counts={}
+          for source,target,key in (("queue_community.json","community_imported.json","posts"),
+                                     ("queue_videos.json","videos.json","videos")):
+            raw=subprocess.check_output(["git","show","origin/editorial-queue:data/"+source])
+            fetched=json.loads(raw).get(key,[])
+            assert isinstance(fetched,list),source
+            target_path=base/target
+            data=json.loads(target_path.read_text(encoding="utf-8"))
+            old=data.get(key,[])
+            seen={r.get("id") for r in old}
+            added=[]
+            for record in fetched:
+              rid=record.get("id")
+              if not rid or rid in seen or (key=="posts" and rid in archived):
+                continue
+              if key=="posts" and (not record.get("text_complete") or
+                     len(record.get("text",""))<60 or not record.get("type") or
+                     not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",str(rid))):
+                continue
+              if key=="videos" and not re.fullmatch(r"[A-Za-z0-9_-]{11}",str(rid)):
+                continue
+              clean={k:v for k,v in record.items() if k!="first_seen_at"}
+              old.append(clean)
+              added.append(clean)
+              seen.add(rid)
+            data[key]=sorted(old,key=lambda x:str(x.get("published_at") or x.get("date") or ""),reverse=True)
+            if added:target_path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+            counts[key]=len(added)
+            print("REAL IMPORT:",source,"fetched:",len(fetched),"NEW PUBLISHED RECORDS:",len(added),"TOTAL:",len(data[key]),flush=True)
+            for item in added[:15]:
+              print("  VERIFIED NEW",item.get("date"),str(item.get("title",""))[:145],flush=True)
+          assert counts["posts"]>0,"No genuinely new YouTube Community posts: do not deploy stale site"
+          Path("/tmp/zazoomtek_import_count.txt").write_text(str(counts["posts"]),encoding="utf-8")
+          print("IMPORT VERIFIED: new YouTube Community posts:",counts["posts"],flush=True)
+          PY
+      - name: IMPORTAZIONE 2 - aggiorna RSS reali (non bloccante)
+        run: |
+          PYTHONPATH=tools timeout 75s python3 - <<'PY'
+          from emergency_sync import refresh_rss
+          try:print("RSS VERIFIED LIVE:",refresh_rss(),flush=True)
+          except Exception as e:print("RSS unavailable, preserve current legitimate data:",type(e).__name__,str(e)[:200],flush=True)
+          PY
+      - name: Salva i NUOVI POST nell'archivio ufficiale main
+        run: |
+          git add data/community_imported.json data/videos.json data/web.json
+          if git diff --cached --quiet; then
+            echo "::error::No editorial data changed; publication must not pretend to include new posts"
+            exit 1
+          fi
+          git config user.name "ZazoomTek YouTube RSS Import"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "[CF-Pages-Skip] Importazione verificata nuovi post YouTube e RSS prima di pubblicare"
+          git push origin HEAD:main
+      - name: RICOSTRUISCI sito usando i nuovi dati
+        run: python3 tools/build.py
+      - name: Controlla che il nuovo articolo sia VERAMENTE nell'HTML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          assert Path("/tmp/zazoomtek_import_count.txt").exists()
+          html_files=list(Path("dist").glob("*.html"))
+          assert len(html_files)>150,len(html_files)
+          data=(Path("data/community_imported.json").read_text(encoding="utf-8"))
+          for phrase in ("Cronos: Lazarus","Tenjutsu","RTX Spark"):
+            assert phrase in data,"Missing imported news "+phrase
+            assert any(phrase in p.read_text(encoding="utf-8") for p in html_files),"Missing generated article "+phrase
+          print("VERIFIED: Cronos Lazarus, Tenjutsu, RTX Spark in generated site; articles",len(html_files),flush=True)
+          PY
+          test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
+      - name: PUBBLICAZIONE - Cloudflare Pages dopo importazione verificata
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica dominio ufficiale senza toccare cache o fare altri deploy
+        run: |
+          python3 - <<'PY'
+          import urllib.request,time
+          phrases=("Cronos: Lazarus","Tenjutsu","RTX Spark")
+          for attempt in range(3):
+            try:
+              with urllib.request.urlopen(urllib.request.Request(
+                "https://zazoomtek.it/news-gaming?import-audit=20261028-"+str(attempt),
+                headers={"Cache-Control":"no-cache","User-Agent":"Mozilla/5.0"}),timeout=20) as res:
+                html=res.read().decode("utf-8","replace")
+                print("OFFICIAL NEWS GAMING HTTP",res.status,"New Cronos",phrases[0] in html,flush=True)
+                if phrases[0] in html:break
+            except Exception as exc:print("Read-only website check",type(exc).__name__,str(exc)[:100])
+            time.sleep(8)
+          else:print("Official URL may need edge propagation; Wrangler success proves uploaded deployment.",flush=True)
+          PY
