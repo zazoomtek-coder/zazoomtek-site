@@ -365,7 +365,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261028-studio-auth-52"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261028-amazon-fixed-53"></script></body></html>')
 
 def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))

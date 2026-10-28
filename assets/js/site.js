@@ -86,8 +86,14 @@
   stack.style.removeProperty("justify-content");
   const panels=[...stack.querySelectorAll(":scope > .editorial-box")];
   const rows=panels.map(box=>[...box.querySelectorAll(".editorial-row")]);
+  // The Amazon Associates panel has no .editorial-row children. The normal
+  // fitting algorithm previously hid it permanently as an empty editorial box.
+  // On the Home it is a mandatory, intact second panel: reserve its FULL
+  // height before selecting the number of ordinary editorial thumbnails.
+  const amazon=home?panels.find(box=>box.classList.contains("amazon-feature-box")):null;
   panels.forEach(panel=>{panel.hidden=true;});
   rows.forEach(group=>group.forEach(row=>{row.hidden=true;}));
+  if(amazon)amazon.hidden=false;
   if(compact){
    panels.forEach((panel,i)=>{
     panel.hidden=false;
@@ -145,10 +151,11 @@
    stack.style.minHeight=usable+"px";
    stack.style.justifyContent="space-between";
   }
+  // Final safety pass: never hide the required Amazon affiliate showcase.
   // Final safety pass after distribution or subpixel image scaling.
   let remainingTrims=guard;
   while(!fits()&&remainingTrims-->0){
-   const last=panels.map((panel,i)=>({panel,i})).filter(x=>!x.panel.hidden).at(-1);
+   const last=panels.map((panel,i)=>({panel,i})).filter(x=>!x.panel.hidden&&x.panel!==amazon).at(-1);
    if(!last)break;
    const row=rows[last.i].filter(x=>!x.hidden).at(-1);
    if(row)row.hidden=true;

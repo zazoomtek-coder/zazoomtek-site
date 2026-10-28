@@ -111,6 +111,21 @@ def check_dist(root):
    'rel="sponsored noopener noreferrer"'
   ):
    if phrase not in markup:errors.append("Amazon box lacks correct content: "+phrase[:48])
+  # The Amazon HTML has always been generated in its intended second slot;
+  # the client-side sidebar fitter must NEVER hide a panel without rows.
+  sitejs=(root/"assets/js/site.js").read_text(encoding="utf-8")
+  for check in (
+   'const amazon=home?panels.find(box=>box.classList.contains("amazon-feature-box")):null;',
+   'if(amazon)amazon.hidden=false;',
+   'x.panel!==amazon',
+   '20261028-amazon-fixed-53'
+  ):
+   if check not in sitejs and check!="20261028-amazon-fixed-53":
+    errors.append("Amazon rail runtime protection missing: "+check[:90])
+  if '20261028-amazon-fixed-53' not in markup:
+   errors.append("Home has stale site.js cache and may hide Amazon")
+  if markup.count('class="box editorial-box amazon-feature-box"')!=1:
+   errors.append("Home must have exactly one Amazon affiliate box")
   for asset in ("amazon-laptop.svg","amazon-smartphone.svg","amazon-headphones.svg"):
    if not (root/"assets/images"/asset).is_file():
     errors.append("Amazon asset missing: "+asset)
