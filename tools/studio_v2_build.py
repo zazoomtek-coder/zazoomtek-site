@@ -1,7 +1,54 @@
 """Studio V2 opt-in preview: separate from the current Studio and public site."""
-import json
+import json,re
 from pathlib import Path
+from html import HTMLParser
 from seo import title_tag, description, keywords
+from article_templates import sectioned_body
+
+class _EditorInline(HTMLParser):
+ def __init__(self):
+  super().__init__(convert_charrefs=True)
+  self.output=[]
+  self.links=[]
+ def handle_starttag(self,tag,attrs):
+  if tag=="br":self.output.append("\n")
+  elif tag=="strong":self.output.append("**")
+  elif tag=="em":self.output.append("*")
+  elif tag=="a":
+   href=dict(attrs).get("href","")
+   self.links.append(href if href.startswith(("https://","/")) else "")
+   if self.links[-1]:self.output.append("[")
+ def handle_endtag(self,tag):
+  if tag=="strong":self.output.append("**")
+  elif tag=="em":self.output.append("*")
+  elif tag=="a":
+   href=self.links.pop() if self.links else ""
+   if href:self.output.append("]("+href+")")
+ def handle_data(self,data):self.output.append(data)
+
+def editorial_blocks_for_editor(row):
+ """Keep the exact published editorial headings and original text in their order."""
+ if row.get("studio_blocks") and isinstance(row.get("body"),list) and row["body"]:
+  return row["body"]
+ source=sectioned_body(row)
+ blocks=[]
+ for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
+  tag,raw=match.groups()
+  text=_EditorInline()
+  text.feed(raw)
+  value="".join(text.output).strip()
+  if value:blocks.append({
+   "type":"heading" if tag=="h2" else "quote" if tag=="blockquote" else "paragraph",
+   "text":value})
+ if not blocks:
+  # Nonempty fallback: never show a blank editor for an existing article.
+  raw=row.get("body") or []
+  if isinstance(raw,str):raw=[raw]
+  for part in raw:
+   value=str(part if isinstance(part,str) else part.get("text") or part.get("content") or "").strip()
+   if value:blocks.append({"type":"paragraph","text":value})
+ return blocks
+
 
 CATEGORIES={
  "news-tech":"News Tech","news-gaming":"News Gaming",
@@ -28,7 +75,8 @@ def build_studio_v2(output,rows):
   "platform":row.get("platform"),"score":row.get("score"),
   "pros":row.get("pros"),"cons":row.get("cons"),
   "studio_blocks":bool(row.get("studio_blocks")),
-  "body":row.get("body",[]),"seo_lock":snapshot(row)
+  "body":row.get("body",[]),"editor_blocks":editorial_blocks_for_editor(row),
+  "seo_lock":snapshot(row)
  } for row in rows]}
  (root/"catalog.json").write_text(json.dumps(catalog,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
  html="""<!doctype html><html lang="it"><head>
