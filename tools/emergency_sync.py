@@ -130,17 +130,25 @@ def refresh_rss():
     updated = []
     for source, item in zip(sources, fetched):
         current = previous.get(source["name"])
+        # Do not publish the same old RSS headline again and again.
+        # A feed failure retains the prior successful snapshot.
         if item and (not current or item.get("date", "") >= current.get("date", "")):
+            changed = not current or any(
+                item.get(field) != current.get(field)
+                for field in ("url", "title", "date")
+            )
             if current and current.get("url") == item.get("url") and not item.get("image"):
                 item["image"] = current.get("image", "")
-            previous[source["name"]] = item
-            count += 1
+            if changed:
+                previous[source["name"]] = item
+                count += 1
         if previous.get(source["name"]):
             updated.append(previous[source["name"]])
-    db["items"] = updated
-    db["updated"] = datetime.now(timezone.utc).date().isoformat()
-    save("web.json", db)
-    print("EXTERNAL RSS: verified feeds", count, "of", len(sources), flush=True)
+    if count:
+        db["items"] = updated
+        db["updated"] = datetime.now(timezone.utc).date().isoformat()
+        save("web.json", db)
+    print("EXTERNAL RSS: truly new headlines", count, "of", len(sources), flush=True)
     for item in updated:
         print("  rss", item["source"], item.get("date"), item.get("title", "")[:100], flush=True)
     return count > 0
