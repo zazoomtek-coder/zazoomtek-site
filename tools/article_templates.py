@@ -163,6 +163,22 @@ def compact_prose_html(parts):
  flush()
  return "".join(output)
 
+def merge_repeated_info_sections(markup):
+ """Show 'Ulteriori informazioni' just once per article, preserving EVERY paragraph.
+
+ This final markup pass applies to both imported Community/RSS articles and
+ future Studio-authored pages, including those that already contain multiple
+ independently generated sections with the same title. No source text is cut.
+ """
+ heading=re.compile(r"<h2>\s*Ulteriori informazioni\s*</h2>", re.I)
+ seen=False
+ def keep_once(match):
+  nonlocal seen
+  if seen:return ""
+  seen=True
+  return match.group(0)
+ return heading.sub(keep_once,markup)
+
 def score(review,blocks):
  candidate=review.get("score",review.get("rating",review.get("vote")))
  if isinstance(candidate,dict):candidate=candidate.get("value")
@@ -585,5 +601,5 @@ def render(review,image_validator):
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +(video(review) if reviews else "")+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'
+         +(video(review) if reviews else "")+notice+'<div class="article-text">'+merge_repeated_info_sections(sectioned_body(review)+retained_notes+extra)+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
