@@ -1,7 +1,8 @@
 name: ZazoomTek - slot pubblicazione Roma
 on:
   schedule:
-    - cron: '30,40,50 12,19 * * *'
+    # Un solo avvio automatico per ciascuno dei due slot quotidiani.
+    - cron: '30 12,19 * * *'
       timezone: Europe/Rome
   workflow_dispatch:
 permissions:
@@ -25,7 +26,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verifica finestra 12:30 o 19:30 Europe/Rome
+      - name: Blocca esecuzioni tardive o fuori dagli slot 12:30 e 19:30
         run: |
           python3 - <<'PY'
           import os
@@ -35,7 +36,7 @@ jobs:
           slot=""
           for h in (12,19):
               target=now.replace(hour=h,minute=30,second=0,microsecond=0)
-              if timedelta(0)<=now-target<=timedelta(minutes=45):
+              if timedelta(0)<=now-target<=timedelta(minutes=5):
                   slot=f"{h:02d}:30"
                   break
           with open(os.environ["GITHUB_ENV"],"a") as output:
@@ -55,7 +56,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "ZazoomTek Publish Bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Slot ${EDITORIAL_SLOT} Europe/Rome: pubblica coda ZazoomTek"
+            git commit -m "[CF-Pages-Skip] Slot ${EDITORIAL_SLOT} Europe/Rome: aggiorna coda ZazoomTek"
             git push origin HEAD:main
             echo "DID_PUBLISH=true" >> "$GITHUB_ENV"
           else
