@@ -49,10 +49,15 @@ jobs:
       - name: Applica gli articoli e video in un solo blocco
         if: env.EDITORIAL_SLOT != ''
         run: python3 tools/queue_publish.py
+      - name: Arricchisci le news Community con eventuali siti ufficiali (non bloccante)
+        if: env.EDITORIAL_SLOT != ''
+        run: |
+          # At most 20 seconds; search or connection failures never stop publishing.
+          timeout 20s python3 tools/enrich_official_links.py || echo "Sito ufficiale non verificato: pubblica normalmente la news originale"
       - name: Pubblica su main solo nuovi contenuti o configurazioni già approvate
         if: env.EDITORIAL_SLOT != ''
         run: |
-          git add data/videos.json data/community_imported.json data/studio_posts.json data/studio_overrides.json
+          git add data/videos.json data/community_imported.json data/studio_posts.json data/studio_overrides.json data/official_links.json
           if [ -f .github/STUDIO_PENDING_PRODUCTION_DEPLOY ]; then
             git rm .github/STUDIO_PENDING_PRODUCTION_DEPLOY
             echo "Rilascio Studio V2: sessione Production pronta per lo slot autorizzato"
