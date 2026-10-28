@@ -1,0 +1,45 @@
+name: Test link ufficiali Community - nessun deploy
+on:
+  push:
+    branches:
+      - feature/community-official-links-20261028
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/community-official-links-20261028
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test sintassi senza rete
+        run: python3 -m py_compile tools/enrich_official_links.py tools/build.py tools/article_templates.py tools/verify_editorial_layout.py
+      - name: Verifica regola link opzionale senza alterare la news
+        run: |
+          PYTHONPATH=tools python3 - <<'PY'
+          from article_templates import with_official_link
+          from enrich_official_links import safe_url, verified_match
+          body="<h2>Novità</h2><p>Testo originale immutato.</p><h2>Ulteriori informazioni</h2><p>Note finali.</p>"
+          news={"category":"news-gaming"}
+          assert with_official_link(body,news)==body, "La news senza link deve restare identica"
+          news["official_link"]={"url":"https://www.example.com/official","label":"Sito ufficiale"}
+          merged=with_official_link(body,news)
+          assert merged.count("Testo originale immutato.")==1
+          assert merged.index("Testo originale immutato.")<merged.index("https://www.example.com/official")<merged.index("Ulteriori informazioni")
+          assert merged.count("official-source-link")==1
+          tech={"category":"news-tech","official_link":{"url":"https://www.example.com/product"}}
+          assert "Scheda ufficiale del prodotto" in with_official_link("<p>Tech news.</p>",tech)
+          assert with_official_link("<p>Tech news.</p>",{"category":"news-tech"})=="<p>Tech news.</p>"
+          assert verified_match("News Tech: Prodotto mai verificato","news-tech") is None
+          assert not safe_url("http://non-ufficiale.test"), "Only HTTPS must pass"
+          print("TEST PASS: Verified official link optional; both Tech/Gaming original unchanged when absent.")
+          PY
+      - name: Rigenera template reale con tutti gli articoli senza link facoltativi
+        run: python3 tools/build.py
+      - name: Verifica sito rigenerato
+        run: test -s dist/index.html && test -s dist/sitemap.xml
