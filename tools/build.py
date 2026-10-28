@@ -56,6 +56,14 @@ def category_for_post(item):
 def parse_day(value):
  try:return datetime.fromisoformat(str(value).replace("Z","+00:00")).date()
  except (ValueError,TypeError):return None
+def chronological_key(row):
+ """Absolute instant, not lexicographical ordering of mixed ISO offsets."""
+ value=str(row.get("published_at") or row.get("date") or "")
+ try:
+  result=datetime.fromisoformat(value.replace("Z","+00:00"))
+  if result.tzinfo is None:result=result.replace(tzinfo=timezone.utc)
+  return result.timestamp()
+ except (ValueError,TypeError,OverflowError):return float("-inf")
 def load_remote_community():
  """Extract canonical FULL Community posts at each build, without YouTube Data API."""
  try:
@@ -81,9 +89,12 @@ def community_posts():
  canonical_category={entry["new_id"]:entry["category"] for entry in alias_entries}
  archive_path=P/"data/community_full.json"
  archived=json.loads(archive_path.read_text(encoding="utf-8")).get("posts",[]) if archive_path.exists() else []
- live=load_remote_community()
+ # New YouTube imports are promoted from the editorial queue at 12:30 or 19:30.
+ # Never fetch the live Community in the static production build.
+ imported_path=P/"data/community_imported.json"
+ imported=json.loads(imported_path.read_text(encoding="utf-8")).get("posts",[]) if imported_path.exists() else []
  result=[]
- for item in list(live)+list(archived)+list(historical):
+ for item in list(imported)+list(archived)+list(historical):
   if not isinstance(item,dict):continue
   if str(item.get("id") or "") in abbreviated:
    continue  # The full archive version supersedes this historical short excerpt.
@@ -165,7 +176,7 @@ def posts():
      row[key]=value
    row["studio_blocks"]=True
    row["source"]="studio-editor"
- rows=sorted(deduplicated,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ rows=sorted(deduplicated,key=chronological_key,reverse=True)
  from review_image_archive import populate_review_covers
  populate_review_covers(rows,P,safe_image)
  review_data=json.loads((P/"data/review_editorial.json").read_text(encoding="utf-8")).get("editorial_data",{})
@@ -191,37 +202,12 @@ def videos():
   if not isinstance(vid,str) or not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) or vid in seen:continue
   if v.get("kind") not in allowed or v.get("topic") not in ("tech","gaming") or not isinstance(v.get("title"),str):continue
   seen.add(vid);result.append(v)
- return sorted(result,key=lambda x:x.get("date",""),reverse=True)
+ return sorted(result,key=chronological_key,reverse=True)
 def playlist_latest():
- """Newest distinct, verifiable YouTube upload from each selected playlist, ordered globally."""
+ """Use ONLY uploads already approved in an editorial publication slot."""
  playlists=json.loads((P/"data/playlists.json").read_text(encoding="utf-8")).get("playlists",[])
- ns={"atom":"http://www.w3.org/2005/Atom","yt":"http://www.youtube.com/xml/schemas/2015"}
- from concurrent.futures import ThreadPoolExecutor
- def read_playlist(pl):
-  pid=pl.get("id","")
-  if not re.fullmatch(r"PL[A-Za-z0-9_-]{10,}",pid):return pl,[]
-  entries=[]
-  try:
-   req=urllib.request.Request("https://www.youtube.com/feeds/videos.xml?playlist_id="+pid,headers={"User-Agent":"Mozilla/5.0"})
-   with urllib.request.urlopen(req,timeout=7) as response:xml=ET.fromstring(response.read(1024*1024))
-   for item in xml.findall("atom:entry",ns):
-    video_id=item.findtext("yt:videoId",default="",namespaces=ns)
-    published=item.findtext("atom:published",default="",namespaces=ns)
-    title=item.findtext("atom:title",default="",namespaces=ns)
-    if re.fullmatch(r"[A-Za-z0-9_-]{11}",video_id) and published and title:
-     entries.append({"id":video_id,"title":title,"date":published})
-  except Exception:pass
-  return pl,sorted(entries,key=lambda x:x["date"],reverse=True)
- with ThreadPoolExecutor(max_workers=4) as pool:
-  collections=list(pool.map(read_playlist,playlists))
- picked=[];seen=set()
- # Allocate newest playlists first, then avoid duplicate video IDs between playlists.
- collections.sort(key=lambda row:row[1][0]["date"] if row[1] else "",reverse=True)
- for pl,entries in collections:
-  chosen=next((v for v in entries if v["id"] not in seen),None)
-  if chosen:seen.add(chosen["id"])
-  picked.append({"playlist_id":pl["id"],"playlist":pl["title"],"video":chosen,"thumbnail":pl.get("thumbnail","")})
- return picked
+ return [{"playlist_id":pl.get("id",""),"playlist":pl.get("title","Playlist"),
+  "video":None,"thumbnail":pl.get("thumbnail","")} for pl in playlists]
 def playlist_cards():
  rows=playlist_latest()
  if not rows:return ""
@@ -858,7 +844,7 @@ def home_keys(r):
 
 def sort_by_date_desc(items):
  # Use exact publisher timestamp when provided. If only the day exists, preserve source order.
- return sorted(items,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
+ return sorted(items,key=chronological_key,reverse=True)
 
 def take_unique(items,count,used):
  result=[]
