@@ -2,13 +2,14 @@
 """ZazoomTek SpotNews: generatore statico con menu/layout universali."""
 from pathlib import Path
 from html import escape as esc
-import json,os,re,shutil,sys
+import json,os,re,shutil,sys,hashlib
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import urllib.request,xml.etree.ElementTree as ET
 from html import unescape as unesc
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlparse
 P=Path(__file__).resolve().parents[1]; O=P/"dist"
+JS_ASSET_VERSION=hashlib.sha256((P/"assets/js/site.js").read_bytes()).hexdigest()[:12]
 NAV=[("HOME","/"),("NEWS","/news"),("RECENSIONI","/recensioni"),("GUIDE","/guide"),("SPECIALI","/speciali"),("EXTRA","/extra"),("VIDEO","https://www.youtube.com/@ZazoomTek")]
 TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra","video":"Video"}
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
@@ -351,7 +352,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261028-spotnews-production-1"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v='+JS_ASSET_VERSION+'"></script></body></html>')
 
 def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
