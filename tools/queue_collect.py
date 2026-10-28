@@ -4,6 +4,7 @@ from datetime import datetime, timezone, time
 from zoneinfo import ZoneInfo
 from pathlib import Path
 import json
+import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -45,9 +46,11 @@ def ingest(now=None):
     clock=local.time()
     in_morning=time(9,0)<=clock<=time(12,20)
     in_evening=time(12,31)<=clock<=time(19,20)
-    if not (in_morning or in_evening):
+    if not (in_morning or in_evening) and os.environ.get("ZAZOOMTEK_FORCE_COLLECT") != "1":
         print("Outside editorial intake window, nothing changed:",local.isoformat())
         return False
+    if not (in_morning or in_evening):
+        print("EDITORIAL QUEUE RECOVERY ONLY (NO DEPLOY) at",local.isoformat(),flush=True)
     stamp=now.isoformat(timespec="seconds")
     dirty=False
 
