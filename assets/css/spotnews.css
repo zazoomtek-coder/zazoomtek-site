@@ -1668,3 +1668,28 @@ main.wrap .article .cover{
 /* Preserve title-based fallbacks if an original cover is genuinely unavailable. */
 main.wrap .editorial-media-frame.is-fallback .editorial-media-fallback{display:flex!important}
 main.wrap img[hidden]{display:none!important}
+
+/* v39 — Speciali typography is the single reference for Home Guide, Extra and Notizie Web titles.
+   Speciali title computed typography: Arial, 16px, bold (700), line-height 1.38.
+   Do not change any module's dimensions, image layout, labels, or spacing. */
+.home-column .specials-showcase .card h3,
+.home-column .standalone-feature-pair .feature-main-description h3,
+.home-column .standalone-feature-pair .compact-item h3,
+.home-column > .section > .web-news-grid:not(.home-review-web-grid) .web-news-card h3 {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:16px!important;
+  font-weight:700!important;
+  line-height:1.38!important;
+  letter-spacing:normal!important;
+  font-style:normal!important;
+  text-transform:none!important;
+}
+.home-column .standalone-feature-pair :is(.feature-main-description h3,.compact-item h3) a,
+.home-column > .section > .web-news-grid:not(.home-review-web-grid) .web-news-card h3 a,
+.home-column .specials-showcase .card h3 a {
+  font-family:inherit!important;
+  font-size:inherit!important;
+  font-weight:inherit!important;
+  line-height:inherit!important;
+  letter-spacing:inherit!important;
+}
