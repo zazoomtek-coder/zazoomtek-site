@@ -19,6 +19,8 @@ jobs:
         with:
           python-version: '3.12'
       - name: Prova fetch YouTube e importazione Community senza pubblicare
+        env:
+          ZAZOOMTEK_FORCE_COLLECT: "1"
         run: |
           python3 - <<'PY'
           from datetime import datetime
