@@ -299,7 +299,7 @@ def build_live_discovery(rows):
  print("Discovery:",len(items),"searchable articles,",len(ticker),"ticker headlines",flush=True)
  return ticker
 
-def shell(title,inner):
+def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  nav="".join('<a href="'+u+'">'+n+'</a>' for n,u in NAV)
  search_control=('<button id="site-search-open" class="site-search-open" type="button"'
                  ' aria-label="Cerca nel sito" aria-controls="site-search-panel" aria-expanded="false"'
@@ -344,8 +344,9 @@ def shell(title,inner):
  scroll_top=('<button type="button" class="back-to-top" id="back-to-top"'
              ' aria-label="Torna all’inizio della pagina" title="Torna su" hidden>'
              '<span aria-hidden="true">↑</span></button>')
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-         '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
+ from seo import metadata
+ tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
          '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-single-image-clean-50"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
@@ -366,7 +367,7 @@ def legal_pages(rows):
    elif block["type"]=="paragraph":body+='<p>'+esc(block["text"])+'</p>'
    else:raise ValueError("Invalid legal content block")
   body+='</article>'
-  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False),encoding="utf-8")
+  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path="/"+page["slug"],seo_summary="Informazioni ufficiali ZazoomTek: "+page["title"]+"."),encoding="utf-8")
 
 def safe_image(value):
  if not isinstance(value,str):return ""
@@ -908,8 +909,8 @@ def home(rows):
 
 def web_archive(rows):
  content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni collegamento apre la notizia sul sito originale.</p>'+web_news_cards(web_news())
- return inside("Notizie Web",content,rows,show_related=False)
-def inside(title,content,rows,exclude="",cat=None,show_related=True):
+ return inside("Notizie Web",content,rows,show_related=False,seo_path="/notizie-web",seo_summary="Notizie dal web: sei fonti italiane di tecnologia con articoli, aggiornamenti e collegamenti ai siti originali.")
+def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None,seo_path="/",seo_summary=None):
  # One two-column grid: page content and matching-height sidebar on row one;
  # related links occupy only the article column on row two.
  related_rows=related_articles(rows,exclude,cat) if show_related else []
@@ -922,7 +923,7 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True):
  rail=sidebar(rows,False,reserved)
  content_html=('<div class="inner-layout"><div class="inner-column">'+content+'</div>'
                +rail+section+'</div>')
- return shell(title,content_html)
+ return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
 def pagination_links(key,page,total_pages):
  if total_pages<=1:return ""
@@ -939,16 +940,16 @@ def archive(key,rows,page=1):
         "recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali",
         "extra":"Extra","video":"Video"}.get(key,key.replace("-"," ").title())
  selected=[r for r in rows if r["category"] in categories]
- if key=="video":return inside(label,'<h1>'+esc(label)+'</h1>'+playlist_cards(),rows,show_related=False)
+ if key=="video":return inside(label,'<h1>'+esc(label)+'</h1>'+playlist_cards(),rows,show_related=False,seo_path="/video",seo_summary="Video, recensioni, gameplay, test e unboxing pubblicati da ZazoomTek su YouTube.")
  import math
  count=max(1,math.ceil(len(selected)/ARCHIVE_PAGE_SIZE))
  offset=(page-1)*ARCHIVE_PAGE_SIZE
  visible=selected[offset:offset+ARCHIVE_PAGE_SIZE]
  content='<h1>'+esc(label)+'</h1>'+cards(visible)+pagination_links(key,page,count)
- return inside(label,content,rows,show_related=False)
+ return inside(label,content,rows,show_related=False,seo_path="/"+key+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio "+label+" di ZazoomTek con notizie, recensioni e contenuti originali in ordine di pubblicazione."+((" Pagina "+str(page)+".") if page>1 else ""))
 def article(r,rows):
  from article_templates import render
- return inside(r["title"],render(r,safe_image),rows,r["slug"],r["category"])
+ return inside(r["title"],render(r,safe_image),rows,r["slug"],r["category"],seo_row=r,seo_path="/"+r["slug"])
 def legacy_article_redirects(rows):
  """Only redirect genuine legacy ALIASES to extensionless canonical pages.
  A physical slug.html is automatically served at /slug by Cloudflare Pages.
@@ -1015,7 +1016,7 @@ def contacts_page(rows):
  ]
  body='<article class="contacts-article"><h1>Contatti</h1>'+''.join('<p>'+esc(line)+'</p>' for line in lines)
  body+='<p class="contacts-email">✉ <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a></p></article>'
- (O/"contatti.html").write_text(inside("Contatti",body,rows,show_related=False),encoding="utf-8")
+ (O/"contatti.html").write_text(inside("Contatti",body,rows,show_related=False,seo_path="/contatti",seo_summary="Contatta ZazoomTek per collaborazioni, recensioni, notizie e richieste stampa."),encoding="utf-8")
 
 def rss_feed(rows):
  """Generate a real RSS 2.0 feed with only first-party editorial content."""
@@ -1110,10 +1111,14 @@ def main():
  missing_page=("<article class=\"legal-article\" style=\"min-height:320px\">"
                "<h1>Pagina non trovata</h1><p>Il contenuto richiesto non è disponibile.</p>"
                "<p><a href=\"/\">Torna alla Home di ZazoomTek</a></p></article>")
- (O/"404.html").write_text(inside("Pagina non trovata",missing_page,rows,show_related=False),encoding="utf-8")
+ (O/"404.html").write_text(inside("Pagina non trovata",missing_page,rows,show_related=False,seo_path="/404"),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
+ from seo import write_indexing
+ write_indexing(O,rows,GROUPS,ARCHIVE_PAGE_SIZE,PREVIEW)
  from verify_cover_layout import check_media
  check_media(O,P/"assets/css/spotnews.css",P/"assets/js/site.js")
+ from verify_seo import check_seo
+ check_seo(O,rows,GROUPS,PREVIEW)
  from verify_routes import check_dist
  check_dist(O)
  print("SpotNews build OK:",len(rows),"articoli,",len(GROUPS)+2,"pagine.")
