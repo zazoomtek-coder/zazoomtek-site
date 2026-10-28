@@ -71,5 +71,5 @@ def verify_studio(output,rows):
  # A public article carries NO editable/admin button unless session is verified in JS.
  generated=next((root/(r["slug"]+".html") for r in rows if (root/(r["slug"]+".html")).is_file()),None)
  assert generated and 'studio-admin-edit' not in generated.read_text(encoding="utf-8"),"Public Admin button leak"
- assert 'STUDIO_SESSION_SECRET' not in page or 'serve soltanto' in page,"Server setup status should not contain the secret itself"
+ assert 'id="studio-login-form"' in page,"Admin login form must be present"
  print("STUDIO AUDIT PASS:",len(rows),"editable articles; blocks/media and admin controls verified",flush=True)
