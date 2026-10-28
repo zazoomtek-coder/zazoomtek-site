@@ -45,6 +45,20 @@ jobs:
             s=p.read_text(encoding='utf-8')
             assert 'GUARDA LA VIDEORECENSIONE SU YOUTUBE' in s, 'Review video button missing: '+slug
             assert 'watch?v='+vid in s, 'Review video id mismatch: '+slug
+          from tools.article_templates import merge_repeated_info_sections
+          example='<h2>Ulteriori informazioni</h2><p>Primo testo autentico.</p><h2>Ulteriori informazioni</h2><p>Secondo testo autentico.</p>'
+          merged=merge_repeated_info_sections(example)
+          assert merged.count('<h2>Ulteriori informazioni</h2>')==1, 'Headings still duplicated'
+          assert 'Primo testo autentico.' in merged and 'Secondo testo autentico.' in merged, 'Prose lost'
+          inspected=0
+          for page in Path('dist').glob('*.html'):
+           page_html=page.read_text(encoding='utf-8')
+           if 'class="article-text"' not in page_html:continue
+           inspected+=1
+           count=len(re.findall(r'<h2>\\s*Ulteriori informazioni\\s*</h2>',page_html,re.I))
+           assert count<=1, f'Duplicate info H2 in {page}: {count}'
+          assert inspected>100, 'Archive incomplete'
+          print('GLOBAL EDITORIAL AUDIT OK: all',inspected,'article pages have at most one Ulteriori informazioni heading')
           print('PREVIEW AUDIT OK: big Gaming text, side titles, four real video CTA links, original templates')
           PY
       - name: Crea anteprima offline ZIP navigabile
