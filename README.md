@@ -1,11 +1,23 @@
-# ZazoomTek SpotNews - branch di prova
+# ZazoomTek.it — SpotNews production
 
-Il generatore unico \`tools/build.py\` applica a tutte le pagine:
-- Menu universale HOME, NEWS, RECENSIONI, GUIDE, SPECIALI, EXTRA, VIDEO.
-- Il link **VIDEO** apre direttamente https://www.youtube.com/@ZazoomTek.
-- Home verticale: In evidenza, News Tech, News Gaming, Ultime Recensioni, Guide e Extra, Ultimi Video, Notizie Web.
-- Sidebar Home continua; sidebar interna vincolata all'altezza del testo; articoli correlati solo titoli in grassetto.
+Il sito ufficiale viene generato dal branch `main` mediante Cloudflare Pages.
 
-**Import YouTube**: i dati dei video verificati sono in \`data/videos.json\`. Solo recensioni, test e unboxing appaiono in Ultimi Video. Per aggiornare i nuovi video da RSS: \`python3 tools/sync_videos.py\`. I post scritti originali Community vanno in \`data/community.json\`: nessun testo è stato inventato. News filtrate automaticamente agli ultimi 14 giorni, recensioni scritte senza limite di data. Regole complete: \`IMPORT-YOUTUBE.md\`.
+## Build
+- Comando: `python3 tools/build.py`
+- Output: `dist`
+- Branch di pubblicazione: `main`
+- Dominio ufficiale: `https://zazoomtek.it`
 
-**Build Cloudflare Pages**: \`python3 tools/build.py\` con output \`dist\`. Preview branch \`feature/spotnews-clean-rebuild\`. Nessuna modifica a \`main\`.
+## Coda editoriale
+- `editorial-queue`: acquisizione di video YouTube, post Community e contenuti di Studio.
+- `main`: solo contenuti promossi negli slot delle **12:30** e delle **19:30** (`Europe/Rome`).
+- Finestra primo slot: dalle **09:00** alle **12:20**.
+- Finestra secondo slot: dalle **12:31** alle **19:20**.
+- Pubblicazione soltanto se esistono variazioni rispetto ai contenuti già approvati.
+
+Workflow GitHub Actions:
+- `.github/workflows/editorial-collect.yml`
+- `.github/workflows/editorial-publish.yml`
+
+Le pianificazioni GitHub possono subire ritardi; verificare le esecuzioni prima di considerarle operative.
+Le modifiche al sito devono mantenere i contenuti editoriali, le copertine e gli URL esistenti.
