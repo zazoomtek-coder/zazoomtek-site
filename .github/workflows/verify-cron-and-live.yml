@@ -1,8 +1,5 @@
 name: ZazoomTek - controllo cron e sito ufficiale (SOLO LETTURA)
 on:
-  push:
-    branches: [main]
-    paths: [.github/CHECK_CRON_AND_SITE_20261028]
   workflow_dispatch:
 permissions:
   contents: read
