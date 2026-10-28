@@ -61,7 +61,7 @@ def verify_studio(output,rows):
  html=sectioned_body(original)
  for expected in ('<h2>Nuove caratteristiche</h2>',
                   'href="https://zazoomtek.it/guide"',
-                  'class="story-figure studio-content-image"',
+                  'class="story-figure studio-content-image studio-align-center"',
                   'data-youtube-id="dQw4w9WgXcQ"',
                   'class="studio-content-action"',
                   'class="studio-content-quote"'):
