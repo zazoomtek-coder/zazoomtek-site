@@ -2236,141 +2236,6 @@ main.wrap .home-column .news-tech-showcase .news-tech-card time{
  }
 }
 
-/* v47 — preserve embedded cover lettering, not just centered subjects.
-   The previous global object-fit:cover cropped the left-hand BLACK FRIDAY
-   lettering in wide spotlight boxes. Show the WHOLE original image in front;
-   a softly blurred duplicate occupies otherwise blank bands. Box dimensions,
-   card geometry and article text remain exactly as previously approved. */
-
-/* First-party ZazoomTek 16:9 card frame: readable whole-image foreground. */
-main.wrap .editorial-media-frame{
-  position:relative!important;
-  isolation:isolate!important;
-  display:block!important;
-  aspect-ratio:16/9!important;
-  overflow:hidden!important;
-  background:#192738!important;
-}
-main.wrap .editorial-media-frame img.editorial-media-bg,
-main.wrap .home-column .news-tech-showcase .news-tech-cover .editorial-media-frame img.editorial-media-bg {
-  display:block!important;
-  position:absolute!important;
-  top:-8%!important;
-  left:-8%!important;
-  right:auto!important;
-  bottom:auto!important;
-  width:116%!important;
-  height:116%!important;
-  aspect-ratio:auto!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  transform:scale(1.06)!important;
-  filter:blur(14px) saturate(.78)!important;
-  opacity:.56!important;
-  pointer-events:none!important;
-  z-index:0!important;
-}
-main.wrap .editorial-media-frame img.editorial-media-fg,
-main.wrap .home-column .news-tech-showcase .news-tech-cover .editorial-media-frame img.editorial-media-fg{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  max-width:100%!important;
-  aspect-ratio:16/9!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  transform:none!important;
-  filter:none!important;
-  background:transparent!important;
-  z-index:2!important;
-}
-main.wrap .editorial-media-frame.is-fallback img{
-  display:none!important;
-}
-main.wrap .editorial-media-frame.is-fallback .editorial-media-fallback{
-  display:flex!important;
-}
-
-/* Spotlight is a different-size box from a 16:9 cover: never center-CROP.
-   Reuse the same original image as full, sharp foreground and blurred backdrop. */
-main.wrap .spotlight-grid .tile-link{
-  position:relative!important;
-  isolation:isolate!important;
-  background:#141b24!important;
-}
-main.wrap .spotlight-grid .tile-link>img.spotlight-cover-backdrop{
-  display:block!important;
-  position:absolute!important;
-  top:-8%!important;
-  left:-8%!important;
-  right:auto!important;
-  bottom:auto!important;
-  width:116%!important;
-  height:116%!important;
-  max-width:none!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  transform:scale(1.06)!important;
-  filter:blur(16px) saturate(.75)!important;
-  opacity:.52!important;
-  z-index:0!important;
-  pointer-events:none!important;
-}
-main.wrap .spotlight-grid .tile-link>img.spotlight-cover-foreground{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  transform:none!important;
-  filter:none!important;
-  background:transparent!important;
-  z-index:1!important;
-}
-main.wrap .spotlight-grid .tile-link>.tile-gradient{
-  z-index:2!important;
-  background:linear-gradient(to bottom,transparent 37%,rgba(0,0,0,.12) 53%,rgba(0,0,0,.93) 100%)!important;
-}
-main.wrap .spotlight-grid .tile-link>.tile-copy{
-  z-index:3!important;
-}
-
-/* Everywhere a one-layer external/publisher/sidebar/YouTube image is used:
-   keep the full text and graphic visible inside the existing 16:9 slot. */
-main.wrap .sidebar .compact-editorial-box .editorial-thumb img,
-main.wrap .home-sidebar .compact-editorial-box .editorial-thumb img,
-main.wrap .sidebar .amazon-placeholder-thumb img,
-main.wrap .sidebar .amazon-feature-box .amazon-feature-product img,
-main.wrap .feature-pair .feature-editorial .compact-item-image img,
-main.wrap .feature-editorial .feature-main-thumb>img,
-main.wrap .compact-item-image img,
-main.wrap .web-news-thumb img,
-main.wrap .gaming-magazine .gaming-magazine-thumb img,
-main.wrap .gaming-magazine .gaming-magazine-lead-image img,
-main.wrap .video-magazine .thumb img,
-main.wrap .video-start img,
-main.wrap .play-thumb img,
-main.wrap .editorial-hero img{
-  object-fit:contain!important;
-  object-position:center!important;
-  background:#202d3d!important;
-}
-main.wrap .story-article .story-figure img,
-main.wrap .story-article.news-article>.story-figure img,
-main.wrap .story-article.review-article>.story-figure img,
-main.wrap .story-article .article-text img,
-main.wrap .article .cover{
-  object-fit:contain!important;
-  object-position:center!important;
-  background:#eef0f2!important;
-}
-/* Fall back to the verified publisher name if an external web image fails. */
-main.wrap img[hidden]{display:none!important}
-
 /* v48 — one editorial article format for all categories: imported, Studio,
    manual, past and future. Follows the approved Hearthstone example:
    H1, compact author/date/category, full-width clean cover, readable prose,
@@ -2463,74 +2328,96 @@ main.wrap .inner-column>.story-article .article-text>h2+p{
  }
 }
 
-/* v49 — geometrically safe zoom with full-bleed art. ALL media slots share
-   this measured rule: matching-aspect covers zoom to fill; incompatible ratios
-   preserve their entire artwork and embedded lettering, with a copy of the
-   SAME cover filling every unused pixel. No black or empty left/right bars.
-   Custom per-cover focal point takes priority over object centering. */
-main.wrap .smart-cover-frame{
-  background-color:#1a2432!important;
-  background-image:var(--smart-cover-art,none)!important;
-  background-repeat:no-repeat!important;
-  background-size:cover!important;
-  background-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+/* v50 — ONE image per box. No duplicate image, background-size artwork,
+   blurred echo, letterbox, injected JavaScript background or overlay collage.
+   All card assets fill their OWN fixed box with proportional single-image crop.
+   Optional focus metadata in Studio/YouTube is inherited as --cover-x/y. */
+main.wrap .editorial-media-frame {
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+  background:#1b2735!important;
+  background-image:none!important;
 }
-main.wrap :is(
-  .editorial-media-frame.smart-cover-frame,
-  .spotlight-grid .tile-link.smart-cover-frame,
-  .home-column .news-tech-showcase .news-tech-cover.smart-cover-frame,
-  .sidebar .compact-editorial-box .editorial-thumb.smart-cover-frame,
-  .home-sidebar .compact-editorial-box .editorial-thumb.smart-cover-frame,
-  .feature-pair .compact-item-image.smart-cover-frame,
-  .web-news-thumb.smart-cover-frame,
-  .gaming-magazine .gaming-magazine-lead-image.smart-cover-frame,
-  .gaming-magazine .gaming-magazine-thumb.smart-cover-frame,
-  .story-figure.smart-cover-frame,
-  .thumb.smart-cover-frame,
-  .video-start.smart-cover-frame,
-  .editorial-hero.smart-cover-frame,
-  .compact-item-image.smart-cover-frame,
-  .feature-main-thumb.smart-cover-frame,
-  .amazon-placeholder-thumb.smart-cover-frame,
-  .amazon-feature-product.smart-cover-frame
-) img.smart-cover-front{
-  object-fit:var(--smart-cover-fit,contain)!important;
-  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
-  background:transparent!important;
-  transform:none!important;
-}
-main.wrap .editorial-media-frame.smart-cover-frame img.editorial-media-fg.smart-cover-front,
-main.wrap .home-column .news-tech-showcase .news-tech-cover .editorial-media-frame.smart-cover-frame img.editorial-media-fg.smart-cover-front{
+main.wrap .editorial-media-frame>img.editorial-media-fg,
+main.wrap .home-column .news-tech-showcase .news-tech-cover .editorial-media-frame>img.editorial-media-fg,
+main.wrap .feature-pair .feature-main-thumb .editorial-media-frame>img.editorial-media-fg {
   display:block!important;
   position:absolute!important;
   inset:0!important;
   width:100%!important;
   height:100%!important;
-  object-fit:var(--smart-cover-fit,contain)!important;
-  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+  max-width:none!important;
+  aspect-ratio:16/9!important;
+  object-fit:cover!important;
+  object-position:var(--cover-x,50%) var(--cover-y,50%)!important;
+  transform:none!important;
+  filter:none!important;
+  opacity:1!important;
   background:transparent!important;
-  transform:none!important;
-  z-index:2!important;
-}
-main.wrap .spotlight-grid .tile-link.smart-cover-frame>img.spotlight-cover-foreground.smart-cover-front{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:var(--smart-cover-fit,contain)!important;
-  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
-  transform:none!important;
   z-index:1!important;
 }
-main.wrap .spotlight-grid .tile-link.smart-cover-frame>img.spotlight-cover-backdrop,
-main.wrap .editorial-media-frame.smart-cover-frame img.editorial-media-bg{
+main.wrap .spotlight-grid .tile-link {
   display:block!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background:#1b2735!important;
+  background-image:none!important;
+}
+main.wrap .spotlight-grid .tile-link>img.spotlight-cover-foreground{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
   object-fit:cover!important;
-  object-position:var(--smart-cover-x,50%) var(--smart-cover-y,50%)!important;
+  object-position:var(--cover-x,50%) var(--cover-y,50%)!important;
+  transform:none!important;
+  filter:none!important;
+  opacity:1!important;
+  z-index:0!important;
 }
-main.wrap .smart-cover-frame .smart-cover-front[hidden]{
-  display:none!important;
+main.wrap .spotlight-grid .tile-link>.tile-gradient{z-index:1!important}
+main.wrap .spotlight-grid .tile-link>.tile-copy{z-index:2!important}
+/* One-layer thumbnails: the picture fills the frame; nothing is duplicated. */
+main.wrap .sidebar .compact-editorial-box .editorial-thumb img,
+main.wrap .home-sidebar .compact-editorial-box .editorial-thumb img,
+main.wrap .home-column .news-tech-showcase .news-tech-cover img,
+main.wrap .home-column .web-news-thumb img,
+main.wrap .home-column .compact-item-image img,
+main.wrap .home-column .feature-main-thumb>img,
+main.wrap .home-column .gaming-magazine .gaming-magazine-thumb img,
+main.wrap .home-column .gaming-magazine .gaming-magazine-lead-image img,
+main.wrap .video-magazine .video-card .thumb img,
+main.wrap .video-magazine .video-feature .thumb img,
+main.wrap .video-start img,
+main.wrap .cards .thumb img,
+main.wrap .compact-item-image img,
+main.wrap .web-news-thumb img,
+main.wrap .editorial-hero img,
+main.wrap .feature-main-thumb>img,
+main.wrap .amazon-placeholder-thumb img {
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:var(--cover-x,50%) var(--cover-y,50%)!important;
+  background:transparent!important;
+  transform:none!important;
+  filter:none!important;
 }
-/* Preserve native 16:9 card/image boxes without changing their grid width,
-   headline type, footer placement, clickable links or desktop/mobile layout. */
+/* Prevent the old 'zoom plus duplicate backdrop' method from reappearing. */
+main.wrap .editorial-media-frame,
+main.wrap .spotlight-grid .tile-link,
+main.wrap .thumb,
+main.wrap .editorial-thumb,
+main.wrap .feature-main-thumb,
+main.wrap .compact-item-image,
+main.wrap .web-news-thumb,
+main.wrap .video-start {
+  background-image:none!important;
+}

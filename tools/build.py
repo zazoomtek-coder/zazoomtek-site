@@ -347,13 +347,13 @@ def shell(title,inner):
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
          '<title>'+esc(title)+' | ZazoomTek</title><meta name="robots" content="'+("noindex,nofollow" if PREVIEW else "index,follow")+'">'
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-typography-cover-focus-49"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-single-image-clean-50"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261028-cover-focus-49"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261028-single-image-clean-50"></script></body></html>')
 
 def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
@@ -393,13 +393,18 @@ def cover_focus_attributes(row):
   x=0
   mode="cover"
  attrs=[]
+ css=[]
  for axis,value in (("x",x),("y",y)):
   try:
    if value is not None:
     number=float(str(value).strip().rstrip("%"))
-    if 0<=number<=100:attrs.append(' data-cover-focus-'+axis+'="'+str(round(number,2))+'"')
+    if 0<=number<=100:
+     value_str=str(round(number,2))
+     attrs.append(' data-cover-focus-'+axis+'="'+value_str+'"')
+     css.append('--cover-'+axis+':'+value_str+'%;')
   except (ValueError,TypeError):pass
  if mode in ("cover","contain"):attrs.append(' data-cover-fit="'+mode+'"')
+ if css:attrs.append(' style="'+''.join(css)+'"')
  return "".join(attrs)
 
 def editorial_cover(row):
@@ -410,7 +415,6 @@ def editorial_cover(row):
  if url:
   src=esc(url,quote=True)
   return ('<span class="editorial-media-frame"'+cover_focus_attributes(row)+'>'
-          '<img class="editorial-media-bg" loading="lazy" src="'+src+'" alt="" aria-hidden="true">'
           '<img class="editorial-media-fg" loading="lazy" src="'+src+'" alt="'+title+'">'
           '<span class="editorial-media-fallback" aria-hidden="true"><small>'+section+'</small><strong>'+title+'</strong></span>'
           '</span>')
@@ -533,8 +537,7 @@ def date_label(r):
 def overlay_card(r,kind="feature-tile"):
  link="/"+r["slug"]
  pic=safe_image(r.get("image",""))
- image=('<img class="spotlight-cover-backdrop" loading="lazy" src="'+esc(pic,quote=True)+'" alt="" aria-hidden="true">'
-        '<img class="spotlight-cover-foreground" loading="lazy" src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
+ image=('<img class="spotlight-cover-foreground" loading="lazy" src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
         if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>')
  label=esc(TYPES.get(r["category"],"ZazoomTek"))
  date=date_label(r)
@@ -1109,6 +1112,8 @@ def main():
                "<p><a href=\"/\">Torna alla Home di ZazoomTek</a></p></article>")
  (O/"404.html").write_text(inside("Pagina non trovata",missing_page,rows,show_related=False),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
+ from verify_cover_layout import check_media
+ check_media(O,P/"assets/css/spotnews.css",P/"assets/js/site.js")
  from verify_routes import check_dist
  check_dist(O)
  print("SpotNews build OK:",len(rows),"articoli,",len(GROUPS)+2,"pagine.")
