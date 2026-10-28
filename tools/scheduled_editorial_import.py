@@ -81,11 +81,16 @@ def main():
     queue_videos = merge_queue("queue_videos.json", "videos.json", "videos", set())
     # Network errors are handled within these source functions. A blocked
     # YouTube or RSS endpoint cannot delete the published editorial archive.
-    results = {
-        "videos": youtube_videos(),
-        "community": youtube_community(),
-        "rss": refresh_rss(),
-    }
+    results = {}
+    for name, task in (("videos", youtube_videos),
+                       ("community", youtube_community),
+                       ("rss", refresh_rss)):
+        try:
+            results[name] = bool(task())
+        except Exception as exc:
+            results[name] = False
+            print("LIVE SOURCE FAILED; archived content preserved:",
+                  name, type(exc).__name__, str(exc)[:170], flush=True)
     after = {name: len(snapshot(name, key)[key]) for name, key in
              (("community_imported.json", "posts"), ("videos.json", "videos"))}
     print("IMPORT RESULT",
