@@ -11,7 +11,7 @@ from html import escape as esc, unescape
 
 from article_templates import (
  editorial_blocks, is_review, named_section, source_plain_h2,
- rich_text, sectioned_body
+ rich_text, sectioned_body, merge_repeated_info_sections
 )
 
 def check_all(rows, output, stylesheet):
@@ -32,7 +32,7 @@ def check_all(rows, output, stylesheet):
   try:
    if not path.is_file():raise AssertionError("Generated article file missing")
    page=path.read_text(encoding="utf-8")
-   body=sectioned_body(row)
+   body=merge_repeated_info_sections(sectioned_body(row))
    title=esc(str(row.get("title") or "").strip())
    if not title or "<h1>"+title+"</h1>" not in page:
     raise AssertionError("Missing/incorrect primary headline")
@@ -68,14 +68,16 @@ def check_all(rows, output, stylesheet):
     paragraphs_before_heading=0
     paragraphs_in_section=0
     seen_heading=False
+    current_heading=""
     for tag,text in blocks:
      if tag=="h2":
       seen_heading=True
+      current_heading=unescape(re.sub(r"<[^>]+>","",text)).strip().casefold()
       paragraphs_in_section=0
      else:
       if seen_heading:
        paragraphs_in_section+=1
-       if paragraphs_in_section>2:
+       if paragraphs_in_section>2 and current_heading!="ulteriori informazioni":
         raise AssertionError("More than two paragraphs under one red-bar heading")
       else:
        paragraphs_before_heading+=1
