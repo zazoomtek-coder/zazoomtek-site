@@ -2421,3 +2421,36 @@ main.wrap .web-news-thumb,
 main.wrap .video-start {
   background-image:none!important;
 }
+
+/* v51 — Web news internal gateways: original ZazoomTek content first,
+   sourced external link always available, no text copies or false stories. */
+main.wrap .web-gateway{width:100%!important;max-width:100%!important;overflow-wrap:anywhere!important}
+main.wrap .web-gateway>h1{margin:0 0 12px!important;line-height:1.22!important}
+main.wrap .web-gateway .web-gateway-byline{font-size:12px!important;color:#666!important;
+ padding-bottom:14px!important;border-bottom:1px solid #e7e7e7!important}
+main.wrap .web-gateway .web-gateway-primary{margin:26px 0 19px!important}
+main.wrap .web-gateway .web-gateway-primary h2,
+main.wrap .web-gateway .web-gateway-related h2{
+ font-size:20px!important;line-height:1.35!important;font-weight:900!important;
+ padding-left:12px!important;border-left:4px solid #ed304b!important;margin:0 0 13px!important}
+main.wrap .web-gateway .web-gateway-primary p{font-size:15px!important;line-height:1.7!important;
+ margin:0 0 13px!important}
+main.wrap .web-gateway .web-gateway-main-cta{display:inline-block!important;
+ font-size:15px!important;font-weight:800!important;line-height:1.4!important;
+ padding:12px 17px!important;color:#fff!important;background:#171717!important;
+ text-decoration:none!important}
+main.wrap .web-gateway .web-gateway-main-cta:hover{background:#d92e42!important}
+main.wrap .web-gateway .web-gateway-related{margin:25px 0!important}
+main.wrap .web-gateway .web-gateway-related ul{margin:0!important;padding-left:18px!important}
+main.wrap .web-gateway .web-gateway-related li{padding:7px 0!important;line-height:1.5!important}
+main.wrap .web-gateway .web-gateway-related li a{color:#171717!important;font-weight:600!important}
+main.wrap .web-gateway .web-gateway-source-link{display:inline-block!important;
+ padding:11px 15px!important;border:1px solid #252525!important;
+ color:#171717!important;font-weight:700!important;text-decoration:none!important}
+main.wrap .web-gateway .web-gateway-note{font-size:12px!important;color:#626262!important;
+ line-height:1.6!important}
+@media(max-width:650px){
+ main.wrap .web-gateway .web-gateway-primary h2,
+ main.wrap .web-gateway .web-gateway-related h2{font-size:18px!important}
+ main.wrap .web-gateway .web-gateway-primary p{font-size:14px!important}
+}

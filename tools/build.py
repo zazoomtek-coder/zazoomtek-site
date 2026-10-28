@@ -348,7 +348,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags+
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-single-image-clean-50"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-web-gateways-51"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -813,7 +813,11 @@ def web_news_cards(items):
   when='<time datetime="'+esc(datelabel,quote=True)+'">'+esc(datelabel[8:10]+"/"+datelabel[5:7]+"/"+datelabel[0:4])+'</time>' if re.fullmatch(r"\d{4}-\d{2}-\d{2}",datelabel) else ""
   sub='<span class="web-source">'+name+'</span>'
   if item.get("source_only"):sub+='<span class="web-source-only">Feed temporaneamente non disponibile</span>'
-  out.append('<article class="web-news-card"><a class="web-news-thumb" href="'+url+'" target="_blank" rel="noopener noreferrer" aria-label="Apri la fonte originale: '+title+'">'+visual+'</a>'+sub+'<h3><a href="'+url+'" target="_blank" rel="noopener noreferrer">'+title+'</a></h3>'+when+'</article>')
+  gateway=item.get("internal_path") if not item.get("source_only") else ""
+  href=esc(gateway,quote=True) if gateway else url
+  external_attributes='' if gateway else ' target="_blank" rel="noopener noreferrer external"'
+  label=('Leggi approfondimenti ZazoomTek e fonte originale: ' if gateway else 'Apri la fonte originale: ')+title
+  out.append('<article class="web-news-card"><a class="web-news-thumb" href="'+href+'"'+external_attributes+' aria-label="'+label+'">'+visual+'</a>'+sub+'<h3><a href="'+href+'"'+external_attributes+'>'+title+'</a></h3>'+when+'</article>')
  return '<div class="web-news-grid">'+''.join(out)+'</div>'
 
 # Every Home content is allocated once: the same post/video/url is never placed in two widgets.
@@ -908,7 +912,7 @@ def home(rows):
  return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name=="Guide e Extra" else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
 
 def web_archive(rows):
- content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni collegamento apre la notizia sul sito originale.</p>'+web_news_cards(web_news())
+ content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni notizia apre una scheda con eventuali approfondimenti ZazoomTek e il collegamento alla fonte originale.</p>'+web_news_cards(web_news())
  return inside("Notizie Web",content,rows,show_related=False,seo_path="/notizie-web",seo_summary="Notizie dal web: sei fonti italiane di tecnologia con articoli, aggiornamenti e collegamenti ai siti originali.")
 def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None,seo_path="/",seo_summary=None):
  # One two-column grid: page content and matching-height sidebar on row one;
@@ -1087,6 +1091,8 @@ def main():
  verify()
  rows=posts()
  audit_published_articles(rows)
+ from web_editorial import attach_links, gateway_html
+ web_items=attach_links(web_news(),rows)
  if O.exists():shutil.rmtree(O)
  # Copy the actual covers and other local editorial assets, not CSS/JS alone.
  shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
@@ -1101,6 +1107,16 @@ def main():
    for page in range(2,max(1,math.ceil(count/ARCHIVE_PAGE_SIZE))+1):
     (O/(key+"-page-"+str(page)+".html")).write_text(archive(key,rows,page),encoding="utf-8")
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
+ for entry in web_items:
+  path=entry.get("internal_path") or ""
+  if not path:continue
+  if not re.fullmatch(r"/notizia-web-[a-f0-9]{16}",path):
+   raise ValueError("Unsafe external gateway URL: "+str(path))
+  summary=("Notizia segnalata da "+entry["source"]+": "+entry["title"]+
+           ". Scopri gli approfondimenti ZazoomTek e consulta la fonte.")
+  destination=O/(path.lstrip("/")+".html")
+  destination.write_text(inside(entry["title"],gateway_html(entry,rows),rows,
+        show_related=False,seo_path=path,seo_summary=summary),encoding="utf-8")
  legal_pages(rows)
  contacts_page(rows)
  rss_feed(rows)
@@ -1117,6 +1133,8 @@ def main():
  write_indexing(O,rows,GROUPS,ARCHIVE_PAGE_SIZE,PREVIEW)
  from verify_cover_layout import check_media
  check_media(O,P/"assets/css/spotnews.css",P/"assets/js/site.js")
+ from verify_web_gateway import check_web_gateways
+ check_web_gateways(O,web_items,rows)
  from verify_seo import check_seo
  check_seo(O,rows,GROUPS,PREVIEW)
  from verify_routes import check_dist

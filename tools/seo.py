@@ -112,7 +112,9 @@ def metadata(title,path="/",row=None,preview=True,summary=None):
  head=title_tag(row) if row else ("ZazoomTek | Tecnologia e Gaming" if path=="/" else plain(title)+" | ZazoomTek")
  desc=description(row) if row else (summary or DESC)
  image=full_image(row.get("image")) if row else ""
- robot="noindex,nofollow" if preview or path=="/404" else "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+ robot=("noindex,nofollow" if preview or path=="/404" else
+       "noindex,follow" if path.startswith("/notizia-web-") else
+       "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1")
  output=['<title>'+esc(head)+'</title>',
   '<meta name="description" content="'+esc(desc,quote=True)+'">',
   '<meta name="robots" content="'+robot+'">',

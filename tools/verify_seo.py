@@ -67,12 +67,17 @@ def check_seo(root,rows,groups,preview):
    bad.append((page.name,"OG canonical mismatch"))
   canonicals=[x.get("href") for x in parser.links if x.get("rel")=="canonical"]
   if canonicals!=[expected]:bad.append((page.name,"canonical missing or duplicates"))
-  if expected not in urls:bad.append((page.name,"missing sitemap URL"))
+  if path.startswith("/notizia-web-"):
+   if expected in urls:bad.append((page.name,"Thin external-link gateway included in sitemap"))
+   if "noindex" not in parser.meta.get("robots",""):
+    bad.append((page.name,"External gateway must be noindex"))
+  elif expected not in urls:
+   bad.append((page.name,"missing sitemap URL"))
   if not parser.ld or any("invalid" in x for x in parser.ld):
    bad.append((page.name,"missing/invalid structured data"))
   if preview and "noindex" not in parser.meta.get("robots",""):
    bad.append((page.name,"Preview is not noindex"))
-  if not preview and "max-image-preview:large" not in parser.meta.get("robots",""):
+  if not preview and not path.startswith("/notizia-web-") and "max-image-preview:large" not in parser.meta.get("robots",""):
    bad.append((page.name,"Production discover image preview missing"))
   count+=1
  for row in rows:
