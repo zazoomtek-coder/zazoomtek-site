@@ -26,7 +26,8 @@ def verify_studio_v2(output,rows):
  if example:
   assert len(example["editor_blocks"])>=12,"Speciale text was truncated"
   assert any(b.get("type")=="heading" for b in example["editor_blocks"]),"Original editorial headings missing"
-  assert "Tra mozione italiana ed EU KIDS Act" in example["editor_blocks"][0]["text"],"Opening text changed"
+  assert any("Tra mozione italiana ed EU KIDS Act" in b.get("text","")
+             for b in example["editor_blocks"]),"Opening text changed"
 
  assert len({r["slug"] for r in data["posts"]})==len(rows),"Duplicate Studio V2 content"
  assert all(isinstance(r["seo_lock"]["title"],str) and

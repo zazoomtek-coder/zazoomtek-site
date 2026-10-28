@@ -28,8 +28,13 @@ class _EditorInline(HTMLParser):
 
 def editorial_blocks_for_editor(row):
  """Keep the exact published editorial headings and original text in their order."""
+ # Preserve media blocks exactly. For text-only Studio edits, parse the
+ # actual published HTML so editorial H2 and paragraphs match the site.
  if row.get("studio_blocks") and isinstance(row.get("body"),list) and row["body"]:
-  return row["body"]
+  if any(isinstance(x,dict) and x.get("type") in
+         ("image","video","audio","button","attachment","poll","divider")
+         for x in row["body"]):
+   return row["body"]
  source=sectioned_body(row)
  blocks=[]
  for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
