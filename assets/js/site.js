@@ -437,7 +437,7 @@
      if(session?.admin!==true||session.authenticated!==true)return;
      const edit=document.createElement("a");
      edit.className="studio-admin-edit";
-     edit.href="/studio/?edit="+encodeURIComponent(slug);
+     edit.href="/studio-v2/?edit="+encodeURIComponent(slug);
      edit.textContent="Modifica";
      edit.setAttribute("aria-label","Modifica questo contenuto nello Studio amministratore");
      editableArticle.insertAdjacentElement("afterbegin",edit);
