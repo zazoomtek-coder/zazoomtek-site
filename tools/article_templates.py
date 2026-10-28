@@ -233,11 +233,9 @@ def video(review):
  if not VIDEO_ID.fullmatch(vid):return ""
  url="https://www.youtube.com/watch?v="+vid
  title=esc(plain(review.get("title")) or "Videorecensione",quote=True)
- return ('<div class="review-video"><a class="review-video-link" href="'+url+'" target="_blank" rel="noopener noreferrer">'
-         'Guarda la videorecensione su YouTube</a>'
-         '<div class="player"><button type="button" class="video-start" data-youtube-id="'+vid+'" aria-label="Riproduci su YouTube: '+title+'">'
-         '<img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/hqdefault.jpg" alt="">'
-         '<span class="video-start-label">▶ Riproduci il video</span></button></div></div>')
+ return ('<div class="review-video"><a class="review-video-link" href="'+url+'" target="_blank" rel="noopener noreferrer"'
+         ' aria-label="Guarda la videorecensione ufficiale su YouTube: '+title+'">'
+         '▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗</a></div>')
 
 def editorial_blocks(review):
  """Keep the author's article; remove social-signature and hashtag tails from main editorial content."""
@@ -587,5 +585,5 @@ def render(review,image_validator):
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'
+         +(video(review) if reviews else "")+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
