@@ -466,9 +466,9 @@ def gaming_article_preview(row,limit=640):
   if not isinstance(part,str):continue
   candidate=part.strip()
   if not candidate or candidate.startswith(("## ","# ","**")):continue
-  candidate=re.sub(r"\\*\\*(.*?)\\*\\*",r"\\1",candidate)
-  candidate=re.sub(r"\\s+"," ",candidate).strip()
-  candidate=re.sub(r"^(?:News\\s+Gaming|Gaming\\s+News)\\s*[:\\u2013\\u2014-]\\s*","",candidate,flags=re.I)
+  candidate=re.sub(r"\*\*(.*?)\*\*",r"\1",candidate)
+  candidate=re.sub(r"\s+"," ",candidate).strip()
+  candidate=re.sub(r"^(?:News\s+Gaming|Gaming\s+News)\s*[:\u2013\u2014-]\s*","",candidate,flags=re.I)
   if headline and candidate.casefold().startswith(headline.casefold()):
    candidate=candidate[len(headline):].lstrip(" :.-–—")
   if len(candidate)<18:continue
@@ -1006,7 +1006,7 @@ def matching_review_video_id(row):
  )
  # Prefer the Ultra review over a different 70mai A900 review.
  for words,vid in matches:
-  if all(re.search(r"\\b"+re.escape(w)+r"\\b",title) for w in words) and vid in published:
+  if all(re.search(r"\b"+re.escape(w)+r"\b",title) for w in words) and vid in published:
    return vid
  return ""
 
