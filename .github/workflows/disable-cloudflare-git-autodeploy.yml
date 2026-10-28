@@ -1,8 +1,6 @@
 name: ZazoomTek - blocca deploy Git Cloudflare (configurazione una tantum)
 on:
-  push:
-    branches: [main]
-    paths: [tools/disable_git_autodeploy.py]
+  # Ripetibile solo con una richiesta manuale esplicita. Non pubblica il sito.
   workflow_dispatch:
 permissions:
   contents: read
