@@ -11,7 +11,7 @@ from html import escape as esc, unescape
 
 from article_templates import (
  editorial_blocks, is_review, named_section, source_plain_h2,
- rich_text, sectioned_body
+ rich_text, sectioned_body, with_official_link
 )
 
 def check_all(rows, output, stylesheet):
@@ -45,7 +45,7 @@ def check_all(rows, output, stylesheet):
    if not (page.find("<h1>")>=0 and meta>=0 and cover>=0 and content>=0 and
            page.find("<h1>")<meta<cover<content):
     raise AssertionError("Incorrect H1 → metadata → cover → article content order")
-   if body not in page:raise AssertionError("Rendered editorial content differs from shared template")
+   if with_official_link(body,row) not in page:raise AssertionError("Rendered editorial content differs from shared template")
    h2s=re.findall(r"<h2>(.*?)</h2>",body,flags=re.S)
    if not h2s or any(not re.sub("<[^>]+>","",h).strip() for h in h2s):
     raise AssertionError("Article is missing editorial red-bar subtitles")
