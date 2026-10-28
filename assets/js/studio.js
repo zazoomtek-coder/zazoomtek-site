@@ -17,7 +17,12 @@
   const type=response.headers.get("content-type")||"";
   if(!type.includes("application/json"))throw Error("Sessione Access assente o scaduta: accedi nuovamente");
   const data=await response.json();
-  if(!response.ok||!data.ok)throw Error(data.error||"Operazione non autorizzata");
+  if(!response.ok||!data.ok){
+   const err=new Error(data.error||"Operazione non autorizzata");
+   err.code=data.code||"";
+   err.status=response.status;
+   throw err;
+  }
   return data;
  };
  const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
@@ -245,9 +250,18 @@
    else makeNew();
   }catch(err){
    gate.hidden=false;app.hidden=true;
-   $("studio-gate-description").textContent=err.message+
-    ". L'accesso richiede Cloudflare Access configurato per questo browser; non inserire password o token in Studio.";
+   const unconfigured=err.code==="ACCESS_CONFIGURATION_REQUIRED"||
+     /Access not configured|Invalid Access team hostname/i.test(err.message);
+   $("studio-gate-setup").hidden=!unconfigured;
+   $("studio-setup-link").hidden=!unconfigured;
+   $("studio-retry").hidden=false;
+   $("studio-gate-description").textContent=unconfigured
+     ?"Studio non è ancora attivato in Cloudflare. Il link di accesso precedente portava a una pagina 404 perché non esiste un'applicazione Access configurata. Prima attiva la protezione indicata qui sotto."
+     :err.status===401
+     ?"La sessione amministratore non è valida. Dopo aver configurato Cloudflare Access, entra nuovamente nella pagina Studio per effettuare l'accesso protetto."
+     :"Studio non è disponibile: "+err.message;
   }
  }
+ $("studio-retry").addEventListener("click",()=>location.reload());
  boot();
 })();

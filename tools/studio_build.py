@@ -22,7 +22,7 @@ def build_studio(output,rows):
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Studio | ZazoomTek</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
-<link rel="stylesheet" href="/assets/css/studio.css?v=1">
+<link rel="stylesheet" href="/assets/css/studio.css?v=2">
 </head><body>
 <section id="studio-gate" class="studio-gate">
   <h1>Zazoom<span style="color:#ed344b">Tek</span> Studio</h1>
@@ -107,7 +107,7 @@ def build_studio(output,rows):
   </div>
  </aside>
 </div>
-<script src="/assets/js/studio.js?v=1" defer></script>
+<script src="/assets/js/studio.js?v=2" defer></script>
 </body></html>"""
  (root/"index.html").write_text(html,encoding="utf-8")
  print("Studio catalog:",len(rows),"articles; protected UI generated",flush=True)

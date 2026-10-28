@@ -69,3 +69,13 @@ button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}
 .studio-source-link{color:#252525;display:inline-block;text-decoration:none;font-size:12px;margin:20px 0}
 @media(max-width:1320px){.studio-layout{grid-template-columns:240px minmax(480px,1fr)}.studio-right{position:relative;grid-column:2;height:auto;border-left:0;border-top:1px solid #eee}}
 @media(max-width:850px){.studio-layout{display:block}.studio-left{height:auto;position:relative;border-right:0;border-bottom:1px solid #ddd}.studio-content-list{max-height:180px}.studio-main{padding:0 18px 40px}.studio-topbar{position:relative;flex-wrap:wrap;padding:17px 0}.studio-topbar h1{font-size:20px}.studio-grid{grid-template-columns:1fr}.studio-card{padding:19px}.studio-right{padding:20px}}
+
+/* v2 — honest Access activation/status, no broken /cdn-cgi/access/login link */
+.studio-gate #studio-gate-setup{padding:17px 18px;border:1px solid #dfdfe4;border-radius:10px;background:#f8f8fa;font-size:14px;color:#333}
+.studio-gate #studio-gate-setup strong,.studio-gate #studio-gate-setup span{display:block}
+.studio-gate #studio-gate-setup strong{font-size:15px;margin-bottom:10px}
+.studio-gate #studio-gate-setup span{line-height:1.7}
+.studio-gate .studio-gate-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:22px}
+.studio-gate .studio-gate-actions a,.studio-gate .studio-gate-actions button{display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:12px 18px;border:0;border-radius:8px;text-decoration:none;font-weight:750;font-size:14px}
+.studio-gate #studio-setup-link{color:#fff;background:#111}
+.studio-gate #studio-retry{color:#171717;background:#f0f0f2;border:1px solid #dcdce1;cursor:pointer}

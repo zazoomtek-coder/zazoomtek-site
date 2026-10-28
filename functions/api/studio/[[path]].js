@@ -208,7 +208,14 @@ export async function onRequest(context){
  if(request.method==="OPTIONS")return json({error:"Not allowed"},405);
  let admin;
  try{admin=await verifyAdmin(request,env);}
- catch(e){return json({ok:false,error:String(e.message||e)},503);}
+ catch(e){
+  const detail=String(e.message||e);
+  if(detail.startsWith("Access not configured:")||detail==="Invalid Access team hostname")
+   return json({ok:false,configured:false,code:"ACCESS_CONFIGURATION_REQUIRED",
+    error:"Cloudflare Access non è configurato. Completa l'attivazione del progetto SpotNews: dominio del team, AUD e email amministratore."},503);
+  return json({ok:false,code:"ACCESS_UNAVAILABLE",
+   error:"La verifica sicura dell'amministratore non è disponibile al momento."},503);
+ }
  if(!admin)return json({ok:false,authenticated:false},401);
  const requestUrl=new URL(request.url);
  const path=requestUrl.pathname.replace(/\/+$/,"");

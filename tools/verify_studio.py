@@ -12,6 +12,11 @@ def verify_studio(output,rows):
  assert 'name="robots" content="noindex,nofollow' in page,"Studio must be noindex"
  assert 'id="studio-app" hidden' in page,"Studio UI must default hidden"
  assert '/assets/js/studio.js' in page,"Studio editor JS missing"
+ assert "/cdn-cgi/access/login" not in page,"Broken Cloudflare login link must not be rendered"
+ assert 'id="studio-setup-link"' in page,"Studio setup link must be available"
+ assert 'id="studio-retry"' in page,"Studio must support retry after Access configuration"
+ assert 'id="studio-gate-setup"' in page,"Studio must describe the missing Access configuration"
+ assert '/assets/js/studio.js?v=2' in page,"Studio must invalidate old browser JS"
  assert (root/"assets/js/studio.js").is_file(),"Studio JS not copied"
  assert (root/"assets/css/studio.css").is_file(),"Studio CSS not copied"
  data=json.loads(catalog.read_text(encoding="utf-8"))
@@ -20,6 +25,10 @@ def verify_studio(output,rows):
  sitejs=(root/"assets/js/site.js").read_text(encoding="utf-8")
  assert '"/api/studio/session"' in sitejs
  assert 'session?.admin!==true' in sitejs
+ studiojs=(root/"assets/js/studio.js").read_text(encoding="utf-8")
+ assert 'ACCESS_CONFIGURATION_REQUIRED' in studiojs,"Missing admin setup error handling"
+ assert 'studio-gate-setup' in studiojs,"Missing activation screen handling"
+ assert 'studio-retry' in studiojs,"Missing reconnect button handling"
  assert 'studio-admin-edit' in sitejs
  from article_templates import sectioned_body,render
  original={
