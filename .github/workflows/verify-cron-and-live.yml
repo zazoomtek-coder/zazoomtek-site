@@ -1,0 +1,55 @@
+name: ZazoomTek - controllo cron e sito ufficiale (SOLO LETTURA)
+on:
+  push:
+    branches: [main]
+    paths: [.github/CHECK_CRON_AND_SITE_20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Controlla cron su main e verifica homepage aggiornata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,urllib.request,urllib.error
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          base="https://api.github.com/repos/"+os.environ["GH_REPO"]
+          headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+os.environ["GH_TOKEN"],"X-GitHub-Api-Version":"2022-11-28"}
+          for name in ("editorial-collect.yml","editorial-publish.yml"):
+            req=urllib.request.Request(base+"/actions/workflows/"+name,headers=headers)
+            with urllib.request.urlopen(req,timeout=15) as response:
+              doc=json.load(response)
+            print("CRON WORKFLOW",name,"state",doc.get("state"),"path",doc.get("path"),flush=True)
+            assert doc.get("state")=="active",name+" not active"
+          text=Path(".github/workflows/editorial-publish.yml").read_text(encoding="utf-8")
+          assert "cron: '25,30 12,19 * * *'" in text and "timezone: Europe/Rome" in text
+          assert "time.sleep(max(0,seconds))" in text
+          digest=hashlib.sha256(Path("assets/css/spotnews.css").read_bytes()).hexdigest()[:12]
+          request=urllib.request.Request("https://zazoomtek.it/?zazoomtek-release-audit=20261028",headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekSiteCheck/1.0)","Cache-Control":"no-cache","Accept":"text/html"})
+          with urllib.request.urlopen(request,timeout=25) as response:
+            body=response.read(2500000).decode("utf-8","replace")
+            code=response.status
+          print("OFFICIAL WEBSITE",code,"RELEASE CSS HASH",digest,"MATCHES",('/assets/css/spotnews.css?v='+digest+'"' in body),flush=True)
+          assert code==200 and '/assets/css/spotnews.css?v='+digest+'"' in body,"Official domain does not show merged CSS revision"
+          try:
+            with urllib.request.urlopen("https://zazoomtek.it/api/studio/session",timeout=12) as response:
+              api_code=response.status
+          except urllib.error.HTTPError as exc:
+            api_code=exc.code
+          print("STUDIO V2 API",api_code,"(401 means login required; 503 means setup missing)",flush=True)
+          print("SUCCESS: new merged website live and both cron workflows active on main.",flush=True)
+          PY
