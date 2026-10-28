@@ -11,7 +11,10 @@ def verify_studio_v2(output,rows):
  assert 'noindex,nofollow' in page
  assert 'id="v2-home"' in page and 'id="v2-editor" class="v2-editor-view" hidden' in page
  assert 'id="v2-append-block"' in page and 'id="v2-cover-edit"' in page
- assert 'id="v2-save-draft"' in page and 'id="v2-publish"' in page
+ assert all('id="'+name+'"' in page for name in
+            ("v2-preview-top","v2-preview-bottom","v2-save-draft","v2-publish",
+             "v2-draft-bottom","v2-publish-bottom","v2-close-preview",
+             "v2-article-preview","v2-autosave-status"))
  assert 'id="v2-modal"' in page and 'id="v2-category"' in page
  assert 'id="v2-seo-status"' in page and 'AUTOMATICO' in page
  assert 'id="v2-content-list"' not in page # new implementation uses v2-list
@@ -37,17 +40,23 @@ def verify_studio_v2(output,rows):
  css=(output/"assets/css/studio-v2.css").read_text(encoding="utf-8")
  script=(output/"assets/js/studio-v2.js").read_text(encoding="utf-8")
  for marker in ("v2-home-intro","v2-list-item","v2-block-row","v2-settings","v2-modal",
-                "v2-plus","v2-cover-stage"):
+                "v2-plus","v2-cover-stage","v2-article-preview","v2-preview-article"): 
   assert marker in css,"V2 CSS missing "+marker
  for marker in ("v2-save","v2-drafts","save(\"draft\")","save(\"publish\")",
+                "showArticlePreview","formattedTextBlocks","restoreBackup",
+                "scheduleBackup","pagehide","editorialBodyForDisplay",
                 "openMenu","editCover","editMedia","showHome","startNew"):
   assert marker in script,"V2 JS missing "+marker
  for marker in ("function richContent(", "function cursorHere(", "function insertPosition(", "function inlineLink(", "function safePaste(", "state.coverPreview"):
   assert marker in script,"WYSIWYG features missing: "+marker
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
- assert "20261028-rich-4" in page,"Browser must load fresh editor CSS and JS"
- assert "localStorage" not in script and "sessionStorage" not in script
+ assert "20261028-studio-draft-preview-1" in page,"Browser must load updated editor CSS and JS"
+ # Only article BODY text may be recovered locally; never GitHub auth data.
+ assert 'localStorage.setItem(backupKey(),JSON.stringify(payload))' in script
+ assert 'record:collect()' in script
+ assert '"token":' not in script and 'localStorage.setItem("token"' not in script
+ assert 'sessionStorage' not in script
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock='):

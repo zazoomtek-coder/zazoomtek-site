@@ -1,0 +1,39 @@
+name: ZazoomTek - verifica Studio bozza anteprima (NO DEPLOY)
+on:
+  push:
+    branches: [feature/studio-draft-preview-autosave-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/studio-draft-preview-autosave-20261028
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica JavaScript e compilazione Python
+        run: |
+          node --check assets/js/studio-v2.js
+          python3 -m py_compile tools/studio_v2_build.py tools/verify_studio_v2.py tools/build.py
+      - name: Rigenera il sito completo senza deploy
+        run: python3 tools/build.py
+      - name: Verifica anteprima, salvataggio e recupero del testo
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('dist/studio-v2/index.html').read_text(encoding='utf-8')
+          script=Path('dist/assets/js/studio-v2.js').read_text(encoding='utf-8')
+          css=Path('dist/assets/css/studio-v2.css').read_text(encoding='utf-8')
+          assert len(list(Path('dist').glob('*.html')))>200
+          for ident in ['v2-preview-top','v2-preview-bottom','v2-save-draft','v2-draft-bottom','v2-publish','v2-publish-bottom','v2-article-preview','v2-close-preview']:
+            assert f'id="{ident}"' in html, ident
+          for needle in ['localStorage.setItem(backupKey()', 'restoreBackup()', 'beforeunload', 'pagehide', 'formattedTextBlocks', 'showArticlePreview', 'save("draft")','save("publish")']:
+            assert needle in script,needle
+          assert '.v2-article-preview' in css
+          print("STUDIO DRAFT/PREVIEW AUDIT SUCCESS: 3 separate actions, safe draft backup, original site preserved.")
+          PY
