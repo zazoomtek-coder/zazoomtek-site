@@ -1,0 +1,22 @@
+name: ZazoomTek - configura accesso Studio Production (no deploy)
+on:
+  push:
+    branches: [main]
+    paths: [tools/configure_prod_studio.py]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  secure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Configura sessione cifrata Studio V2 in Production senza deploy
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 tools/configure_prod_studio.py
