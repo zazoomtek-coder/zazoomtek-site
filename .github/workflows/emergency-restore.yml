@@ -1,9 +1,6 @@
 name: ZazoomTek - recupero straordinario YouTube e RSS
 on:
-  push:
-    branches: [main]
-    paths:
-      - tools/emergency_sync.py
+  # SOLO su richiesta esplicita dell'amministratore; mai su push o schedule.
   workflow_dispatch:
 permissions:
   contents: write
