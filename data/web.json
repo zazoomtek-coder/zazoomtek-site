@@ -1,37 +1,53 @@
 {
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "items": [
     {
+      "source": "HDblog",
+      "title": "Conto Termico 3.0, in arrivo nuove regole: cosa cambia per privati, aziende e PA",
+      "url": "https://www.hdblog.it/home/articoli/n675183/conto-termico-3-0-novita-cosa-cambia/",
+      "image": "https://hd2.tudocdn.net/1381190?w=660",
+      "date": "2026-10-28",
+      "from_feed": true
+    },
+    {
       "source": "SmartWorld",
-      "title": "Google Messaggi, arriva la Protezione Avanzata con Gemini contro truffe e link pericolosi",
-      "url": "https://www.smartworld.it/news/google-messages-protezione-avanzata-come-funziona.html",
-      "date": "2026-10-26"
+      "title": "TIM, nuovi aumenti dal 3 dicembre: come evitarli o recedere gratis",
+      "url": "https://www.smartworld.it/news/tim-aumenti-sim-ricaricabili-3-dicembre-2026-cosa-fare.html",
+      "image": "https://www.smartworld.it/images/2025/07/22/tim-final-orig.jpg",
+      "date": "2026-10-28",
+      "from_feed": true
     },
     {
       "source": "DDay.it",
-      "title": "Capcom, violati 11,7 milioni di account. Attenzione alle email di phishing",
-      "url": "https://www.dday.it/redazione/59221/capcom-violati-117-milioni-di-account-attenzione-alle-email-di-phishing",
-      "date": "2026-10-26",
-      "image": "https://images.dday.it/fKYhcDLEy53RKVObnAwMe6uK1ROiL7879-SMah8tFEg/w%3A702/h%3A360/rt%3Afill/plain/s3%3A//dday-production/system/uploads/news/main_image/59221/bcdbe2_logo-of-brand-capcom-Depositphotos_161272092_XL.jpg"
+      "title": "Amazon rinnova gli Echo e alza l'asticella delle funzioni. Ma anche quella dei prezzi",
+      "url": "https://www.dday.it/redazione/59254/amazon-rinnova-gli-echo-e-alza-lasticella-delle-funzioni-ma-anche-quella-dei-prezzi",
+      "image": "",
+      "date": "2026-10-28",
+      "from_feed": true
     },
     {
       "source": "Tom's Hardware",
-      "title": "La HBM4 di NVIDIA rallenta, ma forse è una buona notizia",
-      "url": "https://www.tomshw.it/hardware/la-hbm4-di-nvidia-rallenta-ma-forse-e-una-buona-notizia",
-      "date": "2026-10-26"
+      "title": "UEFI, scoperta una falla che può colpire quando il PC è indifeso",
+      "url": "https://www.tomshw.it/hardware/edk-ii-ha-una-falla-critica-quali-server-uefi-sono-a-rischio",
+      "image": "https://cdn.tomshw.it/storage/media/2026/10/120799/edk-ii-ha-una-falla-critica-quali-server-uefi-sono-a-rischio.png",
+      "date": "2026-10-28",
+      "from_feed": true
     },
     {
       "source": "Hardware Upgrade",
-      "title": "NVIDIA smentisce la fine della RTX 5090, ma i partner raccontano un'altra storia",
-      "url": "https://www.hwupgrade.it/news/skvideo/nvidia-smentisce-la-fine-della-rtx-5090-ma-i-partner-raccontano-un-altra-storia_161141.html",
-      "date": "2026-10-27",
-      "image": "https://www.hwupgrade.it/i/n/rog_rtx_5090_30_anniversary_160.jpg"
+      "title": "Kaspersky punta su IA e servizi gestiti per portare la cybersecurity oltre lantivirus",
+      "url": "https://edge9.hwupgrade.it/news/security/kaspersky-punta-su-ia-e-servizi-gestiti-per-portare-la-cybersecurity-oltre-l-antivirus_161230.html",
+      "image": "",
+      "date": "2026-10-28",
+      "from_feed": true
     },
     {
       "source": "Punto Informatico",
-      "title": "PHP2Shell, Europa nel mirino: rischia il 10% delle realtà italiane",
-      "url": "https://www.punto-informatico.it/php2shell-europa-italia/",
-      "date": "2026-10-23"
+      "title": "Revolut down il 28 ottobre: tutti gli aggiornamenti",
+      "url": "https://www.punto-informatico.it/fintech/conti/revolut-down-28102026/",
+      "image": "https://www.punto-informatico.it/app/uploads/2026/10/revolut_down-1.jpg",
+      "date": "2026-10-28",
+      "from_feed": true
     }
   ]
 }
