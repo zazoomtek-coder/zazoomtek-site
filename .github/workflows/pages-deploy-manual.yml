@@ -1,8 +1,5 @@
 name: ZazoomTek - deploy manuale su zazoomtek.it
 on:
-  push:
-    branches: [main]
-    paths: [.github/DEPLOY_MANUALE_APPROVATO_20261028]
   workflow_dispatch:
 permissions:
   contents: read
