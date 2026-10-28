@@ -1,235 +1,312 @@
-/* Protected Studio API for the isolated SpotNews preview branch.
- * All writes are authorized server-side with verified Cloudflare Access JWT,
- * using a GitHub fine-grained token stored only as Pages encrypted secret.
- * Cloudflare Access maintains the durable browser session cookie.
+/**
+ * ZazoomTek Studio — new, independent GitHub-authenticated session service.
+ *
+ * First access: owner enters a fine-grained GitHub PAT ONCE, over HTTPS.
+ * The server verifies GitHub identity and repository write permission, then
+ * seals the PAT using AES-256-GCM and sets an HttpOnly Secure SameSite=Strict
+ * rolling first-party cookie renewed at each visit: no periodic login deadline.
+ * Never localStorage; never a PAT
+ * in public Javascript, logs, markup, URLs or repository.
+ *
+ * Only secret required in Cloudflare Pages Preview settings:
+ * STUDIO_SESSION_SECRET (cryptographically random 32+ characters).
+ *
+ * All GitHub mutations target ONLY feature/spotnews-clean-rebuild.
+ * Without the secret, the login fails closed with an actionable status.
  */
-const REPO="zazoomtek-coder/zazoomtek-site",BRANCH="feature/spotnews-clean-rebuild";
+const REPO="zazoomtek-coder/zazoomtek-site";
+const OWNER="zazoomtek-coder";
+const BRANCH="feature/spotnews-clean-rebuild";
+const COOKIE="__Host-zzt-studio";
+const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each visit.
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
 const BLOCKS=new Set(["paragraph","heading","image","video","button","quote"]);
-const headers={"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
-const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
-const txt=x=>typeof x==="string"?x.trim():"";
-function from64(value){
- const s=String(value).replace(/-/g,"+").replace(/_/g,"/");
- return Uint8Array.from(atob(s),ch=>ch.charCodeAt(0));
+const jsonHeaders={"Content-Type":"application/json;charset=utf-8","Cache-Control":"no-store, private","X-Content-Type-Options":"nosniff"};
+function respond(data,status=200,extra={}){
+ return new Response(JSON.stringify(data),{status,headers:{...jsonHeaders,...extra}});
 }
-function base64Utf8(value){
- const bytes=new TextEncoder().encode(value);
- let str="";
- for(let i=0;i<bytes.length;i+=8192)str+=String.fromCharCode(...bytes.subarray(i,i+8192));
- return btoa(str);
+const clean=v=>typeof v==="string"?v.trim():"";
+const toBytes=v=>new TextEncoder().encode(v);
+function fromBase64(s){
+ const value=String(s).replace(/-/g,"+").replace(/_/g,"/");
+ return Uint8Array.from(atob(value),c=>c.charCodeAt(0));
 }
-let keyCache=null,cacheDeadline=0;
-async function verifyAdmin(request,env){
- const team=txt(env.CF_ACCESS_TEAM_DOMAIN).toLowerCase().replace(/^https?:\/\//,"").replace(/\/+$/,"");
- const audience=txt(env.CF_ACCESS_AUD),admin=txt(env.STUDIO_ADMIN_EMAIL).toLowerCase();
- if(!team||!audience||!admin)throw Error("Access not configured: CF_ACCESS_TEAM_DOMAIN, CF_ACCESS_AUD and STUDIO_ADMIN_EMAIL required");
- if(!/^[a-z0-9.-]+\.cloudflareaccess\.com$/.test(team))throw Error("Invalid Access team hostname");
- const raw=txt(request.headers.get("Cf-Access-Jwt-Assertion"));
- if(!raw)return null;
- const parts=raw.split(".");
- if(parts.length!==3)return null;
- let head,payload;
- try{
-  head=JSON.parse(new TextDecoder().decode(from64(parts[0])));
-  payload=JSON.parse(new TextDecoder().decode(from64(parts[1])));
- }catch(_){return null;}
- const now=Math.floor(Date.now()/1000);
- if(head.alg!=="RS256"||!head.kid||payload.iss!=="https://"+team||
-  !Array.isArray(payload.aud)||!payload.aud.includes(audience)||
-  txt(payload.email).toLowerCase()!==admin||
-  !Number.isFinite(payload.exp)||payload.exp<=now||
-  !Number.isFinite(payload.iat)||payload.iat>now+60||
-  (payload.nbf&&payload.nbf>now+60))return null;
- if(!keyCache||Date.now()>cacheDeadline){
-  const certs=await fetch("https://"+team+"/cdn-cgi/access/certs");
-  if(!certs.ok)throw Error("Cloudflare Access certificates unavailable");
-  keyCache=await certs.json();
-  cacheDeadline=Date.now()+15*60*1000;
+function toBase64(bytes){
+ let text="";
+ for(let i=0;i<bytes.length;i+=8192)
+  text+=String.fromCharCode(...bytes.slice(i,i+8192));
+ return btoa(text).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function encodeUtf8(s){return toBase64(toBytes(s));}
+function assertSetup(env){
+ const secret=clean(env.STUDIO_SESSION_SECRET);
+ if(secret.length<32)throw new Error("SETUP_REQUIRED");
+ return secret;
+}
+async function keyFor(env){
+ const bytes=await crypto.subtle.digest("SHA-256",toBytes(assertSetup(env)));
+ return crypto.subtle.importKey("raw",bytes,"AES-GCM",false,["encrypt","decrypt"]);
+}
+function cookieValue(request,name=COOKIE){
+ const s=request.headers.get("Cookie")||"";
+ for(const pair of s.split(";")){
+  const i=pair.indexOf("=");
+  if(i>=0&&pair.slice(0,i).trim()===name)return pair.slice(i+1).trim();
  }
- const jwk=(keyCache.keys||[]).find(k=>k.kid===head.kid);
- if(!jwk){keyCache=null;return null;}
- const publicKey=await crypto.subtle.importKey("jwk",jwk,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
- const signature=from64(parts[2]);
- const valid=await crypto.subtle.verify("RSASSA-PKCS1-v1_5",publicKey,signature,new TextEncoder().encode(parts[0]+"."+parts[1]));
- return valid?{email:admin,expires:payload.exp}:null;
+ return "";
 }
-function safeUrl(v){
- const s=txt(v);
- if(!s)return "";
- if(s.startsWith("/")&&!s.startsWith("//")&&!/[<>"'\\]/.test(s))return s;
+async function seal(payload,env){
+ const iv=crypto.getRandomValues(new Uint8Array(12));
+ const cipher=await crypto.subtle.encrypt(
+  {name:"AES-GCM",iv},await keyFor(env),toBytes(JSON.stringify(payload)));
+ return toBase64(iv)+"."+toBase64(new Uint8Array(cipher));
+}
+async function openSession(request,env){
+ const raw=cookieValue(request);
+ if(!raw||raw.length>12000)return null;
+ const parts=raw.split(".");
+ if(parts.length!==2)return null;
  try{
-  const u=new URL(s);
-  if(u.protocol==="https:"&&!u.username&&!u.password&&s.length<1800)return u.toString();
+  const iv=fromBase64(parts[0]);
+  if(iv.byteLength!==12)return null;
+  const data=await crypto.subtle.decrypt({name:"AES-GCM",iv},await keyFor(env),fromBase64(parts[1]));
+  const v=JSON.parse(new TextDecoder().decode(data));
+  const now=Math.floor(Date.now()/1000);
+  if(v.v!==1||v.owner!==OWNER||v.branch!==BRANCH||
+     !Number.isSafeInteger(v.iat)||!Number.isSafeInteger(v.exp)||
+     v.exp<=now||v.iat>now+60||v.exp-v.iat>AGE||!/^gh[pousr]_|^github_pat_/.test(v.token||""))
+   return null;
+  if(v.login!==OWNER)return null;
+  return v;
+ }catch(_){return null;}
+}
+function setCookie(value,maxAge){
+ return COOKIE+"="+value+"; Path=/; Max-Age="+maxAge+"; HttpOnly; Secure; SameSite=Strict";
+}
+const clearCookie=()=>setCookie("",0);
+async function githubRequest(token,path,options={}){
+ const pathUrl="https://api.github.com"+path;
+ const res=await fetch(pathUrl,{
+  method:options.method||"GET",
+  headers:{"Accept":"application/vnd.github+json",
+   "Authorization":"Bearer "+token,
+   "X-GitHub-Api-Version":"2022-11-28",
+   "User-Agent":"ZazoomTek-Studio-Preview","Content-Type":"application/json"},
+  body:options.body?JSON.stringify(options.body):undefined
+ });
+ if(res.status===204)return {};
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok){
+  if(res.status===409||res.status===422)throw new Error("Conflitto di versione. Ricarica Studio e riprova.");
+  if(res.status===401||res.status===403)throw new Error("Token GitHub scaduto, revocato o senza autorizzazioni.");
+  throw new Error("GitHub: "+clean(data.message).slice(0,160));
+ }
+ return data;
+}
+async function authenticate(token){
+ // Only an actual owner account token with write rights can log in.
+ if(!/^(github_pat_|gh[pousr]_)/.test(token)||token.length<20||token.length>300)
+  throw new Error("Inserisci un token personale GitHub valido.");
+ const user=await githubRequest(token,"/user");
+ if(clean(user.login).toLowerCase()!==OWNER)
+  throw new Error("Questo token non appartiene all'account amministratore del repository.");
+ const repo=await githubRequest(token,"/repos/"+REPO);
+ if(repo.full_name?.toLowerCase()!==REPO||repo.permissions?.push!==true)
+  throw new Error("Il token deve avere permesso Contents: Read & write su zazoomtek-site.");
+ return {login:OWNER,id:user.id};
+}
+function secureUrl(v){
+ const x=clean(v);
+ if(!x)return "";
+ if(x.startsWith("/")&&!x.startsWith("//")&&!/[<>"'\\]/.test(x))return x;
+ try{
+  const p=new URL(x);
+  if(p.protocol==="https:"&&!p.username&&!p.password&&x.length<=1800)return p.toString();
  }catch(_){}
  return "";
 }
-function validVideo(v){
- const url=safeUrl(v);
- if(!url)return "";
+function secureVideo(v){
+ const url=secureUrl(v);if(!url)return "";
  try{
   const p=new URL(url);
-  if(["www.youtube.com","youtube.com","m.youtube.com","youtu.be","www.youtube-nocookie.com"].includes(p.hostname))return url;
+  if(["youtube.com","www.youtube.com","m.youtube.com","youtu.be","www.youtube-nocookie.com"].includes(p.hostname))
+   return url;
  }catch(_){}
  return "";
 }
-function sanitize(incoming){
- if(!incoming||typeof incoming!=="object")throw Error("Article is missing");
- const slug=txt(incoming.slug).toLowerCase(),title=txt(incoming.title),category=txt(incoming.category);
- if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||slug.length>150)throw Error("Invalid article slug");
- if(!CATEGORIES.has(category))throw Error("Invalid category");
- if(title.length<12||title.length>220)throw Error("Title must be 12–220 characters");
- if(!Array.isArray(incoming.body)||!incoming.body.length||incoming.body.length>160)throw Error("Add between 1 and 160 blocks");
- const body=[];let total=0;
- for(const source of incoming.body){
-  const type=txt(source?.type);
-  if(!BLOCKS.has(type))throw Error("Unknown block type: "+type);
-  const value=txt(source.text),url=safeUrl(source.url);
-  if(["heading","paragraph","quote"].includes(type)){
-   if(!value||value.length>12000)throw Error("Block text missing or too long");
-   total+=value.length;
-   body.push({type,text:value});
-  }else if(type==="image"){
-   if(!url)throw Error("Invalid inline image URL");
-   body.push({type,url,alt:txt(source.alt).slice(0,180),caption:txt(source.caption).slice(0,250)});
-  }else if(type==="button"){
-   if(!url||!value||value.length>110)throw Error("Button requires label and link");
-   body.push({type,text:value,url});
-  }else if(type==="video"){
-   const video=validVideo(source.url);
-   if(!video)throw Error("Use an HTTPS YouTube link for video embeds");
-   body.push({type,url:video,caption:txt(source.caption).slice(0,200)});
+function normalizeArticle(value){
+ if(!value||typeof value!=="object")throw new Error("Articolo non valido.");
+ const slug=clean(value.slug).toLowerCase(),title=clean(value.title),category=clean(value.category);
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||slug.length>150)throw new Error("URL articolo non valido.");
+ if(title.length<12||title.length>220)throw new Error("Inserisci un titolo tra 12 e 220 caratteri.");
+ if(!CATEGORIES.has(category))throw new Error("Categoria non valida.");
+ const image=secureUrl(value.image);
+ if(!image)throw new Error("Inserisci o carica una copertina.");
+ if(!Array.isArray(value.body)||value.body.length<1||value.body.length>160)throw new Error("Inserisci i blocchi dell'articolo.");
+ let characters=0;
+ const body=value.body.map(block=>{
+  const type=clean(block?.type);
+  if(!BLOCKS.has(type))throw new Error("Tipo di blocco sconosciuto.");
+  const t=clean(block.text),url=secureUrl(block.url);
+  if(["paragraph","heading","quote"].includes(type)){
+   if(!t||t.length>12000)throw new Error("Blocco vuoto o troppo lungo.");
+   characters+=t.length;
+   return {type,text:t};
   }
- }
- if(total<260)throw Error("Article requires at least 260 characters of original editorial text");
- const image=safeUrl(incoming.image);
- if(!image)throw Error("A valid cover is required");
+  if(type==="image"){
+   if(!url)throw new Error("Link immagine non valido.");
+   return {type,url,alt:clean(block.alt).slice(0,180),caption:clean(block.caption).slice(0,250)};
+  }
+  if(type==="video"){
+   const video=secureVideo(block.url);
+   if(!video)throw new Error("Inserisci un link YouTube HTTPS.");
+   return {type,url:video,caption:clean(block.caption).slice(0,250)};
+  }
+  if(type==="button"){
+   if(!url||!t||t.length>110)throw new Error("Il pulsante richiede testo e collegamento.");
+   return {type,text:t,url};
+  }
+ });
+ if(characters<260)throw new Error("Inserisci almeno 260 caratteri di testo originale per rispettare i controlli di pubblicazione.");
  let score=null;
- if(incoming.score!==""&&incoming.score!==null&&incoming.score!==undefined){
-  score=Number(String(incoming.score).replace(",","."));
-  if(!Number.isFinite(score)||score<0||score>10)throw Error("Rating must be 0–10");
+ if(value.score!==""&&value.score!==undefined&&value.score!==null){
+  score=Number(String(value.score).replace(",","."));
+  if(!Number.isFinite(score)||score<0||score>10)throw new Error("Il voto deve essere da 0 a 10.");
  }
- const list=k=>Array.isArray(incoming[k])?incoming[k].map(txt).filter(Boolean).slice(0,8):[];
+ const strings=k=>Array.isArray(value[k])?value[k].map(clean).filter(Boolean).slice(0,8):[];
  return {slug,title,category,image,body,studio_blocks:true,source:"studio-editor",
-  author:txt(incoming.author).slice(0,100)||"Redazione ZazoomTek",
-  score,pros:list("pros"),cons:list("cons"),
-  video_url:validVideo(incoming.video_url),
-  platform:txt(incoming.platform).slice(0,130),
-  updated_at:new Date().toISOString()};
+  author:clean(value.author).slice(0,100)||"Redazione ZazoomTek",
+  video_url:secureVideo(value.video_url),
+  score,platform:clean(value.platform).slice(0,130),
+  pros:strings("pros"),cons:strings("cons"),updated_at:new Date().toISOString()};
 }
-async function github(env,path,verb="GET",payload){
- const token=txt(env.STUDIO_GITHUB_TOKEN);
- if(!token)throw Error("GitHub write token not configured");
- if(!/^(data\/studio_(?:posts|overrides)\.json|assets\/uploads\/[a-z0-9-]+\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp))$/.test(path))
-  throw Error("Not an allowed repository path");
- const url="https://api.github.com/repos/"+REPO+"/contents/"+path+
-  (verb==="GET"?"?ref="+BRANCH:"");
- const response=await fetch(url,{method:verb,headers:{
-  "Accept":"application/vnd.github+json","Authorization":"Bearer "+token,
-  "X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json",
-  "User-Agent":"ZazoomTek-Studio-preview"},
-  body:payload?JSON.stringify(payload):undefined});
- if(verb==="GET"&&response.status===404)return {sha:null,content:null};
- const result=await response.json().catch(()=>({}));
- if(!response.ok){
-  if([409,422].includes(response.status))throw Error("Conflitto di versione: ricarica Studio e riprova");
-  throw Error("GitHub API "+response.status+": "+txt(result.message).slice(0,130));
+const allowedPath=p=>/^(data\/studio_(?:posts|overrides)\.json|assets\/uploads\/[a-z0-9-]+\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp))$/.test(p);
+async function readFile(token,path){
+ if(!allowedPath(path))throw new Error("Percorso non autorizzato.");
+ const p="/repos/"+REPO+"/contents/"+path+"?ref="+encodeURIComponent(BRANCH);
+ try{
+  const j=await githubRequest(token,p);
+  return {sha:j.sha,content:JSON.parse(new TextDecoder().decode(fromBase64((j.content||"").replace(/\s+/g,""))))};
+ }catch(e){
+  if(/Not Found/i.test(e.message))return {sha:null,content:null};
+  throw e;
  }
- if(verb==="GET"){
-  const text=new TextDecoder().decode(from64((result.content||"").replace(/\s/g,"")));
-  return {sha:result.sha,content:JSON.parse(text)};
- }
- return result;
 }
-async function catalog(request,env){
- if(!env.ASSETS)throw Error("Cloudflare Pages ASSETS binding unavailable");
- const url=new URL("/studio/catalog.json",request.url);
- const response=await env.ASSETS.fetch(new Request(url,{method:"GET"}));
- if(!response.ok)throw Error("Catalog not built");
- return response.json();
+async function writeFile(token,path,document,oldSHA,description){
+ if(!allowedPath(path))throw new Error("Percorso non autorizzato.");
+ const encoded=encodeUtf8(JSON.stringify(document,null,2)+"\n");
+ const body={message:description,branch:BRANCH,content:encoded};
+ if(oldSHA)body.sha=oldSHA;
+ return githubRequest(token,"/repos/"+REPO+"/contents/"+path,{method:"PUT",body});
 }
-async function input(request,max=1800000){
+async function publishedCatalog(request,env){
+ if(!env.ASSETS)throw new Error("La build Studio non è disponibile.");
+ const asset=await env.ASSETS.fetch(new Request(new URL("/studio/catalog.json",request.url)));
+ if(!asset.ok)throw new Error("Catalogo editoriale non disponibile.");
+ return asset.json();
+}
+async function parseInput(request,max=6000000){
  const length=Number(request.headers.get("content-length")||0);
- if(length>max)throw Error("Payload exceeds limit");
+ if(length>max)throw new Error("File troppo grande.");
  const raw=await request.text();
- if(raw.length>max)throw Error("Payload exceeds limit");
- return JSON.parse(raw);
+ if(raw.length>max)throw new Error("File troppo grande.");
+ try{return JSON.parse(raw)}catch(_){throw new Error("Richiesta JSON non valida.");}
 }
-async function save(request,env){
- const data=await input(request);
- const record=sanitize(data.record);
- const listing=await catalog(request,env);
- const old=(listing.posts||[]).find(row=>row.slug===record.slug);
- if(Boolean(data.creating)===Boolean(old))
-  throw Error(old?"This slug exists; open Edit rather than New":"Original article no longer exists");
- // Original YouTube content is never deleted: an editorial override wins by slug.
- const file=old?"data/studio_overrides.json":"data/studio_posts.json";
- const object=await github(env,file);
- const doc=object.content||(old?{overrides:{}}:{posts:[]});
- if(old){
-  doc.overrides=doc.overrides||{};
-  record.date=txt(old.date)||new Date().toISOString().slice(0,10);
-  record.published_at=txt(old.published_at)||record.date;
-  doc.overrides[record.slug]=record;
+async function saveArticle(request,env,session){
+ const req=await parseInput(request,1000000);
+ const record=normalizeArticle(req.record);
+ const list=await publishedCatalog(request,env);
+ const current=(list.posts||[]).find(r=>r.slug===record.slug);
+ if(Boolean(req.creating)===Boolean(current))
+  throw new Error(current?"L'URL esiste già. Apri «Modifica».":"L'articolo non è nel catalogo: ricarica Studio.");
+ const file=current?"data/studio_overrides.json":"data/studio_posts.json";
+ const target=await readFile(session.token,file);
+ const document=target.content||(current?{overrides:{}}:{posts:[]});
+ if(current){
+  document.overrides=document.overrides||{};
+  record.date=current.date||new Date().toISOString().slice(0,10);
+  record.published_at=current.published_at||record.date;
+  document.overrides[record.slug]=record;
  }else{
-  doc.posts=Array.isArray(doc.posts)?doc.posts:[];
   record.date=new Date().toISOString().slice(0,10);
   record.published_at=new Date().toISOString();
-  doc.posts.unshift(record);
+  document.posts=Array.isArray(document.posts)?document.posts:[];
+  if(document.posts.some(p=>p.slug===record.slug))
+   throw new Error("Questo articolo è già stato pubblicato.");
+  document.posts.unshift(record);
  }
- const mutation={message:"Studio: "+(old?"Edit ":"Create ")+record.slug+" (preview branch)",
-  branch:BRANCH,content:base64Utf8(JSON.stringify(doc,null,2)+"\n")};
- if(object.sha)mutation.sha=object.sha;
- await github(env,file,"PUT",mutation);
- return json({ok:true,slug:record.slug,preview:true,
-  message:"Saved on preview branch. New Cloudflare Pages build triggered."});
+ await writeFile(session.token,file,document,target.sha,
+  "Studio (SpotNews preview): "+(current?"update ":"create ")+record.slug);
+ return respond({ok:true,slug:record.slug,message:"Salvato sul branch SpotNews di prova."});
 }
-async function upload(request,env){
- const payload=await input(request,6300000);
- const slug=txt(payload.slug).toLowerCase(),mime=txt(payload.mime);
- const ext=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp"})[mime];
- const image=txt(payload.base64).replace(/^data:[^;]+;base64,/,"");
- if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||!ext||
-  !/^[A-Za-z0-9+/=]+$/.test(image))throw Error("Invalid image upload");
- const bytes=from64(image);
- if(bytes.byteLength<100||bytes.byteLength>3200000)throw Error("Image must be smaller than 3.2MB");
+async function upload(request,session){
+ const data=await parseInput(request);
+ const slug=clean(data.slug).toLowerCase();
+ const extension=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp"})[data.mime];
+ const b64=clean(data.base64).replace(/^data:[^;]+;base64,/,"");
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||!extension||
+  !/^[A-Za-z0-9+/=]+$/.test(b64))throw new Error("Immagine o formato non valido.");
+ const bytes=fromBase64(b64);
+ if(bytes.byteLength<100||bytes.byteLength>3200000)throw new Error("L'immagine deve essere inferiore a 3,2 MB.");
  const jpg=bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff;
  const png=bytes[0]===0x89&&bytes[1]===0x50&&bytes[2]===0x4e&&bytes[3]===0x47;
  const webp=String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
- if(!(jpg&&ext==="jpg"||png&&ext==="png"||webp&&ext==="webp"))throw Error("Image data does not match its MIME type");
+ if(!(extension==="jpg"&&jpg||extension==="png"&&png||extension==="webp"&&webp))
+  throw new Error("Formato dell'immagine non corrispondente al file.");
  const id=crypto.randomUUID().replace(/-/g,"").slice(0,20);
- const filename="assets/uploads/"+slug+"/"+id+"."+ext;
- await github(env,filename,"PUT",{
-  message:"Studio: upload cover/inline artwork (preview)",branch:BRANCH,content:image});
- return json({ok:true,url:"/"+filename,preview:true});
+ const name="assets/uploads/"+slug+"/"+id+"."+extension;
+ const payload={message:"Studio: upload "+slug+" (SpotNews preview)",
+  branch:BRANCH,content:b64};
+ await githubRequest(session.token,"/repos/"+REPO+"/contents/"+name,{method:"PUT",body:payload});
+ return respond({ok:true,url:"/"+name});
 }
 export async function onRequest(context){
  const {request,env}=context;
- if(request.method==="OPTIONS")return json({error:"Not allowed"},405);
- let admin;
- try{admin=await verifyAdmin(request,env);}
- catch(e){
-  const detail=String(e.message||e);
-  if(detail.startsWith("Access not configured:")||detail==="Invalid Access team hostname")
-   return json({ok:false,configured:false,code:"ACCESS_CONFIGURATION_REQUIRED",
-    error:"Cloudflare Access non è configurato. Completa l'attivazione del progetto SpotNews: dominio del team, AUD e email amministratore."},503);
-  return json({ok:false,code:"ACCESS_UNAVAILABLE",
-   error:"La verifica sicura dell'amministratore non è disponibile al momento."},503);
- }
- if(!admin)return json({ok:false,authenticated:false},401);
- const requestUrl=new URL(request.url);
- const path=requestUrl.pathname.replace(/\/+$/,"");
+ const pathname=new URL(request.url).pathname.replace(/\/+$/,"");
+ if(request.method==="OPTIONS")return respond({ok:false},405);
  if(request.method==="POST"){
-  const origin=txt(request.headers.get("Origin"));
-  if(origin!==requestUrl.origin)return json({ok:false,error:"Cross-origin modification blocked"},403);
+  const origin=request.headers.get("Origin")||"";
+  if(origin!==new URL(request.url).origin)
+   return respond({ok:false,error:"Origine non autorizzata."},403);
   if(!(request.headers.get("Content-Type")||"").toLowerCase().startsWith("application/json"))
-   return json({ok:false,error:"Content-Type must be application/json"},415);
+   return respond({ok:false,error:"Sono accettate solo richieste JSON."},415);
+ }
+ if(pathname==="/api/studio/logout"&&request.method==="POST")
+  return respond({ok:true,authenticated:false},200,{"Set-Cookie":clearCookie()});
+ try{
+  assertSetup(env);
+ }catch(_){
+  return respond({ok:false,code:"SETUP_REQUIRED",
+   error:"Per attivare Studio serve soltanto STUDIO_SESSION_SECRET nelle impostazioni Preview di Cloudflare Pages."},503);
  }
  try{
-  if(path==="/api/studio/session"&&request.method==="GET")
-   return json({ok:true,authenticated:true,admin:true,expires:admin.expires,email:admin.email});
-  if(path==="/api/studio/save"&&request.method==="POST")return save(request,env);
-  if(path==="/api/studio/upload"&&request.method==="POST")return upload(request,env);
-  return json({error:"Endpoint unavailable"},404);
- }catch(e){return json({ok:false,error:String(e.message||e)},400);}
+  if(pathname==="/api/studio/login"&&request.method==="POST"){
+   const data=await parseInput(request,2000);
+   const token=clean(data.token);
+   const identity=await authenticate(token);
+   const now=Math.floor(Date.now()/1000);
+   const payload={v:1,owner:OWNER,branch:BRANCH,token,
+    login:identity.login,uid:identity.id,iat:now,exp:now+AGE};
+   return respond({ok:true,authenticated:true,login:identity.login,expires:payload.exp},
+    200,{"Set-Cookie":setCookie(await seal(payload,env),AGE)});
+  }
+  const session=await openSession(request,env);
+  if(!session)return respond({ok:false,authenticated:false,code:"UNAUTHENTICATED"},401);
+  if(pathname==="/api/studio/session"&&request.method==="GET"){
+   // Sliding session: every visit automatically extends the encrypted
+   // HttpOnly browser cookie. There is no fixed recurring login date.
+   // Browsers may still erase cookies; revoked GitHub credentials cannot write.
+   const now=Math.floor(Date.now()/1000);
+   const renewed={...session,iat:now,exp:now+AGE};
+   return respond({ok:true,authenticated:true,admin:true,login:session.login,
+     persistent:true,renewed:true},200,{"Set-Cookie":setCookie(await seal(renewed,env),AGE)});
+  }
+  if(pathname==="/api/studio/save"&&request.method==="POST")
+   return saveArticle(request,env,session);
+  if(pathname==="/api/studio/upload"&&request.method==="POST")
+   return upload(request,session);
+  return respond({ok:false,error:"Percorso non trovato."},404);
+ }catch(e){
+  return respond({ok:false,error:String(e.message||e).slice(0,240)},400);
+ }
 }

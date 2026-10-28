@@ -421,8 +421,8 @@
  }
 
  // Admin-only edit button: NEVER trust browser storage or a CSS "admin" flag.
- // The button is created only after the server validates the Access JWT,
- // associated with a durable Cloudflare Access browser cookie.
+ // The button is created only after the Studio API verifies a server-sealed,
+ // HttpOnly GitHub-owner session. Each page visit also renews that cookie.
  const editableArticle=document.querySelector(".story-article[data-studio-slug]");
  if(editableArticle){
   const slug=editableArticle.getAttribute("data-studio-slug");

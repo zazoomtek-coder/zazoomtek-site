@@ -1,267 +1,272 @@
 "use strict";
 (()=>{
- const $=id=>document.getElementById(id);
- const gate=$("studio-gate"),app=$("studio-app"),status=$("studio-status");
- const categoryNames={"news-tech":"News Tech","news-gaming":"News Gaming",
-  "recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming",
-  "guide":"Guide","speciali":"Speciali","extra":"Extra"};
- const categories=Object.entries(categoryNames);
- const kinds={"paragraph":"Paragrafo","heading":"Titolo sezione H2","image":"Immagine","video":"Video YouTube",
-  "button":"Pulsante con link","quote":"Citazione"};
- let catalog=[],editing=null,creating=false,blocks=[],busy=false;
- const message=(v,error=false)=>{status.textContent=v;status.dataset.error=String(error)};
- const api=async(url,payload)=>{
-  const args={credentials:"same-origin",cache:"no-store",redirect:"manual"};
-  if(payload!==undefined){args.method="POST";args.headers={"Content-Type":"application/json"};args.body=JSON.stringify(payload)}
-  const response=await fetch(url,args);
-  const type=response.headers.get("content-type")||"";
-  if(!type.includes("application/json"))throw Error("Sessione Access assente o scaduta: accedi nuovamente");
-  const data=await response.json();
-  if(!response.ok||!data.ok){
-   const err=new Error(data.error||"Operazione non autorizzata");
-   err.code=data.code||"";
-   err.status=response.status;
-   throw err;
-  }
-  return data;
- };
- const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
-  .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,120);
- const parseBlocks=row=>{
-  if(row.studio_blocks&&Array.isArray(row.body))return row.body.map(b=>({...b}));
-  return (Array.isArray(row.body)?row.body:[row.body||""]).filter(Boolean).map(part=>{
-   const text=typeof part==="string"?part:String(part.text||part.content||"");
-   if(/^#{1,3}\s/.test(text))return {type:"heading",text:text.replace(/^#{1,3}\s*/,"")};
-   if(/^\*\*[^*]+\*\*$/.test(text))return {type:"heading",text:text.slice(2,-2)};
-   return {type:"paragraph",text};
-  });
- };
- const field=(id)=>$(id).value.trim();
- const sectionInfo=()=>{
-  const cat=field("studio-category");
-  $("studio-sidebar-active").textContent=categoryNames[cat]||"Contenuto";
- };
- function renderList(){
-  const search=field("studio-search").toLocaleLowerCase("it");
-  const filter=field("studio-filter");
-  const wrap=$("studio-content-list");wrap.replaceChildren();
-  const selected=catalog.filter(r=>(!filter||r.category===filter)&&(!search||
-   (r.title+" "+r.category).toLocaleLowerCase("it").includes(search)));
-  $("studio-counter").textContent=selected.length+" contenuti";
-  for(const row of selected){
-   const b=document.createElement("button");b.type="button";b.className="studio-list-item";
-   if(editing&&!creating&&row.slug===editing.slug)b.classList.add("active");
-   const name=document.createElement("strong");name.textContent=row.title;
-   const meta=document.createElement("span");meta.textContent=(categoryNames[row.category]||row.category)+" · "+String(row.date||"");
-   b.append(name,meta);b.addEventListener("click",()=>openArticle(row));
-   wrap.append(b);
-  }
-  if(!selected.length){const p=document.createElement("p");p.className="studio-empty";p.textContent="Nessun contenuto trovato";wrap.append(p)}
+const E=id=>document.getElementById(id), T=(tag,cls,text)=>{
+ const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e;
+};
+const C={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra"};
+const N={paragraph:"Paragrafo",heading:"Sottotitolo H2",image:"Foto nell'articolo",video:"Video YouTube",button:"Pulsante con link",quote:"Citazione"};
+const state={articles:[],current:null,isNew:false,blocks:[],busy:false,admin:false};
+const V=id=>E(id).value.trim();
+const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,130);
+const button=(label,onClick,cls="",disabled=false)=>{
+ const b=T("button",cls,label);b.type="button";b.disabled=disabled;b.addEventListener("click",onClick);return b;
+};
+function feedback(msg,bad=false){
+ const x=E("studio-status");x.textContent=msg;x.dataset.error=String(bad);
+}
+function authFeedback(msg,bad=false){
+ const x=E("studio-login-status");x.textContent=msg;x.dataset.error=String(bad);
+}
+async function api(path,body){
+ const opt={credentials:"same-origin",cache:"no-store",redirect:"manual"};
+ if(body!==undefined){opt.method="POST";opt.headers={"Content-Type":"application/json"};opt.body=JSON.stringify(body)}
+ const response=await fetch("/api/studio/"+path,opt);
+ const type=response.headers.get("Content-Type")||"";
+ if(!type.includes("application/json")){
+  const err=new Error("L'API Studio non risponde correttamente.");err.status=response.status;throw err;
  }
- const makeEl=(tag,cls,text)=>{
-  const el=document.createElement(tag);
-  if(cls)el.className=cls;
-  if(text!==undefined)el.textContent=text;
-  return el;
- };
- function addBlock(type,at=blocks.length){
-  blocks.splice(at,0,{type,text:"",url:"",alt:"",caption:""});
-  renderBlocks();refreshPreview();
+ const data=await response.json();
+ if(!response.ok||data.ok!==true){
+  const err=new Error(data.error||"Operazione non autorizzata");
+  err.code=data.code;err.status=response.status;throw err;
  }
- function moveBlock(index,amount){
-  const next=index+amount;
-  if(next<0||next>=blocks.length)return;
-  [blocks[index],blocks[next]]=[blocks[next],blocks[index]];
-  renderBlocks();refreshPreview();
+ return data;
+}
+function showLogin(error){
+ E("studio-app").hidden=true;E("studio-auth").hidden=false;
+ const setup=error?.code==="SETUP_REQUIRED";
+ E("studio-setup").hidden=!setup;
+ E("studio-login-form").hidden=setup;
+ E("studio-check-again").hidden=!setup;
+ if(setup)authFeedback("Per attivare Studio serve solo una chiave di sessione nel progetto Cloudflare Pages.",true);
+ else if(error?.status===401||!error)authFeedback("Inserisci il token GitHub soltanto al primo accesso.");
+ else authFeedback(error?.message||"Connessione non disponibile. Riprova.",true);
+}
+async function loadCatalog(){
+ const res=await fetch("/studio/catalog.json",{cache:"no-store",credentials:"same-origin"});
+ if(!res.ok)throw new Error("Catalogo Studio non disponibile.");
+ const data=await res.json();
+ state.articles=Array.isArray(data.posts)?data.posts:[];
+}
+function makeOptions(){
+ const a=E("studio-filter"),b=E("studio-category");
+ a.replaceChildren(new Option("Tutte le categorie",""));b.replaceChildren();
+ for(const [k,v] of Object.entries(C)){a.add(new Option(v,k));b.add(new Option(v,k))}
+}
+function repaintList(){
+ const q=V("studio-search").toLocaleLowerCase("it"),cat=V("studio-filter");
+ const found=state.articles.filter(r=>(!cat||cat===r.category)&&(!q||String(r.title||"").toLocaleLowerCase("it").includes(q)));
+ E("studio-count").textContent=found.length+" contenuti";
+ const host=E("studio-list");host.replaceChildren();
+ for(const article of found){
+  const box=button("",()=>selectArticle(article),"studio-article-select");
+  if(!state.isNew&&state.current?.slug===article.slug)box.classList.add("selected");
+  box.append(T("strong","",article.title),T("span","",C[article.category]||article.category),T("small","",article.date||""));
+  host.append(box);
  }
- const textInput=(block,key,label,multiline=false)=>{
-  const holder=makeEl("label","studio-block-field");
-  holder.append(makeEl("span","",label));
-  const input=document.createElement(multiline?"textarea":"input");
-  input.value=block[key]||"";input.placeholder=label;
-  if(multiline)input.rows=4;else input.type="text";
-  input.addEventListener("input",()=>{block[key]=input.value;refreshPreview()});
-  holder.append(input);return holder;
- };
- async function imageUpload(block=null){
-  const input=document.createElement("input");
-  input.type="file";input.accept="image/jpeg,image/png,image/webp";
-  input.addEventListener("change",async()=>{
-   const file=input.files?.[0];if(!file)return;
-   if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>3200000){
-    message("Usa JPEG, PNG o WebP con dimensione massima 3,2 MB",true);return;
-   }
-   const slug=field("studio-slug")||slugify(field("studio-title"))||"nuova-cover";
-   const reader=new FileReader();
-   reader.onload=async()=>{
-    try{
-     message("Caricamento immagine nel branch di prova...");
-     const data=await api("/api/studio/upload",{slug,mime:file.type,base64:reader.result});
-     if(block){block.url=data.url;renderBlocks()}else $("studio-cover").value=data.url;
-     message("Immagine caricata. Salva l'articolo per pubblicarla.");
-     refreshPreview();
-    }catch(err){message(err.message,true)}
-   };
-   reader.readAsDataURL(file);
-  });
-  input.click();
- }
- function renderBlocks(){
-  const wrap=$("studio-block-list");wrap.replaceChildren();
-  blocks.forEach((block,i)=>{
-   const card=makeEl("section","studio-block");
-   const header=makeEl("header","studio-block-head");
-   header.append(makeEl("strong","",kinds[block.type]||"Blocco"));
-   const actions=makeEl("div","studio-block-actions");
-   const button=(text,run,disabled=false)=>{
-    const b=makeEl("button","",text);b.type="button";b.disabled=disabled;
-    b.addEventListener("click",run);return b;
-   };
-   actions.append(button("↑",()=>moveBlock(i,-1),!i),
-    button("↓",()=>moveBlock(i,1),i===blocks.length-1),
-    button("×",()=>{blocks.splice(i,1);renderBlocks();refreshPreview()}));
-   header.append(actions);card.append(header);
-   if(["paragraph","heading","quote","button"].includes(block.type))
-    card.append(textInput(block,"text",block.type==="heading"?"Sottotitolo":block.type==="button"?"Testo del pulsante":"Scrivi il testo",block.type==="paragraph"||block.type==="quote"));
-   if(["button","image","video"].includes(block.type)){
-    card.append(textInput(block,"url","Collegamento HTTPS o percorso locale"));
-    if(block.type==="image"){
-     card.append(textInput(block,"alt","Testo alternativo per SEO"),
-      textInput(block,"caption","Didascalia"));
-     const file=button("Carica foto",()=>imageUpload(block));file.className="studio-secondary-btn";card.append(file);
-    }else if(block.type==="video")card.append(textInput(block,"caption","Didascalia video"));
-   }
-   const append=button("+ Inserisci sotto",()=>addBlock("paragraph",i+1));
-   append.className="studio-insert-under";card.append(append);
-   wrap.append(card);
-  });
- }
- function refreshPreview(){
-  const preview=$("studio-preview");preview.replaceChildren();
-  preview.append(makeEl("h2","",field("studio-title")||"Titolo del contenuto"));
-  preview.append(makeEl("small","",categoryNames[field("studio-category")]||"Categoria"));
-  const cover=field("studio-cover");
-  if(cover){const im=makeEl("img","studio-preview-cover");im.loading="lazy";im.src=cover;im.alt="Anteprima copertina";preview.append(im)}
-  for(const b of blocks){
-   const type=b.type;
-   if(type==="heading")preview.append(makeEl("h3","",b.text||"Sottotitolo"));
-   if(type==="paragraph")preview.append(makeEl("p","",b.text||"Paragrafo"));
-   if(type==="quote")preview.append(makeEl("blockquote","",b.text||"Citazione"));
-   if(type==="image"&&b.url){const im=makeEl("img","studio-preview-cover");im.src=b.url;im.alt=b.alt||"";preview.append(im)}
-   if(type==="video")preview.append(makeEl("p","studio-preview-video","▶ "+(b.url||"Video YouTube")));
-   if(type==="button")preview.append(makeEl("span","studio-preview-cta",b.text||"Pulsante"));
-  }
-  $("studio-preview-foot").textContent="Anteprima redazionale · Le modifiche saranno pubblicate solo nel branch di prova.";
- }
- function openArticle(row){
-  editing=row;creating=false;
-  fillEditor(row);
-  renderList();
-  message("Modifica: "+row.title);
- }
- function fillEditor(row){
-  $("studio-title").value=row.title||"";
-  $("studio-slug").value=row.slug||"";
-  $("studio-slug").readOnly=!creating;
-  $("studio-category").value=row.category||"news-tech";
-  $("studio-cover").value=row.image||"";
-  $("studio-author").value=row.author||"Redazione ZazoomTek";
-  $("studio-video-url").value=row.video_url||"";
-  $("studio-platform").value=row.platform||"";
-  $("studio-score").value=row.score??row.rating??"";
-  $("studio-pros").value=Array.isArray(row.pros)?row.pros.join("\n"):"";
-  $("studio-cons").value=Array.isArray(row.cons)?row.cons.join("\n"):"";
-  $("studio-mode").textContent=creating?"Nuovo contenuto":"Modifica contenuto";
-  $("studio-opening").hidden=false;
-  blocks=parseBlocks(row);
-  renderBlocks();refreshPreview();sectionInfo();
- }
- function makeNew(){
-  creating=true;editing=null;
-  fillEditor({title:"",slug:"",category:"news-tech",image:"",body:[{type:"paragraph",text:""}]});
-  message("Nuovo contenuto editoriale");
-  renderList();
- }
- function serialize(){
-  const title=field("studio-title");
-  const slug=field("studio-slug")||slugify(title);
-  return {title,slug,category:field("studio-category"),
-   image:field("studio-cover"),author:field("studio-author"),
-   video_url:field("studio-video-url"),platform:field("studio-platform"),
-   score:field("studio-score"),pros:field("studio-pros").split("\n").filter(Boolean),
-   cons:field("studio-cons").split("\n").filter(Boolean),body:blocks};
- }
- async function save(){
-  if(busy)return;
-  const record=serialize();
-  if(!record.title||!record.image||!record.body.length){
-   message("Titolo, copertina e contenuto sono obbligatori",true);return;
-  }
-  busy=true;$("studio-save").disabled=true;
-  try{
-   message("Salvataggio sicuro sul branch SpotNews...");
-   const data=await api("/api/studio/save",{creating,record});
-   message("Salvato: "+data.slug+". La nuova build Cloudflare partirà automaticamente.");
-   // Catalog is a static snapshot updated by the next Cloudflare build.
-   $("studio-save").disabled=true;
-   $("studio-editor-note").textContent="Salvataggio riuscito. Riapri Studio dopo il nuovo deploy per rivedere la versione pubblicata.";
-  }catch(err){message(err.message,true)}
-  finally{busy=false}
- }
- async function boot(){
-  try{
-   const session=await api("/api/studio/session");
-   if(!session.admin)throw Error("Non sei autorizzato a utilizzare Studio");
-   const data=await fetch("/studio/catalog.json",{cache:"no-store",credentials:"same-origin"});
-   if(!data.ok)throw Error("Catalogo editoriale non disponibile");
-   const listing=await data.json();
-   catalog=listing.posts||[];
-   gate.hidden=true;app.hidden=false;
-   $("studio-admin-email").textContent=session.email||"Amministratore";
-   const expires=new Date(session.expires*1000);
-   $("studio-auth-status").textContent="Accesso attivo sul browser fino al "+expires.toLocaleDateString("it-IT");
-   for(const [id] of [["studio-filter"],["studio-category"]]){
-    const control=$(id);
-    categories.forEach(([value,label])=>{
-     const option=document.createElement("option");option.value=value;option.textContent=label;control.append(option);
-    });
-   }
-   $("studio-filter").insertBefore(new Option("Tutte le categorie",""),$("studio-filter").firstChild);
-   $("studio-filter").value="";
-   $("studio-new").addEventListener("click",makeNew);
-   $("studio-search").addEventListener("input",renderList);
-   $("studio-filter").addEventListener("change",renderList);
-   $("studio-category").addEventListener("change",()=>{sectionInfo();refreshPreview()});
-   ["studio-title","studio-cover"].forEach(id=>$(id).addEventListener("input",refreshPreview));
-   $("studio-title").addEventListener("input",()=>{
-    if(creating&&!$("studio-slug").dataset.customized)$("studio-slug").value=slugify(field("studio-title"));
-   });
-   $("studio-slug").addEventListener("input",()=>$("studio-slug").dataset.customized="true");
-   $("studio-add-cover").addEventListener("click",()=>imageUpload());
-   $("studio-save").addEventListener("click",save);
-   for(const button of document.querySelectorAll("[data-add-block]")){
-    button.addEventListener("click",()=>addBlock(button.dataset.addBlock));
-   }
-   renderList();
-   const desired=new URLSearchParams(location.search).get("edit");
-   const target=catalog.find(x=>x.slug===desired);
-   if(target)openArticle(target);
-   else if(catalog.length)openArticle(catalog[0]);
-   else makeNew();
-  }catch(err){
-   gate.hidden=false;app.hidden=true;
-   const unconfigured=err.code==="ACCESS_CONFIGURATION_REQUIRED"||
-     /Access not configured|Invalid Access team hostname/i.test(err.message);
-   $("studio-gate-setup").hidden=!unconfigured;
-   $("studio-setup-link").hidden=!unconfigured;
-   $("studio-retry").hidden=false;
-   $("studio-gate-description").textContent=unconfigured
-     ?"Studio non è ancora attivato in Cloudflare. Il link di accesso precedente portava a una pagina 404 perché non esiste un'applicazione Access configurata. Prima attiva la protezione indicata qui sotto."
-     :err.status===401
-     ?"La sessione amministratore non è valida. Dopo aver configurato Cloudflare Access, entra nuovamente nella pagina Studio per effettuare l'accesso protetto."
-     :"Studio non è disponibile: "+err.message;
+ if(!found.length)host.append(T("p","studio-no-content","Nessun articolo corrispondente."));
+}
+function originalBlocks(row){
+ if(row.studio_blocks&&Array.isArray(row.body))return row.body.map(b=>({...b}));
+ const input=Array.isArray(row.body)?row.body:[row.body||""];
+ const output=[];
+ for(const item of input){
+  const t=typeof item==="string"?item:String(item?.text||item?.content||"");
+  for(let s of t.split(/\n\s*\n/)){
+   s=s.trim();if(!s)continue;
+   if(/^#{1,3}\s/.test(s))output.push({type:"heading",text:s.replace(/^#{1,3}\s+/,"")});
+   else if(/^\*\*[^*]+\*\*$/.test(s))output.push({type:"heading",text:s.slice(2,-2)});
+   else output.push({type:"paragraph",text:s});
   }
  }
- $("studio-retry").addEventListener("click",()=>location.reload());
- boot();
+ return output.length?output:[{type:"paragraph",text:""}];
+}
+function setArticle(row){
+ const values={"studio-title":row.title||"","studio-slug":row.slug||"","studio-cover":row.image||"",
+ "studio-author":row.author||"Redazione ZazoomTek","studio-video":row.video_url||"",
+ "studio-platform":row.platform||"","studio-score":row.score??"",
+ "studio-pros":Array.isArray(row.pros)?row.pros.join("\n"):"",
+ "studio-cons":Array.isArray(row.cons)?row.cons.join("\n"):""};
+ for(const [id,value] of Object.entries(values))E(id).value=value;
+ E("studio-slug").readOnly=!state.isNew;
+ E("studio-category").value=row.category||"news-tech";
+ E("studio-current-mode").textContent=state.isNew?"Crea un contenuto":"Modifica contenuto";
+ E("studio-current-category").textContent=C[row.category]||"News Tech";
+ E("studio-save").disabled=E("studio-save-bottom").disabled=false;
+ E("studio-save-detail").textContent="Le modifiche saranno pubblicate soltanto nella preview SpotNews.";
+ state.blocks=originalBlocks(row);
+ renderBlocks();renderPreview();
+}
+function selectArticle(row){
+ if(state.busy)return;
+ state.current=row;state.isNew=false;
+ setArticle(row);repaintList();
+ feedback("Modifica: "+row.title);
+}
+function createArticle(){
+ if(state.busy)return;
+ state.current=null;state.isNew=true;
+ setArticle({title:"",slug:"",category:"news-tech",image:"",body:[{type:"paragraph",text:""}]});
+ repaintList();feedback("Nuovo contenuto editoriale.");
+}
+function move(i,amount){
+ const j=i+amount;
+ if(j<0||j>=state.blocks.length)return;
+ [state.blocks[i],state.blocks[j]]=[state.blocks[j],state.blocks[i]];
+ renderBlocks();renderPreview();
+}
+function add(type,where=state.blocks.length){
+ state.blocks.splice(where,0,{type,text:"",url:"",alt:"",caption:""});
+ renderBlocks();renderPreview();
+}
+function blockField(b,key,label,multiline=false){
+ const wrap=T("label","studio-block-input");
+ wrap.append(T("span","",label));
+ const control=document.createElement(multiline?"textarea":"input");
+ if(multiline)control.rows=5;
+ else control.type="text";
+ control.value=b[key]||"";control.placeholder=label;
+ control.addEventListener("input",()=>{b[key]=control.value;renderPreview()});
+ wrap.append(control);return wrap;
+}
+function renderBlocks(){
+ const target=E("studio-blocks");target.replaceChildren();
+ state.blocks.forEach((b,i)=>{
+  const section=T("section","studio-block");
+  const head=T("header","studio-block-bar");
+  head.append(T("b","",N[b.type]||"Blocco"));
+  const controls=T("div","studio-block-buttons");
+  controls.append(button("↑",()=>move(i,-1),"",i===0),
+   button("↓",()=>move(i,1),"",i===state.blocks.length-1),
+   button("×",()=>{state.blocks.splice(i,1);renderBlocks();renderPreview()}));
+  head.append(controls);section.append(head);
+  if(["heading","paragraph","quote","button"].includes(b.type))
+   section.append(blockField(b,"text",
+    b.type==="heading"?"Sottotitolo":b.type==="button"?"Scritta sul pulsante":"Scrivi il testo",
+    ["paragraph","quote"].includes(b.type)));
+  if(["button","image","video"].includes(b.type)){
+   section.append(blockField(b,"url",b.type==="video"?"Link YouTube":"Link o indirizzo immagine"));
+   if(b.type==="image"){
+    section.append(blockField(b,"alt","Descrizione immagine per SEO"),
+     blockField(b,"caption","Didascalia"));
+    section.append(button("Carica foto",()=>upload(b),"studio-outline"));
+   }else if(b.type==="video")section.append(blockField(b,"caption","Didascalia video"));
+  }
+  section.append(button("＋ Inserisci un blocco sotto",()=>add("paragraph",i+1),"studio-add-under"));
+  target.append(section);
+ });
+}
+function renderPreview(){
+ const content=E("studio-preview");content.replaceChildren();
+ content.append(T("h3","studio-preview-title",V("studio-title")||"Titolo dell'articolo"));
+ content.append(T("small","studio-preview-category",C[V("studio-category")]||"News Tech"));
+ const image=V("studio-cover");
+ if(image){const img=T("img","studio-preview-cover");img.src=image;img.alt="Copertina";img.loading="lazy";content.append(img)}
+ for(const b of state.blocks){
+  const t=b.text||"",url=b.url||"";
+  if(b.type==="heading")content.append(T("h4","",t||"Sottotitolo"));
+  if(b.type==="paragraph")content.append(T("p","",t||"Paragrafo"));
+  if(b.type==="quote")content.append(T("blockquote","",t||"Citazione"));
+  if(b.type==="image"&&url){
+   const img=T("img","studio-preview-cover");img.src=url;img.alt=b.alt||"Immagine";img.loading="lazy";content.append(img);
+   if(b.caption)content.append(T("small","",b.caption));
+  }
+  if(b.type==="video")content.append(T("p","studio-video-placeholder","▶ "+(url||"Video YouTube")));
+  if(b.type==="button")content.append(T("span","studio-preview-button",t||"Pulsante"));
+ }
+}
+function readArticle(){
+ const v=k=>V(k), lines=id=>V(id).split("\n").map(x=>x.trim()).filter(Boolean);
+ return {slug:v("studio-slug")||slugify(v("studio-title")),title:v("studio-title"),
+  category:v("studio-category"),image:v("studio-cover"),author:v("studio-author"),
+  video_url:v("studio-video"),platform:v("studio-platform"),
+  score:v("studio-score"),pros:lines("studio-pros"),cons:lines("studio-cons"),body:state.blocks};
+}
+async function save(){
+ if(state.busy)return;
+ state.busy=true;E("studio-save").disabled=E("studio-save-bottom").disabled=true;
+ try{
+  feedback("Salvataggio sul branch di prova...");
+  const result=await api("save",{creating:state.isNew,record:readArticle()});
+  feedback("Salvato: "+result.slug+". Nuova build Cloudflare attivata.");
+  E("studio-save-detail").textContent="Modifica salvata. Riapri la preview dopo l'aggiornamento per visualizzarla.";
+ }catch(e){feedback(e.message,true)}
+ finally{state.busy=false;E("studio-save").disabled=E("studio-save-bottom").disabled=false}
+}
+function upload(block){
+ const choose=document.createElement("input");choose.type="file";choose.accept="image/jpeg,image/png,image/webp";
+ choose.addEventListener("change",()=>{
+  const file=choose.files?.[0];if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>3200000){
+   feedback("Sono consentite immagini JPEG, PNG e WebP fino a 3,2 MB.",true);return;
+  }
+  const reader=new FileReader();
+  reader.addEventListener("load",async()=>{
+   try{
+    feedback("Caricamento della foto nel branch SpotNews...");
+    const result=await api("upload",{slug:V("studio-slug")||slugify(V("studio-title"))||"contenuto",
+     mime:file.type,base64:reader.result});
+    if(block){block.url=result.url;renderBlocks()}
+    else E("studio-cover").value=result.url;
+    renderPreview();feedback("Immagine caricata. Salva l'articolo per completare.");
+   }catch(e){feedback(e.message,true)}
+  });reader.readAsDataURL(file);
+ });choose.click();
+}
+async function authenticated(session){
+ state.admin=true;await loadCatalog();
+ E("studio-auth").hidden=true;E("studio-app").hidden=false;
+ E("studio-account-name").textContent="Account GitHub: "+session.login;
+ E("studio-session-expiry").textContent="Accesso persistente con rinnovo automatico. Nessuna scadenza periodica di Studio.";
+ makeOptions();repaintList();
+ const desired=new URLSearchParams(location.search).get("edit");
+ const row=state.articles.find(r=>r.slug===desired);
+ if(row)selectArticle(row);else if(state.articles.length)selectArticle(state.articles[0]);else createArticle();
+}
+async function firstLogin(event){
+ event.preventDefault();
+ const token=E("studio-token").value.trim();
+ if(!token){authFeedback("Inserisci il token GitHub.",true);return}
+ const submit=E("studio-login-submit");submit.disabled=true;
+ try{
+  authFeedback("Verifica del token e dei permessi GitHub in corso...");
+  const result=await api("login",{token});
+  E("studio-token").value="";
+  await authenticated(result);
+ }catch(e){authFeedback(e.message,true)}
+ finally{submit.disabled=false}
+}
+async function boot(){
+ try{await authenticated(await api("session"))}
+ catch(e){showLogin(e)}
+}
+E("studio-login-form").addEventListener("submit",firstLogin);
+E("studio-check-again").addEventListener("click",()=>location.reload());
+E("studio-new").addEventListener("click",createArticle);
+E("studio-search").addEventListener("input",repaintList);
+E("studio-filter").addEventListener("change",repaintList);
+E("studio-cover-upload").addEventListener("click",()=>upload());
+E("studio-save").addEventListener("click",save);
+E("studio-save-bottom").addEventListener("click",save);
+E("studio-logout").addEventListener("click",async()=>{
+ try{await api("logout",{})}catch(_){}
+ location.reload();
+});
+E("studio-title").addEventListener("input",()=>{
+ if(state.isNew)E("studio-slug").value=slugify(V("studio-title"));
+ renderPreview();
+});
+E("studio-cover").addEventListener("input",renderPreview);
+E("studio-category").addEventListener("change",()=>{
+ E("studio-current-category").textContent=C[V("studio-category")]||"News Tech";
+ renderPreview();
+});
+E("studio-preview-toggle").addEventListener("click",()=>{
+ const el=E("studio-preview-column");
+ el.classList.toggle("studio-preview-mobile-expanded");
+ if(window.innerWidth<1200)el.scrollIntoView({behavior:"smooth"});
+});
+for(const b of document.querySelectorAll("[data-block]"))
+ b.addEventListener("click",()=>add(b.dataset.block));
+boot();
 })();

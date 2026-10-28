@@ -13,10 +13,14 @@ def verify_studio(output,rows):
  assert 'id="studio-app" hidden' in page,"Studio UI must default hidden"
  assert '/assets/js/studio.js' in page,"Studio editor JS missing"
  assert "/cdn-cgi/access/login" not in page,"Broken Cloudflare login link must not be rendered"
- assert 'id="studio-setup-link"' in page,"Studio setup link must be available"
- assert 'id="studio-retry"' in page,"Studio must support retry after Access configuration"
- assert 'id="studio-gate-setup"' in page,"Studio must describe the missing Access configuration"
- assert '/assets/js/studio.js?v=2' in page,"Studio must invalidate old browser JS"
+ assert 'id="studio-auth"' in page,"New login gate missing"
+ assert 'id="studio-login-form"' in page,"First-time GitHub login UI missing"
+ assert 'id="studio-setup"' in page,"One-time server session-secret setup missing"
+ assert 'id="studio-check-again"' in page,"Setup retry missing"
+ assert 'id="studio-app" hidden' in page,"Studio must be hidden until authenticated"
+ assert '/assets/js/studio.js?v=20261028-studio-fresh-2' in page,"New Studio JS cache version missing"
+ assert '/cdn-cgi/access/login' not in page,"Legacy Zero Trust login URL detected"
+ assert 'CF_ACCESS_' not in page,"Zero Trust secrets may not appear"
  assert (root/"assets/js/studio.js").is_file(),"Studio JS not copied"
  assert (root/"assets/css/studio.css").is_file(),"Studio CSS not copied"
  data=json.loads(catalog.read_text(encoding="utf-8"))
@@ -26,9 +30,19 @@ def verify_studio(output,rows):
  assert '"/api/studio/session"' in sitejs
  assert 'session?.admin!==true' in sitejs
  studiojs=(root/"assets/js/studio.js").read_text(encoding="utf-8")
- assert 'ACCESS_CONFIGURATION_REQUIRED' in studiojs,"Missing admin setup error handling"
- assert 'studio-gate-setup' in studiojs,"Missing activation screen handling"
- assert 'studio-retry' in studiojs,"Missing reconnect button handling"
+ for required in ('SETUP_REQUIRED','studio-login-form','studio-token','studio-setup',
+                  'studio-check-again','studio-logout','studio-new','studio-save',
+                  'studio-blocks','studio-preview'):
+  assert required in studiojs,"New Studio JS missing "+required
+ assert 'localStorage' not in studiojs and 'sessionStorage' not in studiojs,"Browser must never store GitHub tokens"
+ # Keep all admin modifications on GitHub's preview branch; the Pages
+ # Function verifies the GitHub owner and decrypts HttpOnly cookies server-side.
+ api_source=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
+ for required in ('__Host-zzt-studio','HttpOnly; Secure; SameSite=Strict',
+                  'STUDIO_SESSION_SECRET','github_pat_','branch:BRANCH',
+                  'AES-GCM','renewed:true','setCookie(await seal(renewed,env),AGE)'):
+  assert required in api_source,"Studio secure session missing "+required
+ assert 'CF_ACCESS_TEAM_DOMAIN' not in api_source,"Old Zero Trust service must be removed"
  assert 'studio-admin-edit' in sitejs
  from article_templates import sectioned_body,render
  original={
@@ -57,5 +71,5 @@ def verify_studio(output,rows):
  # A public article carries NO editable/admin button unless session is verified in JS.
  generated=next((root/(r["slug"]+".html") for r in rows if (root/(r["slug"]+".html")).is_file()),None)
  assert generated and 'studio-admin-edit' not in generated.read_text(encoding="utf-8"),"Public Admin button leak"
- assert 'CF_ACCESS_TEAM_DOMAIN' not in page and 'STUDIO_GITHUB_TOKEN' not in page,"Credentials embedded in HTML"
+ assert 'STUDIO_SESSION_SECRET' not in page or 'serve soltanto' in page,"Server setup status should not contain the secret itself"
  print("STUDIO AUDIT PASS:",len(rows),"editable articles; blocks/media and admin controls verified",flush=True)

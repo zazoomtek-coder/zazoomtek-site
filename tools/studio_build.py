@@ -1,123 +1,158 @@
-"""Build the static Studio shell and an editable catalog of ALL current articles.
-The catalog contains published editorial data only, not secrets or credentials.
-Authentication and mutations are handled exclusively by protected Pages Functions.
+"""Build the independent SpotNews Studio (original editorial UI, not old Studio).
+The HTML shell and public editorial catalog contain ZERO authentication secrets.
 """
 from pathlib import Path
-from html import escape as esc
+from html import escape
 import json
 
-def build_studio(output,rows):
+def build_studio(output, rows):
  root=Path(output)/"studio"
  root.mkdir(parents=True,exist_ok=True)
- data={"version":1,"posts":[{
-  "slug":row.get("slug"),"title":row.get("title"),"category":row.get("category"),
-  "date":row.get("date"),"published_at":row.get("published_at"),
-  "image":row.get("image"),"author":row.get("author"),
-  "video_url":row.get("video_url"),"platform":row.get("platform"),
-  "score":row.get("score"),"pros":row.get("pros"),"cons":row.get("cons"),
-  "studio_blocks":bool(row.get("studio_blocks")),"body":row.get("body",[])
- } for row in rows]}
- (root/"catalog.json").write_text(json.dumps(data,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+ catalog={"version":2,"posts":[{
+   "slug":r.get("slug"),"title":r.get("title"),"category":r.get("category"),
+   "date":r.get("date"),"published_at":r.get("published_at"),
+   "image":r.get("image"),"author":r.get("author"),
+   "video_url":r.get("video_url"),"platform":r.get("platform"),
+   "score":r.get("score"),"pros":r.get("pros"),"cons":r.get("cons"),
+   "studio_blocks":bool(r.get("studio_blocks")),"body":r.get("body",[])
+ } for r in rows]}
+ (root/"catalog.json").write_text(
+  json.dumps(catalog,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
  html="""<!doctype html><html lang="it"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Studio | ZazoomTek</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
-<link rel="stylesheet" href="/assets/css/studio.css?v=2">
+<meta name="color-scheme" content="light">
+<title>Studio — ZazoomTek</title>
+<link rel="stylesheet" href="/assets/css/studio.css?v=20261028-studio-fresh-2">
+<script src="/assets/js/studio.js?v=20261028-studio-fresh-2" defer></script>
 </head><body>
-<section id="studio-gate" class="studio-gate">
-  <h1>Zazoom<span style="color:#ed344b">Tek</span> Studio</h1>
-  <p id="studio-gate-description" role="status" aria-live="polite">Verifica della sessione amministratore protetta…</p>
-  <p id="studio-gate-help">Studio riconosce automaticamente il browser dopo un accesso Cloudflare Access valido. Non servono password o token dentro il pannello.</p>
-  <p id="studio-gate-setup" hidden>
-    <strong>Attivazione iniziale necessaria</strong>
-    <span>Cloudflare Pages → zazoomtek-spotnews-preview → Zero Trust / Access.
-    Proteggi i percorsi /studio/* e /api/studio/*, autorizza solo la tua email,
-    quindi imposta le tre variabili Access e il segreto GitHub nel progetto di prova.
-    Le istruzioni complete sono in STUDIO-SETUP.md del repository.</span>
-  </p>
-  <p class="studio-gate-actions">
-    <a id="studio-setup-link" href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" hidden>Apri Cloudflare per attivare Studio</a>
-    <button id="studio-retry" type="button" hidden>Riprova l'accesso</button>
-  </p>
-  <p><small>La sicurezza è verificata sul server. Il pulsante «Modifica» compare solo quando l'amministratore è autenticato.</small></p>
-  <p><a href="/" style="background:transparent;color:#222;padding:0">Torna al sito</a></p>
-</section>
+<div class="studio-auth-wrap" id="studio-auth">
+ <main class="studio-auth-card">
+  <div class="studio-auth-logo">Zazoom<span>Tek</span><small>STUDIO</small></div>
+  <div class="studio-auth-tag">Lo spazio editoriale di ZazoomTek</div>
+  <h1>Accedi al tuo Studio</h1>
+  <p>Il tuo pannello personale per creare, modificare e pubblicare articoli, news e recensioni sul branch di prova.</p>
+  <div id="studio-setup" class="studio-auth-alert" hidden>
+   <strong>Attivazione iniziale richiesta</strong>
+   <p>Manca una sola chiave di sicurezza server: <code>STUDIO_SESSION_SECRET</code> nelle impostazioni <strong>Preview</strong> di Cloudflare Pages. Non servono Zero Trust, piani a pagamento o altre applicazioni.</p>
+   <a target="_blank" rel="noopener noreferrer" href="https://dash.cloudflare.com/">Apri Cloudflare</a>
+  </div>
+  <form id="studio-login-form" autocomplete="off" hidden>
+   <label for="studio-token">Token personale GitHub (solo il primo accesso)</label>
+   <input type="password" id="studio-token" name="token" placeholder="github_pat_..." required spellcheck="false" autocomplete="off">
+   <p class="studio-help">Il token è verificato con GitHub e cifrato in un cookie protetto, non salvato in JavaScript o nella memoria del browser. Il cookie cifrato si rinnova automaticamente ad ogni visita: nessuna scadenza periodica di accesso.</p>
+   <button type="submit" id="studio-login-submit" class="studio-primary">Entra in Studio</button>
+  </form>
+  <p id="studio-login-status" class="studio-state" role="status" aria-live="polite">Controllo accesso amministratore…</p>
+  <button type="button" id="studio-check-again" class="studio-link-button" hidden>Riprova la verifica</button>
+  <a href="/" class="studio-quiet-link">Torna al sito</a>
+ </main>
+</div>
 <div class="studio-layout" id="studio-app" hidden>
- <aside class="studio-left">
-  <div class="studio-brand">Zazoom<span>Tek</span> <small>Studio</small></div>
-  <p class="studio-left-heading">Gestione editoriale</p>
-  <button id="studio-new" class="studio-new">+ Crea nuovo contenuto</button>
-  <div class="studio-search-row">
-   <input id="studio-search" type="search" aria-label="Cerca articoli" placeholder="Cerca articoli, news, recensioni">
+ <aside class="studio-rail">
+  <div class="studio-rail-brand">Zazoom<span>Tek</span><small>STUDIO</small></div>
+  <div class="studio-workspace"><span class="studio-workspace-mark">Z</span><div><b>La tua redazione</b><small>SpotNews · ambiente di prova</small></div></div>
+  <button type="button" id="studio-new" class="studio-create">＋ Crea un contenuto</button>
+  <div class="studio-section-label">La tua libreria</div>
+  <div class="studio-rail-filters">
+   <input id="studio-search" type="search" placeholder="Cerca per titolo" aria-label="Cerca contenuti">
    <select id="studio-filter" aria-label="Filtra per categoria"></select>
   </div>
-  <span id="studio-counter" class="studio-counter">Caricamento…</span>
-  <div id="studio-content-list" class="studio-content-list"></div>
-  <p class="studio-left-heading">Branch di prova · No pubblicazione sul sito ufficiale</p>
+  <div class="studio-total" id="studio-count"></div>
+  <div class="studio-article-list" id="studio-list"></div>
+  <div class="studio-rail-footer">
+   <p>Modifiche riservate al branch di prova</p>
+   <a href="/">Visualizza il sito <span aria-hidden="true">↗</span></a>
+  </div>
  </aside>
- <main class="studio-main">
-  <header class="studio-topbar">
-   <div><div class="studio-eyebrow">Il tuo spazio di pubblicazione</div>
-    <h1 id="studio-mode">Modifica contenuto</h1></div>
-   <div class="studio-topbar-actions">
-    <a class="studio-secondary-btn" href="/">Visualizza sito</a>
-    <button type="button" id="studio-save" class="studio-save">Salva modifiche</button>
+ <main class="studio-center">
+  <header class="studio-toolbar">
+   <div><div class="studio-eyebrow">ZazoomTek / Studio</div>
+    <h1 id="studio-current-mode">Modifica articolo</h1>
+    <p id="studio-current-category">Spazio editoriale</p></div>
+   <div class="studio-toolbar-actions">
+    <button type="button" id="studio-preview-toggle" class="studio-text-button">Anteprima</button>
+    <button type="button" id="studio-save" class="studio-primary">Salva modifiche</button>
    </div>
   </header>
-  <p id="studio-status" class="studio-status" role="status" aria-live="polite"></p>
-  <div id="studio-opening" class="studio-editor" hidden>
-   <section class="studio-card">
-    <h2>Informazioni del contenuto</h2>
-    <label class="studio-field">Titolo editoriale<input id="studio-title" maxlength="220" placeholder="Titolo completo dell'articolo"></label>
-    <div class="studio-grid">
-     <label class="studio-field">Categoria<select id="studio-category"></select></label>
-     <label class="studio-field">URL / Slug<input id="studio-slug" maxlength="150" placeholder="titolo-articolo"></label>
+  <div class="studio-edit-body">
+   <p role="status" aria-live="polite" id="studio-status" class="studio-state"></p>
+   <section class="studio-form-section">
+    <div class="studio-form-heading"><h2>Informazioni principali</h2><p>Il contenuto, il titolo e la categoria</p></div>
+    <label class="studio-input-group">Titolo dell'articolo
+     <input id="studio-title" type="text" maxlength="220" placeholder="Inserisci il titolo completo">
+    </label>
+    <div class="studio-double">
+     <label class="studio-input-group">Categoria
+      <select id="studio-category"></select>
+     </label>
+     <label class="studio-input-group">Indirizzo articolo
+      <input id="studio-slug" type="text" maxlength="150" placeholder="url-articolo">
+     </label>
     </div>
-    <label class="studio-field">Autore<input id="studio-author" placeholder="Redazione ZazoomTek"></label>
-    <div class="studio-cover-row">
-     <label class="studio-field">Copertina 16:9 o URL immagine<input id="studio-cover" placeholder="/assets/uploads/... oppure https://..."></label>
-     <button type="button" class="studio-secondary-btn" id="studio-add-cover" style="margin-bottom:17px">Carica cover</button>
+    <label class="studio-input-group">Autore
+     <input id="studio-author" type="text" placeholder="Redazione ZazoomTek">
+    </label>
+    <label class="studio-input-group">Immagine di copertina
+     <div class="studio-media-field">
+      <input id="studio-cover" type="text" placeholder="https://... oppure /assets/uploads/...">
+      <button type="button" id="studio-cover-upload" class="studio-outline">Carica</button>
+     </div>
+    </label>
+    <p class="studio-hint">Immagini JPEG, PNG o WebP. Il sito usa miniature 16:9; una cover con titolo centrale è preferibile.</p>
+   </section>
+   <section class="studio-form-section">
+    <div class="studio-form-heading"><h2>Corpo dell'articolo</h2><p>Sposta, aggiungi e modifica liberamente ogni blocco</p></div>
+    <div id="studio-blocks" class="studio-blocks"></div>
+    <div class="studio-insert" role="group" aria-label="Aggiungi blocco">
+     <button type="button" data-block="paragraph">＋ Testo</button>
+     <button type="button" data-block="heading">＋ Sottotitolo</button>
+     <button type="button" data-block="image">＋ Foto</button>
+     <button type="button" data-block="video">＋ Video</button>
+     <button type="button" data-block="button">＋ Pulsante/link</button>
+     <button type="button" data-block="quote">＋ Citazione</button>
     </div>
-    <div class="studio-grid">
-     <label class="studio-field">Piattaforma / prodotto<input id="studio-platform"></label>
-     <label class="studio-field">Voto recensione (0–10, facoltativo)<input id="studio-score" inputmode="decimal"></label>
+    <p class="studio-hint">Nei paragrafi puoi inserire un collegamento con <code>[testo del link](https://indirizzo.it)</code>. I sottotitoli diventano intestazioni H2 con la barra rossa.</p>
+   </section>
+   <section class="studio-form-section">
+    <div class="studio-form-heading"><h2>Dettagli aggiuntivi</h2><p>Video principale, piattaforma, voto, pro e contro</p></div>
+    <label class="studio-input-group">Link del video YouTube
+     <input id="studio-video" type="url" placeholder="https://www.youtube.com/watch?v=...">
+    </label>
+    <div class="studio-double">
+     <label class="studio-input-group">Piattaforma / prodotto
+      <input id="studio-platform" type="text">
+     </label>
+     <label class="studio-input-group">Voto recensione (0–10)
+      <input id="studio-score" type="text" inputmode="decimal" placeholder="Facoltativo">
+     </label>
     </div>
-    <label class="studio-field">Link video YouTube dell'articolo<input id="studio-video-url" placeholder="https://www.youtube.com/watch?v=..."></label>
-    <div class="studio-grid">
-     <label class="studio-field">Pro (uno per riga)<textarea id="studio-pros" rows="3"></textarea></label>
-     <label class="studio-field">Contro (uno per riga)<textarea id="studio-cons" rows="3"></textarea></label>
+    <div class="studio-double">
+     <label class="studio-input-group">Pro (una voce per riga)
+      <textarea id="studio-pros" rows="4"></textarea>
+     </label>
+     <label class="studio-input-group">Contro (una voce per riga)
+      <textarea id="studio-cons" rows="4"></textarea>
+     </label>
     </div>
    </section>
-   <section class="studio-card">
-    <h2>Contenuto e impaginazione</h2>
-    <div class="studio-content-toolbar" role="group" aria-label="Inserisci nuovo blocco">
-     <button type="button" data-add-block="paragraph">+ Testo</button>
-     <button type="button" data-add-block="heading">+ Sottotitolo</button>
-     <button type="button" data-add-block="image">+ Immagine</button>
-     <button type="button" data-add-block="video">+ Video</button>
-     <button type="button" data-add-block="button">+ Pulsante/link</button>
-     <button type="button" data-add-block="quote">+ Citazione</button>
-    </div>
-    <div id="studio-block-list"></div>
-    <p class="studio-hint">Usa i tasti ↑ ↓ per spostare i blocchi. Per aggiungere un link dentro il testo, scrivi [testo da mostrare](https://indirizzo.it). Tutte le modifiche vengono salvate nel branch SpotNews di prova.</p>
-   </section>
-   <p id="studio-editor-note" class="studio-hint"></p>
+   <footer class="studio-edit-footer">
+    <span id="studio-save-detail">Le modifiche interessano soltanto il branch SpotNews di prova.</span>
+    <button type="button" id="studio-save-bottom" class="studio-primary">Salva articolo</button>
+   </footer>
   </div>
  </main>
- <aside class="studio-right">
-  <h2>Anteprima contenuto</h2>
-  <p class="studio-sidebar-subtitle" id="studio-sidebar-active">Editor visuale</p>
-  <div class="studio-preview-box" id="studio-preview"></div>
-  <p id="studio-preview-foot" class="studio-preview-foot"></p>
+ <aside class="studio-preview-column" id="studio-preview-column">
+  <div class="studio-preview-heading"><h2>Anteprima</h2>
+   <span>Come apparirà nel sito</span></div>
+  <article class="studio-preview-document" id="studio-preview"></article>
   <div class="studio-session">
-   <strong id="studio-admin-email">Amministratore</strong>
-   <p id="studio-auth-status">Sessione verificata</p>
-   <p>La sessione sicura è gestita da Cloudflare Access tramite cookie HttpOnly; nessuna API key salvata nel browser.</p>
-   <a href="/cdn-cgi/access/logout" class="studio-source-link">Disconnetti</a>
+   <div id="studio-account-name">Amministratore</div>
+   <p id="studio-session-expiry"></p>
+   <button type="button" id="studio-logout">Disconnetti</button>
   </div>
  </aside>
 </div>
-<script src="/assets/js/studio.js?v=2" defer></script>
 </body></html>"""
  (root/"index.html").write_text(html,encoding="utf-8")
- print("Studio catalog:",len(rows),"articles; protected UI generated",flush=True)
+ print("STUDIO FRESH BUILD: "+str(len(rows))+" editorial entries",flush=True)

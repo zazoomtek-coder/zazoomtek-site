@@ -1,57 +1,66 @@
-# Studio — accesso amministratore sicuro, senza 404
+# ZazoomTek Studio — sistema nuovo, accesso una sola volta
 
-## Perché compareva «Access not configured» e il pulsante «Modifica» non appariva
-Il codice di Studio è presente nella preview, ma non è stata configurata
-un'applicazione Cloudflare Access né sono state definite tutte le variabili
-server indispensabili. **Il collegamento precedente a
-`/cdn-cgi/access/login` è stato eliminato**: senza un'app Access restituisce
-404, e non può autenticare nessuno. La pagina ora mostra la procedura di
-attivazione invece di simulare un login operativo.
+Studio è stato ricreato da zero esclusivamente per il branch
+`feature/spotnews-clean-rebuild`, senza Cloudflare Zero Trust.
 
-## Attivazione iniziale — riservata al proprietario Cloudflare
+## Una sola configurazione prima del primo login
 
-1. Apri Cloudflare Dashboard → **Workers & Pages** →
-   **zazoomtek-spotnews-preview**. L'autenticazione è una configurazione
-   esterna al repository e richiede i permessi proprietario/account.
-2. In **Zero Trust → Access → Applications**, crea/configura la protezione
-   dell'hostname di anteprima e dei percorsi **/studio/**, **/studio/***
-   e **/api/studio/***. Limita la policy **Allow** esclusivamente alla tua
-   email. La protezione delle preview dal pannello Pages (Settings → General
-   → Enable access policy) copre l'intera preview, non soltanto Studio:
-   usala solo se vuoi rendere privata tutta la replica. Consulta la guida
-   ufficiale: https://developers.cloudflare.com/pages/configuration/preview-deployments/
-3. Recupera il **team domain** (`<team>.cloudflareaccess.com`) e l'**AUD**
-   dell'applicazione Access che protegge le richieste a Studio.
-4. Su Pages → progetto **zazoomtek-spotnews-preview** → Settings →
-   Variables and Secrets → ambiente **Preview**, configura:
-   - `CF_ACCESS_TEAM_DOMAIN`: team domain verificato
-   - `CF_ACCESS_AUD`: audience tag dell'app Access
-   - `STUDIO_ADMIN_EMAIL`: email autorizzata (non pubblica nel codice)
-   - `STUDIO_GITHUB_TOKEN`: **segreto cifrato** GitHub fine-grained con
-     Contents: Read & write soltanto per
-     `zazoomtek-coder/zazoomtek-site`
-5. Salva e avvia un deploy del branch di prova. Apri **/studio/**:
-   Cloudflare Access presenterà il login sul proprio flusso ufficiale,
-   prima di caricare il pannello. Dopo il primo login, il browser conserva
-   il cookie sicuro fino alla scadenza prevista dalla policy Access.
-6. Quando `/api/studio/session` risponde `authenticated:true` con la
-   tua sessione valida, il pulsante **Modifica** appare in ogni articolo
-   sullo **stesso dominio di anteprima**. Gli altri visitatori non lo vedono.
+Cloudflare Pages → progetto `zazoomtek-spotnews-preview` → Settings
+→ Variables and Secrets → **Preview**:
 
-Per minimizzare nuove autenticazioni quando la preview viene ricompilata,
-usa lo stesso hostname stabile di branch, anziché cambiare dominio hashed
-a ogni deploy, se configurato su Cloudflare Pages.
+- **STUDIO_SESSION_SECRET** = stringa casuale generata in modo sicuro,
+  lunga almeno 32 caratteri, salvata come **secret** (non variabile pubblica).
+  Deve rimanere stabile: cambiarla invalida i cookie già emessi.
+  Non copiarla nel codice, GitHub, messaggi o JavaScript.
 
-## Verifiche e protezioni
-- Senza Access configurato, Studio rimane chiuso: non attiviamo login fittizi.
-- Le verifiche server controllano JWT, firma, email, issuer, audience,
-  scadenza e origine delle mutazioni.
-- Il token GitHub resta **esclusivamente server-side**, mai in browser.
-- Le scritture usano soltanto il branch
-  `feature/spotnews-clean-rebuild`; `main` non viene toccato.
-- Articoli nuovi: `data/studio_posts.json`; modifiche agli importati:
-  `data/studio_overrides.json`.
-- Studio resta `noindex` ed escluso dalla sitemap.
+Non servono app Access, abbonamenti, account nuovi, login Cloudflare
+Zero Trust, CF_ACCESS_AUD o segreti GitHub permanenti nel server.
 
-**Stato:** una build riuscita verifica la presenza di editor e API;
-**non** attiva automaticamente Cloudflare Access, le variabili e il token.
+## Primo accesso e riconoscimento automatico
+
+1. Apri Studio sul dominio **stabile** della preview SpotNews (non un
+   hostname con hash diverso per ogni deploy). Il cookie `__Host-zzt-studio`
+   è legato al singolo host per sicurezza.
+2. Solo la prima volta, inserisci un **GitHub Personal Access Token**
+   dell'account proprietario `zazoomtek-coder`, abilitato esclusivamente
+   al repository `zazoomtek-coder/zazoomtek-site` con Contents: Read & write.
+3. L'API server verifica GitHub account e permessi. Il token viene
+   cifrato (AES-256-GCM) dal server e memorizzato solo nel cookie
+   **Secure, HttpOnly, SameSite=Strict**, non in `localStorage`.
+4. Ogni volta che si apre Studio o un articolo, la chiamata di verifica
+   rinnova **automaticamente** il cookie persistente. Non esiste
+   alcuna scadenza periodica fissa in Studio.
+5. Se apri un articolo nel medesimo browser e sul medesimo dominio,
+   `Modifica` appare solo se il server verifica il cookie. Cliccandolo
+   si apre direttamente Studio sull'articolo selezionato.
+6. Nuovi contenuti e modifiche agli importati scrivono **soltanto**
+   sul branch SpotNews: `data/studio_posts.json` e
+   `data/studio_overrides.json`. Ogni salvataggio produce una nuova
+   build di preview. Il branch `main` e zazoomtek.it restano invariati.
+
+## Limite tecnico reale
+
+I browser (es. Chrome) limitano la persistenza di un cookie a 400 giorni
+dalla sua ultima emissione. Studio **rinnova a ogni visita** il cookie:
+per un uso regolare non ci sono scadenze periodiche. Non è però
+possibile garantire accesso letteralmente eterno dopo cancellazione
+cookie, cambio browser/dispositivo, lungo periodo di inattività,
+revoca o scadenza del token GitHub, perdita della chiave del server
+o cambiamento di dominio. In questi casi serve ripetere il primo accesso.
+
+## Sicurezza e test
+
+- Username GitHub del proprietario verificato via API, permessi
+  di scrittura sul repository controllati.
+- Cookie crittografato e rinnovato solo dal server (mai salvato in
+  chiaro nel browser o in JavaScript).
+- Protezione CSRF same-origin e Content-Type JSON.
+- Upload immagine JPEG/PNG/WebP con limite 3,2 MB e validazione signature.
+- Nessun endpoint consente scritture a `main` o path arbitrari.
+- Sito di prova `noindex`, Studio assente dalla sitemap.
+- La build verifica editor, protezioni, routing e formattazione.
+- Il login e il salvataggio reali possono essere verificati solo dopo
+  l'inserimento del secret nel pannello Pages e un primo token valido.
+
+Documentazione sul limite 400 giorni:
+https://developer.chrome.com/blog/cookie-max-age-expires/
