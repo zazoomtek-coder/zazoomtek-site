@@ -374,7 +374,7 @@ def safe_image(value):
   return value if (P/value.lstrip("/")).is_file() else ""
  from urllib.parse import urlparse
  u=urlparse(value)
- if u.scheme=="https" and u.hostname in ("yt3.ggpht.com","i.ytimg.com","mcusercontent.com") and not u.username and not u.password:return value
+ if u.scheme=="https" and u.hostname in ("yt3.ggpht.com","i.ytimg.com","mcusercontent.com","images.volleyballworld.com") and not u.username and not u.password:return value
  # Verified public-domain Sony PS2 product photograph by Evan-Amos on Wikimedia Commons.
  if (u.scheme=="https" and u.hostname=="upload.wikimedia.org" and
      u.path=="/wikipedia/commons/c/c3/Sony-PlayStation-2-30001-wController-L.jpg" and
@@ -730,7 +730,12 @@ def web_news():
    except Exception:live.append(None)
  cards=[]
  for source,actual in zip(sources,live):
-  if actual:cards.append(actual);continue
+  if actual:
+   # Use only the original image from the same source URL.
+   previous=backup.get(source["name"])
+   if not actual.get("image") and previous and actual.get("url")==previous.get("url"):
+    actual["image"]=previous.get("image","")
+   cards.append(actual);continue
   b=backup.get(source["name"])
   if b and tech_article_link(b.get("url"),source["domain"]) and (parse_day(b.get("date")) or datetime.min.date())>=cutoff:
    cards.append({"source":source["name"],"title":b["title"],"url":b["url"],"image":b.get("image",""),"date":b.get("date",""),"from_feed":False})
