@@ -44,6 +44,7 @@ def verify_studio(output,rows):
   assert required in api_source,"Studio secure session missing "+required
  assert 'CF_ACCESS_TEAM_DOMAIN' not in api_source,"Old Zero Trust service must be removed"
  assert 'studio-admin-edit' in sitejs
+ assert 'edit.href="/studio-v2/?edit="+encodeURIComponent(slug)' in sitejs,"Admin-only Modifica must open Studio V2 for the clicked article"
  from article_templates import sectioned_body,render
  original={
   "slug":"studio-sample-rich-content","category":"news-tech",

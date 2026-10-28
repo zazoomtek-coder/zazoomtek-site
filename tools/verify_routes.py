@@ -118,11 +118,11 @@ def check_dist(root):
    'const amazon=home?panels.find(box=>box.classList.contains("amazon-feature-box")):null;',
    'if(amazon)amazon.hidden=false;',
    'x.panel!==amazon',
-   '20261028-amazon-fixed-53'
+   '20261028-studio-v2-edit-55'
   ):
-   if check not in sitejs and check!="20261028-amazon-fixed-53":
+   if check not in sitejs and check!="20261028-studio-v2-edit-55":
     errors.append("Amazon rail runtime protection missing: "+check[:90])
-  if '20261028-amazon-fixed-53' not in markup:
+  if '20261028-studio-v2-edit-55' not in markup:
    errors.append("Home has stale site.js cache and may hide Amazon")
   if markup.count('class="box editorial-box amazon-feature-box"')!=1:
    errors.append("Home must have exactly one Amazon affiliate box")
