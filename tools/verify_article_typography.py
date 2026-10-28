@@ -78,7 +78,7 @@ def verify():
  parts=re.findall(r"<p>(.*?)</p>",output,flags=re.S)
  assert len(parts)>=5, "Long YouTube text must be divided into readable paragraphs"
  assert output.count("<h2>")>=2, "Long news needs multiple editorial subsections"
- assert all(len(unescape(re.sub(r"<[^>]+>","",p)))<=520 for p in parts)
+ assert all(len(unescape(re.sub(r"<[^>]+>","",p)))<=430 for p in parts)
  joined=" ".join(unescape(re.sub(r"<[^>]+>","",p)) for p in parts)
  assert re.sub(r"\s+"," ",joined).strip()==re.sub(r"\s+"," ",original).strip()
  print("Article paragraph typography tests OK",flush=True)

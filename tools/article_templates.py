@@ -306,7 +306,7 @@ def automatic_news_heading(paragraph,used):
   if label not in used:return label
  return "Ulteriori informazioni"
 
-def split_news_prose(raw,limit=470):
+def split_news_prose(raw,limit=370):
  """Break a long imported paragraph into readable parts WITHOUT changing facts.
  Preserve punctuation and original order; split first on sentence boundaries.
  If a post has no punctuation, a word/clause boundary is the last resort.

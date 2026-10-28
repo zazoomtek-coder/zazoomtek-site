@@ -62,8 +62,8 @@ def check_all(rows, output, stylesheet):
     # paragraphs. This check now rejects Expedition-style broken layouts.
     paragraphs=re.findall(r"<p>(.*?)</p>",body,flags=re.S)
     paragraphs=[unescape(re.sub(r"<[^>]+>","",p)) for p in paragraphs]
-    if any(len(p)>520 for p in paragraphs):
-     raise AssertionError("Giant paragraph exceeds 520 characters")
+    if any(len(p)>430 for p in paragraphs):
+     raise AssertionError("Giant paragraph exceeds 430 characters")
     blocks=re.findall(r"<(h2|p)>(.*?)</\1>",body,flags=re.S)
     paragraphs_before_heading=0
     paragraphs_in_section=0
