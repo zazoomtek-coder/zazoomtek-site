@@ -69,8 +69,8 @@
   btn.replaceWith(iframe);
  });
 
- // Fill each right-hand editorial rail, respecting the height of the actual article column.
- // Fixed Home order: I più letti, Amazon, Da non perdere, Dalla redazione, Altre news.
+ // v44: measured editorial rail. Use the TRUE bottom of the central column:
+ // no cropped thumbnail, no overflowing box and no empty sidebar on long pages.
  function sizeEditorialRail(aside){
   const stack=aside.querySelector(".sidebar-stack");
   if(!stack)return;
@@ -79,110 +79,80 @@
   const column=home?aside.closest(".home-layout")?.querySelector(".home-column"):
                     aside.closest(".inner-layout")?.querySelector(".inner-column");
   if(!column)return;
-  stack.style.minHeight="";
-  stack.style.justifyContent="";
-  const boxes=[...stack.querySelectorAll(":scope > .editorial-box")];
-  const contents=boxes.map(box=>[...box.querySelectorAll(".editorial-row")]);
-  for(const box of boxes)box.hidden=true;
-  for(const rows of contents)for(const row of rows)row.hidden=true;
+  aside.classList.remove("rail-ready");
+  aside.style.removeProperty("--inner-rail-height");
+  stack.style.removeProperty("min-height");
+  stack.style.removeProperty("height");
+  stack.style.removeProperty("justify-content");
+  const panels=[...stack.querySelectorAll(":scope > .editorial-box")];
+  const rows=panels.map(box=>[...box.querySelectorAll(".editorial-row")]);
+  panels.forEach(panel=>{panel.hidden=true;});
+  rows.forEach(group=>group.forEach(row=>{row.hidden=true;}));
   if(compact){
-   // On phones and tablets the rail stacks below content; never hide the Amazon panel.
-   boxes.forEach((box,i)=>{
-    box.hidden=false;
-    contents[i].slice(0,4).forEach(row=>row.hidden=false);
+   panels.forEach((panel,i)=>{
+    panel.hidden=false;
+    rows[i].slice(0,4).forEach(row=>{row.hidden=false;});
    });
    aside.classList.add("rail-ready");
    return;
   }
-  if(!home){
-   // Every interior page gets a complete, visible editorial rail, independent
-   // from the length of the archive, review, news story or special.
-   const target=Math.max(0,Math.floor(column.getBoundingClientRect().height));
-   aside.style.setProperty("--inner-rail-height",target+"px");
-   const fits=()=>stack.scrollHeight<=target+1;
-   if(target<100){
-    const first=boxes.findIndex((_,i)=>contents[i].length);
-    if(first>=0){boxes[first].hidden=false;contents[first][0].hidden=false;}
-    aside.classList.add("rail-ready");
-    return;
-   }
-   // A panel is displayed only when its heading AND its first article fit.
-   for(let i=0;i<boxes.length;i++){
-    if(!contents[i].length)continue;
-    boxes[i].hidden=false;
-    contents[i][0].hidden=false;
-    if(!fits()){
-     contents[i][0].hidden=true;
-     boxes[i].hidden=true;
-    }
-   }
-   // Fill any free space with remaining DISTINCT items, one complete row at a time.
-   let changed=true;
-   while(changed){
-    changed=false;
-    for(let i=0;i<boxes.length;i++){
-     if(boxes[i].hidden)continue;
-     const next=contents[i].find(row=>row.hidden);
-     if(!next)continue;
-     next.hidden=false;
-     if(!fits()){next.hidden=true;continue;}
-     changed=true;
-    }
-   }
-   let visible=boxes.filter(box=>!box.hidden);
-   if(!visible.length){
-    // If the viewport is unusually short, never erase the entire rail.
-    const first=boxes.findIndex((_,i)=>contents[i].length);
-    if(first>=0){boxes[first].hidden=false;contents[first][0].hidden=false;}
-    visible=boxes.filter(box=>!box.hidden);
-   }
-   if(visible.length>=2){
-    // The last complete panel finishes at the same bottom edge as the article column.
-    stack.style.minHeight=target+"px";
-    stack.style.justifyContent="space-between";
-   }
-   aside.classList.add("rail-ready");
-   return;
-  }
-  // The aside itself never contributes to Home grid height: compare against
-  // the independent primary column, ending with the Notizie Web section.
-  const target=Math.max(0,Math.floor(column.getBoundingClientRect().height)-3);
-  if(target<100){aside.classList.add("rail-ready");return}
-  const fits=()=>stack.scrollHeight<=target+1;
-  const mandatory=home?boxes.length:Math.min(2,boxes.length);
-  // Show all fixed Home panels, at least first two inner panels.
-  boxes.forEach((box,i)=>{
-   box.hidden=false;
-   if(!fits()&&i>=mandatory){box.hidden=true;return}
-   const first=contents[i][0];
-   if(first){
-    first.hidden=false;
-    if(!fits())first.hidden=true;
-   }
-  });
-  let changed=true;
-  while(changed){
+  // The page boundary is measured in actual rendered pixels, not a parent's
+  // scrollHeight (which can include min-height/flex gaps and hide overflow).
+  const mainRect=column.getBoundingClientRect();
+  const boundary=mainRect.bottom-6;
+  const stackTop=stack.getBoundingClientRect().top;
+  const usable=Math.max(0,Math.floor(boundary-stackTop));
+  aside.style.setProperty("--inner-rail-height",Math.max(0,Math.floor(mainRect.height))+"px");
+  const lastVisible=()=>[...stack.children].filter(el=>!el.hidden).at(-1);
+  const bottom=()=>{
+   const last=lastVisible();
+   return last?last.getBoundingClientRect().bottom:stackTop;
+  };
+  const fits=()=>bottom()<=boundary;
+  const tryFirst=i=>{
+   if(!rows[i].length)return false;
+   panels[i].hidden=false;
+   rows[i][0].hidden=false;
+   if(fits())return true;
+   rows[i][0].hidden=true;
+   panels[i].hidden=true;
+   return false;
+  };
+  const tryNext=i=>{
+   if(panels[i].hidden)return false;
+   const next=rows[i].find(row=>row.hidden);
+   if(!next)return false;
+   next.hidden=false;
+   if(fits())return true;
+   next.hidden=true;
+   return false;
+  };
+  // Each box must contain a FULL first article; empty headers are forbidden.
+  panels.forEach((_,i)=>{tryFirst(i);});
+  // Fill to the available height with authentic, distinct articles.
+  // Never insert a row that would extend beyond the center column.
+  let changed=true,pass=0;
+  const guard=rows.reduce((n,group)=>n+group.length,0)+1;
+  while(changed&&pass++<guard){
    changed=false;
-   for(let i=0;i<boxes.length;i++){
-    if(boxes[i].hidden)continue;
-    const next=contents[i].find(row=>row.hidden);
-    if(!next)continue;
-    next.hidden=false;
-    if(!fits()){next.hidden=true;continue}
-    changed=true;
-   }
+   for(let i=0;i<panels.length;i++)if(tryNext(i))changed=true;
   }
-  // Never leave a box showing only its header when no complete item fits.
-  // The sponsored Amazon card has no editorial rows and must remain visible.
-  boxes.forEach((box,i)=>{
-   if(contents[i].length&&contents[i].every(row=>row.hidden))box.hidden=true;
-  });
-  // Remaining small gaps are distributed between intact sections, not inside cropped cards.
-  const remaining=Math.max(0,target-stack.scrollHeight);
-  const shown=boxes.filter(box=>!box.hidden).length;
-  if(remaining>14&&shown>1&&remaining/shown<115){
-   stack.style.minHeight=target+"px";
+  const visiblePanels=panels.filter(panel=>!panel.hidden);
+  const remaining=Math.max(0,boundary-bottom());
+  if(remaining>1&&visiblePanels.length>1){
+   // Distribute only leftover space; the LAST intact box ends at the
+   // same bottom line as the page's central text or archive grid.
+   stack.style.minHeight=usable+"px";
    stack.style.justifyContent="space-between";
+  }
+  // Final safety pass after distribution or subpixel image scaling.
+  let remainingTrims=guard;
+  while(!fits()&&remainingTrims-->0){
+   const last=panels.map((panel,i)=>({panel,i})).filter(x=>!x.panel.hidden).at(-1);
+   if(!last)break;
+   const row=rows[last.i].filter(x=>!x.hidden).at(-1);
+   if(row)row.hidden=true;
+   if(!rows[last.i].some(x=>!x.hidden))last.panel.hidden=true;
   }
   aside.classList.add("rail-ready");
  }
@@ -197,6 +167,14 @@
  scheduleEditorialSizing();
  window.addEventListener("load",scheduleEditorialSizing,{once:true});
  window.addEventListener("resize",scheduleEditorialSizing,{passive:true});
+ window.addEventListener("pageshow",scheduleEditorialSizing,{passive:true});
+ // Image loads and font swaps can change measured card heights without
+ // resizing the center column. Re-run fitting after these genuine changes.
+ document.addEventListener("load",event=>{
+  if(event.target?.matches?.(".sidebar img"))scheduleEditorialSizing();
+ },true);
+ document.fonts?.ready?.then(scheduleEditorialSizing);
+
  if(typeof ResizeObserver!=="undefined"){
   const railObserver=new ResizeObserver(scheduleEditorialSizing);
   document.querySelectorAll(".home-column,.inner-column").forEach(col=>railObserver.observe(col));

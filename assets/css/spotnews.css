@@ -2039,3 +2039,53 @@ main.wrap .story-article .article-text>h2+p{
     padding-left:10px!important;
   }
 }
+
+/* v44 — measured, uncropped editorial rails for EVERY archive, article, review
+   and Home page. JS adds only complete 16:9 items that fit the central column. */
+@media(min-width:781px){
+ main.wrap .inner-layout>.inner-sidebar {
+  position:relative!important;
+  align-self:start!important;
+  min-height:0!important;
+  height:auto!important;
+  overflow:visible!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar.rail-ready {
+  height:var(--inner-rail-height,auto)!important;
+  max-height:var(--inner-rail-height,none)!important;
+  overflow:hidden!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar>.sidebar-stack {
+  position:relative!important;
+  inset:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:10px!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box {
+  flex:0 0 auto!important;
+  height:auto!important;
+  overflow:visible!important;
+ }
+ main.wrap .home-layout>.home-sidebar>.sidebar-stack{
+  overflow:visible!important;
+ }
+}
+main.wrap .sidebar .compact-editorial-box[hidden],
+main.wrap .sidebar .compact-editorial-box .editorial-row[hidden] {
+ display:none!important;
+}
+@media(max-width:780px){
+ main.wrap .inner-layout>.inner-sidebar,
+ main.wrap .inner-layout>.inner-sidebar.rail-ready,
+ main.wrap .home-layout>.home-sidebar {
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+ }
+}
