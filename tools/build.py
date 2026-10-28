@@ -345,13 +345,13 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags+
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-studio-v2-image-54"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-spotnews-production-1"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
-         '<script defer src="/assets/js/site.js?v=20261028-studio-v2-edit-55"></script></body></html>')
+         '<script defer src="/assets/js/site.js?v=20261028-spotnews-production-1"></script></body></html>')
 
 def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
@@ -1034,7 +1034,7 @@ def rss_feed(rows):
  from xml.etree.ElementTree import Element,SubElement,ElementTree
  from email.utils import format_datetime
  from datetime import datetime,timezone
- base=(os.getenv("CF_PAGES_URL") or ("https://zazoomtek-spotnews-preview.pages.dev" if PREVIEW else "https://zazoomtek.it")).rstrip("/")
+ base=((os.getenv("CF_PAGES_URL") or "https://zazoomtek-spotnews-preview.pages.dev") if PREVIEW else "https://zazoomtek.it").rstrip("/")
  # CF_PAGES_URL might not be set in a local build; never emit localhost links.
  if not base.startswith("https://"):base="https://zazoomtek.it"
  rss=Element("rss",{"version":"2.0"})
