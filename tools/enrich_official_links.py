@@ -20,18 +20,14 @@ DATA = ROOT / "data"
 CACHE = DATA / "official_links.json"
 WIKIDATA = "https://www.wikidata.org/w/api.php"
 UA = "ZazoomTekEditorialEnrichment/1.0 (https://zazoomtek.it/contatti) Python-urllib"
-MAX_NEW_SEARCHES = 10
+MAX_NEW_SEARCHES = 3
 MAX_AGE_DAYS = 21
-LOOKUP_TIMEOUT = 5
+LOOKUP_TIMEOUT = 3
 
 # URLs checked against the actual creator/manufacturer's official site.
 # Keep exact game/model phrase matching; never infer product URLs from slugs.
-VERIFIED = (
-    ("news-gaming", "The Sims 4", "https://www.ea.com/it/games/the-sims/the-sims-4"),
-    ("news-gaming", "ArcheAge Chronicles", "https://archeagechronicles.com/"),
-    ("news-gaming", "Dragon Ball Xenoverse 2", "https://it.bandainamcoent.eu/dragon-ball/dragon-ball-xenoverse-2"),
-    ("news-tech", "vivo X500 Series", "https://vivo-official.com/pages/x500"),
-)
+# No hardcoded unverified URLs. Only a recognized entity's official (P856) website.
+VERIFIED = ()
 TYPE_LABEL = {
     "news-gaming": "Sito ufficiale del gioco",
     "news-tech": "Scheda ufficiale del prodotto",
@@ -141,8 +137,16 @@ def wiki_match(name, category):
 def main():
     if os.environ.get("EDITORIAL_SLOT") not in ("12:30", "19:30"):
         raise SystemExit("Official-link enrichment is restricted to the two editorial slots.")
-    imported = json.loads((DATA / "community_imported.json").read_text(encoding="utf-8")).get("posts", [])
-    current = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {"links": {}, "misses": {}}
+    # Source failure must never cancel an authorized news publication.
+    try:
+        imported = json.loads((DATA / "community_imported.json").read_text(encoding="utf-8")).get("posts", [])
+    except (OSError, ValueError, TypeError) as exc:
+        print("Skipping link search: published Community snapshot unavailable", type(exc).__name__, flush=True)
+        return
+    try:
+        current = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {"links": {}, "misses": {}}
+    except (OSError, ValueError, TypeError):
+        current = {"links": {}, "misses": {}}
     links = current.get("links") or {}
     misses = current.get("misses") or {}
     now = datetime.now(timezone.utc)
