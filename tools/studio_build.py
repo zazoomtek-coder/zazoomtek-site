@@ -26,10 +26,20 @@ def build_studio(output,rows):
 </head><body>
 <section id="studio-gate" class="studio-gate">
   <h1>Zazoom<span style="color:#ed344b">Tek</span> Studio</h1>
-  <p id="studio-gate-description">Verifica della sessione amministratore protetta…</p>
-  <p>Accedi una volta tramite Cloudflare Access. In seguito, il browser usa automaticamente il cookie di sessione protetto finché è valido. Non inserire token o password nella pagina.</p>
-  <a href="/cdn-cgi/access/login?redirect_url=%2Fstudio%2F">Accedi come amministratore</a>
-  <p><small>Cloudflare Access deve essere configurato per /studio/* e /api/studio/* prima dell'uso.</small></p>
+  <p id="studio-gate-description" role="status" aria-live="polite">Verifica della sessione amministratore protetta…</p>
+  <p id="studio-gate-help">Studio riconosce automaticamente il browser dopo un accesso Cloudflare Access valido. Non servono password o token dentro il pannello.</p>
+  <p id="studio-gate-setup" hidden>
+    <strong>Attivazione iniziale necessaria</strong>
+    <span>Cloudflare Pages → zazoomtek-spotnews-preview → Zero Trust / Access.
+    Proteggi i percorsi /studio/* e /api/studio/*, autorizza solo la tua email,
+    quindi imposta le tre variabili Access e il segreto GitHub nel progetto di prova.
+    Le istruzioni complete sono in STUDIO-SETUP.md del repository.</span>
+  </p>
+  <p class="studio-gate-actions">
+    <a id="studio-setup-link" href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" hidden>Apri Cloudflare per attivare Studio</a>
+    <button id="studio-retry" type="button" hidden>Riprova l'accesso</button>
+  </p>
+  <p><small>La sicurezza è verificata sul server. Il pulsante «Modifica» compare solo quando l'amministratore è autenticato.</small></p>
   <p><a href="/" style="background:transparent;color:#222;padding:0">Torna al sito</a></p>
 </section>
 <div class="studio-layout" id="studio-app" hidden>
