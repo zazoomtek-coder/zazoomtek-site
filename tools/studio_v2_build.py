@@ -202,7 +202,7 @@ def build_studio_v2(output,rows):
        <div>Descrizione</div><span id="v2-seo-description">Ottimizzata automaticamente dal contenuto completo.</span></div>
      </div>
      <div class="v2-settings-section"><div class="v2-setting-title">Pubblicazione</div>
-      <p class="v2-settings-hint">La bozza non modifica il sito. Pubblica aggiorna soltanto il branch SpotNews di prova.</p>
+      <p class="v2-settings-hint">La bozza non modifica il sito. Salva e pubblica mette il contenuto in coda per le 12:30 o le 19:30.</p>
       <a id="v2-public-link" href="#" target="_blank" rel="noopener noreferrer" hidden>↗ Apri articolo pubblicato</a>
      </div>
     </aside>
