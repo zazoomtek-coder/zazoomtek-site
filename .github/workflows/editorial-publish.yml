@@ -1,17 +1,22 @@
 name: ZazoomTek - slot pubblicazione Roma
 on:
   schedule:
-    - cron: '30,40,50 10,11,17,18 * * *'
+    - cron: '30,40,50 12,19 * * *'
+      timezone: Europe/Rome
   workflow_dispatch:
 permissions:
   contents: write
+  deployments: write
 concurrency:
-  group: zazoomtek-production-editorial
+  group: zazoomtek-pages-production
   cancel-in-progress: false
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,6 +57,21 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Slot ${EDITORIAL_SLOT} Europe/Rome: pubblica coda ZazoomTek"
             git push origin HEAD:main
+            echo "DID_PUBLISH=true" >> "$GITHUB_ENV"
           else
             echo "Slot senza nuovi contenuti, nessun deploy"
           fi
+      - name: Genera il sito dal nuovo snapshot editoriale
+        if: env.DID_PUBLISH == 'true'
+        run: python3 tools/build.py
+      - name: Controlla i file di produzione
+        if: env.DID_PUBLISH == 'true'
+        run: test -s dist/index.html && test -s dist/_routes.json && test -s dist/sitemap.xml
+      - name: Pubblica direttamente su Cloudflare Pages, senza integrazione Git
+        if: env.DID_PUBLISH == 'true'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
