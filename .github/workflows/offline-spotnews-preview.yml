@@ -55,7 +55,7 @@ jobs:
            page_html=page.read_text(encoding='utf-8')
            if 'class="article-text"' not in page_html:continue
            inspected+=1
-           count=len(re.findall(r'<h2>\\s*Ulteriori informazioni\\s*</h2>',page_html,re.I))
+           count=len(re.findall(r'<h2>\s*Ulteriori informazioni\s*</h2>',page_html,re.I))
            assert count<=1, f'Duplicate info H2 in {page}: {count}'
           assert inspected>100, 'Archive incomplete'
           print('GLOBAL EDITORIAL AUDIT OK: all',inspected,'article pages have at most one Ulteriori informazioni heading')
