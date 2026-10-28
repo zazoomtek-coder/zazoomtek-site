@@ -261,12 +261,14 @@ function syncCover(){
  else box.textContent="Nessuna copertina";
 }
 function showHome(){
+ backupNow();
  hideContext();
  state.mode="home";E("v2-home").hidden=false;E("v2-editor").hidden=true;E("v2-back").hidden=true;
  E("v2-crumb").textContent="Studio / Contenuti";E("v2-home-nav").classList.add("on");
  renderList();history.replaceState({}, "", "/studio-v2/");
 }
 function showEditor(row,newContent){
+ backupNow(); // Protect previous article before replacing the editor contents.
  state.current=row;state.newContent=!!newContent;state.mode="editor";state.restoreReady=false;
  E("v2-home").hidden=true;E("v2-editor").hidden=false;E("v2-back").hidden=false;
  E("v2-home-nav").classList.remove("on");
@@ -661,6 +663,7 @@ E("v2-article-preview").addEventListener("click",e=>{if(e.target===E("v2-article
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!E("v2-article-preview").hidden)closeArticlePreview()});
 E("v2-editor").addEventListener("input",scheduleBackup);
 E("v2-editor").addEventListener("change",scheduleBackup);
+window.addEventListener("beforeunload",backupNow);
 window.addEventListener("pagehide",backupNow);
 document.addEventListener("visibilitychange",()=>{if(document.hidden)backupNow()});
 E("v2-save-draft").onclick=()=>save("draft");E("v2-draft-bottom").onclick=()=>save("draft");
