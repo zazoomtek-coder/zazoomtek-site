@@ -57,7 +57,11 @@ jobs:
       - name: Pubblica su main solo nuovi contenuti o configurazioni già approvate
         if: env.EDITORIAL_SLOT != ''
         run: |
-          git add data/videos.json data/community_imported.json data/studio_posts.json data/studio_overrides.json data/official_links.json
+          git add data/videos.json data/community_imported.json data/studio_posts.json data/studio_overrides.json
+          # A failed/unmatched link lookup must NOT create a new deployment by itself.
+          if ! git diff --cached --quiet; then
+            git add data/official_links.json
+          fi
           if [ -f .github/STUDIO_PENDING_PRODUCTION_DEPLOY ]; then
             git rm .github/STUDIO_PENDING_PRODUCTION_DEPLOY
             echo "Rilascio Studio V2: sessione Production pronta per lo slot autorizzato"
