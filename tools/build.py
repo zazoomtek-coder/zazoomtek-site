@@ -355,7 +355,7 @@ def shell(title,inner):
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
          '<script defer src="/assets/js/site.js?v=20261028-editorial-rail-42"></script></body></html>')
 
-def legal_pages():
+def legal_pages(rows):
  data=json.loads((P/"data/legal.json").read_text(encoding="utf-8"))
  allowed={"privacy-policy","cookie-policy","disclaimer","note-legali"}
  if len(data["pages"])!=4 or set(p["slug"] for p in data["pages"])!=allowed:raise ValueError("Missing required legal pages")
@@ -366,7 +366,7 @@ def legal_pages():
    elif block["type"]=="paragraph":body+='<p>'+esc(block["text"])+'</p>'
    else:raise ValueError("Invalid legal content block")
   body+='</article>'
-  (O/(page["slug"]+".html")).write_text(shell(page["title"],body),encoding="utf-8")
+  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False),encoding="utf-8")
 
 def safe_image(value):
  if not isinstance(value,str):return ""
@@ -939,7 +939,7 @@ def legacy_article_redirects(rows):
  (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
-def contacts_page():
+def contacts_page(rows):
  # Editor-approved Italian text. The email link opens the reader's own mail app.
  lines=[
  "Vuoi collaborare con ZazoomTek? Sei un'azienda, un brand, un'agenzia PR o un appassionato di tecnologia e videogiochi?",
@@ -951,7 +951,7 @@ def contacts_page():
  ]
  body='<article class="contacts-article"><h1>Contatti</h1>'+''.join('<p>'+esc(line)+'</p>' for line in lines)
  body+='<p class="contacts-email">✉ <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a></p></article>'
- (O/"contatti.html").write_text(shell("Contatti",body),encoding="utf-8")
+ (O/"contatti.html").write_text(inside("Contatti",body,rows,show_related=False),encoding="utf-8")
 
 def rss_feed(rows):
  """Generate a real RSS 2.0 feed with only first-party editorial content."""
@@ -1036,12 +1036,15 @@ def main():
    for page in range(2,max(1,math.ceil(count/ARCHIVE_PAGE_SIZE))+1):
     (O/(key+"-page-"+str(page)+".html")).write_text(archive(key,rows,page),encoding="utf-8")
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
- legal_pages()
- contacts_page()
+ legal_pages(rows)
+ contacts_page(rows)
  rss_feed(rows)
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  legacy_article_redirects(rows)
- (O/"404.html").write_text(shell("Pagina non trovata","<h1>Pagina non trovata</h1>"),encoding="utf-8")
+ missing_page=("<article class=\"legal-article\" style=\"min-height:320px\">"
+               "<h1>Pagina non trovata</h1><p>Il contenuto richiesto non è disponibile.</p>"
+               "<p><a href=\"/\">Torna alla Home di ZazoomTek</a></p></article>")
+ (O/"404.html").write_text(inside("Pagina non trovata",missing_page,rows,show_related=False),encoding="utf-8")
  (O/"_headers").write_text("/*\n  X-Content-Type-Options: nosniff\n"+("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else ""),encoding="utf-8")
  from verify_routes import check_dist
  check_dist(O)
