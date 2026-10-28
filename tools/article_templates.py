@@ -569,6 +569,37 @@ def verdict(review):
          '<div class="verdict-grid"><div class="verdict-pro"><h3>Pro</h3>'+list_points(pros,"pro")+'</div>'
          '<div class="verdict-con"><h3>Contro</h3>'+list_points(cons,"contro")+'</div></div></section>')
 
+def official_link_markup(review):
+ """One verified outbound official link, not a video/image or an invented URL."""
+ if category(review) not in ("news-tech","news-gaming"):
+  return ""
+ item=review.get("official_link")
+ if not isinstance(item,dict):return ""
+ url=str(item.get("url") or "").strip()
+ try:
+  parsed=urlparse(url)
+  if parsed.scheme!="https" or not parsed.hostname or parsed.username or parsed.password:
+   return ""
+ except ValueError:return ""
+ label="Sito ufficiale del gioco" if category(review)=="news-gaming" else "Scheda ufficiale del prodotto"
+ return ('<p class="official-source-link"><a href="'+esc(url,quote=True)+
+         '" target="_blank" rel="noopener noreferrer external">'+esc(label)+' ↗</a></p>')
+
+def with_official_link(body,review):
+ """Place link AFTER the substantive article and BEFORE Ulteriori informazioni.
+
+ If the article contains an endnote section of that name, the link precedes it.
+ If it doesn't, the link is appended after the complete news article text.
+ The original paragraphs and heading wording are kept intact.
+ """
+ link=official_link_markup(review)
+ if not link:return body
+ if esc(str(review.get("official_link",{}).get("url") or ""),quote=True) in body:
+  return body  # An editor already included the very same official URL.
+ marker=re.search(r"<h2>\s*Ulteriori informazioni\s*</h2>",body,re.I)
+ if marker:return body[:marker.start()]+link+body[marker.start():]
+ return body+link
+
 def render(review,image_validator):
  reviews=is_review(review)
  title=esc(plain(review.get("title")) or "Senza titolo")
@@ -587,5 +618,5 @@ def render(review,image_validator):
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +video(review)+notice+'<div class="article-text">'+sectioned_body(review)+retained_notes+extra+'</div>'
+         +video(review)+notice+'<div class="article-text">'+with_official_link(sectioned_body(review),review)+retained_notes+extra+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
