@@ -17,6 +17,17 @@ def verify_studio_v2(output,rows):
  assert 'id="v2-content-list"' not in page # new implementation uses v2-list
  assert 'id="v2-list"' in page
  assert len(data["posts"])==len(rows),("V2 must include EVERY article",len(data["posts"]),len(rows))
+ # Editor must faithfully display editorial text/heading order instead of
+ # debug-style block fields and a separate "+" for every paragraph.
+ assert all(isinstance(p.get("editor_blocks"),list) and p["editor_blocks"]
+            for p in data["posts"]),"Empty rich editorial body in Studio"
+ example=next((p for p in data["posts"] if p.get("slug")==
+               "speciale-videogiochi-minori-italia-unione-europea"),None)
+ if example:
+  assert len(example["editor_blocks"])>=12,"Speciale text was truncated"
+  assert any(b.get("type")=="heading" for b in example["editor_blocks"]),"Original editorial headings missing"
+  assert "Tra mozione italiana ed EU KIDS Act" in example["editor_blocks"][0]["text"],"Opening text changed"
+
  assert len({r["slug"] for r in data["posts"]})==len(rows),"Duplicate Studio V2 content"
  assert all(isinstance(r["seo_lock"]["title"],str) and
             isinstance(r["seo_lock"]["description"],str) and
@@ -30,6 +41,11 @@ def verify_studio_v2(output,rows):
  for marker in ("v2-save","v2-drafts","save(\"draft\")","save(\"publish\")",
                 "openMenu","editCover","editMedia","showHome","startNew"):
   assert marker in script,"V2 JS missing "+marker
+ for marker in ("function richContent(", "function cursorHere(", "function insertPosition(", "function inlineLink(", "function safePaste(", "state.coverPreview"):
+  assert marker in script,"WYSIWYG features missing: "+marker
+ assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
+ assert 'data-kind="link"' in page
+ assert "20261028-rich-4" in page,"Browser must load fresh editor CSS and JS"
  assert "localStorage" not in script and "sessionStorage" not in script
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',

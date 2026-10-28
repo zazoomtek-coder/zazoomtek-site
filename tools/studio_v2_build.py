@@ -45,8 +45,8 @@ def build_studio_v2(output,rows):
 })();
 </script>
 <title>Studio V2 — Anteprima | ZazoomTek</title>
-<link rel="stylesheet" href="/assets/css/studio-v2.css?v=3">
-<script src="/assets/js/studio-v2.js?v=3" defer></script>
+<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-rich-4">
+<script src="/assets/js/studio-v2.js?v=20261028-rich-4" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
  <div class="v2-auth-card">
@@ -120,8 +120,8 @@ def build_studio_v2(output,rows):
        <div class="v2-cover-controls"><button id="v2-cover-change">Sostituisci</button><button id="v2-cover-edit">Ritaglia e centra</button><button id="v2-cover-remove">Rimuovi</button></div>
       </div>
       <div id="v2-blocks" class="v2-blocks" aria-label="Corpo dell'articolo"></div>
-      <button id="v2-append-block" class="v2-add-line">＋ <span>Aggiungi contenuto</span></button>
-      <p class="v2-paper-tip">Usa il <strong>＋</strong> accanto al testo per aggiungere immagini, video, audio, collegamenti e altri elementi.</p>
+      <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
+      <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
      </article>
      <div class="v2-footer-actions"><button id="v2-draft-bottom" class="v2-soft">Salva in bozza</button>
       <button id="v2-publish-bottom" class="v2-primary">Salva e pubblica</button></div>
@@ -166,7 +166,8 @@ def build_studio_v2(output,rows):
  <button data-kind="image">▧ <span>Immagine</span></button>
  <button data-kind="video">▶ <span>Video</span></button>
  <button data-kind="audio">♫ <span>Audio</span></button>
- <button data-kind="button">↗ <span>Pulsante / Link</span></button>
+ <button data-kind="link">🔗 <span>Link nel testo</span></button>
+ <button data-kind="button">↗ <span>Pulsante</span></button>
  <button data-kind="attachment">▤ <span>Allegato</span></button>
  <button data-kind="divider">— <span>Divisore</span></button>
  <button data-kind="quote">❞ <span>Citazione</span></button>

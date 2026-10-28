@@ -97,3 +97,29 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(max-width:1380px){#v2-app{grid-template-columns:198px minmax(0,1fr)}.v2-editor-layout{grid-template-columns:minmax(0,1fr) 285px;gap:15px;padding:25px 19px}.v2-home{padding:38px 25px}.v2-paper{padding:32px}}
 @media(max-width:1020px){.v2-editor-layout{grid-template-columns:minmax(0,1fr)}.v2-settings{position:static;max-height:none;order:-1}.v2-paper{padding:25px}.v2-editor-header{padding:23px;flex-wrap:wrap}}
 @media(max-width:730px){#v2-app{display:block}.v2-rail{height:auto;position:relative;display:flex;padding:12px;flex-direction:row;flex-wrap:wrap;gap:3px}.v2-logo{margin:6px 12px 12px}.v2-rail-heading,.v2-rail-divider,.v2-admin,.v2-rail-spacer,.v2-rail-site,.v2-rail [data-rail-filter]{display:none}.v2-rail-nav{width:auto;padding:9px}.v2-top{height:auto;padding:17px}.v2-home{padding:25px 14px}.v2-home-intro{align-items:flex-start;flex-direction:column}.v2-home-stats{grid-template-columns:1fr 1fr}.v2-home-stats>div{padding:16px}.v2-library-heading{padding:17px}.v2-filters{width:100%;flex-direction:column}.v2-filters input{min-width:0}.v2-list-item{grid-template-columns:68px minmax(0,1fr);padding:13px 15px;gap:11px}.v2-list-cover{width:68px}.v2-list-edit{grid-column:2;justify-self:end}.v2-editor-header{padding:18px 14px}.v2-editor-actions{width:100%}.v2-editor-actions button{flex:1}.v2-editor-layout{padding:13px}.v2-paper{padding:19px}.v2-title-input{font-size:23px}.v2-settings{padding:0 14px 15px}.v2-modal-grid{grid-template-columns:1fr}}
+
+/* Editorial WYSIWYG 20261028: all typography mirrors the actual article. */
+.v2-blocks{display:block!important;gap:0!important}
+.v2-editorial-row{display:block;position:relative;margin:0;padding:0}
+.v2-rich-text{font-family:inherit;outline:none!important;cursor:text;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:none!important;color:#202024}
+.v2-rich-text:focus{outline:none!important;background:transparent!important}
+.v2-rich-text[contenteditable="true"]:empty:before{content:attr(data-placeholder);color:#aaa;pointer-events:none}
+.v2-editorial-row p.v2-rich-text{font-size:15.5px;line-height:1.85;margin:0 0 15px;min-height:26px;letter-spacing:0;font-weight:400}
+.v2-editorial-row h2.v2-rich-text{border-left:4px solid #e6334d;color:#222;padding:8px 0 8px 13px;font-size:21px;line-height:1.45;font-weight:780;letter-spacing:-.35px;margin:28px 0 16px;min-height:45px}
+.v2-editorial-row blockquote.v2-rich-text{border-left:3px solid #ccc;margin:16px 0;padding:8px 15px;font-style:italic;line-height:1.8;font-size:15px}
+.v2-editorial-row a{color:#e7334f;text-decoration:underline;text-underline-offset:3px}
+.v2-editorial-row p strong,.v2-editorial-row h2 strong{font-weight:800}
+.v2-floating-plus{position:fixed;z-index:105;background:#fff;border:1px solid #dfdfe1;color:#e0314a;width:32px;height:32px;border-radius:50%;font-size:21px;line-height:1;box-shadow:0 2px 13px #14141418;padding:0}
+.v2-floating-plus:hover{background:#fff0f2;border-color:#e0314a}
+.v2-add-line,.v2-paper-tip{display:none!important}
+.v2-inline-media{border:0;background:transparent;padding:0;margin:22px 0 25px;border-radius:4px;position:relative;overflow:visible}
+.v2-inline-media>img{width:100%;height:auto;max-height:720px;object-fit:contain;display:block;margin:0 auto}
+.v2-inline-media figcaption{color:#777;font-size:12px;line-height:1.5;margin:7px 0}
+.v2-inline-media hr{border:0;border-top:1px solid #ddd;margin:26px 0}
+.v2-inline-media .v2-action-example{display:inline-block;border:1px solid #e6334d;background:#fff5f6;color:#c5223d;padding:12px 19px;border-radius:6px;font-size:13px;font-weight:800}
+.v2-inline-media .v2-inline-video-title{font-size:13px;font-weight:750;margin:8px 0;color:#444}
+.v2-media-hover-tools{display:flex;justify-content:flex-end;gap:6px;margin:7px 0;opacity:0;transition:opacity .12s}
+.v2-editorial-row:hover .v2-media-hover-tools,.v2-media-hover-tools:focus-within{opacity:1}
+.v2-media-hover-tools button{border:1px solid #dedee0;background:#fff;color:#444;border-radius:5px;font-size:11px;font-weight:700;padding:8px 10px}
+.v2-media-hover-tools button:hover{background:#fff0f3;border-color:#efb5c0}
+@media(hover:none){.v2-media-hover-tools{opacity:1}}
