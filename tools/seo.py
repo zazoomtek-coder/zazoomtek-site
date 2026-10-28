@@ -26,6 +26,9 @@ def prose(row):
 def terms(s):
  return [x.lower() for x in re.findall(r"[a-zA-ZÀ-ÿ0-9]+(?:[-'][a-zA-ZÀ-ÿ0-9]+)?",plain(s)) if len(x)>2 and x.lower() not in STOP and not x.isdigit()]
 def keywords(row):
+ locked=row.get("seo_lock")
+ if isinstance(locked,dict) and isinstance(locked.get("keywords"),list) and locked["keywords"]:
+  return [plain(x) for x in locked["keywords"] if plain(x)][:8]
  title=terms(row.get("title"))
  corpus=terms(" ".join(prose(row))) # entire article, never only the teaser
  freq=Counter(corpus)
@@ -35,10 +38,16 @@ def keywords(row):
   if word not in found:found.append(word)
  return found[:8]
 def title_tag(row):
+ locked=row.get("seo_lock")
+ if isinstance(locked,dict) and plain(locked.get("title")):
+  return plain(locked["title"])[:115]
  name=plain(row.get("title"))
  if len(name)>70:name=name[:70].rsplit(" ",1)[0].rstrip(" ,;:-–—")
  return name if "zazoomtek" in name.lower() else name+" | ZazoomTek"
 def description(row):
+ locked=row.get("seo_lock")
+ if isinstance(locked,dict) and plain(locked.get("description")):
+  return plain(locked["description"])[:165]
  parts=prose(row)
  if not parts:return DESC
  title_words=set(terms(row.get("title")))

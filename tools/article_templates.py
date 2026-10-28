@@ -442,8 +442,17 @@ def studio_sectioned_body(review):
    if not url:continue
    title=str(block.get("alt") or review.get("title") or "")
    caption=str(block.get("caption") or "")
-   result.append('<figure class="story-figure studio-content-image"><img loading="lazy" src="'+
-                 esc(url,quote=True)+'" alt="'+esc(title,quote=True)+'">'+
+   align=block.get("align") if block.get("align") in ("left","right","center") else "center"
+   def clamp(value,minimum,maximum,default):
+    try:return max(minimum,min(maximum,float(value)))
+    except (ValueError,TypeError):return default
+   x=clamp(block.get("focus_x"),0,100,50)
+   y=clamp(block.get("focus_y"),0,100,50)
+   zoom=clamp(block.get("zoom"),100,250,100)/100
+   angle=clamp(block.get("rotation"),-180,180,0)
+   image_style='object-position:'+str(x)+'% '+str(y)+'%;transform:scale('+str(zoom)+') rotate('+str(angle)+'deg)'
+   result.append('<figure class="story-figure studio-content-image studio-align-'+align+'"><div class="studio-image-crop">'
+                 '<img loading="lazy" src="'+esc(url,quote=True)+'" style="'+image_style+'" alt="'+esc(title,quote=True)+'"></div>'+
                  ('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
   elif kind=="button":
    url=studio_link(block.get("url"))
@@ -464,6 +473,20 @@ def studio_sectioned_body(review):
     result.append('<div class="player studio-content-video"><button type="button" class="video-start" data-youtube-id="'+
                   esc(vid,quote=True)+'" aria-label="Riproduci il video"><img loading="lazy" src="https://i.ytimg.com/vi/'+
                   esc(vid,quote=True)+'/hqdefault.jpg" alt=""><span class="video-start-label">▶ Riproduci video</span></button></div>')
+  elif kind=="audio":
+   url=studio_link(block.get("url"))
+   if url:result.append('<div class="studio-content-audio"><audio preload="none" controls src="'+esc(url,quote=True)+'"></audio>'
+    +('<p>'+esc(str(block.get("caption")))+'</p>' if block.get("caption") else '')+'</div>')
+  elif kind=="attachment":
+   url=studio_link(block.get("url"))
+   if url:result.append('<p class="studio-content-attachment"><a href="'+esc(url,quote=True)+'" target="_blank" rel="noopener noreferrer">▤ '
+    +esc(str(block.get("text") or "Apri allegato"))+'</a></p>')
+  elif kind=="divider":result.append('<hr class="studio-content-divider">')
+  elif kind=="poll":
+   options=block.get("options") if isinstance(block.get("options"),list) else []
+   choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
+   result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
+    '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
  if not headings:
   # Never discard source blocks or their order; supply one editorial heading
   # before the first prose paragraph when the editor did not write any H2.

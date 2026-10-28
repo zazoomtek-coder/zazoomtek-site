@@ -359,7 +359,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
  return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags+
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
-         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-studio-auth-52"></head><body>'
+         '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-studio-v2-image-54"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
          '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
@@ -419,6 +419,12 @@ def cover_focus_attributes(row):
      attrs.append(' data-cover-focus-'+axis+'="'+value_str+'"')
      css.append('--cover-'+axis+':'+value_str+'%;')
   except (ValueError,TypeError):pass
+ for field,cssname,bounds,unit in (("cover_zoom","--cover-zoom",(100,250),""),("cover_rotation","--cover-rotation",(-180,180),"deg")):
+  try:
+   v=float(row.get(field,100 if field=="cover_zoom" else 0))
+   if bounds[0]<=v<=bounds[1]:
+    css.append(cssname+":"+str(round(v/100 if field=="cover_zoom" else v,3))+unit+";")
+  except (TypeError,ValueError):pass
  if mode in ("cover","contain"):attrs.append(' data-cover-fit="'+mode+'"')
  if css:attrs.append(' style="'+''.join(css)+'"')
  return "".join(attrs)
@@ -1119,6 +1125,8 @@ def main():
  shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
  from studio_build import build_studio
  build_studio(O,rows)
+ from studio_v2_build import build_studio_v2
+ build_studio_v2(O,rows)
  global TICKER_ROWS
  TICKER_ROWS=build_live_discovery(rows)
  (O/"index.html").write_text(home(rows),encoding="utf-8")
@@ -1146,6 +1154,8 @@ def main():
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  from verify_studio import verify_studio
  verify_studio(O,rows)
+ from verify_studio_v2 import verify_studio_v2
+ verify_studio_v2(O,rows)
  from verify_editorial_layout import check_all
  check_all(rows,O,P/"assets/css/spotnews.css")
  legacy_article_redirects(rows)
@@ -1156,7 +1166,8 @@ def main():
  (O/"_headers").write_text(
   "/*\n  X-Content-Type-Options: nosniff\n"+
   ("  X-Robots-Tag: noindex, nofollow\n" if PREVIEW else "")+
-  "/studio/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: private, no-store\n",
+  "/studio/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: private, no-store\n"+
+  "/studio-v2/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: private, no-store\n",
   encoding="utf-8")
  # Pages Functions invoke ONLY protected Studio endpoints. Static traffic stays
  # free and cacheable; public pages are never routed through the editor API.

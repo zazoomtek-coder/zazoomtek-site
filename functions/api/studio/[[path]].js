@@ -20,7 +20,7 @@ const BRANCH="feature/spotnews-clean-rebuild";
 const COOKIE="__Host-zzt-studio";
 const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each visit.
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
-const BLOCKS=new Set(["paragraph","heading","image","video","button","quote"]);
+const BLOCKS=new Set(["paragraph","heading","image","video","button","quote","audio","attachment","poll","divider"]);
 const jsonHeaders={"Content-Type":"application/json;charset=utf-8","Cache-Control":"no-store, private","X-Content-Type-Options":"nosniff"};
 function respond(data,status=200,extra={}){
  return new Response(JSON.stringify(data),{status,headers:{...jsonHeaders,...extra}});
@@ -134,6 +134,7 @@ function secureVideo(v){
  }catch(_){}
  return "";
 }
+const bounded=(v,lo,hi,f)=>Number.isFinite(Number(v))?Math.min(hi,Math.max(lo,Number(v))):f;
 function normalizeArticle(value){
  if(!value||typeof value!=="object")throw new Error("Articolo non valido.");
  const slug=clean(value.slug).toLowerCase(),title=clean(value.title),category=clean(value.category);
@@ -155,7 +156,10 @@ function normalizeArticle(value){
   }
   if(type==="image"){
    if(!url)throw new Error("Link immagine non valido.");
-   return {type,url,alt:clean(block.alt).slice(0,180),caption:clean(block.caption).slice(0,250)};
+   return {type,url,alt:clean(block.alt).slice(0,180),caption:clean(block.caption).slice(0,250),
+ align:["left","center","right"].includes(block.align)?block.align:"center",
+ focus_x:bounded(block.focus_x,0,100,50),focus_y:bounded(block.focus_y,0,100,50),
+ zoom:bounded(block.zoom,100,250,100),rotation:bounded(block.rotation,-180,180,0)};
   }
   if(type==="video"){
    const video=secureVideo(block.url);
@@ -165,6 +169,16 @@ function normalizeArticle(value){
   if(type==="button"){
    if(!url||!t||t.length>110)throw new Error("Il pulsante richiede testo e collegamento.");
    return {type,text:t,url};
+  }
+  if(type==="audio"||type==="attachment"){
+   if(!url)throw new Error("Inserisci un allegato HTTPS o carica il file.");
+   return {type,url,text:t.slice(0,180),caption:clean(block.caption).slice(0,250)};
+  }
+  if(type==="divider")return {type};
+  if(type==="poll"){
+   const options=Array.isArray(block.options)?block.options.map(clean).filter(Boolean).slice(0,8):[];
+   if(!t||options.length<2)throw new Error("Il sondaggio richiede una domanda e due opzioni.");
+   return {type,text:t.slice(0,500),options};
   }
  });
  if(characters<260)throw new Error("Inserisci almeno 260 caratteri di testo originale per rispettare i controlli di pubblicazione.");
@@ -178,9 +192,13 @@ function normalizeArticle(value){
   author:clean(value.author).slice(0,100)||"Redazione ZazoomTek",
   video_url:secureVideo(value.video_url),
   score,platform:clean(value.platform).slice(0,130),
+  cover_focus_x:bounded(value.cover_focus_x,0,100,50),
+  cover_focus_y:bounded(value.cover_focus_y,0,100,50),
+  cover_zoom:bounded(value.cover_zoom,100,250,100),
+  cover_rotation:bounded(value.cover_rotation,-180,180,0),
   pros:strings("pros"),cons:strings("cons"),updated_at:new Date().toISOString()};
 }
-const allowedPath=p=>/^(data\/studio_(?:posts|overrides)\.json|assets\/uploads\/[a-z0-9-]+\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp))$/.test(p);
+const allowedPath=p=>/^(data\/studio_(?:posts|overrides|v2_drafts)\.json|assets\/uploads\/[a-z0-9-]+\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt))$/.test(p);
 async function readFile(token,path){
  if(!allowedPath(path))throw new Error("Percorso non autorizzato.");
  const p="/repos/"+REPO+"/contents/"+path+"?ref="+encodeURIComponent(BRANCH);
@@ -240,19 +258,28 @@ async function saveArticle(request,env,session){
  return respond({ok:true,slug:record.slug,message:"Salvato sul branch SpotNews di prova."});
 }
 async function upload(request,session){
- const data=await parseInput(request);
+ const data=await parseInput(request,8500000);
  const slug=clean(data.slug).toLowerCase();
- const extension=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp"})[data.mime];
+ const extension=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp",
+ "audio/mpeg":"mp3","audio/mp4":"m4a","audio/wav":"wav",
+ "application/pdf":"pdf","text/plain":"txt"})[data.mime];
  const b64=clean(data.base64).replace(/^data:[^;]+;base64,/,"");
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||!extension||
   !/^[A-Za-z0-9+/=]+$/.test(b64))throw new Error("Immagine o formato non valido.");
  const bytes=fromBase64(b64);
- if(bytes.byteLength<100||bytes.byteLength>3200000)throw new Error("L'immagine deve essere inferiore a 3,2 MB.");
+ if(bytes.byteLength<50||bytes.byteLength>5000000)throw new Error("Il file deve essere inferiore a 5 MB.");
  const jpg=bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff;
  const png=bytes[0]===0x89&&bytes[1]===0x50&&bytes[2]===0x4e&&bytes[3]===0x47;
  const webp=String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
- if(!(extension==="jpg"&&jpg||extension==="png"&&png||extension==="webp"&&webp))
-  throw new Error("Formato dell'immagine non corrispondente al file.");
+ const pdf=String.fromCharCode(...bytes.slice(0,5))==="%PDF-";
+ const mp3=bytes[0]===0x49&&bytes[1]===0x44&&bytes[2]===0x33||(bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0);
+ const m4a=String.fromCharCode(...bytes.slice(4,8))==="ftyp";
+ const wav=String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WAVE";
+ const plain=extension==="txt"&&!Array.from(bytes.slice(0,50)).includes(0);
+ if(!(extension==="jpg"&&jpg||extension==="png"&&png||extension==="webp"&&webp||
+  extension==="pdf"&&pdf||extension==="mp3"&&mp3||extension==="m4a"&&m4a||
+  extension==="wav"&&wav||plain))
+  throw new Error("La firma del file non corrisponde al formato.");
  const id=crypto.randomUUID().replace(/-/g,"").slice(0,20);
  const name="assets/uploads/"+slug+"/"+id+"."+extension;
  const payload={message:"Studio: upload "+slug+" (SpotNews preview)",
@@ -260,6 +287,101 @@ async function upload(request,session){
  await githubRequest(session.token,"/repos/"+REPO+"/contents/"+name,{method:"PUT",body:payload});
  return respond({ok:true,url:"/"+name});
 }
+
+async function v2Catalog(request,env){
+ const result=await env.ASSETS.fetch(new Request(new URL("/studio-v2/catalog.json",request.url)));
+ if(!result.ok)throw new Error("Catalogo V2 non disponibile.");
+ return result.json();
+}
+async function getDrafts(token){
+ const target=await readFile(token,"data/studio_v2_drafts.json");
+ return {sha:target.sha,drafts:target.content?.drafts||{}};
+}
+function draftValue(raw){
+ const r=raw||{},slug=clean(r.slug).toLowerCase(),title=clean(r.title);
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||slug.length>150)
+  throw new Error("La bozza richiede un URL valido.");
+ if(!title||title.length>220)throw new Error("La bozza richiede un titolo.");
+ if(!CATEGORIES.has(r.category))throw new Error("Categoria non valida.");
+ if(!Array.isArray(r.body)||r.body.length>160)throw new Error("Corpo bozza non valido.");
+ const allowed=new Set(BLOCKS);
+ const blocks=r.body.map(b=>{
+  if(!allowed.has(b?.type))throw new Error("Blocco di bozza non valido.");
+  const copy={type:b.type};
+  for(const key of ["text","url","alt","caption","align"]){
+   if(b[key]!=null)copy[key]=clean(b[key]).slice(0,12000);
+  }
+  for(const key of ["focus_x","focus_y","zoom","rotation"]){
+   if(b[key]!=null)copy[key]=Number(b[key]);
+  }
+  if(b.type==="poll")copy.options=Array.isArray(b.options)?b.options.map(clean).slice(0,8):[];
+  return copy;
+ });
+ return {slug,title,category:r.category,image:secureUrl(r.image),body:blocks,
+  studio_blocks:true,source:"studio-editor",
+  author:clean(r.author).slice(0,100),video_url:secureVideo(r.video_url),
+  platform:clean(r.platform).slice(0,130),score:clean(String(r.score??"")).slice(0,12),
+  pros:Array.isArray(r.pros)?r.pros.map(clean).slice(0,8):[],
+  cons:Array.isArray(r.cons)?r.cons.map(clean).slice(0,8):[],
+  cover_focus_x:bounded(r.cover_focus_x,0,100,50),
+  cover_focus_y:bounded(r.cover_focus_y,0,100,50),
+  cover_zoom:bounded(r.cover_zoom,100,250,100),
+  cover_rotation:bounded(r.cover_rotation,-180,180,0)
+ };
+}
+async function saveV2(request,env,session){
+ const data=await parseInput(request,1000000),mode=clean(data.mode);
+ if(!["draft","publish"].includes(mode))throw new Error("Comando non riconosciuto.");
+ const record=mode==="draft"?draftValue(data.record):normalizeArticle(data.record);
+ const catalog=await v2Catalog(request,env);
+ const existing=(catalog.posts||[]).find(p=>p.slug===record.slug);
+ if(mode==="draft"){
+  const file=await getDrafts(session.token);
+  file.drafts[record.slug]={record,kind:existing?"edit":"new",updated_at:new Date().toISOString()};
+  await writeFile(session.token,"data/studio_v2_drafts.json",{drafts:file.drafts},
+   file.sha,"Studio V2: salva bozza "+record.slug);
+  return respond({ok:true,mode:"draft",slug:record.slug,
+   message:"Bozza salvata senza cambiare alcuna pagina."});
+ }
+ if(data.creating&&existing)throw new Error("L'indirizzo esiste già: usa Modifica.");
+ if(!data.creating&&!existing)throw new Error("Articolo non trovato: aggiorna la libreria.");
+ if(existing){
+  const oldSeo=existing.seo_lock;
+  if(oldSeo&&typeof oldSeo.title==="string"&&typeof oldSeo.description==="string")
+   record.seo_lock={title:oldSeo.title,description:oldSeo.description,
+    keywords:Array.isArray(oldSeo.keywords)?oldSeo.keywords.slice(0,8):[]};
+  record.date=existing.date||new Date().toISOString().slice(0,10);
+  record.published_at=existing.published_at||record.date;
+  const file=await readFile(session.token,"data/studio_overrides.json");
+  const doc=file.content||{overrides:{}};
+  doc.overrides=doc.overrides||{};
+  doc.overrides[record.slug]=record;
+  await writeFile(session.token,"data/studio_overrides.json",doc,file.sha,
+   "Studio V2: pubblica modifica "+record.slug+" (solo preview)");
+ }else{
+  record.date=new Date().toISOString().slice(0,10);
+  record.published_at=new Date().toISOString();
+  const file=await readFile(session.token,"data/studio_posts.json");
+  const doc=file.content||{posts:[]};
+  doc.posts=Array.isArray(doc.posts)?doc.posts:[];
+  if(doc.posts.some(p=>p.slug===record.slug))throw new Error("Questo contenuto è già pubblicato.");
+  doc.posts.unshift(record);
+  await writeFile(session.token,"data/studio_posts.json",doc,file.sha,
+   "Studio V2: pubblica nuovo articolo "+record.slug+" (solo preview)");
+ }
+ // Successful publication is never rolled back by a failure to clean a draft.
+ try{
+  const drafts=await getDrafts(session.token);
+  if(drafts.drafts[record.slug]){
+   delete drafts.drafts[record.slug];
+   await writeFile(session.token,"data/studio_v2_drafts.json",{drafts:drafts.drafts},
+    drafts.sha,"Studio V2: archivia bozza pubblicata "+record.slug);
+  }
+ }catch(_){}
+ return respond({ok:true,mode:"publish",slug:record.slug,
+  message:"Pubblicato sul solo branch SpotNews di prova."});
+}
+
 export async function onRequest(context){
  const {request,env}=context;
  const pathname=new URL(request.url).pathname.replace(/\/+$/,"");
@@ -301,6 +423,10 @@ export async function onRequest(context){
    return respond({ok:true,authenticated:true,admin:true,login:session.login,
      persistent:true,renewed:true},200,{"Set-Cookie":setCookie(await seal(renewed,env),AGE)});
   }
+  if(pathname==="/api/studio/v2-drafts"&&request.method==="GET")
+   return respond({ok:true,drafts:(await getDrafts(session.token)).drafts});
+  if(pathname==="/api/studio/v2-save"&&request.method==="POST")
+   return saveV2(request,env,session);
   if(pathname==="/api/studio/save"&&request.method==="POST")
    return saveArticle(request,env,session);
   if(pathname==="/api/studio/upload"&&request.method==="POST")
