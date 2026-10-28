@@ -1,0 +1,52 @@
+name: ZazoomTek - anteprima correzione footer mobile (NESSUN DEPLOY)
+on:
+  push:
+    branches:
+      - feature/spotnews-mobile-footer-fix-20261028
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/spotnews-mobile-footer-fix-20261028
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica sintassi preview e generatore
+        run: python3 -m py_compile tools/build.py tools/package_offline_preview.py
+      - name: Rigenera sito completo con i dati reali
+        run: python3 tools/build.py
+      - name: Verifica CSS responsive e footer senza alterare il menu
+        run: |
+          python3 - <<'PY'
+          import hashlib,re
+          from pathlib import Path
+          sheet=Path('dist/assets/css/spotnews.css').read_text(encoding='utf-8')
+          html=Path('dist/index.html').read_text(encoding='utf-8')
+          assert '.header #nav{display:none;position:absolute' in sheet
+          assert '.header #nav.open{display:flex}' in sheet
+          assert '.header #nav a{padding:9px' in sheet
+          assert not re.search(r'(?<![#.\w-])nav\{display:none;position:absolute',sheet)
+          assert not re.search(r'(?<![#.\w-])nav\.open\{display:flex\}',sheet)
+          assert '<nav class="footer-main-links"' in html
+          assert '<nav class="footer-social-links"' in html
+          assert '<nav class="footer-legal"' in html
+          digest=hashlib.sha256(Path('dist/assets/css/spotnews.css').read_bytes()).hexdigest()[:12]
+          assert '/assets/css/spotnews.css?v='+digest+'"' in html
+          assert len(list(Path('dist').glob('*.html')))>150
+          print('MOBILE FOOTER FIX PASS: only header nav absolute; footer static, styles cache-busted, full website.')
+          PY
+      - name: Prepara ZIP sito completo e pagina VISTA_SMARTPHONE
+        run: python3 tools/package_offline_preview.py
+      - name: ZIP navigabile senza deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-SpotNews-Mobile-Footer-Preview-20261028
+          path: ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
