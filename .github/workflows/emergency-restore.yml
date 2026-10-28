@@ -1,0 +1,51 @@
+name: ZazoomTek - recupero straordinario YouTube e RSS
+on:
+  push:
+    branches: [main]
+    paths:
+      - tools/emergency_sync.py
+  workflow_dispatch:
+permissions:
+  contents: write
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recupera gli ultimi post ufficiali YouTube e i feed RSS originali
+        run: python3 tools/emergency_sync.py
+      - name: Salva i nuovi contenuti su main
+        run: |
+          git add data/community_imported.json data/videos.json data/web.json
+          if ! git diff --cached --quiet; then
+            git config user.name "ZazoomTek Editorial Recovery"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Recupera ultime notizie YouTube e RSS su SpotNews"
+            git push origin HEAD:main
+          else
+            echo "Nessun contenuto nuovo da salvare: verificare log delle fonti"
+          fi
+      - name: Rigenera SpotNews preservando template e contenuti precedenti
+        run: python3 tools/build.py
+      - name: Verifica file ufficiali
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
+      - name: Pubblica Cloudflare Pages zazoomtek-site
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
