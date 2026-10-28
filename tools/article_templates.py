@@ -266,9 +266,32 @@ def supplied_h2(review):
    if 3<=len(label)<=95 and "\n" not in label:headings[idx]=label
  return headings
 
+def automatic_news_heading(paragraph,used):
+ """Select section titles only from the source vocabulary; no invented facts."""
+ raw=str(paragraph).casefold()
+ options=[
+  (r"\b(?:prezzo|prezzi|euro|sconto|sconti|€)\b","Prezzi e offerte"),
+  (r"\b(?:disponibile|disponibilità|uscita|arriva|debutta|lancio)\b","Uscita e disponibilità"),
+  (r"\b(?:gameplay|giocatori|missioni|combattimento|modalità)\b","Gameplay e contenuti"),
+  (r"\b(?:storia|avventura|personaggi|ambientazione)\b","Storia e ambientazione"),
+  (r"\b(?:aggiornamento|espansione|dlc|patch|novità)\b","Contenuti e novità"),
+  (r"\b(?:funzioni|funzionalità|software|intelligenza artificiale|sensori)\b","Funzioni e tecnologia"),
+  (r"\b(?:design|materiali|schermo|display|hardware)\b","Design e caratteristiche"),
+  (r"\b(?:prestazioni|autonomia|batteria|velocità)\b","Prestazioni e caratteristiche"),
+ ]
+ for pattern,label in options:
+  if label not in used and re.search(pattern,raw,re.I):return label
+ for label in ("Tutti i dettagli","Gli elementi principali","Altri dettagli","Il quadro completo"):
+  if label not in used:return label
+ return "Ulteriori informazioni"
+
 def news_body(review,blocks):
  result=[]
  headings=supplied_h2(review)
+ # Original headings from YouTube or Studio always take precedence.
+ existing=bool(headings) or any(named_section(p) or source_plain_h2(p,blocks[i+1] if i+1<len(blocks) else "",i)
+                                for i,p in enumerate(blocks))
+ automatic_titles=set()
  for i,paragraph in enumerate(blocks):
   heading=named_section(paragraph)
   if i in headings and (not heading or clean_heading(heading).casefold()!=headings[i].casefold()):
@@ -278,8 +301,15 @@ def news_body(review,blocks):
   elif source_plain_h2(paragraph,blocks[i+1] if i+1<len(blocks) else "",i):
    result.append('<h2>'+esc(clean_heading(paragraph))+'</h2>')
   else:
+   # An opening lead is followed by balanced red-rule editorial sections,
+   # while every source paragraph keeps its original text and order.
+   if not existing and (i==1 or (i>1 and i%2==1) or (i==0 and len(blocks)==1)):
+    title=automatic_news_heading(paragraph,automatic_titles)
+    automatic_titles.add(title)
+    result.append('<h2>'+esc(title)+'</h2>')
    result.append('<p>'+rich_text(paragraph)+'</p>')
- return compact_prose_html(result)
+ # Keep source paragraph boundaries, unlike the previous short-text merger.
+ return ''.join(result)
 
 def sectioned_body(review):
  blocks=editorial_blocks(review)
