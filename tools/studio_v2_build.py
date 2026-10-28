@@ -1,7 +1,7 @@
 """Studio V2 opt-in preview: separate from the current Studio and public site."""
 import json,re
 from pathlib import Path
-from html import HTMLParser
+from html.parser import HTMLParser
 from seo import title_tag, description, keywords
 from article_templates import sectioned_body
 
