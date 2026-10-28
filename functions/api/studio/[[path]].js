@@ -11,12 +11,12 @@
  * Only secret required in Cloudflare Pages Preview settings:
  * STUDIO_SESSION_SECRET (cryptographically random 32+ characters).
  *
- * All GitHub mutations target ONLY feature/spotnews-clean-rebuild.
+ * All GitHub mutations target ONLY editorial-queue, NEVER main.
  * Without the secret, the login fails closed with an actionable status.
  */
 const REPO="zazoomtek-coder/zazoomtek-site";
 const OWNER="zazoomtek-coder";
-const BRANCH="feature/spotnews-clean-rebuild";
+const BRANCH="editorial-queue";
 const COOKIE="__Host-zzt-studio";
 const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each visit.
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
@@ -254,7 +254,7 @@ async function saveArticle(request,env,session){
   document.posts.unshift(record);
  }
  await writeFile(session.token,file,document,target.sha,
-  "Studio (SpotNews preview): "+(current?"update ":"create ")+record.slug);
+  "Studio (editorial queue): "+(current?"update ":"create ")+record.slug);
  return respond({ok:true,slug:record.slug,message:"Salvato sul branch SpotNews di prova."});
 }
 async function upload(request,session){
@@ -357,7 +357,7 @@ async function saveV2(request,env,session){
   doc.overrides=doc.overrides||{};
   doc.overrides[record.slug]=record;
   await writeFile(session.token,"data/studio_overrides.json",doc,file.sha,
-   "Studio V2: pubblica modifica "+record.slug+" (solo preview)");
+   "Studio V2: pubblica modifica "+record.slug+" (in coda)");
  }else{
   record.date=new Date().toISOString().slice(0,10);
   record.published_at=new Date().toISOString();
@@ -367,7 +367,7 @@ async function saveV2(request,env,session){
   if(doc.posts.some(p=>p.slug===record.slug))throw new Error("Questo contenuto è già pubblicato.");
   doc.posts.unshift(record);
   await writeFile(session.token,"data/studio_posts.json",doc,file.sha,
-   "Studio V2: pubblica nuovo articolo "+record.slug+" (solo preview)");
+   "Studio V2: pubblica nuovo articolo "+record.slug+" (in coda)");
  }
  // Successful publication is never rolled back by a failure to clean a draft.
  try{
@@ -379,7 +379,7 @@ async function saveV2(request,env,session){
   }
  }catch(_){}
  return respond({ok:true,mode:"publish",slug:record.slug,
-  message:"Pubblicato sul solo branch SpotNews di prova."});
+  message:"Pubblicato sul coda editoriale per il prossimo slot."});
 }
 
 export async function onRequest(context){
