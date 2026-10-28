@@ -21,6 +21,16 @@ def build_studio(output, rows):
  html="""<!doctype html><html lang="it"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
+<script>
+/* Keep Studio logins on one stable Cloudflare hostname across preview builds. */
+(function(){
+ var host="zazoomtek-spotnews-preview.pages.dev";
+ var here=location.hostname.toLowerCase();
+ if(here!==host && here.endsWith("."+host)){
+  location.replace("https://"+host+location.pathname+location.search+location.hash);
+ }
+})();
+</script>
 <meta name="color-scheme" content="light">
 <title>Studio — ZazoomTek</title>
 <link rel="stylesheet" href="/assets/css/studio.css?v=20261028-studio-fresh-2">
