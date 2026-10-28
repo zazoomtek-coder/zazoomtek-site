@@ -32,7 +32,8 @@ def check_all(rows, output, stylesheet):
   try:
    if not path.is_file():raise AssertionError("Generated article file missing")
    page=path.read_text(encoding="utf-8")
-   body=merge_repeated_info_sections(sectioned_body(row))
+   unmerged_body=sectioned_body(row)
+   body=merge_repeated_info_sections(unmerged_body)
    title=esc(str(row.get("title") or "").strip())
    if not title or "<h1>"+title+"</h1>" not in page:
     raise AssertionError("Missing/incorrect primary headline")
@@ -64,7 +65,8 @@ def check_all(rows, output, stylesheet):
     paragraphs=[unescape(re.sub(r"<[^>]+>","",p)) for p in paragraphs]
     if any(len(p)>430 for p in paragraphs):
      raise AssertionError("Giant paragraph exceeds 430 characters")
-    blocks=re.findall(r"<(h2|p)>(.*?)</\1>",body,flags=re.S)
+    # Validate original 2-paragraph layout before only the duplicated heading is merged.
+    blocks=re.findall(r"<(h2|p)>(.*?)</\1>",unmerged_body,flags=re.S)
     paragraphs_before_heading=0
     paragraphs_in_section=0
     seen_heading=False
