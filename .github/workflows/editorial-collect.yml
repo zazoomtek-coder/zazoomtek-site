@@ -1,8 +1,9 @@
 name: ZazoomTek - raccogli YouTube in coda
 on:
   schedule:
+    # Solo raccolta su editorial-queue: NESSUN deploy Cloudflare da questa esecuzione.
     - cron: '*/5 9-19 * * *'
-      timezone: Europe/Rome
+      timezone: "Europe/Rome"
   workflow_dispatch:
 permissions:
   contents: write
