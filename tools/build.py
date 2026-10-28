@@ -346,7 +346,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
              '<span aria-hidden="true">↑</span></button>')
  from seo import metadata
  tags=metadata(title,seo_path,seo_row,PREVIEW,seo_summary)
- return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags
+ return ('<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+tags+
          '<link rel="alternate" type="application/rss+xml" title="ZazoomTek - Feed RSS" href="/feed.xml">'
          '<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261028-single-image-clean-50"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
