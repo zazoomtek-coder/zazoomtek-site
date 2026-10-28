@@ -1,8 +1,5 @@
 name: ZazoomTek - verifica sito online (nessun deploy)
 on:
-  push:
-    branches: [main]
-    paths: [tools/verify_site_live.py]
   workflow_dispatch:
 permissions:
   contents: read
