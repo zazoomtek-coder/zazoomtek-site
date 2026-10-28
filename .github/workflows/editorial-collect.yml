@@ -1,7 +1,8 @@
 name: ZazoomTek - raccogli YouTube in coda
 on:
   schedule:
-    - cron: '*/5 7-18 * * *'
+    - cron: '*/5 9-19 * * *'
+      timezone: Europe/Rome
   workflow_dispatch:
 permissions:
   contents: write
