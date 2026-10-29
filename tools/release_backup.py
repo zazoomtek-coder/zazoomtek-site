@@ -72,7 +72,7 @@ def main():
         raise ValueError("Unexpected release slot")
     name=("backup/predeploy-manual-"+slot.strftime("%Y%m%d-%H%M%S")
           if mode=="backup-manual" else
-          "backup/predeploy-"+slot.strftime("%Y%m%d-%H%M"))
+          "backup/predeploy-"+slot.strftime("%Y%m%d-%H%M")+"-"+sha[:12])
     # Idempotent: a second runner using the same slot must not overwrite it.
     remote=subprocess.run(["git","ls-remote","--heads","origin",name],
                           cwd=ROOT,check=True,capture_output=True,text=True).stdout.strip()
