@@ -455,11 +455,11 @@ export async function onRequest(context){
      "X-Content-Type-Options":"nosniff"}});
   }
   if(pathname==="/api/studio/v2-save"&&request.method==="POST")
-   return saveV2(request,env,session);
+   return await saveV2(request,env,session);
   if(pathname==="/api/studio/save"&&request.method==="POST")
-   return saveArticle(request,env,session);
+   return await saveArticle(request,env,session);
   if(pathname==="/api/studio/upload"&&request.method==="POST")
-   return upload(request,session);
+   return await upload(request,session);
   return respond({ok:false,error:"Percorso non trovato."},404);
  }catch(e){
   return respond({ok:false,error:String(e.message||e).slice(0,240)},400);
