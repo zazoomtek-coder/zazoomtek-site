@@ -50,7 +50,7 @@ const doRequest=(path,method="GET",body=null,cookie="")=>onRequest({
 });
 const token="github_pat_valid_token_for_test_0123456";
 const login=await doRequest("login","POST",{token});
-assert.equal(login.status,200,await login.text());
+assert.equal(login.status,200,await login.clone().text());
 const cookie=login.headers.get("set-cookie").split(";")[0];
 let checked=await doRequest("session","GET",null,cookie);
 assert.equal((await checked.json()).authenticated,true);
@@ -61,22 +61,22 @@ const article={
  author:"Redazione ZazoomTek",score:"",platform:"",pros:[],cons:[]
 };
 let first=await doRequest("v2-save","POST",{mode:"publish",creating:true,record:article},cookie);
-assert.equal(first.status,200,await first.text());
+assert.equal(first.status,200,await first.clone().text());
 let firstResult=await first.json();
 assert.equal(firstResult.status,"queued");
 assert.equal(firstResult.record.title,article.title);
 assert.equal(state.get("data/studio_posts.json").posts.length,1);
 article.title="Test del flusso corretto di pubblicazione Studio aggiornato";
 let second=await doRequest("v2-save","POST",{mode:"publish",creating:false,record:article},cookie);
-assert.equal(second.status,200,await second.text());
+assert.equal(second.status,200,await second.clone().text());
 assert.equal(state.get("data/studio_posts.json").posts.length,1);
 assert.equal(state.get("data/studio_posts.json").posts[0].title,article.title);
 let queue=await doRequest("v2-pending","GET",null,cookie);
-assert.equal(queue.status,200,await queue.text());
+assert.equal(queue.status,200,await queue.clone().text());
 assert.equal((await queue.json()).posts.length,1);
 assert.equal(state.get("data/studio_overrides.json").overrides["test-studio-in-coda"],undefined);
 let draft=await doRequest("v2-save","POST",{mode:"draft",record:{...article,title:"Bozza non pubblicata"}},cookie);
-assert.equal(draft.status,200,await draft.text());
+assert.equal(draft.status,200,await draft.clone().text());
 assert.equal(state.get("data/studio_posts.json").posts.length,1);
 assert.equal(state.get("data/studio_v2_drafts.json").drafts[article.slug].record.title,"Bozza non pubblicata");
 globalThis.fetch=initialFetch;
