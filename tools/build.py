@@ -545,7 +545,6 @@ def gaming_magazine(rows):
  date=date_label(lead)
  feature=('<article class="gaming-magazine-lead">'
           '<a class="gaming-magazine-lead-image" href="'+url+'">'+editorial_cover(lead)+'</a>'
-          '<span class="gaming-magazine-badge">News Gaming</span>'
           '<h3><a href="'+url+'">'+title+'</a></h3>'
           +('<time class="gaming-magazine-date">'+esc(date)+'</time>' if date else '')+
           '</article>')
@@ -558,7 +557,6 @@ def gaming_magazine(rows):
   second=('<article class="gaming-magazine-lead gaming-magazine-lead-secondary">'
           '<a class="gaming-magazine-lead-image" href="'+other_url+'" aria-label="Leggi News Gaming: '+esc(clean_title(other["title"]),quote=True)+'">'
           +editorial_cover(other)+'</a>'
-          '<span class="gaming-magazine-badge">News Gaming</span>'
           '<h3><a href="'+other_url+'">'+other_title+'</a></h3>'
           +('<time class="gaming-magazine-date">'+esc(other_date)+'</time>' if other_date else '')
           +'</article>')
