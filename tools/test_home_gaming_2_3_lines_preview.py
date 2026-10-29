@@ -59,7 +59,7 @@ try:
   assert d["contentWidth"]<=d["viewport"]+3,("Home overflow",d)
   for category,rows,lines in (("big",d["big"],2),("small",d["small"],3)):
    for item in rows:
-    assert item["display"]=="-webkit-box",(category,item)
+    assert item["display"] in ("-webkit-box","flow-root"),(category,item) # Chromium maps prefixed box to flow-root with line-clamp
     assert item["clamp"]==str(lines),(category,item)
     assert item["overflow"]=="hidden",(category,item)
     assert item["height"]<=item["lineHeight"]*lines+2,(category,item)
