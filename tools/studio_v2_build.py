@@ -73,7 +73,7 @@ def build_studio_v2(output,rows):
  catalog={"version":3,"mode":"opt-in-preview","posts":[{
   "slug":row.get("slug"),"title":row.get("title"),
   "category":row.get("category"),"date":row.get("date"),
-  "published_at":row.get("published_at"),"image":row.get("image"),
+  "published_at":row.get("published_at"),"updated_at":row.get("updated_at"),"image":row.get("image"),
   "cover_focus_x":row.get("cover_focus_x"),"cover_focus_y":row.get("cover_focus_y"),
   "cover_zoom":row.get("cover_zoom"),"cover_rotation":row.get("cover_rotation"),
   "author":row.get("author"),"video_url":row.get("video_url"),
