@@ -125,10 +125,12 @@ def sync_studio_publications():
     added = 0
     for filename, key in (("studio_posts.json", "posts"),
                           ("studio_overrides.json", "overrides")):
-        queued = read_queue(filename, key)
+        queued = read_queue(filename, key) if key == "posts" else []
         path = DATA / filename
-        old = snapshot(filename, key)
-        rows = old[key]
+        old = json.loads(path.read_text(encoding="utf-8"))
+        rows = old.get(key)
+        if not isinstance(old, dict) or not isinstance(rows, list if key == "posts" else dict):
+            raise ValueError("Invalid Studio publication snapshot: " + filename)
         changed = False
         if key == "posts":
             indexed = {r.get("slug"): i for i, r in enumerate(rows)
