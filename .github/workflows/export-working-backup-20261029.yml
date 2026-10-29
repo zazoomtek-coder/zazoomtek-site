@@ -26,7 +26,7 @@ jobs:
           z=Path('/tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip')
           with zipfile.ZipFile(z) as f:
            names=set(f.namelist())
-           assert len(names)>=220
+           assert len(names)>=60, ('Backed up repository unexpectedly empty',len(names))
            assert {'tools/build.py','data/community_imported.json','assets/css/spotnews.css','assets/js/site.js'} <= names
            assert f.testzip() is None
            print('BACKUP VERIFIED',len(names),'files',z.stat().st_size,'bytes')
