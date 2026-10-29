@@ -329,12 +329,21 @@ function draftValue(raw){
   cover_rotation:bounded(r.cover_rotation,-180,180,0)
  };
 }
+async function pendingV2(token){
+ const [pending,edits]=await Promise.all([readFile(token,"data/studio_posts.json"),readFile(token,"data/studio_overrides.json")]);
+ return {posts:Array.isArray(pending.content?.posts)?pending.content.posts:[],
+  overrides:edits.content?.overrides&&typeof edits.content.overrides==="object"?edits.content.overrides:{}};
+}
 async function saveV2(request,env,session){
  const data=await parseInput(request,1000000),mode=clean(data.mode);
  if(!["draft","publish"].includes(mode))throw new Error("Comando non riconosciuto.");
  const record=mode==="draft"?draftValue(data.record):normalizeArticle(data.record);
  const catalog=await v2Catalog(request,env);
  const existing=(catalog.posts||[]).find(p=>p.slug===record.slug);
+ const queuedPosts=await readFile(session.token,"data/studio_posts.json");
+ const pendingItems=Array.isArray(queuedPosts.content?.posts)?queuedPosts.content.posts:[];
+ const queuedIndex=pendingItems.findIndex(p=>p.slug===record.slug);
+ const queuedExisting=queuedIndex>=0?pendingItems[queuedIndex]:null;
  if(mode==="draft"){
   const file=await getDrafts(session.token);
   file.drafts[record.slug]={record,kind:existing?"edit":"new",updated_at:new Date().toISOString()};
@@ -344,7 +353,7 @@ async function saveV2(request,env,session){
    message:"Bozza salvata senza cambiare alcuna pagina."});
  }
  if(data.creating&&existing)throw new Error("L'indirizzo esiste già: usa Modifica.");
- if(!data.creating&&!existing)throw new Error("Articolo non trovato: aggiorna la libreria.");
+ if(!data.creating&&!existing&&!queuedExisting)throw new Error("Articolo non trovato: aggiorna la libreria.");
  if(existing){
   const oldSeo=existing.seo_lock;
   if(oldSeo&&typeof oldSeo.title==="string"&&typeof oldSeo.description==="string")
@@ -361,13 +370,15 @@ async function saveV2(request,env,session){
  }else{
   record.date=new Date().toISOString().slice(0,10);
   record.published_at=new Date().toISOString();
-  const file=await readFile(session.token,"data/studio_posts.json");
-  const doc=file.content||{posts:[]};
+  const doc=queuedPosts.content||{posts:[]};
   doc.posts=Array.isArray(doc.posts)?doc.posts:[];
-  if(doc.posts.some(p=>p.slug===record.slug))throw new Error("Questo contenuto è già pubblicato.");
-  doc.posts.unshift(record);
-  await writeFile(session.token,"data/studio_posts.json",doc,file.sha,
-   "Studio V2: pubblica nuovo articolo "+record.slug+" (in coda)");
+  if(queuedExisting){
+   record.date=queuedExisting.date||record.date;
+   record.published_at=queuedExisting.published_at||record.published_at;
+   doc.posts[queuedIndex]=record;
+  }else doc.posts.unshift(record);
+  await writeFile(session.token,"data/studio_posts.json",doc,queuedPosts.sha,
+   "Studio V2: "+(queuedExisting?"aggiorna articolo accodato ":"accoda nuovo articolo ")+record.slug);
  }
  // Successful publication is never rolled back by a failure to clean a draft.
  try{
@@ -379,7 +390,8 @@ async function saveV2(request,env,session){
   }
  }catch(_){}
  return respond({ok:true,mode:"publish",slug:record.slug,
-  message:"Pubblicato sul coda editoriale per il prossimo slot."});
+  record,status:"queued",next_slots:["12:30","19:30"],
+  message:"Salvato in coda: anteprima disponibile subito; pubblicazione online soltanto al prossimo slot."});
 }
 
 export async function onRequest(context){
@@ -425,6 +437,8 @@ export async function onRequest(context){
   }
   if(pathname==="/api/studio/v2-drafts"&&request.method==="GET")
    return respond({ok:true,drafts:(await getDrafts(session.token)).drafts});
+  if(pathname==="/api/studio/v2-pending"&&request.method==="GET")
+   return respond({ok:true,...await pendingV2(session.token)});
   if(pathname==="/api/studio/v2-save"&&request.method==="POST")
    return saveV2(request,env,session);
   if(pathname==="/api/studio/save"&&request.method==="POST")
