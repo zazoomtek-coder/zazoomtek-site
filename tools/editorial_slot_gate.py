@@ -21,6 +21,8 @@ FILES = (
     "data/community_imported.json",
     "data/videos.json",
     "data/web.json",
+    "data/studio_posts.json",
+    "data/studio_overrides.json",
     # Approved Studio editor features are delivered at the next editorial slot,
     # even if no new news happens to arrive. Otherwise a changed editor could
     # remain unpublished indefinitely while all editorial JSON is unchanged.
@@ -36,6 +38,14 @@ def digest():
     for filename in FILES:
         data = (ROOT / filename).read_bytes()
         hasher.update(filename.encode("utf-8") + b"\x00" + data + b"\x00")
+    # Uploaded media is a published dependency of Studio articles: the
+    # content fingerprint must change when previously missing assets arrive.
+    uploads = ROOT / "assets" / "uploads"
+    if uploads.exists():
+        for file in sorted(p for p in uploads.rglob("*") if p.is_file()):
+            name = file.relative_to(ROOT).as_posix()
+            hasher.update(name.encode("utf-8") + b"\x00")
+            hasher.update(file.read_bytes() + b"\x00")
     return hasher.hexdigest()
 
 
