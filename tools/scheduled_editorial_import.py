@@ -184,7 +184,7 @@ def sync_studio_assets():
     override references that exact safe local media path.
     """
     root = DATA.parent
-    safe = re.compile(r"^assets/uploads/[a-z0-9-]+/[a-z0-9-]+\\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt)$")
+    safe = re.compile(r"^assets/uploads/[a-z0-9-]+/[a-z0-9-]+\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt)$")
     referenced = set()
     for filename, key in (("studio_posts.json", "posts"),
                           ("studio_overrides.json", "overrides")):
