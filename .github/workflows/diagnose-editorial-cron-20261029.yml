@@ -1,0 +1,40 @@
+name: ZazoomTek – diagnosi orari editoriali (solo lettura)
+on:
+  push:
+    branches: [diagnose/editorial-cron-oct29]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stato GitHub Actions, workflow e ore effettive (nessun deploy)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, datetime
+          from zoneinfo import ZoneInfo
+          repo=os.getenv("GITHUB_REPOSITORY")
+          headers={"Authorization":"Bearer "+os.environ["GITHUB_TOKEN"],"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","User-Agent":"ZazoomTek-ReadOnly-Audit"}
+          def get(path):
+            try:
+              with urllib.request.urlopen(urllib.request.Request("https://api.github.com/repos/"+repo+path,headers=headers),timeout=18) as r:
+                return json.load(r)
+            except Exception as e:
+              print("API UNAVAILABLE",path,type(e).__name__,str(e)[:180],flush=True);return {}
+          print("ROME NOW",datetime.datetime.now(ZoneInfo("Europe/Rome")).isoformat(),flush=True)
+          prop=get("")
+          print("REPO DEFAULT",prop.get("default_branch"),flush=True)
+          flows=get("/actions/workflows?per_page=100").get("workflows",[])
+          for w in flows:
+            if any(term in (w.get("path","")+" "+w.get("name","")).lower() for term in ("editorial","publish","queue","collect")):
+              print("WORKFLOW STATUS",w.get("id"),w.get("name"),w.get("path"),w.get("state"),flush=True)
+              if "editorial-publish.yml" in w.get("path",""):
+                runs=get("/actions/workflows/"+str(w["id"])+"/runs?per_page=8")
+                print("PUBLISH RUNS",[(r.get("event"),r.get("created_at"),r.get("conclusion")) for r in runs.get("workflow_runs",[])],flush=True)
+          print("DIAGNOSIS END: ZERO SITE DEPLOYS",flush=True)
+          PY
