@@ -36,6 +36,11 @@ def category_for_post(item):
  explicit=item.get("category")
  if explicit in TYPES and explicit!="video":return explicit
  kind=str(item.get("type","")).strip().lower()
+ # Category prefixes set by the ZazoomTek editor must be authoritative.
+ # These stories are not general News Tech/Gaming even if they mention hardware.
+ headline=str(item.get("title") or "").strip().lstrip("#").strip().casefold()
+ if headline.startswith("news extra:"):return "extra"
+ if headline.startswith(("news speciali:","news special:")):return "speciali"
  text=(str(item.get("title",""))+" "+str(item.get("text",""))[:250]).lower()
  if kind not in ("news","review","recensione","guida","guide","speciale","speciali","extra"):
   if text.startswith("news:"):kind="news"
