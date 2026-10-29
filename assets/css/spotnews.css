@@ -2860,3 +2860,18 @@ main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row
     gap:14px!important;
   }
 }
+
+/* 29/10/2026 — SOLO HOME: le due news Gaming grandi mostrano titolo e data,
+   non firme autore né estratti. Restano intatte le card laterali. */
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 {
+  margin:5px 0 6px!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-date {
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:11px!important;
+  line-height:1.4!important;
+  font-weight:400!important;
+  color:#777!important;
+}
