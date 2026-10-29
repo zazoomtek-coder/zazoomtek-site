@@ -1,0 +1,41 @@
+name: Diagnose official domain vs successful Cloudflare Pages deploy - READ ONLY
+on:
+  push:
+    branches: [reliability/independent-cloudflare-scheduler-20261029]
+    paths:
+      - .github/workflows/diagnose-pages-binding-20261029.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reliability/independent-cloudflare-scheduler-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch three Pages endpoints and compare exact live CSS digest
+        run: |
+          python3 - <<'PY'
+          import hashlib,re,urllib.request,urllib.error
+          from pathlib import Path
+          expected=hashlib.sha256(Path('assets/css/spotnews.css').read_bytes()).hexdigest()
+          print('REPO EXPECTED CSS SHA256',expected,flush=True)
+          hosts=('https://zazoomtek.it','https://zazoomtek-site.pages.dev','https://585486c9.zazoomtek-site.pages.dev')
+          for host in hosts:
+           try:
+            req=urllib.request.Request(host+'/?compare-pages=20261029-1955',headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
+            with urllib.request.urlopen(req,timeout=17) as r:
+             html=r.read(3000000)
+             m=re.search(rb'/assets/css/spotnews\.css\?v=([a-f0-9]{8,64})',html)
+             print('SITE',host,'FINAL',r.geturl(),'CODE',r.status,'HEADER CSS VERSION',m.group(1).decode() if m else 'NONE','CF-CACHE',r.headers.get('CF-Cache-Status'),'CF-RAY',r.headers.get('CF-RAY'),flush=True)
+            req=urllib.request.Request(host+'/assets/css/spotnews.css?compare-pages=20261029-1955',headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
+            with urllib.request.urlopen(req,timeout=17) as r:
+             css=r.read(4000000)
+             print('CSS',host,'CODE',r.status,'BYTES',len(css),'SHA256',hashlib.sha256(css).hexdigest(),'MATCH REPO',hashlib.sha256(css).hexdigest()==expected,flush=True)
+           except Exception as error:
+            print('ENDPOINT FAILED',host,type(error).__name__,str(error)[:230],flush=True)
+          PY
