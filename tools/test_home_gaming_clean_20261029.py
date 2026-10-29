@@ -30,13 +30,13 @@ addEventListener("load",()=>setTimeout(()=>{
  const bottom=$$(".home-column .news-tech-bottom-grid .news-tech-card-small");
  const gaming=$$(".home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead");
  const gamingSmall=$$(".home-column .gaming-magazine .gaming-magazine-list .gaming-magazine-item");
- const boxes=$(".home-sidebar .compact-editorial-box");
- const labels=$(".featured-wide .tile-category,.home-layout .news-tech-category,.home-layout .home-review-web-card > .web-source,.home-layout .compact-item-type,.home-layout .section .card > small,.home-layout .web-news-card > .web-source,.home-layout .amazon-feature-badge");
+ const boxes=$$(".home-sidebar .compact-editorial-box");
+ const labels=$$(".featured-wide .tile-category,.home-layout .news-tech-category,.home-layout .home-review-web-card > .web-source,.home-layout .compact-item-type,.home-layout .section .card > small,.home-layout .amazon-feature-badge");
  const visibleLabels=labels.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.className);
- const webLabels=$(".home-layout .web-news-card:not(.home-review-web-card) > .web-source");
+ const webLabels=$$(".home-layout .web-news-card:not(.home-review-web-card) > .web-source");
  const hiddenWebLabels=webLabels.filter(x=>getComputedStyle(x).display==="none").map(x=>x.className);
 
- const sectionHeaders=$(".home-layout .section .bar h2").map(x=>getComputedStyle(x).display);
+ const sectionHeaders=$$(".home-layout .section .bar h2").map(x=>getComputedStyle(x).display);
  const affiliateDisclosure=$(".home-layout .amazon-feature-disclosure");
 
  const firstRows=boxes.map(box=>box.querySelector(".editorial-row:first-child .editorial-thumb"));
