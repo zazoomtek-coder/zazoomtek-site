@@ -1,0 +1,63 @@
+name: Preview premium YouTube TikTok ticker across all pages - NO DEPLOY
+on:
+  push:
+    branches: [feature/ticker-social-youtube-tiktok-20261029]
+permissions:
+  contents: read
+jobs:
+  build-verify-offline-zip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/ticker-social-youtube-tiktok-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate real shared-header code
+        run: python3 -m py_compile tools/build.py tools/test_ticker_social_preview_20261029.py
+      - name: Load authentic queued data only into ephemeral preview runner
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Build the complete real ZazoomTek site - NEVER DEPLOY
+        env:
+          CF_PAGES_BRANCH: feature/ticker-social-youtube-tiktok-20261029
+        run: |
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml
+      - name: Test actual links and responsive layout in Chromium on 6 pages
+        run: python3 tools/test_ticker_social_preview_20261029.py
+      - name: Create fully navigable offline preview ZIP
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_SOCIAL_YOUTUBE_TIKTOK_ANTEPRIMA_29-10-2026.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          z=Path("ZazoomTek_SOCIAL_YOUTUBE_TIKTOK_ANTEPRIMA_29-10-2026.zip")
+          with zipfile.ZipFile(z,'a',compression=zipfile.ZIP_DEFLATED) as f:
+           f.writestr('LEGGIMI_SOCIAL_YOUTUBE_TIKTOK.txt',
+            'ANTEPRIMA REALE DI ZAZOOMTEK (NON ONLINE).\\n'
+            'YouTube e TikTok in tutte le barre Primo piano, con link ai canali gia presenti nel footer.\\n'
+            'Estrai TUTTO, apri index.html o VISTA_SMARTPHONE.html e prova la navigazione.\\n'
+            'Studio necessita dei servizi cloud e non e utilizzabile da file locale.\\n')
+          with zipfile.ZipFile(z) as f:
+           names=set(f.namelist())
+           assert len(names)>285,len(names)
+           assert {'index.html','VISTA_SMARTPHONE.html','news.html','notizie-web.html','assets/css/spotnews.css'}<=names
+           assert 'ticker-social-youtube' in f.read('index.html').decode()
+           assert 'ticker-social-tiktok' in f.read('news.html').decode()
+           assert 'ticker-social-button' in f.read('assets/css/spotnews.css').decode()
+           assert not any(n.endswith('.zip') for n in names)
+           assert f.testzip() is None
+          print("COMPLETE TICKER SOCIAL ZIP VERIFIED",len(names),"files",z.stat().st_size,"bytes; NO DEPLOY",flush=True)
+          PY
+      - name: Deliver ZIP for offline user approval - no production changes
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-SOCIAL-YOUTUBE-TIKTOK-ANTEPRIMA-29-10-2026
+          path: ZazoomTek_SOCIAL_YOUTUBE_TIKTOK_ANTEPRIMA_29-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
