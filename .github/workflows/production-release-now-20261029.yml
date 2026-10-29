@@ -100,9 +100,9 @@ jobs:
           post='/community-ugkxf-aembzj-nrh3uwdvfxhfshcpji31jjc'
           media=base+'/assets/css/spotnews.css'
           feeds=json.loads(Path('data/web.json').read_text(encoding='utf-8'))['items']
-          gta=next((p for p in feeds if 'meme' in str(p.get('title','')).lower() and 'gta' in str(p.get('title','')).lower()),None)
-          print('WEB GTA SOURCE FOUND',bool(gta),flush=True)
-          if not gta:raise RuntimeError('Cannot verify corrected GTA meme gateway: source absent')
+          gta=next((p for p in feeds if p.get('source')=="Tom's Hardware"),None)
+          print('WEB SOURCE FOR LIVE VERIFICATION',bool(gta),flush=True)
+          if not gta:raise RuntimeError('Cannot verify corrected Web news gateway: current RSS item absent')
           web=gateway_path(gta)
           def get(url,attempt):
             req=urllib.request.Request(url+('?verify-fixes='+str(attempt) if '?' not in url else '&verify-fixes='+str(attempt)),headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
@@ -120,8 +120,8 @@ jobs:
                 'Amazon next to related': 'inner-amazon-fill' in article and 'amazon-feature-box' in article,
                 'Guide Extra rules': 'border-bottom:none!important' in css,
                 'Actual two-column grid': 'grid-template-areas:"story rail" "related amazon"' in css,
-                'GTA same story': 'GTA 6 riscopre un meme storico' in gateway,
-                'No fake fallback': 'Al momento non risulta' not in gateway
+                'External source and match-safe news': 'web-gateway-source-link' in gateway,
+                'No fake fallback': 'Al momento non risulta' not in gateway and 'Scopri altri contenuti ZazoomTek' not in gateway
               }
               print('PUBLIC SITE CHECKS',checks,flush=True)
               if all(checks.values()):
