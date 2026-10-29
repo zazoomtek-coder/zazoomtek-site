@@ -1,0 +1,50 @@
+name: QA import cron backup and live verification - NEVER DEPLOY
+on:
+  push:
+    branches: [reliability/independent-cloudflare-scheduler-20261029]
+permissions:
+  contents: read
+jobs:
+  reliability-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reliability/independent-cloudflare-scheduler-20261029
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile all modified import and release Python modules
+        run: |
+          python3 -m py_compile tools/editorial_slot_gate.py tools/emergency_sync.py tools/scheduled_editorial_import.py tools/release_backup.py tools/verify_live_release.py tools/test_release_reliability_20261029.py
+      - name: Test Cloudflare independent scheduler, API 200/204, DST, exact times
+        run: node infra/zazoomtek-scheduler/tests/test-worker.mjs
+      - name: Verify previous real production snapshot without modifying anything
+        run: python3 tools/release_backup.py inspect
+      - name: Fetch real editorial YouTube queue ONLY inside temporary runner
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+          python3 -m json.tool import_source_status.json > /dev/null
+      - name: Build complete actual site entirely offline, no Cloudflare deploy
+        env:
+          CF_PAGES_BRANCH: reliability/independent-cloudflare-scheduler-20261029
+        run: |
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml
+      - name: Test gate changes and exact public CSS verifier through a mock response
+        run: python3 tools/test_release_reliability_20261029.py
+      - name: Verify preview and production backups preserved
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          assert 'source' in Path('tools/release_backup.py').read_text().lower()
+          assert 'Sei fonti italiane' in Path('dist/notizie-web.html').read_text()
+          assert len(list(Path('dist').glob('*.html')))>250
+          print('ALL RELIABILITY QA PASS: cron, import, backup, split site, live verification; ZERO DEPLOYS')
+          PY
