@@ -41,8 +41,11 @@ def check_web_gateways(root,web_items,rows):
   computed=relevant(entry.get("title",""),rows)
   expected_match=computed[0] if computed else None
   if expected_match:
-   if parser.links.count("/"+expected_match["slug"])!=1:
-    issues.append(path+": first-party match absent or repeated")
+   # Sidebars may legitimately repeat the same story link. Count ONLY the
+   # dedicated primary editorial CTA, not the global navigation or sidebar.
+   primary_links=re.findall(r'class="web-gateway-main-cta" href="([^"]+)"',html)
+   if primary_links!=["/"+expected_match["slug"]]:
+    issues.append(path+": primary original article link absent or repeated")
    if "Approfondimento originale ZazoomTek" not in html:
     issues.append(path+": original first-party headline not prioritized")
   else:
