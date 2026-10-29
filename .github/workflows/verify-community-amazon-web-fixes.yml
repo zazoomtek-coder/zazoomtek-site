@@ -87,3 +87,6 @@ jobs:
           assert ':has(>.inner-amazon-fill)' in css
           print('BUILD COMPLETE: all',len(stories),'related-story pages have one Amazon box, aligned CSS + Guide/Extra no black lines, DT H03 structured verdict')
           PY
+
+      - name: 'Layout reale: pixel CSS verificati con Chrome headless'
+        run: python3 tools/test_affiliate_layout_browser.py
