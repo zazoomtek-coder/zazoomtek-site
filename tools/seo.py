@@ -50,7 +50,7 @@ def title_tag(row):
  if len(name)<=115:return name
  # An exceptionally long title should end at a natural phrase boundary,
  # not with dangling Italian conjunctions or prepositions.
- parts=re.split(r"\\s+[|–—]\\s+",name)
+ parts=re.split(r"\s+[|–—]\s+",name)
  chosen=parts[0]
  for part in parts[1:]:
   proposal=chosen+" | "+part
@@ -58,7 +58,7 @@ def title_tag(row):
   chosen=proposal
  if len(chosen)>110:
   chosen=chosen[:110].rsplit(" ",1)[0]
- chosen=re.sub(r"\\s+(?:e|ed|di|del|della|dei|per|con|tra|fra|in|su|a|da|il|la|le|lo|gli|i|un|una)$","",chosen,flags=re.I)
+ chosen=re.sub(r"\s+(?:e|ed|di|del|della|dei|per|con|tra|fra|in|su|a|da|il|la|le|lo|gli|i|un|una)$","",chosen,flags=re.I)
  return chosen.strip(" ,;:-–—") or name[:110]
 def description(row):
  locked=row.get("seo_lock")
