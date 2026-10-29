@@ -2780,3 +2780,26 @@ main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-d
 main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-cta{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;width:100%!important;min-height:34px!important;padding:8px 6px!important;margin:0!important;border-radius:6px!important;font-size:10px!important;line-height:1.25!important;font-weight:900!important;white-space:normal!important}
 main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-cta span{font-size:13px!important;line-height:1!important}
 @media(max-width:780px){main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box{padding:12px 10px 11px!important}main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-products{grid-template-columns:repeat(3,minmax(0,1fr))!important}main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-product img{height:54px!important;max-height:54px!important}}
+
+/* SEO & accessibility fixes — archive discoverability, zero Home layout change. */
+main.wrap .site-home-title {
+ position:absolute!important;
+ width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;border:0!important;
+}
+main.wrap .archive-crosslinks {
+ display:flex!important;align-items:center!important;gap:9px!important;
+ flex-wrap:wrap!important;margin:0 0 18px!important;
+}
+main.wrap .archive-crosslinks>a {
+ display:inline-block!important;
+ border:1px solid #dedede!important;border-radius:4px!important;
+ background:#fff!important;color:#222!important;
+ padding:8px 12px!important;font-size:13px!important;
+ text-decoration:none!important;font-weight:700!important;
+}
+main.wrap .archive-crosslinks>a:hover {
+ color:#be1536!important;border-color:#be1536!important;
+}
