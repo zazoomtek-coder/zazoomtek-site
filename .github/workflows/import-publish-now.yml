@@ -22,6 +22,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: SALVA PRIMA il sito pubblicato e funzionante, mai la coda
+        run: python3 tools/release_backup.py backup-manual
+      - name: ZIP ripristinabile ultimo sito funzionante
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-BACKUP-PRIMA-IMPORT-PUBLISH-MANUALE
+          path: ZazoomTek_WORKING_BACKUP_*.zip
+          retention-days: 90
+          if-no-files-found: error
       - name: IMPORTAZIONE 1 - preleva il materiale verificato da YouTube
         run: |
           git fetch --no-tags --depth=1 origin editorial-queue
