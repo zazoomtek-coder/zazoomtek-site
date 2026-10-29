@@ -11,5 +11,10 @@
   },
   "observability": {
     "enabled": true
+  },
+  "secrets": {
+    "required": [
+      "GITHUB_AUTOMATION_TOKEN"
+    ]
   }
 }
