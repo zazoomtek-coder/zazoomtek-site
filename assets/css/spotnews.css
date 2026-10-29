@@ -2989,3 +2989,17 @@ main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-list .gami
   -webkit-line-clamp:2!important;
   line-clamp:2!important;
 }
+
+
+/* Chi siamo: clear editorial presentation, responsive cards, no Home layout changes. */
+.about-article{max-width:930px}
+.about-article strong{font-weight:800}
+.about-team{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:18px 0 25px}
+.about-team-member{border:1px solid #e7e7e7;border-top:3px solid #e30036;padding:17px;min-width:0}
+.about-team-member h3{color:#171717;font-size:20px;line-height:1.3;margin:0 0 4px}
+.about-team-member p{font-size:14px;line-height:1.65;margin:0 0 8px}
+.about-team-member .about-role{color:#bd163b;font-size:12px;font-weight:800;margin:0 0 10px}
+@media(max-width:650px){
+ .about-team{grid-template-columns:1fr;gap:12px}
+ .about-team-member{padding:16px}
+}
