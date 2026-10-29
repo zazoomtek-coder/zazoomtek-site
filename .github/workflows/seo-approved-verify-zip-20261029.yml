@@ -1,0 +1,75 @@
+name: SEO approvato - collaudo e ZIP senza deploy
+on:
+  push:
+    branches: [seo/approved-rebased-on-main-20261029]
+permissions:
+  contents: read
+jobs:
+  seo-approved-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: seo/approved-rebased-on-main-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax SEO e build
+        run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/article_templates.py
+      - name: Importa coda esclusivamente su runner di collaudo
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Genera il sito completo SENZA DEPLOY
+        env:
+          CF_PAGES_BRANCH: seo/approved-rebased-on-main-20261029
+        run: |
+          python3 tools/build.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,json
+          from html import unescape
+          root=Path("dist")
+          html=(root/"index.html").read_text()
+          assert 'class="site-home-title"' in html
+          assert "news-tech-top-grid" in html and "gaming-magazine-lead-secondary" in html
+          css=(root/"assets/css/spotnews.css").read_text()
+          assert "HOME GAMING" in css and "-webkit-line-clamp:2!important" in css
+          assert "archive-crosslinks" in css
+          paged=[p for p in root.glob("*-page-*.html") if re.search(r"-page-\d+\.html$",p.name)]
+          assert len(paged)>=30,len(paged)
+          for p in paged:
+           n=re.search(r"-page-(\d+)\.html",p.name).group(1)
+           title=unescape(re.search(r"<title>(.*?)</title>",p.read_text()).group(1))
+           assert ("Pagina "+n) in title,(p,title)
+          review_schema=0
+          for p in root.glob("*.html"):
+           for blob in re.findall(r'<script type="application/ld\+json">(.*?)</script>',p.read_text()):
+            j=json.loads(unescape(blob))
+            if j.get("@type")=="Review":review_schema+=1
+          assert review_schema>=9,review_schema
+          red=(root/"_redirects").read_text()
+          assert "community-ugkx-hxxbow8wstg4t9rgruxoljshnzxbl0y" in red
+          assert "community-ugkxwgp-n8aw2rtb-ufes2cj4cb0e8klhg7m" in red
+          print("SEO APPROVED PASS:",len(paged),"unique paginated archives;",review_schema,"Review schemas; Home and 301 preserved")
+          PY
+      - name: Pacchetto offline integrale
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_SEO_APPROVATO_ANTEPRIMA_29-10-2026.zip
+          python3 - <<'PY'
+          import zipfile, pathlib
+          p=pathlib.Path("ZazoomTek_SEO_APPROVATO_ANTEPRIMA_29-10-2026.zip")
+          with zipfile.ZipFile(p) as z:
+           assert "index.html" in z.namelist()
+           assert "assets/css/spotnews.css" in z.namelist()
+           assert len(z.namelist())>280
+           print("OFFLINE ZIP VERIFIED",len(z.namelist()),p.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-SEO-APPROVATO-ANTEPRIMA-29-10-2026
+          path: ZazoomTek_SEO_APPROVATO_ANTEPRIMA_29-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
