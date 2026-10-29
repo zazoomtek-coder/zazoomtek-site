@@ -2637,3 +2637,13 @@ main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-cta{
   max-height:54px!important;
  }
 }
+
+
+/* v51 · Guide/Extra Home: remove only the unwanted black lines
+   inherited from .spotnews-feature h3, including every main/small card.
+   Section black header bars and other modules remain untouched. */
+main.wrap .home-column .standalone-feature-pair .feature-editorial .feature-main-description h3,
+main.wrap .home-column .standalone-feature-pair .feature-editorial .compact-item h3{
+ border-bottom:0!important;
+ padding-bottom:0!important;
+}
