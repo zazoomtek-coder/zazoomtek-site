@@ -417,7 +417,13 @@ def legal_pages(rows):
    elif block["type"]=="paragraph":body+='<p>'+esc(block["text"])+'</p>'
    else:raise ValueError("Invalid legal content block")
   body+='</article>'
-  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path="/"+page["slug"],seo_summary="Informazioni ufficiali ZazoomTek: "+page["title"]+"."),encoding="utf-8")
+  summaries={
+   "privacy-policy":"Privacy Policy di ZazoomTek: informazioni sui dati personali e sui diritti dei visitatori del sito.",
+   "cookie-policy":"Cookie Policy di ZazoomTek: gestione del consenso e preferenze relative ai cookie e a Google Analytics.",
+   "disclaimer":"Disclaimer di ZazoomTek: informazioni sull'utilizzo dei contenuti editoriali e sulle responsabilità del sito.",
+   "note-legali":"Note legali di ZazoomTek: informazioni relative al sito, ai contenuti e ai contatti della redazione."
+  }
+  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path="/"+page["slug"],seo_summary=summaries[page["slug"]]),encoding="utf-8")
 
 def safe_image(value):
  if not isinstance(value,str):return ""
