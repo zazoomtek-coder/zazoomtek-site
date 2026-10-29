@@ -446,4 +446,85 @@
   }
  }
 
+
+ // Home titles: full text when it fits in <=2 lines; otherwise truncate
+ // exactly at 2 rendered lines with three literal ASCII dots ("...").
+ // The ORIGINAL anchor text remains in the generated HTML for search engines.
+ // The full title stays accessible through aria-label/title on truncated cards.
+ const homeTitleSelector=
+  "main.wrap .featured-wide .spotlight-grid .tile-title,"+
+  "main.wrap .home-layout > .home-column article h3 > a";
+ const homeTitleLinks=[...document.querySelectorAll(homeTitleSelector)];
+ const homeTitleOriginals=new WeakMap();
+ for(const link of homeTitleLinks)homeTitleOriginals.set(link,link.textContent.trim());
+ const homeTitleTemporaryProperties=[
+  "display","-webkit-line-clamp","line-clamp",
+  "overflow","text-overflow","white-space"
+ ];
+ let homeTitleFrame=0;
+ function fitHomeTitles(){
+  if(!homeTitleLinks.length)return;
+  for(const link of homeTitleLinks){
+   const full=homeTitleOriginals.get(link);
+   if(!full)continue;
+   // Layout measurement uses this exact card, font and available width.
+   link.textContent=full;
+   link.style.setProperty("display","block","important");
+   link.style.setProperty("-webkit-line-clamp","unset","important");
+   link.style.setProperty("line-clamp","unset","important");
+   link.style.setProperty("overflow","visible","important");
+   link.style.setProperty("text-overflow","clip","important");
+   link.style.setProperty("white-space","normal","important");
+   const textRange=document.createRange();
+   const lineCount=()=>{
+    textRange.selectNodeContents(link);
+    const tops=[];
+    for(const rect of textRange.getClientRects()){
+     if(rect.height<=0.5||rect.width<=0.5)continue;
+     if(!tops.some(top=>Math.abs(top-rect.top)<1))tops.push(rect.top);
+    }
+    return tops.length;
+   };
+   if(lineCount()<=2){
+    link.dataset.homeTitleClipped="false";
+    continue;
+   }
+   // Binary search finds the longest character prefix that still fits
+   // the three literal dots at the end of the SECOND line.
+   let low=0,high=full.length;
+   const fits=count=>{
+    const prefix=full.slice(0,count).trimEnd();
+    link.textContent=prefix+"...";
+    return lineCount()<=2;
+   };
+   while(low<high){
+    const mid=Math.floor((low+high+1)/2);
+    if(fits(mid))low=mid;
+    else high=mid-1;
+   }
+   // Avoid dangling space, and do not claim full title is visible.
+   const shortened=full.slice(0,low).trimEnd();
+   link.textContent=shortened+"...";
+   link.dataset.homeTitleClipped="true";
+   link.setAttribute("aria-label",full);
+   link.setAttribute("title",full);
+  }
+  // Clear all measurement overrides after text has been fitted. For a
+  // truncated title the CSS clamp remains a second safety net.
+  for(const link of homeTitleLinks)
+   for(const name of homeTitleTemporaryProperties)
+    link.style.removeProperty(name);
+ }
+ function scheduleHomeTitleFitting(){
+  if(!homeTitleLinks.length)return;
+  cancelAnimationFrame(homeTitleFrame);
+  homeTitleFrame=requestAnimationFrame(fitHomeTitles);
+ }
+ if(homeTitleLinks.length){
+  fitHomeTitles();
+  window.addEventListener("resize",scheduleHomeTitleFitting,{passive:true});
+  window.addEventListener("load",scheduleHomeTitleFitting,{once:true});
+  document.fonts?.ready?.then(scheduleHomeTitleFitting);
+ }
+
 })();
