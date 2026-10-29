@@ -24,14 +24,14 @@ Thread(target=server.serve_forever,daemon=True).start()
 probe="""<script>
 setTimeout(()=>{
 const $$=s=>Array.from(document.querySelectorAll(s)),r=e=>e.getBoundingClientRect();
-const c=$$(".web-gateway-layout .web-gateway-card"),
-side=$$(".web-gateway-layout .inner-sidebar .editorial-row"),
+const c=$$$(.web-gateway-layout .web-gateway-card"),
+side=$$$(.web-gateway-layout .inner-sidebar .editorial-row"),
 visible=side.filter(e=>{const k=r(e);return k.height>0&&getComputedStyle(e).display!=="none"&&k.width>0;});
-const rel=$$(".web-gateway-layout .web-gateway-related"),source=$$(".web-gateway-source-link");
+const rel=$$$(.web-gateway-layout .web-gateway-related"),source=$$$(.web-gateway-source-link");
 const d={cards:c.length,cardY:c.map(e=>Math.round(r(e).y)),
  sourceY:source.map(e=>Math.round(r(e).y)),relatedY:rel.map(e=>Math.round(r(e).y)),
- sideVisible:visible.length,sideYs:visible.map(e=>Math.round(r(e).y)),sideBoxHeight:Math.round(r($(".web-gateway-layout .inner-sidebar")[0]).height),
- sidebarCount:$$(".web-gateway-layout .compact-editorial-box").length,
+ sideVisible:visible.length,sideYs:visible.map(e=>Math.round(r(e).y)),sideBoxHeight:Math.round(r($$(.web-gateway-layout .inner-sidebar")[0]).height),
+ sidebarCount:$$$(.web-gateway-layout .compact-editorial-box").length,
  scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
  const pre=document.createElement("pre");pre.id="gateway-audit-result";pre.textContent=JSON.stringify(d);document.body.append(pre);
 },700);
