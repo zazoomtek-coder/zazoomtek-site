@@ -1,0 +1,44 @@
+name: ZazoomTek - audit Amazon nelle pagine (solo anteprima)
+on:
+  push:
+    branches: [feature/amazon-empty-sidebar-preview-20261029]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build reale senza deploy
+        run: |
+          python -m py_compile tools/build.py
+          python tools/build.py
+      - name: Controlla tutte le pagine nuove e future
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          pages=list(Path("dist").glob("*.html"))
+          inner=[p for p in pages if 'class="inner-layout"' in p.read_text(encoding="utf-8")]
+          articles=[p for p in inner if '<section class="related">' in p.read_text(encoding="utf-8")]
+          assert len(articles)>=50,(len(articles),len(inner))
+          for p in inner:
+            h=p.read_text(encoding="utf-8")
+            n=h.count('class="inner-amazon-fill"')
+            if '<section class="related">' in h:
+              assert n==1,(p.name,n)
+              assert 'class="amazon-feature-box"' in h
+              assert 'rel="sponsored noopener noreferrer"' in h
+            else:
+              assert n==0,(p.name,n)
+          home=Path("dist/index.html").read_text(encoding="utf-8")
+          assert home.count('amazon-feature-box')==1
+          css=Path("dist/assets/css/spotnews.css").read_text(encoding="utf-8")
+          assert 'v50 · Amazon sidebar autofill' in css
+          print('PASS: ',len(articles),'actual articles/reviews with sidebar Amazon, ',len(inner),'inner pages, Home unchanged; zero deployments')
+          PY
