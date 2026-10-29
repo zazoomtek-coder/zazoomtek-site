@@ -38,14 +38,14 @@ jobs:
           import zipfile
           z=Path('ZazoomTek_HOME_Tech323_Gaming2_Anteprima_29-10-2026.zip')
           readme='''ZAZOOMTEK — ANTEPRIMA HOME 29/10/2026 (NON ONLINE)
-TECH: 3 news piccole SOPRA, 2 grandi al CENTRO, 3 piccole SOTTO.
-GAMING: due notizie grandi, una sotto l’altra a sinistra; quattro mini-notizie a destra.
-EDITORIALI HOME: solo la prima immagine di ogni box editoriale è ingrandita; le pagine articolo non cambiano.
-
-Estrai TUTTO lo ZIP, poi apri index.html o VISTA_SMARTPHONE.html nel browser.
-Le funzioni server di Studio NON sono utilizzabili da un file locale.
-Questa anteprima ha noindex e robots disabilitato intenzionalmente, non è pubblicata online.
-'''
+          TECH: 3 news piccole SOPRA, 2 grandi al CENTRO, 3 piccole SOTTO.
+          GAMING: due notizie grandi, una sotto l’altra a sinistra; quattro mini-notizie a destra.
+          EDITORIALI HOME: solo la prima immagine di ogni box editoriale è ingrandita; le pagine articolo non cambiano.
+          
+          Estrai TUTTO lo ZIP, poi apri index.html o VISTA_SMARTPHONE.html nel browser.
+          Le funzioni server di Studio NON sono utilizzabili da un file locale.
+          Questa anteprima ha noindex e robots disabilitato intenzionalmente, non è pubblicata online.
+          '''
           with zipfile.ZipFile(z,'a',compression=zipfile.ZIP_DEFLATED) as f:
            f.writestr('LEGGIMI_ANTEPRIMA_HOME_29-10-2026.txt',readme)
           with zipfile.ZipFile(z) as f:
