@@ -2888,3 +2888,23 @@ main.wrap .home-layout .amazon-feature-box .amazon-feature-badge,
 main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-badge {
   display:none!important;
 }
+
+/* 2026-10-29 — HOME GAMING: both large headlines use the SAME compact editorial typography.
+   The two existing headlines remain full; sidebar items and inner pages are unchanged. */
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(17px,1.8vw,21px)!important;
+  font-weight:500!important;
+  font-style:normal!important;
+  line-height:1.31!important;
+  letter-spacing:-.35px!important;
+  margin:5px 0 7px!important;
+  overflow-wrap:normal!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 > a {
+  font-family:inherit!important;
+  font-size:inherit!important;
+  font-weight:inherit!important;
+  line-height:inherit!important;
+  letter-spacing:inherit!important;
+}
