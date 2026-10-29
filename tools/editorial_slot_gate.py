@@ -27,6 +27,9 @@ FILES = (
     "tools/studio_v2_build.py",
     "assets/js/studio-v2.js",
     "assets/css/studio-v2.css",
+    # Approved visual corrections must also be released at the next normal
+    # 12:30/19:30 slot, even when YouTube/RSS published no new articles.
+    "assets/css/spotnews.css",
 )
 ROME = ZoneInfo("Europe/Rome")
 
