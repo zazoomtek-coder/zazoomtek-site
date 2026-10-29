@@ -446,4 +446,49 @@
   }
  }
 
+ // Homepage-only: only apply the browser ellipsis when the ORIGINAL headline
+ // needs more than two rendered lines. Never add a literal "..." to short text.
+ // Keep source HTML, accessibility title and all typography untouched.
+ const homeHeadlines=[...document.querySelectorAll(
+  "main.wrap .featured-wide .spotlight-grid .tile-title,"+
+  "main.wrap .home-layout > .home-column article h3 > a"
+ )];
+ let headlineFrame=0;
+ function fitHomeHeadlineEllipses(){
+  if(!homeHeadlines.length)return;
+  const overrides=["display","-webkit-line-clamp","line-clamp","overflow","text-overflow"];
+  for(const link of homeHeadlines){
+   // Temporarily show the whole title in its actual available width/font.
+   link.style.setProperty("display","block","important");
+   link.style.setProperty("-webkit-line-clamp","unset","important");
+   link.style.setProperty("line-clamp","unset","important");
+   link.style.setProperty("overflow","visible","important");
+   link.style.setProperty("text-overflow","clip","important");
+  }
+  for(const link of homeHeadlines){
+   const range=document.createRange();
+   range.selectNodeContents(link);
+   const lines=new Set([...range.getClientRects()]
+    .filter(rect=>rect.width>0.4&&rect.height>0.4)
+    .map(rect=>Math.round(rect.top*2)/2));
+   const overflows=lines.size>2;
+   // Reset to native CSS 2-line clamp ONLY for genuinely longer headlines.
+   if(overflows)for(const name of overrides)link.style.removeProperty(name);
+   link.dataset.homeTitleClipped=String(overflows);
+   // Preserve the full article headline for keyboard/hover users.
+   if(overflows&&!link.hasAttribute("title"))link.title=link.textContent.trim();
+  }
+ }
+ function scheduleHomeHeadlineFitting(){
+  if(!homeHeadlines.length)return;
+  cancelAnimationFrame(headlineFrame);
+  headlineFrame=requestAnimationFrame(fitHomeHeadlineEllipses);
+ }
+ if(homeHeadlines.length){
+  fitHomeHeadlineEllipses();
+  window.addEventListener("resize",scheduleHomeHeadlineFitting,{passive:true});
+  window.addEventListener("load",scheduleHomeHeadlineFitting,{once:true});
+  document.fonts?.ready?.then(scheduleHomeHeadlineFitting);
+ }
+
 })();
