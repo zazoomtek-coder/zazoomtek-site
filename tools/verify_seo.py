@@ -57,6 +57,16 @@ def check_seo(root,rows,groups,preview):
   expected=DOMAIN+path if path!="/" else DOMAIN+"/"
   if page.stem=="404":continue
   if not parser.title or len(parser.title)>125:bad.append((page.name,"missing/overlong title"))
+  if page.stem=="index" and parser.h1!=1:
+   bad.append((page.name,"Home must have exactly one semantic H1"))
+  archive_page=re.search(r"-page-(\\d+)$",page.stem)
+  if archive_page and ("Pagina "+archive_page.group(1)) not in parser.title:
+   bad.append((page.name,"Paginated archive title missing page number"))
+  if page.stem=="index":
+   html=page.read_text(encoding="utf-8")
+   for archive in ("/recensioni-tech","/recensioni-gaming","/video"):
+    if ('href="'+archive+'"') not in html:
+     bad.append((page.name,"Missing crawlable internal archive link "+archive))
   if not (40<=len(parser.meta.get("description",""))<=300):
    bad.append((page.name,"description missing or poor length"))
   if parser.meta.get("og:title")!=parser.title:
@@ -86,6 +96,11 @@ def check_seo(root,rows,groups,preview):
   parser.feed(p.read_text(encoding="utf-8"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
   if not item:bad.append((p.name,"no article schema"))
+  if str(row.get("category") or "").startswith("recensioni-"):
+   from article_templates import score as actual_score,paragraphs
+   rating=actual_score(row,paragraphs(row))
+   if rating is not None and float(rating.replace(",","."))>0 and (not item or item.get("@type")!="Review"):
+    bad.append((p.name,"Visible review vote missing Review schema"))
   else:
    if item.get("description")!=parser.meta.get("description"):
     bad.append((p.name,"Article structured description mismatch"))
