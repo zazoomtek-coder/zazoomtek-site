@@ -646,7 +646,7 @@ def box(name,rows,notice=""):
  for r in rows:
   href="/"+r["slug"]
   image=safe_image(r.get("image",""))
-  thumb='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
+  thumb='<img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
   cards.append('<article class="editorial-row"><a class="editorial-thumb" href="'+href+'"'+cover_focus_attributes(r)+'>'+thumb+'</a><div class="editorial-row-copy"><a href="'+href+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(date)+'</time>' if date else '')+'</div></article>')
  return '<section class="box editorial-box compact-editorial-box">'+bar(name,archives.get(name,""),"sidebar")+'<div class="editorial-links">'+''.join(cards)+'</div></section>'
