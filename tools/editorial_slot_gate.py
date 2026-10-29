@@ -110,9 +110,11 @@ def prepare():
     old = state()
     current = digest()
     if old.get("slot") == slot.isoformat():
-        print("THIS SLOT IS ALREADY PUBLISHED", slot.isoformat(), flush=True)
-        emit("EDITORIAL_NEEDS_RELEASE", "false")
-        return
+        if old.get("content_digest") == current:
+            print("THIS EXACT CONTENT WAS ALREADY PUBLISHED", slot.isoformat(), flush=True)
+            emit("EDITORIAL_NEEDS_RELEASE", "false")
+            return
+        print("LATE APPROVED CHANGES AFTER FIRST SLOT DEPLOY: catch-up release",flush=True)
     if old.get("content_digest") == current:
         print("NO NEW YOUTUBE/RSS CONTENT. No deployment this slot.", flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
@@ -143,8 +145,10 @@ def authorize():
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
         return
     # Another run for the same slot may have completed while this one was queued.
-    if state().get("slot") == slot.isoformat():
-        print("SKIPPED: slot already released by an earlier run", flush=True)
+    previous=state()
+    if (previous.get("slot") == slot.isoformat() and
+            previous.get("content_digest") == digest()):
+        print("SKIPPED: identical content already released this slot", flush=True)
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
         return
     print("AUTHORIZED EXACT SLOT", slot.isoformat(), "started", now.isoformat(), flush=True)
