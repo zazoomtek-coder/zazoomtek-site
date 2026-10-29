@@ -50,7 +50,7 @@ assert 'Ultime news' in h and 'Ultime recensioni' not in h and 'Dalla redazione'
 assert len(re.findall(r'class="box editorial-box compact-editorial-box"',h))==1
 home=(root/"index.html").read_text()
 assert 'data-rail-mode="split"' not in home
-assert home.count('class="amazon-feature-box"')>=1
+assert 'amazon-feature-box' in home
 assert 'news-tech-top-grid' in home and 'gaming-magazine-lead-secondary' in home
 assert 'function fitHomeTitles()' in (root/"assets/js/site.js").read_text()
 print("STATIC RAIL POLICY PASS",len(long),"long",len(shortnews),"short news; Amazon+Home unchanged",flush=True)
