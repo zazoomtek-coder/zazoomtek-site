@@ -1,0 +1,41 @@
+name: ZazoomTek - prova completa importazione 12-19 (no deploy)
+on:
+  push:
+    branches: [diagnose/editorial-cron-oct29]
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    env:
+      CF_PAGES_BRANCH: main
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Carica la coda aggiornata (non bloccante)
+        run: git fetch --no-tags origin editorial-queue || true
+      - name: Importa YouTube Community video e RSS senza commit o deploy
+        run: python3 tools/scheduled_editorial_import.py
+      - name: Rigenera e verifica davvero sitemap e pagine (nessun deploy)
+        run: |
+          python3 tools/build.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          root=Path('dist')
+          assert root.joinpath('index.html').is_file()
+          sitemap=ET.parse(root/'sitemap.xml').getroot()
+          print('SITEMAP URLs',len(sitemap),flush=True)
+          html=(root/'index.html').read_text(encoding='utf-8')
+          robots=(root/'robots.txt').read_text(encoding='utf-8')
+          assert 'noindex' not in html.split('</head>')[0]
+          assert 'Disallow: /' not in robots
+          assert len(sitemap)>=200
+          print('PRE-FLIGHT PASS: public SEO indexing allowed, full HTML generated; ZERO DEPLOY',flush=True)
+          PY
