@@ -54,7 +54,7 @@ jobs:
           assert "community-ugkxwgp-n8aw2rtb-ufes2cj4cb0e8klhg7m" in red
           print("SEO APPROVED PASS:",len(paged),"unique paginated archives;",review_schema,"Review schemas; Home and 301 preserved")
           PY
-      - name: Chrome reale: Home 2 righe titolo in OGNI box tranne editoriali
+      - name: "Chrome reale: Home 2 righe titolo in OGNI box tranne editoriali"
         run: |
           python3 -m py_compile tools/test_all_home_two_lines_20261029.py
           python3 tools/test_all_home_two_lines_20261029.py
