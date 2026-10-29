@@ -205,7 +205,7 @@ def build_studio_v2(output,rows):
        <div>Descrizione</div><span id="v2-seo-description">Ottimizzata automaticamente dal contenuto completo.</span></div>
      </div>
      <div class="v2-settings-section"><div class="v2-setting-title">Pubblicazione</div>
-      <p class="v2-settings-hint">Anteprima non salva né pubblica. Salva bozza conserva il testo nel repository di prova. Pubblica mette l'articolo in coda per le 12:30 o le 19:30. Il testo è protetto anche da un salvataggio automatico locale.</p>
+      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva l’articolo in coda e apre subito la sua anteprima: sarà online solo nello slot delle 12:30 o delle 19:30. I testi restano protetti dal salvataggio locale.</p>
       <a id="v2-public-link" href="#" target="_blank" rel="noopener noreferrer" hidden>↗ Apri articolo pubblicato</a>
      </div>
     </aside>
@@ -213,7 +213,7 @@ def build_studio_v2(output,rows):
   </div>
   <div id="v2-toast" class="v2-toast" role="status" aria-live="polite" hidden></div>
  <div id="v2-article-preview" class="v2-article-preview" role="dialog" aria-modal="true" aria-label="Anteprima dell'articolo" hidden>
-  <div class="v2-preview-sheet"><div class="v2-preview-toolbar"><strong>ANTEPRIMA ARTICOLO · SOLO LOCALE</strong><button type="button" id="v2-close-preview">Chiudi anteprima ×</button></div>
+  <div class="v2-preview-sheet"><div class="v2-preview-toolbar"><strong>ANTEPRIMA SALVATA · IN CODA, NON ONLINE</strong><button type="button" id="v2-close-preview">Chiudi anteprima ×</button></div>
    <article class="v2-preview-article" id="v2-preview-article-content"></article>
    <p class="v2-preview-disclaimer">Questa anteprima non pubblica nulla e riproduce titolo, immagine, paragrafi e sottotitoli editoriali.</p>
   </div>
