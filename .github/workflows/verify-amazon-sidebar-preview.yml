@@ -42,3 +42,14 @@ jobs:
           assert 'v50 · Amazon sidebar autofill' in css
           print('PASS: ',len(articles),'actual articles/reviews with sidebar Amazon, ',len(inner),'inner pages, Home unchanged; zero deployments')
           PY
+
+      - name: Prepara ZIP offline sito completo (non pubblicare)
+        run: python3 tools/package_amazon_offline.py
+      - name: Allega ZIP scaricabile per verifica su PC
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek_Anteprima_Amazon_Pagine_Reali_29-10-2026
+          path: ZazoomTek_Anteprima_Amazon_Pagine_Reali_29-10-2026.zip
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
