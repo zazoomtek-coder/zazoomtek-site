@@ -3,17 +3,17 @@
   "items": [
     {
       "source": "HDblog",
-      "title": "Prime Video: tutti i film e le serie TV in arrivo a novembre 2026",
-      "url": "https://www.hdblog.it/amazon/articoli/n675282/prime-video-film-serie-tv-novembre-2026/",
-      "image": "https://hd2.tudocdn.net/1381360?w=660",
+      "title": "Un vecchio smartphone diventa il \"cervello\" di un aeromodello radiocomandato",
+      "url": "https://www.hdblog.it/smartphone/articoli/n675301/xiaomi-mi-8-recupero-aeromodello-4g-lte/",
+      "image": "https://hd2.tudocdn.net/1381413?w=660",
       "date": "2026-10-29",
       "from_feed": true
     },
     {
       "source": "SmartWorld",
-      "title": "Quanto è cambiato macOS nel primo MacBook touch? Probabilmente \"il giusto\"",
-      "url": "https://www.smartworld.it/news/macbook-pro-touchscreen-cambia-macos-touch.html",
-      "image": "https://www.smartworld.it/images/2026/10/28/macbook-pro-oled---13-orig.jpeg",
+      "title": "DJI ROMO 2 introduce la modalità Dati locali: mappe e foto di casa restano sul robot, senza cloud",
+      "url": "https://www.smartworld.it/news/dji-romo-2-modalita-dati-locali-privacy-senza-cloud.html",
+      "image": "https://www.smartworld.it/images/2026/08/28/dji-romo-2-8-di-59--orig.jpg",
       "date": "2026-10-29",
       "from_feed": true
     },
@@ -27,25 +27,25 @@
     },
     {
       "source": "Tom's Hardware",
-      "title": "The Wolf Among Us Remastered: come iniziare e gestire le scelte",
-      "url": "https://www.tomshw.it/videogioco/the-wolf-among-us-remastered-come-iniziare-e-gestire-le-scelte",
-      "image": "https://cdn.tomshw.it/storage/media/2026/10/120947/ar60gz.jpg",
+      "title": "Un chip programmabile diventa una console con ben 32 giochi",
+      "url": "https://www.tomshw.it/hardware/terasic-de0-nano-diventa-una-console-risc-v-ecco-come-nasce-la-cpu",
+      "image": "https://cdn.tomshw.it/storage/media/2026/10/120966/terasic-de0-nano-diventa-una-console-risc-v-ecco-come-nasce-la-cpu.png",
       "date": "2026-10-29",
       "from_feed": true
     },
     {
       "source": "Hardware Upgrade",
-      "title": "FWA, quanto costa e quali sono le prestazioni dell'alternativa alla fibra FTTH per Internet a casa",
-      "url": "https://www.hwupgrade.it/news/telefonia/fwa-quanto-costa-e-quali-sono-le-prestazioni-dell-alternativa-alla-fibra-ftth-per-internet-a-casa_161275.html",
+      "title": "Mac Studio M5 Ultra al massimo: 512GB di RAM e 16TB costano oltre 33 mila euro",
+      "url": "https://www.hwupgrade.it/news/apple/mac-studio-m5-ultra-al-massimo-512gb-di-ram-e-16tb-costano-oltre-33-mila-euro_161291.html",
       "image": "",
       "date": "2026-10-29",
       "from_feed": true
     },
     {
       "source": "Punto Informatico",
-      "title": "Disallineamento dell’AI: quando le macchine sbagliano",
-      "url": "https://www.punto-informatico.it/disallineamento-ai-quando-macchine-sbagliano/",
-      "image": "https://www.punto-informatico.it/app/uploads/2026/10/ai-disallineamento.jpg",
+      "title": "Chatbot AI: ban per i minori di 18 anni a New York",
+      "url": "https://www.punto-informatico.it/chatbot-ai-ban-minori-18-anni-new-york/",
+      "image": "https://www.punto-informatico.it/app/uploads/2026/10/Ban-chatbot-New-York.jpg",
       "date": "2026-10-29",
       "from_feed": true
     }
