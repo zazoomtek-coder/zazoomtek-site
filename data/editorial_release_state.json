@@ -1,6 +1,6 @@
 {
-  "slot": "manual-2026-10-28",
-  "content_digest": "b8d2e6aca972c29dad6638622ba76fa7f586f10de679fa4fab07a309a227f049",
-  "finished_at": "2026-10-28T19:56:44+01:00",
-  "source": "Successful explicitly-authorized Cloudflare deployment 40749669564"
+  "slot": "manual-2026-10-29-1246",
+  "content_digest": "ab08d19e75ea0617ba6f24449054ea990fc70be974ae7b7ce0e380a373494afa",
+  "finished_at": "2026-10-29T12:46:52+01:00",
+  "source": "Verified Cloudflare production release 29 Oct 2026"
 }
