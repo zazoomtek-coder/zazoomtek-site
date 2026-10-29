@@ -56,20 +56,23 @@ def confirmed_commit():
 
 def main():
     mode=sys.argv[1] if len(sys.argv)>1 else "inspect"
-    if mode not in ("inspect","backup"):
+    if mode not in ("inspect","backup","backup-manual"):
         raise SystemExit("Usage: release_backup.py inspect|backup")
     state=receipt()
     sha=confirmed_commit()
     if mode=="inspect":
         print("LAST VERIFIED RELEASE",state["slot"],"COMMIT",sha,flush=True)
         return
-    target=os.environ.get("EDITORIAL_TARGET")
+    target=(datetime.now(ROME).isoformat() if mode=="backup-manual"
+            else os.environ.get("EDITORIAL_TARGET"))
     if not target:
         raise ValueError("No editorial slot to attach the backup to")
     slot=datetime.fromisoformat(target).astimezone(ROME)
-    if slot.hour not in (12,19) or slot.minute!=30:
+    if mode!="backup-manual" and (slot.hour not in (12,19) or slot.minute!=30):
         raise ValueError("Unexpected release slot")
-    name="backup/predeploy-"+slot.strftime("%Y%m%d-%H%M")
+    name=("backup/predeploy-manual-"+slot.strftime("%Y%m%d-%H%M%S")
+          if mode=="backup-manual" else
+          "backup/predeploy-"+slot.strftime("%Y%m%d-%H%M"))
     # Idempotent: a second runner using the same slot must not overwrite it.
     remote=subprocess.run(["git","ls-remote","--heads","origin",name],
                           cwd=ROOT,check=True,capture_output=True,text=True).stdout.strip()
@@ -78,7 +81,7 @@ def main():
             raise RuntimeError("Existing backup branch does not match verified release")
     else:
         git("push","origin",sha+":refs/heads/"+name)
-    zip_name="ZazoomTek_WORKING_BACKUP_"+slot.strftime("%Y%m%d_%H%M")+".zip"
+    zip_name="ZazoomTek_WORKING_BACKUP_"+slot.strftime("%Y%m%d_%H%M%S")+".zip"
     artifact=ROOT/zip_name
     subprocess.run(["git","archive","--format=zip","--output="+str(artifact),sha],
                    cwd=ROOT,check=True)
