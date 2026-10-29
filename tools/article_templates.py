@@ -231,7 +231,10 @@ def image_block(review,image_validator,extra=False):
   src=image_validator(item.get("src",""))
   if not src:continue
   caption=plain(item.get("caption",""))
-  image='<img loading="lazy" src="'+esc(src,quote=True)+'" alt="'+esc(caption or plain(review.get("title")),quote=True)+'">'
+  # First editorial cover is often the LCP image; do not lazy-load it.
+  # Extra article images remain deferred to conserve bandwidth.
+  priority='loading="eager" fetchpriority="high"' if not extra else 'loading="lazy" fetchpriority="low"'
+  image='<img '+priority+' decoding="async" src="'+esc(src,quote=True)+'" alt="'+esc(caption or plain(review.get("title")),quote=True)+'">'
   result.append('<figure class="story-figure">'+image+('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
  return ''.join(result)
 
