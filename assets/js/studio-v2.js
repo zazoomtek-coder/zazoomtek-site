@@ -7,11 +7,26 @@ const val=id=>E(id).value.trim(),num=(v,lo,hi,def)=>Math.min(hi,Math.max(lo,Numb
 const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,135);
 function notify(msg,error=false){const t=E("v2-toast");t.hidden=false;t.textContent=msg;t.classList.toggle("error",error)}
 async function api(endpoint,data){
- const opt={credentials:"same-origin",cache:"no-store",redirect:"manual"};
- if(data!==undefined){opt.method="POST";opt.headers={"Content-Type":"application/json"};opt.body=JSON.stringify(data)}
- const r=await fetch("/api/studio/"+endpoint,opt);
- if(!(r.headers.get("Content-Type")||"").includes("application/json"))throw Error("La sessione amministratore non è disponibile.");
- const j=await r.json();if(!r.ok||j.ok!==true)throw Error(j.error||"Operazione non autorizzata");
+ const opt={credentials:"same-origin",cache:"no-store",redirect:"manual",
+  headers:{"Accept":"application/json"}};
+ if(data!==undefined){opt.method="POST";opt.headers["Content-Type"]="application/json";opt.body=JSON.stringify(data)}
+ let r;
+ try{r=await fetch("/api/studio/"+endpoint,opt)}
+ catch(err){throw Error("Connessione a Studio interrotta. Le modifiche sono conservate nella bozza locale.")}
+ const contentType=(r.headers.get("Content-Type")||"").toLowerCase();
+ if(!contentType.includes("application/json")){
+  const status=r.type==="opaqueredirect"?"reindirizzamento":String(r.status||"sconosciuto");
+  throw Error("Cloudflare non ha restituito la risposta JSON di Studio (HTTP "+status+
+   "). Nessun salvataggio confermato. Il testo resta nella bozza locale: controlla l'accesso in una nuova scheda.");
+ }
+ let j;
+ try{j=await r.json()}catch(_){throw Error("Risposta di Studio non valida. Nessun salvataggio confermato; il testo resta nella bozza locale.")}
+ if(!r.ok||j.ok!==true){
+  if(r.status===401||j.code==="UNAUTHENTICATED")
+   throw Error("Accesso amministratore scaduto o non riconosciuto. La bozza locale è protetta: apri Studio in una nuova scheda, accedi e riprova.");
+  if(r.status===403)throw Error(j.error||"Permesso negato. La bozza locale resta disponibile.");
+  throw Error(j.error||"Operazione non autorizzata (HTTP "+r.status+").");
+ }
  return j;
 }
 function editorFields(row){
@@ -617,7 +632,12 @@ async function save(mode){
    delete state.drafts[row.slug];
    E("v2-public-link").hidden=false;E("v2-public-link").href="/"+row.slug;
   }
- }catch(e){notify(e.message,true)}
+ }catch(e){
+  backupNow();
+  notify(e.message,true);
+  const label=E("v2-autosave-status");
+  if(label)label.textContent="Pubblicazione non confermata. Il testo originale è protetto nella bozza locale.";
+ }
  finally{state.busy=false;buttons.forEach(b=>b.disabled=false)}
 }
 async function init(){
