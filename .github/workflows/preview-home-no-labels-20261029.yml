@@ -42,6 +42,7 @@ jobs:
           GAMING: due notizie grandi, una sotto l’altra a sinistra; quattro mini-notizie a destra.
           Le due notizie grandi Gaming: solo immagine, titolo e data (niente autore, descrizione, badge).
           EDITORIALI HOME: solo la prima immagine di ogni box editoriale è ingrandita; le pagine articolo non cambiano.
+          ETICHETTE: eliminate dalle schede Home, mantenute esclusivamente nelle Notizie Web. Titoli sezioni e informativa Amazon invariati.
           
           Estrai TUTTO lo ZIP, poi apri index.html o VISTA_SMARTPHONE.html nel browser.
           Le funzioni server di Studio NON sono utilizzabili da un file locale.
