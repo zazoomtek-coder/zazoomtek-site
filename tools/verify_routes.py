@@ -65,7 +65,7 @@ def check_dist(root):
  # Explicitly verify all four legal pages and editorial archives.
  for name in ("news","news-tech","news-gaming","recensioni","recensioni-tech",
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
-              "cookie-policy","disclaimer","note-legali","contatti"):
+              "cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):
   if name not in real_pages:errors.append("Required page missing: /"+name)
  # Internal search and breaking news datasets must resolve to actual published articles.
  for name,key in (("search-index.json","articles"),("news-ticker.json","items")):
