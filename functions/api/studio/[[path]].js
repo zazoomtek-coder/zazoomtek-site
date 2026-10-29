@@ -439,6 +439,20 @@ export async function onRequest(context){
    return respond({ok:true,drafts:(await getDrafts(session.token)).drafts});
   if(pathname==="/api/studio/v2-pending"&&request.method==="GET")
    return respond({ok:true,...await pendingV2(session.token)});
+  // Media caricati su editorial-queue: anteprima autenticata prima dello slot.
+  if(pathname==="/api/studio/v2-asset"&&request.method==="GET"){
+   const asset=clean(new URL(request.url).searchParams.get("path")).replace(/^\\/+/, "");
+   if(!asset.startsWith("assets/uploads/")||!allowedPath(asset))
+    return respond({ok:false,error:"Media non autorizzato."},400);
+   const file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+BRANCH);
+   if(file.encoding!=="base64"||!file.content)throw new Error("Media non disponibile in anteprima.");
+   const ext=asset.split(".").pop();
+   const mime={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",
+    mp3:"audio/mpeg",m4a:"audio/mp4",wav:"audio/wav",pdf:"application/pdf",txt:"text/plain"}[ext];
+   return new Response(fromBase64(file.content.replace(/\\s+/g,"")),{status:200,
+    headers:{"Content-Type":mime,"Cache-Control":"no-store, private",
+     "X-Content-Type-Options":"nosniff"}});
+  }
   if(pathname==="/api/studio/v2-save"&&request.method==="POST")
    return saveV2(request,env,session);
   if(pathname==="/api/studio/save"&&request.method==="POST")
