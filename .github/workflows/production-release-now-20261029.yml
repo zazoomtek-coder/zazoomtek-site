@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - ops/production-release-now-20261029.trigger
+      - ops/production-release-approved-fixes-20261029.trigger
 permissions:
   contents: write
   deployments: write
@@ -87,6 +88,48 @@ jobs:
            time.sleep(6)
           if not verified:raise RuntimeError('Cloudflare says deployment succeeded but new news not verified at public domain')
           print('LIVE SITE VERIFIED: new imported Community article visible at official domain',flush=True)
+          PY
+      - name: Verifica le 4 correzioni sul dominio PUBBLICO dopo il deploy
+        run: |
+          python3 - <<'PY'
+          import urllib.request,time,sys,json
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from web_editorial import gateway_path
+          base='https://zazoomtek.it'
+          post='/community-ugkxf-aembzj-nrh3uwdvfxhfshcpji31jjc'
+          media=base+'/assets/css/spotnews.css'
+          feeds=json.loads(Path('data/web.json').read_text(encoding='utf-8'))['items']
+          gta=next((p for p in feeds if 'meme' in str(p.get('title','')).lower() and 'gta' in str(p.get('title','')).lower()),None)
+          print('WEB GTA SOURCE FOUND',bool(gta),flush=True)
+          if not gta:raise RuntimeError('Cannot verify corrected GTA meme gateway: source absent')
+          web=gateway_path(gta)
+          def get(url,attempt):
+            req=urllib.request.Request(url+('?verify-fixes='+str(attempt) if '?' not in url else '&verify-fixes='+str(attempt)),headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
+            with urllib.request.urlopen(req,timeout=20) as resp:
+              assert resp.status==200,(url,resp.status)
+              return resp.read().decode('utf-8','replace')
+          for attempt in range(8):
+            try:
+              article=get(base+post,attempt)
+              css=get(media if media else base+'/',attempt)
+              gateway=get(base+web,attempt)
+              checks={
+                'Review Pro': 'Fotocamera Sony da 8 MP' in article and 'verdict-pro' in article,
+                'Review Contro': 'Autonomia ridotta' in article and 'verdict-con' in article,
+                'Amazon next to related': 'inner-amazon-fill' in article and 'amazon-feature-box' in article,
+                'Guide Extra rules': 'border-bottom:none!important' in css,
+                'Actual two-column grid': 'grid-template-areas:"story rail" "related amazon"' in css,
+                'GTA same story': 'GTA 6 riscopre un meme storico' in gateway,
+                'No fake fallback': 'Al momento non risulta' not in gateway
+              }
+              print('PUBLIC SITE CHECKS',checks,flush=True)
+              if all(checks.values()):
+                print('LIVE FIXES VERIFIED: all FOUR corrections present on official domain',flush=True)
+                break
+            except Exception as e:print('VERIFY ATTEMPT ERROR',type(e).__name__,str(e)[:160],flush=True)
+            if attempt==7:raise RuntimeError('Corrections NOT verified on public domain')
+            time.sleep(8)
           PY
       - name: Registra impronta pubblicazione reale per non duplicare i prossimi slot
         run: |
