@@ -20,7 +20,7 @@ import subprocess
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
-BASELINE="backup/production-verified-20261029-1930"
+BASELINE="backup/production-live-exact-20261029-1930"
 ROME=ZoneInfo("Europe/Rome")
 
 
