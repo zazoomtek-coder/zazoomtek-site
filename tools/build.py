@@ -705,7 +705,7 @@ def amazon_provisional_box():
          ' aria-label="Vedi i prodotti recensiti su Amazon, link affiliato">'
          'VEDI I PRODOTTI SU AMAZON <span aria-hidden="true">↗</span></a></section>')
 
-def sidebar(rows,home=False,used=None,gateway=False):
+def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article=False):
  used=set(used or ())
  news=sort_by_date_desc([r for r in rows if r.get("category") in ("news-tech","news-gaming")])
  reviews=sort_by_date_desc([r for r in rows if str(r.get("category") or "").startswith("recensioni-")])
@@ -733,19 +733,24 @@ def sidebar(rows,home=False,used=None,gateway=False):
     if found:groups[label].extend(found)
   for label in labels:
    if groups[label]:selected.append(box(label,groups[label]))
+ elif long_article:
+  # 50/50 desktop: only two authentic sets; no duplication with article links.
+  first=sidebar_select(news,14,used)
+  editorial=daily_shuffle([r for r in rows if r.get("category") in TYPES and
+                           r.get("category") not in ("video","extra")],
+                          "long-article-editorial-"+",".join(sorted(used)[:6]))
+  second=sidebar_select(editorial,14,used)
+  if len(first)<1 or len(second)<1:raise ValueError("Long page needs genuine content for both panels")
+  selected.append(box("Ultime news",first))
+  selected.append(box("Dalla redazione",second))
+ elif news_page:
+  only_reviews=sidebar_select(reviews,16,used)
+  if only_reviews:selected.append(box("Ultime recensioni",only_reviews))
  else:
-  latest_news=sidebar_select(news,12,used)
-  latest_reviews=sidebar_select(reviews,12,used)
+  latest_news=sidebar_select(news,16,used)
   if latest_news:selected.append(box("Ultime news",latest_news))
-  if latest_reviews:selected.append(box("Ultime recensioni",latest_reviews))
-  mixed=daily_shuffle(rows,"inner-"+",".join(sorted(used)[:8]))
-  for label in ("Da non perdere","Dalla redazione","Altre news","Archivio Tech","Archivio Gaming","Dagli archivi"):
-   if label=="Archivio Tech":pool=[r for r in mixed if r.get("category")=="news-tech"]
-   elif label=="Archivio Gaming":pool=[r for r in mixed if r.get("category")=="news-gaming"]
-   else:pool=mixed
-   subset=sidebar_select(pool,14,used)
-   if subset:selected.append(box(label,subset))
- return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'" aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(selected)+'</div></aside>'
+ mode=' data-rail-mode="split"' if long_article and not home and not gateway else ''
+ return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'"'+mode+' aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(selected)+'</div></aside>'
 
 def related_articles(rows,exclude="",category=None):
  candidates=sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True)
@@ -1022,7 +1027,15 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  reserved=set()
  for r in rows:
   if r.get("slug") in reserved_slugs:reserved.update(home_keys(r))
- rail=sidebar(rows,False,reserved,gateway=gateway)
+ # Actual substantive article length distinguishes long from short pages.
+ # Archives and Web source gateways are never treated as long articles.
+ prose=re.sub(r"<[^>]+>"," ",content)
+ prose=re.sub(r"\\s+"," ",unesc(prose)).strip()
+ long_article=bool(seo_row and len(prose)>=3200)
+ news_page=bool((seo_row and str(seo_row.get("category") or "").startswith("news-")) or
+                (seo_row is None and seo_path.startswith("/news")))
+ rail=sidebar(rows,False,reserved,gateway=gateway,
+              news_page=news_page,long_article=long_article)
  # Each published article/review with related stories has one real
  # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
  # New articles inherit the slot automatically. No duplicate on Home.
