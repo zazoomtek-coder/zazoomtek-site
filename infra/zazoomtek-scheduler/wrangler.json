@@ -1,0 +1,15 @@
+{
+  "name": "zazoomtek-editorial-scheduler",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-29",
+  "workers_dev": false,
+  "triggers": {
+    "crons": [
+      "*/10 7-18 * * *",
+      "21,26,33,38 10,11,17,18 * * *"
+    ]
+  },
+  "observability": {
+    "enabled": true
+  }
+}
