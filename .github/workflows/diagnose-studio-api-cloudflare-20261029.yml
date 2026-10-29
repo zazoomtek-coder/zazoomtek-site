@@ -1,0 +1,33 @@
+name: ZazoomTek - diagnosi POST Studio senza credenziali (NO DEPLOY)
+on:
+  push:
+    branches: [diagnose/studio-api-session-cloudflare-20261029]
+permissions:
+  contents: read
+jobs:
+  read-only-api-response:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST anonimo e session GET: solo status/content-type, zero token
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, json
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+           def redirect_request(self,req,fp,code,msg,headers,newurl):return None
+          opener=urllib.request.build_opener(NoRedirect())
+          for host in ('https://zazoomtek.it','https://zazoomtek-site.pages.dev'):
+           for path,method in (('/api/studio/session','GET'),('/api/studio/v2-save','POST'),('/api/studio/v2-drafts','GET')):
+            data=b'{"mode":"draft","record":{"title":"NON PUBBLICARE","slug":"nessuna-scrittura"}}' if method=='POST' else None
+            headers={'User-Agent':'Mozilla/5.0 (compatible; StudioNoAuthHealthProbe/1.0)', 'Accept':'application/json'}
+            if method=='POST':headers.update({'Origin':host,'Content-Type':'application/json'})
+            req=urllib.request.Request(host+path,data=data,headers=headers,method=method)
+            try:res=opener.open(req,timeout=15)
+            except urllib.error.HTTPError as e:res=e
+            except Exception as e:
+             print('FAIL',host,path,method,type(e).__name__,str(e)[:110],flush=True);continue
+            body=res.read(256).decode('utf-8','replace')
+            print('PROBE',host,path,method,'STATUS',res.status,'CONTENT_TYPE',res.headers.get('Content-Type'),
+             'LOCATION',str(res.headers.get('Location') or '')[:130],'SERVER',res.headers.get('Server'),
+             'BODY_PREFIX',body[:150].replace('\n',' '),flush=True)
+          PY
