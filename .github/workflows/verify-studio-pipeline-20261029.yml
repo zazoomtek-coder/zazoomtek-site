@@ -1,0 +1,103 @@
+name: ZazoomTek - audit rigoroso pipeline Studio (NO DEPLOY)
+on:
+  push:
+    branches: [feature/fix-studio-publish-session-and-queue-20261029]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/fix-studio-publish-session-and-queue-20261029
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static and syntax audit, JS and release scripts
+        run: |
+          python3 -m py_compile tools/scheduled_editorial_import.py tools/editorial_slot_gate.py tools/build.py
+          node --check assets/js/studio-v2.js
+          node --check 'functions/api/studio/[[path]].js'
+          python3 - <<'PY'
+          from pathlib import Path
+          script=Path('assets/js/studio-v2.js').read_text()
+          workflow=Path('.github/workflows/editorial-publish.yml').read_text()
+          gate=Path('tools/editorial_slot_gate.py').read_text()
+          import_script=Path('tools/scheduled_editorial_import.py').read_text()
+          assert 'localStorage' in script and 'backupNow();' in script
+          assert 'Cloudflare non ha restituito la risposta JSON' in script
+          assert 'data/studio_posts.json data/studio_overrides.json' in workflow
+          assert 'git add -A assets/uploads' in workflow
+          assert 'data/studio_v2_drafts.json' not in workflow
+          assert 'data/studio_posts.json' in gate and 'data/studio_overrides.json' in gate
+          assert 'data/studio_v2_drafts.json' not in gate
+          assert 'sync_studio_publications()' in import_script
+          assert 'sync_studio_assets()' in import_script
+          assert "if not _valid_studio_row(row):" in import_script
+          print('STATIC PIPELINE AUDIT PASS')
+          PY
+      - name: Test exact two local release slots and DST clock guards
+        run: |
+          python3 - <<'PY'
+          import sys
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          sys.path.insert(0,'tools')
+          import editorial_slot_gate as gate
+          zone=ZoneInfo('Europe/Rome')
+          for date in ((2026,3,20),(2026,7,10),(2026,10,29),(2026,11,20)):
+            for hour in (12,19):
+              for minute in (20,25,30,34):
+                time=datetime(*date,hour,minute,tzinfo=zone)
+                target=gate.event_slot(time)
+                assert target and target.hour==hour and target.minute==30,(time,target)
+              assert gate.event_slot(datetime(*date,hour,36,tzinfo=zone)) is None
+            assert gate.event_slot(datetime(*date,16,30,tzinfo=zone)) is None
+          print('TIME SLOT + CEST/CET AUDIT PASS')
+          PY
+      - name: Stage queue and run actual live import + Studio-publish merge
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'tools')
+          from scheduled_editorial_import import _valid_studio_row
+          root=Path('data')
+          queue=json.loads(root.joinpath('studio_v2_drafts.json').read_text())
+          published=json.loads(root.joinpath('studio_posts.json').read_text())['posts']
+          overrides=json.loads(root.joinpath('studio_overrides.json').read_text())['overrides']
+          for p in published:assert _valid_studio_row(p),('Invalid Studio post',p.get('slug'))
+          for slug,p in overrides.items():assert _valid_studio_row(p,slug),('Invalid override',slug)
+          print('PUBLISHED:',len(published),'OVERRIDES:',len(overrides),'DRAFTS NOT PROMOTED:',len(queue['drafts']),flush=True)
+          assert not any('studio_v2_drafts' in name for name in ('studio_posts.json','studio_overrides.json'))
+          PY
+      - name: Build production snapshot, verify Studio and all public HTML
+        run: |
+          python3 tools/build.py
+          python3 - <<'PY'
+          import json,xml.etree.ElementTree as ET
+          from pathlib import Path
+          root=Path('dist')
+          assert 'Disallow: /' not in (root/'robots.txt').read_text()
+          assert len(ET.parse(root/'sitemap.xml').getroot())>=220
+          public=list(root.glob('*.html'))
+          assert len(public)>=235
+          for p in public:
+            s=p.read_text(encoding='utf-8')
+            assert 'github_pat_' not in s
+          drafts=json.loads(Path('data/studio_v2_drafts.json').read_text())['drafts']
+          overrides=json.loads(Path('data/studio_overrides.json').read_text())['overrides']
+          for slug in drafts:
+            if slug not in overrides:
+              assert slug not in [p.stem for p in public if p.stem not in ('index','404') or ' ' in p.stem],slug
+          print('FULL PRODUCTION BUILD AUDIT PASS:',len(public),'HTML and',len(ET.parse(root/'sitemap.xml').getroot()),'sitemap canonical URLs',flush=True)
+          PY
