@@ -1,0 +1,43 @@
+name: ZazoomTek - diagnosi notizia YouTube mancante (NO DEPLOY)
+on:
+  push:
+    branches: [diagnose/youtube-missing-news-20261029]
+permissions:
+  contents: read
+jobs:
+  read-youtube:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Consulta YouTube senza modificare dati o pubblicare
+        run: |
+          python3 - <<'PY'
+          import sys,json
+          from pathlib import Path
+          from datetime import datetime,timezone
+          sys.path.insert(0,"tools")
+          from community_youtube import discover,post_records,webpage_json,fetch,CHANNEL,title_type,date_from_relative
+          rows=json.loads(Path("data/community_imported.json").read_text(encoding="utf8"))["posts"]
+          archived=json.loads(Path("data/community_full.json").read_text(encoding="utf8"))["posts"]
+          seen={x.get("id") for x in rows+archived}
+          print("CHECK UTC",datetime.now(timezone.utc).isoformat(),flush=True)
+          print("MAIN IMPORTED",len(rows),"LATEST",[(x.get("id"),str(x.get("title"))[:95]) for x in rows[:5]],flush=True)
+          raw=fetch(CHANNEL+"?hl=it&persist_hl=1")
+          direct=post_records(webpage_json(raw))
+          print("YOUTUBE FIRST PAGE",len(direct),flush=True)
+          for i,row in enumerate(direct[:35]):
+           title,typ=title_type(row["text"])
+           print("RAW",i,row["id"],"NEW" if row["id"] not in seen else "PRESENT","TYPE",typ or "INVALID","TIME",row.get("when"),"CHARS",len(row["text"]),"TITLE",title[:145],flush=True)
+          clean=discover(limit=90,max_pages=8)
+          print("ACCEPTED",len(clean),flush=True)
+          for i,row in enumerate(clean[:40]):
+           print("VALID",i,row["id"],"NEW" if row["id"] not in seen else "PRESENT","DATE",row.get("date"),"KIND",row.get("type"),"TITLE",str(row.get("title"))[:150],flush=True)
+          print("MISSING ON MAIN",sum(x["id"] not in seen for x in clean),flush=True)
+          print("NO DEPLOY NO FILE WRITES",flush=True)
+          PY
