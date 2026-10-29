@@ -121,8 +121,53 @@ def attach_links(web_items,original_articles):
   item["original_matches"]=relevant(item.get("title",""),original_articles)
  return web_items
 
-def gateway_html(entry,original_articles):
- """Clearly labelled editorial gateway, not a republished third-party story."""
+def web_gateway_suggestions(entry,articles,exact_matches=None,limit=3):
+ """Choose REAL first-party coverage first; never imply a random item covers exact news.
+
+ Exact articles are linked above as primary and excluded from these three cards.
+ If a niche topic has fewer than 3 relevant pieces, fill with the newest
+ articles in its Tech/Gaming section and use an honest general section title.
+ """
+ title=plain(entry.get("title"))
+ exact_matches=exact_matches if exact_matches is not None else relevant(title,articles)
+ primary=exact_matches[0] if exact_matches else None
+ excluded={primary["slug"]} if primary else set()
+ chosen=[];used=set(excluded)
+ def take(row):
+  slug=str(row.get("slug") or "")
+  if not slug or slug in used or row.get("category") not in CONTENT_TYPES:return False
+  used.add(slug);chosen.append(row)
+  return True
+ for row in exact_matches[1:]:
+  take(row)
+  if len(chosen)>=limit:return chosen,True
+ for row in related_subject(title,articles,exclude=primary["slug"] if primary else "",limit=20):
+  take(row)
+  if len(chosen)>=limit:return chosen,True
+ strictly_related=len(chosen)
+ gaming=bool(re.search(r"(?i)\\b(?:playstation|ps5|ps4|xbox|nintendo|switch|videogioch[io]|gaming|gameplay|gta|steam|videogame)\\b",title))
+ preferred="news-gaming" if gaming else "news-tech"
+ # A brand shared with the original title is a useful weak signal,
+ # not proof of reporting this exact outside story.
+ brand_words={"sony","dji","apple","samsung","google","microsoft","nvidia",
+              "intel","amd","meta","xiaomi","realme","lenovo","asus"}
+ brands=brand_words & set(terms(title))
+ def relevance(row):
+  overlap=len(set(terms(row.get("title","")))&set(terms(title)))
+  brand_overlap=len(brands&set(terms(row.get("title",""))))
+  return (int(row.get("category")==preferred),brand_overlap,overlap,
+          str(row.get("published_at") or row.get("date") or ""))
+ ordered=sorted((r for r in articles if r.get("category") in CONTENT_TYPES),
+                key=relevance,reverse=True)
+ for row in ordered:
+  take(row)
+  if len(chosen)>=limit:break
+ # Nothing in the code creates fake content or invents source links.
+ return chosen[:limit],bool(strictly_related and strictly_related==len(chosen))
+
+
+def gateway_html(entry,original_articles,image_validator=None):
+ """Full-width original-source gateway followed by 3 distinct first-party cards."""
  title=plain(entry.get("title"))
  name=plain(entry.get("source"))
  date=str(entry.get("date") or "")
@@ -130,12 +175,9 @@ def gateway_html(entry,original_articles):
  candidates=entry.get("original_matches")
  if candidates is None:candidates=relevant(title,original_articles)
  match=candidates[0] if candidates else None
- related=(candidates[1:3] if match else []) or related_subject(title,original_articles,exclude=match["slug"] if match else "",limit=3)
- # The SAME title wins first. Otherwise only genuinely relevant subject pages
- # are offered. Never attach arbitrary unrelated headlines from the archive.
- def article_link(row):
-  return ('<li><a href="/'+esc(row["slug"],quote=True)+'">'
-          +esc(plain(row["title"]))+'</a></li>')
+ suggested,all_related=web_gateway_suggestions(entry,original_articles,candidates,limit=3)
+ entry["gateway_recommendation_slugs"]=[r["slug"] for r in suggested]
+ if match:entry["gateway_recommendation_slugs"].append(match["slug"])
  source_link=('<a class="web-gateway-source-link" href="'+esc(external,quote=True)+'"'
               ' target="_blank" rel="noopener noreferrer external">'
               'Leggi la notizia sul sito originale: '+esc(name)+'</a>')
@@ -149,16 +191,28 @@ def gateway_html(entry,original_articles):
        ' Per un approfondimento della redazione, parti dal nostro articolo originale.</p>'
        '<p><a class="web-gateway-main-cta" href="/'+esc(match["slug"],quote=True)+'">'
        'Leggi su ZazoomTek: '+esc(plain(match["title"]))+'</a></p></section>')
- else:
-  # No false claims about coverage; no empty thin generic paragraphs.
-  cta=''
- related_html=('<section class="web-gateway-related"><h2>'
-               +("Altri articoli ZazoomTek sullo stesso argomento")
-               +'</h2><ul>'+''.join(article_link(x) for x in related)+'</ul></section>'
-               if related else '')
+ else:cta=''
+ cards=[]
+ for row in suggested:
+  url="/"+str(row["slug"])
+  safe=image_validator(row.get("image","")) if image_validator else ""
+  image=('<img loading="lazy" decoding="async" src="'+esc(safe,quote=True)+'" alt="">' if safe
+         else '<span class="web-gateway-card-fallback" aria-hidden="true">ZazoomTek</span>')
+  day=str(row.get("date") or row.get("published_at") or "")[:10]
+  when=('<time datetime="'+esc(day,quote=True)+'">'+esc(day[8:10]+"/"+day[5:7]+"/"+day[:4])+'</time>'
+        if re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}",day) else "")
+  cards.append('<article class="web-gateway-card">'
+               '<a class="web-gateway-card-cover" href="'+esc(url,quote=True)+'">'+image+'</a>'
+               '<h3><a href="'+esc(url,quote=True)+'">'+esc(plain(row["title"]))+'</a></h3>'+when
+               +'</article>')
+ section_title="Altri articoli ZazoomTek sullo stesso argomento" if all_related else "Leggi anche su ZazoomTek"
+ related_html=('<section class="web-gateway-related" aria-label="Articoli suggeriti ZazoomTek">'
+               '<h2>'+section_title+'</h2>'
+               '<div class="web-gateway-cards">'+''.join(cards)+'</div></section>' if cards else '')
+ # The external source is ALWAYS visible before the cards, matching approved page.
  return ('<article class="story-article web-gateway" data-web-gateway="1">'
-         +headline+cta+related_html+
+         +headline+cta+
          '<p class="web-gateway-external">'+source_link+'</p>'
          '<p class="web-gateway-note">Fonte esterna citata e collegata: il testo dell’articolo'
          ' originale rimane sul sito dell’editore.</p>'
-         '</article>')
+         +related_html+'</article>')
