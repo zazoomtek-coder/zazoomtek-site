@@ -1,0 +1,1 @@
+Pubblicazione esplicitamente richiesta dall'utente: quattro correzioni già testate su branch e integrate su main. Avvia ora import YouTube/RSS, build, deploy Cloudflare e verifica HTTP delle correzioni sul dominio ufficiale.
