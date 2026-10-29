@@ -2,6 +2,9 @@ name: QA import cron backup and live verification - NEVER DEPLOY
 on:
   push:
     branches: [reliability/independent-cloudflare-scheduler-20261029]
+    paths:
+      - .github/workflows/qa-reliability-20261029.yml
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
