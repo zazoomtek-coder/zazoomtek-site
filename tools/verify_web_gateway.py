@@ -46,11 +46,15 @@ def check_web_gateways(root,web_items,rows):
    if "Approfondimento originale ZazoomTek" not in html:
     issues.append(path+": original first-party headline not prioritized")
   else:
-   if "non risulta un approfondimento originale" not in html:
-    issues.append(path+": fallback explanatory introduction missing")
-   if "Scopri altri contenuti ZazoomTek" not in html and "sull'argomento" not in html:
-    issues.append(path+": internal discovery fallback missing")
-  if "<h1>" not in html or 'class="web-gateway-primary"' not in html:
+   if 'Al momento non risulta' in html:
+    issues.append(path+": forbidden generic sentence on a source-first gateway")
+   if 'class="web-gateway-primary"' in html:
+    issues.append(path+": artificial primary box without an exact original match")
+   if 'class="web-gateway-related"' in html:
+    from web_editorial import related_subject
+    if not related_subject(entry.get("title", ""),rows):
+     issues.append(path+": unrelated editorial links must never be recommended")
+  if "<h1>" not in html or 'data-web-gateway="1"' not in html:
    issues.append(path+": missing gateway main structure")
   if 'name="robots" content="noindex' not in html:
    issues.append(path+": thin page must not be indexed")

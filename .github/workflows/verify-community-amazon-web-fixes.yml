@@ -1,0 +1,92 @@
+name: ZazoomTek - verifica reale 4 correzioni (NESSUN DEPLOY)
+on:
+  push:
+    branches: [feature/fix-community-procon-amazon-web-20261029]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/fix-community-procon-amazon-web-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: '1 · Test parser con testo Community YouTube reale'
+        run: |
+          python3 -m py_compile tools/review_pros_cons.py tools/build.py tools/article_templates.py tools/web_editorial.py tools/verify_web_gateway.py
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from review_pros_cons import extract,attach
+          rows=json.loads(Path('data/community_imported.json').read_text())['posts']
+          r=next(x for x in rows if 'DT H03' in x.get('title','') and x.get('type')=='review')
+          points=extract(r['text'])
+          assert len(points['pros'])==9,points
+          assert len(points['cons'])==6,points
+          assert 'Fotocamera Sony da 8 MP' in points['pros'][0]
+          assert 'Autonomia ridotta' in points['cons'][0]
+          doc=dict(r);attach(doc)
+          assert doc['text']==r['text']
+          assert doc['pros']==points['pros'] and doc['cons']==points['cons']
+          assert extract('Il prodotto ha pro e contro. Nessun elenco presente.')=={'pros':[],'cons':[]}
+          assert extract('**Pro**\n- Ottimo display\n**Contro**\n- Prezzo alto\n#Hashtag')=={'pros':['Ottimo display'],'cons':['Prezzo alto']}
+          print('PARSER REAL YOUTUBE DATA: 9 Pro, 6 Contro, full original source preserved')
+          PY
+      - name: '4 · Verifica match GTA 6 e assenza di contenuti non pertinenti'
+        run: |
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from web_editorial import relevant,gateway_html,related_subject,topic_similarity
+          from build import posts
+          rows=posts()
+          headline='Un famosissimo meme di GTA IV è diventato realtà in GTA 6'
+          matching=relevant(headline,rows)
+          assert matching, 'Original GTA6 meme post must be matched'
+          assert any('meme' in x['title'].lower() for x in matching),[(x['title']) for x in matching]
+          fragment=gateway_html({'title':headline,'source':"Tom's Hardware",'url':'https://example.org/story'},rows)
+          assert 'Approfondimento originale ZazoomTek' in fragment,fragment
+          assert 'Al momento non risulta' not in fragment
+          assert 'Scopri altri contenuti ZazoomTek' not in fragment
+          other=gateway_html({'title':'Evento totalmente sconosciuto QXYZ0','source':'Test','url':'https://example.org/unknown'},rows)
+          assert 'Al momento non risulta' not in other
+          assert 'Scopri altri contenuti ZazoomTek' not in other
+          assert 'web-gateway-related' not in other
+          print('WEB MATCH GTA6 ORIGINAL AND SOURCE-ONLY FALLBACK: PASS',matching[0]['title'])
+          PY
+      - name: '2+3 · Build reale con box Amazon e CSS pulito'
+        run: |
+          python3 tools/build.py
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          root=Path('dist')
+          pages=list(root.glob('*.html'))
+          stories=[p for p in pages if '<section class="related">' in p.read_text(encoding='utf-8')]
+          assert len(stories)>100,len(stories)
+          for p in stories:
+           h=p.read_text(encoding='utf-8')
+           assert h.count('class="inner-amazon-fill"')==1,(p.name,'missing/duplicated affiliate box')
+           assert h.index('class="related"')<h.index('class="inner-amazon-fill"'),p.name
+           assert 'amazon-feature-box' in h,(p.name,'missing amazon disclosure')
+          dt=next(x for x in pages if 'community-ugkxf-aembzj-nrh3uwdvfxhfshcpji31jjc'==x.stem)
+          html=dt.read_text(encoding='utf-8')
+          assert '<div class="verdict-pro">' in html
+          assert '<div class="verdict-con">' in html
+          assert 'Fotocamera Sony da 8 MP' in html
+          assert 'Autonomia ridotta durante la registrazione' in html
+          css=Path('dist/assets/css/spotnews.css').read_text(encoding='utf-8')
+          assert 'grid-template-areas:"story rail" "related amazon"' in css
+          assert 'border-bottom:none!important' in css
+          assert ':has(>.inner-amazon-fill)' in css
+          print('BUILD COMPLETE: all',len(stories),'related-story pages have one Amazon box, aligned CSS + Guide/Extra no black lines, DT H03 structured verdict')
+          PY
+
+      - name: 'Layout reale: pixel CSS verificati con Chrome headless'
+        run: python3 tools/test_affiliate_layout_browser.py

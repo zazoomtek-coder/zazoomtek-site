@@ -122,7 +122,10 @@ def community_posts():
   if is_full and not re.fullmatch(r"https://www\.youtube\.com/post/Ug[A-Za-z0-9_-]{12,}",original_url):
    original_url="https://www.youtube.com/post/"+post_id
   if not is_full:original_url=""
+  from review_pros_cons import extract
+  points=extract(text) if cat.startswith("recensioni-") else {"pros":[],"cons":[]}
   result.append({
+   **points,
    "slug":slug,"category":cat,"title":title.strip(),
    "body":[part.strip() for part in re.split(r"\n\s*\n",text) if part.strip()],
    "date":date.isoformat() if date else "",
@@ -975,8 +978,13 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  for r in rows:
   if r.get("slug") in reserved_slugs:reserved.update(home_keys(r))
  rail=sidebar(rows,False,reserved)
+ # Each published article/review with related stories has one real
+ # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
+ # New articles inherit the slot automatically. No duplicate on Home.
+ affiliate=('<aside class="inner-amazon-fill" aria-label="Prodotti consigliati su Amazon">'
+            +amazon_provisional_box()+'</aside>') if section else ""
  content_html=('<div class="inner-layout"><div class="inner-column">'+content+'</div>'
-               +rail+section+'</div>')
+               +rail+section+affiliate+'</div>')
  return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
 def pagination_links(key,page,total_pages):

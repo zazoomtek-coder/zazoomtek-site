@@ -26,27 +26,65 @@ CONTENT_TYPES={"news-tech","news-gaming","recensioni-tech","recensioni-gaming",
 def important(title):
  return [word for word in terms(title) if word not in GENERIC and len(word)>2]
 
+def subject_anchors(title):
+ """Detect shared subject across synonyms like GTA VI / GTA 6, not just GTA."""
+ t=plain(title).casefold()
+ compact=re.sub(r"[^a-z0-9]+"," ",t)
+ anchors=set()
+ if re.search(r"\bgta\s*(?:6|vi)\b",compact):anchors.add("gta-6")
+ if re.search(r"\bgta\s*(?:4|iv)\b",compact):anchors.add("gta-4")
+ if "wolf among us" in compact:anchors.add("wolf-among-us")
+ return anchors
+
+
 def topic_similarity(web_title,original):
- """Conservative shared-subject matching, not generic keyword overlap."""
+ """High-confidence SAME NEWS matching, never just a common game brand."""
  external=important(web_title)
  own=important(original.get("title",""))
  if not external or not own:return 0
  ext=set(external)
  internal=set(own)
  common=ext & internal
+ anchors=subject_anchors(web_title)&subject_anchors(original.get("title",""))
+ # On a recognisable named subject, one other distinctive shared headline
+ # element is enough: GTA VI + meme is the SAME story; GTA VI alone is not.
+ distinctive=(common-{"gta","wolf","among"})
+ if anchors and distinctive:
+  return round(160+8*len(distinctive)+3*len(anchors),2)
  if len(common)<2:return 0
- # Two anchored distinct title words are required; plain 'gaming' or
- # standalone brands cannot make an unrelated article into a match.
  specificity=len(common)/max(2,min(len(ext),len(internal)))
  if specificity<.42:return 0
- # Score full source text as a tie-breaker, never instead of title matching.
  body=" ".join(str(x) if isinstance(x,str) else str(x.get("text",""))
                for x in (original.get("body") if isinstance(original.get("body"),list)
                          else [original.get("body") or ""]))
  body_terms=set(terms(body))
- title_overlap=min(6,len(common))
- prose_overlap=len(ext & body_terms)
- return round(100*specificity+12*title_overlap+min(prose_overlap,5),2)
+ return round(100*specificity+12*min(6,len(common))+min(len(ext & body_terms),5),2)
+
+
+def related_subject(web_title,articles,exclude="",limit=3):
+ """Less strict than SAME NEWS, but never a random latest-story fallback."""
+ key=set(important(web_title))
+ anchor=subject_anchors(web_title)
+ ranked=[]
+ for row in articles:
+  if row.get("slug")==exclude or row.get("category") not in CONTENT_TYPES:
+   continue
+  own=set(important(row.get("title","")))
+  common=key & own
+  anchored=bool(anchor & subject_anchors(row.get("title","")))
+  # A shared named game with a different headline remains an appropriate
+  # *related topic*, not a claim that ZazoomTek reported this exact news.
+  if not anchored and (len(common)<2 or len(common)<.35*min(len(key),len(own))):
+   continue
+  ranked.append((bool(anchored),len(common),str(row.get("published_at") or row.get("date") or ""),row))
+ ranked.sort(key=lambda x:(x[0],x[1],x[2]),reverse=True)
+ used=set()
+ found=[]
+ for _,_,_,row in ranked:
+  if row["slug"] not in used:
+   found.append(row);used.add(row["slug"])
+  if len(found)==limit:break
+ return found
 
 def relevant(web_title,articles,limit=3):
  ranked=[]
@@ -92,22 +130,9 @@ def gateway_html(entry,original_articles):
  candidates=entry.get("original_matches")
  if candidates is None:candidates=relevant(title,original_articles)
  match=candidates[0] if candidates else None
- related=candidates[1:3] if match else []
- if not related:
-  # If we have no exact original, show only genuinely topical items where
-  # possible. A generic recent-content fallback is labelled honestly.
-  key=set(important(title))
-  pool=[]
-  for row in original_articles:
-   if row.get("category") not in CONTENT_TYPES:continue
-   score=len(key & set(important(row.get("title",""))))
-   if score:pool.append((score,str(row.get("date") or ""),row))
-  pool.sort(key=lambda a:(a[0],a[1]),reverse=True)
-  related=[r for _,_,r in pool if not match or r["slug"]!=match["slug"]][:3]
- if not related:
-  related=[r for r in original_articles
-           if r.get("category") in ("news-tech","news-gaming") and
-           (not match or r["slug"]!=match["slug"])][:3]
+ related=(candidates[1:3] if match else []) or related_subject(title,original_articles,exclude=match["slug"] if match else "",limit=3)
+ # The SAME title wins first. Otherwise only genuinely relevant subject pages
+ # are offered. Never attach arbitrary unrelated headlines from the archive.
  def article_link(row):
   return ('<li><a href="/'+esc(row["slug"],quote=True)+'">'
           +esc(plain(row["title"]))+'</a></li>')
@@ -125,15 +150,10 @@ def gateway_html(entry,original_articles):
        '<p><a class="web-gateway-main-cta" href="/'+esc(match["slug"],quote=True)+'">'
        'Leggi su ZazoomTek: '+esc(plain(match["title"]))+'</a></p></section>')
  else:
-  cta=('<section class="web-gateway-primary">'
-       '<h2>La notizia e gli approfondimenti</h2>'
-       '<p>La notizia è stata segnalata da '+esc(name)+'. '
-       'Al momento non risulta un approfondimento originale ZazoomTek sullo stesso argomento.</p>'
-       '<p>Puoi esplorare gli altri contenuti della redazione oppure consultare '
-       'direttamente la fonte per leggere tutti i dettagli.</p></section>')
+  # No false claims about coverage; no empty thin generic paragraphs.
+  cta=''
  related_html=('<section class="web-gateway-related"><h2>'
-               +("Altri contenuti ZazoomTek sull'argomento" if candidates and related else
-                 "Scopri altri contenuti ZazoomTek")
+               +("Altri articoli ZazoomTek sullo stesso argomento")
                +'</h2><ul>'+''.join(article_link(x) for x in related)+'</ul></section>'
                if related else '')
  return ('<article class="story-article web-gateway" data-web-gateway="1">'

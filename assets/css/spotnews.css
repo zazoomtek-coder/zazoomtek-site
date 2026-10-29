@@ -2571,3 +2571,87 @@ main.wrap .review-article .review-video .review-video-link:focus-visible {
  main.wrap .home-column .gaming-magazine .gaming-magazine-item h3{font-size:13px!important;line-height:1.38!important}
  main.wrap .review-article .review-video .review-video-link{font-size:13px!important;padding:12px!important}
 }
+
+
+/* 2026-10-29 approved Home Guide/Extra redesign:
+   remove decorative black rules from feature card titles only.
+   Preserve the actual black/red category header bars and card outlines. */
+main.wrap .home-column .standalone-feature-pair .feature-editorial .feature-main-description h3,
+main.wrap .home-column .standalone-feature-pair .feature-editorial .compact-item h3{
+ border:0!important;
+ border-bottom:none!important;
+ padding-bottom:0!important;
+}
+main.wrap .home-column .standalone-feature-pair .feature-editorial .feature-main-description hr,
+main.wrap .home-column .standalone-feature-pair .feature-editorial .compact-item hr{
+ display:none!important;
+}
+main.wrap .home-column .standalone-feature-pair .feature-editorial .feature-main-description h3::before,
+main.wrap .home-column .standalone-feature-pair .feature-editorial .feature-main-description h3::after,
+main.wrap .home-column .standalone-feature-pair .feature-editorial .compact-item h3::before,
+main.wrap .home-column .standalone-feature-pair .feature-editorial .compact-item h3::after{
+ border:0!important;display:none!important;
+}
+
+/* Affiliate slot in a proper second row of editorial pages, ALIGNED
+   with the Articoli correlati row, not floating inside/clipping the rail.
+   Applies to every present and future article with related articles. */
+@media(min-width:781px){
+ main.wrap .inner-layout:has(>.inner-amazon-fill){
+  display:grid!important;
+  grid-template-columns:minmax(0,7fr) minmax(0,3fr)!important;
+  grid-template-areas:"story rail" "related amazon"!important;
+  column-gap:24px!important;
+  row-gap:0!important;
+  align-items:start!important;
+ }
+ main.wrap .inner-layout:has(>.inner-amazon-fill)>.inner-column{
+  grid-area:story!important;width:100%!important;min-width:0!important;
+ }
+ main.wrap .inner-layout:has(>.inner-amazon-fill)>.inner-sidebar{
+  grid-area:rail!important;position:relative!important;inset:auto!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  max-height:none!important;margin:0!important;align-self:start!important;
+ }
+ main.wrap .inner-layout:has(>.inner-amazon-fill)>.related{
+  grid-area:related!important;width:100%!important;min-width:0!important;
+  margin:16px 0 0!important;align-self:start!important;
+ }
+ main.wrap .inner-layout:has(>.inner-amazon-fill)>.inner-amazon-fill{
+  grid-area:amazon!important;display:block!important;position:static!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:auto!important;overflow:visible!important;
+  margin:16px 0 0!important;padding:0!important;border:0!important;
+  align-self:start!important;
+ }
+}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box{
+ display:block!important;max-width:100%!important;width:100%!important;
+ margin:0!important;padding:12px!important;overflow:hidden!important;
+ border-radius:5px!important;
+}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-labels{margin-bottom:6px!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-badge{font-size:9px!important;padding:3px 5px!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-partner{font-size:9px!important}
+main.wrap .inner-layout>.inner-amazon-fill h2.amazon-feature-title{
+ font-size:15px!important;line-height:1.3!important;margin:0 0 8px!important;
+}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-intro{font-size:11px!important;line-height:1.4!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-products{gap:5px!important;margin:0 0 9px!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-product{min-width:0!important;gap:4px!important;padding:4px 2px!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-product img{
+ width:100%!important;height:auto!important;max-height:48px!important;
+ object-fit:contain!important;
+}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-product small{font-size:9px!important;line-height:1.18!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-disclosure{font-size:9px!important;line-height:1.35!important}
+main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-cta{
+ display:block!important;width:100%!important;min-height:32px!important;
+ padding:7px 6px!important;font-size:10px!important;line-height:1.3!important;
+}
+@media(max-width:780px){
+ main.wrap .inner-layout>.inner-amazon-fill{
+  display:block!important;position:static!important;width:100%!important;
+  height:auto!important;margin:17px 0 0!important;padding:0!important;
+ }
+}
