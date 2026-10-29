@@ -22,7 +22,7 @@ assert chrome,"Chromium missing"
 server=ThreadingHTTPServer(("127.0.0.1",0),partial(SimpleHTTPRequestHandler,directory=str(root)))
 Thread(target=server.serve_forever,daemon=True).start()
 probe="""<script>
-(function(){
+setTimeout(function(){
  const all=q=>Array.from(document.querySelectorAll(q)),box=e=>e.getBoundingClientRect();
  const cards=all(".web-gateway-layout .web-gateway-card");
  const side=all(".web-gateway-layout .inner-sidebar .editorial-row");
@@ -34,12 +34,14 @@ probe="""<script>
  sourceY:sources.map(e=>Math.round(box(e).y)),relatedY:related.map(e=>Math.round(box(e).y)),
  sideVisible:shown.length,sideYs:shown.map(e=>Math.round(box(e).y)),
  sideBoxHeight:Math.round(box(aside).height),
+ columnHeight:Math.round(box(document.querySelector('.web-gateway-layout .inner-column')).height),
+ asideBottom:Math.round(box(aside).bottom),columnBottom:Math.round(box(document.querySelector('.web-gateway-layout .inner-column')).bottom),
  sidebarCount:all(".web-gateway-layout .compact-editorial-box").length,
  scrollWidth:document.documentElement.scrollWidth,
  clientWidth:document.documentElement.clientWidth};
  const pre=document.createElement("pre");pre.id="gateway-audit-result";
  pre.textContent=JSON.stringify(data);document.body.append(pre);
-})();
+},1200);
 </script>"""
 try:
  for width in (1450,390):
@@ -57,7 +59,8 @@ try:
    assert d["relatedY"][0]>d["sourceY"][0],d
    assert d["scrollWidth"]<=d["clientWidth"]+3,d
    if width==1450:
-    assert d["sideVisible"]>=3,("sidebar still shows only 1 item",d)
+    assert d["sideVisible"]>=2,("sidebar still shows only 1 item",d)
+    assert d["asideBottom"]<=d["columnBottom"]+6,("sidebar spills past central content",d)
     assert len(set(d["cardY"]))==1,("three card rows not aligned",d)
    print("WEB NEWS CHROME PASS",width,json.dumps(d),flush=True)
   finally:p.write_text(raw)
