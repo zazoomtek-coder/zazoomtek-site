@@ -39,6 +39,8 @@ jobs:
           assert "data/studio_posts.json" in gate and "assets/css/spotnews.css" in gate
           print("AUDIT PASS: Carrera EXTRA, Studio queue, live-safe preview, editorial gate")
           PY
+      - name: Simula Pubblica e anteprima con API Studio isolata (NO DEPLOY)
+        run: node tools/test_studio_queue_contract_20261029.mjs
       - name: Genera interamente il sito SOLO nel runner
         env:
           CF_PAGES_BRANCH: release/zazoomtek-20261029-1930
