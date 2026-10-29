@@ -1,0 +1,85 @@
+name: ZazoomTek - anteprima NEWS EXTRA non importata (NO DEPLOY)
+on:
+  push:
+    branches: [feature/fix-news-extra-youtube-20261029]
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: main
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/fix-news-extra-youtube-20261029
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Controllo parser e classificazione editoriale
+        run: |
+          python3 -m py_compile tools/community_youtube.py tools/build.py tools/package_news_extra_preview.py
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0,'tools')
+          from community_youtube import title_type
+          from build import category_for_post,clean_title
+          for headline,expected in [
+             ('News Extra: Carrera porta la Formula 1 sotto l\u0027albero con nuovi set da corsa high-tech','extra'),
+             ('News Speciali: Politica europea e videogiochi','speciali'),
+             ('News Tech: Computer e intelligenza artificiale','news-tech'),
+             ('News Gaming: videogiochi PS5','news-gaming'),
+          ]:
+           label,kind=title_type(headline+'\nDettagli e approfondimenti.')
+           assert kind=='news',(label,kind)
+           category=category_for_post({'title':label,'text':headline,'type':kind})
+           assert category==expected,(label,category,expected)
+          print('PARSER CATEGORY AUDIT PASS - News Extra/Speciali/Tech/Gaming')
+          PY
+      - name: Raccogli i post YouTube REALI senza commit e senza deploy
+        run: |
+          git fetch --no-tags origin editorial-queue || true
+          python3 tools/scheduled_editorial_import.py
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from build import community_posts
+          rows=json.loads(Path('data/community_imported.json').read_text(encoding='utf8'))['posts']
+          id='UgkxERPteT6jOchoxD93OI1v9ub_YI_6HJrr'
+          found=next((p for p in rows if p.get('id')==id),None)
+          assert found,'Carrera post still missing after a real YouTube re-import'
+          assert found.get('text_complete') and len(found.get('text',''))>2000
+          assert found.get('type')=='news'
+          normalized=next(x for x in community_posts() if x['slug']=='community-ugkxerptet6jochoxd93oi1v9ub-yi-6hjrr')
+          assert normalized['category']=='extra',normalized
+          print('REAL POST RECOVERED',found['id'],found['title'],'length',len(found['text']),flush=True)
+          PY
+      - name: Genera sito completo e valida news Extra
+        run: |
+          python3 tools/build.py
+          python3 - <<'PY'
+          from pathlib import Path
+          from html import unescape
+          root=Path('dist')
+          name='community-ugkxerptet6jochoxd93oi1v9ub-yi-6hjrr'
+          page=root/(name+'.html')
+          assert page.exists(),name
+          html=unescape(page.read_text(encoding='utf8'))
+          assert 'Carrera porta la Formula 1' in html
+          assert 'News Extra' in html
+          assert 'font' not in name
+          assert 'Carrera porta la Formula 1' in unescape((root/'extra.html').read_text(encoding='utf8'))
+          print('REAL BUILD PASS - recovered Carrera article + Extra archive')
+          PY
+      - name: Prepara anteprima offline completa ZIP
+        run: python3 tools/package_news_extra_preview.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek_Anteprima_YouTube_News_Extra_29-10-2026
+          path: ZazoomTek_Anteprima_YouTube_News_Extra_29-10-2026.zip
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
