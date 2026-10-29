@@ -510,7 +510,7 @@ def gaming_article_preview(row,limit=640):
  return combined
 
 def news_tech_magazine(rows):
- """Homepage-only, image-first News Tech: 2 large stories + 6 smaller (3x2).
+ """Homepage-only News Tech: 3 small, 2 large in the middle, 3 small.
  All records come from the same dated, deduplicated first-party YouTube feed.
  No external example articles, fake image cards or alterations to other modules.
  """
@@ -527,15 +527,17 @@ def news_tech_magazine(rows):
           '<span class="news-tech-category">News Tech</span>'
           '<h3><a href="'+href+'">'+title+'</a></h3>'
           +date_html+'</article>')
- big="".join(item(row,True) for row in rows[:2])
- small="".join(item(row) for row in rows[2:8])
+ top="".join(item(row) for row in rows[:3])
+ big="".join(item(row,True) for row in rows[3:5])
+ bottom="".join(item(row) for row in rows[5:8])
  return ('<div class="news-tech-showcase" aria-label="Ultime otto News Tech">'
-         '<div class="news-tech-lead-grid">'+big+'</div>'
-         +('<div class="news-tech-small-grid">'+small+'</div>' if small else '')+
-         '</div>')
+         +('<div class="news-tech-small-grid news-tech-top-grid">'+top+'</div>' if top else '')
+         +('<div class="news-tech-lead-grid">'+big+'</div>' if big else '')
+         +('<div class="news-tech-small-grid news-tech-bottom-grid">'+bottom+'</div>' if bottom else '')
+         +'</div>')
 
 def gaming_magazine(rows):
- """SpotNews editorial layout: one large story left, up to four compact vertical items right."""
+ """Home Gaming: the existing lead, a second large article below, four compact items at right."""
  if not rows:return ""
  lead=rows[0]
  url="/"+lead["slug"]
@@ -551,8 +553,21 @@ def gaming_magazine(rows):
           (' · <time>'+esc(date)+'</time>' if date else "")+'</p>'
           +(('<p class="gaming-magazine-excerpt">'+esc(excerpt)+'</p>') if excerpt else '')+
           '</article>')
+ second=""
+ if len(rows)>1:
+  other=rows[1]
+  other_url="/"+other["slug"]
+  other_title=esc(clean_title(other["title"]))
+  other_date=date_label(other)
+  second=('<article class="gaming-magazine-lead gaming-magazine-lead-secondary">'
+          '<a class="gaming-magazine-lead-image" href="'+other_url+'" aria-label="Leggi News Gaming: '+esc(clean_title(other["title"]),quote=True)+'">'
+          +editorial_cover(other)+'</a>'
+          '<span class="gaming-magazine-badge">News Gaming</span>'
+          '<h3><a href="'+other_url+'">'+other_title+'</a></h3>'
+          +('<p class="gaming-magazine-byline"><time>'+esc(other_date)+'</time></p>' if other_date else '')
+          +'</article>')
  compact=[]
- for row in rows[1:5]:
+ for row in rows[2:6]:
   href="/"+row["slug"]
   date=date_label(row)
   compact.append('<article class="gaming-magazine-item">'
@@ -562,7 +577,8 @@ def gaming_magazine(rows):
                  +('<time>'+esc(date)+'</time>' if date else '')+
                  '</div></article>')
  return ('<div class="gaming-magazine">'
-         +feature+'<div class="gaming-magazine-list">'+''.join(compact)+'</div></div>')
+         +'<div class="gaming-magazine-leads">'+feature+second+'</div>'
+         +'<div class="gaming-magazine-list">'+''.join(compact)+'</div></div>')
 
 def reviews_three_column(rows):
  """Native Notizie Web gallery styling, with exactly three latest unique written reviews."""
@@ -945,7 +961,7 @@ def home(rows):
  extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
  spotlight=latest_featured_news(tech,gaming,global_used)
  tech_low=adaptive_news(tech,8,global_used)
- gaming_low=adaptive_news(gaming,5,global_used)
+ gaming_low=adaptive_news(gaming,6,global_used)
  reviews=take_unique([r for r in rows if r["category"] in ("recensioni-tech","recensioni-gaming") and r.get("source") in ("youtube-community","community-archive-full","manual-editorial","studio-editor")],3,global_used)
  video_section=playlist_cards()
  external=web_news()
