@@ -1,0 +1,88 @@
+name: ZazoomTek - rilascio di sicurezza 19:30 29 ottobre (SOLO SLOT)
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-backup-1930-20261029.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  release-1930:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - name: Checkout exact approved main and all editorial sources
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch editor queue without blocking verified first party content
+        run: git fetch --no-tags origin editorial-queue || echo "Queue optional, direct import still available"
+      - name: Import all YouTube, RSS and Studio editorial changes
+        run: python3 tools/scheduled_editorial_import.py
+      - name: Check slot and digest to avoid empty or duplicate deployments
+        run: python3 tools/editorial_slot_gate.py prepare
+      - name: Preserve imported originals before the release
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: |
+          git add data/community_imported.json data/videos.json data/web.json data/studio_posts.json data/studio_overrides.json
+          if test -d assets/uploads; then git add -A assets/uploads; fi
+          if ! git diff --cached --quiet; then
+            git config user.name "ZazoomTek Scheduled Import"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "[CF-Pages-Skip] Importa dati prima del rilascio 19:30"
+            git push origin HEAD:main
+          fi
+      - name: Build full site on real production branch
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: python3 tools/build.py
+      - name: Verify real site index, sitemap and Cloudflare routes before deploy
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: |
+          test -s dist/index.html
+          test -s dist/sitemap.xml
+          test -s dist/_routes.json
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('dist')
+          home=(root/'index.html').read_text(encoding='utf-8')
+          sitejs=(root/'assets/js/site.js').read_text(encoding='utf-8')
+          css=(root/'assets/css/spotnews.css').read_text(encoding='utf-8')
+          assert 'function fitHomeTitles()' in sitejs
+          assert 'data-rail-mode="split"' in ''.join(p.read_text(encoding='utf-8') for p in list(root.glob('*recensione*.html'))[:40]), 'missing approved split sidebars'
+          assert '.web-gateway-related' in css, 'missing Web News fixes'
+          assert 'news-tech-top-grid' in home, 'missing Home layout'
+          assert 'amazon-feature-box' in home, 'missing Amazon Home box'
+          print('PRE-DEPLOY ASSERTIONS PASS: Home, sidebar 50/50, Web News, affiliate preserved')
+          PY
+      - name: Authorize release at precisely 19:30 Rome and never outside slot
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: python3 tools/editorial_slot_gate.py authorize
+      - name: Deploy approved production site via Cloudflare Pages
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Stamp only after confirmed successful deploy and prevent double releases
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
+        run: |
+          python3 tools/editorial_slot_gate.py stamp
+          git add data/editorial_release_state.json
+          git config user.name "ZazoomTek Release Receipt"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "[CF-Pages-Skip] Conferma deploy del 29/10 ore 19:30"
+          git push origin HEAD:main
