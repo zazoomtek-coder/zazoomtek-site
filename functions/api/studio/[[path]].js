@@ -441,7 +441,8 @@ export async function onRequest(context){
    return respond({ok:true,...await pendingV2(session.token)});
   // Media caricati su editorial-queue: anteprima autenticata prima dello slot.
   if(pathname==="/api/studio/v2-asset"&&request.method==="GET"){
-   const asset=clean(new URL(request.url).searchParams.get("path")).replace(/^\\/+/, "");
+   let asset=clean(new URL(request.url).searchParams.get("path"));
+   if(asset.startsWith("/"))asset=asset.slice(1);
    if(!asset.startsWith("assets/uploads/")||!allowedPath(asset))
     return respond({ok:false,error:"Media non autorizzato."},400);
    const file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+BRANCH);
@@ -449,7 +450,7 @@ export async function onRequest(context){
    const ext=asset.split(".").pop();
    const mime={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",
     mp3:"audio/mpeg",m4a:"audio/mp4",wav:"audio/wav",pdf:"application/pdf",txt:"text/plain"}[ext];
-   return new Response(fromBase64(file.content.replace(/\\s+/g,"")),{status:200,
+   return new Response(fromBase64(file.content.split(String.fromCharCode(10)).join("")),{status:200,
     headers:{"Content-Type":mime,"Cache-Control":"no-store, private",
      "X-Content-Type-Options":"nosniff"}});
   }
