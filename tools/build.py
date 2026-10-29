@@ -681,12 +681,16 @@ def amazon_provisional_box():
          ' aria-label="Vedi i prodotti recensiti su Amazon, link affiliato">'
          'VEDI I PRODOTTI SU AMAZON <span aria-hidden="true">↗</span></a></section>')
 
-def sidebar(rows,home=False,used=None):
+def sidebar(rows,home=False,used=None,gateway=False):
  used=set(used or ())
  news=sort_by_date_desc([r for r in rows if r.get("category") in ("news-tech","news-gaming")])
  reviews=sort_by_date_desc([r for r in rows if str(r.get("category") or "").startswith("recensioni-")])
  selected=[]
- if home:
+ if gateway and not home:
+  # Use one sidebar panel; JavaScript reveals only whole matching-height rows.
+  chosen=sidebar_select(news,12,used)
+  if chosen:selected.append(box("Ultime news",chosen))
+ elif home:
   tech=[r for r in news if r.get("category")=="news-tech"]
   # Until genuine view counts exist, show recent Tech news rather than invent rankings.
   if any(isinstance(r.get("views"),int) and r["views"]>0 for r in tech):
@@ -982,23 +986,24 @@ def home(rows):
 def web_archive(rows):
  content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni notizia apre una scheda con eventuali approfondimenti ZazoomTek e il collegamento alla fonte originale.</p>'+web_news_cards(web_news())
  return inside("Notizie Web",content,rows,show_related=False,seo_path="/notizie-web",seo_summary="Notizie dal web: sei fonti italiane di tecnologia con articoli, aggiornamenti e collegamenti ai siti originali.")
-def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None,seo_path="/",seo_summary=None):
+def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None,seo_path="/",seo_summary=None,gateway=False,gateway_used=None):
  # One two-column grid: page content and matching-height sidebar on row one;
  # related links occupy only the article column on row two.
  related_rows=related_articles(rows,exclude,cat) if show_related else []
  section=related_markup(related_rows) if show_related else ""
  reserved_slugs={exclude}
  reserved_slugs.update(x["slug"] for x in related_rows)
+ if gateway_used:reserved_slugs.update(gateway_used)
  reserved=set()
  for r in rows:
   if r.get("slug") in reserved_slugs:reserved.update(home_keys(r))
- rail=sidebar(rows,False,reserved)
+ rail=sidebar(rows,False,reserved,gateway=gateway)
  # Each published article/review with related stories has one real
  # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
  # New articles inherit the slot automatically. No duplicate on Home.
  affiliate=('<aside class="inner-amazon-fill" aria-label="Prodotti consigliati su Amazon">'
             +amazon_provisional_box()+'</aside>') if section else ""
- content_html=('<div class="inner-layout"><div class="inner-column">'+content+'</div>'
+ content_html=('<div class="inner-layout'+(" web-gateway-layout" if gateway else "")+'"><div class="inner-column">'+content+'</div>'
                +rail+section+affiliate+'</div>')
  return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
@@ -1232,8 +1237,10 @@ def main():
   summary=("Notizia segnalata da "+entry["source"]+": "+entry["title"]+
            ". Scopri gli approfondimenti ZazoomTek e consulta la fonte.")
   destination=O/(path.lstrip("/")+".html")
-  destination.write_text(inside(entry["title"],gateway_html(entry,rows),rows,
-        show_related=False,seo_path=path,seo_summary=summary),encoding="utf-8")
+  gateway_content=gateway_html(entry,rows,safe_image)
+  destination.write_text(inside(entry["title"],gateway_content,rows,
+        show_related=False,seo_path=path,seo_summary=summary,gateway=True,
+        gateway_used=entry.get("gateway_recommendation_slugs")),encoding="utf-8")
  legal_pages(rows)
  contacts_page(rows)
  rss_feed(rows)
