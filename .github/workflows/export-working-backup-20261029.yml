@@ -17,23 +17,25 @@ jobs:
           fetch-depth: 0
       - name: Recover exact backed-up production release, no new build or deploy
         run: |
-          git fetch --no-tags origin refs/heads/backup/production-verified-20261029-1930
+          git fetch --no-tags origin refs/heads/backup/production-live-exact-20261029-1930
           mkdir -p /tmp/zzt
-          git archive --format=zip --output=/tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip FETCH_HEAD
+          git archive --format=zip --output=/tmp/zzt/ZazoomTek_BACKUP_LIVE_ESATTO_2026-10-29_1930.zip FETCH_HEAD
           python3 - <<'PY'
           from pathlib import Path
           import zipfile
-          z=Path('/tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip')
+          z=Path('/tmp/zzt/ZazoomTek_BACKUP_LIVE_ESATTO_2026-10-29_1930.zip')
           with zipfile.ZipFile(z) as f:
            names=set(f.namelist())
            assert len(names)>=60, ('Backed up repository unexpectedly empty',len(names))
            assert {'tools/build.py','data/community_imported.json','assets/css/spotnews.css','assets/js/site.js'} <= names
            assert f.testzip() is None
+           import hashlib
+           assert hashlib.sha256(f.read('assets/css/spotnews.css')).hexdigest().startswith('d92730e96c81'), 'Backup must match CSS actually served by Cloudflare at 19:30'
            print('BACKUP VERIFIED',len(names),'files',z.stat().st_size,'bytes')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: ZazoomTek-BACKUP-FUNZIONANTE-29-10-2026
-          path: /tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip
+          name: ZazoomTek-BACKUP-LIVE-ESATTO-29-10-2026
+          path: /tmp/zzt/ZazoomTek_BACKUP_LIVE_ESATTO_2026-10-29_1930.zip
           retention-days: 90
           if-no-files-found: error
