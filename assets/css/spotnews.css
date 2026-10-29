@@ -2964,3 +2964,21 @@ main.wrap .archive-crosslinks>a {
 main.wrap .archive-crosslinks>a:hover {
  color:#be1536!important;border-color:#be1536!important;
 }
+
+/* 29-10-2026 — HOME ONLY: exactly TWO visible title lines, then an ellipsis.
+   Applies to all headline cards in Spotlight, Tech, Gaming, reviews, Specials,
+   Guide/Extra, Videos and Notizie Web, but NOT the editorial sidebar boxes.
+   No font-family, font-size, weight or line-height changes. Full titles stay
+   in HTML and on individual article pages for SEO and accessibility. */
+main.wrap .featured-wide .spotlight-grid .tile-title,
+main.wrap .home-layout > .home-column article h3 > a {
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  line-clamp:2!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:normal!important;
+  max-width:100%!important;
+}
+/* Images, captions, category/source labels, dates and article page text unchanged. */
