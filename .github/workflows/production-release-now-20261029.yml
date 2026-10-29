@@ -1,0 +1,109 @@
+name: ZazoomTek - PUBBLICAZIONE REALE Cloudflare richiesta 29 ottobre
+on:
+  push:
+    branches: [main]
+    paths:
+      - ops/production-release-now-20261029.trigger
+permissions:
+  contents: write
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  actual-import-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - name: Checkout main reale
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Importa dati verificati da YouTube e RSS PRIMA del deploy
+        run: |
+          git fetch --no-tags origin editorial-queue || echo "No queue branch available; direct import continues"
+          python3 tools/scheduled_editorial_import.py
+      - name: Salva i nuovi articoli nella main prima di generare il sito
+        run: |
+          git add data/community_imported.json data/videos.json data/web.json
+          if ! git diff --cached --quiet; then
+            git config user.name "ZazoomTek Release Bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "[CF-Pages-Skip] Sincronizzazione effettiva YouTube + RSS autorizzata 29 ottobre"
+            git push origin HEAD:main
+          fi
+      - name: Genera il sito di produzione e controlla sitemap e novita
+        run: |
+          python3 tools/build.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, xml.etree.ElementTree as ET
+          root=Path('dist')
+          urlset=ET.parse(root/'sitemap.xml').getroot()
+          posts=json.loads(Path('data/community_imported.json').read_text(encoding='utf-8'))['posts']
+          assert len(urlset)>=220,len(urlset)
+          assert len(list(root.glob('*.html')))>=230
+          assert 'Disallow: /' not in (root/'robots.txt').read_text(encoding='utf-8')
+          assert any(str(p.get('date') or p.get('published_at','')).startswith('2026-10-29') for p in posts),'29 Oct Community news missing'
+          assert (root/'index.html').is_file()
+          print('PRODUCTION BUILD VERIFIED:',len(posts),'imported posts;',len(urlset),'sitemap urls',flush=True)
+          PY
+      - name: DEPLOY EFFETTIVO Cloudflare Pages sul dominio ufficiale
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica leggibilita nuovi contenuti sul sito online
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request, time
+          from pathlib import Path
+          posts=json.loads(Path('data/community_imported.json').read_text(encoding='utf-8'))['posts']
+          recent=[p for p in posts if str(p.get('date') or p.get('published_at') or '').startswith('2026-10-29')]
+          assert recent,'No current Community news for verification'
+          needle='Lexar Muse Ultra-Slim'
+          pages=['https://zazoomtek.it/news-tech','https://zazoomtek.it/news','https://zazoomtek.it/sitemap.xml']
+          verified=False
+          for attempt in range(6):
+           for url in pages:
+            try:
+             req=urllib.request.Request(url+('?deploy-check='+str(attempt) if '?' not in url else '&deploy-check='+str(attempt)),headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
+             with urllib.request.urlopen(req,timeout=16) as res:
+              body=res.read().decode('utf-8','replace')
+              found=needle.lower() in body.lower()
+              print('PUBLIC READ',url,'HTTP',res.status,'LATEST ARTICLE',found,flush=True)
+              if found:verified=True
+            except Exception as err:print('PUBLIC READ ERROR',url,type(err).__name__,str(err)[:130],flush=True)
+           if verified:break
+           time.sleep(6)
+          if not verified:raise RuntimeError('Cloudflare says deployment succeeded but new news not verified at public domain')
+          print('LIVE SITE VERIFIED: new imported Community article visible at official domain',flush=True)
+          PY
+      - name: Registra impronta pubblicazione reale per non duplicare i prossimi slot
+        run: |
+          python3 - <<'PY'
+          import sys,json
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from editorial_slot_gate import digest
+          now=datetime.now(ZoneInfo('Europe/Rome'))
+          d={'slot':'manual-'+now.date().isoformat()+'-'+now.strftime('%H%M'),'content_digest':digest(),'finished_at':now.isoformat(timespec='seconds'),'source':'Verified Cloudflare production release 29 Oct 2026'}
+          Path('data/editorial_release_state.json').write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          print('CONFIRMED DEPLOY RECORDED:',d,flush=True)
+          PY
+          git add data/editorial_release_state.json
+          git config user.name "ZazoomTek Release Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "[CF-Pages-Skip] Ricevuta deploy reale verificato 29 ottobre"
+          git push origin HEAD:main
