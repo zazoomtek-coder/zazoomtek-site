@@ -1,0 +1,39 @@
+name: Backup scaricabile ultimo sito funzionante 29 ottobre - NO DEPLOY
+on:
+  push:
+    branches: [reliability/independent-cloudflare-scheduler-20261029]
+    paths:
+      - .github/workflows/export-working-backup-20261029.yml
+permissions:
+  contents: read
+jobs:
+  safe-backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reliability/independent-cloudflare-scheduler-20261029
+          fetch-depth: 0
+      - name: Recover exact backed-up production release, no new build or deploy
+        run: |
+          git fetch --no-tags origin refs/heads/backup/production-verified-20261029-1930
+          mkdir -p /tmp/zzt
+          git archive --format=zip --output=/tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip FETCH_HEAD
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          z=Path('/tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip')
+          with zipfile.ZipFile(z) as f:
+           names=set(f.namelist())
+           assert len(names)>=220
+           assert {'tools/build.py','data/community_imported.json','assets/css/spotnews.css','assets/js/site.js'} <= names
+           assert f.testzip() is None
+           print('BACKUP VERIFIED',len(names),'files',z.stat().st_size,'bytes')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-BACKUP-FUNZIONANTE-29-10-2026
+          path: /tmp/zzt/ZazoomTek_BACKUP_SITO_FUNZIONANTE_2026-10-29_1930.zip
+          retention-days: 90
+          if-no-files-found: error
