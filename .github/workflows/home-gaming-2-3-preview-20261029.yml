@@ -1,0 +1,57 @@
+name: Anteprima Home Gaming 2 righe grandi 3 piccole (NO DEPLOY)
+on:
+  push:
+    branches: [fix/home-gaming-headline-clamp-2-3-20261029]
+permissions:
+  contents: read
+jobs:
+  browser-and-full-zip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/home-gaming-headline-clamp-2-3-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Importa la coda nel runner, non su main
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Compila sito completo ufficiale senza deploy
+        env:
+          CF_PAGES_BRANCH: fix/home-gaming-headline-clamp-2-3-20261029
+        run: |
+          python3 -m py_compile tools/build.py tools/test_home_gaming_2_3_lines_preview.py
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml
+      - name: Verifica Chrome desktop e smartphone
+        run: python3 tools/test_home_gaming_2_3_lines_preview.py
+      - name: Genera ZIP offline completo senza server
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_HOME_Gaming_2righe_3righe_29-10-2026.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          file=Path('ZazoomTek_HOME_Gaming_2righe_3righe_29-10-2026.zip')
+          with zipfile.ZipFile(file,'a',zipfile.ZIP_DEFLATED) as z:
+           z.writestr('LEGGIMI_CORREZIONE_GAMING.txt',
+            'Anteprima completa ZazoomTek. Estrai tutto e apri index.html.\n'
+            'NEWS GAMING: 2 righe con ellissi per entrambe le grandi, 3 righe con ellissi per le quattro piccole.\n'
+            'Titoli integrali preservati nei link e nelle pagine articolo. Nessun deploy online.\n')
+          with zipfile.ZipFile(file) as z:
+           names=set(z.namelist())
+           assert len(names)>280,len(names)
+           assert {'index.html','VISTA_SMARTPHONE.html','assets/css/spotnews.css','news-gaming.html'}<=names
+           css=z.read('assets/css/spotnews.css').decode()
+           assert '-webkit-line-clamp:2!important' in css and '-webkit-line-clamp:3!important' in css
+          print('FINAL ZIP',file.name,len(names),'files',file.stat().st_size,'bytes. NO DEPLOY')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-HOME-GAMING-2-3-LINES-29-10-2026
+          path: ZazoomTek_HOME_Gaming_2righe_3righe_29-10-2026.zip
+          if-no-files-found: error
+          retention-days: 30
