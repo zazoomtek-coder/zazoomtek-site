@@ -39,6 +39,8 @@ jobs:
           test -s dist/index.html && test -s dist/sitemap.xml
       - name: Test gate changes and exact public CSS verifier through a mock response
         run: python3 tools/test_release_reliability_20261029.py
+      - name: Verify the exact currently live CSS on the PUBLIC DOMAIN (read-only)
+        run: python3 tools/verify_live_release.py
       - name: Verify preview and production backups preserved
         run: |
           python3 - <<'PY'
