@@ -1,10 +1,11 @@
 name: ZazoomTek - 2 slot importazione e pubblicazione (Roma)
 on:
   schedule:
-    # Tentativi anticipati: mai tre deploy. Il primo riuscito chiude lo slot.
-    # Ogni tentativo prepara i dati e attende le 12:30 o le 19:30.
-    - cron: '20,25,30 12,19 * * *'
-      timezone: "Europe/Rome"
+    # UTC puro per ri-registrare il cron anche su runner con scheduler locale
+    # non affidabile. 10/17 UTC in estate, 11/18 UTC in inverno.
+    # La guardia Europe/Rome decide: soltanto 12:30 e 19:30 locali,
+    # e un solo deploy per slot. Le altre invocazioni terminano senza deploy.
+    - cron: '20,25,30 10,11,17,18 * * *'
   workflow_dispatch:
 permissions:
   contents: write
