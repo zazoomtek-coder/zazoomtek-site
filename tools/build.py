@@ -152,6 +152,14 @@ def clean_title(text):
 def normalized_title(text):
  text=re.sub(r"(?i)^\s*#*\s*(news\s*(?:tech|gaming)?|review\s*(?:tech|gaming)?|recensione|guida|guide|speciale|extra)\s*:\s*","",str(text)).strip()
  return re.sub(r"[^a-z0-9]+","",unesc(text.casefold()))
+# Two verified same-subject repetitions. Retain the longer or newer article.
+# Old links will be preserved with permanent redirects.
+EDITORIAL_DUPLICATE_REDIRECTS = {
+ "community-ugkx-hxxbow8wstg4t9rgruxoljshnzxbl0y":
+  "community-guida-ps5-10-migliori-giochi-sotto-20-euro-ottobre-2026",
+ "community-ugkxwgp-n8aw2rtb-ufes2cj4cb0e8klhg7m":
+  "community-ugkxl6hyqdmachllpyrgvj4zncg5xwmlg9qa",
+}
 def posts():
  obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
  if not isinstance(obj.get("posts"),list):raise ValueError("posts must be a list")
@@ -176,6 +184,13 @@ def posts():
   if r["slug"] in seen_slugs:continue
   seen_slugs.add(r["slug"])
   deduplicated.append(r)
+ # Suppress an old edition ONLY when its canonical destination exists.
+ slugs_present={r["slug"] for r in deduplicated}
+ superseded={old:new for old,new in EDITORIAL_DUPLICATE_REDIRECTS.items()
+             if old in slugs_present and new in slugs_present}
+ if superseded:
+  deduplicated=[r for r in deduplicated if r["slug"] not in superseded]
+  print("Verified redundant publications consolidated:",len(superseded),flush=True)
  # Studio edits win over YouTube imports without modifying the original post.
  overrides=json.loads((P/"data/studio_overrides.json").read_text(encoding="utf-8")).get("overrides",{})
  for row in deduplicated:
@@ -631,7 +646,7 @@ def box(name,rows,notice=""):
  for r in rows:
   href="/"+r["slug"]
   image=safe_image(r.get("image",""))
-  thumb='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
+  thumb='<img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
   cards.append('<article class="editorial-row"><a class="editorial-thumb" href="'+href+'"'+cover_focus_attributes(r)+'>'+thumb+'</a><div class="editorial-row-copy"><a href="'+href+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(date)+'</time>' if date else '')+'</div></article>')
  return '<section class="box editorial-box compact-editorial-box">'+bar(name,archives.get(name,""),"sidebar")+'<div class="editorial-links">'+''.join(cards)+'</div></section>'
@@ -1108,6 +1123,16 @@ def legacy_article_redirects(rows):
    target=next((r["slug"] for r in rows if normalized_title(r["title"])==normalized_title(entry["full_title"]) and r["category"]==entry["category"]),"")
   if not target:
    raise ValueError("Missing full-text alias target for "+entry["short_title"])
+  for alias in ("/"+old,"/"+old+".html"):
+   if alias in sources:continue
+   sources.add(alias)
+   lines.append(alias+" /"+target+" 301")
+ # Preserve the search equity of both intentionally consolidated pages.
+ # Reject missing destinations and never redirect an existing physical page.
+ for old,target in EDITORIAL_DUPLICATE_REDIRECTS.items():
+  if target not in by_slug or old in occupied or old in by_slug:continue
+  if not re.fullmatch(r"[a-z0-9-]+",old) or not re.fullmatch(r"[a-z0-9-]+",target):
+   raise ValueError("Unsafe duplicate redirect")
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
