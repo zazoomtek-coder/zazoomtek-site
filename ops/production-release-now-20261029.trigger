@@ -1,0 +1,1 @@
+Explicit user authorization 2026-10-29: import current YouTube Community/video and RSS, rebuild full production website, deploy to Cloudflare Pages immediately, verify public current content. One-shot trigger, never replay automatically.
