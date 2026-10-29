@@ -1177,42 +1177,44 @@ def contacts_page(rows):
  (O/"contatti.html").write_text(inside("Contatti",body,rows,show_related=False,seo_path="/contatti",seo_summary="Contatta ZazoomTek per collaborazioni, recensioni, notizie e richieste stampa."),encoding="utf-8")
 
 def about_page(rows):
- # ZazoomTek is an independent enthusiasts' magazine, not a registered newspaper.
- # This informational page reuses the existing inner-page editorial styling.
- intro=(
-  "ZazoomTek è un magazine digitale indipendente dedicato alla tecnologia, "
-  "ai videogiochi e all'innovazione. Non è una testata giornalistica, ma un "
-  "progetto curato da una piccola squadra di appassionati che dedica parte "
-  "del proprio tempo ad aggiornare il sito e il canale YouTube."
- )
- mission=(
-  "La nostra missione è condividere informazioni attendibili, recensioni, "
-  "guide e contenuti originali, privilegiando fonti ufficiali e verificabili: "
-  "comunicati stampa, produttori, sviluppatori e agenzie PR. "
-  "Eventuali indiscrezioni vengono chiaramente riconosciute come tali "
-  "e mai presentate come fatti accertati."
- )
+ # Independent enthusiasts' magazine; not a registered newspaper.
+ lead=("ZazoomTek è un magazine digitale indipendente dedicato alla tecnologia, "
+       "ai videogiochi e all'innovazione")
+ intro=("nato dalla passione di una piccola squadra che dedica il proprio tempo "
+        "a informare e condividere conoscenze attraverso il sito web e il canale YouTube.")
+ mission_lead=("informazioni attendibili, contenuti originali e approfondimenti di qualità")
+ mission_end=("privilegiando notizie provenienti da fonti ufficiali, "
+              "comunicati stampa di aziende e agenzie PR, "
+              "evitando indiscrezioni e notizie prive di conferme.")
+ closing=("Attraverso news, recensioni, guide e video, ZazoomTek racconta "
+          "il mondo tecnologico e videoludico con passione, "
+          "indipendenza e attenzione ai fatti.")
+ disclaimer=("Non una testata giornalistica, ma un progetto editoriale "
+             "costruito da appassionati, per appassionati.")
  team=[
   ("Beppe","Founder & Digital Content Specialist",
-   "Fondatore e responsabile del progetto, cura la direzione dei contenuti digitali "
-   "e la produzione dei video."),
-  ("Lia","Web Developer · assistente AI",
-   "Supporta la programmazione, lo sviluppo, la manutenzione "
-   "e l'ottimizzazione tecnica del sito web."),
+   "Fondatore e responsabile del progetto. Cura la direzione dei contenuti digitali e la produzione dei video."),
+  ("Lia","Web Developer · Assistente AI",
+   "Supporta la programmazione, lo sviluppo, la manutenzione e l'ottimizzazione tecnica del sito web."),
   ("Gimmi","News & Reviews Editor",
-   "Cura notizie, aggiornamenti e recensioni del mondo Tech e Gaming."),
+   "Cura notizie, aggiornamenti e recensioni dedicate al mondo Tech e Gaming."),
   ("Alex","Speciali & Extra Editor",
-   "Si occupa di speciali, approfondimenti e contenuti della sezione Extra.")
+   "Si occupa di speciali, approfondimenti e contenuti editoriali della sezione Extra.")
  ]
- body='<article class="legal-article"><h1>Chi siamo</h1>'
- body+='<p>'+esc(intro)+'</p>'
- body+='<h2>La nostra missione</h2><p>'+esc(mission)+'</p>'
- body+='<h2>Il team di ZazoomTek</h2>'
+ body='<article class="legal-article about-article"><h1>Chi siamo</h1>'
+ body+='<p><strong>'+esc(lead)+'</strong>, '+esc(intro)+'</p>'
+ body+='<h2>La nostra missione</h2>'
+ body+='<p>La nostra missione è offrire <strong>'+esc(mission_lead)+'</strong>, '+esc(mission_end)+'</p>'
+ body+='<p>'+esc(closing)+' <strong>'+esc(disclaimer)+'</strong></p>'
+ body+='<h2>Il team di ZazoomTek</h2><div class="about-team">'
  for name,role,description in team:
-  body+='<h3>'+esc(name)+'</h3><p><strong>'+esc(role)+'</strong> — '+esc(description)+'</p>'
- body+=('<p>Per richieste e collaborazioni visita la pagina '
+  body+=('<section class="about-team-member"><h3>'+esc(name)+'</h3>'
+         '<p class="about-role">'+esc(role)+'</p><p>'+esc(description)+'</p></section>')
+ body+='</div>'
+ body+=('<p>Per segnalazioni e richieste di collaborazione, visita la pagina '
         '<a href="/contatti">Contatti</a>. '
-        'Per ulteriori informazioni consulta le <a href="/note-legali">Note legali</a>.</p>')
+        'Per le informazioni editoriali e legali, consulta le '
+        '<a href="/note-legali">Note legali</a>.</p>')
  body+='</article>'
  summary=("Chi siamo: la missione e il team di ZazoomTek, "
           "magazine indipendente dedicato a tecnologia, gaming e innovazione.")
