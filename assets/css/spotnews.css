@@ -2941,3 +2941,26 @@ main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-list .gami
   -webkit-line-clamp:3!important;
   line-clamp:3!important;
 }
+
+/* SEO & accessibility fixes — archive discoverability, zero Home layout change. */
+main.wrap .site-home-title {
+ position:absolute!important;
+ width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;border:0!important;
+}
+main.wrap .archive-crosslinks {
+ display:flex!important;align-items:center!important;gap:9px!important;
+ flex-wrap:wrap!important;margin:0 0 18px!important;
+}
+main.wrap .archive-crosslinks>a {
+ display:inline-block!important;
+ border:1px solid #dedede!important;border-radius:4px!important;
+ background:#fff!important;color:#222!important;
+ padding:8px 12px!important;font-size:13px!important;
+ text-decoration:none!important;font-weight:700!important;
+}
+main.wrap .archive-crosslinks>a:hover {
+ color:#be1536!important;border-color:#be1536!important;
+}
