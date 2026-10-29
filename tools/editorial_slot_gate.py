@@ -14,6 +14,7 @@ import json
 import os
 import sys
 import time
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "data" / "editorial_release_state.json"
@@ -36,6 +37,13 @@ FILES = (
     "functions/api/studio/[[path]].js",
     # Anche le correzioni grafiche approvate richiedono lo slot.
     "assets/css/spotnews.css",
+    # Previously omitted: updates ONLY to these files could be skipped forever.
+    "assets/js/site.js",
+    "tools/web_editorial.py",
+    "tools/emergency_sync.py",
+    "tools/seo.py",
+    "tools/article_templates.py",
+    "tools/community_youtube.py",
 )
 ROME = ZoneInfo("Europe/Rome")
 
@@ -45,6 +53,15 @@ def digest():
     for filename in FILES:
         data = (ROOT / filename).read_bytes()
         hasher.update(filename.encode("utf-8") + b"\x00" + data + b"\x00")
+    # Deployed functions and cover assets must also trigger a release.
+    # Do not hash dist/ or this release receipt, avoiding perpetual releases.
+    for folder in ("functions", "assets/images"):
+        directory = ROOT / folder
+        if directory.exists():
+            for file in sorted(p for p in directory.rglob("*") if p.is_file()):
+                rel = file.relative_to(ROOT).as_posix()
+                hasher.update(rel.encode("utf-8") + b"\\x00")
+                hasher.update(file.read_bytes() + b"\\x00")
     # Uploaded media is a published dependency of Studio articles: the
     # content fingerprint must change when previously missing assets arrive.
     uploads = ROOT / "assets" / "uploads"
@@ -139,6 +156,9 @@ def stamp():
         "slot": slot,
         "content_digest": digest(),
         "finished_at": datetime.now(ROME).isoformat(timespec="seconds"),
+        # Exact revision actually deployed by Wrangler, used for NEXT backup.
+        "deployed_commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
     }
     STATE.write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("SUCCESSFUL DEPLOY RECEIPT", body, flush=True)
