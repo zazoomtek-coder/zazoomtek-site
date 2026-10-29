@@ -31,8 +31,8 @@ def subject_anchors(title):
  t=plain(title).casefold()
  compact=re.sub(r"[^a-z0-9]+"," ",t)
  anchors=set()
- if re.search(r"\\bgta\\s*(?:6|vi)\\b",compact):anchors.add("gta-6")
- if re.search(r"\\bgta\\s*(?:4|iv)\\b",compact):anchors.add("gta-4")
+ if re.search(r"\bgta\s*(?:6|vi)\b",compact):anchors.add("gta-6")
+ if re.search(r"\bgta\s*(?:4|iv)\b",compact):anchors.add("gta-4")
  if "wolf among us" in compact:anchors.add("wolf-among-us")
  return anchors
 
@@ -48,7 +48,6 @@ def topic_similarity(web_title,original):
  anchors=subject_anchors(web_title)&subject_anchors(original.get("title",""))
  # On a recognisable named subject, one other distinctive shared headline
  # element is enough: GTA VI + meme is the SAME story; GTA VI alone is not.
- subject_words={"gta","meme","wolf","among"}
  distinctive=(common-{"gta","wolf","among"})
  if anchors and distinctive:
   return round(160+8*len(distinctive)+3*len(anchors),2)
