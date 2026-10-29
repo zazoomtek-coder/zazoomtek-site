@@ -3099,3 +3099,37 @@ main.wrap .web-gateway-layout>.inner-sidebar .compact-editorial-box {
     gap:16px!important;
   }
 }
+
+/* 29 Oct 2026 — long ORIGINAL article/review: only 2 editorial boxes at
+   precisely 50%/50% vertical start positions. No cropped thumbnails.
+   The affiliate box stays alongside Related Articles, unaffected. */
+@media(min-width:781px){
+ main.wrap .inner-layout>.inner-sidebar[data-rail-mode="split"]>.sidebar-stack {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;
+  height:var(--split-stack-height,auto)!important;
+  max-height:var(--split-stack-height,none)!important;
+  min-height:0!important;
+  justify-content:normal!important;
+  align-content:start!important;
+  overflow:hidden!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar[data-rail-mode="split"]>.sidebar-stack>.compact-editorial-box {
+  min-height:0!important;
+  align-self:stretch!important;
+  overflow:hidden!important;
+ }
+}
+@media(max-width:780px){
+ main.wrap .inner-layout>.inner-sidebar[data-rail-mode="split"]>.sidebar-stack {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  gap:15px!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+ }
+}
