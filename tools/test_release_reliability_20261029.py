@@ -15,6 +15,39 @@ assert gate.event_slot(datetime(2026,10,29,19,46,tzinfo=rome)) is None
 assert gate.event_slot(datetime(2027,6,1,12,38,tzinfo=rome)).hour==12
 print("RELEASE WINDOW: primary and late recovery, CET and CEST OK",flush=True)
 
+# A post-slot approved CSS commit must allow exactly one catch-up release.
+import tempfile,os
+from datetime import datetime as StandardDateTime
+old_clock,old_digest,old_state=gate.datetime,gate.digest,gate.state
+class FixedClock(StandardDateTime):
+ @classmethod
+ def now(cls,tz=None):
+  return StandardDateTime(2026,10,29,19,34,tzinfo=rome)
+with tempfile.NamedTemporaryFile(mode="w+",encoding="utf-8") as marker:
+ old_env=os.environ.get("GITHUB_ENV")
+ try:
+  os.environ["GITHUB_ENV"]=marker.name
+  os.environ["EDITORIAL_TARGET"]="2026-10-29T19:30:00+01:00"
+  gate.datetime=FixedClock
+  gate.digest=lambda:"new-approved-css"
+  gate.state=lambda:{"slot":"2026-10-29T19:30:00+01:00","content_digest":"old-deployed-css"}
+  gate.prepare()
+  gate.authorize()
+  marker.flush()
+  assert "EDITORIAL_NEEDS_RELEASE=true" in Path(marker.name).read_text()
+  assert "EDITORIAL_RELEASE_AUTHORIZED=true" in Path(marker.name).read_text()
+  gate.state=lambda:{"slot":"2026-10-29T19:30:00+01:00","content_digest":"new-approved-css"}
+  gate.prepare()
+  marker.flush()
+  assert "EDITORIAL_NEEDS_RELEASE=false" in Path(marker.name).read_text()
+ finally:
+  gate.datetime,gate.digest,gate.state=old_clock,old_digest,old_state
+  if old_env is None:os.environ.pop("GITHUB_ENV",None)
+  else:os.environ["GITHUB_ENV"]=old_env
+  os.environ.pop("EDITORIAL_TARGET",None)
+print("SAME SLOT RECOVERY: one catch-up for new changes, zero duplicate unchanged releases",flush=True)
+
+
 original=gate.digest()
 target=Path(__file__).resolve().parents[1]/"assets/js/site.js"
 old=target.read_bytes()
