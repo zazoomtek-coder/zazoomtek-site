@@ -177,42 +177,47 @@ def sync_studio_publications():
 
 
 def sync_studio_assets():
-    """Copy only missing, approved Studio upload paths from the queue branch.
+    """Stage ONLY media referenced by explicitly published Studio articles.
 
-    Do not overwrite or remove existing assets; never copy a draft, editor
-    source, workflow, or any path outside assets/uploads/.
+    A media upload in editorial-queue may belong to an unapproved draft.
+    Never copy it into the public release unless a published Studio post or
+    override references that exact safe local media path.
     """
     root = DATA.parent
-    try:
-        names = subprocess.check_output(
-            ["git", "ls-tree", "-r", "--name-only", "origin/editorial-queue", "--", "assets/uploads"],
-            stderr=subprocess.DEVNULL, timeout=15,
-        ).decode("utf-8").splitlines()
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, UnicodeError):
-        print("STUDIO ASSETS BACKUP unavailable; existing files retained.", flush=True)
-        return 0
+    safe = re.compile(r"^assets/uploads/[a-z0-9-]+/[a-z0-9-]+\\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt)$")
+    referenced = set()
+    for filename, key in (("studio_posts.json", "posts"),
+                          ("studio_overrides.json", "overrides")):
+        doc = json.loads((DATA / filename).read_text(encoding="utf-8"))[key]
+        records = doc if isinstance(doc, list) else doc.values()
+        for row in records:
+            if not _valid_studio_row(row):
+                continue
+            for url in [row.get("image")] + [b.get("url") for b in row["body"] if isinstance(b, dict)]:
+                if isinstance(url, str) and url.startswith("/assets/uploads/"):
+                    candidate = url.lstrip("/")
+                    if safe.fullmatch(candidate):
+                        referenced.add(candidate)
     added = 0
-    safe = re.compile(r"^assets/uploads/[a-z0-9-]+/[a-z0-9-]+\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt)$")
-    for name in names[:1500]:
-        if not safe.fullmatch(name):
-            continue
+    for name in sorted(referenced):
         target = root / name
-        if target.exists():
+        if target.is_file():
             continue
         try:
             blob = subprocess.check_output(
                 ["git", "show", "origin/editorial-queue:" + name],
                 stderr=subprocess.DEVNULL, timeout=15,
             )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            continue
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+            raise RuntimeError("Published Studio media missing from release queue: " + name) from exc
         if not (0 < len(blob) <= 12000000):
-            continue
+            raise ValueError("Published Studio media size outside allowed range: " + name)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(blob)
         added += 1
-    print("STUDIO ASSETS SYNC", added, "new media files", flush=True)
+    print("STUDIO ASSETS SYNC", added, "new media of",len(referenced),"approved media",flush=True)
     return added
+
 
 def main():
     before = {name: len(snapshot(name, key)[key]) for name, key in
