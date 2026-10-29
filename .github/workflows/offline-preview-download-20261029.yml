@@ -1,0 +1,54 @@
+name: ZazoomTek - ANTEPRIMA ZIP SCARICABILE (NO DEPLOY)
+on:
+  push:
+    branches:
+      - preview/zip-completo-20261029
+permissions:
+  contents: read
+jobs:
+  make-offline-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview/zip-completo-20261029
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Raccogli la coda YouTube e Studio SENZA scrivere su main
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Genera tutte le pagine da dati veri, nessun deploy
+        env:
+          CF_PAGES_BRANCH: preview/zip-completo-20261029
+        run: |
+          python3 tools/build.py
+          test -s dist/index.html
+          test -s dist/sitemap.xml
+          test -s dist/studio-v2/index.html
+      - name: Confeziona lo ZIP offline completo navigabile
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_LIVE_PREVIEW_Completa_29-10-2026.zip
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          z=Path('ZazoomTek_LIVE_PREVIEW_Completa_29-10-2026.zip')
+          with zipfile.ZipFile(z) as f:
+           names=set(f.namelist())
+           assert 'index.html' in names
+           assert 'VISTA_SMARTPHONE.html' in names
+           assert 'studio-v2/index.html' in names
+           assert len(names)>=200, len(names)
+           print('ZIP VERIFICATO:',len(names),'file;',z.stat().st_size,'byte; NESSUN DEPLOY',flush=True)
+          PY
+      - name: Carica file scaricabile (non pubblicare sul sito)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-LIVE-PREVIEW-Completa-29-10-2026
+          path: ZazoomTek_LIVE_PREVIEW_Completa_29-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
