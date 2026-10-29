@@ -2908,3 +2908,36 @@ main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-
   line-height:inherit!important;
   letter-spacing:inherit!important;
 }
+
+/* HOME News Gaming 29/10/2026 — user approved 2-line leads and 3-line side cards.
+   Truncate visually only; full source title, HTML link and SEO H1 remain intact. */
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3,
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-list .gaming-magazine-item h3 {
+  display:block!important;
+  min-width:0!important;
+  width:100%!important;
+  padding:0!important;
+  overflow:hidden!important;
+  overflow-wrap:break-word!important;
+}
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 > a,
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-list .gaming-magazine-item h3 > a {
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  box-orient:vertical!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  max-width:100%!important;
+  max-height:none!important;
+}
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 > a {
+  -webkit-line-clamp:2!important;
+  line-clamp:2!important;
+}
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-list .gaming-magazine-item h3 > a {
+  -webkit-line-clamp:3!important;
+  line-clamp:3!important;
+}
