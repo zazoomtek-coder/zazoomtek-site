@@ -3099,3 +3099,93 @@ main.wrap .web-gateway-layout>.inner-sidebar .compact-editorial-box {
     gap:16px!important;
   }
 }
+
+/* 29/10/2026 — Universal ticker social dock.
+   Uses the SAME YouTube/TikTok accounts listed in the footer; on every
+   generated page, without modifying navigation, ticker typography or layout. */
+.breaking-ticker .ticker-social {
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  margin:0 0 0 auto!important;
+  padding:0 0 0 13px!important;
+  border-left:1px solid #dedee1!important;
+  white-space:nowrap!important;
+  height:29px!important;
+  min-width:0!important;
+  background:transparent!important;
+}
+.breaking-ticker .ticker-social-label {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  letter-spacing:.75px!important;
+  line-height:1!important;
+  color:#686a6d!important;
+  margin-right:2px!important;
+}
+.breaking-ticker .ticker-social-button {
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 30px!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  min-height:30px!important;
+  border-radius:50%!important;
+  padding:0!important;
+  text-decoration:none!important;
+  border:1px solid #e8e8ea!important;
+  background:#fff!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)!important;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease!important;
+}
+.breaking-ticker .ticker-social-button svg {
+  display:block!important;
+  flex:none!important;
+  width:18px!important;
+  height:18px!important;
+}
+.breaking-ticker .ticker-social-youtube {
+  color:#ff0033!important;
+}
+.breaking-ticker .ticker-social-tiktok {
+  color:#101010!important;
+}
+.breaking-ticker .ticker-social-button:hover {
+  transform:translateY(-1px)!important;
+  border-color:#bdbdc1!important;
+  background:#fff!important;
+  box-shadow:0 3px 9px rgba(0,0,0,.12)!important;
+}
+.breaking-ticker .ticker-social-button:focus-visible {
+  outline:2px solid #e72f49!important;
+  outline-offset:2px!important;
+}
+@media(max-width:780px) {
+  .breaking-ticker .ticker-social {
+    padding-left:7px!important;
+    gap:5px!important;
+    height:28px!important;
+  }
+  .breaking-ticker .ticker-social-label {display:none!important}
+  .breaking-ticker .ticker-social-button {
+    flex-basis:27px!important;
+    width:27px!important;
+    min-width:27px!important;
+    height:27px!important;
+    min-height:27px!important;
+  }
+  .breaking-ticker .ticker-social-button svg {
+    width:16px!important;
+    height:16px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .breaking-ticker .ticker-social-button {transition:none!important}
+  .breaking-ticker .ticker-social-button:hover {transform:none!important}
+}
