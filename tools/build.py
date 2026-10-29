@@ -978,8 +978,13 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  for r in rows:
   if r.get("slug") in reserved_slugs:reserved.update(home_keys(r))
  rail=sidebar(rows,False,reserved)
+ # Each published article/review with related stories has one real
+ # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
+ # New articles inherit the slot automatically. No duplicate on Home.
+ affiliate=('<aside class="inner-amazon-fill" aria-label="Prodotti consigliati su Amazon">'
+            +amazon_provisional_box()+'</aside>') if section else ""
  content_html=('<div class="inner-layout"><div class="inner-column">'+content+'</div>'
-               +rail+section+'</div>')
+               +rail+section+affiliate+'</div>')
  return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
 def pagination_links(key,page,total_pages):
