@@ -542,16 +542,12 @@ def gaming_magazine(rows):
  lead=rows[0]
  url="/"+lead["slug"]
  title=esc(clean_title(lead["title"]))
- author=esc(str(lead.get("author") or "Redazione ZazoomTek"))
  date=date_label(lead)
- excerpt=gaming_article_preview(lead)
  feature=('<article class="gaming-magazine-lead">'
           '<a class="gaming-magazine-lead-image" href="'+url+'">'+editorial_cover(lead)+'</a>'
           '<span class="gaming-magazine-badge">News Gaming</span>'
           '<h3><a href="'+url+'">'+title+'</a></h3>'
-          '<p class="gaming-magazine-byline">di <strong>'+author+'</strong>'+
-          (' · <time>'+esc(date)+'</time>' if date else "")+'</p>'
-          +(('<p class="gaming-magazine-excerpt">'+esc(excerpt)+'</p>') if excerpt else '')+
+          +('<time class="gaming-magazine-date">'+esc(date)+'</time>' if date else '')+
           '</article>')
  second=""
  if len(rows)>1:
@@ -564,7 +560,7 @@ def gaming_magazine(rows):
           +editorial_cover(other)+'</a>'
           '<span class="gaming-magazine-badge">News Gaming</span>'
           '<h3><a href="'+other_url+'">'+other_title+'</a></h3>'
-          +('<p class="gaming-magazine-byline"><time>'+esc(other_date)+'</time></p>' if other_date else '')
+          +('<time class="gaming-magazine-date">'+esc(other_date)+'</time>' if other_date else '')
           +'</article>')
  compact=[]
  for row in rows[2:6]:
