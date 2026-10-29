@@ -157,6 +157,9 @@ def discover(limit=160,max_pages=12):
   item.update(title=title,type=kind,date=date[:10] if date else None,
     published_at=date or "",rank=ix,channel_id=CHANNEL_ID,text_complete=True,
     **({"topic":explicit_topic} if explicit_topic else {}))
+  if kind=="review":
+   from review_pros_cons import attach
+   attach(item)
   output.append(item)
  return output
 
