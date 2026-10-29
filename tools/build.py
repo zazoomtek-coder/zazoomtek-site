@@ -385,6 +385,9 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
                '<button id="site-search-more" type="button" class="site-search-more" hidden>'
                'Mostra altri risultati</button></div></section>')
  footer_menu="".join('<a href="'+esc(url,quote=True)+'">'+esc(label.title())+'</a>' for label,url in NAV)
+ footer_menu+=('<a href="/recensioni-tech">Recensioni Tech</a>'
+               '<a href="/recensioni-gaming">Recensioni Gaming</a>'
+               '<a href="/video">Video ZazoomTek</a>')
  footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
  social_links="".join('<a href="'+esc(url,quote=True)+'"'+
                       (' target="_blank" rel="noopener noreferrer"' if url.startswith("https://") else '')+
@@ -428,7 +431,13 @@ def legal_pages(rows):
    elif block["type"]=="paragraph":body+='<p>'+esc(block["text"])+'</p>'
    else:raise ValueError("Invalid legal content block")
   body+='</article>'
-  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path="/"+page["slug"],seo_summary="Informazioni ufficiali ZazoomTek: "+page["title"]+"."),encoding="utf-8")
+  summaries={
+   "privacy-policy":"Privacy Policy di ZazoomTek: informazioni sui dati personali e sui diritti dei visitatori del sito.",
+   "cookie-policy":"Cookie Policy di ZazoomTek: gestione del consenso e preferenze relative ai cookie e a Google Analytics.",
+   "disclaimer":"Disclaimer di ZazoomTek: informazioni sull'utilizzo dei contenuti editoriali e sulle responsabilità del sito.",
+   "note-legali":"Note legali di ZazoomTek: informazioni relative al sito, ai contenuti e ai contatti della redazione."
+  }
+  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path="/"+page["slug"],seo_summary=summaries[page["slug"]]),encoding="utf-8")
 
 def safe_image(value):
  if not isinstance(value,str):return ""
@@ -992,7 +1001,8 @@ def home(rows):
  # Sidebar is last by design, so its articles can never duplicate the primary blocks.
  sidebar_html=sidebar(rows,True,global_used)
  top=section("In evidenza",featured_showcase(spotlight))
- return shell("Home",'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name=="Guide e Extra" else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
+ home_heading='<h1 class="site-home-title">ZazoomTek: notizie Tech e Gaming, recensioni e guide</h1>'
+ return shell("Home",home_heading+'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name=="Guide e Extra" else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
 
 def web_archive(rows):
  content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni notizia apre una scheda con eventuali approfondimenti ZazoomTek e il collegamento alla fonte originale.</p>'+web_news_cards(web_news())
@@ -1037,8 +1047,19 @@ def archive(key,rows,page=1):
  count=max(1,math.ceil(len(selected)/ARCHIVE_PAGE_SIZE))
  offset=(page-1)*ARCHIVE_PAGE_SIZE
  visible=selected[offset:offset+ARCHIVE_PAGE_SIZE]
- content='<h1>'+esc(label)+'</h1>'+cards(visible)+pagination_links(key,page,count)
- return inside(label,content,rows,show_related=False,seo_path="/"+key+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio "+label+" di ZazoomTek con notizie, recensioni e contenuti originali in ordine di pubblicazione."+((" Pagina "+str(page)+".") if page>1 else ""))
+ label_page=label+(" - Pagina "+str(page) if page>1 else "")
+ crosslinks=""
+ if key=="recensioni":
+  crosslinks=('<nav class="archive-crosslinks" aria-label="Sezioni recensioni">'
+              '<a href="/recensioni-tech">Recensioni Tech</a>'
+              '<a href="/recensioni-gaming">Recensioni Gaming</a></nav>')
+ elif key=="news":
+  crosslinks=('<nav class="archive-crosslinks" aria-label="Sezioni notizie">'
+              '<a href="/news-tech">News Tech</a>'
+              '<a href="/news-gaming">News Gaming</a></nav>')
+ content='<h1>'+esc(label_page)+'</h1>'+crosslinks+cards(visible)+pagination_links(key,page,count)
+ return inside(label_page,content,rows,show_related=False,seo_path="/"+key+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio "+label+" di ZazoomTek con notizie, recensioni e contenuti originali in ordine di pubblicazione."+(" Pagina "+str(page)+"." if page>1 else ""))
+
 def matching_review_video_id(row):
  """Use only a real published YouTube review, never a gameplay, test or unboxing."""
  if not str(row.get("category") or "").startswith("recensioni-"):return ""
