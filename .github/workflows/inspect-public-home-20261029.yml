@@ -1,0 +1,41 @@
+name: Inspect public domain CSS cache 29Oct - NO DEPLOY
+on:
+  push:
+    branches: [reliability/independent-cloudflare-scheduler-20261029]
+    paths:
+      - .github/workflows/inspect-public-home-20261029.yml
+permissions:
+  contents: read
+jobs:
+  inspect-public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reliability/independent-cloudflare-scheduler-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare deployed stylesheet, live homepage HTML and cache headers
+        run: |
+          python3 - <<'PY'
+          from urllib.request import Request,urlopen
+          import re,hashlib
+          from pathlib import Path
+          root='https://zazoomtek.it'
+          expected=hashlib.sha256(Path('assets/css/spotnews.css').read_bytes()).hexdigest()
+          print('EXPECTED CSS SHA',expected,flush=True)
+          for name in ('/?audit-html=20261029-1953','/news-tech?audit-html=20261029-1953','/assets/css/spotnews.css?audit-css=20261029-1953'):
+           u=root+name
+           try:
+            with urlopen(Request(u,headers={'Cache-Control':'no-cache','User-Agent':'Mozilla/5.0'}),timeout=20) as r:
+             body=r.read(2500000)
+             print('URL',u,'HTTP',r.status,'BYTES',len(body),'ETAG',r.headers.get('ETag'),'CF-CACHE',r.headers.get('CF-Cache-Status'),'CONTENT-TYPE',r.headers.get('Content-Type'),'SHA',hashlib.sha256(body).hexdigest(),flush=True)
+             if b'<html' in body[:10000].lower():
+              text=body.decode('utf-8','replace')
+              print('HEAD START',text[:2500],flush=True)
+              print('STYLESHEETS',re.findall(r'[^<>]{0,150}spotnews[^<>]{0,150}',text)[:4],flush=True)
+              print('HAS HOME', 'news-tech-top-grid' in text,'HAS TICKER','breaking-ticker' in text,'HAS BANNER','ZazoomTek' in text,flush=True)
+           except Exception as e:print('REQUEST FAILED',type(e).__name__,str(e)[:200],flush=True)
+          PY
