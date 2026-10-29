@@ -39,6 +39,28 @@ jobs:
       - name: Confronta i dati reali con l'ultima pubblicazione riuscita
         run: python3 tools/editorial_slot_gate.py prepare
 
+      # Preserve exact previously VERIFIED production version, before any
+      # modification or deployment. Recovery via Git backup branch and ZIP.
+      - name: Salva prima la versione funzionante in un branch BACKUP e ZIP verificato
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: python3 tools/release_backup.py backup
+      - name: Conserva ZIP ripristinabile del sito precedente su GitHub Actions
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-BACKUP-ULTIMO-SITO-FUNZIONANTE
+          path: ZazoomTek_WORKING_BACKUP_*.zip
+          retention-days: 90
+          if-no-files-found: error
+      - name: Registra risultato fonti YouTube, senza bloccare modifiche approvate
+        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
+        run: |
+          if test -f import_source_status.json; then
+            cat import_source_status.json
+          else
+            echo "::warning::Importer did not produce its required source status"
+          fi
+
       # Nessun aggiornamento? NESSUN deploy, nessun file grafico toccato.
       - name: Salva le news e le pubblicazioni Studio in main prima del deploy
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
@@ -73,6 +95,9 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica DOMINIO PUBBLICO e CSS effettivamente online (no falsa conferma)
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
+        run: python3 tools/verify_live_release.py
       - name: Memorizza conferma del deploy riuscito ed evita doppioni nello slot
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         run: |
