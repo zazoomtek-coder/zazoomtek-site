@@ -2780,3 +2780,131 @@ main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-d
 main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-cta{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;width:100%!important;min-height:34px!important;padding:8px 6px!important;margin:0!important;border-radius:6px!important;font-size:10px!important;line-height:1.25!important;font-weight:900!important;white-space:normal!important}
 main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-cta span{font-size:13px!important;line-height:1!important}
 @media(max-width:780px){main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box{padding:12px 10px 11px!important}main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-products{grid-template-columns:repeat(3,minmax(0,1fr))!important}main.wrap .inner-layout>.inner-amazon-fill .amazon-feature-box .amazon-feature-product img{height:54px!important;max-height:54px!important}}
+
+/* 2026-10-29 — HOME ONLY: Tech 3/2/3, Gaming second large lead and editorial heroes.
+   Reuses the original site components without touching internal articles or archives. */
+main.wrap .home-column .news-tech-showcase .news-tech-top-grid {
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  margin:0 0 17px!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-lead-grid {
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  margin:0!important;
+}
+main.wrap .home-column .news-tech-showcase .news-tech-bottom-grid {
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  margin:17px 0 0!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads {
+  display:flex!important;
+  flex-direction:column!important;
+  gap:17px!important;
+  min-width:0!important;
+  width:100%!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-lead-secondary {
+  min-width:0!important;
+  padding:0!important;
+  margin:0!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-lead-secondary h3 {
+  font-size:clamp(17px,1.8vw,21px)!important;
+  line-height:1.31!important;
+  margin:5px 0 7px!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-lead-secondary .gaming-magazine-byline {
+  margin:0!important;
+}
+/* Photo 3: only the FIRST picture inside EACH Home editorial box is larger.
+   Amazon's dedicated box, and sidebars in individual articles, are untouched. */
+main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row:first-child {
+  display:block!important;
+  padding:9px 0 12px!important;
+}
+main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-thumb {
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  max-height:none!important;
+  margin:0 0 8px!important;
+  overflow:hidden!important;
+}
+main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-thumb img {
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+}
+main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-row-copy {
+  width:100%!important;
+  min-width:0!important;
+}
+main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-row-copy a,
+main.wrap .home-sidebar .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-row-copy a strong {
+  font-size:13px!important;
+  line-height:1.35!important;
+  font-weight:800!important;
+}
+/* Compact mobile cards: 3/2/3 remains in document order, cards cannot overflow. */
+@media(max-width:680px){
+  main.wrap .home-column .news-tech-showcase .news-tech-top-grid,
+  main.wrap .home-column .news-tech-showcase .news-tech-bottom-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+}
+@media(max-width:450px){
+  main.wrap .home-column .news-tech-showcase .news-tech-lead-grid {
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:14px!important;
+  }
+}
+
+/* 29/10/2026 — SOLO HOME: le due news Gaming grandi mostrano titolo e data,
+   non firme autore né estratti. Restano intatte le card laterali. */
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 {
+  margin:5px 0 6px!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-date {
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:11px!important;
+  line-height:1.4!important;
+  font-weight:400!important;
+  color:#777!important;
+}
+
+/* 29/10/2026 — ETICHETTE DI CATEGORIA NASCOSTE SOLO IN HOME TRANNE NOTIZIE WEB.
+   I titoli delle sezioni, i titoli delle notizie e le date restano visibili.
+   Le pagine interne e l'informativa obbligatoria Amazon non sono modificate. */
+main.wrap .featured-wide .tile-category,
+main.wrap .home-layout .news-tech-showcase .news-tech-category,
+main.wrap .home-layout .home-review-web-card > .web-source,
+main.wrap .home-layout .compact-item .compact-item-type,
+main.wrap .home-layout .section .card > small,
+main.wrap .home-layout .amazon-feature-box .amazon-feature-badge,
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-badge {
+  display:none!important;
+}
+
+/* 2026-10-29 — HOME GAMING: both large headlines use the SAME compact editorial typography.
+   The two existing headlines remain full; sidebar items and inner pages are unchanged. */
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(17px,1.8vw,21px)!important;
+  font-weight:500!important;
+  font-style:normal!important;
+  line-height:1.31!important;
+  letter-spacing:-.35px!important;
+  margin:5px 0 7px!important;
+  overflow-wrap:normal!important;
+}
+main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-lead > h3 > a {
+  font-family:inherit!important;
+  font-size:inherit!important;
+  font-weight:inherit!important;
+  line-height:inherit!important;
+  letter-spacing:inherit!important;
+}
