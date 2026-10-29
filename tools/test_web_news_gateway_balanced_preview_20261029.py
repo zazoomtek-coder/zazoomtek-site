@@ -22,7 +22,7 @@ assert chrome,"Chromium missing"
 server=ThreadingHTTPServer(("127.0.0.1",0),partial(SimpleHTTPRequestHandler,directory=str(root)))
 Thread(target=server.serve_forever,daemon=True).start()
 probe="""<script>
-setTimeout(()=>{
+(()=>{
 const $$=s=>Array.from(document.querySelectorAll(s)),r=e=>e.getBoundingClientRect();
 const c=$$$(.web-gateway-layout .web-gateway-card"),
 side=$$$(.web-gateway-layout .inner-sidebar .editorial-row"),
@@ -34,7 +34,7 @@ const d={cards:c.length,cardY:c.map(e=>Math.round(r(e).y)),
  sidebarCount:$$$(.web-gateway-layout .compact-editorial-box").length,
  scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
  const pre=document.createElement("pre");pre.id="gateway-audit-result";pre.textContent=JSON.stringify(d);document.body.append(pre);
-},700);
+})();
 </script>"""
 try:
  for width in (1450,390):
@@ -45,7 +45,7 @@ try:
    z=subprocess.run(args,text=True,capture_output=True,timeout=75)
    assert z.returncode==0,z.stderr[-700:]
    m=re.search(r'<pre id="gateway-audit-result">(.*?)</pre>',z.stdout,re.S)
-   assert m,"No browser probe"
+   assert m,("No browser probe; script injected=",probe in z.stdout,"HTML tail=",z.stdout[-3000:],"Chrome stderr=",z.stderr[-2000:])
    d=json.loads(html.unescape(m.group(1)))
    assert d["cards"]==3,d
    assert d["sidebarCount"]==1,d
