@@ -22,18 +22,23 @@ assert chrome,"Chromium missing"
 server=ThreadingHTTPServer(("127.0.0.1",0),partial(SimpleHTTPRequestHandler,directory=str(root)))
 Thread(target=server.serve_forever,daemon=True).start()
 probe="""<script>
-(()=>{
-const $$=s=>Array.from(document.querySelectorAll(s)),r=e=>e.getBoundingClientRect();
-const c=$$$(.web-gateway-layout .web-gateway-card"),
-side=$$$(.web-gateway-layout .inner-sidebar .editorial-row"),
-visible=side.filter(e=>{const k=r(e);return k.height>0&&getComputedStyle(e).display!=="none"&&k.width>0;});
-const rel=$$$(.web-gateway-layout .web-gateway-related"),source=$$$(.web-gateway-source-link");
-const d={cards:c.length,cardY:c.map(e=>Math.round(r(e).y)),
- sourceY:source.map(e=>Math.round(r(e).y)),relatedY:rel.map(e=>Math.round(r(e).y)),
- sideVisible:visible.length,sideYs:visible.map(e=>Math.round(r(e).y)),sideBoxHeight:Math.round(r(document.querySelector(".web-gateway-layout .inner-sidebar")).height),
- sidebarCount:$$$(.web-gateway-layout .compact-editorial-box").length,
- scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
- const pre=document.createElement("pre");pre.id="gateway-audit-result";pre.textContent=JSON.stringify(d);document.body.append(pre);
+(function(){
+ const all=q=>Array.from(document.querySelectorAll(q)),box=e=>e.getBoundingClientRect();
+ const cards=all(".web-gateway-layout .web-gateway-card");
+ const side=all(".web-gateway-layout .inner-sidebar .editorial-row");
+ const shown=side.filter(e=>{let t=box(e);return t.height>0&&getComputedStyle(e).display!=="none"&&t.width>0;});
+ const related=all(".web-gateway-layout .web-gateway-related");
+ const sources=all(".web-gateway-source-link");
+ const aside=document.querySelector(".web-gateway-layout .inner-sidebar");
+ const data={cards:cards.length,cardY:cards.map(e=>Math.round(box(e).y)),
+ sourceY:sources.map(e=>Math.round(box(e).y)),relatedY:related.map(e=>Math.round(box(e).y)),
+ sideVisible:shown.length,sideYs:shown.map(e=>Math.round(box(e).y)),
+ sideBoxHeight:Math.round(box(aside).height),
+ sidebarCount:all(".web-gateway-layout .compact-editorial-box").length,
+ scrollWidth:document.documentElement.scrollWidth,
+ clientWidth:document.documentElement.clientWidth};
+ const pre=document.createElement("pre");pre.id="gateway-audit-result";
+ pre.textContent=JSON.stringify(data);document.body.append(pre);
 })();
 </script>"""
 try:
