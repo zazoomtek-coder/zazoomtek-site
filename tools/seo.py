@@ -38,12 +38,28 @@ def keywords(row):
   if word not in found:found.append(word)
  return found[:8]
 def title_tag(row):
+ """Preserve meaningful complete headlines; never cut at 70 chars then add a brand."""
  locked=row.get("seo_lock")
  if isinstance(locked,dict) and plain(locked.get("title")):
   return plain(locked["title"])[:115]
  name=plain(row.get("title"))
- if len(name)>70:name=name[:70].rsplit(" ",1)[0].rstrip(" ,;:-–—")
- return name if "zazoomtek" in name.lower() else name+" | ZazoomTek"
+ if not name:return "ZazoomTek | Tecnologia e Gaming"
+ # Full original H1 takes priority over cosmetic brand suffix.
+ if len(name)<=72:
+  return name if "zazoomtek" in name.casefold() else name+" | ZazoomTek"
+ if len(name)<=115:return name
+ # An exceptionally long title should end at a natural phrase boundary,
+ # not with dangling Italian conjunctions or prepositions.
+ parts=re.split(r"\\s+[|–—]\\s+",name)
+ chosen=parts[0]
+ for part in parts[1:]:
+  proposal=chosen+" | "+part
+  if len(proposal)>110:break
+  chosen=proposal
+ if len(chosen)>110:
+  chosen=chosen[:110].rsplit(" ",1)[0]
+ chosen=re.sub(r"\\s+(?:e|ed|di|del|della|dei|per|con|tra|fra|in|su|a|da|il|la|le|lo|gli|i|un|una)$","",chosen,flags=re.I)
+ return chosen.strip(" ,;:-–—") or name[:110]
 def description(row):
  locked=row.get("seo_lock")
  if isinstance(locked,dict) and plain(locked.get("description")):
@@ -106,6 +122,11 @@ def article_schema(row,url,desc,image):
  if image:data["image"]=[image]
  # Only mark up an actual rating; never manufacture a product review.
  score=row.get("score") or row.get("rating")
+ # The editorial template may show a real vote extracted from original prose.
+ # Reuse that SAME verified vote for structured data; never invent a rating.
+ if cat.startswith("recensioni-") and score is None:
+  from article_templates import score as visible_score,paragraphs
+  score=visible_score(row,paragraphs(row))
  if cat.startswith("recensioni-") and score is not None:
   try:
    number=float(str(score).replace(",",".").split("/")[0])
