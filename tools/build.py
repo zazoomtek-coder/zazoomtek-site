@@ -317,6 +317,27 @@ def ticker_items(rows):
  if len(result)<10:raise ValueError("Breaking ticker requires at least 10 authentic news articles")
  return result
 
+def ticker_social_markup():
+ """Two branded outbound links matching the already configured footer accounts."""
+ channels={name:url for _,name,url in FOOTER_SOCIAL_LINKS}
+ youtube=esc(channels["YouTube"],quote=True)
+ tiktok=esc(channels["TikTok"],quote=True)
+ return ('<nav class="ticker-social" aria-label="Seguici sui social ZazoomTek">'
+         '<span class="ticker-social-label" aria-hidden="true">SEGUICI</span>'
+         '<a class="ticker-social-button ticker-social-youtube" href="'+youtube+'"'
+         ' target="_blank" rel="noopener noreferrer" aria-label="ZazoomTek su YouTube"'
+         ' title="Apri il canale YouTube ZazoomTek">'
+         '<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">'
+         '<path fill="currentColor" d="M23.3 7.1a3 3 0 0 0-2.1-2.1C19.35 4.5 12 4.5 12 4.5s-7.35 0-9.2.5A3 3 0 0 0 .7 7.1 31 31 0 0 0 .2 12a31 31 0 0 0 .5 4.9A3 3 0 0 0 2.8 19c1.85.5 9.2.5 9.2.5s7.35 0 9.2-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.9 31 31 0 0 0-.5-4.9Z"/>'
+         '<path fill="#fff" d="m9.8 8.5 6 3.5-6 3.5Z"/></svg></a>'
+         '<a class="ticker-social-button ticker-social-tiktok" href="'+tiktok+'"'
+         ' target="_blank" rel="noopener noreferrer" aria-label="ZazoomTek su TikTok"'
+         ' title="Apri il profilo TikTok ZazoomTek">'
+         '<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">'
+         '<path fill="currentColor" d="M16.4 2.4c.2 2.1 1.5 3.5 3.8 3.7v3.4a8.4 8.4 0 0 1-3.8-1.1V16a6.5 6.5 0 1 1-6.5-6.5c.3 0 .7 0 1 .1V13a3.3 3.3 0 1 0 2.2 3.1V2.4h3.3Z"/></svg></a>'
+         '</nav>')
+
+
 def breaking_ticker_markup():
  """Server-rendered accessible ticker. JS duplicates the group for seamless movement."""
  if not TICKER_ROWS:return ""
@@ -328,7 +349,7 @@ def breaking_ticker_markup():
          '<span class="breaking-label">PRIMO PIANO</span>'
          '<div class="ticker-viewport" id="ticker-viewport" tabindex="0" aria-label="Scorri le ultime notizie">'
          '<div class="ticker-track" id="ticker-track"><div class="ticker-group" aria-live="off">'+links+'</div></div></div>'
-         '</div></section>')
+         +ticker_social_markup()+'</div></section>')
 
 def build_live_discovery(rows):
  """Write two small, same-origin datasets at every site build, including YouTube import cycles."""
