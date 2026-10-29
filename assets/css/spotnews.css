@@ -2982,3 +2982,10 @@ main.wrap .home-layout > .home-column article h3 > a {
   max-width:100%!important;
 }
 /* Images, captions, category/source labels, dates and article page text unchanged. */
+
+/* Override the former Gaming list 3-line rule with the approved 2-line
+   Home-wide standard. Typography remains exactly as before. */
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-list .gaming-magazine-item h3 > a {
+  -webkit-line-clamp:2!important;
+  line-clamp:2!important;
+}
