@@ -1,0 +1,66 @@
+name: Anteprima Home senza etichette, Gaming solo immagine titolo data (NO DEPLOY)
+on:
+  push:
+    branches:
+      - feature/home-tech-323-gaming-second-lead-20261029
+permissions:
+  contents: read
+jobs:
+  offline-home-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/home-tech-323-gaming-second-lead-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Importa coda editoriale SOLO nel runner di prova
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Compila il sito intero su branch preview - NESSUN DEPLOY
+        env:
+          CF_PAGES_BRANCH: feature/home-tech-323-gaming-second-lead-20261029
+        run: |
+          python3 -m py_compile tools/build.py tools/test_home_gaming_clean_20261029.py
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml
+      - name: Test browser REALI desktop e smartphone senza overflow e ripetizioni
+        run: python3 tools/test_home_gaming_clean_20261029.py
+      - name: Crea ZIP completo navigabile offline
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_HOME_Senza_Etichette_Gaming_Titolo_Data_29-10-2026.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          z=Path('ZazoomTek_HOME_Senza_Etichette_Gaming_Titolo_Data_29-10-2026.zip')
+          readme='''ZAZOOMTEK — ANTEPRIMA HOME 29/10/2026 (NON ONLINE)
+          TECH: 3 news piccole SOPRA, 2 grandi al CENTRO, 3 piccole SOTTO.
+          GAMING: due notizie grandi, una sotto l’altra a sinistra; quattro mini-notizie a destra.
+          Le due notizie grandi Gaming: solo immagine, titolo e data (niente autore, descrizione, badge).
+          EDITORIALI HOME: solo la prima immagine di ogni box editoriale è ingrandita; le pagine articolo non cambiano.
+          
+          Estrai TUTTO lo ZIP, poi apri index.html o VISTA_SMARTPHONE.html nel browser.
+          Le funzioni server di Studio NON sono utilizzabili da un file locale.
+          Questa anteprima ha noindex e robots disabilitato intenzionalmente, non è pubblicata online.
+          '''
+          with zipfile.ZipFile(z,'a',compression=zipfile.ZIP_DEFLATED) as f:
+           f.writestr('LEGGIMI_ANTEPRIMA_HOME_29-10-2026.txt',readme)
+          with zipfile.ZipFile(z) as f:
+           names=set(f.namelist())
+           assert 'index.html' in names and 'VISTA_SMARTPHONE.html' in names
+           assert 'assets/css/spotnews.css' in names and len(names)>250
+           h=f.read('index.html').decode()
+           assert 'news-tech-top-grid' in h and 'gaming-magazine-lead-secondary' in h
+          print('ZIP PREVIEW VERIFIED',z.name,len(names),'files',z.stat().st_size,'bytes. ZERO DEPLOY')
+          PY
+      - name: Carica archivio scaricabile, NON il sito online
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-HOME-SENZA-ETICHETTE-Gaming-Pulito-29-10-2026
+          path: ZazoomTek_HOME_Senza_Etichette_Gaming_Titolo_Data_29-10-2026.zip
+          if-no-files-found: error
+          retention-days: 30
