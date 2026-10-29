@@ -1,0 +1,54 @@
+name: Web News - related articles sidebar preview NO DEPLOY
+on:
+  push:
+    branches: [fix/web-news-related-balanced-current-20261029]
+permissions:
+  contents: read
+jobs:
+  test-and-zip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/web-news-related-balanced-current-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python syntax check
+        run: python3 -m py_compile tools/web_editorial.py tools/build.py tools/verify_web_gateway.py tools/test_web_news_gateway_balanced_preview_20261029.py
+      - name: Import queued posts ONLY on temporary runner
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Build authentic complete site without deploying
+        env:
+          CF_PAGES_BRANCH: fix/web-news-related-balanced-current-20261029
+        run: |
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml
+      - name: Verify three related stories and balanced sidebar using Chrome
+        run: python3 tools/test_web_news_gateway_balanced_preview_20261029.py
+      - name: Create full offline ZIP
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_WEB_CORRELATI_SIDEBAR_29-10-2026.zip
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          z=Path('ZazoomTek_WEB_CORRELATI_SIDEBAR_29-10-2026.zip')
+          with zipfile.ZipFile(z,'a') as f:
+           f.writestr('LEGGIMI_NOTIZIE_WEB_CORRELATI.txt', 'ANTEPRIMA NON ONLINE. Estrarre ZIP e aprire index.html.\nNotizie dal Web: 3 articoli ZazoomTek sotto la fonte, a destra Ultime News con miniature.\nStudio funziona solo con Cloudflare. Non c e stato alcun deploy.\n')
+          with zipfile.ZipFile(z) as f:
+           assert 'index.html' in f.namelist()
+           assert 'VISTA_SMARTPHONE.html' in f.namelist()
+           assert len(f.namelist())>280
+           assert len([x for x in f.namelist() if x.startswith('notizia-web-')])>=4
+           print('ZIP READY',len(f.namelist()),z.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-WEB-CORRELATI-SIDEBAR-29-10-2026
+          path: ZazoomTek_WEB_CORRELATI_SIDEBAR_29-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
