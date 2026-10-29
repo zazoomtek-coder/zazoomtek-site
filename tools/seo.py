@@ -194,7 +194,7 @@ def write_indexing(output,rows,groups,page_size,preview):
   if key!="video":
    count=sum(r.get("category") in cats for r in rows)
    for n in range(2,max(1,ceil(count/page_size))+1):add("/"+key+"-page-"+str(n))
- for page in ("notizie-web","privacy-policy","cookie-policy","disclaimer","note-legali","contatti"):add("/"+page)
+ for page in ("notizie-web","privacy-policy","cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):add("/"+page)
  for row in rows:
   date=datetime_iso(row.get("updated_at") or row.get("modified_at") or row.get("published_at") or row.get("date"))
   add("/"+row["slug"],date[:10] if date else "")
