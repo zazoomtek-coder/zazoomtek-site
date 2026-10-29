@@ -29,10 +29,10 @@ jobs:
           assert len(articles)>=50,(len(articles),len(inner))
           for p in inner:
             h=p.read_text(encoding="utf-8")
-            n=h.count('class="inner-amazon-fill"')
+            n=h.count('class="sidebar inner-amazon-fill"')
             if '<section class="related">' in h:
               assert n==1,(p.name,n)
-              assert 'class="amazon-feature-box"' in h
+              assert 'class="box editorial-box amazon-feature-box"' in h
               assert 'rel="sponsored noopener noreferrer"' in h
             else:
               assert n==0,(p.name,n)
