@@ -1,0 +1,59 @@
+name: SEO - correggi doppioni e anteprima ZIP (NO DEPLOY)
+on:
+  push:
+    branches: [feature/seo-duplicates-sidebar-safe-20261029]
+permissions:
+  contents: read
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/seo-duplicates-sidebar-safe-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica sintassi
+        run: python3 -m py_compile tools/build.py tools/article_templates.py tools/test_seo_remaining_20261029.py
+      - name: Importa solo dati autentici nel runner di prova, senza push
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Genera il sito completo senza deploy
+        env:
+          CF_PAGES_BRANCH: feature/seo-duplicates-sidebar-safe-20261029
+        run: |
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_redirects
+      - name: Verifica redirect, duplicati e immagini articolo
+        run: python3 tools/test_seo_remaining_20261029.py
+      - name: Prepara ZIP offline integrale
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_SEO_Correzioni_Residue_29-10-2026.zip
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          z=Path('ZazoomTek_SEO_Correzioni_Residue_29-10-2026.zip')
+          with zipfile.ZipFile(z,'a',compression=zipfile.ZIP_DEFLATED) as f:
+           f.writestr('LEGGIMI_CORREZIONI_SEO_29-10-2026.txt',
+             'ANTEPRIMA LOCALE NON ONLINE. Apri index.html.\n'
+             'Due duplicati consolidati con redirect 301 nel file _redirects.\n'
+             'Copertina principale degli articoli caricata con priorita alta per LCP.\n'
+             'Le date originali non sono state inventate.\n'
+             'Google Search Console e Core Web Vitals richiedono misure separate.\n')
+          with zipfile.ZipFile(z) as f:
+           names=set(f.namelist())
+           assert 'index.html' in names and 'VISTA_SMARTPHONE.html' in names and '_redirects' in names
+           assert len(names)>260, len(names)
+           print('ZIP VERIFIED',len(names),'files',z.stat().st_size,'bytes — ZERO DEPLOY')
+          PY
+      - name: Carica ZIP per download, mai sul sito
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-SEO-Correzioni-Residue-29-10-2026
+          path: ZazoomTek_SEO_Correzioni_Residue_29-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
