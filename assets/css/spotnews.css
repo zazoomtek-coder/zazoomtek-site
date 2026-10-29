@@ -2875,3 +2875,17 @@ main.wrap .home-column .gaming-magazine .gaming-magazine-leads .gaming-magazine-
   font-weight:400!important;
   color:#777!important;
 }
+
+/* 29/10/2026 — TUTTE LE ETICHETTE DI CATEGORIA NASCOSTE SOLO IN HOME.
+   I titoli delle sezioni, i titoli delle notizie e le date restano visibili.
+   Le pagine interne e l'informativa obbligatoria Amazon non sono modificate. */
+main.wrap .featured-wide .tile-category,
+main.wrap .home-layout .news-tech-showcase .news-tech-category,
+main.wrap .home-layout .home-review-web-card > .web-source,
+main.wrap .home-layout .compact-item .compact-item-type,
+main.wrap .home-layout .section .card > small,
+main.wrap .home-layout .web-news-card > .web-source,
+main.wrap .home-layout .amazon-feature-box .amazon-feature-badge,
+main.wrap .home-layout .home-column .gaming-magazine .gaming-magazine-badge {
+  display:none!important;
+}
