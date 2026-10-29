@@ -51,10 +51,11 @@ jobs:
           for f in root.glob('*.html'):
            p=P();p.feed(f.read_text(encoding='utf-8'));pages[f.stem]=p
           assert pages['index'].h1==1
-          paged=[(k,p) for k,p in pages.items() if re.search(r'-page-\\d+$',k)]
+          paged=[(k,p) for k,p in pages.items() if re.search(r'-page-\d+$',k)]
           for slug,p in paged:
            n=slug.rsplit('-',1)[1]
            assert 'Pagina '+n in p.title,(slug,p.title)
+          assert len(paged)>=30, len(paged)
           assert len({p.title for _,p in paged})==len(paged),(len(paged),len({p.title for _,p in paged}))
           home=(root/'index.html').read_text(encoding='utf-8')
           for link in ('/recensioni-tech','/recensioni-gaming','/video'):
