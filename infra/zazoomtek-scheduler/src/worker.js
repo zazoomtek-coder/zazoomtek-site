@@ -1,7 +1,7 @@
 // Cloudflare backup scheduler for ZazoomTek — INDEPENDENT of GitHub cron.
 // Disabled until explicitly deployed and configured with a GitHub Actions token.
 // Sends dispatches; does NOT itself alter the site or bypass the release gate.
-// A GitHub 204 confirms accepted trigger, NOT completed import or deploy.
+// A GitHub 200/204 confirms accepted trigger, NOT completed import or deploy.
 const GITHUB_REPO="zazoomtek-coder/zazoomtek-site";
 const INTAKE="editorial-collect.yml";
 const RELEASE="editorial-publish.yml";
@@ -42,10 +42,10 @@ export async function dispatch(workflow,token,request=fetch) {
     "Content-Type":"application/json"
    },body:JSON.stringify({ref:"main"})
   });
- if(response.status!==204)
+ if(response.status!==204&&response.status!==200)
   throw new Error("Dispatch failed for "+workflow+" HTTP "+response.status+
    " "+(await response.text()).slice(0,180));
- return 204;
+ return response.status;
 }
 
 export default {
@@ -56,7 +56,7 @@ export default {
   ctx.waitUntil(dispatch(job,env.GITHUB_AUTOMATION_TOKEN).then(()=>{
    console.log("Backup scheduler dispatch accepted",slot.kind,
     controller.scheduledTime,"Rome",slot.hour+":"+slot.minute,
-    "NOTE: 204 is not an import/deploy success receipt");
+    "NOTE: acceptance does not mean import/deploy success");
   }).catch(error=>{
    console.error("BACKUP SCHEDULER FAILED",job,String(error));
    throw error;
