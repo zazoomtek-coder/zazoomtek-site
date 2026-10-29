@@ -42,11 +42,14 @@ def verify():
         try:
             actual=get(SITE+"/?zazoomtek_release_verification="+nonce)
             if b'/assets/css/spotnews.css?v='+m.group(1) not in actual:
-                raise RuntimeError("Live homepage still uses old CSS version")
+                found=re.search(rb'/assets/css/spotnews\\.css\\?v=([0-9a-f]{8,64})',actual)
+                remote=found.group(1).decode() if found else "MISSING"
+                raise RuntimeError("Homepage CSS version stale: live="+remote+
+                                   " expected="+version)
             remote_css=get(SITE+"/assets/css/spotnews.css?v="+version+
                            "&zazoomtek_release_verification="+nonce)
             if hashlib.sha256(remote_css).hexdigest()!=css_hash:
-                raise RuntimeError("Live CSS bytes do not match approved build")
+                raise RuntimeError("Live CSS SHA256 mismatch: live="+hashlib.sha256(remote_css).hexdigest()[:16]+" expected="+css_hash[:16])
             print("PUBLIC DOMAIN VERIFIED",SITE,"attempt",attempt,
                   "HTML",len(actual),"CSS_SHA256",css_hash,
                   "at",datetime.now(timezone.utc).isoformat(),flush=True)
