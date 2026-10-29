@@ -1,0 +1,59 @@
+name: ZazoomTek - ZIP Amazon come Home 29 ottobre (NESSUN DEPLOY)
+on:
+  push:
+    branches:
+      - fix/amazon-article-match-home-20261029
+permissions:
+  contents: read
+jobs:
+  offline-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/amazon-article-match-home-20261029
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepara dati ufficiali senza pubblicare e senza modificare main
+        run: |
+          git fetch --no-tags origin editorial-queue
+          python3 tools/scheduled_editorial_import.py
+      - name: Rigenera tutte le pagine vere del sito, solo in memoria runner
+        env:
+          CF_PAGES_BRANCH: fix/amazon-article-match-home-20261029
+        run: |
+          python3 -m py_compile tools/build.py tools/test_amazon_like_home_20261029.py
+          python3 tools/build.py
+          test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/studio-v2/index.html
+      - name: Chrome headless verifica griglia a 3, colori Home, CTA e geometria reale
+        run: |
+          python3 tools/test_amazon_like_home_20261029.py
+      - name: Produce ZIP navigabile offline con file del sito autentico
+        run: |
+          python3 tools/package_offline_preview.py
+          mv ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip ZazoomTek_Anteprima_AMAZON_Come_HOME_29-10-2026.zip
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          z=Path('ZazoomTek_Anteprima_AMAZON_Come_HOME_29-10-2026.zip')
+          with zipfile.ZipFile(z) as f:
+           names=set(f.namelist())
+           assert 'index.html' in names
+           assert 'VISTA_SMARTPHONE.html' in names
+           assert 'assets/css/spotnews.css' in names
+           assert any(p.startswith('community-') and p.endswith('.html') for p in names)
+           assert len(names)>250, len(names)
+           css=f.read('assets/css/spotnews.css').decode()
+           assert '29 ottobre 2026: il box Amazon negli articoli' in css
+           print('VERIFIED ZIP',z.name,len(names),'files',z.stat().st_size,'bytes — ZERO DEPLOY',flush=True)
+          PY
+      - name: Archivio ZIP scaricabile, non pubblicazione
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-AMAZON-Come-HOME-29-10-2026
+          path: ZazoomTek_Anteprima_AMAZON_Come_HOME_29-10-2026.zip
+          retention-days: 30
+          if-no-files-found: error
