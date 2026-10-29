@@ -249,7 +249,7 @@ function showArticlePreview(savedRecord=null){
    if(block.caption)figure.append(S("figcaption","",block.caption));
    text.append(figure);
   }else if(typ==="video"){
-   const id=String(block.url||"").match(/(?:youtu\\.be\\/|[?&]v=|\\/embed\\/|\\/shorts\\/)([A-Za-z0-9_-]{11})/)?.[1];
+   const id=String(block.url||"").match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/)?.[1];
    if(id){const box=S("div","player studio-content-video"),thumb=S("img");thumb.src="https://i.ytimg.com/vi/"+id+"/hqdefault.jpg";thumb.alt="Anteprima video YouTube";box.append(thumb,S("p","v2-preview-media","▶ Riproduci video"));text.append(box)}
   }else if(typ==="button"){
    const p=S("p","studio-content-action"),link=S("a","v2-preview-action",t||"Apri collegamento");link.href=block.url||"#";p.append(link);text.append(p);
