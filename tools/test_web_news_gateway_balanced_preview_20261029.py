@@ -30,7 +30,7 @@ visible=side.filter(e=>{const k=r(e);return k.height>0&&getComputedStyle(e).disp
 const rel=$$$(.web-gateway-layout .web-gateway-related"),source=$$$(.web-gateway-source-link");
 const d={cards:c.length,cardY:c.map(e=>Math.round(r(e).y)),
  sourceY:source.map(e=>Math.round(r(e).y)),relatedY:rel.map(e=>Math.round(r(e).y)),
- sideVisible:visible.length,sideYs:visible.map(e=>Math.round(r(e).y)),sideBoxHeight:Math.round(r($(".web-gateway-layout .inner-sidebar")[0]).height),
+ sideVisible:visible.length,sideYs:visible.map(e=>Math.round(r(e).y)),sideBoxHeight:Math.round(r(document.querySelector(".web-gateway-layout .inner-sidebar")).height),
  sidebarCount:$$$(.web-gateway-layout .compact-editorial-box").length,
  scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
  const pre=document.createElement("pre");pre.id="gateway-audit-result";pre.textContent=JSON.stringify(d);document.body.append(pre);
