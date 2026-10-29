@@ -196,7 +196,7 @@ def short_points(review,key):
  raw=review.get(key)
  if isinstance(raw,str):raw=[x.strip() for x in raw.split("\n") if x.strip()]
  if not isinstance(raw,list):return []
- return [plain(x) for x in raw if isinstance(x,str) and plain(x)][:8]
+ return [plain(x) for x in raw if isinstance(x,str) and plain(x)][:16]
 
 ITALIAN_MONTHS=("","gennaio","febbraio","marzo","aprile","maggio","giugno",
                 "luglio","agosto","settembre","ottobre","novembre","dicembre")
