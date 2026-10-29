@@ -33,6 +33,9 @@ addEventListener("load",()=>setTimeout(()=>{
  const boxes=$(".home-sidebar .compact-editorial-box");
  const labels=$(".featured-wide .tile-category,.home-layout .news-tech-category,.home-layout .home-review-web-card > .web-source,.home-layout .compact-item-type,.home-layout .section .card > small,.home-layout .web-news-card > .web-source,.home-layout .amazon-feature-badge");
  const visibleLabels=labels.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.className);
+ const webLabels=$(".home-layout .web-news-card:not(.home-review-web-card) > .web-source");
+ const hiddenWebLabels=webLabels.filter(x=>getComputedStyle(x).display==="none").map(x=>x.className);
+
  const sectionHeaders=$(".home-layout .section .bar h2").map(x=>getComputedStyle(x).display);
  const affiliateDisclosure=$(".home-layout .amazon-feature-disclosure");
 
@@ -40,7 +43,7 @@ addEventListener("load",()=>setTimeout(()=>{
  const otherRows=boxes.map(box=>box.querySelector(".editorial-row:nth-child(2) .editorial-thumb")).filter(Boolean);
  const data={
  tech:[top.length,middle.length,bottom.length],
- homeLabelCount:labels.length,visibleLabels,sectionHeaders,affiliateDisclosureVisible:!!affiliateDisclosure&&getComputedStyle(affiliateDisclosure).display!=="none",
+ homeLabelCount:labels.length,visibleLabels,webLabelCount:webLabels.length,hiddenWebLabels,sectionHeaders,affiliateDisclosureVisible:!!affiliateDisclosure&&getComputedStyle(affiliateDisclosure).display!=="none",
  techOrder:top.concat(middle,bottom).map(x=>x.querySelector("a.news-tech-cover")?.getAttribute("href")),
  techTop:top.map(rect),techMiddle:middle.map(rect),techBottom:bottom.map(rect),
  gaming:[gaming.length,gamingSmall.length],
@@ -74,6 +77,7 @@ try:
   assert d["gaming"]==[2,4],d
   assert d["homeLabelCount"]>=10,d
   assert not d["visibleLabels"],d
+  assert d["webLabelCount"]>=1 and not d["hiddenWebLabels"],d
   assert d["sectionHeaders"] and all(x!="none" for x in d["sectionHeaders"]),d
   assert d["affiliateDisclosureVisible"],d
   assert len(set(d["techOrder"]))==8,d
