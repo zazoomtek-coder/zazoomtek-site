@@ -211,6 +211,12 @@ function applyEditorialFormat(){
   state.body=formatted;renderBlocks();scheduleBackup();
  }
 }
+function previewMediaUrl(url){
+ const value=String(url||"");
+ const ok=value.startsWith("/assets/uploads/")&&
+  ["jpg","jpeg","png","webp","mp3","m4a","wav","pdf","txt"].includes(value.split(".").pop());
+ return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
+}
 function showArticlePreview(savedRecord=null){
  const record=savedRecord||collect();
  const article=E("v2-preview-article-content");article.replaceChildren();
@@ -226,7 +232,7 @@ function showArticlePreview(savedRecord=null){
  if(review&&record.platform)article.append(S("p","review-equipment","Piattaforma o dispositivo: "+record.platform));
  if(record.image||state.coverPreview){
   const cover=S("img","v2-preview-cover");cover.alt=record.title||"Copertina";
-  cover.src=state.coverPreview||record.image;cover.style.objectPosition=(record.cover_focus_x??state.coverFocusX)+"% "+(record.cover_focus_y??state.coverFocusY)+"%";
+  cover.src=state.coverPreview||previewMediaUrl(record.image);cover.style.objectPosition=(record.cover_focus_x??state.coverFocusX)+"% "+(record.cover_focus_y??state.coverFocusY)+"%";
   cover.style.transform="scale("+Number(record.cover_zoom??state.coverZoom)/100+") rotate("+Number(record.cover_rotation??state.coverRotation)+"deg)";
   const wrapper=S("div","v2-preview-cover-frame");wrapper.append(cover);article.append(wrapper);
  }
@@ -242,7 +248,7 @@ function showArticlePreview(savedRecord=null){
   }else if(typ==="image"){
    const figure=S("figure","story-figure studio-content-image studio-align-"+(block.align||"center"));
    const crop=S("div","studio-image-crop"),im=S("img");
-   im.alt=block.alt||record.title||"";im.src=state.body[i]?.preview||block.preview||block.url||"";
+   im.alt=block.alt||record.title||"";im.src=state.body[i]?.preview||block.preview||previewMediaUrl(block.url);
    im.style.objectPosition=(block.focus_x??50)+"% "+(block.focus_y??50)+"%";
    im.style.transform="scale("+Number(block.zoom??100)/100+") rotate("+Number(block.rotation??0)+"deg)";
    crop.append(im);figure.append(crop);
@@ -297,7 +303,7 @@ function syncCover(){
  E("v2-cover-add").hidden=hasCover;
  E("v2-cover-stage").hidden=!hasCover;
  const i=E("v2-cover-image");
- const visibleSrc=state.coverPreview||state.cover||"";
+ const visibleSrc=state.coverPreview||previewMediaUrl(state.cover)||"";
  i.onerror=null;
  // Newly uploaded assets live on GitHub before the Cloudflare build publishes them.
  // Retry only these first-party uploads, never remote third-party covers.
@@ -698,7 +704,13 @@ async function init(){
   try{
    const pending=await api("v2-pending");
    const changes=pending.overrides||{};
-   state.rows=state.rows.map(x=>changes[x.slug]?{...x,...changes[x.slug],__queued:true}:x);
+   state.rows=state.rows.map(x=>{
+    const queued=changes[x.slug];
+    if(!queued)return x;
+    const same=queued.title===x.title&&queued.image===x.image&&JSON.stringify(queued.body||[])===JSON.stringify(x.body||[]);
+    const alreadyReleased=x.updated_at&&queued.updated_at&&Date.parse(x.updated_at)>=Date.parse(queued.updated_at);
+    return same||alreadyReleased?x:{...x,...queued,__queued:true};
+   });
    for(const r of pending.posts||[]){
     if(!state.rows.some(x=>x.slug===r.slug))state.rows.unshift({...r,__queued:true});
    }
