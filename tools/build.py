@@ -122,7 +122,10 @@ def community_posts():
   if is_full and not re.fullmatch(r"https://www\.youtube\.com/post/Ug[A-Za-z0-9_-]{12,}",original_url):
    original_url="https://www.youtube.com/post/"+post_id
   if not is_full:original_url=""
+  from review_pros_cons import extract
+  points=extract(text) if cat.startswith("recensioni-") else {"pros":[],"cons":[]}
   result.append({
+   **points,
    "slug":slug,"category":cat,"title":title.strip(),
    "body":[part.strip() for part in re.split(r"\n\s*\n",text) if part.strip()],
    "date":date.isoformat() if date else "",
