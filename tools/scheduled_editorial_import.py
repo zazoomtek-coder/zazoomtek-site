@@ -260,17 +260,17 @@ def main():
             "studio_publications":studio_updates,"studio_assets":studio_assets,
             "rss_new_headlines":bool(results["rss"])}
     Path("import_source_status.json").write_text(
-        json.dumps(status,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+        json.dumps(status,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     summary=__import__("os").getenv("GITHUB_STEP_SUMMARY")
     if summary:
         with open(summary,"a",encoding="utf-8") as report:
-            report.write("\\n### YouTube import health\\n"+
-             "| Source | Status |\\n|---|---|\\n"+
-             "| Upload RSS | "+("OK" if results["videos"] else "FAIL")+" |\\n"+
-             "| Community full text | "+("OK" if results["community"] else "FAIL")+" |\\n"+
-             "| New Community posts | "+str(status["new_community"])+" |\\n"+
-             "| New videos | "+str(status["new_videos"])+" |\\n"+
-             "| Studio changes | "+str(studio_updates)+" |\\n")
+            report.write("\n### YouTube import health\n"+
+             "| Source | Status |\n|---|---|\n"+
+             "| Upload RSS | "+("OK" if results["videos"] else "FAIL")+" |\n"+
+             "| Community full text | "+("OK" if results["community"] else "FAIL")+" |\n"+
+             "| New Community posts | "+str(status["new_community"])+" |\n"+
+             "| New videos | "+str(status["new_videos"])+" |\n"+
+             "| Studio changes | "+str(studio_updates)+" |\n")
     if unhealthy:
         print("::warning title=YOUTUBE IMPORT INCOMPLETE::Sources unavailable: "+
               ", ".join(unhealthy)+". Cached valid content kept; approved release proceeds.",flush=True)
