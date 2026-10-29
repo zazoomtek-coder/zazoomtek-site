@@ -300,6 +300,7 @@ FOOTER_SOCIAL_LINKS=[
  ("♫","TikTok","https://www.tiktok.com/@zazoomtek"),
  ("◉","WhatsApp","https://whatsapp.com/channel/0029VbDDqHa7tkjDMTErqM2S"),
  ("◔","RSS","/feed.xml"),
+ ("ℹ","Chi siamo","/chi-siamo"),
  ("✉","Contatti","/contatti")
 ]
 def ticker_items(rows):
@@ -1175,6 +1176,50 @@ def contacts_page(rows):
  body+='<p class="contacts-email">✉ <a href="mailto:zazoomtek@gmail.com">zazoomtek@gmail.com</a></p></article>'
  (O/"contatti.html").write_text(inside("Contatti",body,rows,show_related=False,seo_path="/contatti",seo_summary="Contatta ZazoomTek per collaborazioni, recensioni, notizie e richieste stampa."),encoding="utf-8")
 
+def about_page(rows):
+ # ZazoomTek is an independent enthusiasts' magazine, not a registered newspaper.
+ # This informational page reuses the existing inner-page editorial styling.
+ intro=(
+  "ZazoomTek è un magazine digitale indipendente dedicato alla tecnologia, "
+  "ai videogiochi e all'innovazione. Non è una testata giornalistica, ma un "
+  "progetto curato da una piccola squadra di appassionati che dedica parte "
+  "del proprio tempo ad aggiornare il sito e il canale YouTube."
+ )
+ mission=(
+  "La nostra missione è condividere informazioni attendibili, recensioni, "
+  "guide e contenuti originali, privilegiando fonti ufficiali e verificabili: "
+  "comunicati stampa, produttori, sviluppatori e agenzie PR. "
+  "Eventuali indiscrezioni vengono chiaramente riconosciute come tali "
+  "e mai presentate come fatti accertati."
+ )
+ team=[
+  ("Beppe","Founder & Digital Content Specialist",
+   "Fondatore e responsabile del progetto, cura la direzione dei contenuti digitali "
+   "e la produzione dei video."),
+  ("Lia","Web Developer · assistente AI",
+   "Supporta la programmazione, lo sviluppo, la manutenzione "
+   "e l'ottimizzazione tecnica del sito web."),
+  ("Gimmi","News & Reviews Editor",
+   "Cura notizie, aggiornamenti e recensioni del mondo Tech e Gaming."),
+  ("Alex","Speciali & Extra Editor",
+   "Si occupa di speciali, approfondimenti e contenuti della sezione Extra.")
+ ]
+ body='<article class="legal-article"><h1>Chi siamo</h1>'
+ body+='<p>'+esc(intro)+'</p>'
+ body+='<h2>La nostra missione</h2><p>'+esc(mission)+'</p>'
+ body+='<h2>Il team di ZazoomTek</h2>'
+ for name,role,description in team:
+  body+='<h3>'+esc(name)+'</h3><p><strong>'+esc(role)+'</strong> — '+esc(description)+'</p>'
+ body+=('<p>Per richieste e collaborazioni visita la pagina '
+        '<a href="/contatti">Contatti</a>. '
+        'Per ulteriori informazioni consulta le <a href="/note-legali">Note legali</a>.</p>')
+ body+='</article>'
+ summary=("Chi siamo: la missione e il team di ZazoomTek, "
+          "magazine indipendente dedicato a tecnologia, gaming e innovazione.")
+ (O/"chi-siamo.html").write_text(
+  inside("Chi siamo",body,rows,show_related=False,seo_path="/chi-siamo",
+         seo_summary=summary),encoding="utf-8")
+
 def rss_feed(rows):
  """Generate a real RSS 2.0 feed with only first-party editorial content."""
  from xml.etree.ElementTree import Element,SubElement,ElementTree
@@ -1282,6 +1327,7 @@ def main():
         show_related=False,seo_path=path,seo_summary=summary),encoding="utf-8")
  legal_pages(rows)
  contacts_page(rows)
+ about_page(rows)
  rss_feed(rows)
  for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
  from verify_studio import verify_studio
