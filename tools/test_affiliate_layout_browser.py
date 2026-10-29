@@ -32,7 +32,12 @@ window.addEventListener('load', function() {
     const data = {related:rect(related),amazon:rect(amazon),
        rail:rect(rail),story:rect(story),display:getComputedStyle(area).display,
        template:getComputedStyle(area).gridTemplateAreas,
-       scrollWidth:document.documentElement.scrollWidth,windowWidth:window.innerWidth};
+       scrollWidth:document.documentElement.scrollWidth,windowWidth:window.innerWidth,
+       amazonIntro:getComputedStyle(by('.inner-amazon-fill .amazon-feature-intro')).display,
+       amazonHeading:getComputedStyle(by('.inner-amazon-fill h2.amazon-feature-title')).fontSize,
+       amazonBadge:getComputedStyle(by('.inner-amazon-fill .amazon-feature-badge')).fontSize,
+       amazonImageMax:getComputedStyle(by('.inner-amazon-fill .amazon-feature-product img')).maxHeight,
+       amazonCardRadius:getComputedStyle(by('.inner-amazon-fill .amazon-feature-box')).borderTopLeftRadius};
     const status = document.createElement('pre');
     status.id = 'zzt-real-browser-affiliate-geometry';
     status.textContent = JSON.stringify(data);
@@ -75,6 +80,12 @@ def main():
         assert abs(data["story"]["width"] - data["related"]["width"]) < 3, data
         assert data["amazon"]["x"] > data["related"]["right"] + 5, data
         assert data["scrollWidth"] <= data["windowWidth"] + 2, data
+        # Exact approved ZIP preview's computed visual metrics.
+        assert data["amazonIntro"] == "none", data
+        assert data["amazonHeading"] == "14px", data
+        assert data["amazonBadge"] == "8px", data
+        assert data["amazonImageMax"] == "34px", data
+        assert data["amazonCardRadius"] == "8px", data
         print("REAL CHROME CSS LAYOUT PASS: Amazon beside related articles, no horizontal overflow.",flush=True)
     finally:
         server.shutdown()

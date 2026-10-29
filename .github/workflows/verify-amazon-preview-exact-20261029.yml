@@ -1,0 +1,35 @@
+name: ZazoomTek - CONFRONTO AMAZON PREVIEW APPROVATA (NO DEPLOY)
+on:
+  push:
+    branches: [feature/restore-amazon-preview-style-20261029]
+permissions:
+  contents: read
+jobs:
+  exact-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/restore-amazon-preview-style-20261029
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica CSS ripreso dalla preview e fingerprint dello slot
+        run: |
+          python3 -m py_compile tools/build.py tools/editorial_slot_gate.py tools/test_affiliate_layout_browser.py
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('assets/css/spotnews.css').read_text(encoding='utf-8')
+          assert '.amazon-feature-intro{display:none!important}' in text
+          assert 'max-height:34px!important' in text
+          assert 'font-size:14px!important;line-height:1.24!important' in text
+          assert 'grid-template-areas:"story rail" "related amazon"' in text
+          gate=Path('tools/editorial_slot_gate.py').read_text(encoding='utf-8')
+          assert '"assets/css/spotnews.css"' in gate
+          print('APPROVED PREVIEW CSS + 19:30 SLOT QUEUE VERIFIED')
+          PY
+      - name: Rigenera il sito REALE da main+modifica di preview (nessun deploy)
+        run: python3 tools/build.py
+      - name: Chrome vero - confronto dimensioni e posizione dei box
+        run: python3 tools/test_affiliate_layout_browser.py
