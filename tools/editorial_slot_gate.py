@@ -82,9 +82,12 @@ def state():
 
 
 def event_slot(now):
+    # Allow a tightly bounded 15-minute recovery window AFTER the official
+    # clock time: independent Cloudflare trigger can recover a dropped GH cron.
+    # The receipt prevents duplicates and the user still sees exact slot time.
     for hour in (12, 19):
         target = now.replace(hour=hour, minute=30, second=0, microsecond=0)
-        if target - timedelta(minutes=10) <= now < target + timedelta(minutes=5):
+        if target - timedelta(minutes=10) <= now < target + timedelta(minutes=15):
             return target
     return None
 
@@ -134,7 +137,7 @@ def authorize():
               slot.isoformat(), "seconds", round(seconds), flush=True)
         time.sleep(seconds + 0.3)
     now = datetime.now(ROME)
-    if not (slot <= now < slot + timedelta(minutes=5)):
+    if not (slot <= now < slot + timedelta(minutes=15)):
         print("SKIPPED: slot expired; no out-of-window deployment",
               now.isoformat(), flush=True)
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
