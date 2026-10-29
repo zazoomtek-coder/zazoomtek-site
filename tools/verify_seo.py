@@ -59,7 +59,7 @@ def check_seo(root,rows,groups,preview):
   if not parser.title or len(parser.title)>125:bad.append((page.name,"missing/overlong title"))
   if page.stem=="index" and parser.h1!=1:
    bad.append((page.name,"Home must have exactly one semantic H1"))
-  archive_page=re.search(r"-page-(\\d+)$",page.stem)
+  archive_page=re.search(r"-page-(\d+)$",page.stem)
   if archive_page and ("Pagina "+archive_page.group(1)) not in parser.title:
    bad.append((page.name,"Paginated archive title missing page number"))
   if page.stem=="index":
