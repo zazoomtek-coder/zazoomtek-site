@@ -248,6 +248,32 @@ def main():
           "RSS OK:", results["rss"],
           "Studio publications:", studio_updates, "Studio uploads:", studio_assets, flush=True)
     print("LIVE SOURCES:", results, flush=True)
+    # Distinguish a successful release from actual YouTube source health.
+    # A broken YouTube endpoint must WARN but must NOT block already approved
+    # articles, Studio publications or layout changes.
+    unhealthy=[source for source in ("videos","community") if not results[source]]
+    status={"checked_at":datetime.now().astimezone().isoformat(timespec="seconds"),
+            "youtube_videos_ok":bool(results["videos"]),
+            "youtube_community_ok":bool(results["community"]),
+            "new_community":after["community_imported.json"]-before["community_imported.json"],
+            "new_videos":after["videos.json"]-before["videos.json"],
+            "studio_publications":studio_updates,"studio_assets":studio_assets,
+            "rss_new_headlines":bool(results["rss"])}
+    Path("import_source_status.json").write_text(
+        json.dumps(status,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    summary=__import__("os").getenv("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary,"a",encoding="utf-8") as report:
+            report.write("\\n### YouTube import health\\n"+
+             "| Source | Status |\\n|---|---|\\n"+
+             "| Upload RSS | "+("OK" if results["videos"] else "FAIL")+" |\\n"+
+             "| Community full text | "+("OK" if results["community"] else "FAIL")+" |\\n"+
+             "| New Community posts | "+str(status["new_community"])+" |\\n"+
+             "| New videos | "+str(status["new_videos"])+" |\\n"+
+             "| Studio changes | "+str(studio_updates)+" |\\n")
+    if unhealthy:
+        print("::warning title=YOUTUBE IMPORT INCOMPLETE::Sources unavailable: "+
+              ", ".join(unhealthy)+". Cached valid content kept; approved release proceeds.",flush=True)
     for p in snapshot("community_imported.json", "posts")["posts"][:8]:
         print("LATEST COMMUNITY", p.get("date"), str(p.get("title", ""))[:130], flush=True)
     # An unavailable source never causes a fictitious success claim; the
