@@ -88,6 +88,9 @@ def youtube_community():
     today = datetime.now(timezone.utc).date().isoformat()
     try:
         items = discover(limit=180, max_pages=15)
+        if not items:
+            print("::warning title=YouTube Community unavailable::Discovery returned ZERO verified posts; keeping the existing archive",flush=True)
+            return False
         added = []
         for row in items:
             post_id = row.get("id", "")
