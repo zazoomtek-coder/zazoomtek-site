@@ -53,10 +53,38 @@ def check_web_gateways(root,web_items,rows):
     issues.append(path+": forbidden generic sentence on a source-first gateway")
    if 'class="web-gateway-primary"' in html:
     issues.append(path+": artificial primary box without an exact original match")
-   if 'class="web-gateway-related"' in html:
-    from web_editorial import related_subject
-    if not related_subject(entry.get("title", ""),rows):
-     issues.append(path+": unrelated editorial links must never be recommended")
+   # Generic same-category recommendations are explicitly labelled "Leggi anche",
+   # never falsely presented as reports on the same exact event.
+   if 'Altri articoli ZazoomTek sullo stesso argomento' in html:
+    from web_editorial import web_gateway_suggestions
+    _,specific=web_gateway_suggestions(entry,rows,computed)
+    if not specific:
+     issues.append(path+": broad suggestions mislabeled as exact-topic coverage")
+  # The source article always stays available and precedes three genuine
+  # first-party cards; the right rail uses only "Ultime News".
+  cards=re.findall(r'<article class="web-gateway-card">(.*?)</article>',html,re.S)
+  if len(cards)!=3:issues.append(path+": expected exactly 3 first-party related cards")
+  slugs=[]
+  for card in cards:
+   matched=re.search(r'class="web-gateway-card-cover" href="/([a-z0-9-]+)"',card)
+   if not matched:
+    issues.append(path+": related card without local href")
+    continue
+   slugs.append(matched.group(1))
+   if not any(r.get("slug")==matched.group(1) for r in rows):
+    issues.append(path+": related card references missing original story")
+  if len(slugs)!=len(set(slugs)):
+   issues.append(path+": duplicate recommendations")
+  if expected_match and expected_match["slug"] in slugs:
+   issues.append(path+": primary article repeated among recommendations")
+  if 'class="inner-layout web-gateway-layout"' not in html:
+   issues.append(path+": dedicated editorial gateway grid absent")
+  if 'Ultime news' not in html and 'ULTIME NEWS' not in html:
+   issues.append(path+": sidebar Ultime News missing")
+  source_pos=html.find('class="web-gateway-source-link"')
+  related_pos=html.find('class="web-gateway-related"')
+  if source_pos<0 or related_pos<=source_pos:
+   issues.append(path+": first-party suggestions not below external source link")
   if "<h1>" not in html or 'data-web-gateway="1"' not in html:
    issues.append(path+": missing gateway main structure")
   if 'name="robots" content="noindex' not in html:
