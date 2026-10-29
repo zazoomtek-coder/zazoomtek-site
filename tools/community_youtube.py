@@ -94,7 +94,7 @@ def title_type(text):
  if not title:return "",None
  if len(title)>210:title=title[:210].rsplit(" ",1)[0].strip()
  mark=title.lower()
- if mark.startswith(("news tech:","news gaming:","news:")):kind="news"
+ if mark.startswith(("news tech:","news gaming:","news extra:","news speciali:","news special:","news:")):kind="news"
  elif mark.startswith(("review:","recensione:","review tech:","review gaming:")):kind="review"
  elif mark.startswith(("guida:","guide:")):kind="guide"
  elif mark.startswith(("speciale:","special:")):kind="speciali"
