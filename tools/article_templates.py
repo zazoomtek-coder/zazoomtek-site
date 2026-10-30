@@ -163,6 +163,48 @@ def compact_prose_html(parts):
  flush()
  return "".join(output)
 
+
+def normalize_editorial_headings(markup):
+ """Keep all source prose, remove orphan H2s, and give Il punto a factual conclusion.
+ Applies to both imported Community articles and future Studio pages.
+ """
+ if not markup:return markup
+ markup=re.sub(r"<h2>\s*Contenuti e novità\s*</h2>","",markup,flags=re.I)
+ parts=re.split(r"(<h2(?:\s[^>]*)?>.*?</h2>)",markup,flags=re.I|re.S)
+ point_indices=[i for i in range(1,len(parts),2)
+                if re.fullmatch(r"<h2(?:\s[^>]*)?>\s*Il punto\s*:?\s*</h2>",parts[i],re.I|re.S)]
+ # A single final Il punto section is retained; duplicate headings lose only the title.
+ for i in point_indices[:-1]:parts[i]=""
+ for i in range(1,len(parts),2):
+  heading=parts[i]
+  if not heading:continue
+  content=parts[i+1] if i+1<len(parts) else ""
+  is_point=bool(re.fullmatch(r"<h2(?:\s[^>]*)?>\s*Il punto\s*:?\s*</h2>",heading,re.I|re.S))
+  def factual(text):
+   clean=re.sub(r"<[^>]+>"," ",text)
+   clean=re.sub(r"\s+"," ",clean).strip()
+   return len(clean)>=45 and not clean.endswith("?") and not clean.casefold().startswith(
+    ("se ti piacciono","subscribe","iscriviti","seguimi","seguici"))
+  paragraphs=list(re.finditer(r"<p(?:\s[^>]*)?>.*?</p>",content,re.I|re.S))
+  if is_point and not any(factual(p.group(0)) for p in paragraphs):
+   # Move (never duplicate or invent) the last substantive source paragraph
+   # into the conclusion, ahead of the existing reader question.
+   for previous in range(i-1,-1,-2):
+    candidates=list(re.finditer(r"<p(?:\s[^>]*)?>.*?</p>",parts[previous],re.I|re.S))
+    selected=next((p for p in reversed(candidates) if factual(p.group(0))),None)
+    if selected:
+     paragraph=selected.group(0)
+     parts[previous]=parts[previous][:selected.start()]+parts[previous][selected.end():]
+     parts[i+1]=paragraph+content
+     content=parts[i+1]
+     paragraphs=list(re.finditer(r"<p(?:\s[^>]*)?>.*?</p>",content,re.I|re.S))
+     break
+  if not paragraphs or (is_point and not any(factual(p.group(0)) for p in paragraphs)):
+   parts[i]=""  # Keep any question or source text, never an empty heading.
+  elif is_point:
+   parts[i]="<h2>Il punto:</h2>"
+ return "".join(parts)
+
 def merge_repeated_info_sections(markup):
  """Show 'Ulteriori informazioni' just once per article, preserving EVERY paragraph.
 
@@ -312,7 +354,6 @@ def automatic_news_heading(paragraph,used):
   (r"\b(?:disponibile|disponibilità|uscita|arriva|debutta|lancio)\b","Uscita e disponibilità"),
   (r"\b(?:gameplay|giocatori|missioni|combattimento|modalità)\b","Gameplay e contenuti"),
   (r"\b(?:storia|avventura|personaggi|ambientazione)\b","Storia e ambientazione"),
-  (r"\b(?:aggiornamento|espansione|dlc|patch|novità)\b","Contenuti e novità"),
   (r"\b(?:funzioni|funzionalità|software|intelligenza artificiale|sensori)\b","Funzioni e tecnologia"),
   (r"\b(?:design|materiali|schermo|display|hardware)\b","Design e caratteristiche"),
   (r"\b(?:prestazioni|autonomia|batteria|velocità)\b","Prestazioni e caratteristiche"),
@@ -637,5 +678,5 @@ def render(review,image_validator):
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +(video(review) if reviews else "")+notice+'<div class="article-text">'+merge_repeated_info_sections(with_official_link(sectioned_body(review)+retained_notes+extra,review))+'</div>'
+         +(video(review) if reviews else "")+notice+'<div class="article-text">'+normalize_editorial_headings(merge_repeated_info_sections(with_official_link(sectioned_body(review)+retained_notes+extra,review)))+'</div>'
          +(verdict(review) if reviews else '')+'</article>')

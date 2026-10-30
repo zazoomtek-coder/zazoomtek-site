@@ -386,7 +386,8 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
                '<button id="site-search-more" type="button" class="site-search-more" hidden>'
                'Mostra altri risultati</button></div></section>')
  footer_menu="".join('<a href="'+esc(url,quote=True)+'">'+esc(label.title())+'</a>' for label,url in NAV)
- footer_menu+=('<a href="/recensioni-tech">Recensioni Tech</a>'
+ footer_menu+=('<a href="/chi-siamo">Chi siamo</a>'
+               '<a href="/recensioni-tech">Recensioni Tech</a>'
                '<a href="/recensioni-gaming">Recensioni Gaming</a>'
                '<a href="/video">Video ZazoomTek</a>')
  footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
@@ -394,6 +395,11 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
                       (' target="_blank" rel="noopener noreferrer"' if url.startswith("https://") else '')+
                       '><span aria-hidden="true" class="footer-social-symbol">'+esc(symbol)+'</span> '+esc(name)+'</a>'
                       for symbol,name,url in FOOTER_SOCIAL_LINKS)
+ header_social=('<div class="header-social" aria-label="Canali social ZazoomTek">'
+  '<a href="https://www.youtube.com/@ZazoomTek" target="_blank" rel="noopener noreferrer" aria-label="YouTube ZazoomTek" title="YouTube">'
+  '<svg viewBox="0 0 24 24" aria-hidden="true" width="23" height="23"><rect x="1.5" y="5" width="21" height="14" rx="4" fill="#e51c38"/><path d="M10 8.5L16 12L10 15.5Z" fill="#fff"/></svg></a>'
+  '<a href="https://www.tiktok.com/@zazoomtek" target="_blank" rel="noopener noreferrer" aria-label="TikTok ZazoomTek" title="TikTok">'
+  '<svg viewBox="0 0 24 24" aria-hidden="true" width="23" height="23"><path fill="#e51c38" d="M14 2h3c.3 2.4 1.7 3.8 4 4v3.2a10.2 10.2 0 0 1-4-1v7.1a7 7 0 1 1-7-7h.5v3.4a3.5 3.5 0 1 0 3.5 3.5V2Z"/></svg></a></div>')
  footer=('<footer class="footer"><div class="wrap">'
          '<nav class="footer-main-links" aria-label="Navigazione nel footer">'+footer_menu+'</nav>'
          '<nav class="footer-social-links" aria-label="Canali ZazoomTek e contatti">'+social_links+'</nav>'
@@ -416,7 +422,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
          '<link rel="stylesheet" href="/assets/css/spotnews.css?v='+CSS_ASSET_VERSION+'"></head><body>'
          '<header class="header"><div class="wrap"><a class="logo" href="/">Zazoom<span>Tek</span></a>'
          '<button id="mobile-menu" aria-controls="nav" aria-expanded="false">Menu</button>'
-         '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+search_control+'</div></header>'
+         '<nav id="nav" aria-label="Navigazione universale">'+nav+'</nav>'+header_social+search_control+'</div></header>'
          +search_panel+breaking_ticker_markup()
          +'<main class="wrap">'+inner+'</main>'+footer+cookie+scroll_top+
          '<script defer src="/assets/js/site.js?v='+JS_ASSET_VERSION+'"></script></body></html>')
@@ -706,7 +712,7 @@ def amazon_provisional_box():
          ' aria-label="Vedi i prodotti recensiti su Amazon, link affiliato">'
          'VEDI I PRODOTTI SU AMAZON <span aria-hidden="true">↗</span></a></section>')
 
-def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article=False):
+def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article=False,archive=False):
  used=set(used or ())
  news=sort_by_date_desc([r for r in rows if r.get("category") in ("news-tech","news-gaming")])
  reviews=sort_by_date_desc([r for r in rows if str(r.get("category") or "").startswith("recensioni-")])
@@ -734,22 +740,22 @@ def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article
   for label in labels:
    if groups[label]:selected.append(box(label,groups[label]))
  elif long_article:
-  # 50/50 desktop: only two authentic sets; no duplication with article links.
-  first=sidebar_select(news,14,used)
+  # Two authentic editorial sets, measured together to the end of the article.
+  first=sidebar_select(news,32,used)
   editorial=daily_shuffle([r for r in rows if r.get("category") in TYPES and
                            r.get("category") not in ("video","extra")],
                           "long-article-editorial-"+",".join(sorted(used)[:6]))
-  second=sidebar_select(editorial,14,used)
+  second=sidebar_select(editorial,32,used)
   if len(first)<1 or len(second)<1:raise ValueError("Long page needs genuine content for both panels")
   selected.append(box("Ultime news",first))
   selected.append(box("Dalla redazione",second))
  elif news_page:
-  only_reviews=sidebar_select(reviews,16,used)
+  only_reviews=sidebar_select(reviews,5 if archive else 16,used)
   if only_reviews:selected.append(box("Ultime recensioni",only_reviews))
  else:
-  latest_news=sidebar_select(news,16,used)
+  latest_news=sidebar_select(news,5 if archive else 16,used)
   if latest_news:selected.append(box("Ultime news",latest_news))
- mode=' data-rail-mode="split"' if long_article and not home and not gateway else ''
+ mode=''  # A single measured rail fills articles without the former clipped 50/50 grid.
  return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'"'+mode+' aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(selected)+'</div></aside>'
 
 def related_articles(rows,exclude="",category=None):
@@ -1035,7 +1041,8 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  news_page=bool((seo_row and str(seo_row.get("category") or "").startswith("news-")) or
                 (seo_row is None and seo_path.startswith("/news")))
  rail=sidebar(rows,False,reserved,gateway=gateway,
-              news_page=news_page,long_article=long_article)
+              news_page=news_page,long_article=long_article,
+              archive=(not show_related and seo_row is None and not gateway))
  # Each published article/review with related stories has one real
  # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
  # New articles inherit the slot automatically. No duplicate on Home.
@@ -1048,10 +1055,18 @@ ARCHIVE_PAGE_SIZE=9
 def pagination_links(key,page,total_pages):
  if total_pages<=1:return ""
  links=[]
- for n in range(1,total_pages+1):
-  href="/"+key+("" if n==1 else "-page-"+str(n))
+ def page_href(n):
+  return "/"+key+("" if n==1 else "-page-"+str(n))
+ if page>1:
+  links.append('<a class="page-arrow" href="'+page_href(page-1)+'" aria-label="Pagina precedente">‹</a>')
+ first=max(1,min(page-2,total_pages-4))
+ last=min(total_pages,first+4)
+ for n in range(first,last+1):
+  href=page_href(n)
   if n==page:links.append('<span class="page-current" aria-current="page">'+str(n)+'</span>')
   else:links.append('<a href="'+href+'" aria-label="Pagina '+str(n)+'">'+str(n)+'</a>')
+ if page<total_pages:
+  links.append('<a class="page-arrow" href="'+page_href(page+1)+'" aria-label="Pagina successiva">›</a>')
  return '<nav class="pagination" aria-label="Paginazione archivio">'+''.join(links)+'</nav>'
 def archive(key,rows,page=1):
  categories=GROUPS[key]
@@ -1211,7 +1226,7 @@ def about_page(rows):
  team=[
   ("Beppe","Founder & Digital Content Specialist",
    "Fondatore e responsabile del progetto. Cura la direzione dei contenuti digitali e la produzione dei video."),
-  ("Lia","Web Developer · Assistente AI",
+  ("Lia","Web Developer",
    "Supporta la programmazione, lo sviluppo, la manutenzione e l'ottimizzazione tecnica del sito web."),
   ("Gimmi","News & Reviews Editor",
    "Cura notizie, aggiornamenti e recensioni dedicate al mondo Tech e Gaming."),

@@ -102,30 +102,8 @@
    aside.classList.add("rail-ready");
    return;
   }
-  // Two equal-height editorial halves ONLY for long article/review pages.
-  // Show complete rows within each half; never crop a thumbnail or exceed
-  // the article column. The Amazon affiliate box is in the NEXT grid row
-  // beside related articles and is intentionally independent of this rail.
-  if(aside.dataset.railMode==="split"){
-   const mainRect=column.getBoundingClientRect();
-   const top=stack.getBoundingClientRect().top;
-   const usable=Math.max(0,Math.floor(mainRect.bottom-top-6));
-   aside.style.setProperty("--inner-rail-height",Math.floor(mainRect.height)+"px");
-   aside.style.setProperty("--split-stack-height",usable+"px");
-   aside.classList.add("rail-ready");
-   for(const panel of panels)panel.hidden=false;
-   for(let i=0;i<panels.length;i++){
-    const boundary=Math.min(panels[i].getBoundingClientRect().bottom-9,mainRect.bottom-6);
-    let count=0;
-    for(const row of rows[i]){
-     row.hidden=false;
-     if(row.getBoundingClientRect().bottom<=boundary+1)count++;
-     else {row.hidden=true;break;}
-    }
-    if(!count)panels[i].hidden=true;
-   }
-   return;
-  }
+  // Article/review rails share the measured fitting algorithm below.
+  // Every visible thumbnail must fit completely before the Amazon row.
   // The page boundary is measured in actual rendered pixels, not a parent's
   // scrollHeight (which can include min-height/flex gaps and hide overflow).
   const mainRect=column.getBoundingClientRect();
