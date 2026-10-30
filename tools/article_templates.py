@@ -619,6 +619,26 @@ def with_official_link(body,review):
  if marker:return body[:marker.start()]+link+body[marker.start():]
  return body+link
 
+def ensure_il_punto(body):
+ """One semantic H2 'Il punto:' in every article without duplicating source text."""
+ body=re.sub(r"<h2>\s*(?:Gli elementi principali|Il punto)\s*:?[ \t]*</h2>",
+             "<h2>Il punto:</h2>",body,flags=re.I)
+ # Source text may carry the heading as an ordinary paragraph.
+ body=re.sub(r"<p>\s*(?:<strong>)?\s*(?:Gli elementi principali|Il punto)\s*:?[ \t]*(?:</strong>)?\s*</p>",
+             "<h2>Il punto:</h2>",body,flags=re.I)
+ marker="<h2>Il punto:</h2>"
+ if marker in body:
+  start=body.index(marker)+len(marker)
+  body=body[:start]+body[start:].replace(marker,"")
+  return body
+ # Attach the heading to the final existing substantial paragraph,
+ # never fabricate editorial content and never create an empty heading.
+ matches=list(re.finditer(r"<p(?:\s[^>]*)?>[\s\S]*?</p>",body,re.I))
+ if matches:
+  last=matches[-1]
+  body=body[:last.start()]+marker+body[last.start():]
+ return body
+
 def render(review,image_validator):
  reviews=is_review(review)
  title=esc(plain(review.get("title")) or "Senza titolo")
@@ -637,5 +657,5 @@ def render(review,image_validator):
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +(video(review) if reviews else "")+notice+'<div class="article-text">'+merge_repeated_info_sections(with_official_link(sectioned_body(review)+retained_notes+extra,review))+'</div>'
+         +(video(review) if reviews else "")+notice+'<div class="article-text">'+ensure_il_punto(merge_repeated_info_sections(with_official_link(sectioned_body(review)+retained_notes+extra,review)))+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
