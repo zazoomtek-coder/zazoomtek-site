@@ -3152,3 +3152,24 @@ main.wrap .web-gateway-layout>.inner-sidebar .compact-editorial-box {
 .header-social a{display:inline-flex;align-items:center;justify-content:center;width:26px;height:28px}
 .header-social a:focus-visible{outline:2px solid #e51c38;outline-offset:3px}
 @media(max-width:780px){.header-social{gap:9px;margin-left:auto}.header-social a{width:23px}}
+
+/* ZazoomTek cover-safe 2026-10-30: preserve complete image artwork and embedded lettering. */
+/* Do not crop embedded titles, logos or captions within editorial cover artwork. */
+main.wrap .featured-wide .spotlight-grid img,
+main.wrap .featured-wide .spotlight-grid .tile img,
+main.wrap .feature-main-thumb > img,
+main.wrap .editorial-hero img,
+main.wrap .home-column .news-tech-showcase img,
+main.wrap .home-column .feature-editorial img,
+main.wrap .cards .thumb img,
+main.wrap .archive-grid .thumb img,
+main.wrap .compact-item-image img,
+main.wrap .web-news-thumb img,
+main.wrap .sidebar .editorial-links img,
+main.wrap .sidebar .compact-item img,
+main.wrap .video-magazine .video-feature .thumb img {
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  background-color:#171717!important;
+  transform:none!important;
+}
