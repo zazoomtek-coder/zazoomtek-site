@@ -740,7 +740,7 @@ def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article
   for label in labels:
    if groups[label]:selected.append(box(label,groups[label]))
  elif long_article:
-  # 50/50 desktop: only two authentic sets; no duplication with article links.
+  # Two authentic editorial sets, measured together to the end of the article.
   first=sidebar_select(news,32,used)
   editorial=daily_shuffle([r for r in rows if r.get("category") in TYPES and
                            r.get("category") not in ("video","extra")],
