@@ -5,7 +5,7 @@ on:
     # non affidabile. 10/17 UTC in estate, 11/18 UTC in inverno.
     # La guardia Europe/Rome decide: soltanto 12:30 e 19:30 locali,
     # e un solo deploy per slot. Le altre invocazioni terminano senza deploy.
-    - cron: '20,25,30 10,11,17,18 * * *'
+    - cron: '20,25,30,35,40,45,50,55 10,11,17,18 * * *'
   workflow_dispatch:
 permissions:
   contents: write
