@@ -425,7 +425,7 @@ export async function onRequest(context){
     200,{"Set-Cookie":setCookie(await seal(payload,env),AGE)});
   }
   const session=await openSession(request,env);
-  if(!session)return respond({ok:false,authenticated:false,code:"UNAUTHENTICATED"},401);
+  if(!session||!session.token)return respond({ok:false,authenticated:false,code:"UNAUTHENTICATED",error:"Sessione amministratore assente o non valida. Accedi nuovamente allo Studio di questo dominio."},401);
   if(pathname==="/api/studio/session"&&request.method==="GET"){
    // Sliding session: every visit automatically extends the encrypted
    // HttpOnly browser cookie. There is no fixed recurring login date.
