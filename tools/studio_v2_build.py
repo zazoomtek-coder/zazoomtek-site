@@ -87,16 +87,8 @@ def build_studio_v2(output,rows):
  html="""<!doctype html><html lang="it"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<script>
-/* Keep Studio logins on one stable Cloudflare hostname across preview builds. */
-(function(){
- var host="zazoomtek-spotnews-preview.pages.dev";
- var here=location.hostname.toLowerCase();
- if(here!==host && here.endsWith("."+host)){
-  location.replace("https://"+host+location.pathname+location.search+location.hash);
- }
-})();
-</script>
+<!-- Keep branch-specific Studio previews on their own hostname.
+     Authentication cookies are host-specific and must not redirect to another build. -->
 <title>Studio V2 — Anteprima | ZazoomTek</title>
 <link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
 <script src="/assets/js/studio-v2.js?v=20261028-rich-4" defer></script>
