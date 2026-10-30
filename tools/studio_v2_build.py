@@ -1,5 +1,5 @@
 """Studio V2 opt-in preview: separate from the current Studio and public site."""
-import json,re
+import json,re,hashlib
 from pathlib import Path
 from html.parser import HTMLParser
 from seo import title_tag, description, keywords
@@ -84,6 +84,7 @@ def build_studio_v2(output,rows):
   "seo_lock":snapshot(row)
  } for row in rows]}
  (root/"catalog.json").write_text(json.dumps(catalog,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+ script_version=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/js/studio-v2.js").read_bytes()).hexdigest()[:12]
  html="""<!doctype html><html lang="it"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
@@ -91,7 +92,7 @@ def build_studio_v2(output,rows):
      Authentication cookies are host-specific and must not redirect to another build. -->
 <title>Studio V2 — Anteprima | ZazoomTek</title>
 <link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
-<script src="/assets/js/studio-v2.js?v=20261028-rich-4" defer></script>
+<script src="/assets/js/studio-v2.js?v=__STUDIO_SCRIPT_VERSION__" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
  <div class="v2-auth-card">
@@ -237,5 +238,5 @@ def build_studio_v2(output,rows):
  </div>
 </div>
 </body></html>"""
- (root/"index.html").write_text(html,encoding="utf-8")
+ (root/"index.html").write_text(html.replace("__STUDIO_SCRIPT_VERSION__",script_version),encoding="utf-8")
  print("STUDIO V2 PREVIEW:",len(rows),"articles; separate opt-in route",flush=True)
