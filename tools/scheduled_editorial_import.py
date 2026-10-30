@@ -113,7 +113,9 @@ def _valid_studio_row(row, slug=None):
         return False
     words = " ".join(str(b.get("text", "")) for b in body
                      if isinstance(b, dict) and b.get("type") in ("paragraph", "quote"))
-    return len(words.strip()) >= 260
+    # Studio accepts an approved article with meaningful text; do not discard it
+    # silently because it is shorter than an arbitrary 260-character limit.
+    return len(words.strip()) >= 60
 
 
 def sync_studio_publications():
@@ -137,7 +139,8 @@ def sync_studio_publications():
                        if isinstance(r, dict) and isinstance(r.get("slug"), str)}
             for item in queued:
                 if not _valid_studio_row(item):
-                    continue
+                    raise ValueError("Invalid approved Studio post in queue: " + str(item.get("slug", "<missing>")))
+
                 idx = indexed.get(item["slug"])
                 if idx is None:
                     rows.insert(0, item)
@@ -163,7 +166,8 @@ def sync_studio_publications():
             if isinstance(queue_obj, dict):
                 for slug, item in queue_obj.items():
                     if not _valid_studio_row(item, slug):
-                        continue
+                        raise ValueError("Invalid approved Studio override in queue: " + str(slug))
+
                     current = rows.get(slug)
                     if current is None or (current != item and _date_stamp(item) > _date_stamp(current)):
                         rows[slug] = item
