@@ -294,6 +294,15 @@ def video_cards(rows):
  return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 LEGAL_LINKS=[("Privacy Policy","/privacy-policy"),("Cookie Policy","/cookie-policy"),
              ("Disclaimer","/disclaimer"),("Note legali","/note-legali")]
+def social_symbol(symbol,name):
+ if name=="YouTube":
+  return ('<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">'
+          '<path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.3 3.6z"/></svg>')
+ if name=="TikTok":
+  return ('<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">'
+          '<path d="M16.7 2h-3.6v13.2a3.3 3.3 0 1 1-2.8-3.3V8.2a7 7 0 1 0 6.4 7V8.6a8.6 8.6 0 0 0 5.1 1.6V6.6a5.1 5.1 0 0 1-5.1-4.6z"/></svg>')
+ return esc(symbol)
+
 FOOTER_SOCIAL_LINKS=[
  ("▶","YouTube","https://www.youtube.com/@ZazoomTek"),
  ("♥","Patreon","https://www.patreon.com/cw/ZazoomTek"),
@@ -392,7 +401,7 @@ def shell(title,inner,seo_row=None,seo_path="/",seo_summary=None):
  footer_links="".join('<a href="'+url+'">'+esc(label)+'</a>' for label,url in LEGAL_LINKS)
  social_links="".join('<a href="'+esc(url,quote=True)+'"'+
                       (' target="_blank" rel="noopener noreferrer"' if url.startswith("https://") else '')+
-                      '><span aria-hidden="true" class="footer-social-symbol">'+esc(symbol)+'</span> '+esc(name)+'</a>'
+                      '><span aria-hidden="true" class="footer-social-symbol">'+social_symbol(symbol,name)+'</span> '+esc(name)+'</a>'
                       for symbol,name,url in FOOTER_SOCIAL_LINKS)
  footer=('<footer class="footer"><div class="wrap">'
          '<nav class="footer-main-links" aria-label="Navigazione nel footer">'+footer_menu+'</nav>'
