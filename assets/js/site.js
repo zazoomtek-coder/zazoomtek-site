@@ -102,10 +102,8 @@
    aside.classList.add("rail-ready");
    return;
   }
-  // Two equal-height editorial halves ONLY for long article/review pages.
-  // Show complete rows within each half; never crop a thumbnail or exceed
-  // the article column. The Amazon affiliate box is in the NEXT grid row
-  // beside related articles and is intentionally independent of this rail.
+  // Article/review rails share the measured fitting algorithm below.
+  // Every visible thumbnail must fit completely before the Amazon row.
   // The page boundary is measured in actual rendered pixels, not a parent's
   // scrollHeight (which can include min-height/flex gaps and hide overflow).
   const mainRect=column.getBoundingClientRect();
