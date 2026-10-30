@@ -3147,3 +3147,8 @@ main.wrap .web-gateway-layout>.inner-sidebar .compact-editorial-box {
  .about-team{grid-template-columns:1fr;gap:12px}
  .about-team-member{padding:16px}
 }
+/* 2026-10-30: visible social channel links in the shared header. */
+.header-social{display:flex;align-items:center;gap:13px;flex:0 0 auto;margin-left:auto}
+.header-social a{display:inline-flex;align-items:center;justify-content:center;width:26px;height:28px}
+.header-social a:focus-visible{outline:2px solid #e51c38;outline-offset:3px}
+@media(max-width:780px){.header-social{gap:9px;margin-left:auto}.header-social a{width:23px}}
