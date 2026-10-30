@@ -10,7 +10,7 @@ REVIEW_TECH=["Materiali e Design","Hardware e Prestazioni","Esperienza d'Uso","C
 REVIEW_GAMING=["Storia","Gameplay","Aspetto tecnico","Conclusioni"]
 H2_NAMES=set(REVIEW_TECH+REVIEW_GAMING+[
  "Introduzione","Autonomia","Caratteristiche tecniche","Conclusione","Considerazioni finali",
- "Pro","Contro","Pro e Contro","Voto finale","Opinione finale",
+ "Pro","Contro","Pro e Contro","Voto finale","Opinione finale","Il punto",
 ])
 SCORE=re.compile(r"(?:⭐\s*)?\b(?:voto\s*(?:finale)?|valutazione\s*finale|giudizio\s*finale)\s*[:\-]?\s*(10(?:[.,]0)?|[0-9](?:[.,][0-9])?)\s*(?:/\s*10)?\b",re.I)
 ONLY_SCORE=re.compile(r"^\s*(?:⭐\s*)?(?:\*\*\s*)?(?:voto\s*(?:finale)?|valutazione\s*finale)\s*(?:\*\*)?\s*[:\-]?\s*(?:10(?:[.,]0)?|[0-9](?:[.,][0-9])?)\s*(?:/\s*10)?\s*$",re.I)
@@ -319,7 +319,7 @@ def automatic_news_heading(paragraph,used):
  ]
  for pattern,label in options:
   if label not in used and re.search(pattern,raw,re.I):return label
- for label in ("Tutti i dettagli","Gli elementi principali","Altri dettagli","Il quadro completo"):
+ for label in ("Tutti i dettagli","Altri dettagli","Il quadro completo"):
   if label not in used:return label
  return "Ulteriori informazioni"
 
@@ -361,11 +361,13 @@ def news_body(review,blocks):
  supplied=supplied_h2(review)
  tokens=[]
  for i,raw in enumerate(blocks):
-  if i in supplied:tokens.append(("h2",supplied[i]))
+  if i in supplied:tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
   heading=named_section(raw)
   if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
    heading=clean_heading(raw)
   if heading:
+   if heading.casefold() in ("il punto","gli elementi principali"):
+    heading="Il punto:"
    if not tokens or tokens[-1]!=("h2",heading):
     if heading.casefold() not in ("pro","contro","voto finale"):
      tokens.append(("h2",heading))
