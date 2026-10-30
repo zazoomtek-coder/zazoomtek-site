@@ -462,6 +462,9 @@ export async function onRequest(context){
    return await upload(request,session);
   return respond({ok:false,error:"Percorso non trovato."},404);
  }catch(e){
-  return respond({ok:false,error:String(e.message||e).slice(0,240)},400);
+  const message=String(e?.message||e||"Errore sconosciuto").slice(0,240);
+  const unauth=/Token GitHub scaduto|revocato|senza autorizzazioni|autenticazion|sessione|credenzial/i.test(message);
+  return respond({ok:false,authenticated:!unauth,code:unauth?"AUTH_REQUIRED":"STUDIO_REQUEST_FAILED",
+   error:unauth?"Sessione o autorizzazione GitHub non valida. Effettua nuovamente l'accesso sul dominio di questa anteprima.":message},unauth?401:400);
  }
 }
