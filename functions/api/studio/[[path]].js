@@ -425,7 +425,7 @@ export async function onRequest(context){
     200,{"Set-Cookie":setCookie(await seal(payload,env),AGE)});
   }
   const session=await openSession(request,env);
-  if(!session)return respond({ok:false,authenticated:false,code:"UNAUTHENTICATED"},401);
+  if(!session||!session.token)return respond({ok:false,authenticated:false,code:"UNAUTHENTICATED",error:"Sessione amministratore assente o non valida. Accedi nuovamente allo Studio di questo dominio."},401);
   if(pathname==="/api/studio/session"&&request.method==="GET"){
    // Sliding session: every visit automatically extends the encrypted
    // HttpOnly browser cookie. There is no fixed recurring login date.
@@ -455,13 +455,16 @@ export async function onRequest(context){
      "X-Content-Type-Options":"nosniff"}});
   }
   if(pathname==="/api/studio/v2-save"&&request.method==="POST")
-   return saveV2(request,env,session);
+   return await saveV2(request,env,session);
   if(pathname==="/api/studio/save"&&request.method==="POST")
-   return saveArticle(request,env,session);
+   return await saveArticle(request,env,session);
   if(pathname==="/api/studio/upload"&&request.method==="POST")
-   return upload(request,session);
+   return await upload(request,session);
   return respond({ok:false,error:"Percorso non trovato."},404);
  }catch(e){
-  return respond({ok:false,error:String(e.message||e).slice(0,240)},400);
+  const message=String(e?.message||e||"Errore sconosciuto").slice(0,240);
+  const unauth=/Token GitHub scaduto|revocato|senza autorizzazioni|autenticazion|sessione|credenzial/i.test(message);
+  return respond({ok:false,authenticated:!unauth,code:unauth?"AUTH_REQUIRED":"STUDIO_REQUEST_FAILED",
+   error:unauth?"Sessione o autorizzazione GitHub non valida. Effettua nuovamente l'accesso sul dominio di questa anteprima.":message},unauth?401:400);
  }
 }

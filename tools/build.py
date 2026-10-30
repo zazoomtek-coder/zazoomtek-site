@@ -717,13 +717,12 @@ def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article
   if chosen:selected.append(box("Ultime news",chosen))
  elif home:
   tech=[r for r in news if r.get("category")=="news-tech"]
-  # Until genuine view counts exist, show recent Tech news rather than invent rankings.
-  if any(isinstance(r.get("views"),int) and r["views"]>0 for r in tech):
-   tech=sorted(tech,key=lambda r:(r.get("views",0),str(r.get("date") or "")),reverse=True)
+  # All Home editorial boxes follow publication time, newest first.
+  # One global used registry prevents repeating articles across modules.
   first=sidebar_select(tech,12,used)
   if first:selected.append(box("I più letti",first))
   selected.append(amazon_provisional_box())
-  mixed=daily_shuffle(news,"home-random-news")
+  mixed=news  # Chronological, never randomized; news is already sorted by published_at.
   # Reserve at least three unique stories for EACH editorial group first.
   # Additional rows are allocated round-robin to avoid starving "Altre news".
   labels=("Da non perdere","Dalla redazione","Altre news")
