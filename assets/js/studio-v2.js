@@ -22,7 +22,7 @@ async function api(endpoint,data){
  let j;
  try{j=await r.json()}catch(_){throw Error("Risposta di Studio non valida. Nessun salvataggio confermato; il testo resta nella bozza locale.")}
  if(!r.ok||j.ok!==true){
-  if(r.status===401||j.code==="UNAUTHENTICATED")
+  if(r.status===401||j.code==="UNAUTHENTICATED"||j.code==="AUTH_REQUIRED")
    throw Error("Accesso amministratore scaduto o non riconosciuto. La bozza locale è protetta: apri Studio in una nuova scheda, accedi e riprova.");
   if(r.status===403)throw Error(j.error||"Permesso negato. La bozza locale resta disponibile.");
   throw Error(j.error||"Operazione non autorizzata (HTTP "+r.status+").");
@@ -218,7 +218,7 @@ function previewMediaUrl(url){
  return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
 }
 function showArticlePreview(savedRecord=null){
- const record=savedRecord||collect();
+ const record={...collect(),...(savedRecord||{})};
  const article=E("v2-preview-article-content");article.replaceChildren();
  const review=String(record.category||"").startsWith("recensioni-");
  article.className="v2-preview-article article story-article "+(review?"review-article":"news-article");
@@ -680,10 +680,10 @@ async function save(mode){
    E("v2-autosave-status").textContent="In coda per le 12:30 o le 19:30. Questa è l’anteprima della versione salvata; il sito online non cambia ora.";
    delete state.drafts[row.slug];
    E("v2-public-link").hidden=true; // Solo dopo la pubblicazione programmata.
-   state.current={...response.record,__queued:true};state.newContent=false;
+   state.current={...(response.record||{}),...row,__queued:true};state.newContent=false;
    E("v2-slug").readOnly=true;
    state.rows=[state.current,...state.rows.filter(x=>x.slug!==row.slug)];
-   showArticlePreview(response.record);
+   showArticlePreview(state.current);
   }
  }catch(e){
   backupNow();
