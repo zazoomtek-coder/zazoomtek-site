@@ -361,12 +361,12 @@ def news_body(review,blocks):
  supplied=supplied_h2(review)
  tokens=[]
  for i,raw in enumerate(blocks):
-  if i in supplied:tokens.append(("h2",supplied[i]))
+  if i in supplied:tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
   heading=named_section(raw)
   if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
    heading=clean_heading(raw)
   if heading:
-   if heading.casefold()=="il punto":
+   if heading.casefold() in ("il punto","gli elementi principali"):
     heading="Il punto:"
    if not tokens or tokens[-1]!=("h2",heading):
     if heading.casefold() not in ("pro","contro","voto finale"):
