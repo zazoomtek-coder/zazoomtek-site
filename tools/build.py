@@ -457,6 +457,11 @@ def legal_pages(rows):
 
 def safe_image(value):
  if not isinstance(value,str):return ""
+ # YouTube Community may provide a CDN *cropped* variant even when the
+ # uploaded source is 16:9. Request the uncropped image from the same host.
+ if value.startswith("https://yt3.ggpht.com/") and "-fcrop64=" in value:
+  value=re.sub(r"=s\d+-c-fcrop64=[0-9a-fA-F,]+(?:-[A-Za-z0-9-]+)*$", "=s1600", value)
+
  if value.startswith("/") and not value.startswith("//") and ".." not in value and not any(c in value for c in '<>"\\'):
   return value if (P/value.lstrip("/")).is_file() else ""
  from urllib.parse import urlparse
