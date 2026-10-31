@@ -1,5 +1,8 @@
 name: SEO - build and route validation
 on:
+  push:
+    branches:
+      - fix/seo-publishing-audit-20261031
   pull_request:
     branches: [main]
     paths:
