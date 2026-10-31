@@ -3238,3 +3238,31 @@ main.wrap .video-magazine .video-feature .thumb img {
   height:58px!important;
  }
 }
+
+/* Shared sidebar presentation matching Home: all menu archives, About,
+   Contacts and legal pages. Sidebar visual only; Home is not modified. */
+@media(min-width:781px){
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:first-child{
+  display:block!important;padding:9px 0 12px!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:first-child .editorial-thumb{
+  display:block!important;width:100%!important;height:auto!important;
+  aspect-ratio:16/9!important;max-height:none!important;margin:0 0 8px!important;
+  overflow:hidden!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:first-child .editorial-thumb img{
+  display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:first-child .editorial-row-copy{
+  width:100%!important;min-width:0!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:not(:first-child){
+  display:grid!important;grid-template-columns:92px minmax(0,1fr)!important;gap:10px!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:not(:first-child) .editorial-thumb{
+  display:block!important;width:92px!important;height:58px!important;max-height:58px!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box .editorial-links>.editorial-row:not(:first-child) .editorial-thumb img{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+ }
+}
