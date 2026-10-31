@@ -85,11 +85,11 @@ def verify():
  # in the same Community paragraph. Preserve all five canonical sections.
  tech=sectioned_body({"category":"recensioni-tech","body":[
   "Introduzione originale del microfono.",
-  "Materiali e Design\\nCostruzione metallica e base stabile.",
-  "Hardware e Prestazioni\\nCapsula cardioide da 16 mm.",
-  "Uso Quotidiano\\nCollegamento USB semplice.",
-  "Esperienza Complessiva\\nResa vocale convincente.",
-  "Conclusioni\\nIl prodotto ha un buon rapporto qualità e praticità.",
+  "Materiali e Design\nCostruzione metallica e base stabile.",
+  "Hardware e Prestazioni\nCapsula cardioide da 16 mm.",
+  "Uso Quotidiano\nCollegamento USB semplice.",
+  "Esperienza Complessiva\nResa vocale convincente.",
+  "Conclusioni\nIl prodotto ha un buon rapporto qualità e praticità.",
   "Voto finale: 9.2/10"
  ]})
  for heading in ("Materiali e Design","Hardware e Prestazioni",
