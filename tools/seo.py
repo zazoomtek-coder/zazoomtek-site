@@ -189,11 +189,24 @@ def write_indexing(output,rows,groups,page_size,preview):
   if not (root/name).is_file():raise AssertionError("Sitemap target missing: "+path)
   found[path]=stamp
  add("/")
+ # Keep the sitemap synchronized with the three-month category split.
+ from datetime import date
+ import calendar
+ today=datetime.now(timezone.utc).date()
+ year=today.year;month=today.month-3
+ while month<=0:year-=1;month+=12
+ cutoff=date(year,month,min(today.day,calendar.monthrange(year,month)[1]))
+ def old_enough(row):
+  try:return date.fromisoformat(str(row.get("published_at") or row.get("date") or "")[:10])<cutoff
+  except ValueError:return False
  for key,cats in groups.items():
   add("/"+key)
   if key!="video":
-   count=sum(r.get("category") in cats for r in rows)
-   for n in range(2,max(1,ceil(count/page_size))+1):add("/"+key+"-page-"+str(n))
+   recent=sum(r.get("category") in cats and not old_enough(r) for r in rows)
+   historical=sum(r.get("category") in cats and old_enough(r) for r in rows)
+   for n in range(2,max(1,ceil(recent/page_size))+1):add("/"+key+"-page-"+str(n))
+   add("/"+key+"-archivio")
+   for n in range(2,max(1,ceil(historical/page_size))+1):add("/"+key+"-archivio-page-"+str(n))
  for page in ("notizie-web","privacy-policy","cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):add("/"+page)
  for row in rows:
   date=datetime_iso(row.get("updated_at") or row.get("modified_at") or row.get("published_at") or row.get("date"))
