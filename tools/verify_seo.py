@@ -44,6 +44,21 @@ def check_seo(root,rows,groups,preview):
  document=ET.parse(root/"sitemap.xml").getroot()
  urls=[x.text for x in document.findall(".//sm:url/sm:loc",ns)]
  if not urls:raise AssertionError("Sitemap contains zero indexed URLs")
+ # Fail a release when the sitemap references a missing, noindex or mismatched page.
+ # Old deleted URLs are NOT reintroduced just to satisfy Search Console.
+ for sitemap_url in urls:
+  rel=sitemap_url.removeprefix(DOMAIN).strip("/")
+  target=root/("index.html" if not rel else rel+".html")
+  if not target.is_file():
+   raise AssertionError("Sitemap references missing generated page: "+sitemap_url)
+  meta=MetaParser()
+  meta.feed(target.read_text(encoding="utf-8"))
+  if not preview and "noindex" in meta.meta.get("robots","").lower():
+   raise AssertionError("Sitemap references noindex page: "+sitemap_url)
+  page_canon=[x.get("href") for x in meta.links if x.get("rel")=="canonical"]
+  if page_canon!=[sitemap_url]:
+   raise AssertionError("Sitemap canonical mismatch: "+sitemap_url)
+
  if len(urls)!=len(set(urls)):raise AssertionError("Sitemap duplicate canonical URL")
  if any(not x.startswith(DOMAIN+"/") for x in urls):
   raise AssertionError("Sitemap includes noncanonical URL")
@@ -87,6 +102,10 @@ def check_seo(root,rows,groups,preview):
    bad.append((page.name,"missing/invalid structured data"))
   if preview and "noindex" not in parser.meta.get("robots",""):
    bad.append((page.name,"Preview is not noindex"))
+  if not preview and expected in urls and "noindex" in parser.meta.get("googlebot","").lower():
+   bad.append((page.name,"Googlebot is blocked on a sitemap URL"))
+  if not preview and expected in urls and "noindex" in parser.meta.get("robots","").lower():
+   bad.append((page.name,"Sitemap URL is noindex"))
   if not preview and not path.startswith("/notizia-web-") and "max-image-preview:large" not in parser.meta.get("robots",""):
    bad.append((page.name,"Production discover image preview missing"))
   count+=1

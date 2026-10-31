@@ -1,0 +1,34 @@
+name: SEO - build and route validation
+on:
+  push:
+    branches:
+      - fix/seo-publishing-audit-20261031
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/**'
+      - 'data/**'
+      - 'assets/**'
+      - '.github/workflows/editorial-publish.yml'
+      - '.github/workflows/seo-pr-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check Python syntax
+        run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py
+      - name: Build production-equivalent output (no deployment)
+        run: python3 tools/build.py
+      - name: Check required output
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/robots.txt && test -s dist/_routes.json
