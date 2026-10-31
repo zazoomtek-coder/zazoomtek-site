@@ -116,7 +116,7 @@
    if(layout && isStandalone){
     const railBar=stack.querySelector(".compact-editorial-box > .bar, .editorial-box > .bar");
     if(railBar){
-     const topDifference=pageTitle.getBoundingClientRect().top-railBar.getBoundingClientRect().top;
+     const topDifference=pageTitle.getBoundingClientRect().top-stack.getBoundingClientRect().top;
      const currentTop=parseFloat(aside.style.top)||0;
      // Offset against the current layout, with a strictly nonnegative start.
      const desired=Math.round(currentTop+topDifference);
