@@ -84,6 +84,8 @@
   // the page heading, and must end before pagination and archive links.
   aside.style.removeProperty("margin-top");
   const archive=aside.closest(".archive-listing-layout");
+  // All menu archive sections: News, Recensioni, Guide, Speciali, Extra,
+  // including Tech/Gaming subcategories. Align to the real card grid.
   const archiveCards=archive?[...column.querySelectorAll(".cards > .card")]:[];
   if(archiveCards.length&&!compact){
    const offset=Math.max(0,Math.round(archiveCards[0].getBoundingClientRect().top-aside.getBoundingClientRect().top));
