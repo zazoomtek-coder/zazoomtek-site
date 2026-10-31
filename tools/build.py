@@ -1066,7 +1066,7 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  # New articles inherit the slot automatically. No duplicate on Home.
  affiliate=('<aside class="inner-amazon-fill" aria-label="Prodotti consigliati su Amazon">'
             +amazon_provisional_box()+'</aside>') if section else ""
- content_html=('<div class="inner-layout'+(" web-gateway-layout" if gateway else "")+(" archive-listing-layout" if not show_related and seo_row is None and not gateway else "")+'"><div class="inner-column">'+content+'</div>'
+ content_html=('<div class="inner-layout'+(" web-gateway-layout" if gateway else "")+(" archive-listing-layout" if not show_related and seo_row is None and not gateway else "")+'"'+(' data-page-heading-rail="true"' if seo_row is None and not gateway else "")+'><div class="inner-column">'+content+'</div>'
                +rail+section+affiliate+'</div>')
  return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
