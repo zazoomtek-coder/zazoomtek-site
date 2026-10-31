@@ -239,13 +239,13 @@ def posts():
        "archived excerpts:",sum(x.get("is_excerpt",False) for x in rows),flush=True)
  return rows
 def videos():
+ """Show every verified imported YouTube upload, not only review/test/unboxing."""
  obj=json.loads((P/"data/videos.json").read_text(encoding="utf-8"))
- allowed={"review","test","unboxing"}
  seen=set();result=[]
  for v in obj.get("videos",[]):
   vid=v.get("id","")
   if not isinstance(vid,str) or not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) or vid in seen:continue
-  if v.get("kind") not in allowed or v.get("topic") not in ("tech","gaming") or not isinstance(v.get("title"),str):continue
+  if not isinstance(v.get("title"),str) or not v["title"].strip():continue
   seen.add(vid);result.append(v)
  return sorted(result,key=chronological_key,reverse=True)
 def playlist_latest():
