@@ -322,8 +322,8 @@ def editorial_blocks(review):
  # Community opening may repeat the H1 as a whole standalone paragraph.
  # Compare editorial titles after removing 'Recensione :' and whitespace.
  def title_key(value):
-  value=re.sub(r"(?i)^\\s*(?:recensione|review)\\s*:\\s*","",plain(value))
-  return re.sub(r"[^\\w]+","",value.casefold())
+  value=re.sub(r"(?i)^\s*(?:recensione|review)\s*:\s*","",plain(value))
+  return re.sub(r"[^\w]+","",value.casefold())
  while cleaned and title_key(cleaned[0])==title_key(review.get("title","")):
   cleaned.pop(0)
  return cleaned
