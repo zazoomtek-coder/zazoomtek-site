@@ -6,7 +6,7 @@ import re
 from html import escape as esc
 from urllib.parse import urlparse
 
-REVIEW_TECH=["Materiali e Design","Hardware e Prestazioni","Esperienza d'Uso","Conclusioni"]
+REVIEW_TECH=["Materiali e Design","Hardware e Prestazioni","Uso Quotidiano","Esperienza Complessiva","Conclusioni"]
 REVIEW_GAMING=["Storia","Gameplay","Aspetto tecnico","Conclusioni"]
 H2_NAMES=set(REVIEW_TECH+REVIEW_GAMING+[
  "Introduzione","Autonomia","Caratteristiche tecniche","Conclusione","Considerazioni finali",
@@ -605,15 +605,16 @@ def sectioned_body(review):
     rendered.append('<h2>'+esc(heading)+'</h2>')
    else:rendered.append('<p>'+rich_text(p)+'</p>')
  else:
-  # Four native review blocks with factual text kept in the original order.
+  # Preserve the source text and apply the correct review-specific headings.
   outline=REVIEW_GAMING if category(review)=="recensioni-gaming" else REVIEW_TECH
   if core:
    rendered.extend(['<h2>Introduzione</h2>','<p>'+rich_text(core[0])+'</p>'])
    middle=core[1:]
-   groups=[[] for _ in range(3)]
+   labels=outline[:-1]
+   groups=[[] for _ in labels]
    for idx,p in enumerate(middle):
-    groups[min(2,(idx*3)//max(1,len(middle)))].append(p)
-   for heading,group in zip(outline[:3],groups):
+    groups[min(len(groups)-1,(idx*len(groups))//max(1,len(middle)))].append(p)
+   for heading,group in zip(labels,groups):
     if group:
      rendered.append('<h2>'+esc(heading)+'</h2>')
      rendered.extend('<p>'+rich_text(p)+'</p>' for p in group)
