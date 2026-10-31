@@ -1046,6 +1046,9 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  related_rows=related_articles(rows,exclude,cat) if show_related else []
  section=related_markup(related_rows) if show_related else ""
  reserved_slugs={exclude}
+ # Never repeat any centrally linked article in this page\u0027s editorial rail.
+ central_links=set(re.findall(r\u0027href=[\\\"]/(\\w[\\w-]*)[\\\"]\u0027,content))
+ reserved_slugs.update(central_links)
  reserved_slugs.update(x["slug"] for x in related_rows)
  if gateway_used:reserved_slugs.update(gateway_used)
  reserved=set()
