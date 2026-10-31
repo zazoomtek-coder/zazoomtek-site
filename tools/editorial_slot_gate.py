@@ -18,6 +18,8 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "data" / "editorial_release_state.json"
 FILES = (
+    # Ownership proof is a release-critical asset, even without fresh YouTube/RSS items.
+    "BingSiteAuth.xml",
     "data/community_imported.json",
     "data/videos.json",
     "data/web.json",
