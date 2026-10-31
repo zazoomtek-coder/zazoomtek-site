@@ -2,7 +2,7 @@
 """Exactly three authorized editorial release slots in Europe/Rome, idempotently.
 
 - prepare: decide if the imported data changed since the last successful deploy
-- authorize: sleep until 12:30, 16:00 or 19:30, reject out-of-slot publishing
+- authorize: sleep until 12:30, 16:00 or 19:30, allow recovery after a missed release until the next slot
 - stamp: record a successful Cloudflare deployment for deduplication
 Only Cloudflare Wrangler itself deploys; this module never accesses Cloudflare.
 """
@@ -67,11 +67,21 @@ def state():
 
 
 def event_slot(now):
-    for hour, minute in ((12, 30), (16, 0), (19, 30)):
-        target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if target - timedelta(minutes=10) <= now < target + timedelta(hours=1):
-            return target
-    return None
+    """Current or imminent slot; failed releases remain retryable until next slot.
+
+    For the evening slot retries may continue until the following morning.
+    The slot receipt and digest prevent repeated deployment of identical data.
+    """
+    slots = [
+        now.replace(hour=h, minute=m, second=0, microsecond=0)
+        for h, m in ((12, 30), (16, 0), (19, 30))
+    ]
+    active = [slot for slot in slots if slot <= now]
+    if active:
+        return active[-1]
+    # Before the first slot, resume yesterday evening's pending release.
+    yesterday = now - timedelta(days=1)
+    return yesterday.replace(hour=19, minute=30, second=0, microsecond=0)
 
 
 def emit(name, value):
@@ -119,8 +129,8 @@ def authorize():
               slot.isoformat(), "seconds", round(seconds), flush=True)
         time.sleep(seconds + 0.3)
     now = datetime.now(ROME)
-    if not (slot <= now < slot + timedelta(hours=1)):
-        print("SKIPPED: slot expired; no out-of-window deployment",
+    if event_slot(now) != slot:
+        print("SKIPPED: newer slot started or selected slot is invalid",
               now.isoformat(), flush=True)
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
         return
