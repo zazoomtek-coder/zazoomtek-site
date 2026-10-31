@@ -1,6 +1,6 @@
 """Source-grounded ZazoomTek SEO for the complete static site."""
 from collections import Counter
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 from html import escape as esc,unescape
 from pathlib import Path
 from xml.etree.ElementTree import Element,SubElement,ElementTree,register_namespace
@@ -229,7 +229,35 @@ def write_indexing(output,rows,groups,page_size,preview):
    write_part(pages[i:i+45000],name)
    SubElement(SubElement(top,ns+"sitemap"),ns+"loc").text=DOMAIN+"/"+name
   ElementTree(top).write(root/"sitemap.xml",encoding="utf-8",xml_declaration=True)
+ # Google News: ONLY real, generated editorial news published within the last 48 hours.
+ # Other indexable site URLs remain in the complete sitemap.xml above.
+ news_ns="{http://www.google.com/schemas/sitemap-news/0.9}"
+ register_namespace("news","http://www.google.com/schemas/sitemap-news/0.9")
+ news_root=Element(ns+"urlset")
+ now=datetime.now(timezone.utc)
+ earliest=now-timedelta(days=2)
+ news_count=0
+ seen_news=set()
+ for row in sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True):
+  if row.get("category") not in ("news-tech","news-gaming") or row.get("is_excerpt"):continue
+  path="/"+str(row.get("slug") or "")
+  if path not in found or path in seen_news:continue
+  published=datetime_iso(row.get("published_at") or row.get("date"))
+  if not published:continue
+  when=datetime.fromisoformat(published)
+  if not (earliest<=when<=now):continue
+  seen_news.add(path)
+  entry=SubElement(news_root,ns+"url")
+  SubElement(entry,ns+"loc").text=canonical(path)
+  news=SubElement(entry,news_ns+"news")
+  publication=SubElement(news,news_ns+"publication")
+  SubElement(publication,news_ns+"name").text="ZazoomTek"
+  SubElement(publication,news_ns+"language").text="it"
+  SubElement(news,news_ns+"publication_date").text=published
+  SubElement(news,news_ns+"title").text=plain(row.get("title"))
+  news_count+=1
+ ElementTree(news_root).write(root/"news-sitemap.xml",encoding="utf-8",xml_declaration=True)
  if preview:robots="User-agent: *\nDisallow: /\n"
- else:robots="User-agent: *\nAllow: /\nSitemap: "+DOMAIN+"/sitemap.xml\n"
+ else:robots="User-agent: *\nAllow: /\nSitemap: "+DOMAIN+"/sitemap.xml\nSitemap: "+DOMAIN+"/news-sitemap.xml\n"
  (root/"robots.txt").write_text(robots,encoding="utf-8")
- print("SEO: "+str(len(pages))+" sitemap URLs, preview noindex: "+str(preview),flush=True)
+ print("SEO: "+str(len(pages))+" sitemap URLs, "+str(news_count)+" Google News URLs, preview noindex: "+str(preview),flush=True)
