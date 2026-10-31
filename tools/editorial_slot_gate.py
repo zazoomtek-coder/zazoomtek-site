@@ -69,7 +69,7 @@ def state():
 def event_slot(now):
     for hour, minute in ((12, 30), (16, 0), (19, 30)):
         target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if target - timedelta(minutes=10) <= now < target + timedelta(hours=1):
+        if target - timedelta(minutes=15) <= now < target + timedelta(hours=1):
             return target
     return None
 
