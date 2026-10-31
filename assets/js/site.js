@@ -111,7 +111,7 @@
   // Keep Home and individual article/review pages unchanged.
   if(!home){
    const layout=aside.closest(".inner-layout");
-   const pageTitle=column.querySelector(":scope > h1, :scope > .section > h1, :scope > .archive-heading h1, :scope > .archive-title, :scope > .legal-article h1, :scope > .about-article h1, :scope > .article > h1");
+   const pageTitle=layout?.matches("[data-page-heading-rail]")?column.querySelector("h1"):null;
    const isStandalone=!!pageTitle && !column.querySelector(".story-article[data-studio-slug]");
    if(layout && isStandalone){
     const railBar=stack.querySelector(".compact-editorial-box > .bar, .editorial-box > .bar");
