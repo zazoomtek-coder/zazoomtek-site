@@ -74,6 +74,33 @@
  function sizeEditorialRail(aside){
   const stack=aside.querySelector(".sidebar-stack");
   if(!stack)return;
+  if(aside.classList.contains("inner-sidebar")){
+   const layout=aside.closest(".inner-layout"),column=layout?.querySelector(".inner-column");
+   if(!column)return;
+   const compact=window.matchMedia("(max-width:780px)").matches;
+   const archive=layout.classList.contains("archive-inner-layout")||layout.classList.contains("archive-listing-layout");
+   const cards=archive?[...column.querySelectorAll(".cards > .card")]:[];
+   const panels=[...stack.querySelectorAll(":scope > .editorial-box")];
+   aside.style.removeProperty("margin-top");
+   aside.style.removeProperty("max-height");
+   aside.style.removeProperty("--inner-rail-height");
+   stack.style.removeProperty("min-height");
+   stack.style.removeProperty("justify-content");
+   aside.classList.remove("rail-ready");
+   panels.forEach(panel=>{panel.hidden=false;panel.querySelectorAll(".editorial-row").forEach(row=>row.hidden=false);});
+   if(compact)return;
+   if(cards.length){
+    const offset=Math.max(0,Math.round(cards[0].getBoundingClientRect().top-aside.getBoundingClientRect().top));
+    aside.style.setProperty("margin-top",offset+"px","important");
+   }
+   const bottom=(cards.length?Math.max(...cards.map(card=>card.getBoundingClientRect().bottom)):column.getBoundingClientRect().bottom)-4;
+   const rows=panels.flatMap(panel=>[...panel.querySelectorAll(".editorial-row")]);
+   for(let i=rows.length-1;i>=1;i--){
+    if(stack.getBoundingClientRect().bottom<=bottom)break;
+    rows[i].hidden=true;
+   }
+   return;
+  }
   const home=aside.classList.contains("home-sidebar");
   const compact=window.matchMedia("(max-width:780px)").matches;
   const column=home?aside.closest(".home-layout")?.querySelector(".home-column"):
