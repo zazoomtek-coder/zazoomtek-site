@@ -1,0 +1,36 @@
+name: ZazoomTek - Anteprima navigabile SEO (NESSUN DEPLOY)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/build.py'
+      - 'tools/package_seo_preview.py'
+      - '.github/workflows/seo-migration-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check Python syntax and build all real articles
+        run: |
+          python3 -m py_compile tools/build.py tools/package_seo_preview.py tools/verify_routes.py
+          python3 tools/build.py
+      - name: Generate full offline ZIP from real SpotNews build
+        run: python3 tools/package_seo_preview.py
+      - name: Upload offline navigable preview (NO production deploy)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-Anteprima-SEO-31-10-2026
+          path: ZazoomTek_Anteprima_Completa_SEO_31-10-2026.zip
+          retention-days: 7
+          if-no-files-found: error
