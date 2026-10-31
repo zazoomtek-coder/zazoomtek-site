@@ -1,0 +1,27 @@
+name: Preview completo ZazoomTek - allineamento Ultime News (NO DEPLOY)
+on:
+  push:
+    branches:
+      - fix/align-ultime-news-page-headings-20261031
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Costruisci sito completo da dati reali
+        run: python3 tools/build.py
+      - name: Genera ZIP navigabile locale
+        run: python3 tools/package_offline_preview.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-LIVE-PREVIEW-Completissima-31-10-2026
+          path: ZazoomTek_SpotNews_Anteprima_Mobile_Footer_28-10-2026.zip
+          retention-days: 15
+          if-no-files-found: error
