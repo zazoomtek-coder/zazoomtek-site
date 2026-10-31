@@ -80,6 +80,15 @@
                     aside.closest(".inner-layout")?.querySelector(".inner-column");
   if(!column)return;
   aside.classList.remove("rail-ready");
+  // Archives: rail starts exactly at the first article thumbnail, not at
+  // the page heading, and must end before pagination and archive links.
+  aside.style.removeProperty("margin-top");
+  const archive=aside.closest(".archive-listing-layout");
+  const archiveCards=archive?[...column.querySelectorAll(".cards > .card")]:[];
+  if(archiveCards.length&&!compact){
+   const offset=Math.max(0,Math.round(archiveCards[0].getBoundingClientRect().top-aside.getBoundingClientRect().top));
+   aside.style.setProperty("margin-top",offset+"px","important");
+  }
   aside.style.removeProperty("--inner-rail-height");
   stack.style.removeProperty("min-height");
   stack.style.removeProperty("height");
@@ -107,7 +116,7 @@
   // The page boundary is measured in actual rendered pixels, not a parent's
   // scrollHeight (which can include min-height/flex gaps and hide overflow).
   const mainRect=column.getBoundingClientRect();
-  const boundary=mainRect.bottom-6;
+  const boundary=archiveCards.length?archiveCards.at(-1).getBoundingClientRect().bottom-6:mainRect.bottom-6;
   const stackTop=stack.getBoundingClientRect().top;
   const usable=Math.max(0,Math.floor(boundary-stackTop));
   aside.style.setProperty("--inner-rail-height",Math.max(0,Math.floor(mainRect.height))+"px");
