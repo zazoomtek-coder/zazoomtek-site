@@ -11,3 +11,12 @@ crons = ["*/5 10,11,12,14,15,16,17,18,19 * * *"]
 [vars]
 GITHUB_REPO = "zazoomtek-coder/zazoomtek-site"
 GITHUB_WORKFLOW = "editorial-publish.yml"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+head_sampling_rate = 1
+persist = true
