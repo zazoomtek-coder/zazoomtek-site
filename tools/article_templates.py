@@ -662,14 +662,18 @@ def verdict(review):
  value=score(review,paragraphs(review))
  pros=short_points(review,"pros")
  cons=short_points(review,"cons")
- def list_points(items,label):
-  if items:return '<ul>'+''.join('<li>'+esc(x)+'</li>' for x in items)+'</ul>'
-  return '<p class="review-data-missing">Nessun elemento verificato nel testo attualmente disponibile.</p>'
+ # Never render empty Pro/Contro columns. Keep the verified score independently.
+ if not pros and not cons:
+  if value is None:return ""
+  return ('<section class="review-verdict" aria-label="Valutazione finale">'
+          '<div class="verdict-heading"><h2>Voto finale</h2><strong class="verdict-score">'+esc(value+'/10')+'</strong></div></section>')
  label=value+'/10' if value is not None else "Voto non disponibile"
- return ('<section class="review-verdict" aria-label="Valutazione finale">'
-         '<div class="verdict-heading"><h2>Voto finale</h2><strong class="verdict-score">'+esc(label)+'</strong></div>'
-         '<div class="verdict-grid"><div class="verdict-pro"><h3>Pro</h3>'+list_points(pros,"pro")+'</div>'
-         '<div class="verdict-con"><h3>Contro</h3>'+list_points(cons,"contro")+'</div></div></section>')
+ items=[]
+ if pros:items.append('<div class="verdict-pro"><h3>Pro</h3><ul>'+''.join('<li>'+esc(x)+'</li>' for x in pros)+'</ul></div>')
+ if cons:items.append('<div class="verdict-con"><h3>Contro</h3><ul>'+''.join('<li>'+esc(x)+'</li>' for x in cons)+'</ul></div>')
+ heading=('<div class="verdict-heading"><h2>Voto finale</h2><strong class="verdict-score">'+esc(label)+'</strong></div>' if value is not None else '')
+ return ('<section class="review-verdict" aria-label="Valutazione finale">'+heading+
+         '<div class="verdict-grid">'+''.join(items)+'</div></section>')
 
 def official_link_markup(review):
  """One verified outbound official link, not a video/image or an invented URL."""
