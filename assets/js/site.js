@@ -116,10 +116,10 @@
    if(layout && isStandalone){
     const railBar=stack.querySelector(".compact-editorial-box > .bar, .editorial-box > .bar");
     if(railBar){
-     const topDifference=pageTitle.getBoundingClientRect().top-stack.getBoundingClientRect().top;
+     const topDifference=pageTitle.getBoundingClientRect().top-layout.getBoundingClientRect().top;
      const currentTop=parseFloat(aside.style.top)||0;
      // Offset against the current layout, with a strictly nonnegative start.
-     const desired=Math.round(currentTop+topDifference);
+     const desired=Math.max(0,Math.round(topDifference));
      aside.style.setProperty("top",desired+"px","important");
     }
    }else{
