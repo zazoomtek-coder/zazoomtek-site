@@ -75,30 +75,65 @@
   const stack=aside.querySelector(".sidebar-stack");
   if(!stack)return;
   if(aside.classList.contains("inner-sidebar")){
-   const layout=aside.closest(".inner-layout"),column=layout?.querySelector(".inner-column");
+   const layout=aside.closest(".inner-layout");
+   const column=layout?.querySelector(".inner-column");
    if(!column)return;
-   const compact=window.matchMedia("(max-width:780px)").matches;
-   const archive=layout.classList.contains("archive-inner-layout")||layout.classList.contains("archive-listing-layout");
-   const cards=archive?[...column.querySelectorAll(".cards > .card")]:[];
+   const mobile=window.matchMedia("(max-width:780px)").matches;
    const panels=[...stack.querySelectorAll(":scope > .editorial-box")];
+   const rows=panels.flatMap(panel=>[...panel.querySelectorAll(".editorial-row")]);
+   aside.classList.remove("rail-ready");
    aside.style.removeProperty("margin-top");
-   aside.style.removeProperty("max-height");
    aside.style.removeProperty("--inner-rail-height");
    stack.style.removeProperty("min-height");
+   stack.style.removeProperty("height");
    stack.style.removeProperty("justify-content");
-   aside.classList.remove("rail-ready");
-   panels.forEach(panel=>{panel.hidden=false;panel.querySelectorAll(".editorial-row").forEach(row=>row.hidden=false);});
-   if(compact)return;
+   panels.forEach(panel=>{panel.hidden=false;});
+   rows.forEach(row=>{row.hidden=false;});
+   if(mobile)return;
+
+   const archive=layout.classList.contains("archive-listing-layout")||
+                 layout.classList.contains("archive-inner-layout");
+   const cards=archive?[...column.querySelectorAll(".cards > .card")]:[];
+   // Main content, not the grid container (which may stretch with the rail).
+   const content=column.querySelector(":scope > article, :scope > .story-article, :scope > .legal-article, :scope > .contacts-article");
+   const excluded=column.querySelector(".pagination, .archive-entry-link");
+   let startY=column.getBoundingClientRect().top;
+   let endY;
    if(cards.length){
-    const offset=Math.max(0,Math.round(cards[0].getBoundingClientRect().top-aside.getBoundingClientRect().top));
-    aside.style.setProperty("margin-top",offset+"px","important");
+    startY=cards[0].getBoundingClientRect().top;
+    endY=Math.max(...cards.map(card=>card.getBoundingClientRect().bottom));
+   }else if(content){
+    const rect=content.getBoundingClientRect();
+    startY=rect.top;
+    endY=rect.bottom;
+   }else{
+    // Find actual central content, explicitly excluding navigation/pagination.
+    const nodes=[...column.children].filter(node=>
+      !node.matches(".pagination,.archive-entry-link,.archive-crosslinks"));
+    const first=nodes[0],last=nodes.at(-1);
+    if(!first||!last)return;
+    startY=first.getBoundingClientRect().top;
+    endY=last.getBoundingClientRect().bottom;
+    if(excluded&&endY>excluded.getBoundingClientRect().top)
+      endY=excluded.getBoundingClientRect().top;
    }
-   const bottom=(cards.length?Math.max(...cards.map(card=>card.getBoundingClientRect().bottom)):column.getBoundingClientRect().bottom)-4;
-   const rows=panels.flatMap(panel=>[...panel.querySelectorAll(".editorial-row")]);
-   for(let i=rows.length-1;i>=1;i--){
-    if(stack.getBoundingClientRect().bottom<=bottom)break;
+   const offset=Math.max(0,Math.round(startY-aside.getBoundingClientRect().top));
+   aside.style.setProperty("margin-top",offset+"px","important");
+   const boundary=endY-4;
+   const fits=()=>stack.getBoundingClientRect().bottom<=boundary;
+   // Hide from the bottom, never slice through a row or an image.
+   for(let i=rows.length-1;i>=0&&!fits();i--){
     rows[i].hidden=true;
+    const panel=rows[i].closest(".editorial-box");
+    if(panel&&![...panel.querySelectorAll(".editorial-row")].some(row=>!row.hidden))
+      panel.hidden=true;
    }
+   // A header alone is never shown; a page may legitimately fit no card.
+   panels.forEach(panel=>{
+    if(![...panel.querySelectorAll(".editorial-row")].some(row=>!row.hidden))
+      panel.hidden=true;
+   });
+   aside.classList.add("rail-ready");
    return;
   }
   const home=aside.classList.contains("home-sidebar");
