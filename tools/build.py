@@ -1191,6 +1191,20 @@ def legacy_article_redirects(rows):
    if alias in sources:continue
    sources.add(alias)
    lines.append(alias+" /"+target+" 301")
+ # Restore only historical article aliases explicitly preserved by the imported data.
+ # Never guess old paths or redirect removed articles to the home page.
+ for row in rows:
+  old=str(row.get("original_slug") or "").strip().strip("/")
+  target=str(row.get("slug") or "")
+  if not old or old==target:continue
+  if not re.fullmatch(r"[A-Za-z0-9_-]+(?:\\.html)?",old):continue
+  old=old.removesuffix(".html")
+  if old==target or old in occupied or old in by_slug:continue
+  if target not in by_slug or not (O/(target+".html")).is_file():continue
+  for alias in ("/"+old,"/"+old+".html"):
+   if alias in sources:continue
+   sources.add(alias)
+   lines.append(alias+" /"+target+" 301")
  (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
