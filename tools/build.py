@@ -31,9 +31,13 @@ def classification_for_post(item):
   if title and normalized_title(title)==normalized_title(row["title"]):return row["category"]
  return None
 def category_for_post(item):
+ # A verified YouTube Community record with explicit editorial classification
+ # must supersede stale historical routing classifications.
+ explicit=item.get("category")
+ if item.get("text_complete") and explicit in TYPES and explicit!="video":
+  return explicit
  locked=classification_for_post(item)
  if locked:return locked
- explicit=item.get("category")
  if explicit in TYPES and explicit!="video":return explicit
  kind=str(item.get("type","")).strip().lower()
  # Category prefixes set by the ZazoomTek editor must be authoritative.
