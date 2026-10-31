@@ -24,6 +24,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Parsing Python e JavaScript prima di qualsiasi pubblicazione
+        run: |
+          python3 -m compileall -q tools
+          node --check assets/js/site.js
+          node --check assets/js/studio-v2.js
+          node --input-type=module --check < 'functions/api/studio/[[path]].js'
+          node --input-type=module --check < cloudflare/cron-publisher/src/index.js
 
       # 1. IMPORTAZIONE REALE in data/, mai soltanto il vecchio JSON.
       # La coda editoriale e' una riserva, non un prerequisito.
