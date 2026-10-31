@@ -568,6 +568,8 @@ def split_review_tech_headings(blocks):
  Preserve every prose line while promoting only known original headings.
  """
  labels={name.casefold():name for name in REVIEW_TECH}
+ labels["esperienza d'uso quotidiana"]="Uso Quotidiano"
+ labels["esperienza d'uso"]="Uso Quotidiano"
  result=[]
  for block in blocks:
   pending=[]
