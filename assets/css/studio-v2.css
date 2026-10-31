@@ -145,3 +145,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .v2-preview-action{display:inline-block;padding:11px 18px;border:1px solid #ed344b;border-radius:5px;font-weight:800}
 .v2-preview-disclaimer{border-top:1px solid #e6e6e9;background:#fafafa;padding:16px 28px;margin:0;color:#5c5c65;font-size:12px}
 @media(max-width:730px){.v2-editor-actions,.v2-footer-actions{flex-wrap:wrap}.v2-editor-actions button{flex:1 1 30%;min-width:110px}.v2-footer-actions button{flex:1 1 30%;min-width:100px}.v2-article-preview{padding:0}.v2-preview-sheet{border-radius:0;margin:0}.v2-preview-article{padding:27px 20px}.v2-preview-toolbar{padding:14px 16px}.v2-preview-article p{font-size:16px}}
+
+/* Studio cover crop: draggable preview, preserving the full image until focus is set. */
+.v2-cover-drag-preview{cursor:grab;touch-action:none;user-select:none;overflow:hidden;position:relative;aspect-ratio:16/9;background:#ededf0}
+.v2-cover-drag-preview:active{cursor:grabbing}
+.v2-cover-drag-preview img{pointer-events:none;user-select:none;width:100%;height:100%;object-fit:cover;display:block}
+.v2-cover-hint{font-size:12px;color:#52525a;line-height:1.5;margin:8px 0 12px}
