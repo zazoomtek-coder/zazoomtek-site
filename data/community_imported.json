@@ -44,7 +44,9 @@
       "published_at": "2026-10-30T15:44:29+00:00",
       "rank": 2,
       "channel_id": "UCJs0ZT10hUiPRD0UZtUpI1Q",
-      "text_complete": true
+      "text_complete": true,
+      "category": "recensioni-tech",
+      "topic": "tech"
     },
     {
       "id": "UgkxVB2Va6LvJXSshf1ZJcR9akTNeXnMHALY",
