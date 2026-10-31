@@ -339,12 +339,20 @@ async function saveV2(request,env,session){
  if(!["draft","publish"].includes(mode))throw new Error("Comando non riconosciuto.");
  const record=mode==="draft"?draftValue(data.record):normalizeArticle(data.record);
  if(mode==="draft"){
-  const file=await getDrafts(session.token);
-  file.drafts[record.slug]={record,kind:data.creating?"new":"edit",updated_at:new Date().toISOString()};
-  await writeFile(session.token,"data/studio_v2_drafts.json",{drafts:file.drafts},
-   file.sha,"Studio V2: salva bozza "+record.slug);
-  return respond({ok:true,mode:"draft",slug:record.slug,
-   message:"Bozza salvata senza cambiare alcuna pagina."});
+  // Reload GitHub SHA and merge this draft whenever concurrent writes conflict.
+  for(let attempt=0;attempt<4;attempt++){
+   const file=await getDrafts(session.token);
+   const drafts={...file.drafts};
+   drafts[record.slug]={record,kind:data.creating?"new":"edit",updated_at:new Date().toISOString()};
+   try{
+    await writeFile(session.token,"data/studio_v2_drafts.json",{drafts},
+     file.sha,"Studio V2: salva bozza "+record.slug);
+    return respond({ok:true,mode:"draft",slug:record.slug,
+     message:"Bozza salvata senza cambiare alcuna pagina."});
+   }catch(err){
+    if(!/Conflitto di versione/.test(String(err.message))||attempt===3)throw err;
+   }
+  }
  }
  const catalog=await v2Catalog(request,env);
  const existing=(catalog.posts||[]).find(p=>p.slug===record.slug);
