@@ -138,7 +138,7 @@ def community_posts():
   points=extract(text) if cat.startswith("recensioni-") else {"pros":[],"cons":[]}
   result.append({
    **points,
-   "slug":slug,"category":cat,
+   "slug":slug,"category":cat,"source_post_id":post_id,
    "title":("TRUST GXT 269 EMITA II | Recensione" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else title.strip()),
    "device":("Trust GXT 269 Emita II" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else item.get("device","")),
    "body":[part.strip() for part in re.split(r"\n\s*\n",text) if part.strip()],
@@ -1209,6 +1209,36 @@ def legacy_article_redirects(rows):
    sources.add(alias)
    lines.append(alias+" "+dest+" 301")
   linked+=1
+ # Search Console migration recovery: only IDs attached to surviving, generated
+ # full-text articles. Keep the exact original mixed-case YouTube ID in the
+ # legacy URL; Cloudflare paths are case-sensitive. Never redirect a removed
+ # article to an unrelated category or the homepage.
+ recovered=0
+ for row in rows:
+  post_id=str(row.get("source_post_id") or "")
+  target=str(row.get("slug") or "")
+  if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
+  if row.get("is_excerpt") or target not in by_slug:continue
+  if not (O/(target+".html")).is_file():continue
+  cat=str(row.get("category") or "")
+  if cat in ("recensioni-tech","recensioni-gaming"):
+   prefix="recensione-"
+  elif cat in ("news-tech","news-gaming","speciali","extra"):
+   prefix="news-"
+  else:
+   continue
+  old=prefix+post_id
+  if old in occupied or old in by_slug or old==target:continue
+  inserted=False
+  for alias in ("/"+old,"/"+old+".html"):
+   if alias in sources:continue
+   sources.add(alias)
+   lines.append(alias+" /"+target+" 301")
+   inserted=True
+  if inserted:recovered+=1
+ if len(lines)>2000:
+  raise ValueError("Cloudflare Pages static redirects limit exceeded")
+ print("Source-ID validated legacy Community redirects:",recovered,flush=True)
  # Abbreviated historic Community posts must open their full-text canonicals.
  alias_entries=json.loads((P/"data/community_aliases.json").read_text(encoding="utf-8")).get("entries",[])
  for entry in alias_entries:
