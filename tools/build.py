@@ -1059,6 +1059,8 @@ def pagination_links(key,page,total_pages):
   return "/"+key+("" if n==1 else "-page-"+str(n))
  if page>1:
   links.append('<a class="page-arrow" href="'+page_href(page-1)+'" aria-label="Pagina precedente">‹</a>')
+ else:
+  links.append('<span class="page-arrow page-disabled" aria-label="Pagina precedente non disponibile" aria-disabled="true">‹</span>')
  first=max(1,min(page-2,total_pages-4))
  last=min(total_pages,first+4)
  for n in range(first,last+1):
@@ -1067,7 +1069,10 @@ def pagination_links(key,page,total_pages):
   else:links.append('<a href="'+href+'" aria-label="Pagina '+str(n)+'">'+str(n)+'</a>')
  if page<total_pages:
   links.append('<a class="page-arrow" href="'+page_href(page+1)+'" aria-label="Pagina successiva">›</a>')
+ else:
+  links.append('<span class="page-arrow page-disabled" aria-label="Pagina successiva non disponibile" aria-disabled="true">›</span>')
  return '<nav class="pagination" aria-label="Paginazione archivio">'+''.join(links)+'</nav>'
+
 def archive(key,rows,page=1):
  categories=GROUPS[key]
  label={"news":"News","news-tech":"News Tech","news-gaming":"News Gaming",
