@@ -1,0 +1,13 @@
+name = "zazoomtek-editorial-cron"
+main = "src/index.js"
+compatibility_date = "2026-10-31"
+workers_dev = false
+
+# Cloudflare Cron always uses UTC. Both winter and summer candidates
+# are dispatched; the Worker checks actual Europe/Rome local time.
+[triggers]
+crons = ["30 10,11,17,18 * * *", "0 14,15 * * *"]
+
+[vars]
+GITHUB_REPO = "zazoomtek-coder/zazoomtek-site"
+GITHUB_WORKFLOW = "editorial-publish.yml"
