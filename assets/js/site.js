@@ -119,7 +119,7 @@
      const topDifference=pageTitle.getBoundingClientRect().top-railBar.getBoundingClientRect().top;
      const currentTop=parseFloat(aside.style.top)||0;
      // Offset against the current layout, with a strictly nonnegative start.
-     const desired=Math.max(0,Math.round(currentTop+topDifference));
+     const desired=Math.round(currentTop+topDifference);
      aside.style.setProperty("top",desired+"px","important");
     }
    }else{
