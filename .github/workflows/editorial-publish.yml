@@ -39,20 +39,7 @@ jobs:
       - name: Confronta i dati reali con l'ultima pubblicazione riuscita
         run: python3 tools/editorial_slot_gate.py prepare
 
-      # Nessun aggiornamento? NESSUN deploy, nessun file grafico toccato.
-      - name: Salva le news e le pubblicazioni Studio in main prima del deploy
-        if: env.EDITORIAL_NEEDS_RELEASE == 'true'
-        run: |
-          git add data/community_imported.json data/videos.json data/web.json data/studio_posts.json data/studio_overrides.json
-          if test -d assets/uploads; then git add -A assets/uploads; fi
-          if ! git diff --cached --quiet; then
-            git config user.name "ZazoomTek Scheduled Import"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "[CF-Pages-Skip] Importa YouTube, RSS e pubblicazioni approvate Studio prima del deploy"
-            git push origin HEAD:main
-          else
-            echo "Nessun nuovo elemento da scrivere: verificare eventuale deploy precedente incompleto."
-          fi
+      # Validate the generated site before writing imported data to main.
       - name: Rigenera il sito SpotNews con le notizie appena importate
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/build.py
@@ -65,6 +52,19 @@ jobs:
       - name: Attendi l'ora esatta e impedisci deploy fuori dalle 12:30/19:30
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/editorial_slot_gate.py authorize
+      - name: Salva i dati verificati in main solo dopo l'autorizzazione dello slot
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
+        run: |
+          git add data/community_imported.json data/videos.json data/web.json data/studio_posts.json data/studio_overrides.json
+          if test -d assets/uploads; then git add -A assets/uploads; fi
+          if ! git diff --cached --quiet; then
+            git config user.name "ZazoomTek Scheduled Import"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "[CF-Pages-Skip] Importa contenuti verificati nello slot autorizzato"
+            git push origin HEAD:main
+          else
+            echo "Nessuna modifica editoriale da salvare."
+          fi
       - name: Pubblica i nuovi dati su Cloudflare Pages zazoomtek.it
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         uses: cloudflare/wrangler-action@v4
