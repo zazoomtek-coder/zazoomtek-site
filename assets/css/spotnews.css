@@ -3173,3 +3173,9 @@ main.wrap .video-magazine .video-feature .thumb img {
   background-color:#171717!important;
   transform:none!important;
 }
+
+/* Compact, single-row pagination shared by all archives (maximum five page numbers). */
+nav.pagination{flex-wrap:nowrap;gap:8px;max-width:100%;overflow-x:auto;scrollbar-width:thin}
+.pagination .page-arrow,.pagination .page-disabled{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:7px 10px;border:1px solid #ddd;font-weight:900;flex-shrink:0}
+.pagination .page-disabled{opacity:.38;cursor:default;background:#f1f1f1;color:#1a1a1a}
+.pagination .page-current,.pagination a{flex-shrink:0}
