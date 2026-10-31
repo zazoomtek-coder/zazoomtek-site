@@ -567,14 +567,14 @@ def split_review_tech_headings(blocks):
   for line in str(block).splitlines():
    title=clean_heading(line)
    if title.casefold() in labels:
-    if pending and "\\n".join(pending).strip():
-     result.append("\\n".join(pending).strip())
+    if pending and "\n".join(pending).strip():
+     result.append("\n".join(pending).strip())
     result.append(labels[title.casefold()])
     pending=[]
    else:
     pending.append(line)
-  if pending and "\\n".join(pending).strip():
-   result.append("\\n".join(pending).strip())
+  if pending and "\n".join(pending).strip():
+   result.append("\n".join(pending).strip())
  return result
 
 
