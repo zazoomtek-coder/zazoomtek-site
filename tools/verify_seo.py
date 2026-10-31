@@ -102,6 +102,10 @@ def check_seo(root,rows,groups,preview):
    bad.append((page.name,"missing/invalid structured data"))
   if preview and "noindex" not in parser.meta.get("robots",""):
    bad.append((page.name,"Preview is not noindex"))
+  if not preview and expected in urls and "noindex" in parser.meta.get("googlebot","").lower():
+   bad.append((page.name,"Googlebot is blocked on a sitemap URL"))
+  if not preview and expected in urls and "noindex" in parser.meta.get("robots","").lower():
+   bad.append((page.name,"Sitemap URL is noindex"))
   if not preview and not path.startswith("/notizia-web-") and "max-image-preview:large" not in parser.meta.get("robots",""):
    bad.append((page.name,"Production discover image preview missing"))
   count+=1
