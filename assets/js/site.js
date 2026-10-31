@@ -106,6 +106,26 @@
   // Every visible thumbnail must fit completely before the Amazon row.
   // The page boundary is measured in actual rendered pixels, not a parent's
   // scrollHeight (which can include min-height/flex gaps and hide overflow).
+  // Align the "Ultime News" bar with the visible page title on inner
+  // menu/footer pages. Measure the actual heading, never use a fixed offset.
+  // Keep Home and individual article/review pages unchanged.
+  if(!home){
+   const layout=aside.closest(".inner-layout");
+   const pageTitle=layout?.matches("[data-page-heading-rail]")?column.querySelector("h1"):null;
+   const isStandalone=!!pageTitle && !column.querySelector(".story-article[data-studio-slug]");
+   if(layout && isStandalone){
+    const railBar=stack.querySelector(".compact-editorial-box > .bar, .editorial-box > .bar");
+    if(railBar){
+     const topDifference=pageTitle.getBoundingClientRect().top-layout.getBoundingClientRect().top;
+     const currentTop=parseFloat(aside.style.top)||0;
+     // Offset against the current layout, with a strictly nonnegative start.
+     const desired=Math.max(0,Math.round(topDifference));
+     aside.style.setProperty("top",desired+"px","important");
+    }
+   }else{
+    aside.style.removeProperty("top");
+   }
+  }
   const mainRect=column.getBoundingClientRect();
   const boundary=mainRect.bottom-6;
   const stackTop=stack.getBoundingClientRect().top;
