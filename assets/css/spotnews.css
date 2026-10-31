@@ -3173,3 +3173,14 @@ main.wrap .video-magazine .video-feature .thumb img {
   background-color:#171717!important;
   transform:none!important;
 }
+
+/* Historical archives: text-only lists, no cover thumbnails. */
+.archive-entry-link{text-align:center;margin:20px 0 30px;font-weight:800}
+.archive-entry-link a{display:inline-block;padding:11px 18px;border:1px solid #ddd;background:#fff;text-decoration:none}
+.archive-entry-link a:hover{border-color:#db2536;color:#db2536}
+.archive-text-list{display:grid;grid-template-columns:1fr;gap:0;margin:22px 0}
+.archive-text-item{padding:16px 0;border-bottom:1px solid #ddd}
+.archive-text-item small{display:block;color:#6b6b6b;font-size:12px}
+.archive-text-item h3{font-size:18px;line-height:1.35;margin:6px 0 0}
+.archive-text-item a{text-decoration:none}
+.archive-text-item a:hover{color:#db2536}
