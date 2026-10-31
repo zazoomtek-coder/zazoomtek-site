@@ -591,6 +591,12 @@ def sectioned_body(review):
   conclusion=[editorial_conclusion]
   core=[p for p in core if p.strip()!=str(editorial_conclusion).strip()]
  rendered=[]
+ # Tech reviews must never inherit gameplay/story section titles from gaming.
+ # Keep their original prose, but render the dedicated hardware review outline.
+ game_headings={h.casefold() for h in REVIEW_GAMING[:3]}
+ if category(review)=="recensioni-tech" and any(
+     (named_section(p) or "").casefold() in game_headings for p in core):
+  core=[p for p in core if not named_section(p)]
  if any(named_section(x) for x in core):
   for p in core:
    heading=named_section(p)
