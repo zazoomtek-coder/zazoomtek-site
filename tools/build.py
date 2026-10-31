@@ -31,6 +31,9 @@ def classification_for_post(item):
   if title and normalized_title(title)==normalized_title(row["title"]):return row["category"]
  return None
 def category_for_post(item):
+ # Persist the verified microphone review category even on subsequent reimports.
+ if str(item.get("id") or "")=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk":
+  return "recensioni-tech"
  # A verified YouTube Community record with explicit editorial classification
  # must supersede stale historical routing classifications.
  explicit=item.get("category")
@@ -135,7 +138,9 @@ def community_posts():
   points=extract(text) if cat.startswith("recensioni-") else {"pros":[],"cons":[]}
   result.append({
    **points,
-   "slug":slug,"category":cat,"title":title.strip(),
+   "slug":slug,"category":cat,
+   "title":("TRUST GXT 269 EMITA II | Recensione" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else title.strip()),
+   "device":("Trust GXT 269 Emita II" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else item.get("device","")),
    "body":[part.strip() for part in re.split(r"\n\s*\n",text) if part.strip()],
    "date":date.isoformat() if date else "",
    "published_at":str(item.get("published_at") or item.get("date") or ""),
