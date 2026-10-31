@@ -554,9 +554,35 @@ def studio_sectioned_body(review):
  return ''.join(result)
 
 
+def split_review_tech_headings(blocks):
+ """Extract exact Tech section headings embedded on their own source lines.
+
+ Community posts often put 'Materiali e Design\\n<prose>' in one paragraph.
+ Preserve every prose line while promoting only known original headings.
+ """
+ labels={name.casefold():name for name in REVIEW_TECH}
+ result=[]
+ for block in blocks:
+  pending=[]
+  for line in str(block).splitlines():
+   title=clean_heading(line)
+   if title.casefold() in labels:
+    if pending and "\\n".join(pending).strip():
+     result.append("\\n".join(pending).strip())
+    result.append(labels[title.casefold()])
+    pending=[]
+   else:
+    pending.append(line)
+  if pending and "\\n".join(pending).strip():
+   result.append("\\n".join(pending).strip())
+ return result
+
+
 def sectioned_body(review):
  if review.get("studio_blocks"):return studio_sectioned_body(review)
  blocks=editorial_blocks(review)
+ if category(review)=="recensioni-tech":
+  blocks=split_review_tech_headings(blocks)
  if not blocks:return "<p>Il testo integrale dell'articolo non è ancora disponibile nell'archivio.</p>"
  if not is_review(review):
   return news_body(review,blocks)
