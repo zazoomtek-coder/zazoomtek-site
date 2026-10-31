@@ -561,7 +561,7 @@ function actionButton(text,callback){
  const b=S("button","",text);b.type="button";b.addEventListener("click",callback);return b;
 }
 
-async function chooseFile(target){
+async function chooseFile(target,onUploaded){
  const chooser=document.createElement("input");
  chooser.type="file";
  chooser.accept=target?.type==="audio"?"audio/mpeg,audio/mp4,audio/wav":
@@ -586,7 +586,7 @@ async function chooseFile(target){
      target.preview=preview;
      renderBlocks();
     }else{
-     state.cover=result.url;state.coverPreview=preview;syncCover();
+     state.cover=result.url;state.coverPreview=preview;syncCover();if(typeof onUploaded==="function")onUploaded();
     }
     notify("Copertina caricata. Si vede subito qui; sul sito sarà disponibile dopo il deploy. Salva in bozza o pubblica.");
    }catch(e){
@@ -634,21 +634,44 @@ function editMedia(block){
 }
 function editCover(){
  const body=S("div"),url=field(body,"URL della cover (puoi anche caricarla)",state.cover);
- const upload=actionButton("Carica copertina dal PC",async()=>{
-  closeModal();await chooseFile(null);
- });upload.className="v2-soft";body.append(upload);
- const preview=S("div","v2-modal-preview");
- const pic=S("img");preview.append(pic);body.append(preview);
+ const upload=actionButton("Carica copertina dal PC",()=>chooseFile(null,()=>{url.value=state.cover;draw()}));
+ upload.className="v2-soft";body.append(upload);
+ const preview=S("div","v2-modal-preview v2-cover-drag-preview");
+ const pic=S("img");pic.alt="Anteprima della copertina: trascina con il mouse per cambiare inquadratura";
+ pic.draggable=false;preview.append(pic);body.append(preview);
+ body.append(S("p","v2-cover-hint","Trascina la cover con il mouse per posizionarla, poi premi Applica modifiche."));
  const grid=S("div","v2-modal-grid");
  const x=field(grid,"Centro X (0–100)",state.coverFocusX,"number");
  const y=field(grid,"Centro Y (0–100)",state.coverFocusY,"number");
  const zoom=field(grid,"Zoom 100–250%",state.coverZoom,"number");
  const rot=field(grid,"Rotazione -180° / 180°",state.coverRotation,"number");body.append(grid);
- function draw(){pic.src=url.value;pic.style.objectPosition=num(x.value,0,100,50)+"% "+num(y.value,0,100,50)+"%";pic.style.transform="scale("+num(zoom.value,100,250,100)/100+") rotate("+num(rot.value,-180,180,0)+"deg)"}
- [url,x,y,zoom,rot].forEach(c=>c.addEventListener("input",draw));draw();
+ function draw(){
+  const source=url.value.trim();
+  pic.src=source===state.cover&&state.coverPreview?state.coverPreview:(previewMediaUrl(source)||source);
+  pic.style.objectPosition=num(x.value,0,100,50)+"% "+num(y.value,0,100,50)+"%";
+  pic.style.transform="scale("+num(zoom.value,100,250,100)/100+") rotate("+num(rot.value,-180,180,0)+"deg)";
+ }
+ [url,x,y,zoom,rot].forEach(c=>c.addEventListener("input",draw));
+ let pointer=null;
+ preview.addEventListener("pointerdown",event=>{
+  if(event.button!==0)return;
+  pointer={id:event.pointerId,px:event.clientX,py:event.clientY,x:num(x.value,0,100,50),y:num(y.value,0,100,50)};
+  preview.setPointerCapture(event.pointerId);event.preventDefault();
+ });
+ preview.addEventListener("pointermove",event=>{
+  if(!pointer||pointer.id!==event.pointerId)return;
+  x.value=Math.round(num(pointer.x-(event.clientX-pointer.px)/Math.max(1,preview.clientWidth)*100,0,100,50));
+  y.value=Math.round(num(pointer.y-(event.clientY-pointer.py)/Math.max(1,preview.clientHeight)*100,0,100,50));draw();
+ });
+ preview.addEventListener("pointerup",()=>pointer=null);
+ preview.addEventListener("pointercancel",()=>pointer=null);
+ draw();
  modal("Copertina · ritaglio e inquadratura",body,()=>{
-  state.cover=url.value.trim();state.coverPreview="";state.coverFocusX=num(x.value,0,100,50);state.coverFocusY=num(y.value,0,100,50);
-  state.coverZoom=num(zoom.value,100,250,100);state.coverRotation=num(rot.value,-180,180,0);syncCover();return true;
+  const newUrl=url.value.trim();
+  if(newUrl!==state.cover)state.coverPreview="";
+  state.cover=newUrl;state.coverFocusX=num(x.value,0,100,50);state.coverFocusY=num(y.value,0,100,50);
+  state.coverZoom=num(zoom.value,100,250,100);state.coverRotation=num(rot.value,-180,180,0);
+  syncCover();return true;
  });
 }
 function collect(){

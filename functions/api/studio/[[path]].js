@@ -97,7 +97,11 @@ async function githubRequest(token,path,options={}){
  if(res.status===204)return {};
  const data=await res.json().catch(()=>({}));
  if(!res.ok){
-  if(res.status===409||res.status===422)throw new Error("Conflitto di versione. Ricarica Studio e riprova.");
+  if(res.status===409||(res.status===422&&/sha|does not match|conflict/i.test(String(data.message||"")))){
+   const err=new Error("Conflitto di versione GitHub (HTTP "+res.status+"): "+clean(data.message).slice(0,180));
+   err.isShaConflict=true;throw err;
+  }
+  if(res.status===422)throw new Error("GitHub ha rifiutato il salvataggio (422): "+clean(data.message).slice(0,220));
   if(res.status===401||res.status===403)throw new Error("Token GitHub scaduto, revocato o senza autorizzazioni.");
   throw new Error("GitHub: "+clean(data.message).slice(0,160));
  }
@@ -339,12 +343,20 @@ async function saveV2(request,env,session){
  if(!["draft","publish"].includes(mode))throw new Error("Comando non riconosciuto.");
  const record=mode==="draft"?draftValue(data.record):normalizeArticle(data.record);
  if(mode==="draft"){
-  const file=await getDrafts(session.token);
-  file.drafts[record.slug]={record,kind:data.creating?"new":"edit",updated_at:new Date().toISOString()};
-  await writeFile(session.token,"data/studio_v2_drafts.json",{drafts:file.drafts},
-   file.sha,"Studio V2: salva bozza "+record.slug);
-  return respond({ok:true,mode:"draft",slug:record.slug,
-   message:"Bozza salvata senza cambiare alcuna pagina."});
+  // Reload GitHub SHA and merge this draft whenever concurrent writes conflict.
+  for(let attempt=0;attempt<4;attempt++){
+   const file=await getDrafts(session.token);
+   const drafts={...file.drafts};
+   drafts[record.slug]={record,kind:data.creating?"new":"edit",updated_at:new Date().toISOString()};
+   try{
+    await writeFile(session.token,"data/studio_v2_drafts.json",{drafts},
+     file.sha,"Studio V2: salva bozza "+record.slug);
+    return respond({ok:true,mode:"draft",slug:record.slug,
+     message:"Bozza salvata senza cambiare alcuna pagina."});
+   }catch(err){
+    if(!err.isShaConflict||attempt===3)throw err;
+   }
+  }
  }
  const catalog=await v2Catalog(request,env);
  const existing=(catalog.posts||[]).find(p=>p.slug===record.slug);
@@ -361,24 +373,36 @@ async function saveV2(request,env,session){
     keywords:Array.isArray(oldSeo.keywords)?oldSeo.keywords.slice(0,8):[]};
   record.date=existing.date||new Date().toISOString().slice(0,10);
   record.published_at=existing.published_at||record.date;
-  const file=await readFile(session.token,"data/studio_overrides.json");
-  const doc=file.content||{overrides:{}};
-  doc.overrides=doc.overrides||{};
-  doc.overrides[record.slug]=record;
-  await writeFile(session.token,"data/studio_overrides.json",doc,file.sha,
-   "Studio V2: pubblica modifica "+record.slug+" (in coda)");
+  for(let attempt=0;attempt<5;attempt++){
+   const file=await readFile(session.token,"data/studio_overrides.json");
+   const overrides={...(file.content?.overrides||{}),[record.slug]:record};
+   try{
+    await writeFile(session.token,"data/studio_overrides.json",{overrides},file.sha,
+     "Studio V2: pubblica modifica "+record.slug+" (in coda)");
+    break;
+   }catch(err){if(!err.isShaConflict||attempt===4)throw err;}
+  }
  }else{
-  record.date=new Date().toISOString().slice(0,10);
-  record.published_at=new Date().toISOString();
-  const doc=queuedPosts.content||{posts:[]};
-  doc.posts=Array.isArray(doc.posts)?doc.posts:[];
-  if(queuedExisting){
-   record.date=queuedExisting.date||record.date;
-   record.published_at=queuedExisting.published_at||record.published_at;
-   doc.posts[queuedIndex]=record;
-  }else doc.posts.unshift(record);
-  await writeFile(session.token,"data/studio_posts.json",doc,queuedPosts.sha,
-   "Studio V2: "+(queuedExisting?"aggiorna articolo accodato ":"accoda nuovo articolo ")+record.slug);
+  for(let attempt=0;attempt<5;attempt++){
+   const file=await readFile(session.token,"data/studio_posts.json");
+   const posts=Array.isArray(file.content?.posts)?[...file.content.posts]:[];
+   const index=posts.findIndex(p=>p.slug===record.slug);
+   const next={...record};
+   if(index>=0){
+    next.date=posts[index].date||next.date;
+    next.published_at=posts[index].published_at||next.published_at;
+    posts[index]=next;
+   }else{
+    next.date=new Date().toISOString().slice(0,10);
+    next.published_at=new Date().toISOString();
+    posts.unshift(next);
+   }
+   try{
+    await writeFile(session.token,"data/studio_posts.json",{posts},file.sha,
+     "Studio V2: "+(index>=0?"aggiorna articolo accodato ":"accoda nuovo articolo ")+record.slug);
+    break;
+   }catch(err){if(!err.isShaConflict||attempt===4)throw err;}
+  }
  }
  // Successful publication is never rolled back by a failure to clean a draft.
  try{
