@@ -3266,3 +3266,19 @@ main.wrap .video-magazine .video-feature .thumb img {
   width:100%!important;height:100%!important;object-fit:contain!important;
  }
 }
+
+/* One Home-style editorial sidebar for all internal pages; preserve full image content. */
+@media(min-width:781px){
+ main.wrap .inner-layout>.inner-sidebar{position:relative!important;display:block!important;align-self:start!important;inset:auto!important;width:auto!important;height:auto!important;max-height:none!important;overflow:visible!important;min-height:0!important}
+ main.wrap .inner-layout>.inner-sidebar .sidebar-stack{display:block!important;position:static!important;inset:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-box{display:block!important;position:static!important;max-height:none!important;overflow:visible!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-box[hidden],main.wrap .inner-layout>.inner-sidebar .editorial-row[hidden]{display:none!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:first-child{display:block!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:first-child .editorial-thumb{display:block!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;max-height:none!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:first-child .editorial-thumb img{object-fit:contain!important;width:100%!important;height:100%!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:not(:first-child){display:grid!important;grid-template-columns:minmax(0,62%) minmax(0,38%)!important;align-items:start!important;column-gap:10px!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:not(:first-child) .editorial-thumb{display:block!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;max-height:none!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:not(:first-child) .editorial-thumb img{width:100%!important;height:100%!important;object-fit:contain!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row-copy{min-width:0!important;overflow-wrap:anywhere!important}
+ main.wrap .inner-layout>.inner-sidebar .editorial-row-copy a{font-size:12px!important;line-height:1.35!important}
+}
