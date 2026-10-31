@@ -1,5 +1,6 @@
 """End-to-end SEO audit: every generated article, archive and canonical page."""
 from html.parser import HTMLParser
+from datetime import datetime,timezone,timedelta
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from urllib.parse import urlparse
@@ -59,6 +60,27 @@ def check_seo(root,rows,groups,preview):
   if page_canon!=[sitemap_url]:
    raise AssertionError("Sitemap canonical mismatch: "+sitemap_url)
 
+ # Google News sitemap is a strict subset of canonical, indexable site articles.
+ news_doc=ET.parse(root/"news-sitemap.xml").getroot()
+ news_ns={"news":"http://www.google.com/schemas/sitemap-news/0.9"}
+ news_links=[]
+ now=datetime.now(timezone.utc)
+ for entry in news_doc.findall("sm:url",ns):
+  url=entry.findtext("sm:loc",namespaces=ns)
+  stamp=entry.findtext("news:news/news:publication_date",namespaces=news_ns)
+  title=entry.findtext("news:news/news:title",namespaces=news_ns)
+  name=entry.findtext("news:news/news:publication/news:name",namespaces=news_ns)
+  language=entry.findtext("news:news/news:publication/news:language",namespaces=news_ns)
+  if url not in urls or not stamp or not title or name!="ZazoomTek" or language!="it":
+   raise AssertionError("Invalid Google News sitemap entry: "+str(url))
+  date=datetime.fromisoformat(stamp.replace("Z","+00:00"))
+  if date.tzinfo is None or not now-timedelta(days=2,minutes=2)<=date<=now+timedelta(minutes=2):
+   raise AssertionError("Google News sitemap must contain only recent publications: "+str(url))
+  if url not in {DOMAIN+"/"+r["slug"] for r in rows if r.get("category") in ("news-tech","news-gaming")}:
+   raise AssertionError("Google News sitemap contains a non-news article: "+str(url))
+  news_links.append(url)
+ if len(news_links)!=len(set(news_links)):
+  raise AssertionError("Google News sitemap duplicates an article")
  if len(urls)!=len(set(urls)):raise AssertionError("Sitemap duplicate canonical URL")
  if any(not x.startswith(DOMAIN+"/") for x in urls):
   raise AssertionError("Sitemap includes noncanonical URL")
@@ -132,4 +154,5 @@ def check_seo(root,rows,groups,preview):
  robots=(root/"robots.txt").read_text(encoding="utf-8")
  if preview and "Disallow: /" not in robots:raise AssertionError("Preview not disallowed")
  if not preview and DOMAIN+"/sitemap.xml" not in robots:raise AssertionError("Production sitemap not advertised")
+ if not preview and DOMAIN+"/news-sitemap.xml" not in robots:raise AssertionError("Google News sitemap not advertised")
  print("SEO AUDIT PASS:",count,"HTML pages and",len(urls),"canonical sitemap URLs",flush=True)
