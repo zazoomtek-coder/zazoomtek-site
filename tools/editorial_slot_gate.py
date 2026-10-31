@@ -31,6 +31,8 @@ FILES = (
     "assets/css/studio-v2.css",
     "tools/community_youtube.py",
     "tools/build.py",
+    "tools/seo.py",
+    "tools/verify_seo.py",
     "tools/scheduled_editorial_import.py",
     # Aggiornamenti server Studio al prossimo slot.
     "functions/api/studio/[[path]].js",
