@@ -37,7 +37,14 @@ function toBase64(bytes){
   text+=String.fromCharCode(...bytes.slice(i,i+8192));
  return btoa(text).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-function encodeUtf8(s){return toBase64(toBytes(s));}
+// GitHub Contents API requires standard padded Base64, not URL-safe Base64.
+function encodeUtf8(s){
+ const bytes=toBytes(s);
+ let binary="";
+ for(let i=0;i<bytes.length;i+=8192)
+  binary+=String.fromCharCode(...bytes.slice(i,i+8192));
+ return btoa(binary);
+}
 function assertSetup(env){
  const secret=clean(env.STUDIO_SESSION_SECRET);
  if(secret.length<32)throw new Error("SETUP_REQUIRED");
