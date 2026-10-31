@@ -1378,6 +1378,8 @@ def main():
  if O.exists():shutil.rmtree(O)
  # Copy the actual covers and other local editorial assets, not CSS/JS alone.
  shutil.copytree(P/"assets",O/"assets",dirs_exist_ok=True)
+ # Serve the Bing Webmaster Tools ownership proof at the public site root.
+ shutil.copy2(P/"BingSiteAuth.xml",O/"BingSiteAuth.xml")
  from studio_build import build_studio
  build_studio(O,rows)
  from studio_v2_build import build_studio_v2
