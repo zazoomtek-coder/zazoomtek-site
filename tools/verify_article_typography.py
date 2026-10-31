@@ -81,5 +81,24 @@ def verify():
  assert all(len(unescape(re.sub(r"<[^>]+>","",p)))<=430 for p in parts)
  joined=" ".join(unescape(re.sub(r"<[^>]+>","",p)) for p in parts)
  assert re.sub(r"\s+"," ",joined).strip()==re.sub(r"\s+"," ",original).strip()
+ # Regression: real YouTube Tech reviews embed the H2 title and prose
+ # in the same Community paragraph. Preserve all five canonical sections.
+ tech=sectioned_body({"category":"recensioni-tech","body":[
+  "Introduzione originale del microfono.",
+  "Materiali e Design\\nCostruzione metallica e base stabile.",
+  "Hardware e Prestazioni\\nCapsula cardioide da 16 mm.",
+  "Uso Quotidiano\\nCollegamento USB semplice.",
+  "Esperienza Complessiva\\nResa vocale convincente.",
+  "Conclusioni\\nIl prodotto ha un buon rapporto qualità e praticità.",
+  "Voto finale: 9.2/10"
+ ]})
+ for heading in ("Materiali e Design","Hardware e Prestazioni",
+                 "Uso Quotidiano","Esperienza Complessiva","Conclusioni"):
+  assert tech.count("<h2>"+heading+"</h2>")==1, ("Missing Tech heading",heading,tech)
+ for phrase in ("Introduzione originale del microfono.","Costruzione metallica e base stabile.",
+                "Capsula cardioide da 16 mm.","Collegamento USB semplice.",
+                "Resa vocale convincente.","Il prodotto ha un buon rapporto qualità e praticità."):
+  assert tech.count(phrase)==1, ("Lost Tech source prose",phrase)
+ assert "<h2>Gameplay</h2>" not in tech and "<h2>Storia</h2>" not in tech
  print("Article paragraph typography tests OK",flush=True)
 if __name__=="__main__":verify()
