@@ -69,7 +69,7 @@ def state():
 def event_slot(now):
     for hour, minute in ((12, 30), (16, 0), (19, 30)):
         target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if target - timedelta(minutes=10) <= now < target + timedelta(hours=1):
+        if target - timedelta(minutes=10) <= now < target + timedelta(minutes=30):
             return target
     return None
 
@@ -119,7 +119,7 @@ def authorize():
               slot.isoformat(), "seconds", round(seconds), flush=True)
         time.sleep(seconds + 0.3)
     now = datetime.now(ROME)
-    if not (slot <= now < slot + timedelta(hours=1)):
+    if not (slot <= now < slot + timedelta(minutes=30)):
         print("SKIPPED: slot expired; no out-of-window deployment",
               now.isoformat(), flush=True)
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")

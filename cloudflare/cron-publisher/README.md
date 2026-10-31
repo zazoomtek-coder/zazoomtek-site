@@ -1,9 +1,9 @@
 # ZazoomTek – Cloudflare Workers Cron Triggers
 
-Schedules: every day at 12:30, 16:00, 19:30 Europe/Rome.
+Schedules: every day at 12:30, 16:00, 19:30 Europe/Rome. Automatic retry attempts occur every 5 minutes, with cutoffs at 13:00, 16:30 and 20:00 (exclusive). Pending content remains in the editorial queue for a later slot if all attempts fail.
 
-Two UTC Cron expressions cover both CET and CEST; the Worker checks the
-actual local hour and skips the three incorrect UTC candidates each day.
+UTC cron candidates cover both CET and CEST; the Worker checks the
+actual Europe/Rome clock and skips times outside the three recovery windows.
 The GitHub workflow remains responsible for all importing, site builds,
 verification, Cloudflare Pages deployment and per-slot deduplication.
 
