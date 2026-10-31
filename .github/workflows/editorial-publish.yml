@@ -1,4 +1,4 @@
-name: ZazoomTek - 2 slot importazione e pubblicazione (Roma)
+name: ZazoomTek - 3 slot importazione e pubblicazione (Roma)
 on:
   schedule:
     # UTC puro per ri-registrare il cron anche su runner con scheduler locale
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   import-and-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 24
+    timeout-minutes: 40
     env:
       CF_PAGES_BRANCH: main
       CF_PAGES_URL: https://zazoomtek.it
@@ -47,9 +47,9 @@ jobs:
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
 
-      # 2. PUBBLICAZIONE SOLO NEI DUE SLOT. Nessun trigger cron
+      # 2. PUBBLICAZIONE SOLO NEI TRE SLOT. Nessun trigger cron
       # puo' bypassare il controllo temporale.
-      - name: Attendi l'ora esatta e impedisci deploy fuori dalle 12:30/19:30
+      - name: Attendi l'ora esatta e impedisci deploy fuori dalle 12:30/16:00/19:30
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/editorial_slot_gate.py authorize
       - name: Salva i dati verificati in main solo dopo l'autorizzazione dello slot

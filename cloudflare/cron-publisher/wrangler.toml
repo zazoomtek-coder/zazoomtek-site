@@ -6,7 +6,7 @@ workers_dev = false
 # Cloudflare Cron always uses UTC. Both winter and summer candidates
 # are dispatched; the Worker checks actual Europe/Rome local time.
 [triggers]
-crons = ["30 10,11,17,18 * * *", "0 14,15 * * *"]
+crons = ["*/5 * * * *"]
 
 [vars]
 GITHUB_REPO = "zazoomtek-coder/zazoomtek-site"
