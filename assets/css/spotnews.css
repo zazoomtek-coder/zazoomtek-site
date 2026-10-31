@@ -3282,3 +3282,42 @@ main.wrap .video-magazine .video-feature .thumb img {
  main.wrap .inner-layout>.inner-sidebar .editorial-row-copy{min-width:0!important;overflow-wrap:anywhere!important}
  main.wrap .inner-layout>.inner-sidebar .editorial-row-copy a{font-size:12px!important;line-height:1.35!important}
 }
+
+/* Dynamic editorial rails: the central content sets the height; never crop.
+   Home retains its existing layout and selection rules. */
+@media(min-width:781px){
+ main.wrap .inner-layout>.inner-sidebar,
+ main.wrap .archive-listing-layout>.inner-sidebar,
+ main.wrap .inner-layout>.inner-sidebar.rail-ready{
+  position:relative!important;inset:auto!important;bottom:auto!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  overflow:visible!important;align-self:start!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar>.sidebar-stack,
+ main.wrap .archive-listing-layout>.inner-sidebar>.sidebar-stack{
+  position:static!important;inset:auto!important;display:flex!important;
+  flex-direction:column!important;gap:12px!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  overflow:visible!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .compact-editorial-box,
+ main.wrap .archive-listing-layout>.inner-sidebar .compact-editorial-box{
+  height:auto!important;min-height:0!important;max-height:none!important;
+  overflow:visible!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:not(:first-child){
+  display:grid!important;grid-template-columns:92px minmax(0,1fr)!important;
+  gap:10px!important;align-items:start!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .editorial-row:not(:first-child) .editorial-thumb{
+  width:92px!important;height:auto!important;aspect-ratio:16/9!important;
+  max-height:none!important;overflow:hidden!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .editorial-thumb img{
+  display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+ }
+ main.wrap .inner-layout>.inner-sidebar .editorial-box[hidden],
+ main.wrap .inner-layout>.inner-sidebar .editorial-row[hidden]{
+  display:none!important;
+ }
+}
