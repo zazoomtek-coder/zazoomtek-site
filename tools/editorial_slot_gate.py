@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Exactly two authorized editorial release slots in Europe/Rome, idempotently.
+"""Exactly three authorized editorial release slots in Europe/Rome, idempotently.
 
 - prepare: decide if the imported data changed since the last successful deploy
-- authorize: sleep until 12:30 or 19:30, reject out-of-slot publishing
+- authorize: sleep until 12:30, 16:00 or 19:30, reject out-of-slot publishing
 - stamp: record a successful Cloudflare deployment for deduplication
 Only Cloudflare Wrangler itself deploys; this module never accesses Cloudflare.
 """
@@ -67,8 +67,8 @@ def state():
 
 
 def event_slot(now):
-    for hour in (12, 19):
-        target = now.replace(hour=hour, minute=30, second=0, microsecond=0)
+    for hour, minute in ((12, 30), (16, 0), (19, 30)):
+        target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
         if target - timedelta(minutes=10) <= now < target + timedelta(hours=1):
             return target
     return None
