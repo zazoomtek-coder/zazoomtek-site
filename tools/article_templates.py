@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 REVIEW_TECH=["Materiali e Design","Hardware e Prestazioni","Uso Quotidiano","Esperienza Complessiva","Conclusioni"]
 REVIEW_GAMING=["Storia","Gameplay","Aspetto tecnico","Conclusioni"]
 H2_NAMES=set(REVIEW_TECH+REVIEW_GAMING+[
- "Introduzione","Autonomia","Caratteristiche tecniche","Conclusione","Considerazioni finali",
+ "Introduzione","Autonomia","Caratteristiche tecniche","Conclusione","Considerazioni finali","Esperienza d'Uso Quotidiana",
  "Pro","Contro","Pro e Contro","Voto finale","Opinione finale","Il punto",
 ])
 SCORE=re.compile(r"(?:⭐\s*)?\b(?:voto\s*(?:finale)?|valutazione\s*finale|giudizio\s*finale)\s*[:\-]?\s*(10(?:[.,]0)?|[0-9](?:[.,][0-9])?)\s*(?:/\s*10)?\b",re.I)
@@ -319,6 +319,13 @@ def editorial_blocks(review):
   if len(lines)>1 and re.sub(r"[^a-z0-9]","",lines[0].casefold())==re.sub(r"[^a-z0-9]","",title.casefold()):
    first=lines[1].strip()
   if first:cleaned[0]=first
+ # Community opening may repeat the H1 as a whole standalone paragraph.
+ # Compare editorial titles after removing 'Recensione :' and whitespace.
+ def title_key(value):
+  value=re.sub(r"(?i)^\\s*(?:recensione|review)\\s*:\\s*","",plain(value))
+  return re.sub(r"[^\\w]+","",value.casefold())
+ while cleaned and title_key(cleaned[0])==title_key(review.get("title","")):
+  cleaned.pop(0)
  return cleaned
 
 def source_plain_h2(block,following,position):
