@@ -527,8 +527,11 @@ def cards(rows):
  for r in rows:
   url="/"+r["slug"]
   visual=editorial_cover(r)
+  label=('Recensione '+('Gaming' if r["category"]=="recensioni-gaming" else 'Tech')+
+         (' · PC' if r["category"]=="recensioni-gaming" and re.search(r"\\bPC\\b",r.get("title",""),re.I) else ''))
+  if r["category"] not in ("recensioni-tech","recensioni-gaming"):label=TYPES[r["category"]]
   entries.append('<article class="card"><a class="thumb" href="'+url+'">'+visual+'</a>'
-                 '<small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
+                 '<small>'+esc(label)+'</small><h3><a href="'+url+'">'+esc(clean_title(r["title"]))+'</a></h3></article>')
  return '<div class="cards">'+''.join(entries)+'</div>'
 def gaming_article_preview(row,limit=640):
  """News Gaming lead only: use the authentic article's prose to fill its left column."""
@@ -1063,7 +1066,7 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  # New articles inherit the slot automatically. No duplicate on Home.
  affiliate=('<aside class="inner-amazon-fill" aria-label="Prodotti consigliati su Amazon">'
             +amazon_provisional_box()+'</aside>') if section else ""
- content_html=('<div class="inner-layout'+(" web-gateway-layout" if gateway else "")+'"><div class="inner-column">'+content+'</div>'
+ content_html=('<div class="inner-layout'+(" web-gateway-layout" if gateway else "")+(" archive-listing-layout" if not show_related and seo_row is None and not gateway else "")+'"><div class="inner-column">'+content+'</div>'
                +rail+section+affiliate+'</div>')
  return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
