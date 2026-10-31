@@ -40,7 +40,7 @@ jobs:
         run: python3 tools/build.py
       - name: Verifica presenza dei file editoriali generati
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
-        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json && test -s dist/BingSiteAuth.xml && cmp -s BingSiteAuth.xml dist/BingSiteAuth.xml
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/news-sitemap.xml && test -s dist/robots.txt && test -s dist/_routes.json && test -s dist/BingSiteAuth.xml && cmp -s BingSiteAuth.xml dist/BingSiteAuth.xml
 
       # 2. PUBBLICAZIONE SOLO NEI TRE SLOT. Nessun trigger cron
       # puo' bypassare il controllo temporale.
