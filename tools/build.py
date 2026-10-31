@@ -982,6 +982,7 @@ def latest_featured_news(tech,gaming,used):
  return featured_tech+featured_gaming
 
 def home(rows):
+ rows=[r for r in rows if not is_archived(r)]
  global_used=set()
  tech=[r for r in rows if r["category"]=="news-tech"]
  gaming=[r for r in rows if r["category"]=="news-gaming"]
@@ -1052,6 +1053,35 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
                +rail+section+affiliate+'</div>')
  return shell(title,content_html,seo_row=seo_row,seo_path=seo_path,seo_summary=seo_summary)
 ARCHIVE_PAGE_SIZE=9
+def archive_cutoff():
+ """Three calendar months before today (UTC); unchanged article URLs."""
+ import calendar
+ today=datetime.now(timezone.utc).date()
+ y=today.year; m=today.month-3
+ while m<=0:y-=1;m+=12
+ return today.replace(year=y,month=m,day=min(today.day,calendar.monthrange(y,m)[1]))
+def is_archived(row):
+ day=parse_day(row.get("published_at") or row.get("date"))
+ return bool(day and day<archive_cutoff())
+def archive_rows(rows,key,old=False):
+ return [r for r in rows if r.get("category") in GROUPS[key] and is_archived(r)==old]
+def archive_text_cards(rows):
+ return '<div class="archive-text-list">'+''.join(
+  '<article class="archive-text-item"><small>'+esc(date_label(r))+' · '+esc(TYPES[r["category"]])+'</small><h3><a href="/'+esc(r["slug"],quote=True)+'">'+esc(clean_title(r["title"]))+'</a></h3></article>'
+  for r in rows)+'</div>'
+def history_archive(key,rows,page=1):
+ label={"news":"News","news-tech":"News Tech","news-gaming":"News Gaming",
+  "recensioni":"Recensioni","recensioni-tech":"Recensioni Tech",
+  "recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali",
+  "extra":"Extra"}.get(key,key.title())
+ old=archive_rows(rows,key,True)
+ import math
+ count=max(1,math.ceil(len(old)/ARCHIVE_PAGE_SIZE))
+ visible=old[(page-1)*ARCHIVE_PAGE_SIZE:page*ARCHIVE_PAGE_SIZE]
+ slug=key+"-archivio"
+ title="Archivio "+label+(" - Pagina "+str(page) if page>1 else "")
+ body='<h1>'+esc(title)+'</h1><p>Articoli pubblicati da oltre tre mesi. Consulta titolo e testo originale.</p>'+archive_text_cards(visible)+pagination_links(slug,page,count)
+ return inside(title,body,rows,show_related=False,seo_path="/"+slug+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio storico "+label+" di ZazoomTek: titoli e articoli originali.")
 def pagination_links(key,page,total_pages):
  if total_pages<=1:return ""
  links=[]
@@ -1074,7 +1104,7 @@ def archive(key,rows,page=1):
         "recensioni":"Recensioni","recensioni-tech":"Recensioni Tech",
         "recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali",
         "extra":"Extra","video":"Video"}.get(key,key.replace("-"," ").title())
- selected=[r for r in rows if r["category"] in categories]
+ selected=archive_rows(rows,key,False) if key!="video" else [r for r in rows if r["category"] in categories]
  if key=="video":return inside(label,'<h1>'+esc(label)+'</h1>'+playlist_cards(),rows,show_related=False,seo_path="/video",seo_summary="Video, recensioni, gameplay, test e unboxing pubblicati da ZazoomTek su YouTube.")
  import math
  count=max(1,math.ceil(len(selected)/ARCHIVE_PAGE_SIZE))
@@ -1090,7 +1120,7 @@ def archive(key,rows,page=1):
   crosslinks=('<nav class="archive-crosslinks" aria-label="Sezioni notizie">'
               '<a href="/news-tech">News Tech</a>'
               '<a href="/news-gaming">News Gaming</a></nav>')
- content='<h1>'+esc(label_page)+'</h1>'+crosslinks+cards(visible)+pagination_links(key,page,count)
+ content='<h1>'+esc(label_page)+'</h1>'+crosslinks+cards(visible)+pagination_links(key,page,count)+'<p class="archive-entry-link"><a href="/'+key+'-archivio">Archivio '+esc(label)+'</a></p>'
  return inside(label_page,content,rows,show_related=False,seo_path="/"+key+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio "+label+" di ZazoomTek con notizie, recensioni e contenuti originali in ordine di pubblicazione."+(" Pagina "+str(page)+"." if page>1 else ""))
 
 def matching_review_video_id(row):
@@ -1345,9 +1375,13 @@ def main():
   (O/(key+".html")).write_text(archive(key,rows),encoding="utf-8")
   if key!="video":
    import math
-   count=sum(r["category"] in GROUPS[key] for r in rows)
+   count=len(archive_rows(rows,key,False))
    for page in range(2,max(1,math.ceil(count/ARCHIVE_PAGE_SIZE))+1):
     (O/(key+"-page-"+str(page)+".html")).write_text(archive(key,rows,page),encoding="utf-8")
+   (O/(key+"-archivio.html")).write_text(history_archive(key,rows),encoding="utf-8")
+   old_count=len(archive_rows(rows,key,True))
+   for page in range(2,max(1,math.ceil(old_count/ARCHIVE_PAGE_SIZE))+1):
+    (O/(key+"-archivio-page-"+str(page)+".html")).write_text(history_archive(key,rows,page),encoding="utf-8")
  (O/"notizie-web.html").write_text(web_archive(rows),encoding="utf-8")
  for entry in web_items:
   path=entry.get("internal_path") or ""
