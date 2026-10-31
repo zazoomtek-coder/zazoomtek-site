@@ -31,6 +31,8 @@ FILES = (
     "assets/css/studio-v2.css",
     "tools/community_youtube.py",
     "tools/build.py",
+    "tools/article_templates.py",
+    "assets/js/site.js",
     "tools/seo.py",
     "tools/verify_seo.py",
     "tools/scheduled_editorial_import.py",
