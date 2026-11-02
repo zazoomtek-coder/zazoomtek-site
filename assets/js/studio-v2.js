@@ -218,7 +218,8 @@ function previewMediaUrl(url){
  return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
 }
 function showArticlePreview(savedRecord=null){
- const record={...collect(),...(savedRecord||{})};
+ // L’anteprima deve usare i blocchi dell’editor attuale, non un corpo differente restituito dal salvataggio.
+ const record={...(savedRecord&&savedRecord.slug?savedRecord:{}),...collect()};
  const article=E("v2-preview-article-content");article.replaceChildren();
  const review=String(record.category||"").startsWith("recensioni-");
  article.className="v2-preview-article article story-article "+(review?"review-article":"news-article");
@@ -237,8 +238,9 @@ function showArticlePreview(savedRecord=null){
   const wrapper=S("div","v2-preview-cover-frame");wrapper.append(cover);article.append(wrapper);
  }
  const text=S("div","article-text");
- const blocks=Array.isArray(record.body)?record.body:editorialBodyForDisplay();
- if(!blocks.some(b=>b.type==="heading"))text.append(S("h2","","Approfondimento"));
+ // Mantieni esattamente ordine, paragrafi e sottotitoli dei blocchi correnti.
+ // Nessun titolo artificiale «Approfondimento» e nessuna riformattazione automatica in anteprima.
+ const blocks=Array.isArray(state.body)?state.body:[];
  for(let i=0;i<blocks.length;i++){
   const block=blocks[i],typ=block.type,t=String(block.text||"");
   if(["paragraph","heading","quote"].includes(typ)){
