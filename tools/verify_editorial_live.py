@@ -54,7 +54,8 @@ def main():
             problems.append(f"Article missing or ambiguous in built sitemap: {slug}")
         else:
             urls.append((matched[0], title))
-            if not (ROOT / "dist" / (slug + ".html")).is_file():\n                problems.append(f"Article missing in built site: {slug}")
+            if not (ROOT / "dist" / (slug + ".html")).is_file():
+                problems.append(f"Article missing in built site: {slug}")
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
