@@ -1061,7 +1061,10 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
  rail=sidebar(rows,False,reserved,gateway=gateway,
               news_page=news_page,long_article=long_article,
               archive=(not show_related and seo_row is None and not gateway),
-              archive_limit=(7 if seo_row is None and seo_path.rstrip("/") in ("/news","/recensioni") else 6 if seo_row is None and seo_path.rstrip("/")=="/extra" else 5))
+              archive_limit=(11 if seo_row is None and seo_path.rstrip("/") in ("/news","/recensioni") else 10 if seo_row is None and seo_path.rstrip("/")=="/extra" else 7 if seo_row is None and seo_path.rstrip("/") in ("/guide","/speciali") else 5))
+ # Only five approved menu archives: uniform thumbnails, never article pages.
+ if seo_row is None and seo_path.rstrip("/") in ("/news", "/recensioni", "/extra", "/guide", "/speciali"):
+  rail=rail.replace('class="sidebar inner-sidebar"', 'class="sidebar inner-sidebar editorial-uniform-thumbs"', 1)
  # Each published article/review with related stories has one real
  # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
  # New articles inherit the slot automatically. No duplicate on Home.

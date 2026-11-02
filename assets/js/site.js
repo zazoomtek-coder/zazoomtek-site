@@ -102,6 +102,27 @@
    aside.classList.add("rail-ready");
    return;
   }
+  // Sole cinque pagine archivio menu: quantità e aspetto autorizzati.
+  if(!home && aside.closest(".archive-listing-layout")){
+    const page=location.pathname.split("/").filter(Boolean).at(-1)?.replace(/\.html$/,"");
+    const count=page==="news"||page==="recensioni"?11:page==="extra"?10:page==="guide"||page==="speciali"?7:null;
+    if(count!==null){
+      panels.forEach((panel,i)=>{
+        panel.hidden=i!==0;
+        rows[i].forEach((row,j)=>{row.hidden=i!==0||j>=count;});
+      });
+      // Ripristina l'allineamento originario al titolo H1 prima dell'uscita anticipata.
+      const layout=aside.closest(".inner-layout");
+      const heading=layout?.matches("[data-page-heading-rail]")?column.querySelector("h1"):null;
+      if(heading){
+        const desired=Math.max(0,Math.round(heading.getBoundingClientRect().top-layout.getBoundingClientRect().top));
+        aside.style.setProperty("top",desired+"px","important");
+      }
+      aside.classList.add("editorial-uniform-thumbs");
+      aside.classList.add("rail-ready");
+      return;
+    }
+  }
   // Article/review rails share the measured fitting algorithm below.
   // Every visible thumbnail must fit completely before the Amazon row.
   // The page boundary is measured in actual rendered pixels, not a parent's
