@@ -40,7 +40,7 @@ def targets():
 
 def main():
     sitemap = (ROOT / "dist/sitemap.xml").read_text(encoding="utf-8")
-    locs = re.findall(r"<loc>\s*([^<]+)\s*</loc>", sitemap)
+    locs = [n.text or "" for n in ET.fromstring(sitemap).iter() if n.tag.rsplit("}", 1)[-1] == "loc"]
     selected = targets()
     if not selected:
         print("LIVE CHECK: no articles dated today; skipping targeted page checks")
@@ -53,7 +53,8 @@ def main():
         if len(matched) != 1:
             problems.append(f"Article missing or ambiguous in built sitemap: {slug}")
         else:
-            urls.append((matched[0], title))\n            if not (ROOT / "dist" / (slug + ".html")).is_file():\n                problems.append(f"Article missing in built site: {slug}")
+            urls.append((matched[0], title))
+            if not (ROOT / "dist" / (slug + ".html")).is_file():\n                problems.append(f"Article missing in built site: {slug}")
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
@@ -69,7 +70,7 @@ def main():
                     page = response.read().decode("utf-8", errors="replace")
                     status = response.status
                 # Verify the actual title, not merely a 200 response or a fallback page.
-                display_title = re.sub(r"^\\s*(?:News|Review|Recensione)(?:\\s+(?:Tech|Gaming|Extra))?\\s*:\\s*", "", title, flags=re.I)
+                display_title = re.sub(r"^\s*(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?\s*:\s*", "", title, flags=re.I)
                 marker = html.escape(display_title[:45], quote=False)
                 if status != 200 or (display_title[:45] not in html.unescape(page)
                                      and marker not in page):
