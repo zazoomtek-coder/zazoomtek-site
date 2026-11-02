@@ -1,0 +1,46 @@
+name: Studio - anteprima Cloudflare isolata
+on:
+  push:
+    branches: [fix-studio-recensioni-importate-20261102]
+    paths:
+      - '.github/workflows/studio-preview-cloudflare.yml'
+      - 'tools/studio_v2_build.py'
+      - 'assets/js/studio-v2.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: write
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: studio-verifica-recensioni
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-studio-recensioni-importate-20261102
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica credenziali per anteprima separata
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CF_TOKEN" && test -n "$CF_ACCOUNT"
+      - name: Compila anteprima completa con API Studio
+        run: |
+          python3 -m py_compile tools/studio_v2_build.py tools/build.py
+          node --check assets/js/studio-v2.js
+          python3 tools/build.py
+          test -s dist/studio-v2/index.html
+          test -s dist/studio-v2/catalog.json
+          test -s dist/_routes.json
+      - name: Pubblica esclusivamente la branch di anteprima Cloudflare
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=studio-verifica-recensioni
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
