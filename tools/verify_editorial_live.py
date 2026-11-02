@@ -11,6 +11,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
@@ -52,7 +53,7 @@ def main():
         if len(matched) != 1:
             problems.append(f"Article missing or ambiguous in built sitemap: {slug}")
         else:
-            urls.append((matched[0], title))
+            urls.append((matched[0], title))\n            if not (ROOT / "dist" / (slug + ".html")).is_file():\n                problems.append(f"Article missing in built site: {slug}")
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
