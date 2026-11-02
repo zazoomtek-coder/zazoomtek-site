@@ -1,0 +1,9 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Robots-Tag: noindex, nofollow
+/studio/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: private, no-store
+/studio-v2/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: private, no-store
