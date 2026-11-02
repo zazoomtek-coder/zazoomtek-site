@@ -729,7 +729,7 @@ def amazon_provisional_box():
          ' aria-label="Vedi i prodotti recensiti su Amazon, link affiliato">'
          'VEDI I PRODOTTI SU AMAZON <span aria-hidden="true">↗</span></a></section>')
 
-def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article=False,archive=False):
+def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article=False,archive=False,archive_limit=5):
  used=set(used or ())
  news=sort_by_date_desc([r for r in rows if r.get("category") in ("news-tech","news-gaming")])
  reviews=sort_by_date_desc([r for r in rows if str(r.get("category") or "").startswith("recensioni-")])
@@ -767,10 +767,10 @@ def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article
   selected.append(box("Ultime news",first))
   selected.append(box("Dalla redazione",second))
  elif news_page:
-  only_reviews=sidebar_select(reviews,5 if archive else 16,used)
+  only_reviews=sidebar_select(reviews,archive_limit if archive else 16,used)
   if only_reviews:selected.append(box("Ultime recensioni",only_reviews))
  else:
-  latest_news=sidebar_select(news,5 if archive else 16,used)
+  latest_news=sidebar_select(news,archive_limit if archive else 16,used)
   if latest_news:selected.append(box("Ultime news",latest_news))
  mode=''  # A single measured rail fills articles without the former clipped 50/50 grid.
  return '<aside class="sidebar '+("home-sidebar" if home else "inner-sidebar")+'"'+mode+' aria-label="Box editoriali"><div class="sidebar-stack">'+''.join(selected)+'</div></aside>'
@@ -1060,7 +1060,8 @@ def inside(title,content,rows,exclude="",cat=None,show_related=True,seo_row=None
                 (seo_row is None and seo_path.startswith("/news")))
  rail=sidebar(rows,False,reserved,gateway=gateway,
               news_page=news_page,long_article=long_article,
-              archive=(not show_related and seo_row is None and not gateway))
+              archive=(not show_related and seo_row is None and not gateway),
+              archive_limit=(7 if seo_row is None and seo_path.rstrip("/") in ("/news","/recensioni") else 6 if seo_row is None and seo_path.rstrip("/")=="/extra" else 5))
  # Each published article/review with related stories has one real
  # adjacent affiliate slot at the SAME vertical start as Articoli correlati.
  # New articles inherit the slot automatically. No duplicate on Home.
