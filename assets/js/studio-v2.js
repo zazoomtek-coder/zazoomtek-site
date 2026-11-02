@@ -242,9 +242,12 @@ function showArticlePreview(savedRecord=null){
   const explicit=String(record.video_url||"").trim();
   const parsed=explicit.match(/^https:\/\/(?:www\.|m\.)?youtube\.com\/watch\?[^#]*[?&]v=([a-zA-Z0-9_-]{11})|^https:\/\/youtu\.be\/([a-zA-Z0-9_-]{11})(?:[?#]|$)/);
   let videoId=parsed?.[1]||parsed?.[2]||"";
-  // Abbinamento verificato dal catalogo video ufficiale ZazoomTek.
-  if(!videoId && /\\bdtno\\s*\\.?\\s*1\\b/i.test(record.title||"") && /\\bdt\\s*h03\\b/i.test(record.title||""))
-   videoId="Dq0TXVZINVQ";
+  // Solo abbinamenti confermati, senza duplicare il pulsante già presente.
+  const lowerTitle=String(record.title||"").toLowerCase();
+  if(!videoId && /\bdt\s*h03\b/.test(lowerTitle))videoId="Dq0TXVZINVQ";
+  if(!videoId && /\btrust\b/.test(lowerTitle) && /\bgxt\s*269\b/.test(lowerTitle) && /\bemita\b/.test(lowerTitle))
+   videoId="mTZN5hXJkyQ";
+  if(!videoId && /\bclawstral\b/.test(lowerTitle))videoId="l3pgBTunwS4";
   if(videoId){
    const wrapper=S("div","review-video"),link=S("a","review-video-link","▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗");
    link.href="https://www.youtube.com/watch?v="+videoId;
