@@ -1168,10 +1168,11 @@ def matching_review_video_id(row):
   (("realme","buds","t500"),"6hLJq9njq5o"),
   (("dt","h03"),"Dq0TXVZINVQ"),
   (("trust","gxt","269","emita"),"mTZN5hXJkyQ"),
+  (("clawstral",),"l3pgBTunwS4"),
  )
  # Prefer the Ultra review over a different 70mai A900 review.
  for words,vid in matches:
-  if all(re.search(r"\b"+re.escape(w)+r"\b",title) for w in words) and (vid in published or (vid=="mTZN5hXJkyQ" and any(v.get("id")==vid and "recensione" in str(v.get("title") or "").casefold() for v in catalog))):
+  if all(re.search(r"\b"+re.escape(w)+r"\b",title) for w in words) and (vid in published or vid=="l3pgBTunwS4" or (vid=="mTZN5hXJkyQ" and any(v.get("id")==vid and "recensione" in str(v.get("title") or "").casefold() for v in catalog))):
    return vid
  return ""
 
