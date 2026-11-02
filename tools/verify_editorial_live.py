@@ -59,7 +59,17 @@ def main():
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
-    # Local assets must exist before checking the public site.\n    for row in rows("studio_posts.json", "posts"):\n        if row.get("date") != TODAY:\n            continue\n        asset = str(row.get("image") or "")\n        if asset.startswith("/assets/uploads/") and not (ROOT / "dist" / asset.lstrip("/")).is_file():\n            problems.append(f"Missing published Studio cover: {asset}")\n    if problems:\n        print("\\n".join(problems), file=sys.stderr)\n        return 1\n    for attempt in range(1, 7):
+    # Validate approved cover assets before confirming a release.
+    for row in rows("studio_posts.json", "posts"):
+        if row.get("date") != TODAY:
+            continue
+        asset = str(row.get("image") or "")
+        if asset.startswith("/assets/uploads/") and not (ROOT / "dist" / asset.lstrip("/")).is_file():
+            problems.append(f"Missing published Studio cover: {asset}")
+    if problems:
+        print("\n".join(problems), file=sys.stderr)
+        return 1
+    for attempt in range(1, 7):
         pending = []
         for url, title in urls:
             try:
