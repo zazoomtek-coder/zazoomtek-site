@@ -68,8 +68,9 @@ def main():
                     page = response.read().decode("utf-8", errors="replace")
                     status = response.status
                 # Verify the actual title, not merely a 200 response or a fallback page.
-                marker = html.escape(title[:45], quote=False)
-                if status != 200 or (title[:45] not in html.unescape(page)
+                display_title = re.sub(r"^\\s*(?:News|Review|Recensione)(?:\\s+(?:Tech|Gaming|Extra))?\\s*:\\s*", "", title, flags=re.I)
+                marker = html.escape(display_title[:45], quote=False)
+                if status != 200 or (display_title[:45] not in html.unescape(page)
                                      and marker not in page):
                     pending.append(url + " (missing article title)")
             except (OSError, urllib.error.URLError) as exc:
