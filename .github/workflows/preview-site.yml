@@ -1,0 +1,55 @@
+name: ZazoomTek - prepara anteprima navigabile GitHub Pages
+on:
+  push:
+    branches: [preview-site]
+    paths-ignore:
+      - 'docs/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  prepare-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-site
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Genera sito reale in dist senza deploy Cloudflare
+        env:
+          CF_PAGES_BRANCH: preview-site
+        run: python3 tools/build.py
+      - name: Adatta i link assoluti per il sottopercorso GitHub Pages
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, shutil
+          src=Path("dist")
+          target=Path("docs")
+          if not (src/"index.html").is_file(): raise SystemExit("Build non riuscita: dist/index.html assente")
+          if target.exists(): shutil.rmtree(target)
+          shutil.copytree(src,target)
+          prefix="/zazoomtek-site"
+          count=0
+          for path in target.rglob("*.html"):
+              html=path.read_text(encoding="utf-8")
+              # Link root-relative in href/src/action/poster, preservando i link esterni.
+              html=re.sub(r'(?P<attr>\b(?:href|src|action|poster)=)(?P<quote>["\x27])/(?!/|zazoomtek-site/)',lambda m:m.group('attr')+m.group('quote')+prefix+"/",html)
+              path.write_text(html,encoding="utf-8")
+              count+=1
+          (target/".nojekyll").write_text("",encoding="utf-8")
+          print("Pagine HTML navigate:",count)
+          PY
+      - name: Pubblica solo i file preview nel branch preview-site
+        run: |
+          git config user.name "ZazoomTek Preview Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs
+          if ! git diff --cached --quiet; then
+            git commit -m "Genera anteprima navigabile [skip ci]"
+            git push origin HEAD:preview-site
+          fi
