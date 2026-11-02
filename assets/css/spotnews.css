@@ -3238,3 +3238,38 @@ main.wrap .video-magazine .video-feature .thumb img {
   height:58px!important;
  }
 }
+
+
+/* SOLO News / Recensioni / Extra / Guide / Speciali - miniature uniformi come la seconda,
+   testo immediatamente accanto senza spazio tra le colonne. */
+@media (min-width:781px){
+ main.wrap .archive-listing-layout > aside.editorial-uniform-thumbs .compact-editorial-box .editorial-links > .editorial-row,
+ main.wrap .archive-listing-layout > aside.editorial-uniform-thumbs .compact-editorial-box .editorial-links > .editorial-row:first-child{
+  display:grid!important;
+  grid-template-columns:92px minmax(0,1fr)!important;
+  column-gap:0!important;
+  gap:0!important;
+  align-items:start!important;
+  padding:9px 0!important;
+  min-height:0!important;
+ }
+ main.wrap .archive-listing-layout > aside.editorial-uniform-thumbs .compact-editorial-box .editorial-links > .editorial-row .editorial-thumb,
+ main.wrap .archive-listing-layout > aside.editorial-uniform-thumbs .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-thumb{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:92px!important;
+  min-width:92px!important;
+  max-width:92px!important;
+  height:58px!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+ }
+ main.wrap .archive-listing-layout > aside.editorial-uniform-thumbs .compact-editorial-box .editorial-links > .editorial-row .editorial-row-copy,
+ main.wrap .archive-listing-layout > aside.editorial-uniform-thumbs .compact-editorial-box .editorial-links > .editorial-row:first-child .editorial-row-copy{
+  display:block!important;
+  width:auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+ }
+}
