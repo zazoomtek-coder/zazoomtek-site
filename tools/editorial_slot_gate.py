@@ -38,6 +38,8 @@ FILES = (
     "tools/seo.py",
     "tools/verify_seo.py",
     "tools/scheduled_editorial_import.py",
+    "tools/verify_editorial_live.py",
+    ".github/workflows/editorial-publish.yml",
     # Aggiornamenti server Studio al prossimo slot.
     "functions/api/studio/[[path]].js",
     # Anche le correzioni grafiche approvate richiedono lo slot.
