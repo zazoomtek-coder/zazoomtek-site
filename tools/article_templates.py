@@ -211,7 +211,7 @@ def merge_repeated_info_sections(markup):
  Every following paragraph, list, image, link and other content is retained
  unchanged, including historical and newly generated articles.
  """
- return re.sub(r"<h2(?:\\s[^>]*)?>\\s*Ulteriori informazioni\\s*</h2\\s*>","",markup,flags=re.I)
+ return re.sub(r"<h2(?:\s[^>]*)?>\s*Ulteriori informazioni\s*</h2\s*>","",markup,flags=re.I)
 
 
 def score(review,blocks):
