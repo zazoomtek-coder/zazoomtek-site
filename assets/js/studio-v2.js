@@ -237,6 +237,21 @@ function showArticlePreview(savedRecord=null){
   cover.style.transform="scale("+Number(record.cover_zoom??state.coverZoom)/100+") rotate("+Number(record.cover_rotation??state.coverRotation)+"deg)";
   const wrapper=S("div","v2-preview-cover-frame");wrapper.append(cover);article.append(wrapper);
  }
+ // Replica il pulsante pubblico solo quando una videorecensione ufficiale è associata.
+ if(review){
+  const explicit=String(record.video_url||"").trim();
+  const parsed=explicit.match(/^https:\/\/(?:www\.|m\.)?youtube\.com\/watch\?[^#]*[?&]v=([a-zA-Z0-9_-]{11})|^https:\/\/youtu\.be\/([a-zA-Z0-9_-]{11})(?:[?#]|$)/);
+  let videoId=parsed?.[1]||parsed?.[2]||"";
+  // Abbinamento verificato dal catalogo video ufficiale ZazoomTek.
+  if(!videoId && /\\bdtno\\s*\\.?\\s*1\\b/i.test(record.title||"") && /\\bdt\\s*h03\\b/i.test(record.title||""))
+   videoId="Dq0TXVZINVQ";
+  if(videoId){
+   const wrapper=S("div","review-video"),link=S("a","review-video-link","▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗");
+   link.href="https://www.youtube.com/watch?v="+videoId;
+   link.target="_blank";link.rel="noopener noreferrer";
+   wrapper.append(link);article.append(wrapper);
+  }
+ }
  const text=S("div","article-text");
  // Mantieni esattamente ordine, paragrafi e sottotitoli dei blocchi correnti.
  // Nessun titolo artificiale «Approfondimento» e nessuna riformattazione automatica in anteprima.
