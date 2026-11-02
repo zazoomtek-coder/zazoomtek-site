@@ -3,7 +3,7 @@ import json,re,hashlib
 from pathlib import Path
 from html.parser import HTMLParser
 from seo import title_tag, description, keywords
-from article_templates import sectioned_body
+from article_templates import sectioned_body, normalize_editorial_headings, merge_repeated_info_sections, with_official_link
 
 class _EditorInline(HTMLParser):
  def __init__(self):
@@ -36,6 +36,10 @@ def editorial_blocks_for_editor(row):
          for x in row["body"]):
    return row["body"]
  source=sectioned_body(row)
+ # Le recensioni importate devono usare gli stessi passaggi conclusivi
+ # del renderer pubblico, non la sola suddivisione preliminare.
+ if str(row.get("category") or "").startswith("recensioni-") and not row.get("studio_blocks"):
+  source=normalize_editorial_headings(merge_repeated_info_sections(with_official_link(source,row)))
  blocks=[]
  for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
   tag,raw=match.groups()
