@@ -75,6 +75,9 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica sul sito pubblico ogni articolo Studio e Community di oggi
+        if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
+        run: python3 tools/verify_editorial_live.py
       - name: Memorizza conferma del deploy riuscito ed evita doppioni nello slot
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         run: |
