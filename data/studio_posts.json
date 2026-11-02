@@ -1,6 +1,387 @@
 {
   "posts": [
     {
+      "slug": "binance-hack-63-miliardi-prelievi-fbi-tradertraitor",
+      "title": "Binance, hacker sottraggono 6,3 miliardi di dollari: prelievi riaperti e FBI sulle tracce di TraderTraitor",
+      "category": "news-tech",
+      "image": "/assets/uploads/binance-hack-63-miliardi-prelievi-fbi-tradertraitor/cover-20261102.jpg",
+      "date": "2026-11-02",
+      "published_at": "2026-11-02T12:30:00+01:00",
+      "author": "Redazione ZazoomTek",
+      "source": "studio-editor",
+      "studio_blocks": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Un attacco informatico da circa 6,3 miliardi di dollari ha colpito Binance, uno dei principali operatori mondiali nello scambio di criptovalute. L'incidente è avvenuto il 29 ottobre 2026, ma il quadro è cambiato rapidamente nel fine settimana: il 31 ottobre l'FBI ha attribuito il furto a un gruppo legato alla Corea del Nord, mentre il 1° novembre l'exchange ha avviato la riapertura graduale dei prelievi. Il caso va ben oltre il settore delle monete digitali, perché riguarda la sicurezza di piattaforme che custodiscono patrimoni di milioni di utenti."
+        },
+        {
+          "type": "paragraph",
+          "text": "La cifra è quella dichiarata dall'azienda nei propri aggiornamenti ufficiali, non una stima indipendente certificata. Anche le garanzie sul rimborso degli utenti, pur espresse in termini netti, sono impegni della società che dovranno essere verificati nel corso della normalizzazione dei servizi."
+        },
+        {
+          "type": "heading",
+          "text": "Cosa è successo il 29 ottobre"
+        },
+        {
+          "type": "paragraph",
+          "text": "Secondo la comunicazione diffusa da Binance il 30 ottobre, intorno alle 20:05 UTC del giorno precedente alcuni portafogli online, i cosiddetti hot wallet, sono stati compromessi. Da questi sistemi sono partite operazioni non autorizzate per un valore complessivo stimato in 6,3 miliardi di dollari. Un hot wallet è un'infrastruttura connessa alla rete, utilizzata per gestire movimenti e disponibilità operative: è diversa da un portafoglio conservato completamente offline."
+        },
+        {
+          "type": "paragraph",
+          "text": "Nelle prime ore l'azienda aveva indicato come possibile punto d'ingresso il computer di un ingegnere DevOps compromesso. Le verifiche successive, tuttavia, hanno individuato ulteriori punti di violazione. Non è quindi corretto presentare il portatile come causa unica e definitivamente accertata. Binance sostiene inoltre di non aver trovato, finora, prove di una fuoriuscita delle chiavi private dei wallet. L'indagine tecnica resta aperta e il rapporto conclusivo non era disponibile al momento della preparazione di questo articolo."
+        },
+        {
+          "type": "heading",
+          "text": "Il ruolo dell'FBI e l'attribuzione alla Corea del Nord"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il 31 ottobre l'FBI ha pubblicato un avviso ufficiale che attribuisce l'operazione a TraderTraitor, denominazione utilizzata per una specifica attività cyber malevola nordcoreana. Gli investigatori statunitensi hanno segnalato conversioni degli asset sottratti, soprattutto verso Ethereum, e il rischio di ulteriori passaggi attraverso protocolli di finanza decentralizzata e servizi di scambio immediato."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'attribuzione proviene dunque da un'autorità investigativa, non da indiscrezioni sui social. È comunque importante distinguere la responsabilità indicata dall'FBI dalla ricostruzione tecnica completa dell'intrusione: la seconda richiede ancora analisi, controlli sui sistemi e informazioni che non sono state rese pubbliche. Le autorità hanno chiesto agli operatori del settore di bloccare transazioni collegate agli indirizzi utilizzati per il riciclaggio dei fondi."
+        },
+        {
+          "type": "heading",
+          "text": "Tre miliardi congelati non significano tre miliardi recuperati"
+        },
+        {
+          "type": "paragraph",
+          "text": "Tra i numeri più citati compare la somma di circa 3 miliardi di dollari in asset che Binance afferma di aver contribuito a congelare sulla blockchain con il supporto di partner e altri soggetti. Congelare un asset significa impedirne temporaneamente la movimentazione, quando tecnicamente e giuridicamente possibile; non equivale a trasferirlo automaticamente di nuovo nella disponibilità dell'exchange."
+        },
+        {
+          "type": "paragraph",
+          "text": "La distinzione conta perché altrimenti si rischia di sommare impropriamente denaro bloccato, riserve aziendali e fondi già ricostituiti. Sono categorie diverse. Il valore recuperabile potrà cambiare durante le indagini e dipenderà da controlli, procedure e collaborazione internazionale."
+        },
+        {
+          "type": "heading",
+          "text": "Prelievi: che cosa è cambiato il 1° novembre"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dopo la sospensione precauzionale delle uscite, Binance ha annunciato una ripresa a fasi dei prelievi a partire dal 1° novembre. L'azienda ha precisato che la riattivazione sarebbe stata progressiva, rete per rete e asset per asset, dopo verifiche di sicurezza e stabilità. La presenza di un token nell'elenco delle prime riaperture non implica quindi che ogni transazione sia stata subito disponibile senza ritardi."
+        },
+        {
+          "type": "paragraph",
+          "text": "La stampa finanziaria ha riferito di forti flussi in uscita durante le prime ore della ripartenza. Il Financial Times ha quantificato circa 4,65 miliardi di dollari di prelievi e 1,01 miliardi di depositi nelle prime nove ore e mezza, per un saldo netto vicino a 3,64 miliardi. Si tratta di movimenti successivi all'attacco, non di un'ulteriore quota sottratta dagli hacker. Confondere le due cifre altererebbe completamente la lettura del caso."
+        },
+        {
+          "type": "heading",
+          "text": "Il piano di copertura per gli utenti"
+        },
+        {
+          "type": "paragraph",
+          "text": "Binance ha dichiarato di voler assorbire l'intero impatto economico dell'incidente, ricorrendo al fondo di protezione SAFU e a risorse aziendali. Nel comunicato del 30 ottobre aveva parlato di oltre 6,34 miliardi di dollari accantonati, con circa 5 miliardi già disponibili nelle tipologie di token interessate. Nei successivi aggiornamenti la società ha comunicato un avanzamento della ricostituzione degli asset fino a circa il 95%."
+        },
+        {
+          "type": "paragraph",
+          "text": "Non bisogna interpretare quel 95% come una conferma che tutti i prelievi siano tornati normali o che l'indagine sia conclusa. Significa, secondo Binance, che la società ha acquistato o messo a disposizione gran parte delle attività necessarie a sostituire quelle colpite. La quota residua riguarda anche token meno liquidi, più difficili da reperire rapidamente. Restano da verificare il completamento delle operazioni e i risultati delle nuove attestazioni sulle riserve."
+        },
+        {
+          "type": "heading",
+          "text": "Cosa dovrebbe controllare chi utilizza la piattaforma"
+        },
+        {
+          "type": "paragraph",
+          "text": "In una situazione di questo tipo il primo passo utile è consultare lo stato dei servizi e le comunicazioni pubblicate sui canali ufficiali dell'exchange, verificando la rete scelta prima di tentare un trasferimento. Eventuali messaggi che promettono rimborsi immediati, chiedono codici di accesso o invitano a collegare il wallet a siti sconosciuti devono essere trattati con particolare cautela: gli incidenti molto visibili diventano spesso un pretesto per truffe secondarie."
+        },
+        {
+          "type": "paragraph",
+          "text": "Per gli utenti è inoltre utile distinguere il saldo visualizzato dalla possibilità effettiva di prelevare un determinato asset e controllare gli aggiornamenti sulle prove di riserva. Nessuna delle informazioni qui riportate costituisce un consiglio di investimento o una garanzia individuale sulla disponibilità dei fondi."
+        },
+        {
+          "type": "heading",
+          "text": "Il punto:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il fatto nuovo del fine settimana è duplice: l'attribuzione ufficiale dell'FBI a TraderTraitor e l'avvio della ripresa dei prelievi dopo un attacco da 6,3 miliardi di dollari. La risposta finanziaria annunciata da Binance è imponente, ma non cancella le domande sulla sicurezza dell'infrastruttura e sulla ricostruzione esatta dell'intrusione. Il vero banco di prova saranno il ripristino completo dei servizi, la verifica delle riserve e la pubblicazione di un rapporto tecnico dettagliato."
+        },
+        {
+          "type": "heading",
+          "text": "Fonti"
+        },
+        {
+          "type": "paragraph",
+          "text": "- Binance, Security Incident Update #2 — 30 ottobre 2026: https://www.binance.com/en/support/announcement/detail/d3306d9dca5243548c813b605e1d1751\n- FBI, North Korea Responsible for $6 Billion+ Binance Attack — 31 ottobre 2026: https://www.fbi.gov/investigate/cyber/alerts/2026/north-korea-responsible-for-6-billion-binance-attack\n- Binance, Recovery Update #4 — 1 novembre 2026: https://www.binance.com/en/support/announcement/detail/73911fb819b240f88b88256bdd318eda\n- Financial Times, ripresa dei prelievi e deflussi — 1 novembre 2026: https://www.ft.com/content/1d4dd7b2-9dee-433b-ac2a-e8022af1dd07\n- Reuters, ricostituzione degli asset — 31 ottobre 2026: https://www.reuters.com/legal/government/binance-says-90-stolen-assets-replenished-2026-10-31/"
+        }
+      ],
+      "video_url": "",
+      "platform": "",
+      "score": null,
+      "pros": [],
+      "cons": [],
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "updated_at": "2026-11-02T11:59:00+01:00"
+    },
+    {
+      "slug": "fortnite-one-piece-treasure-hunters-guida-8-incarichi-premi-gratis",
+      "title": "Fortnite x One Piece, guida agli 8 incarichi di Treasure Hunters: come ottenere i quattro premi gratis",
+      "category": "guide",
+      "image": "/assets/uploads/fortnite-one-piece-treasure-hunters-guida-8-incarichi-premi-gratis/cover-20261102.jpg",
+      "date": "2026-11-02",
+      "published_at": "2026-11-02T12:30:00+01:00",
+      "author": "Redazione ZazoomTek",
+      "source": "studio-editor",
+      "studio_blocks": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Fortnite ha inaugurato il 1° novembre 2026 Treasure Hunters, la stagione a tema pirati che porta One Piece nella Battaglia reale. Per chi vuole iniziare subito senza perdersi tra la nuova mappa e le ricompense, la priorità è la serie di otto incarichi iniziali dedicati alla ciurma di Cappello di Paglia. Completandoli si possono ottenere fino a 80.000 punti esperienza e quattro spray cosmetici, senza dover acquistare il Pass battaglia."
+        },
+        {
+          "type": "paragraph",
+          "text": "Questa guida si concentra sulle missioni segnalate come attive all'apertura della stagione. Gli obiettivi e i premi sono stati verificati incrociando le guide pubblicate il 1° novembre con l'annuncio ufficiale di Epic Games. Le sfide possono cambiare con gli aggiornamenti: la scheda Incarichi all'interno del gioco resta il riferimento definitivo per il proprio account."
+        },
+        {
+          "type": "heading",
+          "text": "Prima di cominciare: dove trovare gli incarichi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dal menu principale di Fortnite entra nella sezione Incarichi e cerca la categoria dedicata a One Piece o a Treasure Hunters. Gli obiettivi sono organizzati in due episodi, con quattro prove ciascuno. Se una sfida non compare, controlla che l'aggiornamento sia installato e che sia selezionata una modalità compatibile: alcune attività possono contare anche altrove, ma Battaglia reale è la scelta più affidabile."
+        },
+        {
+          "type": "paragraph",
+          "text": "La nuova isola Crossbones Isle ospita partite da 80 giocatori, con luoghi ispirati a One Piece come Arlong Park e Windmill Village. Epic ha confermato la presenza del frutto Gom Gom, dello stile a tre spade di Zoro e di cannoni per spostarsi rapidamente. Non esiste una posizione garantita e immutabile per ogni oggetto in tutte le partite: è meglio adattare la rotta al bottino effettivamente trovato."
+        },
+        {
+          "type": "heading",
+          "text": "Episodio 1: danni con le spade di Zoro"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il primo obiettivo richiede di infliggere complessivamente 700 danni agli avversari utilizzando lo stile a tre spade di Zoro. Cerca l'oggetto nelle zone di bottino e utilizzalo quando puoi avvicinarti senza attraversare spazi aperti sotto il fuoco nemico. Il contatore è cumulativo tra partite: non serve raggiungere 700 danni in un unico incontro. La ricompensa indicata dalle guide è di 10.000 XP."
+        },
+        {
+          "type": "paragraph",
+          "text": "Per procedere più velocemente, evita di inseguire un avversario lontano solo per completare la sfida. Combattere vicino a coperture o edifici permette di sfruttare l'arma a distanza ravvicinata, riducendo il rischio di essere eliminati prima di aver registrato progressi utili."
+        },
+        {
+          "type": "heading",
+          "text": "Episodio 1: percorrere 250 metri con Gom Gom Rocket"
+        },
+        {
+          "type": "paragraph",
+          "text": "La seconda prova richiede di percorrere 250 metri usando l'abilità Gom Gom Rocket associata al frutto Gom Gom. Una volta ottenuto l'oggetto, attiva la specifica mossa di movimento e punta a una traiettoria libera. Non basta correre normalmente o usare un cannone: deve essere la capacità indicata nella descrizione dell'incarico. Anche qui la distanza si accumula in più partite e la ricompensa è di 10.000 XP."
+        },
+        {
+          "type": "heading",
+          "text": "Episodio 1: tre oggetti leggendari e dieci colpi da lontano"
+        },
+        {
+          "type": "paragraph",
+          "text": "La terza sfida chiede di raccogliere tre oggetti di rarità Leggendaria o superiore, quindi anche Mitica o Esotica quando disponibili. Per evitare dubbi, equipaggia effettivamente l'oggetto trovato e controlla l'avanzamento nella scheda missione. Aprire forzieri nelle zone meno affollate e sopravvivere fino alle fasi avanzate aumenta le occasioni di trovare equipaggiamento di alto livello. Sono previsti 10.000 XP."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il quarto incarico richiede dieci colpi a bersaglio contro avversari a oltre 50 metri. Scegli un'arma da tiro che consenta di controllare bene la distanza, osserva gli spostamenti nemici da una posizione protetta e non confondere dieci colpi con dieci eliminazioni: la condizione riportata è colpire. Il progresso è cumulativo e vale altri 10.000 XP."
+        },
+        {
+          "type": "heading",
+          "text": "Episodio 2: sedici mandarini di Nami"
+        },
+        {
+          "type": "paragraph",
+          "text": "La prima missione del secondo episodio chiede di raccogliere 16 Nami's Tangerines, i mandarini di Nami. Sono consumabili legati al crossover: il nome preciso dell'oggetto è utile per non scambiarli con normali risorse di cura. Raccoglili e portali nell'inventario quando li trovi, controllando il contatore. La guida pubblicata all'avvio della stagione indica che si può avanzare attraverso partite differenti. Il premio è di 10.000 XP."
+        },
+        {
+          "type": "heading",
+          "text": "Episodio 2: quattro località e due personaggi della ciurma"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per la missione di esplorazione devi scoprire quattro località con nome sulla nuova mappa. Atterrare in luoghi diversi, anziché ripetere sempre lo stesso punto, è il metodo più semplice. Arlong Park e Windmill Village sono due aree citate ufficialmente da Epic, ma non occorre limitarsi a queste: verifica quali località risultano registrate nell'interfaccia. La sfida assegna 10.000 XP."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'incarico successivo richiede di parlare con due membri della ciurma di Cappello di Paglia presenti come personaggi non giocanti. Avvicinati al personaggio, interagisci e completa il dialogo, invece di limitarti a passargli accanto. Le posizioni degli NPC possono variare con gli aggiornamenti della stagione: non vengono indicate coordinate fisse non confermate. Anche questa prova vale 10.000 XP."
+        },
+        {
+          "type": "heading",
+          "text": "Episodio 2: entrare tra gli ultimi dieci"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'ottava sfida richiede di raggiungere una volta la Top 10 in Battaglia reale. Non è necessario vincere la partita. Una strategia prudente consiste nell'atterrare lontano dalle zone più combattute, equipaggiarsi con calma, seguire il restringimento della tempesta e scegliere gli scontri indispensabili. Il risultato è valido quando la partita registra il piazzamento richiesto; sono previsti 10.000 XP."
+        },
+        {
+          "type": "heading",
+          "text": "Tutti i premi gratuiti e la differenza con il Pass"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le guide pubblicate il 1° novembre riportano quattro traguardi cosmetici: uno spray con Luffy e Zoro dopo un incarico completato; uno con Nami e Usopp dopo tre; uno con Sanji e Chopper dopo cinque; uno dedicato a Buggy dopo sette. Otto missioni da 10.000 XP portano il totale teorico a 80.000 XP. Si tratta di spray, non di costumi completi dei personaggi."
+        },
+        {
+          "type": "paragraph",
+          "text": "Epic conferma separatamente che il Pass battaglia comprende Portgas D. Ace e Nico Robin e che Luffy, Nami e Usopp sono arrivati nel Negozio oggetti al debutto. Non bisogna quindi confondere i premi gratuiti degli incarichi con i contenuti acquistabili o ottenibili tramite Pass. La stagione prevede nuovi Captain's Days il 7, 12, 14 e 21 novembre e un evento conclusivo del Capitolo 7 annunciato per il 5 dicembre."
+        },
+        {
+          "type": "heading",
+          "text": "Il punto:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il percorso più efficace è completare prima le missioni cumulative, poi dedicare una partita all'esplorazione e una al piazzamento tra i primi dieci. Gli otto incarichi iniziali offrono obiettivi chiari, XP e quattro cosmetici gratuiti, ma non promettono skin gratuite di Luffy o degli altri protagonisti. Prima di cercare un oggetto in un luogo preciso, conviene sempre controllare il testo aggiornato della missione nel gioco."
+        },
+        {
+          "type": "heading",
+          "text": "Fonti"
+        },
+        {
+          "type": "paragraph",
+          "text": "- Epic Games, Fortnite Treasure Hunters — 30 ottobre 2026: https://www.fortnite.com/news/fortnite-treasure-hunters-the-greatest-adventure-of-all-time\n- Beebom, guida agli incarichi One Piece — aggiornamento 1 novembre 2026: https://beebom.com/fortnite-one-piece-quests-guide/\n- Fortnite Tracker, mappa e Battle Pass — 1 novembre 2026: https://fortnitetracker.com/article/2441\n- Of Zen and Computing, controllo incrociato obiettivi — 1 novembre 2026: https://www.ofzenandcomputing.com/all-fortnite-one-piece-quests-rewards-how-to-complete/"
+        }
+      ],
+      "video_url": "",
+      "platform": "",
+      "score": null,
+      "pros": [],
+      "cons": [],
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "updated_at": "2026-11-02T11:59:00+01:00"
+    },
+    {
+      "slug": "zelda-ocarina-of-time-remake-switch-2-novembre-2026-speciale",
+      "title": "Zelda: Ocarina of Time rinasce su Switch 2 il 5 novembre: cosa cambia davvero nel remake",
+      "category": "speciali",
+      "image": "/assets/uploads/zelda-ocarina-of-time-remake-switch-2-novembre-2026-speciale/cover-20261102.jpg",
+      "date": "2026-11-02",
+      "published_at": "2026-11-02T12:30:00+01:00",
+      "author": "Redazione ZazoomTek",
+      "source": "studio-editor",
+      "studio_blocks": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Mancano pochi giorni al ritorno di uno dei giochi più influenti della storia. Il 5 novembre 2026 The Legend of Zelda: Ocarina of Time arriverà su Nintendo Switch 2 in una versione ricostruita da zero, pensata per il quarantesimo anniversario della serie. Non si tratta della semplice ripubblicazione del classico Nintendo 64 del 1998: l'editore ha annunciato grafica rifatta, musica orchestrale, dialoghi ampliati, scene doppiate e un sistema di controllo modernizzato."
+        },
+        {
+          "type": "paragraph",
+          "text": "La domanda centrale è quanto cambierà il rapporto tra esplorazione, combattimento e memoria del gioco originale. Alcune novità sono già confermate dalle pagine ufficiali di Nintendo; altre, come la qualità effettiva delle prestazioni durante una partita completa, richiederanno prove dopo l'uscita. Questo speciale distingue ciò che è stato annunciato da ciò che resta da verificare."
+        },
+        {
+          "type": "heading",
+          "text": "Perché Ocarina of Time conta ancora"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'avventura originale ha definito un linguaggio fondamentale per l'azione tridimensionale: il viaggio di Link tra infanzia e età adulta, la gestione dello spazio nei dungeon, il rapporto tra enigmi e combattimenti e l'uso della musica come strumento di gioco. Il mondo di Hyrule non era soltanto un grande scenario: diventava un sistema di luoghi da conoscere, ricordare e reinterpretare con strumenti acquisiti nel tempo."
+        },
+        {
+          "type": "paragraph",
+          "text": "Riproporre oggi questa struttura significa affrontare un equilibrio delicato. Il pubblico storico cerca la riconoscibilità di luoghi come il Bosco Kokiri e del legame con Navi; chi arriva per la prima volta si aspetta invece movimenti reattivi, inquadrature leggibili e un ritmo meno vincolato alle abitudini tecniche degli anni Novanta. Nintendo dichiara di aver lavorato proprio su questa distanza."
+        },
+        {
+          "type": "heading",
+          "text": "Un mondo rifatto, non semplicemente ripulito"
+        },
+        {
+          "type": "paragraph",
+          "text": "La pagina ufficiale del gioco parla di un classico costruito nuovamente per Switch 2. La presentazione dell'anniversario descrive un rifacimento complessivo della resa visiva, con ambienti più ricchi e materiali aggiornati. Le immagini pubblicate mostrano un Hyrule più dettagliato, ma non bastano per formulare un giudizio definitivo sulla direzione artistica o sull'uniformità dell'esperienza."
+        },
+        {
+          "type": "paragraph",
+          "text": "Secondo le comunicazioni Nintendo, anche la colonna sonora è stata rielaborata in chiave orchestrale. È un intervento significativo per un titolo in cui le melodie non sono soltanto accompagnamento, ma fanno parte dei meccanismi di avanzamento. L'idea è restituire forza alla memoria musicale senza rinunciare alle possibilità espressive di una produzione contemporanea."
+        },
+        {
+          "type": "heading",
+          "text": "Controlli moderni: salto, scatto e telecamera"
+        },
+        {
+          "type": "paragraph",
+          "text": "Tra le modifiche più concrete figura la maggiore libertà di movimento. Nintendo ha confermato la possibilità di saltare e scattare con comandi dedicati, oltre a una gestione della telecamera più moderna. Nel gioco del 1998 il salto era in larga parte automatico, legato al bordo delle piattaforme; poterlo comandare direttamente modifica il modo in cui il giocatore percepisce distanze e traiettorie."
+        },
+        {
+          "type": "paragraph",
+          "text": "Anche la telecamera gestita con i controlli attuali promette di rendere più leggibili gli spazi, soprattutto durante l'esplorazione. Non significa però che siano stati riscritti tutti i dungeon o che ogni combattimento funzioni come nei capitoli più recenti: Nintendo non ha presentato il remake come una trasformazione completa in un'avventura open world. È più corretto parlare di un classico con una nuova interfaccia tra giocatore e mondo."
+        },
+        {
+          "type": "heading",
+          "text": "Voci e scene ampliate: una scelta che divide"
+        },
+        {
+          "type": "paragraph",
+          "text": "Nintendo ha annunciato doppiaggio per le sequenze narrative e dialoghi ampliati. L'originale affidava molto all'espressività dei personaggi, alla musica e ai testi; introdurre le voci può rendere la storia più accessibile, ma cambia inevitabilmente il tono di alcune scene rimaste impresse ai fan. La portata esatta delle aggiunte potrà essere valutata soltanto nel gioco completo."
+        },
+        {
+          "type": "paragraph",
+          "text": "Link rimane il fulcro del racconto, affiancato da Navi, mentre Zelda e Ganondorf conservano il loro ruolo nel conflitto attorno alla Triforza. La promessa non è quella di una nuova trama completamente diversa, bensì di un racconto storico della serie ripresentato con strumenti espressivi più moderni."
+        },
+        {
+          "type": "heading",
+          "text": "L'ocarina si può suonare anche con il microfono"
+        },
+        {
+          "type": "paragraph",
+          "text": "La novità più curiosa riguarda proprio l'oggetto che dà il nome al gioco. Nintendo conferma che le melodie potranno essere eseguite con i pulsanti tradizionali oppure provando a canticchiarle, o persino suonarle con uno strumento reale, attraverso il microfono di Switch 2. È una funzione opzionale che rende più fisico il rapporto con l'ocarina senza eliminare il metodo classico."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le canzoni mantengono un ruolo pratico: possono aprire percorsi, influenzare il ciclo giorno-notte e attivare effetti necessari per procedere. Resta da capire quanto il riconoscimento tramite microfono sarà tollerante al rumore ambientale e alle differenze di intonazione. Sarebbe scorretto garantire già ora precisione o affidabilità in tutte le situazioni, perché questi aspetti richiedono test diretti."
+        },
+        {
+          "type": "heading",
+          "text": "Le funzioni di Switch 2 e dell'app Nintendo"
+        },
+        {
+          "type": "paragraph",
+          "text": "La scheda ufficiale indica una dimensione di download stimata di 27 GB e una modalità per giocatore singolo. Sono previste le tre modalità d'uso della console: TV, tavolo e portatile. Nintendo elenca il supporto HDR e VRR sui televisori compatibili, ma ciò non equivale a una conferma di una specifica risoluzione o frequenza di fotogrammi durante il gameplay. Per queste misure bisognerà attendere analisi tecniche effettive."
+        },
+        {
+          "type": "paragraph",
+          "text": "Tra le funzioni complementari compare ZELDA NOTES, disponibile tramite l'app Nintendo Switch su dispositivi compatibili. Il servizio promette strumenti di supporto all'avventura, tra cui il monitoraggio di alcuni progressi, attività basate sulla ricerca di luoghi mostrati in immagini e la possibilità di interagire con l'ocarina anche dallo smartphone. Sono aggiunte facoltative, non una sostituzione dell'esperienza sulla console."
+        },
+        {
+          "type": "heading",
+          "text": "Amiibo, anniversario e disponibilità"
+        },
+        {
+          "type": "paragraph",
+          "text": "Gli amiibo della serie Zelda potranno fornire contenuti aggiuntivi in gioco. Nintendo ha inoltre annunciato nuove figure di Link e Zelda bambini per il 2027, associate a maschere con un richiamo grafico rétro. Non si deve quindi confondere la disponibilità del remake a novembre con l'uscita immediata di questi accessori, prevista più avanti."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il 29 ottobre è arrivata anche una versione celebrativa di Nintendo Switch 2 con accessori a tema Triforza. Il gioco, invece, è fissato al 5 novembre ed è indicato come esclusiva Switch 2. I prezzi e le promozioni possono variare per mercato e canale: senza un listino italiano verificato non è opportuno riportare cifre in euro come ufficiali."
+        },
+        {
+          "type": "heading",
+          "text": "Il punto:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Ocarina of Time per Switch 2 non punta soltanto sull'effetto nostalgia. Controlli più liberi, scene doppiate, musica orchestrale e ocarina utilizzabile con il microfono sono interventi concreti, tutti annunciati da Nintendo. Il vero esame arriverà quando sarà possibile verificare il ritmo dell'avventura, la qualità del rifacimento e il modo in cui queste novità convivono con la struttura del 1998. Fino al 5 novembre resta un'anteprima ragionata, non una recensione."
+        },
+        {
+          "type": "heading",
+          "text": "Fonti"
+        },
+        {
+          "type": "paragraph",
+          "text": "- Nintendo, pagina ufficiale Ocarina of Time per Switch 2: https://www.nintendo.com/us/store/products/the-legend-of-zelda-ocarina-of-time-switch-2/\n- Nintendo, annuncio del 40° anniversario — 9 settembre 2026: https://www.nintendo.com/my/news/article/3Uvp2H1iPLLLSnR4MJgmq1\n- Nintendo Svezia, dettagli sulle modifiche — 8 settembre 2026: https://www.nintendo.se/nyheter/firandet-av-40-arsjubileet-foer-the-legend-of-zelda-avsloejades-i-ett-nytt-nintendo-direct\n- Dexerto, anteprima delle novità del remake — ottobre 2026: https://www.dexerto.com/gaming/the-legend-of-zelda-ocarina-of-time-remake-switch-2-3373444/"
+        }
+      ],
+      "video_url": "",
+      "platform": "",
+      "score": null,
+      "pros": [],
+      "cons": [],
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "updated_at": "2026-11-02T11:59:00+01:00"
+    },
+    {
       "slug": "macbook-pro-proled-xdr-oled-touch-m5",
       "title": "MacBook Pro PROLED XDR, Apple cambia il portatile professionale con OLED touch e chip M5",
       "category": "speciali",
