@@ -59,7 +59,7 @@ def main():
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
-    for attempt in range(1, 7):
+    # Local assets must exist before checking the public site.\n    for row in rows("studio_posts.json", "posts"):\n        if row.get("date") != TODAY:\n            continue\n        asset = str(row.get("image") or "")\n        if asset.startswith("/assets/uploads/") and not (ROOT / "dist" / asset.lstrip("/")).is_file():\n            problems.append(f"Missing published Studio cover: {asset}")\n    if problems:\n        print("\\n".join(problems), file=sys.stderr)\n        return 1\n    for attempt in range(1, 7):
         pending = []
         for url, title in urls:
             try:
@@ -76,7 +76,7 @@ def main():
                 if status != 200 or (display_title[:45] not in html.unescape(page)
                                      and marker not in page):
                     pending.append(url + " (missing article title)")
-            except (OSError, urllib.error.URLError) as exc:
+            except (OSError, urllib.error.URLError, ValueError) as exc:
                 pending.append(url + " (" + str(exc)[:120] + ")")
         if not pending:
             print(f"LIVE VERIFIED: {len(urls)} today's Studio/YouTube articles on {BASE}")
