@@ -206,20 +206,13 @@ def normalize_editorial_headings(markup):
  return "".join(parts)
 
 def merge_repeated_info_sections(markup):
- """Show 'Ulteriori informazioni' just once per article, preserving EVERY paragraph.
+ """Remove ONLY the 'Ulteriori informazioni' H2 headings on all articles.
 
- This final markup pass applies to both imported Community/RSS articles and
- future Studio-authored pages, including those that already contain multiple
- independently generated sections with the same title. No source text is cut.
+ Every following paragraph, list, image, link and other content is retained
+ unchanged, including historical and newly generated articles.
  """
- heading=re.compile(r"<h2>\s*Ulteriori informazioni\s*</h2>", re.I)
- seen=False
- def keep_once(match):
-  nonlocal seen
-  if seen:return ""
-  seen=True
-  return match.group(0)
- return heading.sub(keep_once,markup)
+ return re.sub(r"<h2(?:\\s[^>]*)?>\\s*Ulteriori informazioni\\s*</h2\\s*>","",markup,flags=re.I)
+
 
 def score(review,blocks):
  candidate=review.get("score",review.get("rating",review.get("vote")))
