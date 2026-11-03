@@ -28,6 +28,8 @@ jobs:
           python-version: '3.12'
       - name: Check Python syntax
         run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py
+      - name: Run isolated SEO live-audit tests (no external requests)
+        run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
       - name: Build production-equivalent output (no deployment)
         run: python3 tools/build.py
       - name: Check required output
