@@ -749,10 +749,13 @@ def sidebar(rows,home=False,used=None,gateway=False,news_page=False,long_article
   # Reserve at least three unique stories for EACH editorial group first.
   # Additional rows are allocated round-robin to avoid starving "Altre news".
   labels=("Da non perdere","Dalla redazione","Altre news")
-  groups={label:sidebar_select(mixed,3,used) for label in labels}
+  # Home-only policy: both named editorial boxes contain News Tech exclusively.
+  # "Altre news" keeps the original mixed Tech/Gaming selection.
+  sources={label:(tech if label in ("Da non perdere","Dalla redazione") else mixed) for label in labels}
+  groups={label:sidebar_select(sources[label],3,used) for label in labels}
   for _ in range(17):
    for label in labels:
-    found=sidebar_select(mixed,1,used)
+    found=sidebar_select(sources[label],1,used)
     if found:groups[label].extend(found)
   for label in labels:
    if groups[label]:selected.append(box(label,groups[label]))
