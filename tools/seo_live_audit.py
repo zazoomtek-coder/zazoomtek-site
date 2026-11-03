@@ -50,7 +50,7 @@ def audit(base=BASE, sample=10):
         robots = robots_body.decode("utf-8", "replace")
         if status != 200:
             errors.append("robots.txt: HTTP " + str(status))
-        if "disallow: /" in robots.casefold():
+        if any(line.strip().casefold() == "disallow: /" for line in robots.splitlines()):
             errors.append("robots.txt appears to disallow the entire site")
         if base + "/sitemap.xml" not in robots:
             errors.append("robots.txt missing canonical sitemap declaration")
