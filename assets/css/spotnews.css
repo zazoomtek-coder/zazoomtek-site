@@ -3343,3 +3343,22 @@ main.wrap .home-column .guide-showcase > .guide-showcase-small .cards > .card > 
   main.wrap .home-column .guide-showcase .cards > .card > h3{font-size:11px!important;margin:3px 5px 0!important}
   main.wrap .home-column .guide-showcase .cards > .card > small{font-size:9px!important;margin:4px 5px 0!important}
 }
+
+/* 03-11 — HOME / Ultimi Video: YouTube hqdefault 4:3 thumbnails fill 16:9 video cards.
+   A 4:3 image with black horizontal padding must crop top/bottom, never lose side text. */
+main.wrap .home-column .video-magazine .video-feature .video-card .play-thumb,
+main.wrap .home-column .video-magazine .video-secondary .video-card .play-thumb{
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+  background:#171717!important;
+}
+main.wrap .home-column .video-magazine .video-feature .video-card .play-thumb > img,
+main.wrap .home-column .video-magazine .video-secondary .video-card .play-thumb > img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;
+  background:#171717!important;
+}
