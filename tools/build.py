@@ -837,7 +837,7 @@ def guide_gallery(items):
  if not items:return ""
  large='<div class="guide-showcase-large">'+cards(items[:2])+'</div>'
  small='<div class="guide-showcase-small">'+cards(items[2:5])+'</div>' if len(items)>2 else ""
- return '<div class="guide-showcase">'+bar("GUIDE","/guide","feature")+large+small+'</div>
+ return '<div class="guide-showcase">'+bar("GUIDE","/guide","feature")+large+small+'</div>'
 
 def special_gallery(rows):
  return '<div class="specials-showcase">'+cards(rows)+'</div>' if rows else ""
