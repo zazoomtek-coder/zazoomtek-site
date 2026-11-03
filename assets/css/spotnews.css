@@ -3273,3 +3273,6 @@ main.wrap .video-magazine .video-feature .thumb img {
   padding:0!important;
  }
 }
+
+/* Preview: Guides two main cards and three thumbnails. */
+.guide-showcase{margin-bottom:28px;min-width:0}.guide-showcase-large,.guide-showcase-small{display:grid;gap:16px}.guide-showcase-large{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:16px}.guide-showcase-small{grid-template-columns:repeat(3,minmax(0,1fr))}.guide-showcase .thumb{aspect-ratio:16/9}.guide-showcase-small .card h3{font-size:13px;line-height:1.35}@media(max-width:650px){.guide-showcase-large{gap:10px}.guide-showcase-small{gap:8px}.guide-showcase .card h3{font-size:11px}}
