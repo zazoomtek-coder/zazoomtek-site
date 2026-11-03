@@ -1,6 +1,388 @@
 {
   "posts": [
     {
+      "slug": "samsung-galaxy-wifi-non-si-connette-soluzioni-senza-perdere-dati",
+      "title": "Samsung Galaxy non si connette al Wi-Fi: come risolvere senza perdere i dati",
+      "category": "guide",
+      "image": "/assets/uploads/samsung-galaxy-wifi-non-si-connette-soluzioni-senza-perdere-dati/cover-20261103.jpg",
+      "date": "2026-11-03",
+      "published_at": "2026-11-03T12:30:00+01:00",
+      "updated_at": "2026-11-03T12:30:00+01:00",
+      "author": "Redazione ZazoomTek",
+      "source": "studio-editor",
+      "studio_blocks": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Quando un Samsung Galaxy non trova la rete Wi-Fi, rifiuta la password oppure mostra «Connesso senza Internet», non significa necessariamente che il telefono sia guasto. Le cause possono essere un'impostazione sbagliata, una rete memorizzata male, un problema del modem o un errore software temporaneo. Questa guida raccoglie i controlli più utili, dal più semplice al più approfondito, evitando il ripristino di fabbrica."
+        },
+        {
+          "type": "heading",
+          "text": "Prima di cominciare: capire quale problema si presenta"
+        },
+        {
+          "type": "paragraph",
+          "text": "La prima domanda è se il Galaxy vede la rete e non riesce a collegarsi, oppure se non mostra proprio alcuna rete. Nel primo caso è opportuno controllare password e dati salvati; nel secondo servono verifiche su Wi-Fi, distanza dal router e possibili interferenze. Se il telefono risulta connesso ma le pagine non si aprono, la connessione wireless potrebbe funzionare mentre Internet è assente a monte. Distinguere le situazioni aiuta a non modificare impostazioni inutilmente."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un secondo telefono, un tablet o un computer connesso allo stesso modem rappresenta un test prezioso. Se tutti i dispositivi sono offline, il problema è probabilmente nella rete domestica o nel collegamento dell'operatore. Se invece gli altri navigano normalmente, conviene concentrarsi sul Galaxy. Questo confronto evita di perdere tempo a intervenire sul dispositivo sbagliato."
+        },
+        {
+          "type": "heading",
+          "text": "1. Disattivare e riattivare il Wi-Fi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sul Galaxy aprire **Impostazioni > Connessioni > Wi-Fi**, spegnere l'interruttore e riattivarlo dopo alcuni secondi. Verificare anche che la modalità Aereo non sia rimasta attiva. Non è necessario cambiare password del modem o intervenire sui parametri avanzati per questa prima prova. Se la rete ricompare, selezionarla e attendere il completamento della connessione."
+        },
+        {
+          "type": "paragraph",
+          "text": "Avvicinandosi al router è possibile escludere un problema di copertura. Muri spessi, piani diversi e ambienti affollati di reti possono indebolire il segnale. Una connessione intermittente solo in una stanza suggerisce più facilmente un problema di portata che un difetto del telefono. Anche una rete disponibile a 5 GHz può avere una copertura diversa dalla rete a 2,4 GHz, quando entrambe sono presenti e configurate dal modem."
+        },
+        {
+          "type": "heading",
+          "text": "2. Riavviare il telefono e controllare il modem"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un riavvio ordinario del Galaxy chiude processi e servizi temporaneamente bloccati senza cancellare foto, applicazioni o contatti. Se dopo il riavvio la connessione non riparte, controllare le spie e lo stato del modem. Quando anche gli altri dispositivi non navigano, si può riavviare il router seguendo le istruzioni del produttore, tenendo presente che tutti gli utenti perderanno la connessione durante l'operazione."
+        },
+        {
+          "type": "paragraph",
+          "text": "Per gli accessi pubblici, ad esempio in albergo o in biblioteca, il problema può essere invece una pagina di autenticazione che non si è aperta. Dopo aver selezionato la rete, controllare se appare la richiesta di accettare le condizioni d'uso. Evitare di inserire credenziali personali in pagine sospette: una rete con nome conosciuto non garantisce da sola che il portale sia autentico."
+        },
+        {
+          "type": "heading",
+          "text": "3. Dimenticare la rete e inserire nuovamente la password"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il Galaxy vede la rete ma continua a rifiutare la connessione, aprire **Impostazioni > Connessioni > Wi-Fi**, toccare l'ingranaggio della rete memorizzata e scegliere **Dimentica**, quando disponibile. Poi selezionare di nuovo il nome della rete e digitare la password corretta. Controllare maiuscole, minuscole e caratteri speciali: le password Wi-Fi distinguono questi dettagli."
+        },
+        {
+          "type": "paragraph",
+          "text": "Questa procedura non elimina i dati personali del telefono, ma cancella le credenziali di quella rete. Prima di procedere bisogna quindi conoscere la password. Se la stessa rete richiede una configurazione aziendale, scolastica o con certificati, è preferibile chiedere istruzioni all'amministratore anziché cancellare le impostazioni a tentativi."
+        },
+        {
+          "type": "heading",
+          "text": "4. Controllare aggiornamenti e applicazioni recenti"
+        },
+        {
+          "type": "paragraph",
+          "text": "Aprire **Impostazioni > Aggiornamento software** e verificare se sono disponibili aggiornamenti ufficiali. Per scaricarli, utilizzare una connessione affidabile, per esempio la rete mobile se il piano dati lo consente, oppure un'altra rete Wi-Fi. Non bisogna forzare aggiornamenti né installare pacchetti firmware di provenienza sconosciuta solo per risolvere un problema di connessione."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il malfunzionamento è iniziato subito dopo l'installazione di un'app che modifica VPN, DNS o traffico di rete, controllarne le impostazioni. Per individuare un possibile conflitto software è utile anche la modalità provvisoria Samsung, che permette un confronto con le applicazioni scaricate disabilitate temporaneamente. Le modalità di accesso variano con modello e versione di One UI: seguire la procedura ufficiale prevista per il proprio dispositivo."
+        },
+        {
+          "type": "heading",
+          "text": "5. Ripristinare soltanto le impostazioni Wi-Fi e Bluetooth"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se nessuna prova funziona, Samsung indica una soluzione più mirata del ripristino totale. Nelle versioni recenti di One UI aprire **Impostazioni > Gestione generale > Ripristina > Resetta impostazioni Wi-Fi e Bluetooth**, quindi leggere attentamente la conferma. I nomi esatti possono variare in base al modello e alla versione del sistema. Non scegliere **Ripristino dati di fabbrica**: è un'operazione differente."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il ripristino delle connessioni elimina le reti Wi-Fi salvate e gli abbinamenti Bluetooth interessati, che andranno configurati nuovamente, ma non è progettato per cancellare foto o documenti. È comunque prudente avere a disposizione password e informazioni necessarie a riconnettere accessori, cuffie e dispositivi smart. Se la funzione proposta sul proprio Galaxy ha un nome o un ambito diverso, leggerne la descrizione prima di confermare."
+        },
+        {
+          "type": "heading",
+          "text": "Se il Wi-Fi si collega ma Internet non funziona"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quando appare «Connesso senza Internet», provare a caricare più siti e testare la stessa rete con un altro dispositivo. Se il problema riguarda tutti, controllare lo stato del modem e le comunicazioni dell'operatore. Se riguarda solo il Galaxy, ripetere i controlli della rete salvata e verificare eventuali configurazioni particolari come VPN, DNS privato o filtri della rete. In reti gestite da aziende o scuole non modificare impostazioni imposte dall'amministratore."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se nessuna rete viene rilevata, neppure vicino a router differenti, oppure il Wi-Fi continua a disattivarsi da solo dopo i controlli, può essere opportuno rivolgersi all'assistenza Samsung. Un'eventuale diagnosi hardware richiede verifiche reali: non si può stabilire soltanto da un messaggio sullo schermo che il modulo wireless sia difettoso."
+        },
+        {
+          "type": "heading",
+          "text": "Domande frequenti"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Resettare il Wi-Fi cancella foto o chat?** Il ripristino specifico delle impostazioni Wi-Fi e Bluetooth non equivale al reset di fabbrica. Rimuove configurazioni e associazioni di rete; foto e chat non dovrebbero essere coinvolte. Leggere sempre la descrizione della funzione prima di confermare."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Perché il Galaxy si collega ad altre reti ma non a quella di casa?** Può trattarsi di password, configurazione del router, compatibilità o impostazioni memorizzate. Prima di modificare la sicurezza del modem, controllare credenziali, aggiornamenti del router e indicazioni del produttore."
+        },
+        {
+          "type": "heading",
+          "text": "Il punto:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per recuperare il Wi-Fi di un Samsung Galaxy conviene partire da verifiche semplici: distinguere telefono e modem, riattivare il Wi-Fi, riavviare, controllare password e rete salvata. Solo in seguito ha senso ripristinare le impostazioni di connessione. La procedura resta valida come metodo di diagnosi anche quando cambiano interfacce e modelli, purché si rispettino le istruzioni aggiornate del produttore."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Avvertenza:** Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
+        }
+      ]
+    },
+    {
+      "slug": "controller-ps5-dualsense-non-si-connette-soluzioni",
+      "title": "Controller PS5 DualSense non si connette o si scollega: tutte le soluzioni",
+      "category": "guide",
+      "image": "/assets/uploads/controller-ps5-dualsense-non-si-connette-soluzioni/cover-20261103.jpg",
+      "date": "2026-11-03",
+      "published_at": "2026-11-03T12:30:00+01:00",
+      "updated_at": "2026-11-03T12:30:00+01:00",
+      "author": "Redazione ZazoomTek",
+      "source": "studio-editor",
+      "studio_blocks": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Accendi la PS5, premi il tasto PS e il DualSense continua a lampeggiare senza collegarsi. Oppure il controller viene riconosciuto, ma perde la connessione durante una partita. Sono due problemi diversi, spesso risolvibili con controlli semplici: cavo USB, associazione, alimentazione e aggiornamenti. Ecco come procedere con ordine, senza aprire il controller e senza ricorrere subito all'assistenza."
+        },
+        {
+          "type": "heading",
+          "text": "Capire il sintomo prima di intervenire"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un DualSense che non si associa alla console non si comporta necessariamente come uno che si spegne dopo pochi minuti. Se il controller non dà alcun segno di vita, la prima verifica riguarda la ricarica. Se la barra luminosa lampeggia ma la PS5 non risponde, è più utile controllare l'abbinamento. Se il problema compare soltanto lontano dalla console o quando altri accessori wireless sono attivi, vale la pena valutare l'ambiente radio e la stabilità del collegamento."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il controller può inoltre essere stato utilizzato con un PC, uno smartphone o un'altra PS5. In tal caso potrebbe cercare di collegarsi al dispositivo precedentemente associato. Non significa che sia rotto: l'associazione corretta alla console desiderata è spesso sufficiente."
+        },
+        {
+          "type": "heading",
+          "text": "1. Verificare cavo e porta USB"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sony indica come procedura di base l'associazione tramite USB. Accendere la PS5, collegare il DualSense con il cavo USB fornito in dotazione e premere il **tasto PS**. Quando la barra luminosa lampeggia e la spia del giocatore si accende, l'associazione è stata completata. Per questa verifica non basta un cavo qualsiasi: alcuni cavi USB sono progettati soltanto per la ricarica e non consentono lo scambio dei dati richiesto dall'abbinamento."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il controller si ricarica ma non viene riconosciuto, provare un cavo compatibile con il trasferimento dati, verificato e integro, e una porta USB della console funzionante. Evitare connettori danneggiati o adattatori sconosciuti. Un test con un'altra porta aiuta a distinguere un problema del cavo da un problema della console."
+        },
+        {
+          "type": "heading",
+          "text": "2. Lasciare ricaricare il DualSense"
+        },
+        {
+          "type": "paragraph",
+          "text": "Una batteria molto scarica può interrompere i tentativi di connessione. Collegare il controller a una fonte di ricarica appropriata e lasciarlo collegato per un po', poi riprovare. La PS5 deve essere accesa oppure configurata in modo da alimentare le porte USB durante la modalità di riposo. Non utilizzare caricabatterie danneggiati e non forzare il collegamento se la porta USB-C appare deformata."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se è disponibile un secondo DualSense funzionante, confrontare il comportamento dei due controller usando lo stesso cavo e la stessa porta. Il confronto è utile perché isola una variabile alla volta: non occorre cambiare simultaneamente alimentatore, console e impostazioni."
+        },
+        {
+          "type": "heading",
+          "text": "3. Riavviare normalmente la console"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se la PS5 è accesa ma non riconosce il controller, eseguire un riavvio ordinario attraverso i comandi di sistema, quando possibile. Evitare di scollegare l'alimentazione mentre la console sta installando aggiornamenti o scrivendo dati. Dopo il riavvio ripetere la procedura USB con il DualSense collegato e premere PS. Questa prova consente di escludere un malfunzionamento temporaneo del collegamento senza cancellare giochi o salvataggi."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se si dispone di un altro controller, si possono controllare le impostazioni degli accessori dalla console. Nel caso di un DualSense utilizzato su più dispositivi, verificare di stare richiamando il corretto abbinamento. Le funzioni per il collegamento a più dispositivi e i relativi comandi possono cambiare in base agli aggiornamenti del software del controller."
+        },
+        {
+          "type": "heading",
+          "text": "4. Eseguire il reset fisico del controller"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quando l'abbinamento via USB continua a fallire, PlayStation consiglia di reimpostare il DualSense. **Spegnere completamente la PS5** e scollegare il controller dal cavo USB. Sul retro del controller, accanto al logo Sony, individuare il piccolo foro che contiene il pulsante di ripristino. Usare un oggetto sottile adatto e premere delicatamente il pulsante per **almeno cinque secondi**, senza forzare."
+        },
+        {
+          "type": "paragraph",
+          "text": "Terminato il reset, ricollegare il DualSense alla PS5 con un cavo USB che trasmetta dati e premere il tasto PS. La procedura non è un ripristino della console e non elimina i giochi. Se il foro non è identificabile con certezza, consultare la guida illustrata del produttore prima di inserire qualsiasi oggetto: forzare la posizione sbagliata può danneggiare il controller."
+        },
+        {
+          "type": "heading",
+          "text": "5. Aggiornare il software del controller e della PS5"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sony rilascia aggiornamenti software per il DualSense tramite l'ecosistema PlayStation. Se il controller si collega almeno temporaneamente, entrare in **Impostazioni > Accessori > Controller (generale) > Software del dispositivo controller wireless DualSense**, quindi verificare la disponibilità di un aggiornamento. Anche il software di sistema della PS5 dovrebbe essere aggiornato dalla procedura ufficiale prevista dalla console."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un'alternativa documentata da PlayStation è l'applicazione **PlayStation Accessories** per PC compatibili, che permette l'aggiornamento del software del controller. Non installare utility di provenienza sconosciuta che promettono firmware alternativi o riparazioni automatiche. Durante un aggiornamento ufficiale evitare di scollegare volontariamente il controller o interrompere l'alimentazione."
+        },
+        {
+          "type": "heading",
+          "text": "6. Se il DualSense si scollega durante il gioco"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quando il controller viene inizialmente riconosciuto ma perde il collegamento senza fili, fare una prova vicino alla PS5 e ridurre temporaneamente gli ostacoli tra console e controller. Altri dispositivi radio, superfici metalliche e posizionamenti sfavorevoli possono complicare la diagnosi. Il semplice confronto a breve distanza è preferibile a modificare subito le impostazioni del router o disattivare funzioni di sicurezza."
+        },
+        {
+          "type": "paragraph",
+          "text": "Osservare anche se lo scollegamento accade solo con una determinata applicazione, dopo un tempo simile oppure quando la batteria scende. In caso di comportamento irregolare in tutti i giochi, controllare aggiornamenti, ricarica e abbinamento; se invece il problema è limitato a un titolo, verificare gli aggiornamenti del gioco. Non confondere un problema di input o di levetta con una perdita totale di connessione wireless."
+        },
+        {
+          "type": "heading",
+          "text": "Quando rivolgersi all'assistenza"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il DualSense non si ricarica con accessori funzionanti, non viene rilevato da nessuna porta compatibile o continua a disconnettersi dopo associazione, reset e aggiornamenti, è ragionevole utilizzare il servizio di diagnostica e assistenza PlayStation. Annotare il sintomo, il comportamento delle spie, il cavo utilizzato e gli eventuali messaggi visualizzati. Questi dettagli rendono più rapida la verifica tecnica e aiutano a evitare interventi non necessari."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Il controller è stato associato a un PC?** Il collegamento Bluetooth a un altro dispositivo può richiedere un nuovo abbinamento alla PS5. La procedura più semplice da tentare è il collegamento USB alla console seguito dal tasto PS."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Il reset cancella i dati della PS5?** No: il pulsante posteriore riguarda il controller. Non è una procedura di inizializzazione della console e non va confuso con i menu di ripristino di sistema."
+        },
+        {
+          "type": "heading",
+          "text": "Il punto:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quando il DualSense PS5 non si connette, l'ordine corretto delle prove è semplice: cavo USB dati, ricarica, nuova associazione, riavvio della console, reset posteriore di cinque secondi e aggiornamenti ufficiali. Se la disconnessione continua, la diagnostica PlayStation è più sensata di tentativi casuali o smontaggi. Questa sequenza aiuta a individuare il problema senza rischiare di compromettere console e controller."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Avvertenza:** Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
+        }
+      ]
+    },
+    {
+      "slug": "windows-11-aggiornamento-bloccato-0-99-100-soluzioni",
+      "title": "Windows 11, aggiornamento bloccato allo 0%, 99% o 100%: cosa fare",
+      "category": "guide",
+      "image": "/assets/uploads/windows-11-aggiornamento-bloccato-0-99-100-soluzioni/cover-20261103.jpg",
+      "date": "2026-11-03",
+      "published_at": "2026-11-03T12:30:00+01:00",
+      "updated_at": "2026-11-03T12:30:00+01:00",
+      "author": "Redazione ZazoomTek",
+      "source": "studio-editor",
+      "studio_blocks": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Un aggiornamento di Windows 11 può restare a lungo allo 0%, al 99% o al 100% senza che la barra sembri muoversi. Non è sempre un errore: alcune fasi richiedono elaborazioni interne che non vengono rappresentate da un avanzamento continuo. Quando però la stessa operazione fallisce ripetutamente, compare un codice di errore o il PC torna alla schermata iniziale senza installare nulla, è il momento di controllare Windows Update. Ecco una procedura graduale, senza iniziare da comandi rischiosi o dalla formattazione."
+        },
+        {
+          "type": "heading",
+          "text": "Prima distinzione: download fermo o installazione in corso?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se lo 0% appare dentro **Impostazioni > Windows Update**, il problema può riguardare il download, la rete o i servizi di aggiornamento. Se invece il PC mostra una schermata di installazione durante l'avvio o lo spegnimento, Windows potrebbe stare completando operazioni sul sistema. Non interrompere la corrente o forzare lo spegnimento solo perché la percentuale sembra stabile: il tempo necessario dipende da dimensioni dell'aggiornamento e prestazioni del dispositivo."
+        },
+        {
+          "type": "paragraph",
+          "text": "È utile annotare la fase in cui tutto si ferma, il nome dell'aggiornamento e l'eventuale codice visualizzato. Lo storico si trova in **Impostazioni > Windows Update > Cronologia aggiornamenti**. Due computer bloccati al 99% possono avere cause diverse: non esiste un'unica correzione valida per ogni caso."
+        },
+        {
+          "type": "heading",
+          "text": "1. Controllare Internet e alimentazione"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per prima cosa verificare che il PC navighi normalmente. Provare ad aprire una pagina affidabile oppure controllare la connessione da **Impostazioni > Rete e Internet**. Una rete instabile può interrompere un download senza impedire apparentemente l'accesso ad altri siti. Se si utilizza una connessione a consumo, controllarne lo stato e le limitazioni. Per un portatile, collegare l'alimentatore durante gli aggiornamenti più importanti."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il blocco riguarda la fase di download, chiudere eventuali connessioni VPN aziendali o personali soltanto quando è consentito e necessario per un test, senza disattivare protezioni di sicurezza a caso. Una rete aziendale potrebbe invece richiedere impostazioni gestite dall'amministratore: in quel caso non modificarle autonomamente."
+        },
+        {
+          "type": "heading",
+          "text": "2. Verificare lo spazio libero sul disco"
+        },
+        {
+          "type": "paragraph",
+          "text": "Aprire **Impostazioni > Sistema > Archiviazione** e controllare lo spazio disponibile nell'unità di sistema. Gli aggiornamenti importanti possono richiedere spazio per download, decompressione, installazione e rollback. Se l'unità è quasi piena, eliminare o spostare soltanto file personali conosciuti, dopo aver verificato di averne una copia, oppure utilizzare gli strumenti di pulizia integrati in Windows."
+        },
+        {
+          "type": "paragraph",
+          "text": "Non cancellare manualmente cartelle di sistema per recuperare spazio. In particolare, evitare di eliminare a tentativi directory di Windows, file temporanei di aggiornamento non identificati o backup di sistema. La pulizia guidata di Archiviazione è una strada più comprensibile e meno rischiosa per la maggior parte degli utenti."
+        },
+        {
+          "type": "heading",
+          "text": "3. Controllare la cronologia e riprovare nel modo corretto"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dalla pagina di **Windows Update**, cercare eventuali messaggi come «Riprova», «Riavvio necessario» o un codice di errore. Se il PC è tornato alla normale sessione desktop e non è in corso un'installazione, salvare i documenti aperti, effettuare un riavvio ordinario e premere **Verifica disponibilità aggiornamenti**. A volte Windows completa una fase dopo il riavvio e consente di riprendere il processo."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se la percentuale resta apparentemente ferma, non premere ripetutamente pulsanti e non avviare più processi di installazione contemporanei. Controllare prima se l'operazione sta ancora lavorando. Se l'aggiornamento fallisce e riparte dallo stesso punto a ogni tentativo, la cronologia può fornire informazioni più utili della sola percentuale."
+        },
+        {
+          "type": "heading",
+          "text": "4. Avviare lo strumento ufficiale di risoluzione problemi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Microsoft mette a disposizione un percorso automatico pensato proprio per gli errori di Windows Update. Aprire **Impostazioni > Sistema > Risoluzione dei problemi > Altri strumenti di risoluzione dei problemi** e individuare **Windows Update**, quando disponibile. Nelle versioni recenti di Windows 11 il flusso può aprire l'app **Richiesta supporto**, dove viene eseguita una diagnostica guidata."
+        },
+        {
+          "type": "paragraph",
+          "text": "Seguire le indicazioni mostrate a schermo e lasciare terminare i controlli. Lo strumento prova a rilevare configurazioni o servizi che impediscono gli aggiornamenti, ma non garantisce la correzione di qualunque errore. Dopo averlo utilizzato, tornare su Windows Update e ripetere una sola volta la verifica. Se la procedura segnala un problema preciso, conservarne il testo."
+        },
+        {
+          "type": "heading",
+          "text": "5. Interpretare i codici di errore senza improvvisare"
+        },
+        {
+          "type": "paragraph",
+          "text": "I codici consentono di restringere la ricerca. Microsoft associa, per esempio, **0x80240034** a un aggiornamento incompleto o a problemi di connessione; **0x80070422** può indicare che il servizio Windows Update è disattivato; **0x800f0922** può essere legato, tra le altre cose, a spazio insufficiente o a componenti coinvolti nell'installazione. Il codice orienta la diagnosi, ma non permette da solo di dichiarare con certezza la causa."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il PC appartiene a un'azienda o a una scuola, alcune impostazioni sono gestite centralmente. Non forzare servizi, criteri di gruppo, registri di sistema o antivirus per aggirare restrizioni. Per un computer personale, la pagina ufficiale Microsoft dedicata ai problemi di aggiornamento è il riferimento più sicuro per associare il codice alla procedura appropriata."
+        },
+        {
+          "type": "heading",
+          "text": "6. Quando servono verifiche più approfondite"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se la diagnostica ufficiale non è sufficiente, prima di procedere con interventi avanzati verificare la disponibilità di un backup aggiornato dei propri dati. Riparazioni dei file di sistema, modifica delle cartelle di distribuzione degli aggiornamenti e reinstallazioni di Windows richiedono maggiore attenzione e non devono essere presentate come semplici passaggi obbligatori. Per il lettore non esperto, può essere più opportuno contattare il supporto Microsoft o quello del produttore del PC."
+        },
+        {
+          "type": "paragraph",
+          "text": "Non seguire video o programmi che promettono di sbloccare ogni aggiornamento cancellando cartelle sconosciute o disattivando definitivamente Windows Update. Un sistema che smette di cercare aggiornamenti potrebbe sembrare «riparato», ma rimarrebbe esposto a problemi di sicurezza. L'obiettivo non è nascondere l'errore: è tornare a installare regolarmente gli aggiornamenti ufficiali."
+        },
+        {
+          "type": "heading",
+          "text": "Domande frequenti"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Windows Update fermo al 100% significa che è finito?** Non necessariamente. Il 100% può riferirsi al download o a una fase specifica; Windows potrebbe dover ancora installare componenti e riavviarsi. Seguire i messaggi presenti sullo schermo senza interrompere la procedura."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Posso usare il PC mentre l'aggiornamento è allo 0%?** Se Windows mostra la normale schermata desktop, in molti casi è possibile continuare a lavorare, ma conviene salvare spesso i documenti e lasciare alimentazione e connessione stabili. Se Windows è in una fase di aggiornamento a schermo intero, non tentare di usarlo o spegnerlo forzatamente."
+        },
+        {
+          "type": "heading",
+          "text": "Il punto:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quando Windows 11 resta fermo allo 0%, al 99% o al 100%, la soluzione non è formattare il PC: si parte dalla distinzione fra download e installazione, poi si controllano rete, spazio libero, cronologia e risoluzione problemi ufficiale. Solo gli errori persistenti giustificano verifiche avanzate, preferibilmente dopo un backup e con la procedura adatta al codice mostrato dal sistema."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Avvertenza:** Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
+        }
+      ]
+    },
+    {
       "slug": "binance-hack-63-miliardi-prelievi-fbi-tradertraitor",
       "title": "Binance, hacker sottraggono 6,3 miliardi di dollari: prelievi riaperti e FBI sulle tracce di TraderTraitor",
       "category": "news-tech",
