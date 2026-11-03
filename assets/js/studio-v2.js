@@ -206,6 +206,8 @@ function editorialBodyForDisplay(){
  return state.body.map(b=>({...b}));
 }
 function applyEditorialFormat(){
+ // Never reconstruct or insert headings into an already published article.
+ if(!state.newContent)return;
  const formatted=editorialBodyForDisplay();
  if(JSON.stringify(formatted)!==JSON.stringify(state.body)){
   state.body=formatted;renderBlocks();scheduleBackup();
@@ -384,15 +386,54 @@ function renderList(){
   item.append(btn);host.append(item);
  }
 }
-function openExisting(row){
+// For published articles, the rendered public article is the authoritative
+// source for editorial paragraph and H2 boundaries. Never invent headings.
+async function publishedEditorialBlocks(row){
+ const slug=String(row.slug||"").trim();
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))return null;
+ const candidates=[row.url,row.permalink,row.href,
+  "/"+String(row.category||"").replace(/[^a-z-]/g,"")+"/"+slug+"/",
+  "/"+slug+"/", "/"+slug+".html"].filter(Boolean);
+ for(const raw of [...new Set(candidates)]){
+  try{
+   const target=new URL(raw,location.origin);
+   if(target.origin!==location.origin)continue;
+   const response=await fetch(target.pathname+target.search,{cache:"no-store",credentials:"same-origin"});
+   if(!response.ok||!(response.headers.get("content-type")||"").includes("text/html"))continue;
+   const doc=new DOMParser().parseFromString(await response.text(),"text/html");
+   const article=doc.querySelector("article.story-article,article.review-article,.story-article,.review-article");
+   const root=article?.querySelector(".article-text");
+   const headline=article?.querySelector("h1")?.textContent?.replace(/\\s+/g," ").trim();
+   if(!root||!headline||headline!==String(row.title||"").replace(/\\s+/g," ").trim())continue;
+   const blocks=[];
+   for(const node of root.children){
+    const tag=node.tagName?.toLowerCase();
+    if(!["p","h2","blockquote"].includes(tag))continue;
+    const type=tag==="h2"?"heading":tag==="blockquote"?"quote":"paragraph";
+    const value=node.textContent?.trim();
+    if(value)blocks.push({type,text:value});
+   }
+   if(blocks.length>=2&&blocks.some(b=>b.type==="paragraph"))return blocks;
+  }catch(_){/* Try the next published permalink without altering content. */}
+ }
+ return null;
+}
+async function openExisting(row){
  const draft=state.drafts[row.slug];
  const content=draft?.record||row;
  const sameAsOriginal=draft&&signature(row.body)===signature(draft.record?.body);
  const originalBlocks=Array.isArray(row.editor_blocks)&&row.editor_blocks.length?row.editor_blocks:null;
  const editorData=(draft&&sameAsOriginal&&originalBlocks)?{...content,body:originalBlocks}:content;
  if(!draft&&originalBlocks)editorData.editor_blocks=originalBlocks;
- showEditor({...editorData,slug:row.slug,seo_lock:row.seo_lock},!!row.__draftNew);
+ // Never replace a draft or local recovery copy with a fetched version.
+ // Hydrate before opening the editor, to avoid overwriting in-progress typing.
+ let liveBlocks=null;
+ if(!draft&&!row.__queued&&!row.__draftNew)liveBlocks=await publishedEditorialBlocks(row);
+ const resolved=liveBlocks?{...editorData,editor_blocks:liveBlocks,body:liveBlocks}:editorData;
+ showEditor({...resolved,slug:row.slug,seo_lock:row.seo_lock},!!row.__draftNew);
  if(draft)notify("È stata caricata la tua bozza non ancora pubblicata.");
+ else if(!liveBlocks&&!originalBlocks&&!row.__queued)
+  notify("Testo pubblico non recuperato: verifica i paragrafi prima di salvare. Nessuna modifica effettuata.",true);
 }
 function modal(title,body,apply){
  E("v2-modal-title").textContent=title;
