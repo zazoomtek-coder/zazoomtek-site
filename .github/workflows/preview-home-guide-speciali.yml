@@ -1,0 +1,37 @@
+name: Preview homepage Guide Speciali (isolate)
+on:
+  push:
+    branches:
+      - 'preview/home-guide-speciali-reale-20261103'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica sintassi del generatore reale
+        run: python3 -m py_compile tools/build.py
+      - name: Genera intero sito dalla versione preview
+        env:
+          CF_PAGES_BRANCH: preview-home-guide-speciali-reale
+        run: python3 tools/build.py
+      - name: Verifica home navigabile e risorse
+        run: |
+          test -s dist/index.html
+          test -s dist/assets/css/spotnews.css
+          grep -q 'guide-showcase' dist/index.html
+          grep -q 'SPECIALI' dist/index.html
+          grep -q 'EXTRA' dist/index.html
+      - name: Deploy isolato Cloudflare Pages preview (mai main)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=preview-home-guide-speciali-reale
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
