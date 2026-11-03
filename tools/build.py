@@ -820,7 +820,7 @@ def compact_cards(rows):
  return '<div class="cards-compact">'+''.join(out)+'</div>'
 
 def feature_box(label,items):
- href="/guide" if label=="GUIDE" else "/extra"
+ href="/guide" if label=="GUIDE" else "/speciali" if label=="SPECIALI" else "/extra"
  if not items:return ""
  primary=items[0]
  url="/"+primary["slug"]
@@ -830,8 +830,14 @@ def feature_box(label,items):
  small=compact_cards(items[1:3]) if len(items)>1 else ""
  return '<div class="spotnews-feature feature-editorial">'+bar(label,href,"feature")+main+small+'</div>'
 
-def feature_pair(guides,extras):
- return '<div class="feature-pair standalone-feature-pair">'+feature_box("GUIDE",guides)+feature_box("EXTRA",extras)+'</div>'
+def special_extra_pair(specials,extras):
+ return '<div class="feature-pair standalone-feature-pair">'+feature_box("SPECIALI",specials)+feature_box("EXTRA",extras)+'</div>'
+
+def guide_gallery(items):
+ if not items:return ""
+ large='<div class="guide-showcase-large">'+cards(items[:2])+'</div>'
+ small='<div class="guide-showcase-small">'+cards(items[2:5])+'</div>' if len(items)>2 else ""
+ return '<div class="guide-showcase">'+bar("GUIDE","/guide","feature")+large+small+'</div>
 
 def special_gallery(rows):
  return '<div class="specials-showcase">'+cards(rows)+'</div>' if rows else ""
@@ -1007,8 +1013,8 @@ def home(rows):
  # BEFORE lower Home modules. Categories are independent, so a fresh Gaming post
  # never displaces any Tech card (and vice versa).
  # Reserve Special/Guide/Extra before news: their classifications are distinct.
- specials=take_unique([r for r in rows if r["category"]=="speciali"],2,global_used)
- guides=take_unique([r for r in rows if r["category"]=="guide"],3,global_used)
+ specials=take_unique([r for r in rows if r["category"]=="speciali"],3,global_used)
+ guides=take_unique([r for r in rows if r["category"]=="guide"],5,global_used)
  extras=take_unique([r for r in rows if r["category"]=="extra"],3,global_used)
  spotlight=latest_featured_news(tech,gaming,global_used)
  tech_low=adaptive_news(tech,8,global_used)
@@ -1026,8 +1032,8 @@ def home(rows):
   ("News Tech",news_tech_magazine(tech_low)),
   ("News Gaming",gaming_magazine(gaming_low)),
   ("Ultime Recensioni",reviews_three_column(reviews)),
-  ("Speciali",special_gallery(specials)),
-  ("Guide e Extra",feature_pair(guides,extras)),
+  ("Guide",guide_gallery(guides)),
+  ("Speciali e Extra",special_extra_pair(specials,extras)),
   ("Ultimi Video",video_section),
   ("Notizie Web",web_news_cards(unique_web))
  ]
@@ -1035,7 +1041,7 @@ def home(rows):
  sidebar_html=sidebar(rows,True,global_used)
  top=section("In evidenza",featured_showcase(spotlight))
  home_heading='<h1 class="site-home-title">ZazoomTek: notizie Tech e Gaming, recensioni e guide</h1>'
- return shell("Home",home_heading+'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name=="Guide e Extra" else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
+ return shell("Home",home_heading+'<div class="featured-wide">'+top+'</div><div class="home-layout"><div class="home-column">'+''.join(content if name in ("Guide","Speciali e Extra") else section(name,content) for name,content in sections)+'</div>'+sidebar_html+'</div>')
 
 def web_archive(rows):
  content='<h1>Notizie Web</h1><p class="web-archive-intro">Sei fonti italiane di tecnologia. Ogni notizia apre una scheda con eventuali approfondimenti ZazoomTek e il collegamento alla fonte originale.</p>'+web_news_cards(web_news())
