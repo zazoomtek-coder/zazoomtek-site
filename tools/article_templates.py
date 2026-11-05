@@ -547,10 +547,9 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- if not headings:
-  # Never discard source blocks or their order; supply one editorial heading
-  # before the first prose paragraph when the editor did not write any H2.
-  result.insert(0,'<h2>Approfondimento</h2>')
+ # Do not invent an "Approfondimento" heading. The public article and
+ # Studio must preserve the exact source-authored structure, including
+ # reviews imported from YouTube that legitimately contain no H2 sections.
  return ''.join(result)
 
 
