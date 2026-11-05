@@ -3,7 +3,7 @@ import json,re,hashlib
 from pathlib import Path
 from html.parser import HTMLParser
 from seo import title_tag, description, keywords
-from article_templates import sectioned_body
+from article_templates import editorial_blocks, named_section
 
 class _EditorInline(HTMLParser):
  def __init__(self):
@@ -27,31 +27,24 @@ class _EditorInline(HTMLParser):
  def handle_data(self,data):self.output.append(data)
 
 def editorial_blocks_for_editor(row):
- """Keep the exact published editorial headings and original text in their order."""
- # Preserve media blocks exactly. For text-only Studio edits, parse the
- # actual published HTML so editorial H2 and paragraphs match the site.
- if row.get("studio_blocks") and isinstance(row.get("body"),list) and row["body"]:
-  if any(isinstance(x,dict) and x.get("type") in
-         ("image","video","audio","button","attachment","poll","divider")
-         for x in row["body"]):
-   return row["body"]
- source=sectioned_body(row)
+ """Load the source article exactly as published; never invent review sections."""
+ body=row.get("body")
+ if row.get("studio_blocks") and isinstance(body,list) and body:
+  return [dict(block) for block in body if isinstance(block,dict)]
  blocks=[]
- for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
-  tag,raw=match.groups()
-  text=_EditorInline()
-  text.feed(raw)
-  value="".join(text.output).strip()
-  if value:blocks.append({
-   "type":"heading" if tag=="h2" else "quote" if tag=="blockquote" else "paragraph",
-   "text":value})
- if not blocks:
-  # Nonempty fallback: never show a blank editor for an existing article.
-  raw=row.get("body") or []
-  if isinstance(raw,str):raw=[raw]
-  for part in raw:
-   value=str(part if isinstance(part,str) else part.get("text") or part.get("content") or "").strip()
-   if value:blocks.append({"type":"paragraph","text":value})
+ for source in editorial_blocks(row):
+  value=str(source or "").strip()
+  if not value:continue
+  markdown=re.fullmatch(r"#{1,3}\\s+(.+?)\\s*#*",value)
+  bold=re.fullmatch(r"\\*\\*([^*\\n]{3,95})\\*\\*",value)
+  heading=markdown.group(1).strip() if markdown else (bold.group(1).strip() if bold else "")
+  if not heading:
+   # Only promote a heading that already exists as an isolated source line.
+   candidate=named_section(value)
+   if candidate and len(value)<=95 and not re.search(r"[.!?…]$",value):
+    heading=candidate
+  blocks.append({"type":"heading" if heading else "paragraph",
+                 "text":heading or value})
  return blocks
 
 
@@ -78,7 +71,7 @@ def build_studio_v2(output,rows):
   "cover_zoom":row.get("cover_zoom"),"cover_rotation":row.get("cover_rotation"),
   "author":row.get("author"),"video_url":row.get("video_url"),
   "platform":row.get("platform"),"score":row.get("score"),
-  "pros":row.get("pros"),"cons":row.get("cons"),
+  "pros":row.get("pros"),"cons":row.get("cons"),\n  "ending_notes":row.get("ending_notes",[]),"images":row.get("images",[]),\n  "youtube_id":row.get("youtube_id"),"image_caption":row.get("image_caption"),\n  "is_excerpt":bool(row.get("is_excerpt")),"device":row.get("device"),
   "studio_blocks":bool(row.get("studio_blocks")),
   "body":row.get("body",[]),"editor_blocks":editorial_blocks_for_editor(row),
   "seo_lock":snapshot(row)
@@ -91,7 +84,7 @@ def build_studio_v2(output,rows):
 <!-- Keep branch-specific Studio previews on their own hostname.
      Authentication cookies are host-specific and must not redirect to another build. -->
 <title>Studio V2 — Anteprima | ZazoomTek</title>
-<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
+<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261105-live-article-editor">\n<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
 <script src="/assets/js/studio-v2.js?v=__STUDIO_SCRIPT_VERSION__" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
