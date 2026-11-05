@@ -1033,10 +1033,10 @@ def home(rows):
   global_used.update(identities);unique_web.append(entry)
  sections=[
   ("News Tech",news_tech_magazine(tech_low)),
-  ("News Gaming",gaming_magazine(gaming_low)),
   ("Ultime Recensioni",reviews_three_column(reviews)),
   ("Guide",guide_gallery(guides)),
   ("Speciali e Extra",special_extra_pair(specials,extras)),
+  ("News Gaming",gaming_magazine(gaming_low)),
   ("Ultimi Video",video_section),
   ("Notizie Web",web_news_cards(unique_web))
  ]
