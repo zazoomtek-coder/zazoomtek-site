@@ -31,10 +31,12 @@ def editorial_blocks_for_editor(row):
  body=row.get("body")
  if row.get("studio_blocks") and isinstance(body,list) and body:
   return [dict(block) for block in body if isinstance(block,dict)]
- # For non-review articles, keep the existing published site renderer's
- # headings and paragraph order. The review importer below deliberately
- # avoids the generated review outline that was confusing Studio users.
- if not str(row.get("category") or "").startswith("recensioni-"):
+ # Only YouTube-imported reviews bypass the generated review outline.
+ # Every other article keeps the exact existing published renderer output.
+ youtube_review=(str(row.get("category") or "").startswith("recensioni-") and
+  (str(row.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
+   or str(row.get("slug") or "").startswith("community-")))
+ if not youtube_review:
   source=sectioned_body(row)
   rendered=[]
   for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
