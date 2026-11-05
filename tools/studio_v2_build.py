@@ -27,38 +27,39 @@ class _EditorInline(HTMLParser):
  def handle_data(self,data):self.output.append(data)
 
 def editorial_blocks_for_editor(row):
- """Load the source article exactly as published; never invent review sections."""
+ """Load the source article exactly as published; never invent YouTube review sections."""
  body=row.get("body")
- if row.get("studio_blocks") and isinstance(body,list) and body:
-  return [dict(block) for block in body if isinstance(block,dict)]
- # Only YouTube-imported reviews bypass the generated review outline.
- # Every other article keeps the exact existing published renderer output.
  youtube_review=(str(row.get("category") or "").startswith("recensioni-") and
   (str(row.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
    or str(row.get("slug") or "").startswith("community-")))
+ if row.get("studio_blocks") and isinstance(body,list) and body:
+  has_media=any(isinstance(x,dict) and x.get("type") in
+   ("image","video","audio","button","attachment","poll","divider") for x in body)
+  if youtube_review or has_media:
+   return [dict(block) for block in body if isinstance(block,dict)]
+ # All other content keeps the existing published renderer's exact H2 and paragraph order.
  if not youtube_review:
   source=sectioned_body(row)
   rendered=[]
-  for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
+  for match in re.finditer(r"<(h2|p|blockquote)\\b[^>]*>(.*?)</\\1>",source,re.S|re.I):
    tag,raw=match.groups()
    text=_EditorInline();text.feed(raw)
    value="".join(text.output).strip()
    if value:rendered.append({"type":"heading" if tag=="h2" else "quote" if tag=="blockquote" else "paragraph","text":value})
   if rendered:return rendered
+ # YouTube review source: preserve only explicit headings and original prose.
  blocks=[]
  for source in editorial_blocks(row):
   value=str(source or "").strip()
   if not value:continue
-  markdown=re.fullmatch(r"#{1,3}\s+(.+?)\s*#*",value)
-  bold=re.fullmatch(r"\*\*([^*\n]{3,95})\*\*",value)
+  markdown=re.fullmatch(r"#{1,3}\\s+(.+?)\\s*#*",value)
+  bold=re.fullmatch(r"\\*\\*([^*\\n]{3,95})\\*\\*",value)
   heading=markdown.group(1).strip() if markdown else (bold.group(1).strip() if bold else "")
   if not heading:
-   # Only promote a heading that already exists as an isolated source line.
    candidate=named_section(value)
    if candidate and len(value)<=95 and not re.search(r"[.!?…]$",value):
     heading=candidate
-  blocks.append({"type":"heading" if heading else "paragraph",
-                 "text":heading or value})
+  blocks.append({"type":"heading" if heading else "paragraph","text":heading or value})
  if not blocks:
   raw=body if isinstance(body,list) else [body or ""]
   for item in raw:
