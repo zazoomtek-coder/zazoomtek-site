@@ -31,7 +31,7 @@ async function api(endpoint,data){
 }
 function editorFields(row){
  const fields={"v2-title":row.title||"","v2-slug":row.slug||"","v2-author":row.author||"Redazione ZazoomTek",
- "v2-video-url":row.video_url||"","v2-platform":row.platform||"","v2-score":row.score??"",
+ "v2-video-url":row.video_url||"","v2-platform":row.platform||row.device||"","v2-score":row.score??"",
  "v2-pros":Array.isArray(row.pros)?row.pros.join("\n"):"","v2-cons":Array.isArray(row.cons)?row.cons.join("\n"):""};
  for(const [id,v] of Object.entries(fields))E(id).value=v;
  E("v2-category").value=row.category||"news-tech";
@@ -43,6 +43,20 @@ function editorFields(row){
  syncCover();syncArticleChrome(row);renderBlocks();seoStatus();
 }
 
+
+
+function articleEquipment(row){
+ const supplied=String(row.platform||row.device||"").trim();
+ if(supplied)return supplied;
+ const title=String(row.title||"").trim();
+ if(row.category==="recensioni-gaming"){
+  for(const pattern of [/\\bPS5\\s*Pro\\b/i,/\\bPS5\\b/i,/\\bPS4\\b/i,/\\bPlayStation\\s*5\\b/i,/\\bNintendo\\s*Switch\\s*2\\b/i,/\\bNintendo\\s*Switch\\b/i,/\\bXbox\\s*Series\\s*[XS]\\b/i,/\\bPC\\b/i]){
+   const match=title.match(pattern);if(match)return match[0];
+  }
+  return "Piattaforma non indicata";
+ }
+ return title.replace(/\\s*[|–-]?\\s*(?:recensione|review)\\b.*$/i,"").trim()||"Dispositivo non indicato";
+}
 
 function syncArticleChrome(row){
  const review=String(row.category||val("v2-category")||"").startsWith("recensioni-");
@@ -67,7 +81,7 @@ function syncArticleChrome(row){
   const span=S("span",cls),strong=S("strong","",label+" ");
   span.append(strong,document.createTextNode(value));meta.append(span);
  }
- const equipment=E("v2-live-equipment"),device=row.platform||row.device||"";
+ const equipment=E("v2-live-equipment"),device=articleEquipment(row);
  equipment.hidden=!review||!device;equipment.replaceChildren();
  if(review&&device)equipment.append(S("strong","",gaming?"Piattaforma: ":"Dispositivo: "),document.createTextNode(device));
  const video=E("v2-live-video");video.replaceChildren();
@@ -231,7 +245,7 @@ function showArticlePreview(savedRecord=null){
   span.append(strong,document.createTextNode(value));meta.append(span);
  }
  article.append(meta);
- const device=record.platform||record.device||"";
+ const device=articleEquipment(record);
  if(review&&device){
   const equipment=S("p","review-equipment"),gaming=record.category==="recensioni-gaming";
   equipment.append(S("strong","",gaming?"Piattaforma: ":"Dispositivo: "),document.createTextNode(device));article.append(equipment);
