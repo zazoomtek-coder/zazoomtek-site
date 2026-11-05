@@ -50,12 +50,12 @@ function articleEquipment(row){
  if(supplied)return supplied;
  const title=String(row.title||"").trim();
  if(row.category==="recensioni-gaming"){
-  for(const pattern of [/\\bPS5\\s*Pro\\b/i,/\\bPS5\\b/i,/\\bPS4\\b/i,/\\bPlayStation\\s*5\\b/i,/\\bNintendo\\s*Switch\\s*2\\b/i,/\\bNintendo\\s*Switch\\b/i,/\\bXbox\\s*Series\\s*[XS]\\b/i,/\\bPC\\b/i]){
+  for(const pattern of [/\bPS5\s*Pro\b/i,/\bPS5\b/i,/\bPS4\b/i,/\bPlayStation\s*5\b/i,/\bNintendo\s*Switch\s*2\b/i,/\bNintendo\s*Switch\b/i,/\bXbox\s*Series\s*[XS]\b/i,/\bPC\b/i]){
    const match=title.match(pattern);if(match)return match[0];
   }
   return "Piattaforma non indicata";
  }
- return title.replace(/\\s*[|–-]?\\s*(?:recensione|review)\\b.*$/i,"").trim()||"Dispositivo non indicato";
+ return title.replace(/\s*[|–-]?\s*(?:recensione|review)\b.*$/i,"").trim()||"Dispositivo non indicato";
 }
 
 function syncArticleChrome(row){
