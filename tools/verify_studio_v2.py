@@ -16,6 +16,8 @@ def verify_studio_v2(output,rows):
              "v2-draft-bottom","v2-publish-bottom","v2-close-preview",
              "v2-article-preview","v2-autosave-status"))
  assert 'id="v2-modal"' in page and 'id="v2-category"' in page
+ assert 'spotnews.css' in page and 'id="v2-live-meta"' in page
+ assert 'id="v2-live-equipment"' in page and 'id="v2-live-verdict"' in page
  assert 'id="v2-seo-status"' in page and 'AUTOMATICO' in page
  assert 'id="v2-content-list"' not in page # new implementation uses v2-list
  assert 'id="v2-list"' in page
@@ -24,6 +26,25 @@ def verify_studio_v2(output,rows):
  # debug-style block fields and a separate "+" for every paragraph.
  assert all(isinstance(p.get("editor_blocks"),list) and p["editor_blocks"]
             for p in data["posts"]),"Empty rich editorial body in Studio"
+ # YouTube reviews without source-authored H2 must stay as plain source
+ # paragraphs in Studio; no synthetic review outline or "Approfondimento".
+ from studio_v2_build import editorial_blocks_for_editor
+ from article_templates import studio_sectioned_body
+ youtube_review={"slug":"community-youtube-review-source-test","source":"youtube-community","title":"Recensione prodotto importata da YouTube",
+  "category":"recensioni-tech","body":[
+   "Apertura originale della recensione importata da YouTube.",
+   "Secondo paragrafo originale con i dettagli del prodotto e dell'esperienza d'uso.",
+   "Terzo paragrafo originale che continua la valutazione senza un titolo aggiunto."
+  ]}
+ source_blocks=editorial_blocks_for_editor(youtube_review)
+ assert len(source_blocks)==3 and all(b["type"]=="paragraph" for b in source_blocks),source_blocks
+ assert [b["text"] for b in source_blocks]==youtube_review["body"],"Studio changed source review text/order"
+ studio_review={"slug":"community-youtube-review-source-test","source":"youtube-community","category":"recensioni-tech","studio_blocks":True,
+  "body":[{"type":"paragraph","text":x} for x in youtube_review["body"]]}
+ assert "<h2>Approfondimento</h2>" not in studio_sectioned_body(studio_review),"Synthetic heading still added to published review"
+ manual_review={"slug":"manual-review-source-test","source":"manual-editorial","category":"recensioni-tech",
+  "studio_blocks":True,"body":[{"type":"paragraph","text":"Testo di una recensione manuale."}]}
+ assert "<h2>Approfondimento</h2>" in studio_sectioned_body(manual_review),"Legacy manual-review fallback changed unexpectedly"
  example=next((p for p in data["posts"] if p.get("slug")==
                "speciale-videogiochi-minori-italia-unione-europea"),None)
  if example:
@@ -43,7 +64,7 @@ def verify_studio_v2(output,rows):
                 "v2-plus","v2-cover-stage","v2-article-preview","v2-preview-article"): 
   assert marker in css,"V2 CSS missing "+marker
  for marker in ("v2-save","v2-drafts","save(\"draft\")","save(\"publish\")",
-                "showArticlePreview","formattedTextBlocks","restoreBackup",
+                "showArticlePreview","formattedTextBlocks","restoreBackup","syncArticleChrome",
                 "scheduleBackup","pagehide","editorialBodyForDisplay",
                 "openMenu","editCover","editMedia","showHome","startNew"):
   assert marker in script,"V2 JS missing "+marker
@@ -51,7 +72,7 @@ def verify_studio_v2(output,rows):
   assert marker in script,"WYSIWYG features missing: "+marker
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
- assert "20261028-studio-draft-preview-1" in page,"Browser must load updated editor CSS and JS"
+ assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
  # Only article BODY text may be recovered locally; never GitHub auth data.
  assert 'localStorage.setItem(backupKey(),JSON.stringify(payload))' in script
  assert 'record:collect()' in script

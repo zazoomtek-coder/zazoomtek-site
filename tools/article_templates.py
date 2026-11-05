@@ -485,14 +485,14 @@ def studio_sectioned_body(review):
  """Render block order exactly: paragraphs, H2, links, images, video and CTA."""
  from urllib.parse import parse_qs
  result=[]
- headings=0
+ headings=False
  for block in review.get("body",[]):
   if not isinstance(block,dict):continue
   kind=str(block.get("type") or "")
   value=str(block.get("text") or "").strip()
   if kind=="heading" and value:
    result.append('<h2>'+esc(value)+'</h2>')
-   headings+=1
+   headings=True
   elif kind=="paragraph" and value:
    result.append('<p>'+studio_inline(value)+'</p>')
   elif kind=="quote" and value:
@@ -547,9 +547,12 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- if not headings:
-  # Never discard source blocks or their order; supply one editorial heading
-  # before the first prose paragraph when the editor did not write any H2.
+ # YouTube-imported reviews may legitimately contain no H2 sections.
+ # Preserve the legacy fallback for all other Studio articles/reviews.
+ youtube_review=(str(review.get("category") or "").startswith("recensioni-") and
+  (str(review.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
+   or str(review.get("slug") or "").startswith("community-")))
+ if not headings and not youtube_review:
   result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 

@@ -3,7 +3,7 @@ import json,re,hashlib
 from pathlib import Path
 from html.parser import HTMLParser
 from seo import title_tag, description, keywords
-from article_templates import sectioned_body
+from article_templates import editorial_blocks, named_section, sectioned_body
 
 class _EditorInline(HTMLParser):
  def __init__(self):
@@ -27,30 +27,43 @@ class _EditorInline(HTMLParser):
  def handle_data(self,data):self.output.append(data)
 
 def editorial_blocks_for_editor(row):
- """Keep the exact published editorial headings and original text in their order."""
- # Preserve media blocks exactly. For text-only Studio edits, parse the
- # actual published HTML so editorial H2 and paragraphs match the site.
- if row.get("studio_blocks") and isinstance(row.get("body"),list) and row["body"]:
-  if any(isinstance(x,dict) and x.get("type") in
-         ("image","video","audio","button","attachment","poll","divider")
-         for x in row["body"]):
-   return row["body"]
- source=sectioned_body(row)
+ """Load the source article exactly as published; never invent YouTube review sections."""
+ body=row.get("body")
+ youtube_review=(str(row.get("category") or "").startswith("recensioni-") and
+  (str(row.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
+   or str(row.get("slug") or "").startswith("community-")))
+ if row.get("studio_blocks") and isinstance(body,list) and body:
+  has_media=any(isinstance(x,dict) and x.get("type") in
+   ("image","video","audio","button","attachment","poll","divider") for x in body)
+  if youtube_review or has_media:
+   return [dict(block) for block in body if isinstance(block,dict)]
+ # All other content keeps the existing published renderer's exact H2 and paragraph order.
+ if not youtube_review:
+  source=sectioned_body(row)
+  rendered=[]
+  for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
+   tag,raw=match.groups()
+   text=_EditorInline();text.feed(raw)
+   value="".join(text.output).strip()
+   if value:rendered.append({"type":"heading" if tag=="h2" else "quote" if tag=="blockquote" else "paragraph","text":value})
+  if rendered:return rendered
+ # YouTube review source: preserve only explicit headings and original prose.
  blocks=[]
- for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
-  tag,raw=match.groups()
-  text=_EditorInline()
-  text.feed(raw)
-  value="".join(text.output).strip()
-  if value:blocks.append({
-   "type":"heading" if tag=="h2" else "quote" if tag=="blockquote" else "paragraph",
-   "text":value})
+ for source in editorial_blocks(row):
+  value=str(source or "").strip()
+  if not value:continue
+  markdown=re.fullmatch(r"#{1,3}\s+(.+?)\s*#*",value)
+  bold=re.fullmatch(r"\*\*([^*\n]{3,95})\*\*",value)
+  heading=markdown.group(1).strip() if markdown else (bold.group(1).strip() if bold else "")
+  if not heading:
+   candidate=named_section(value)
+   if candidate and len(value)<=95 and not re.search(r"[.!?…]$",value):
+    heading=candidate
+  blocks.append({"type":"heading" if heading else "paragraph","text":heading or value})
  if not blocks:
-  # Nonempty fallback: never show a blank editor for an existing article.
-  raw=row.get("body") or []
-  if isinstance(raw,str):raw=[raw]
-  for part in raw:
-   value=str(part if isinstance(part,str) else part.get("text") or part.get("content") or "").strip()
+  raw=body if isinstance(body,list) else [body or ""]
+  for item in raw:
+   value=str(item if isinstance(item,str) else item.get("text") or item.get("content") or "").strip()
    if value:blocks.append({"type":"paragraph","text":value})
  return blocks
 
@@ -79,6 +92,9 @@ def build_studio_v2(output,rows):
   "author":row.get("author"),"video_url":row.get("video_url"),
   "platform":row.get("platform"),"score":row.get("score"),
   "pros":row.get("pros"),"cons":row.get("cons"),
+  "ending_notes":row.get("ending_notes",[]),"images":row.get("images",[]),
+  "youtube_id":row.get("youtube_id"),"image_caption":row.get("image_caption"),
+  "is_excerpt":bool(row.get("is_excerpt")),"device":row.get("device"),
   "studio_blocks":bool(row.get("studio_blocks")),
   "body":row.get("body",[]),"editor_blocks":editorial_blocks_for_editor(row),
   "seo_lock":snapshot(row)
@@ -91,7 +107,8 @@ def build_studio_v2(output,rows):
 <!-- Keep branch-specific Studio previews on their own hostname.
      Authentication cookies are host-specific and must not redirect to another build. -->
 <title>Studio V2 — Anteprima | ZazoomTek</title>
-<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
+<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261105-live-article-editor">
+<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261105-youtube-review-layout">
 <script src="/assets/js/studio-v2.js?v=__STUDIO_SCRIPT_VERSION__" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
@@ -158,15 +175,20 @@ def build_studio_v2(output,rows):
    </div>
    <div class="v2-editor-layout">
     <div class="v2-paper-wrap">
-     <article class="v2-paper">
+     <article class="v2-paper article story-article" id="v2-edit-article">
+      <div id="v2-live-topline" class="review-topline" hidden></div>
       <label class="v2-field-title" for="v2-title">Titolo</label>
       <input id="v2-title" class="v2-title-input" type="text" placeholder="Inizia con un titolo..." maxlength="220">
+      <div id="v2-live-meta" class="story-meta"></div>
+      <p id="v2-live-equipment" class="review-equipment" hidden></p>
       <button type="button" id="v2-cover-add" class="v2-cover-add">▧ &nbsp; Aggiungi una copertina</button>
       <div id="v2-cover-stage" class="v2-cover-stage" hidden>
        <img id="v2-cover-image" alt="Copertina del contenuto">
        <div class="v2-cover-controls"><button id="v2-cover-change">Sostituisci</button><button id="v2-cover-edit">Ritaglia e centra</button><button id="v2-cover-remove">Rimuovi</button></div>
       </div>
+      <div id="v2-live-video" class="review-video" hidden></div>
       <div id="v2-blocks" class="v2-blocks" aria-label="Corpo dell'articolo"></div>
+      <section id="v2-live-verdict" class="review-verdict" hidden></section>
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
       <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
      </article>
