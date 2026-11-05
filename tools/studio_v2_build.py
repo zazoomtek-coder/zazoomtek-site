@@ -89,7 +89,7 @@ def build_studio_v2(output,rows):
 <!-- Keep branch-specific Studio previews on their own hostname.
      Authentication cookies are host-specific and must not redirect to another build. -->
 <title>Studio V2 — Anteprima | ZazoomTek</title>
-<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261105-live-article-editor">\n<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261028-studio-draft-preview-1">
+<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261105-live-article-editor">\n<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261105-youtube-review-layout">
 <script src="/assets/js/studio-v2.js?v=__STUDIO_SCRIPT_VERSION__" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
