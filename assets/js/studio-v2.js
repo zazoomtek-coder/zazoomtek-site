@@ -209,7 +209,7 @@ function previewMediaUrl(url){
 }
 
 function showArticlePreview(savedRecord=null){
- const record={...(savedRecord&&savedRecord.slug?savedRecord:{}),...collect()};
+ const record={...(state.current||{}),...(savedRecord&&savedRecord.slug?savedRecord:{}),...collect()};
  const article=E("v2-preview-article-content");article.replaceChildren();
  const review=String(record.category||"").startsWith("recensioni-");
  article.className="article story-article "+(review?"review-article":"news-article");
