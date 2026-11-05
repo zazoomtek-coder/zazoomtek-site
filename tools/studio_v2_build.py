@@ -76,7 +76,9 @@ def build_studio_v2(output,rows):
   "cover_zoom":row.get("cover_zoom"),"cover_rotation":row.get("cover_rotation"),
   "author":row.get("author"),"video_url":row.get("video_url"),
   "platform":row.get("platform"),"score":row.get("score"),
-  "pros":row.get("pros"),"cons":row.get("cons"),\n  "ending_notes":row.get("ending_notes",[]),"images":row.get("images",[]),\n  "youtube_id":row.get("youtube_id"),"image_caption":row.get("image_caption"),\n  "is_excerpt":bool(row.get("is_excerpt")),"device":row.get("device"),
+  "pros":row.get("pros"),"cons":row.get("cons"),\n  "ending_notes":row.get("ending_notes",[]),"images":row.get("images",[]),
+  "youtube_id":row.get("youtube_id"),"image_caption":row.get("image_caption"),
+  "is_excerpt":bool(row.get("is_excerpt")),"device":row.get("device"),
   "studio_blocks":bool(row.get("studio_blocks")),
   "body":row.get("body",[]),"editor_blocks":editorial_blocks_for_editor(row),
   "seo_lock":snapshot(row)
@@ -89,7 +91,8 @@ def build_studio_v2(output,rows):
 <!-- Keep branch-specific Studio previews on their own hostname.
      Authentication cookies are host-specific and must not redirect to another build. -->
 <title>Studio V2 — Anteprima | ZazoomTek</title>
-<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261105-live-article-editor">\n<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261105-youtube-review-layout">
+<link rel="stylesheet" href="/assets/css/spotnews.css?v=20261105-live-article-editor">
+<link rel="stylesheet" href="/assets/css/studio-v2.css?v=20261105-youtube-review-layout">
 <script src="/assets/js/studio-v2.js?v=__STUDIO_SCRIPT_VERSION__" defer></script>
 </head><body>
 <div id="v2-auth" class="v2-auth" hidden>
