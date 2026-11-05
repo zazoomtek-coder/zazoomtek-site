@@ -44,10 +44,10 @@ jobs:
           js = (root / "assets/js/site.js").read_text(encoding="utf-8")
           html, css_count = re.subn(
               r"""<link\b(?=[^>]*rel=["']stylesheet["'])(?=[^>]*href=["']/assets/css/spotnews\.css[^"']*["'])[^>]*>""",
-              lambda m: '<style>\\n' + css + '\\n</style>', html, count=1, flags=re.I)
+              lambda m: '<style>\n' + css + '\n</style>', html, count=1, flags=re.I)
           html, js_count = re.subn(
               r"""<script\b(?=[^>]*src=["']/assets/js/site\.js[^"']*["'])[^>]*></script>""",
-              lambda m: '<script>\\n' + js + '\\n</script>', html, count=1, flags=re.I)
+              lambda m: '<script>\n' + js + '\n</script>', html, count=1, flags=re.I)
           if css_count != 1 or js_count != 1:
               raise SystemExit(f"Asset non incorporati: CSS={css_count}, JS={js_count}")
           def local_attr(match):
@@ -57,10 +57,6 @@ jobs:
               return match.group(1) + value + match.group(3)
           html = re.sub(r"""((?:src|href|poster|data-src)=["'])([^"']*)(["'])""",
                         local_attr, html, flags=re.I)
-          def local_srcset(match):
-              value = re.sub(r"""(^|,\\s*)/""", r"\\1./", match.group(2))
-              return match.group(1) + value + match.group(3)
-          html = re.sub(r"""(srcset=["'])([^"']*)(["'])""", local_srcset, html, flags=re.I)
           page.write_text(html, encoding="utf-8")
           if '<style>' not in html or '<script>' not in html or '/assets/css/spotnews.css' in html:
               raise SystemExit("Anteprima autonoma non generata correttamente")
