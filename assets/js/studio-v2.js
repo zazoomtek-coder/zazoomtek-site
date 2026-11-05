@@ -67,7 +67,7 @@ function syncArticleChrome(row){
   const span=S("span",cls),strong=S("strong","",label+" ");
   span.append(strong,document.createTextNode(value));meta.append(span);
  }
- const equipment=E("v2-live-equipment"),device=row.device||row.platform||"";
+ const equipment=E("v2-live-equipment"),device=row.platform||row.device||"";
  equipment.hidden=!review||!device;equipment.replaceChildren();
  if(review&&device)equipment.append(S("strong","",gaming?"Piattaforma: ":"Dispositivo: "),document.createTextNode(device));
  const video=E("v2-live-video");video.replaceChildren();
@@ -231,7 +231,7 @@ function showArticlePreview(savedRecord=null){
   span.append(strong,document.createTextNode(value));meta.append(span);
  }
  article.append(meta);
- const device=record.device||record.platform||"";
+ const device=record.platform||record.device||"";
  if(review&&device){
   const equipment=S("p","review-equipment"),gaming=record.category==="recensioni-gaming";
   equipment.append(S("strong","",gaming?"Piattaforma: ":"Dispositivo: "),document.createTextNode(device));article.append(equipment);
@@ -785,7 +785,8 @@ E("v2-menu-close").onclick=()=>E("v2-insert-menu").hidden=true;
 E("v2-cover-add").onclick=editCover;E("v2-cover-change").onclick=()=>chooseFile(null);E("v2-cover-edit").onclick=editCover;
 E("v2-cover-remove").onclick=()=>{state.cover="";state.coverPreview="";syncCover()};
 E("v2-cover-sidebar").onclick=editCover;
-E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));seoStatus()};
+E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));syncArticleChrome({...state.current,...collect()});seoStatus()};
+for(const id of ["v2-category","v2-author","v2-platform","v2-score","v2-pros","v2-cons","v2-video-url"]) E(id).addEventListener("input",()=>syncArticleChrome({...state.current,...collect()}));
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
 E("v2-modal-apply").onclick=()=>{if(state.modalApply?.()!==false)closeModal()};
 function previewFinalArticle(){
