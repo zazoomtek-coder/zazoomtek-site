@@ -1,0 +1,90 @@
+name: Anteprima sito - ZIP scaricabile
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zazoomtek-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-preview:
+    name: Genera anteprima locale ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: preview
+    steps:
+      - name: Checkout codice della modifica
+        uses: actions/checkout@v4
+
+      - name: Configura Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Controlla sintassi e test SEO
+        run: |
+          python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py
+          python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
+
+      - name: Genera il sito statico di anteprima
+        run: python3 tools/build.py
+
+      - name: Prepara ZIP apribile su Windows
+        run: |
+          cat > dist/AVVIA-ANTEPRIMA.bat <<'BAT'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          set "PORT=8765"
+          where py >nul 2>&1
+          if not errorlevel 1 (
+            start "" cmd /c "ping 127.0.0.1 -n 3 >nul & start http://127.0.0.1:%PORT%/"
+            py -m http.server %PORT% --bind 127.0.0.1
+            goto :eof
+          )
+          where python >nul 2>&1
+          if not errorlevel 1 (
+            start "" cmd /c "ping 127.0.0.1 -n 3 >nul & start http://127.0.0.1:%PORT%/"
+            python -m http.server %PORT% --bind 127.0.0.1
+            goto :eof
+          )
+          echo Python non trovato. Installa Python 3 e riapri questo file.
+          pause
+          BAT
+          cat > dist/LEGGIMI-ANTEPRIMA.txt <<'TXT'
+          ZAZOOMTEK - ANTEPRIMA LOCALE
+          
+          WINDOWS:
+          1. Estrai tutto lo ZIP in una cartella.
+          2. Fai doppio clic su AVVIA-ANTEPRIMA.bat.
+          3. Si aprira il browser con il sito in anteprima.
+          4. Per terminare, chiudi la finestra nera del server.
+          
+          Requisito: Python 3 installato su Windows.
+          In alternativa, dalla cartella estratta esegui:
+          py -m http.server 8765
+          e visita http://127.0.0.1:8765/
+          
+          L'anteprima e locale sul tuo PC: non modifica e non pubblica
+          il sito ufficiale zazoomtek.it.
+          TXT
+          cd dist
+          zip -qr ../zazoomtek-preview.zip .
+
+      - name: Verifica archivio ZIP
+        run: test -s zazoomtek-preview.zip && unzip -tq zazoomtek-preview.zip
+
+      - name: Carica ZIP scaricabile
+        uses: actions/upload-artifact@v4
+        with:
+          name: zazoomtek-preview-${{ github.event.pull_request.number || 'manual' }}-${{ github.run_number }}
+          path: zazoomtek-preview.zip
+          if-no-files-found: error
+          retention-days: 30
