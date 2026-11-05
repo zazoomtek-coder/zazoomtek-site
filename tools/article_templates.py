@@ -547,9 +547,12 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # Reviews imported from YouTube may legitimately contain no H2 sections.
- # Keep the legacy fallback for non-review Studio content only.
- if not headings and not str(review.get("category") or "").startswith("recensioni-"):
+ # YouTube-imported reviews may legitimately contain no H2 sections.
+ # Preserve the legacy fallback for all other Studio articles/reviews.
+ youtube_review=(str(review.get("category") or "").startswith("recensioni-") and
+  (str(review.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
+   or str(review.get("slug") or "").startswith("community-")))
+ if not headings and not youtube_review:
   result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 
