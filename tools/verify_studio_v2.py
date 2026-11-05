@@ -42,6 +42,9 @@ def verify_studio_v2(output,rows):
  studio_review={"slug":"community-youtube-review-source-test","source":"youtube-community","category":"recensioni-tech","studio_blocks":True,
   "body":[{"type":"paragraph","text":x} for x in youtube_review["body"]]}
  assert "<h2>Approfondimento</h2>" not in studio_sectioned_body(studio_review),"Synthetic heading still added to published review"
+ manual_review={"slug":"manual-review-source-test","source":"manual-editorial","category":"recensioni-tech",
+  "studio_blocks":True,"body":[{"type":"paragraph","text":"Testo di una recensione manuale."}]}
+ assert "<h2>Approfondimento</h2>" in studio_sectioned_body(manual_review),"Legacy manual-review fallback changed unexpectedly"
  example=next((p for p in data["posts"] if p.get("slug")==
                "speciale-videogiochi-minori-italia-unione-europea"),None)
  if example:
