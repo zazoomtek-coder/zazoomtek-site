@@ -37,7 +37,11 @@ function toBase64(bytes){
   text+=String.fromCharCode(...bytes.slice(i,i+8192));
  return btoa(text).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-function encodeUtf8(s){return toBase64(toBytes(s));}
+function encodeUtf8(s){
+ // GitHub Contents API richiede Base64 standard (alfabeto +/) e padding "=".
+ const encoded=toBase64(toBytes(s)).replace(/-/g,"+").replace(/_/g,"/");
+ return encoded+"=".repeat((4-encoded.length%4)%4);
+}
 function assertSetup(env){
  const secret=clean(env.STUDIO_SESSION_SECRET);
  if(secret.length<32)throw new Error("SETUP_REQUIRED");
