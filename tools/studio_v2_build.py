@@ -41,7 +41,7 @@ def editorial_blocks_for_editor(row):
  if not youtube_review:
   source=sectioned_body(row)
   rendered=[]
-  for match in re.finditer(r"<(h2|p|blockquote)\\b[^>]*>(.*?)</\\1>",source,re.S|re.I):
+  for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
    tag,raw=match.groups()
    text=_EditorInline();text.feed(raw)
    value="".join(text.output).strip()
@@ -52,8 +52,8 @@ def editorial_blocks_for_editor(row):
  for source in editorial_blocks(row):
   value=str(source or "").strip()
   if not value:continue
-  markdown=re.fullmatch(r"#{1,3}\\s+(.+?)\\s*#*",value)
-  bold=re.fullmatch(r"\\*\\*([^*\\n]{3,95})\\*\\*",value)
+  markdown=re.fullmatch(r"#{1,3}\s+(.+?)\s*#*",value)
+  bold=re.fullmatch(r"\*\*([^*\n]{3,95})\*\*",value)
   heading=markdown.group(1).strip() if markdown else (bold.group(1).strip() if bold else "")
   if not heading:
    candidate=named_section(value)
