@@ -40,7 +40,63 @@ function editorFields(row){
  state.coverFocusX=num(row.cover_focus_x,0,100,50);state.coverFocusY=num(row.cover_focus_y,0,100,50);
  state.coverZoom=num(row.cover_zoom,100,250,100);state.coverRotation=num(row.cover_rotation,-180,180,0);
  state.body=convertBody(row);
- syncCover();renderBlocks();seoStatus();
+ syncCover();syncArticleChrome(row);renderBlocks();seoStatus();
+}
+
+
+function syncArticleChrome(row){
+ const review=String(row.category||val("v2-category")||"").startsWith("recensioni-");
+ const gaming=String(row.category||val("v2-category")||"")==="recensioni-gaming";
+ const paper=E("v2-edit-article");
+ paper.classList.toggle("review-article",review);
+ paper.classList.toggle("news-article",!review);
+ const topline=E("v2-live-topline");
+ topline.hidden=!review;topline.textContent=cats[row.category||val("v2-category")]||"Recensione";
+ const meta=E("v2-live-meta");meta.replaceChildren();
+ const date=String(row.date||row.published_at||"").slice(0,10);
+ let dateLabel="Data non disponibile";
+ if(/^\d{4}-\d{2}-\d{2}$/.test(date)){
+  const parsed=new Date(date+"T12:00:00");
+  if(!Number.isNaN(parsed.getTime()))dateLabel=parsed.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
+ }
+ for(const [cls,label,value] of [
+  ["story-meta-author","Autore:",row.author||"Redazione ZazoomTek"],
+  ["story-meta-date","Data:",dateLabel],
+  ["story-meta-category","Categoria:",cats[row.category||val("v2-category")]||"Articolo"]
+ ]){
+  const span=S("span",cls),strong=S("strong","",label+" ");
+  span.append(strong,document.createTextNode(value));meta.append(span);
+ }
+ const equipment=E("v2-live-equipment"),device=row.device||row.platform||"";
+ equipment.hidden=!review||!device;equipment.replaceChildren();
+ if(review&&device)equipment.append(S("strong","",gaming?"Piattaforma: ":"Dispositivo: "),document.createTextNode(device));
+ const video=E("v2-live-video");video.replaceChildren();
+ let videoId=String(row.youtube_id||"");
+ const match=String(row.video_url||"").match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+ if(!/^[a-zA-Z0-9_-]{11}$/.test(videoId)&&match)videoId=match[1];
+ video.hidden=!review||!videoId;
+ if(!video.hidden){
+  const link=S("a","review-video-link","▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗");
+  link.href="https://www.youtube.com/watch?v="+videoId;link.target="_blank";link.rel="noopener noreferrer";video.append(link);
+ }
+ const verdict=E("v2-live-verdict");verdict.replaceChildren();
+ const score=String(row.score??"").trim(),pros=Array.isArray(row.pros)?row.pros.filter(Boolean):[],cons=Array.isArray(row.cons)?row.cons.filter(Boolean):[];
+ verdict.hidden=!review||(!score&&!pros.length&&!cons.length);
+ if(!verdict.hidden){
+  if(score){
+   const header=S("div","verdict-heading");
+   header.append(S("h2","","Voto finale"),S("strong","verdict-score",score.replace(".",",")+"/10"));verdict.append(header);
+  }
+  if(pros.length||cons.length){
+   const grid=S("div","verdict-grid");
+   for(const [label,items,cls] of [["Pro",pros,"verdict-pro"],["Contro",cons,"verdict-con"]]){
+    if(!items.length)continue;
+    const side=S("div",cls);side.append(S("h3","",label));
+    const ul=S("ul");items.forEach(item=>ul.append(S("li","",item)));side.append(ul);grid.append(side);
+   }
+   verdict.append(grid);
+  }
+ }
 }
 
 function convertBody(row){
@@ -151,64 +207,63 @@ function previewMediaUrl(url){
   ["jpg","jpeg","png","webp","mp3","m4a","wav","pdf","txt"].includes(value.split(".").pop());
  return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
 }
+
 function showArticlePreview(savedRecord=null){
- // L’anteprima deve usare i blocchi dell’editor attuale, non un corpo differente restituito dal salvataggio.
  const record={...(savedRecord&&savedRecord.slug?savedRecord:{}),...collect()};
  const article=E("v2-preview-article-content");article.replaceChildren();
  const review=String(record.category||"").startsWith("recensioni-");
- article.className="v2-preview-article article story-article "+(review?"review-article":"news-article");
+ article.className="article story-article "+(review?"review-article":"news-article");
  if(review)article.append(S("div","review-topline",cats[record.category]||"Recensione"));
  article.append(S("h1","",record.title||"Titolo dell'articolo"));
  const meta=S("div","story-meta");
- meta.append(S("span","story-meta-author","Autore: "+(record.author||"Redazione ZazoomTek")),
-  S("span","story-meta-date","Data: "+(record.date||new Date().toLocaleDateString("it-IT"))),
-  S("span","story-meta-category","Categoria: "+(cats[record.category]||"Articolo")));
+ const date=String(record.date||record.published_at||"").slice(0,10);
+ let dateLabel="Data non disponibile";
+ if(/^\d{4}-\d{2}-\d{2}$/.test(date)){
+  const parsed=new Date(date+"T12:00:00");
+  if(!Number.isNaN(parsed.getTime()))dateLabel=parsed.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
+ }
+ for(const [cls,label,value] of [
+  ["story-meta-author","Autore:",record.author||"Redazione ZazoomTek"],
+  ["story-meta-date","Data:",dateLabel],
+  ["story-meta-category","Categoria:",cats[record.category]||"Articolo"]
+ ]){
+  const span=S("span",cls),strong=S("strong","",label+" ");
+  span.append(strong,document.createTextNode(value));meta.append(span);
+ }
  article.append(meta);
- if(review&&record.platform)article.append(S("p","review-equipment","Piattaforma o dispositivo: "+record.platform));
+ const device=record.device||record.platform||"";
+ if(review&&device){
+  const equipment=S("p","review-equipment"),gaming=record.category==="recensioni-gaming";
+  equipment.append(S("strong","",gaming?"Piattaforma: ":"Dispositivo: "),document.createTextNode(device));article.append(equipment);
+ }
  if(record.image||state.coverPreview){
-  const cover=S("img","v2-preview-cover");cover.alt=record.title||"Copertina";
-  cover.src=state.coverPreview||previewMediaUrl(record.image);cover.style.objectPosition=(record.cover_focus_x??state.coverFocusX)+"% "+(record.cover_focus_y??state.coverFocusY)+"%";
-  cover.style.transform="scale("+Number(record.cover_zoom??state.coverZoom)/100+") rotate("+Number(record.cover_rotation??state.coverRotation)+"deg)";
-  const wrapper=S("div","v2-preview-cover-frame");wrapper.append(cover);article.append(wrapper);
+  const figure=S("figure","story-figure"),cover=S("img");
+  cover.alt=record.image_caption||record.title||"Copertina";cover.src=state.coverPreview||previewMediaUrl(record.image);
+  figure.append(cover);if(record.image_caption)figure.append(S("figcaption","",record.image_caption));article.append(figure);
+ }else{
+  const fallback=S("div","story-cover-fallback");
+  fallback.append(S("span","",review?"Recensione":"Articolo"),S("strong","",record.title||"Articolo"));article.append(fallback);
  }
- // Replica il pulsante pubblico solo quando una videorecensione ufficiale è associata.
- if(review){
-  const explicit=String(record.video_url||"").trim();
-  const parsed=explicit.match(/^https:\/\/(?:www\.|m\.)?youtube\.com\/watch\?[^#]*[?&]v=([a-zA-Z0-9_-]{11})|^https:\/\/youtu\.be\/([a-zA-Z0-9_-]{11})(?:[?#]|$)/);
-  let videoId=parsed?.[1]||parsed?.[2]||"";
-  // Solo abbinamenti confermati, senza duplicare il pulsante già presente.
-  const lowerTitle=String(record.title||"").toLowerCase();
-  if(!videoId && /\bdt\s*h03\b/.test(lowerTitle))videoId="Dq0TXVZINVQ";
-  if(!videoId && /\btrust\b/.test(lowerTitle) && /\bgxt\s*269\b/.test(lowerTitle) && /\bemita\b/.test(lowerTitle))
-   videoId="mTZN5hXJkyQ";
-  if(!videoId && /\bclawstral\b/.test(lowerTitle))videoId="l3pgBTunwS4";
-  if(videoId){
-   const wrapper=S("div","review-video"),link=S("a","review-video-link","▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗");
-   link.href="https://www.youtube.com/watch?v="+videoId;
-   link.target="_blank";link.rel="noopener noreferrer";
-   wrapper.append(link);article.append(wrapper);
-  }
+ let videoId=String(record.youtube_id||"");
+ const parsed=String(record.video_url||"").match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+ if(!/^[a-zA-Z0-9_-]{11}$/.test(videoId)&&parsed)videoId=parsed[1];
+ if(review&&videoId){
+  const wrapper=S("div","review-video"),link=S("a","review-video-link","▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗");
+  link.href="https://www.youtube.com/watch?v="+videoId;link.target="_blank";link.rel="noopener noreferrer";wrapper.append(link);article.append(wrapper);
  }
- const text=S("div","article-text");
- // Mantieni esattamente ordine, paragrafi e sottotitoli dei blocchi correnti.
- // Nessun titolo artificiale «Approfondimento» e nessuna riformattazione automatica in anteprima.
- const blocks=Array.isArray(state.body)?state.body:[];
+ const text=S("div","article-text"),blocks=Array.isArray(state.body)?state.body:[];
  for(let i=0;i<blocks.length;i++){
   const block=blocks[i],typ=block.type,t=String(block.text||"");
   if(["paragraph","heading","quote"].includes(typ)){
    const node=S(typ==="heading"?"h2":typ==="quote"?"blockquote":"p",typ==="quote"?"studio-content-quote":"");
-   // I sottotitoli interpretano la stessa formattazione inline dei paragrafi.
-   node.append(richContent(t));
-   text.append(node);
+   node.append(richContent(t));text.append(node);
   }else if(typ==="image"){
    const figure=S("figure","story-figure studio-content-image studio-align-"+(block.align||"center"));
    const crop=S("div","studio-image-crop"),im=S("img");
    im.alt=block.alt||record.title||"";im.src=state.body[i]?.preview||block.preview||previewMediaUrl(block.url);
    im.style.objectPosition=(block.focus_x??50)+"% "+(block.focus_y??50)+"%";
    im.style.transform="scale("+Number(block.zoom??100)/100+") rotate("+Number(block.rotation??0)+"deg)";
-   crop.append(im);figure.append(crop);
-   if(block.caption)figure.append(S("figcaption","",block.caption));
-   text.append(figure);
+   crop.append(im);figure.append(crop);if(block.caption)figure.append(S("figcaption","",block.caption));text.append(figure);
   }else if(typ==="video"){
    const id=String(block.url||"").match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/)?.[1];
    if(id){const box=S("div","player studio-content-video"),thumb=S("img");thumb.src="https://i.ytimg.com/vi/"+id+"/hqdefault.jpg";thumb.alt="Anteprima video YouTube";box.append(thumb,S("p","v2-preview-media","▶ Riproduci video"));text.append(box)}
@@ -224,22 +279,32 @@ function showArticlePreview(savedRecord=null){
    const p=S("p","studio-content-attachment"),a=S("a","",t||"Apri allegato");a.href=block.url||"#";p.append(a);text.append(p);
   }
  }
+ const notes=Array.isArray(record.ending_notes)?record.ending_notes:[];
+ notes.forEach(note=>{if(String(note||"").trim())text.append(S("p","",String(note).trim()))});
+ const images=Array.isArray(record.images)?record.images:[];
+ images.forEach(item=>{
+  if(!item||!item.src)return;
+  const figure=S("figure","story-figure"),im=S("img");im.src=previewMediaUrl(item.src);im.alt=item.caption||record.title||"Immagine articolo";
+  figure.append(im);if(item.caption)figure.append(S("figcaption","",item.caption));text.append(figure);
+ });
  article.append(text);
  if(review){
-  const block=S("section","review-verdict"),header=S("div","verdict-heading");
-  header.append(S("h2","","Voto finale"),S("strong","verdict-score",record.score!==null&&record.score!==undefined&&record.score!==""?String(record.score).replace(".",",")+"/10":"Voto non disponibile"));
-  block.append(header);
-  const grid=S("div","verdict-grid");
-  for(const [label,values,cls] of [["Pro",record.pros,"verdict-pro"],["Contro",record.cons,"verdict-con"]]){
-   const side=S("div",cls);side.append(S("h3","",label));
-   const arr=Array.isArray(values)?values:[];if(arr.length){const ul=S("ul");arr.forEach(v=>ul.append(S("li","",v)));side.append(ul)}
-   else side.append(S("p","review-data-missing","Nessun elemento verificato nel testo attualmente disponibile."));
-   grid.append(side);
+  const score=String(record.score??"").trim(),pros=Array.isArray(record.pros)?record.pros.filter(Boolean):[],cons=Array.isArray(record.cons)?record.cons.filter(Boolean):[];
+  if(score||pros.length||cons.length){
+   const verdict=S("section","review-verdict"),grid=S("div","verdict-grid");
+   if(score){
+    const header=S("div","verdict-heading");
+    header.append(S("h2","","Voto finale"),S("strong","verdict-score",score.replace(".",",")+"/10"));verdict.append(header);
+   }
+   for(const [label,items,cls] of [["Pro",pros,"verdict-pro"],["Contro",cons,"verdict-con"]]){
+    if(!items.length)continue;
+    const side=S("div",cls);side.append(S("h3","",label));
+    const ul=S("ul");items.forEach(v=>ul.append(S("li","",v)));side.append(ul);grid.append(side);
+   }
+   if(pros.length||cons.length)verdict.append(grid);article.append(verdict);
   }
-  block.append(grid);article.append(block);
  }
- backupNow();
- E("v2-article-preview").hidden=false;
+ backupNow();E("v2-article-preview").hidden=false;
 }
 
 function closeArticlePreview(){E("v2-article-preview").hidden=true}
@@ -463,7 +528,7 @@ function inlineLink(){
 function renderBlocks(){
  const host=E("v2-blocks");host.replaceChildren();hideContext();state.context=null;
  state.body.forEach((b,i)=>{
-  const row=S("div","v2-editorial-row");row.dataset.index=i;
+  const row=S("div","v2-editorial-row"+(["paragraph","heading","quote"].includes(b.type)?" article-text":""));row.dataset.index=i;
   if(["paragraph","heading","quote"].includes(b.type)){
    const tag=b.type==="heading"?"h2":b.type==="quote"?"blockquote":"p";
    const editable=S(tag,"v2-rich-text");
