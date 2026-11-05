@@ -485,6 +485,7 @@ def studio_sectioned_body(review):
  """Render block order exactly: paragraphs, H2, links, images, video and CTA."""
  from urllib.parse import parse_qs
  result=[]
+ headings=False
  for block in review.get("body",[]):
   if not isinstance(block,dict):continue
   kind=str(block.get("type") or "")
@@ -545,9 +546,10 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # Do not invent an "Approfondimento" heading. The public article and
- # Studio must preserve the exact source-authored structure, including
- # reviews imported from YouTube that legitimately contain no H2 sections.
+ # Reviews imported from YouTube may legitimately contain no H2 sections.
+ # Keep the legacy fallback for non-review Studio content only.
+ if not headings and not str(review.get("category") or "").startswith("recensioni-"):
+  result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 
 
