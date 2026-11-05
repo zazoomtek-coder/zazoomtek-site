@@ -151,15 +151,20 @@ def build_studio_v2(output,rows):
    </div>
    <div class="v2-editor-layout">
     <div class="v2-paper-wrap">
-     <article class="v2-paper">
+     <article class="v2-paper article story-article" id="v2-edit-article">
+      <div id="v2-live-topline" class="review-topline" hidden></div>
       <label class="v2-field-title" for="v2-title">Titolo</label>
       <input id="v2-title" class="v2-title-input" type="text" placeholder="Inizia con un titolo..." maxlength="220">
+      <div id="v2-live-meta" class="story-meta"></div>
+      <p id="v2-live-equipment" class="review-equipment" hidden></p>
       <button type="button" id="v2-cover-add" class="v2-cover-add">▧ &nbsp; Aggiungi una copertina</button>
       <div id="v2-cover-stage" class="v2-cover-stage" hidden>
        <img id="v2-cover-image" alt="Copertina del contenuto">
        <div class="v2-cover-controls"><button id="v2-cover-change">Sostituisci</button><button id="v2-cover-edit">Ritaglia e centra</button><button id="v2-cover-remove">Rimuovi</button></div>
       </div>
+      <div id="v2-live-video" class="review-video" hidden></div>
       <div id="v2-blocks" class="v2-blocks" aria-label="Corpo dell'articolo"></div>
+      <section id="v2-live-verdict" class="review-verdict" hidden></section>
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
       <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
      </article>
