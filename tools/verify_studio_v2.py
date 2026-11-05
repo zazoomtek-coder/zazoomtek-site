@@ -30,7 +30,7 @@ def verify_studio_v2(output,rows):
  # paragraphs in Studio; no synthetic review outline or "Approfondimento".
  from studio_v2_build import editorial_blocks_for_editor
  from article_templates import studio_sectioned_body
- youtube_review={"slug":"youtube-review-source-test","title":"Recensione prodotto importata da YouTube",
+ youtube_review={"slug":"community-youtube-review-source-test","source":"youtube-community","title":"Recensione prodotto importata da YouTube",
   "category":"recensioni-tech","body":[
    "Apertura originale della recensione importata da YouTube.",
    "Secondo paragrafo originale con i dettagli del prodotto e dell'esperienza d'uso.",
