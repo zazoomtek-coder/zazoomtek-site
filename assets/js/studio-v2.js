@@ -263,7 +263,8 @@ function showArticlePreview(savedRecord=null){
   const block=blocks[i],typ=block.type,t=String(block.text||"");
   if(["paragraph","heading","quote"].includes(typ)){
    const node=S(typ==="heading"?"h2":typ==="quote"?"blockquote":"p",typ==="quote"?"studio-content-quote":"");
-   if(typ==="heading")node.textContent=t;else node.append(richContent(t));
+   // I sottotitoli interpretano la stessa formattazione inline dei paragrafi.
+   node.append(richContent(t));
    text.append(node);
   }else if(typ==="image"){
    const figure=S("figure","story-figure studio-content-image studio-align-"+(block.align||"center"));
@@ -788,7 +789,12 @@ E("v2-cover-sidebar").onclick=editCover;
 E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));seoStatus()};
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
 E("v2-modal-apply").onclick=()=>{if(state.modalApply?.()!==false)closeModal()};
-E("v2-preview-top").onclick=showArticlePreview;E("v2-preview-bottom").onclick=showArticlePreview;
+function previewFinalArticle(){
+ // Mostra la stessa struttura editoriale che save("publish") prepara alla pubblicazione.
+ applyEditorialFormat();
+ showArticlePreview();
+}
+E("v2-preview-top").onclick=previewFinalArticle;E("v2-preview-bottom").onclick=previewFinalArticle;
 E("v2-close-preview").onclick=closeArticlePreview;
 E("v2-article-preview").addEventListener("click",e=>{if(e.target===E("v2-article-preview"))closeArticlePreview()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!E("v2-article-preview").hidden)closeArticlePreview()});
