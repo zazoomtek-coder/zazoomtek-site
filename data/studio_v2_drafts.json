@@ -187,6 +187,66 @@
       },
       "kind": "edit",
       "updated_at": "2026-10-29T11:49:33.125Z"
+    },
+    "prova-studio-2": {
+      "record": {
+        "slug": "prova-studio-2",
+        "title": "PROVA STUDIO 2",
+        "category": "news-tech",
+        "image": "/assets/uploads/prova-studio-2/bac6595f6e9648cbbef9.jpg",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "IUADNG98VAERMHAE98ABH98EARJMB8ERMG98EAMJG0AEJG0E ETR9HRS DARGBSFHRTSHNBSRTH STRH SRTHGSRTGIRSG OISRNGOISHSHSF HSRHSH SRT SR HSRH SRHU UADNG98VAERMHAE98ABH98EARJMB8ERMG98EAMJG0AEJG0E ETR9HRS"
+          },
+          {
+            "type": "heading",
+            "text": "Screenshot_15.jpg"
+          },
+          {
+            "type": "paragraph",
+            "text": "DARGBSFHRTSHNBSRTH STRH SRTHGSRTGIRSG OISRNGOISHSHSF HSRHSH SRT SR HSRH SRHU UADNG98VAERMHAE98ABH98EARJMB8ERMG98EAMJG0AEJG0E ETR9HRS DA"
+          },
+          {
+            "type": "paragraph",
+            "text": "—"
+          },
+          {
+            "type": "heading",
+            "text": "Tutti i dettagli"
+          },
+          {
+            "type": "paragraph",
+            "text": "Tutti i dettagli"
+          },
+          {
+            "type": "paragraph",
+            "text": "RGBSFHRTSHNBSRTH STRH SRTHGSRTGIRSG OISRNGOISHSHSF HSRHSH SRT SR HSRH SRHU"
+          },
+          {
+            "type": "heading",
+            "text": "Gli elementi principali"
+          },
+          {
+            "type": "paragraph",
+            "text": "YUTY,FIY.IY"
+          }
+        ],
+        "studio_blocks": true,
+        "source": "studio-editor",
+        "author": "Redazione ZazoomTek",
+        "video_url": "",
+        "platform": "",
+        "score": "",
+        "pros": [],
+        "cons": [],
+        "cover_focus_x": 50,
+        "cover_focus_y": 50,
+        "cover_zoom": 100,
+        "cover_rotation": 0
+      },
+      "kind": "new",
+      "updated_at": "2026-11-05T09:38:32.696Z"
     }
   }
 }
