@@ -37,7 +37,7 @@ def editorial_blocks_for_editor(row):
  if not str(row.get("category") or "").startswith("recensioni-"):
   source=sectioned_body(row)
   rendered=[]
-  for match in re.finditer(r"<(h2|p|blockquote)\\b[^>]*>(.*?)</\\1>",source,re.S|re.I):
+  for match in re.finditer(r"<(h2|p|blockquote)\b[^>]*>(.*?)</\1>",source,re.S|re.I):
    tag,raw=match.groups()
    text=_EditorInline();text.feed(raw)
    value="".join(text.output).strip()
