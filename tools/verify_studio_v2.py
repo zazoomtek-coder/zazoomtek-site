@@ -61,7 +61,7 @@ def verify_studio_v2(output,rows):
                 "v2-plus","v2-cover-stage","v2-article-preview","v2-preview-article"): 
   assert marker in css,"V2 CSS missing "+marker
  for marker in ("v2-save","v2-drafts","save(\"draft\")","save(\"publish\")",
-                "showArticlePreview","formattedTextBlocks","restoreBackup",
+                "showArticlePreview","formattedTextBlocks","restoreBackup","syncArticleChrome",
                 "scheduleBackup","pagehide","editorialBodyForDisplay",
                 "openMenu","editCover","editMedia","showHome","startNew"):
   assert marker in script,"V2 JS missing "+marker
@@ -69,7 +69,7 @@ def verify_studio_v2(output,rows):
   assert marker in script,"WYSIWYG features missing: "+marker
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
- assert "20261028-studio-draft-preview-1" in page,"Browser must load updated editor CSS and JS"
+ assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
  # Only article BODY text may be recovered locally; never GitHub auth data.
  assert 'localStorage.setItem(backupKey(),JSON.stringify(payload))' in script
  assert 'record:collect()' in script
