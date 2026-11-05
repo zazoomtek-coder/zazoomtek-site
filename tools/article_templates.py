@@ -492,6 +492,7 @@ def studio_sectioned_body(review):
   value=str(block.get("text") or "").strip()
   if kind=="heading" and value:
    result.append('<h2>'+esc(value)+'</h2>')
+   headings=True
   elif kind=="paragraph" and value:
    result.append('<p>'+studio_inline(value)+'</p>')
   elif kind=="quote" and value:
