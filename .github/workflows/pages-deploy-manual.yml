@@ -1,10 +1,6 @@
 name: ZazoomTek - deploy manuale su zazoomtek.it
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'ops/studio-base64-fix-deploy.trigger'
 permissions:
   contents: read
   actions: write
