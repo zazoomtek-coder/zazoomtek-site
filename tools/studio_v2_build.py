@@ -35,8 +35,8 @@ def editorial_blocks_for_editor(row):
  for source in editorial_blocks(row):
   value=str(source or "").strip()
   if not value:continue
-  markdown=re.fullmatch(r"#{1,3}\\s+(.+?)\\s*#*",value)
-  bold=re.fullmatch(r"\\*\\*([^*\\n]{3,95})\\*\\*",value)
+  markdown=re.fullmatch(r"#{1,3}\s+(.+?)\\s*#*",value)
+  bold=re.fullmatch(r"\*\*([^*\n]{3,95})\*\*",value)
   heading=markdown.group(1).strip() if markdown else (bold.group(1).strip() if bold else "")
   if not heading:
    # Only promote a heading that already exists as an isolated source line.
@@ -45,6 +45,11 @@ def editorial_blocks_for_editor(row):
     heading=candidate
   blocks.append({"type":"heading" if heading else "paragraph",
                  "text":heading or value})
+ if not blocks:
+  raw=body if isinstance(body,list) else [body or ""]
+  for item in raw:
+   value=str(item if isinstance(item,str) else item.get("text") or item.get("content") or "").strip()
+   if value:blocks.append({"type":"paragraph","text":value})
  return blocks
 
 
