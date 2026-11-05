@@ -1,0 +1,35 @@
+name: ZazoomTek - deploy mirato fix Studio Base64
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ops/studio-base64-fix-deploy.trigger'
+permissions:
+  contents: read
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Genera il sito
+        run: python3 tools/build.py
+      - name: Verifica output
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
+      - name: Pubblica su Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
