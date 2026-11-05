@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build-preview:
-    name: Genera anteprima locale ZIP
+    name: Genera anteprima HTML apribile direttamente
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -36,50 +36,71 @@ jobs:
       - name: Genera il sito statico di anteprima
         run: python3 tools/build.py
 
-      - name: Prepara ZIP apribile su Windows
+      - name: Crea anteprima HTML autonoma senza BAT o server
         run: |
-          cat > dist/AVVIA-ANTEPRIMA.bat <<'BAT'
-          @echo off
-          setlocal
-          cd /d "%~dp0"
-          set "PORT=8765"
-          where py >nul 2>&1
-          if not errorlevel 1 (
-            start "" cmd /c "ping 127.0.0.1 -n 3 >nul & start http://127.0.0.1:%PORT%/"
-            py -m http.server %PORT% --bind 127.0.0.1
-            goto :eof
-          )
-          where python >nul 2>&1
-          if not errorlevel 1 (
-            start "" cmd /c "ping 127.0.0.1 -n 3 >nul & start http://127.0.0.1:%PORT%/"
-            python -m http.server %PORT% --bind 127.0.0.1
-            goto :eof
-          )
-          echo Python non trovato. Installa Python 3 e riapri questo file.
-          pause
-          BAT
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("dist")
+          page = root / "index.html"
+          html = page.read_text(encoding="utf-8")
+          css = (root / "assets/css/spotnews.css").read_text(encoding="utf-8")
+          js = (root / "assets/js/site.js").read_text(encoding="utf-8")
+          # Inline CSS and JavaScript: the homepage no longer depends on
+          # root-relative assets or a local HTTP server when opened as file://.
+          html = re.sub(
+              r'<link\\b(?=[^>]*rel=["\\']stylesheet["\\'])(?=[^>]*href=["\\']/assets/css/spotnews\\.css[^"\\']*["\\'])[^>]*>',
+              '<style>\\n' + css + '\\n</style>', html, count=1, flags=re.I)
+          html = re.sub(
+              r'<script\\b(?=[^>]*src=["\\']/assets/js/site\\.js[^"\\']*["\\'])[^>]*></script>',
+              '<script>\\n' + js + '\\n</script>', html, count=1, flags=re.I)
+          # Local image and media references on the homepage become paths
+          # relative to index.html. External HTTPS images remain unchanged.
+          def local_attr(match):
+              value = match.group(2)
+              if value.startswith("/") and not value.startswith("//"):
+                  value = "." + value
+              return match.group(1) + value + match.group(3)
+          html = re.sub(r'((?:src|href|poster|data-src)=["\\'])([^"\\']*)(["\\'])',
+                        local_attr, html, flags=re.I)
+          def local_srcset(match):
+              value = match.group(2)
+              value = re.sub(r'(?<!:)^/|(?<=,)\\s*/', lambda m: m.group(0).replace("/", "./"), value)
+              return match.group(1) + value + match.group(3)
+          html = re.sub(r'(srcset=["\\'])([^"\\']*)(["\\'])', local_srcset, html, flags=re.I)
+          page.write_text(html, encoding="utf-8")
+          if '<style>' not in html or '<script>' not in html or '/assets/css/spotnews.css' in html:
+              raise SystemExit("Anteprima autonoma non generata correttamente")
+          print("Homepage autonoma: CSS e JS incorporati; riferimenti locali relativi.")
+          PY
           cat > dist/LEGGIMI-ANTEPRIMA.txt <<'TXT'
           ZAZOOMTEK - ANTEPRIMA LOCALE
           
-          WINDOWS:
-          1. Estrai tutto lo ZIP in una cartella.
-          2. Fai doppio clic su AVVIA-ANTEPRIMA.bat.
-          3. Si aprira il browser con il sito in anteprima.
-          4. Per terminare, chiudi la finestra nera del server.
+          Estrai lo ZIP e fai doppio clic su index.html.
+          Si apre direttamente nel browser: non servono BAT, Python,
+          server locali o programmi aggiuntivi.
           
-          Requisito: Python 3 installato su Windows.
-          In alternativa, dalla cartella estratta esegui:
-          py -m http.server 8765
-          e visita http://127.0.0.1:8765/
-          
-          L'anteprima e locale sul tuo PC: non modifica e non pubblica
-          il sito ufficiale zazoomtek.it.
+          Il CSS e il JavaScript della home sono incorporati nell'HTML.
+          Le immagini remote richiedono una connessione Internet.
+          Questa anteprima non modifica e non pubblica zazoomtek.it.
           TXT
           cd dist
           zip -qr ../zazoomtek-preview.zip .
 
-      - name: Verifica archivio ZIP
-        run: test -s zazoomtek-preview.zip && unzip -tq zazoomtek-preview.zip
+      - name: Verifica archivio e apertura autonoma
+        run: |
+          test -s zazoomtek-preview.zip
+          unzip -tq zazoomtek-preview.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          with zipfile.ZipFile("zazoomtek-preview.zip") as z:
+              html = z.read("index.html").decode("utf-8")
+              assert "<style>" in html and "<script>" in html
+              assert "/assets/css/spotnews.css" not in html
+              assert "AVVIA-ANTEPRIMA.bat" not in z.namelist()
+          print("ZIP verificato: index.html autonomo, nessun BAT.")
+          PY
 
       - name: Carica ZIP scaricabile
         uses: actions/upload-artifact@v4
