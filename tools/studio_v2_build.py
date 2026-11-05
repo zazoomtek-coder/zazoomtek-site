@@ -3,7 +3,7 @@ import json,re,hashlib
 from pathlib import Path
 from html.parser import HTMLParser
 from seo import title_tag, description, keywords
-from article_templates import editorial_blocks, named_section
+from article_templates import editorial_blocks, named_section, sectioned_body
 
 class _EditorInline(HTMLParser):
  def __init__(self):
@@ -31,6 +31,18 @@ def editorial_blocks_for_editor(row):
  body=row.get("body")
  if row.get("studio_blocks") and isinstance(body,list) and body:
   return [dict(block) for block in body if isinstance(block,dict)]
+ # For non-review articles, keep the existing published site renderer's
+ # headings and paragraph order. The review importer below deliberately
+ # avoids the generated review outline that was confusing Studio users.
+ if not str(row.get("category") or "").startswith("recensioni-"):
+  source=sectioned_body(row)
+  rendered=[]
+  for match in re.finditer(r"<(h2|p|blockquote)\\b[^>]*>(.*?)</\\1>",source,re.S|re.I):
+   tag,raw=match.groups()
+   text=_EditorInline();text.feed(raw)
+   value="".join(text.output).strip()
+   if value:rendered.append({"type":"heading" if tag=="h2" else "quote" if tag=="blockquote" else "paragraph","text":value})
+  if rendered:return rendered
  blocks=[]
  for source in editorial_blocks(row):
   value=str(source or "").strip()
