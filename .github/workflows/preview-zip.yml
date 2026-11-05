@@ -22,20 +22,16 @@ jobs:
     steps:
       - name: Checkout codice della modifica
         uses: actions/checkout@v4
-
       - name: Configura Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Controlla sintassi e test SEO
         run: |
           python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py
           python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
-
       - name: Genera il sito statico di anteprima
         run: python3 tools/build.py
-
       - name: Crea anteprima HTML autonoma senza BAT o server
         run: |
           python3 - <<'PY'
@@ -46,32 +42,29 @@ jobs:
           html = page.read_text(encoding="utf-8")
           css = (root / "assets/css/spotnews.css").read_text(encoding="utf-8")
           js = (root / "assets/js/site.js").read_text(encoding="utf-8")
-          # Inline CSS and JavaScript: the homepage no longer depends on
-          # root-relative assets or a local HTTP server when opened as file://.
-          html = re.sub(
-              r'<link\\b(?=[^>]*rel=["\\']stylesheet["\\'])(?=[^>]*href=["\\']/assets/css/spotnews\\.css[^"\\']*["\\'])[^>]*>',
-              '<style>\\n' + css + '\\n</style>', html, count=1, flags=re.I)
-          html = re.sub(
-              r'<script\\b(?=[^>]*src=["\\']/assets/js/site\\.js[^"\\']*["\\'])[^>]*></script>',
-              '<script>\\n' + js + '\\n</script>', html, count=1, flags=re.I)
-          # Local image and media references on the homepage become paths
-          # relative to index.html. External HTTPS images remain unchanged.
+          html, css_count = re.subn(
+              r"""<link\b(?=[^>]*rel=["']stylesheet["'])(?=[^>]*href=["']/assets/css/spotnews\.css[^"']*["'])[^>]*>""",
+              lambda m: '<style>\\n' + css + '\\n</style>', html, count=1, flags=re.I)
+          html, js_count = re.subn(
+              r"""<script\b(?=[^>]*src=["']/assets/js/site\.js[^"']*["'])[^>]*></script>""",
+              lambda m: '<script>\\n' + js + '\\n</script>', html, count=1, flags=re.I)
+          if css_count != 1 or js_count != 1:
+              raise SystemExit(f"Asset non incorporati: CSS={css_count}, JS={js_count}")
           def local_attr(match):
               value = match.group(2)
               if value.startswith("/") and not value.startswith("//"):
                   value = "." + value
               return match.group(1) + value + match.group(3)
-          html = re.sub(r'((?:src|href|poster|data-src)=["\\'])([^"\\']*)(["\\'])',
+          html = re.sub(r"""((?:src|href|poster|data-src)=["'])([^"']*)(["'])""",
                         local_attr, html, flags=re.I)
           def local_srcset(match):
-              value = match.group(2)
-              value = re.sub(r'(?<!:)^/|(?<=,)\\s*/', lambda m: m.group(0).replace("/", "./"), value)
+              value = re.sub(r"""(^|,\\s*)/""", r"\\1./", match.group(2))
               return match.group(1) + value + match.group(3)
-          html = re.sub(r'(srcset=["\\'])([^"\\']*)(["\\'])', local_srcset, html, flags=re.I)
+          html = re.sub(r"""(srcset=["'])([^"']*)(["'])""", local_srcset, html, flags=re.I)
           page.write_text(html, encoding="utf-8")
           if '<style>' not in html or '<script>' not in html or '/assets/css/spotnews.css' in html:
               raise SystemExit("Anteprima autonoma non generata correttamente")
-          print("Homepage autonoma: CSS e JS incorporati; riferimenti locali relativi.")
+          print("CSS e JavaScript incorporati nell'HTML; percorsi locali resi relativi.")
           PY
           cat > dist/LEGGIMI-ANTEPRIMA.txt <<'TXT'
           ZAZOOMTEK - ANTEPRIMA LOCALE
@@ -86,22 +79,19 @@ jobs:
           TXT
           cd dist
           zip -qr ../zazoomtek-preview.zip .
-
       - name: Verifica archivio e apertura autonoma
         run: |
           test -s zazoomtek-preview.zip
           unzip -tq zazoomtek-preview.zip
           python3 - <<'PY'
-          from pathlib import Path
           import zipfile
           with zipfile.ZipFile("zazoomtek-preview.zip") as z:
               html = z.read("index.html").decode("utf-8")
               assert "<style>" in html and "<script>" in html
               assert "/assets/css/spotnews.css" not in html
-              assert "AVVIA-ANTEPRIMA.bat" not in z.namelist()
-          print("ZIP verificato: index.html autonomo, nessun BAT.")
+              assert not any(n.lower().endswith((".bat", ".cmd")) for n in z.namelist())
+          print("ZIP verificato: index.html autonomo, nessun BAT o CMD.")
           PY
-
       - name: Carica ZIP scaricabile
         uses: actions/upload-artifact@v4
         with:
