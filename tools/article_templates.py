@@ -485,7 +485,6 @@ def studio_sectioned_body(review):
  """Render block order exactly: paragraphs, H2, links, images, video and CTA."""
  from urllib.parse import parse_qs
  result=[]
- headings=0
  for block in review.get("body",[]):
   if not isinstance(block,dict):continue
   kind=str(block.get("type") or "")
