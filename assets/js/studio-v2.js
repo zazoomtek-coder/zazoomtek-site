@@ -723,7 +723,7 @@ async function save(mode){
    E("v2-autosave-status").textContent="In coda per le 12:30 o le 19:30. Questa è l’anteprima della versione salvata; il sito online non cambia ora.";
    delete state.drafts[row.slug];
    E("v2-public-link").hidden=true; // Solo dopo la pubblicazione programmata.
-   state.current={...(response.record||{}),...row,__queued:true};state.newContent=false;
+   state.current={...(state.current||{}),...(response.record||{}),...row,__queued:true};state.newContent=false;
    E("v2-slug").readOnly=true;
    state.rows=[state.current,...state.rows.filter(x=>x.slug!==row.slug)];
    showArticlePreview(state.current);
