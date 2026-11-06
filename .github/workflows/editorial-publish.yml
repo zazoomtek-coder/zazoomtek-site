@@ -1,7 +1,13 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
-# Scheduler exclusively Cloudflare Workers; GitHub remains execution engine.
+# Cloudflare remains the only scheduler; an owner can also request an immediate manual release.
 on:
   workflow_dispatch:
+    inputs:
+      publish_now:
+        description: "Pubblica subito su zazoomtek.it (avvio manuale del proprietario)"
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   deployments: write
@@ -15,6 +21,7 @@ jobs:
     env:
       CF_PAGES_BRANCH: main
       CF_PAGES_URL: https://zazoomtek.it
+      EDITORIAL_FORCE_RELEASE: ${{ inputs.publish_now }}
     steps:
       - name: Carica la versione ufficiale di main
         uses: actions/checkout@v4
@@ -31,30 +38,24 @@ jobs:
           node --check assets/js/studio-v2.js
           node --input-type=module --check < 'functions/api/studio/[[path]].js'
           node --input-type=module --check < cloudflare/cron-publisher/src/index.js
-
-      # 1. IMPORTAZIONE REALE in data/, mai soltanto il vecchio JSON.
-      # La coda editoriale e' una riserva, non un prerequisito.
       - name: Recupera eventuale coda YouTube senza bloccare il caricamento diretto
         run: git fetch --no-tags origin editorial-queue || echo "Coda non raggiungibile; importazione diretta ancora disponibile"
       - name: IMPORTA ORA i nuovi post Community, video YouTube e notizie RSS
         run: python3 tools/scheduled_editorial_import.py
       - name: Confronta i dati reali con l'ultima pubblicazione riuscita
         run: python3 tools/editorial_slot_gate.py prepare
-
-      # Validate the generated site before writing imported data to main.
       - name: Rigenera il sito SpotNews con le notizie appena importate
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/build.py
       - name: Verifica presenza dei file editoriali generati
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/news-sitemap.xml && test -s dist/robots.txt && test -s dist/_routes.json && test -s dist/BingSiteAuth.xml && cmp -s BingSiteAuth.xml dist/BingSiteAuth.xml
-
-      # 2. PUBBLICAZIONE SOLO NEI TRE SLOT. Nessun trigger cron
-      # puo' bypassare il controllo temporale.
-      - name: Attendi lo slot italiano e impedisci deploy fuori dalle tre finestre
+      # Scheduled Cloudflare runs remain limited to their three slots.
+      # An explicit owner-triggered manual run can publish immediately.
+      - name: Autorizza la pubblicazione nello slot o su richiesta manuale del proprietario
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/editorial_slot_gate.py authorize
-      - name: Salva i dati verificati in main solo dopo l'autorizzazione dello slot
+      - name: Salva i dati verificati in main solo dopo l'autorizzazione
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         run: |
           git add data/community_imported.json data/videos.json data/web.json data/studio_posts.json data/studio_overrides.json
@@ -62,7 +63,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "ZazoomTek Scheduled Import"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "[CF-Pages-Skip] Importa contenuti verificati nello slot autorizzato"
+            git commit -m "[CF-Pages-Skip] Importa contenuti editoriali verificati"
             git push origin HEAD:main
           else
             echo "Nessuna modifica editoriale da salvare."
@@ -78,12 +79,12 @@ jobs:
       - name: Verifica sul sito pubblico ogni articolo Studio e Community di oggi
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         run: python3 tools/verify_editorial_live.py
-      - name: Memorizza conferma del deploy riuscito ed evita doppioni nello slot
+      - name: Memorizza conferma del deploy editoriale
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
         run: |
           python3 tools/editorial_slot_gate.py stamp
           git add data/editorial_release_state.json
           git config user.name "ZazoomTek Release Receipt"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "[CF-Pages-Skip] Conferma deploy editoriale dello slot ${EDITORIAL_TARGET}"
+          git commit -m "[CF-Pages-Skip] Conferma deploy editoriale"
           git push origin HEAD:main
