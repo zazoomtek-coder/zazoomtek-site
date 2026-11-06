@@ -104,6 +104,8 @@ def verify_studio_v2(output,rows):
   assert '"'+filename+'"' in gate, "Original Studio file missing from release fingerprint: "+filename
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
  assert '[[12, 30], [16, 0], [19, 30]]' in cron, "16:00 Cloudflare trigger missing"
+ live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
+ assert 'rows("studio_overrides.json", "overrides")' in live_check and 'is_today(row.get("updated_at"))' in live_check, "Live release verification must check Studio edits as well as new articles"
  # Existing original SEO is frozen when an article is edited; brand-new
  # articles still receive automatic content-derived SEO.
  original=next((r for r in rows if len(str(r.get("title") or ""))>20),None)

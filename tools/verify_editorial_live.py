@@ -26,11 +26,26 @@ def rows(filename, key):
     return json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))[key]
 
 
+def is_today(value):
+    try:
+        stamp = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=ZoneInfo("Europe/Rome"))
+        return stamp.astimezone(ZoneInfo("Europe/Rome")).date().isoformat() == TODAY
+    except (ValueError, TypeError, OverflowError):
+        return False
+
+
 def targets():
     chosen = []
     for row in rows("studio_posts.json", "posts"):
         if row.get("date") == TODAY and row.get("slug"):
             chosen.append((row["slug"], row["title"]))
+    # An edit to an existing article keeps its original publication date.
+    # Use updated_at so the live verifier checks the changed page in today's slot.
+    for slug, row in rows("studio_overrides.json", "overrides").items():
+        if slug and row.get("title") and is_today(row.get("updated_at")):
+            chosen.append((slug, row["title"]))
     for row in rows("community_imported.json", "posts"):
         if row.get("date") == TODAY and row.get("id") and row.get("title"):
             slug = "community-" + re.sub(r"[^a-z0-9]+", "-", row["id"].lower()).strip("-")
@@ -59,9 +74,10 @@ def main():
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
-    # Validate approved cover assets before confirming a release.
-    for row in rows("studio_posts.json", "posts"):
-        if row.get("date") != TODAY:
+    # Validate approved cover assets for both new articles and edits.
+    studio_rows = rows("studio_posts.json", "posts") + list(rows("studio_overrides.json", "overrides").values())
+    for row in studio_rows:
+        if not is_today(row.get("updated_at") or row.get("date")):
             continue
         asset = str(row.get("image") or "")
         if asset.startswith("/assets/uploads/") and not (ROOT / "dist" / asset.lstrip("/")).is_file():

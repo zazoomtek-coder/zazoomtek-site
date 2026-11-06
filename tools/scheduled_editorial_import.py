@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ZazoomTek editorial import. Run before approved 12:30/19:30 releases.
+"""ZazoomTek editorial import. Run before approved 12:30/16:00/19:30 releases.
 
 Safely combine full original YouTube Community posts, channel RSS videos,
 previously staged queue records and six external RSS sources.
