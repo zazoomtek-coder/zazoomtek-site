@@ -11,7 +11,8 @@ from html import escape as esc, unescape
 
 from article_templates import (
  editorial_blocks, is_review, named_section, source_plain_h2,
- rich_text, sectioned_body, with_official_link, merge_repeated_info_sections
+ rich_text, sectioned_body, with_official_link, merge_repeated_info_sections,
+ normalize_editorial_headings
 )
 
 def check_all(rows, output, stylesheet):
@@ -33,7 +34,7 @@ def check_all(rows, output, stylesheet):
    if not path.is_file():raise AssertionError("Generated article file missing")
    page=path.read_text(encoding="utf-8")
    unmerged_body=sectioned_body(row)
-   body=merge_repeated_info_sections(unmerged_body)
+   body=normalize_editorial_headings(merge_repeated_info_sections(unmerged_body))
    title=esc(str(row.get("title") or "").strip())
    if not title or "<h1>"+title+"</h1>" not in page:
     raise AssertionError("Missing/incorrect primary headline")
@@ -46,7 +47,8 @@ def check_all(rows, output, stylesheet):
    if not (page.find("<h1>")>=0 and meta>=0 and cover>=0 and content>=0 and
            page.find("<h1>")<meta<cover<content):
     raise AssertionError("Incorrect H1 → metadata → cover → article content order")
-   if merge_repeated_info_sections(with_official_link(unmerged_body,row)) not in page:raise AssertionError("Rendered editorial content differs from shared template")
+   expected_body=normalize_editorial_headings(merge_repeated_info_sections(with_official_link(unmerged_body,row)))
+   if expected_body not in page:raise AssertionError("Rendered editorial content differs from shared template")
    h2s=re.findall(r"<h2>(.*?)</h2>",body,flags=re.S)
    if not h2s or any(not re.sub("<[^>]+>","",h).strip() for h in h2s):
     raise AssertionError("Article is missing editorial red-bar subtitles")
