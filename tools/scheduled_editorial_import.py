@@ -162,6 +162,8 @@ def sync_studio_publications():
             for item in queued:
                 if not _valid_studio_row(item):
                     raise ValueError("Invalid approved Studio post in queue: " + str(item.get("slug", "<missing>")))
+                item = dict(item)
+                item["category"] = _studio_category(item)
 
                 idx = indexed.get(item["slug"])
                 if idx is None:
@@ -189,6 +191,8 @@ def sync_studio_publications():
                 for slug, item in queue_obj.items():
                     if not _valid_studio_row(item, slug):
                         raise ValueError("Invalid approved Studio override in queue: " + str(slug))
+                    item = dict(item)
+                    item["category"] = _studio_category(item)
 
                     current = rows.get(slug)
                     if current is None or (current != item and _date_stamp(item) > _date_stamp(current)):
