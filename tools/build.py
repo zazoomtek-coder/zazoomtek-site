@@ -131,6 +131,14 @@ def community_posts():
   if not isinstance(title,str) or not title.strip():continue
   image=safe_image(item.get("image",""))
   original_url=str(item.get("url") or item.get("source_url") or "")
+  # Preserve the former ZazoomTek article path before normalizing the source
+  # URL to YouTube, so friendly legacy slugs can receive verified 301 aliases.
+  archive_url=str(item.get("site_archive_url") or item.get("url") or "")
+  archive_ref=urlparse(archive_url)
+  original_slug=archive_ref.path.strip("/")
+  if (archive_ref.scheme!="https" or archive_ref.netloc.casefold() not in ("zazoomtek.it","www.zazoomtek.it")
+      or not re.fullmatch(r"[A-Za-z0-9_-]+(?:\.html)?",original_slug)):
+   original_slug=str(item.get("original_slug") or "")
   if is_full and not re.fullmatch(r"https://www\.youtube\.com/post/Ug[A-Za-z0-9_-]{12,}",original_url):
    original_url="https://www.youtube.com/post/"+post_id
   if not is_full:original_url=""
@@ -139,6 +147,7 @@ def community_posts():
   result.append({
    **points,
    "slug":slug,"category":cat,"source_post_id":post_id,
+   "original_slug":original_slug,
    "title":("TRUST GXT 269 EMITA II | Recensione" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else title.strip()),
    "device":("Trust GXT 269 Emita II" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else item.get("device","")),
    "body":[part.strip() for part in re.split(r"\n\s*\n",text) if part.strip()],
