@@ -311,7 +311,7 @@ def editorial_blocks(review):
   cleaned=[p.strip() for p in pieces if p.strip()]
   # Remove only the exact final channel-promotion footer and everything after it.
   # Preserve all article paragraphs, source headings, bold text, links and CTAs before it.
-  footer=re.compile(r"(?is)\\s*Subscribe\\s+🌐\\s*zazoomtek\\.it\\b.*$")
+  footer=re.compile(r"(?is)\s*Subscribe\s+🌐\s*zazoomtek\.it\b.*$")
   for index,block in enumerate(cleaned):
    match=footer.search(block)
    if match:
