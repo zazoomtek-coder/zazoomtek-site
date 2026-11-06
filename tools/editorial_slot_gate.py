@@ -108,12 +108,9 @@ def prepare():
         print("THIS SLOT IS ALREADY PUBLISHED", slot.isoformat(), flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
         return
-    if old.get("content_digest") == current:
-        print("NO NEW YOUTUBE/RSS CONTENT. No deployment this slot.", flush=True)
-        emit("EDITORIAL_NEEDS_RELEASE", "false")
-        return
-    print("NEW VERIFIED EDITORIAL CONTENT:", slot.isoformat(),
-          "SHA256:", current[:20], flush=True)
+    print("SCHEDULED SLOT RELEASE REQUIRED:", slot.isoformat(),
+          "CONTENT SHA256:", current[:20],
+          "(full import/build/deploy is required even when the digest is unchanged)", flush=True)
     emit("EDITORIAL_NEEDS_RELEASE", "true")
     emit("EDITORIAL_TARGET", slot.isoformat())
 
