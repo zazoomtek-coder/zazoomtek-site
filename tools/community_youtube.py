@@ -96,15 +96,21 @@ def title_type(text):
  if not title:return "",None
  if len(title)>210:title=title[:210].rsplit(" ",1)[0].strip()
  mark=title.lower()
- if mark.startswith(("news tech:","news gaming:","news guide:","news extra:","news speciali:","news special:","news:")):kind="news"
- elif mark.startswith(("review:","recensione:","review tech:","review gaming:")):kind="review"
- elif mark.startswith(("guida:","guide:")):kind="guide"
- elif mark.startswith(("speciale:","special:")):kind="speciali"
- elif mark.startswith("extra:"):kind="extra"
+ # Preserve the editorial category instead of collapsing every "News ..." post
+ # into generic news. These values are consumed by the site importer.
+ if mark.startswith(("news tech:","news gaming:")):kind="news"
+ elif mark.startswith(("news guide:","guida:","guide:")):kind="guide"
+ elif mark.startswith(("news extra:","extra:")):kind="extra"
+ elif mark.startswith(("news speciali:","news special:","speciale:","special:")):kind="speciali"
+ elif mark.startswith(("review:","recensione:","review tech:","review gaming:","recensione tech:","recensione gaming:")):kind="review"
+ elif mark.startswith("news:"):kind="news"
  else:
-  # Public channel sometimes begins with an editorial heading followed by a colon.
+  # Accept known editorial headings even when punctuation or line breaks vary.
   first=" ".join((text or "").split()[:22]).lower()
   if first.startswith(("news tech","news gaming")):kind="news"
+  elif first.startswith(("news guide","guida","guide")):kind="guide"
+  elif first.startswith(("news extra","extra")):kind="extra"
+  elif first.startswith(("news speciali","news special","speciale","special")):kind="speciali"
   elif first.startswith(("review","recensione")):kind="review"
   else:return title,None
  return title,kind
