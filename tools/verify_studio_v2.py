@@ -73,8 +73,14 @@ def verify_studio_v2(output,rows):
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
- assert "Articolo salvato correttamente su main." in script
- assert "Salvato su main. La pagina online" in script
+ assert "Articolo salvato su main: il sito si aggiornerà alle 12:30, 16:00 o 19:30." in script
+ assert "Salvato su main. La pagina online si aggiornerà al prossimo slot: 12:30, 16:00 o 19:30." in script
+ assert 'cover.loading="eager"' in script and 'cover.fetchPriority="high"' in script
+ preview=script.split("function showArticlePreview",1)[1].split("function closeArticlePreview",1)[0]
+ assert "review-topline" not in preview, "Studio preview adds a label absent from the live article template"
+ order=[preview.find('article.append(S("h1"'),preview.find("article.append(meta)"),
+        preview.find('S("figure","story-figure")'),preview.find("article.append(text)")]
+ assert all(position>=0 for position in order) and order==sorted(order), "Studio preview order differs from live article template"
  build=(Path(__file__).resolve().parents[1]/"tools/build.py").read_text(encoding="utf-8")
  assert "from article_templates import render" in build and "render(page,safe_image)" in build, "Studio pages must use the live shared editorial article template"
  # Only article BODY text may be recovered locally; never GitHub auth data.
@@ -85,8 +91,16 @@ def verify_studio_v2(output,rows):
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
-                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch=PUBLISH_BRANCH','[CF-Pages-Skip] '):
+                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch=PUBLISH_BRANCH','[CF-Pages-Skip] ',
+                'next_slots:["12:30","16:00","19:30"]',
+                'readFile(token,"data/studio_posts.json",BRANCH)',
+                'readFile(token,"data/studio_overrides.json",BRANCH)'):
   assert marker in api,"V2 backend missing "+marker
+ gate=(Path(__file__).resolve().parents[1]/"tools/editorial_slot_gate.py").read_text(encoding="utf-8")
+ assert '((12, 30), (16, 0), (19, 30))' in gate, "16:00 editorial release gate missing"
+ assert 'functions/api/studio/[[path]].js' in gate and 'assets/js/studio-v2.js' in gate, "Studio changes are not included in the release fingerprint"
+ cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
+ assert '[[12, 30], [16, 0], [19, 30]]' in cron, "16:00 Cloudflare trigger missing"
  # Existing original SEO is frozen when an article is edited; brand-new
  # articles still receive automatic content-derived SEO.
  original=next((r for r in rows if len(str(r.get("title") or ""))>20),None)

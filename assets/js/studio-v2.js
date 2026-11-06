@@ -227,22 +227,26 @@ function showArticlePreview(savedRecord=null){
  const article=E("v2-preview-article-content");article.replaceChildren();
  const review=String(record.category||"").startsWith("recensioni-");
  article.className="article story-article "+(review?"review-article":"news-article");
- if(review)article.append(S("div","review-topline",cats[record.category]||"Recensione"));
  article.append(S("h1","",record.title||"Titolo dell'articolo"));
  const meta=S("div","story-meta");
  const date=String(record.date||record.published_at||"").slice(0,10);
- let dateLabel="Data non disponibile";
+ let dateNode=null;
  if(/^\d{4}-\d{2}-\d{2}$/.test(date)){
   const parsed=new Date(date+"T12:00:00");
-  if(!Number.isNaN(parsed.getTime()))dateLabel=parsed.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
+  if(!Number.isNaN(parsed.getTime())){
+   dateNode=S("time","",String(parsed.getDate())+" "+parsed.toLocaleDateString("it-IT",{month:"long"})+" "+parsed.getFullYear());
+   dateNode.dateTime=date;
+  }
  }
  for(const [cls,label,value] of [
   ["story-meta-author","Autore:",record.author||"Redazione ZazoomTek"],
-  ["story-meta-date","Data:",dateLabel],
+  ["story-meta-date","Data:",dateNode],
   ["story-meta-category","Categoria:",cats[record.category]||"Articolo"]
  ]){
   const span=S("span",cls),strong=S("strong","",label+" ");
-  span.append(strong,document.createTextNode(value));meta.append(span);
+  span.append(strong);
+  if(value instanceof Node)span.append(value);else span.append(document.createTextNode(value||"Data non disponibile"));
+  meta.append(span);
  }
  article.append(meta);
  const device=articleEquipment(record);
@@ -253,9 +257,11 @@ function showArticlePreview(savedRecord=null){
  if(record.image||state.coverPreview){
   const figure=S("figure","story-figure"),cover=S("img");
   cover.alt=record.image_caption||record.title||"Copertina";cover.src=state.coverPreview||previewMediaUrl(record.image);
+  cover.loading="eager";cover.fetchPriority="high";cover.decoding="async";
   figure.append(cover);if(record.image_caption)figure.append(S("figcaption","",record.image_caption));article.append(figure);
  }else{
   const fallback=S("div","story-cover-fallback");
+  fallback.setAttribute("role","img");fallback.setAttribute("aria-label","Copertina editoriale senza fotografia originale");
   fallback.append(S("span","",review?"Recensione":"Articolo"),S("strong","",record.title||"Articolo"));article.append(fallback);
  }
  let videoId=String(record.youtube_id||"");
@@ -728,13 +734,13 @@ async function save(mode){
   backupNow();
   if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
   const response=await api("v2-save",{mode,record:row,creating:state.newContent});
-  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Articolo salvato correttamente su main.");
+  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Articolo salvato su main: il sito si aggiornerà alle 12:30, 16:00 o 19:30.");
   if(mode==="draft"){
    state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:new Date().toISOString()};
    E("v2-autosave-status").textContent="Bozza salvata anche su GitHub. Il sito pubblico non è stato modificato.";
   }else{
    try{localStorage.removeItem(backupKey())}catch(e){}
-   E("v2-autosave-status").textContent="Salvato su main. La pagina online si aggiornerà con il successivo deploy editoriale autorizzato.";
+   E("v2-autosave-status").textContent="Salvato su main. La pagina online si aggiornerà al prossimo slot: 12:30, 16:00 o 19:30.";
    delete state.drafts[row.slug];
    E("v2-public-link").hidden=true; // Solo dopo la pubblicazione programmata.
    state.current={...(state.current||{}),...(response.record||{}),...row,__queued:true};state.newContent=false;

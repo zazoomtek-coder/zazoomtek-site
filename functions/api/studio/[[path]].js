@@ -339,9 +339,18 @@ function draftValue(raw){
  };
 }
 async function pendingV2(token){
- const [pending,edits]=await Promise.all([readFile(token,"data/studio_posts.json",PUBLISH_BRANCH),readFile(token,"data/studio_overrides.json",PUBLISH_BRANCH)]);
- return {posts:Array.isArray(pending.content?.posts)?pending.content.posts:[],
-  overrides:edits.content?.overrides&&typeof edits.content.overrides==="object"?edits.content.overrides:{}};
+ // New publications are written to main; include older items still waiting on editorial-queue.
+ const [mainPosts,legacyPosts,mainEdits,legacyEdits]=await Promise.all([
+  readFile(token,"data/studio_posts.json",PUBLISH_BRANCH),
+  readFile(token,"data/studio_posts.json",BRANCH),
+  readFile(token,"data/studio_overrides.json",PUBLISH_BRANCH),
+  readFile(token,"data/studio_overrides.json",BRANCH)
+ ]);
+ const posts=new Map();
+ for(const row of [...(legacyPosts.content?.posts||[]),...(mainPosts.content?.posts||[])])
+  if(row?.slug)posts.set(row.slug,row);
+ return {posts:[...posts.values()],
+  overrides:{...(legacyEdits.content?.overrides||{}),...(mainEdits.content?.overrides||{})}};
 }
 async function saveV2(request,env,session){
  const data=await parseInput(request,1000000),mode=clean(data.mode);
@@ -369,7 +378,7 @@ async function saveV2(request,env,session){
  const pendingItems=Array.isArray(queuedPosts.content?.posts)?queuedPosts.content.posts:[];
  const queuedIndex=pendingItems.findIndex(p=>p.slug===record.slug);
  const queuedExisting=queuedIndex>=0?pendingItems[queuedIndex]:null;
- if(data.creating&&existing)throw new Error("L'indirizzo esiste già: usa Modifica.");
+ if(data.creating&&(existing||queuedExisting))throw new Error("L'indirizzo esiste già: apri l'articolo con Modifica.");
  if(!data.creating&&!existing&&!queuedExisting)throw new Error("Articolo non trovato: aggiorna la libreria.");
  if(existing){
   const oldSeo=existing.seo_lock;
@@ -419,8 +428,8 @@ async function saveV2(request,env,session){
   }
  }catch(_){}
  return respond({ok:true,mode:"publish",slug:record.slug,
-  record,status:"saved-main",branch:PUBLISH_BRANCH,
-  message:"Articolo salvato su main. La pubblicazione sul sito avverrà con il successivo deploy editoriale autorizzato."});
+  record,status:"saved-main",branch:PUBLISH_BRANCH,next_slots:["12:30","16:00","19:30"],
+  message:"Articolo e copertina salvati su main. Il sito verrà aggiornato al prossimo slot editoriale autorizzato."});
 }
 
 export async function onRequest(context){
@@ -474,7 +483,13 @@ export async function onRequest(context){
    if(asset.startsWith("/"))asset=asset.slice(1);
    if(!asset.startsWith("assets/uploads/")||!allowedPath(asset))
     return respond({ok:false,error:"Media non autorizzato."},400);
-   const file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+PUBLISH_BRANCH);
+   let file;
+   try{
+    file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+PUBLISH_BRANCH);
+   }catch(error){
+    if(!/Not Found/i.test(error.message))throw error;
+    file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+BRANCH);
+   }
    if(file.encoding!=="base64"||!file.content)throw new Error("Media non disponibile in anteprima.");
    const ext=asset.split(".").pop();
    const mime={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",
