@@ -520,7 +520,7 @@ def studio_sectioned_body(review):
      result.append('<h2>'+esc(heading.rstrip(":"))+'</h2>')
      headings=True
      continue
-    split=re.search(r"(?<=[.!?])\\s+([A-ZÀ-ÖØ-Ý][^.!?…]{5,95}:?[^.!?…]*)$",heading)
+    split=re.search(r"(?<=[.!?])\s+([A-ZÀ-ÖØ-Ý][^.!?…]{5,95}:?[^.!?…]*)$",heading)
     if split and ":" in split.group(1) and len(split.group(1))<=100:
      prose=heading[:split.start()].strip()
      title=split.group(1).strip().rstrip(":")
