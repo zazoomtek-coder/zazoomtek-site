@@ -75,15 +75,34 @@ def merge_queue(queue_file, dest_file, key, archived):
 
 
 
-# Studio writes approved publications to the protected editorial-queue branch.
-# These TWO data files and newly uploaded assets must be copied to the release
-# snapshot, otherwise "Pubblica" is acknowledged but NEVER goes live.
-# Drafts (data/studio_v2_drafts.json) are NEVER imported or published.
+# Studio publishes approved articles and their media directly to main.
+# editorial-queue is read ONLY as a backward-compatible source for older
+# publications that may still be waiting there. Never import V2 drafts.
 STUDIO_CATEGORIES = {
-    "news-tech", "news-gaming", "recensioni-tech", "recensioni-gaming",
-    "guide", "speciali", "extra",
+    "news-tech", "news-gaming", "extra", "speciali", "guide",
+    "recensioni-tech", "recensioni-gaming",
+}
+STUDIO_CATEGORY_LABELS = {
+    "news tech": "news-tech",
+    "news gaming": "news-gaming",
+    "news extra": "extra",
+    "news speciali": "speciali",
+    "news guide": "guide",
+    "recensioni tech": "recensioni-tech",
+    "recensioni gaming": "recensioni-gaming",
 }
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def _studio_category(row):
+    category = str(row.get("category") or "").strip().lower().replace("_", " ").replace("-", " ")
+    if category in STUDIO_CATEGORY_LABELS:
+        return STUDIO_CATEGORY_LABELS[category]
+    if category == "recensioni":
+        kind = str(row.get("review_type") or row.get("subcategory") or "").strip().lower()
+        if kind in ("tech", "gaming"):
+            return "recensioni-" + kind
+    return category.replace(" ", "-")
 
 
 def _date_stamp(row):
@@ -104,7 +123,7 @@ def _valid_studio_row(row, slug=None):
         return False
     if slug is not None and key != slug:
         return False
-    if row.get("category") not in STUDIO_CATEGORIES or not row.get("image"):
+    if _studio_category(row) not in STUDIO_CATEGORIES or not row.get("image"):
         return False
     if not isinstance(row.get("title"), str) or len(row["title"]) < 12:
         return False
@@ -119,10 +138,13 @@ def _valid_studio_row(row, slug=None):
 
 
 def sync_studio_publications():
-    """Merge ONLY explicitly published Studio data, never its saved drafts.
+    """Keep main as the authoritative Studio publication source.
 
-    Per-slug upsert retains unrelated main records, and prevents an older queue
-    revision from overwriting a newer entry already present on main.
+    Studio's current save API writes published posts/overrides directly to
+    main. The checked-out data files are therefore the primary source and are
+    retained intact. editorial-queue is consulted only for legacy records;
+    drafts are never read. Per-slug upsert prevents stale queue data replacing
+    a newer main publication.
     """
     added = 0
     for filename, key in (("studio_posts.json", "posts"),
