@@ -264,7 +264,9 @@ async function saveArticle(request,env,session){
  }
  await writeFile(session.token,file,document,target.sha,
   "Studio: "+(current?"update ":"create ")+record.slug,PUBLISH_BRANCH);
- return respond({ok:true,slug:record.slug,message:"Salvato sul branch SpotNews di prova."});
+ return respond({ok:true,slug:record.slug,status:"saved-main",branch:PUBLISH_BRANCH,
+  next_slots:["12:30","16:00","19:30"],
+  message:"Articolo e copertina salvati su main. Il sito verrà aggiornato al prossimo slot editoriale autorizzato."});
 }
 async function upload(request,session){
  const data=await parseInput(request,8500000);

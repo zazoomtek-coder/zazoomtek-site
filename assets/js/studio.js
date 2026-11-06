@@ -93,7 +93,7 @@ function setArticle(row){
  E("studio-current-mode").textContent=state.isNew?"Crea un contenuto":"Modifica contenuto";
  E("studio-current-category").textContent=C[row.category]||"News Tech";
  E("studio-save").disabled=E("studio-save-bottom").disabled=false;
- E("studio-save-detail").textContent="Le modifiche saranno pubblicate soltanto nella preview SpotNews.";
+ E("studio-save-detail").textContent="Le modifiche saranno salvate su main e pubblicate nel prossimo slot editoriale.";
  state.blocks=originalBlocks(row);
  renderBlocks();renderPreview();
 }
@@ -186,10 +186,10 @@ async function save(){
  if(state.busy)return;
  state.busy=true;E("studio-save").disabled=E("studio-save-bottom").disabled=true;
  try{
-  feedback("Salvataggio sul branch di prova...");
+  feedback("Salvataggio dell'articolo su main...");
   const result=await api("save",{creating:state.isNew,record:readArticle()});
-  feedback("Salvato: "+result.slug+". Nuova build Cloudflare attivata.");
-  E("studio-save-detail").textContent="Modifica salvata. Riapri la preview dopo l'aggiornamento per visualizzarla.";
+  feedback("Salvato su main: "+result.slug+". Pubblicazione al prossimo slot editoriale.");
+  E("studio-save-detail").textContent="Salvato su main. Il sito si aggiornerà al prossimo slot: 12:30, 16:00 o 19:30.";
  }catch(e){feedback(e.message,true)}
  finally{state.busy=false;E("studio-save").disabled=E("studio-save-bottom").disabled=false}
 }
@@ -203,7 +203,7 @@ function upload(block){
   const reader=new FileReader();
   reader.addEventListener("load",async()=>{
    try{
-    feedback("Caricamento della foto nel branch SpotNews...");
+    feedback("Caricamento della foto su main...");
     const result=await api("upload",{slug:V("studio-slug")||slugify(V("studio-title"))||"contenuto",
      mime:file.type,base64:reader.result});
     if(block){block.url=result.url;renderBlocks()}

@@ -18,7 +18,8 @@ def verify_studio(output,rows):
  assert 'id="studio-setup"' in page,"One-time server session-secret setup missing"
  assert 'id="studio-check-again"' in page,"Setup retry missing"
  assert 'id="studio-app" hidden' in page,"Studio must be hidden until authenticated"
- assert '/assets/js/studio.js?v=20261028-studio-fresh-2' in page,"New Studio JS cache version missing"
+ assert '/assets/js/studio.js?v=20261106-studio-main-publish' in page,"Studio main-publish JS cache version missing"
+ assert "salvati su main" in page and "16:00" in page, "Studio must describe the real main-branch scheduled publishing flow"
  assert '/cdn-cgi/access/login' not in page,"Legacy Zero Trust login URL detected"
  assert 'CF_ACCESS_' not in page,"Zero Trust secrets may not appear"
  assert (root/"assets/js/studio.js").is_file(),"Studio JS not copied"
@@ -35,11 +36,15 @@ def verify_studio(output,rows):
                   'studio-blocks','studio-preview'):
   assert required in studiojs,"New Studio JS missing "+required
  assert 'localStorage' not in studiojs and 'sessionStorage' not in studiojs,"Browser must never store GitHub tokens"
- # Keep all admin modifications on GitHub's preview branch; the Pages
- # Function verifies the GitHub owner and decrypts HttpOnly cookies server-side.
+ for marker in ("Salvataggio dell'articolo su main","Pubblicazione al prossimo slot editoriale","16:00"):
+  assert marker in studiojs or marker in page,"Studio UI is missing scheduled main-publish feedback"
+ # Drafts remain isolated on editorial-queue; approved article/media writes target main
+ # and suppress automatic Pages builds until the scheduled editorial release.
  api_source=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for required in ('__Host-zzt-studio','HttpOnly; Secure; SameSite=Strict',
                   'STUDIO_SESSION_SECRET','github_pat_','branch:BRANCH',
+                  'const PUBLISH_BRANCH="main";','branch:PUBLISH_BRANCH',
+                  '[CF-Pages-Skip]','status:"saved-main"','next_slots:["12:30","16:00","19:30"]',
                   'AES-GCM','renewed:true','setCookie(await seal(renewed,env),AGE)'):
   assert required in api_source,"Studio secure session missing "+required
  assert 'CF_ACCESS_TEAM_DOMAIN' not in api_source,"Old Zero Trust service must be removed"

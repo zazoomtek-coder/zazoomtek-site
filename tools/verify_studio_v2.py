@@ -91,7 +91,8 @@ def verify_studio_v2(output,rows):
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
-                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch=PUBLISH_BRANCH','[CF-Pages-Skip] ',
+                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
+                'branch:PUBLISH_BRANCH','[CF-Pages-Skip] ',
                 'next_slots:["12:30","16:00","19:30"]',
                 'readFile(token,"data/studio_posts.json",BRANCH)',
                 'readFile(token,"data/studio_overrides.json",BRANCH)'):

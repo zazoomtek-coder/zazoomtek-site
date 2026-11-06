@@ -34,14 +34,14 @@ def build_studio(output, rows):
 <meta name="color-scheme" content="light">
 <title>Studio — ZazoomTek</title>
 <link rel="stylesheet" href="/assets/css/studio.css?v=20261028-studio-fresh-2">
-<script src="/assets/js/studio.js?v=20261028-studio-fresh-2" defer></script>
+<script src="/assets/js/studio.js?v=20261106-studio-main-publish" defer></script>
 </head><body>
 <div class="studio-auth-wrap" id="studio-auth">
  <main class="studio-auth-card">
   <div class="studio-auth-logo">Zazoom<span>Tek</span><small>STUDIO</small></div>
   <div class="studio-auth-tag">Lo spazio editoriale di ZazoomTek</div>
   <h1>Accedi al tuo Studio</h1>
-  <p>Il tuo pannello personale per creare, modificare e pubblicare articoli, news e recensioni sul branch di prova.</p>
+  <p>Il tuo pannello editoriale per creare e modificare contenuti. Gli articoli vengono salvati su main e pubblicati online negli slot 12:30, 16:00 e 19:30.</p>
   <div id="studio-setup" class="studio-auth-alert" hidden>
    <strong>Attivazione iniziale richiesta</strong>
    <p>Manca una sola chiave di sicurezza server: <code>STUDIO_SESSION_SECRET</code> nelle impostazioni <strong>Preview</strong> di Cloudflare Pages. Non servono Zero Trust, piani a pagamento o altre applicazioni.</p>
@@ -61,7 +61,7 @@ def build_studio(output, rows):
 <div class="studio-layout" id="studio-app" hidden>
  <aside class="studio-rail">
   <div class="studio-rail-brand">Zazoom<span>Tek</span><small>STUDIO</small></div>
-  <div class="studio-workspace"><span class="studio-workspace-mark">Z</span><div><b>La tua redazione</b><small>SpotNews · ambiente di prova</small></div></div>
+  <div class="studio-workspace"><span class="studio-workspace-mark">Z</span><div><b>La tua redazione</b><small>Pubblicazione programmata · main</small></div></div>
   <button type="button" id="studio-new" class="studio-create">＋ Crea un contenuto</button>
   <div class="studio-section-label">La tua libreria</div>
   <div class="studio-rail-filters">
@@ -71,7 +71,7 @@ def build_studio(output, rows):
   <div class="studio-total" id="studio-count"></div>
   <div class="studio-article-list" id="studio-list"></div>
   <div class="studio-rail-footer">
-   <p>Modifiche riservate al branch di prova</p>
+   <p>Salvataggi su main · online agli slot editoriali</p>
    <a href="/">Visualizza il sito <span aria-hidden="true">↗</span></a>
   </div>
  </aside>
@@ -147,7 +147,7 @@ def build_studio(output, rows):
     </div>
    </section>
    <footer class="studio-edit-footer">
-    <span id="studio-save-detail">Le modifiche interessano soltanto il branch SpotNews di prova.</span>
+    <span id="studio-save-detail">Salvataggio su main; aggiornamento del sito agli slot 12:30, 16:00 e 19:30.</span>
     <button type="button" id="studio-save-bottom" class="studio-primary">Salva articolo</button>
    </footer>
   </div>
