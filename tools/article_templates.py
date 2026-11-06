@@ -530,7 +530,7 @@ def studio_sectioned_body(review):
      headings=True
      continue
     for label in sorted(guide_headings,key=len,reverse=True):
-     match=re.search(r"(?i)(?:^|(?<=[.!?])\\s+)"+re.escape(label)+r"\\s*$",heading)
+     match=re.search(r"(?i)(?:^|(?<=[.!?])\s+)"+re.escape(label)+r"\s*$",heading)
      if match and match.start()>0:
       prose=heading[:match.start()].strip()
       if prose:
