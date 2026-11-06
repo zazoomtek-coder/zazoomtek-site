@@ -11,6 +11,7 @@ on:
       - "tools/verify_studio.py"
       - "tools/studio_v2_build.py"
       - "tools/verify_studio_v2.py"
+      - "tools/test_studio_api.mjs"
       - "tools/article_templates.py"
       - "tools/build.py"
       - "data/studio_posts.json"
@@ -43,5 +44,6 @@ jobs:
           node --check assets/js/studio-v2.js
           node --check assets/js/studio.js
           node --input-type=module --check < 'functions/api/studio/[[path]].js'
+          node tools/test_studio_api.mjs
       - name: Build all real editorial pages and run Studio/template audits
         run: python3 tools/build.py
