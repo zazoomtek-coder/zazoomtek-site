@@ -304,33 +304,32 @@ def video(review):
          '▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗</a></div>')
 
 def editorial_blocks(review):
- """Keep the author's article; remove social-signature and hashtag tails from main editorial content."""
+ """Read source paragraphs without rewriting or dropping any YouTube Community text."""
  pieces=paragraphs(review)
+ youtube_source=str(review.get("source") or "")=="youtube-community"
  cleaned=[]
  for p in pieces:
   p=p.strip()
-  # Social boilerplate belongs in navigation, not in the text of an article.
-  p=re.split(r"(?im)^\s*(?:Subscribe\b|Iscriviti\b|🌐\s*zazoomtek\.it\b|▶\ufe0f?\s*YouTube\s*:|#\w+(?:\s+#\w+){2,}\s*$)",p,maxsplit=1)[0].strip()
-  if not p:break
-  if re.fullmatch(r"(?i)(?:Foto|Photo|Immagine|Picture)\s*(?:n[.°]\s*)?\d+",clean_heading(p)):continue
-  if re.match(r"(?i)^#(?:\w+)(?:\s+#\w+)*\s*$",p):break
-  cleaned.append(p)
- # Remove duplicate headline/category prefix inside the opening paragraph, not the real prose.
+  if not youtube_source:
+   # Legacy non-YouTube archives keep their historical signature cleanup.
+   p=re.split(r"(?im)^\s*(?:Subscribe\b|Iscriviti\b|🌐\s*zazoomtek\.it\b|▶\ufe0f?\s*YouTube\s*:|#\w+(?:\s+#\w+){2,}\s*$)",p,maxsplit=1)[0].strip()
+   if not p:break
+   if re.fullmatch(r"(?i)(?:Foto|Photo|Immagine|Picture)\s*(?:n[.°]\s*)?\d+",clean_heading(p)):continue
+  if p:cleaned.append(p)
+ # Remove only the repeated H1/title line; all remaining source text, including
+ # English summaries, CTA, links, and hashtags, remains in its original order.
  if cleaned:
   first=cleaned[0]
-  first=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
   title=plain(review.get("title",""))
-  lines=first.split("\n",1)
-  if len(lines)>1 and re.sub(r"[^a-z0-9]","",lines[0].casefold())==re.sub(r"[^a-z0-9]","",title.casefold()):
-   first=lines[1].strip()
-  if first:cleaned[0]=first
- # Community opening may repeat the H1 as a whole standalone paragraph.
- # Compare editorial titles after removing 'Recensione :' and whitespace.
- def title_key(value):
-  value=re.sub(r"(?i)^\s*(?:recensione|review)\s*:\s*","",plain(value))
-  return re.sub(r"[^\w]+","",value.casefold())
- while cleaned and title_key(cleaned[0])==title_key(review.get("title","")):
-  cleaned.pop(0)
+  first_without_prefix=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
+  lines=first_without_prefix.split("\n",1)
+  title_without_prefix=re.sub(r"(?i)^\s*(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?\s*:\s*","",title)
+  title_key=lambda value: re.sub(r"[^a-z0-9]","",plain(value).casefold())
+  if title_key(lines[0])==title_key(title_without_prefix):
+   if len(lines)>1 and lines[1].strip():
+    cleaned[0]=lines[1].strip()
+   else:
+    cleaned.pop(0)
  return cleaned
 
 def source_plain_h2(block,following,position):
@@ -407,20 +406,18 @@ def split_news_prose(raw,limit=370):
  return result or [raw]
 
 def news_body(review,blocks):
- """The approved Hearthstone structure for ALL news and non-review articles.
- Opening lead -> compact <p>s -> semantic red-bar <h2> sections with 1-2
- paragraphs each. Original source wording is preserved in original order.
- """
+ """Render source-first news. YouTube Community text is kept complete and in order."""
  supplied=supplied_h2(review)
+ youtube_source=str(review.get("source") or "")=="youtube-community"
  tokens=[]
  for i,raw in enumerate(blocks):
-  if i in supplied:tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
+  if i in supplied:
+   tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
   heading=named_section(raw)
   if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
    heading=clean_heading(raw)
   if heading:
-   if heading.casefold() in ("il punto","gli elementi principali"):
-    heading="Il punto:"
+   if heading.casefold() in ("il punto","gli elementi principali"):heading="Il punto:"
    if not tokens or tokens[-1]!=("h2",heading):
     if heading.casefold() not in ("pro","contro","voto finale"):
      tokens.append(("h2",heading))
@@ -438,30 +435,26 @@ def news_body(review,blocks):
  for kind,value in tokens:
   if kind=="h2":
    if rendered and rendered[-1].startswith("<h2>"):
-    # Remove orphaned duplicate/adjacent headings rather than empty sections.
     rendered[-1]="<h2>"+esc(value)+"</h2>"
    else:rendered.append("<h2>"+esc(value)+"</h2>")
    had_heading=True
    since=0
    continue
-  # Two short lead paragraphs are allowed before the first red-bar subtitle.
-  # For a one-paragraph brief, the lead itself receives a subtitle.
-  first_section=(not had_heading and
-                 (emitted_p>=2 or (len(prose)<=2 and emitted_p==len(prose)-1)))
-  continue_section=(had_heading and since>=limit)
-  if first_section or continue_section:
-   title=automatic_news_heading(value,titles)
-   titles.add(title)
-   rendered.append("<h2>"+esc(title)+"</h2>")
-   had_heading=True
-   since=0
+  # YouTube source articles must not receive generated headings or placeholder labels.
+  if not youtube_source:
+   first_section=(not had_heading and
+                  (emitted_p>=2 or (len(prose)<=2 and emitted_p==len(prose)-1)))
+   continue_section=(had_heading and since>=limit)
+   if first_section or continue_section:
+    title=automatic_news_heading(value,titles)
+    titles.add(title)
+    rendered.append("<h2>"+esc(title)+"</h2>")
+    had_heading=True
+    since=0
   rendered.append("<p>"+rich_text(value)+"</p>")
   since+=1
   emitted_p+=1
- # Never leave an unstructured giant paragraph: split_news_prose enforces a bound.
  return "".join(rendered)
-
-
 
 def studio_link(value):
  """Allow only relative same-origin and https: URLs in editor-supplied blocks."""
