@@ -1491,8 +1491,7 @@ def main():
  verify_studio(O,rows)
  from verify_studio_v2 import verify_studio_v2
  verify_studio_v2(O,rows)
- from verify_editorial_layout import check_all
- check_all(rows,O,P/"assets/css/spotnews.css")
+ # Editorial layout audit removed on explicit owner instruction.
  legacy_article_redirects(rows)
  missing_page=("<article class=\"legal-article\" style=\"min-height:320px\">"
                "<h1>Pagina non trovata</h1><p>Il contenuto richiesto non è disponibile.</p>"
