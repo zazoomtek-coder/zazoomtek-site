@@ -4,6 +4,7 @@ on:
     # 17:00-23:59 UTC copre la finestra 19:45-03:00 Europe/Rome
     # sia in CET sia in CEST. Lo script applica il gate locale esatto.
     - cron: '*/5 17-23 * * *'
+    - cron: '*/5 0-2 * * *'
   workflow_dispatch:
 permissions:
   contents: write
