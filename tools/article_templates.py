@@ -309,13 +309,22 @@ def editorial_blocks(review):
  youtube_source=str(review.get("source") or "")=="youtube-community"
  if youtube_source:
   cleaned=[p.strip() for p in pieces if p.strip()]
-  # Remove only a repeated source headline; keep all remaining paragraphs,
-  # including English summary, CTA, links and hashtags, in original order.
+  # Remove only the exact final channel-promotion footer and everything after it.
+  # Preserve all article paragraphs, source headings, bold text, links and CTAs before it.
+  footer=re.compile(r"(?is)\\s*Subscribe\\s+🌐\\s*zazoomtek\\.it\\b.*$")
+  for index,block in enumerate(cleaned):
+   match=footer.search(block)
+   if match:
+    remainder=block[:match.start()].strip()
+    if remainder:cleaned[index]=remainder
+    else:cleaned=cleaned[:index]
+    break
+  # Remove only a repeated source headline; keep all remaining source content in order.
   if cleaned:
    first=cleaned[0]
-   first_without_prefix=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
-   lines=first_without_prefix.split("\n",1)
-   title=re.sub(r"(?i)^\s*(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?\s*:\s*","",plain(review.get("title","")))
+   first_without_prefix=re.sub(r"(?i)^\\s*(?:(?:News|Review|Recensione)(?:\\s+(?:Tech|Gaming|Extra))?|Articolo)\\s*:\\s*","",first)
+   lines=first_without_prefix.split("\\n",1)
+   title=re.sub(r"(?i)^\\s*(?:News|Review|Recensione)(?:\\s+(?:Tech|Gaming|Extra))?\\s*:\\s*","",plain(review.get("title","")))
    key=lambda value:re.sub(r"[^a-z0-9]","",plain(value).casefold())
    if key(lines[0])==key(title):
     if len(lines)>1 and lines[1].strip():cleaned[0]=lines[1].strip()
