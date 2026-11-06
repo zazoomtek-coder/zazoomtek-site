@@ -210,7 +210,7 @@ def normalize_editorial_headings(markup):
  while previous!=markup:
   previous=markup
   markup=re.sub(
-   r"(<h2(?:\\s[^>]*)?>.*?</h2>)\\s*(?=<h2(?:\\s[^>]*)?>)",
+   r"(<h2(?:\s[^>]*)?>.*?</h2>)\s*(?=<h2(?:\s[^>]*)?>)",
    "",
    markup,
    flags=re.I|re.S
