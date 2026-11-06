@@ -23,7 +23,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Raccogli video e Community (09:00-12:20, 12:31-19:20, Roma)
+      - name: Carica il gate raccolta approvato da main
+        run: |
+          git fetch --no-tags origin main
+          git show origin/main:tools/queue_collect.py > tools/queue_collect.py
+      - name: Raccogli video e Community (09:00-12:20, 12:31-19:45, Roma)
         run: python3 tools/queue_collect.py
       - name: Memorizza nuove acquisizioni senza pubblicare il sito
         run: |
