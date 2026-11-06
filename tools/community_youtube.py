@@ -53,8 +53,8 @@ def post_records(root):
    if not isinstance(post_id,str) or not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
    content=value(node.get("contentText") or node.get("content") or node.get("text"))
    content=content.replace("\r\n","\n").strip()
-    # Remove chat-rendering escape wrappers if they were pasted into a public Community post.
-    content=re.sub(r"</?escape>","",content,flags=re.I)
+   # Remove chat-rendering escape wrappers if they were pasted into a public Community post.
+   content=re.sub(r"</?escape>","",content,flags=re.I)
    if not content:continue
    when=value(node.get("publishedTimeText") or node.get("publishedTime"))
    thumb=""
