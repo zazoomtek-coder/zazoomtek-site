@@ -44,12 +44,16 @@ def ingest(now=None):
     now=now or datetime.now(timezone.utc)
     local=now.astimezone(ROME)
     clock=local.time()
-    in_morning=time(9,0)<=clock<=time(12,20)
-    in_evening=time(12,31)<=clock<=time(19,20)
-    if not (in_morning or in_evening) and os.environ.get("ZAZOOMTEK_FORCE_COLLECT") != "1":
+    # Leave a ten-minute import cutoff before each of the three release slots.
+    intake_windows=(
+        time(9,0)<=clock<=time(12,20) or
+        time(12,31)<=clock<=time(15,50) or
+        time(16,1)<=clock<=time(19,20)
+    )
+    if not intake_windows and os.environ.get("ZAZOOMTEK_FORCE_COLLECT") != "1":
         print("Outside editorial intake window, nothing changed:",local.isoformat())
         return False
-    if not (in_morning or in_evening):
+    if not intake_windows:
         print("EDITORIAL QUEUE RECOVERY ONLY (NO DEPLOY) at",local.isoformat(),flush=True)
     stamp=now.isoformat(timespec="seconds")
     dirty=False
