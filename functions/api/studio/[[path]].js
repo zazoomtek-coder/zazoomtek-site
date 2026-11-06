@@ -468,7 +468,7 @@ export async function onRequest(context){
    return respond({ok:true,drafts:(await getDrafts(session.token)).drafts});
   if(pathname==="/api/studio/v2-pending"&&request.method==="GET")
    return respond({ok:true,...await pendingV2(session.token)});
-  // Media caricati su editorial-queue: anteprima autenticata prima dello slot.
+  // Media caricati su main: file disponibili al successivo deploy editoriale autorizzato.
   if(pathname==="/api/studio/v2-asset"&&request.method==="GET"){
    let asset=clean(new URL(request.url).searchParams.get("path"));
    if(asset.startsWith("/"))asset=asset.slice(1);
