@@ -7,7 +7,6 @@ only data/queue_community.json and data/queue_videos.json on editorial-queue.
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
-import hashlib
 import html
 import json
 import os
@@ -123,10 +122,10 @@ def main():
     queue_root = Path(sys.argv[2]).resolve()
     now = datetime.now(ROME)
     clock = now.time()
-    if not (clock >= time(19, 45) or clock < time(3, 0)):
+    if not (clock > time(19, 45) or clock < time(3, 0)):
         print("CLEANUP WINDOW CLOSED:", now.isoformat(), flush=True)
         return 0
-    target_day = now.date() if clock >= time(19, 45) else now.date() - timedelta(days=1)
+    target_day = now.date() if clock > time(19, 45) else now.date() - timedelta(days=1)
     print("DAILY QUEUE CLEANUP CHECK:", target_day.isoformat(), now.isoformat(), flush=True)
 
     # A successful release receipt for the target day is mandatory. The last
