@@ -45,7 +45,7 @@ def ingest(now=None):
     local=now.astimezone(ROME)
     clock=local.time()
     in_morning=time(9,0)<=clock<=time(12,20)
-    in_evening=time(12,31)<=clock<=time(19,20)
+    in_evening=time(12,31)<=clock<=time(19,45)
     if not (in_morning or in_evening) and os.environ.get("ZAZOOMTEK_FORCE_COLLECT") != "1":
         print("Outside editorial intake window, nothing changed:",local.isoformat())
         return False
