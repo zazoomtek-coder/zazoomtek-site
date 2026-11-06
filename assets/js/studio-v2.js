@@ -392,7 +392,7 @@ function renderList(){
   const img=S("img","v2-list-cover");img.loading="lazy";img.alt="";img.src=row.image||"";item.append(img);
   const meta=S("div"),title=S("div","v2-list-title",row.title||"Senza titolo");
   const desc=S("div","v2-list-meta");
-  desc.append(S("b","",cats[row.category]||"Articolo"),S("span","", " · "+(row.date||"")+" · "+(state.drafts[row.slug]?"Bozza disponibile":row.__queued?"In coda · non online":"Pubblicato")));
+  desc.append(S("b","",cats[row.category]||"Articolo"),S("span","", " · "+(row.date||"")+" · "+(state.drafts[row.slug]?"Bozza disponibile":row.__queued?"Salvato in main · in attesa del deploy":"Pubblicato")));
   meta.append(title,desc);item.append(meta);
   const btn=S("button","v2-list-edit","Modifica");btn.type="button";btn.addEventListener("click",()=>openExisting(row));
   item.append(btn);host.append(item);
@@ -728,13 +728,13 @@ async function save(mode){
   backupNow();
   if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
   const response=await api("v2-save",{mode,record:row,creating:state.newContent});
-  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Contenuto accodato: pubblicazione al prossimo slot editoriale.");
+  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Articolo salvato correttamente su main.");
   if(mode==="draft"){
    state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:new Date().toISOString()};
    E("v2-autosave-status").textContent="Bozza salvata anche su GitHub. Il sito pubblico non è stato modificato.";
   }else{
    try{localStorage.removeItem(backupKey())}catch(e){}
-   E("v2-autosave-status").textContent="In coda per le 12:30 o le 19:30. Questa è l’anteprima della versione salvata; il sito online non cambia ora.";
+   E("v2-autosave-status").textContent="Salvato su main. La pagina online si aggiornerà con il successivo deploy editoriale autorizzato.";
    delete state.drafts[row.slug];
    E("v2-public-link").hidden=true; // Solo dopo la pubblicazione programmata.
    state.current={...(state.current||{}),...(response.record||{}),...row,__queued:true};state.newContent=false;
