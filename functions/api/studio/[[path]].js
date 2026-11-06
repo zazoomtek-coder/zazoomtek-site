@@ -222,7 +222,7 @@ async function readFile(token,path,branch=BRANCH){
 async function writeFile(token,path,document,oldSHA,description,branch=BRANCH){
  if(!allowedPath(path))throw new Error("Percorso non autorizzato.");
  const encoded=encodeUtf8(JSON.stringify(document,null,2)+"\n");
- const body={message:description,branch,content:encoded};
+ const body={message:branch==="main"?"[CF-Pages-Skip] "+description:description,branch,content:encoded};
  if(oldSHA)body.sha=oldSHA;
  return githubRequest(token,"/repos/"+REPO+"/contents/"+path,{method:"PUT",body});
 }
@@ -291,7 +291,7 @@ async function upload(request,session){
   throw new Error("La firma del file non corrisponde al formato.");
  const id=crypto.randomUUID().replace(/-/g,"").slice(0,20);
  const name="assets/uploads/"+slug+"/"+id+"."+extension;
- const payload={message:"Studio: upload "+slug,
+ const payload={message:"[CF-Pages-Skip] Studio: upload "+slug,
   branch:PUBLISH_BRANCH,content:b64};
  await githubRequest(session.token,"/repos/"+REPO+"/contents/"+name,{method:"PUT",body:payload});
  return respond({ok:true,url:"/"+name});
