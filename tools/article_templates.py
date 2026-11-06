@@ -304,32 +304,45 @@ def video(review):
          '▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗</a></div>')
 
 def editorial_blocks(review):
- """Read source paragraphs without rewriting or dropping any YouTube Community text."""
+ """Keep legacy cleanup for archives; preserve every YouTube Community source paragraph."""
  pieces=paragraphs(review)
  youtube_source=str(review.get("source") or "")=="youtube-community"
+ if youtube_source:
+  cleaned=[p.strip() for p in pieces if p.strip()]
+  # Remove only a repeated source headline; keep all remaining paragraphs,
+  # including English summary, CTA, links and hashtags, in original order.
+  if cleaned:
+   first=cleaned[0]
+   first_without_prefix=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
+   lines=first_without_prefix.split("\n",1)
+   title=re.sub(r"(?i)^\s*(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?\s*:\s*","",plain(review.get("title","")))
+   key=lambda value:re.sub(r"[^a-z0-9]","",plain(value).casefold())
+   if key(lines[0])==key(title):
+    if len(lines)>1 and lines[1].strip():cleaned[0]=lines[1].strip()
+    else:cleaned.pop(0)
+  return cleaned
  cleaned=[]
  for p in pieces:
   p=p.strip()
-  if not youtube_source:
-   # Legacy non-YouTube archives keep their historical signature cleanup.
-   p=re.split(r"(?im)^\s*(?:Subscribe\b|Iscriviti\b|🌐\s*zazoomtek\.it\b|▶\ufe0f?\s*YouTube\s*:|#\w+(?:\s+#\w+){2,}\s*$)",p,maxsplit=1)[0].strip()
-   if not p:break
-   if re.fullmatch(r"(?i)(?:Foto|Photo|Immagine|Picture)\s*(?:n[.°]\s*)?\d+",clean_heading(p)):continue
-  if p:cleaned.append(p)
- # Remove only the repeated H1/title line; all remaining source text, including
- # English summaries, CTA, links, and hashtags, remains in its original order.
+  # Social boilerplate belongs in navigation, not in the text of legacy archives.
+  p=re.split(r"(?im)^\s*(?:Subscribe\b|Iscriviti\b|🌐\s*zazoomtek\.it\b|▶\ufe0f?\s*YouTube\s*:|#\w+(?:\s+#\w+){2,}\s*$)",p,maxsplit=1)[0].strip()
+  if not p:break
+  if re.fullmatch(r"(?i)(?:Foto|Photo|Immagine|Picture)\s*(?:n[.°]\s*)?\d+",clean_heading(p)):continue
+  cleaned.append(p)
+ # Preserve the historical prefix and duplicate-title cleanup for all other sources.
  if cleaned:
   first=cleaned[0]
+  first=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
   title=plain(review.get("title",""))
-  first_without_prefix=re.sub(r"(?i)^\s*(?:(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?|Articolo)\s*:\s*","",first)
-  lines=first_without_prefix.split("\n",1)
-  title_without_prefix=re.sub(r"(?i)^\s*(?:News|Review|Recensione)(?:\s+(?:Tech|Gaming|Extra))?\s*:\s*","",title)
-  title_key=lambda value: re.sub(r"[^a-z0-9]","",plain(value).casefold())
-  if title_key(lines[0])==title_key(title_without_prefix):
-   if len(lines)>1 and lines[1].strip():
-    cleaned[0]=lines[1].strip()
-   else:
-    cleaned.pop(0)
+  lines=first.split("\n",1)
+  if len(lines)>1 and re.sub(r"[^a-z0-9]","",lines[0].casefold())==re.sub(r"[^a-z0-9]","",title.casefold()):
+   first=lines[1].strip()
+  if first:cleaned[0]=first
+ def title_key(value):
+  value=re.sub(r"(?i)^\s*(?:recensione|review)\s*:\s*","",plain(value))
+  return re.sub(r"[^\w]+","",value.casefold())
+ while cleaned and title_key(cleaned[0])==title_key(review.get("title","")):
+  cleaned.pop(0)
  return cleaned
 
 def source_plain_h2(block,following,position):
