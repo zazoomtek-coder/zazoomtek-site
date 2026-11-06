@@ -85,7 +85,7 @@ def verify_studio_v2(output,rows):
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
-                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch=PUBLISH_BRANCH'):
+                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch=PUBLISH_BRANCH','[CF-Pages-Skip] '):
   assert marker in api,"V2 backend missing "+marker
  # Existing original SEO is frozen when an article is edited; brand-new
  # articles still receive automatic content-derived SEO.
