@@ -3,10 +3,10 @@ main = "src/index.js"
 compatibility_date = "2026-10-31"
 workers_dev = false
 
-# Cloudflare Cron always uses UTC. Both winter and summer candidates
-# are dispatched; the Worker checks actual Europe/Rome local time.
+# Cloudflare Cron runs in UTC. Cover the complete daily intake window
+# in both CET and CEST; the Worker converts every tick to Europe/Rome.
 [triggers]
-crons = ["*/5 10,11,12,14,15,16,17,18,19 * * *"]
+crons = ["*/5 7-18 * * *"]
 
 [vars]
 GITHUB_REPO = "zazoomtek-coder/zazoomtek-site"
