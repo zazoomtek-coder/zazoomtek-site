@@ -73,6 +73,10 @@ def verify_studio_v2(output,rows):
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
+ assert "Articolo salvato correttamente su main." in script
+ assert "Salvato su main. La pagina online" in script
+ build=(Path(__file__).resolve().parents[1]/"tools/build.py").read_text(encoding="utf-8")
+ assert "from article_templates import render" in build and "render(page,safe_image)" in build, "Studio pages must use the live shared editorial article template"
  # Only article BODY text may be recovered locally; never GitHub auth data.
  assert 'localStorage.setItem(backupKey(),JSON.stringify(payload))' in script
  assert 'record:collect()' in script
@@ -80,7 +84,8 @@ def verify_studio_v2(output,rows):
  assert 'sessionStorage' not in script
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',
-                'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock='):
+                'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
+                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch=PUBLISH_BRANCH'):
   assert marker in api,"V2 backend missing "+marker
  # Existing original SEO is frozen when an article is edited; brand-new
  # articles still receive automatic content-derived SEO.
