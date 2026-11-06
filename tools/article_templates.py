@@ -203,7 +203,19 @@ def normalize_editorial_headings(markup):
    parts[i]=""  # Keep any question or source text, never an empty heading.
   elif is_point:
    parts[i]="<h2>Il punto:</h2>"
- return "".join(parts)
+ markup="".join(parts)
+ # Remove only subtitles that have no editorial content before the next subtitle.
+ # Keep the final heading and every paragraph/link/image unchanged.
+ previous=None
+ while previous!=markup:
+  previous=markup
+  markup=re.sub(
+   r"(<h2(?:\\s[^>]*)?>.*?</h2>)\\s*(?=<h2(?:\\s[^>]*)?>)",
+   "",
+   markup,
+   flags=re.I|re.S
+  )
+ return markup
 
 def merge_repeated_info_sections(markup):
  """Remove ONLY the 'Ulteriori informazioni' H2 headings on all articles.
