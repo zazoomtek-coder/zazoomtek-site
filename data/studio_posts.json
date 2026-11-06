@@ -1,6 +1,193 @@
 {
   "posts": [
     {
+      "slug": "iphone-con-memoria-piena-come-liberare-spazio-senza-perdere-foto-e-dati",
+      "title": "iPhone con memoria piena: come liberare spazio senza perdere foto e dati",
+      "category": "guide",
+      "image": "/assets/uploads/iphone-con-memoria-piena-come-liberare-spazio-senza-perdere-foto-e-dati/7c9c6467b2dc4b109c33.jpg",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Quando compare l’avviso di spazio esaurito, la tentazione è cancellare tutto in fretta. Meglio partire dall’analisi dello spazio occupato e intervenire in modo selettivo, distinguendo ciò che si può riscaricare dai dati che non devono andare persi."
+        },
+        {
+          "type": "paragraph",
+          "text": "Prima di cancellare, individua il vero responsabile"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un iPhone con la memoria quasi piena può diventare più scomodo da usare: le nuove foto non vengono salvate, gli aggiornamenti non trovano spazio e alcune app possono smettere di scaricare contenuti. La soluzione, però, non è eliminare file a caso. Prima bisogna capire quali elementi occupano davvero la memoria e quali possono essere rimossi senza conseguenze."
+        },
+        {
+          "type": "paragraph",
+          "text": "Apri **Impostazioni > Generali > Spazio iPhone**. Nella parte superiore trovi il riepilogo dello spazio utilizzato e di quello ancora disponibile; più in basso compare l’elenco delle app, ordinato in base all’occupazione. iOS può anche proporre suggerimenti automatici."
+        },
+        {
+          "type": "paragraph",
+          "text": "Tutti i dettagli"
+        },
+        {
+          "type": "paragraph",
+          "text": "Questa schermata è il punto di partenza più utile perché permette di intervenire sull’elemento che pesa davvero, invece di perdere tempo cancellando piccoli file."
+        },
+        {
+          "type": "paragraph",
+          "text": "È importante distinguere lo spazio dell’iPhone da quello di iCloud. Avere molto spazio libero sul cloud non significa automaticamente avere memoria libera sul telefono: sono due risorse differenti. Se il problema riguarda la memoria fisica del dispositivo, devi intervenire sui dati conservati localmente. Foto e video: la precauzione più importante"
+        },
+        {
+          "type": "paragraph",
+          "text": "Gli elementi principali"
+        },
+        {
+          "type": "paragraph",
+          "text": "Foto e video sono spesso tra i contenuti più pesanti, soprattutto se registri in alta risoluzione o conservi molti filmati. Prima di eliminare qualsiasi elemento, verifica che esista una copia di sicurezza completa e accessibile."
+        },
+        {
+          "type": "paragraph",
+          "text": "Non basta vedere le miniature su un altro dispositivo: controlla che il backup o il trasferimento sia terminato e che alcuni file si aprano correttamente."
+        },
+        {
+          "type": "paragraph",
+          "text": "Altri dettagli"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se utilizzi Foto di iCloud, ricorda che la sincronizzazione non equivale a un archivio indipendente. Quando elimini una foto dalla libreria sincronizzata, la cancellazione può propagarsi anche agli altri dispositivi collegati allo stesso account. Per questo non bisogna svuotare la galleria pensando che le immagini resteranno automaticamente al sicuro nel cloud."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se vuoi conservare una copia separata, esporta prima i file su un computer o su un supporto esterno e verifica il risultato."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il quadro completo"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dopo aver controllato il backup, puoi concentrarti sui video più lunghi, sulle registrazioni duplicate e sui contenuti che non ti servono più. Una pulizia mirata di pochi filmati può liberare più spazio di decine di piccole eliminazioni. App: rimuovere o disinstallare mantenendo i dati"
+        },
+        {
+          "type": "paragraph",
+          "text": "Nella schermata Spazio iPhone, apri le app più ingombranti. La dimensione totale può comprendere l’applicazione, i documenti e i dati generati durante l’utilizzo. Un’app di streaming, per esempio, può occupare molto spazio a causa dei contenuti scaricati per la visione offline; un’app social può accumulare cache e file temporanei."
+        },
+        {
+          "type": "paragraph",
+          "text": "Uscita e disponibilità"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quando disponibile, **Rimuovi app** o la funzione di disinstallazione temporanea permette di recuperare lo spazio usato dall’app mantenendo documenti e dati. L’icona resta nella schermata Home e l’app può essere reinstallata quando serve."
+        },
+        {
+          "type": "paragraph",
+          "text": "È una scelta diversa da **Elimina app**, che rimuove anche i relativi dati locali: prima di usarla, controlla se i contenuti sono sincronizzati con un account e se conosci le credenziali per accedere di nuovo."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ulteriori informazioni"
+        },
+        {
+          "type": "paragraph",
+          "text": "Puoi anche attivare la rimozione automatica delle app inutilizzate da **Impostazioni > App > App Store > Rimuovi app inutilizzate**. L’iPhone può così togliere le applicazioni che non apri da tempo conservandone i dati, quando lo spazio diventa insufficiente. Non è una soluzione miracolosa, ma riduce la necessità di intervenire manualmente."
+        },
+        {
+          "type": "paragraph",
+          "text": "Messaggi, download e documenti dimenticati"
+        },
+        {
+          "type": "paragraph",
+          "text": "Approfondimento"
+        },
+        {
+          "type": "paragraph",
+          "text": "Anche gli allegati di Messaggi possono occupare parecchi gigabyte. Nelle impostazioni di archiviazione controlla le conversazioni e i file più pesanti, come video ricevuti, immagini ripetute e documenti che non devi più conservare sul telefono. Procedi con attenzione: una conversazione può contenere anche informazioni importanti o allegati che non hai salvato altrove."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un’altra fonte frequente sono i download offline. Le app per film, serie, musica, podcast e mappe possono mantenere sul dispositivo contenuti già utilizzati. Apri le singole applicazioni e rimuovi soltanto gli elementi che puoi scaricare nuovamente quando ne avrai bisogno."
+        },
+        {
+          "type": "paragraph",
+          "text": "Approfondimento"
+        },
+        {
+          "type": "paragraph",
+          "text": "Lo stesso controllo vale per l’app File: guarda nelle cartelle Download e Sul mio iPhone e verifica se ci sono archivi, PDF o video dimenticati."
+        },
+        {
+          "type": "paragraph",
+          "text": "Non trascurare le app di navigazione, editing e messaggistica. Alcune conservano progetti, bozze o file temporanei che non compaiono subito nella galleria. Prima di cancellare i dati di un’app, verifica se esiste una sincronizzazione o un’esportazione. Le operazioni da evitare quando hai fretta"
+        },
+        {
+          "type": "paragraph",
+          "text": "Approfondimento"
+        },
+        {
+          "type": "paragraph",
+          "text": "Non installare applicazioni che promettono di “pulire la RAM” o liberare automaticamente gigabyte: iOS gestisce già la memoria e queste utility non possono sostituire una verifica dei contenuti. Evita anche di cancellare cartelle di sistema, profili o file di cui non conosci la funzione."
+        },
+        {
+          "type": "paragraph",
+          "text": "Non disinstallare un’app di autenticazione o una banca senza aver verificato prima le procedure di recupero dell’account."
+        },
+        {
+          "type": "paragraph",
+          "text": "Approfondimento"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se lo spazio risulta occupato soprattutto da una categoria generica o da dati di sistema, riavvia il telefono e controlla nuovamente il riepilogo. Se il problema resta, aggiorna iOS quando possibile e consulta il supporto Apple prima di ricorrere a un ripristino. Un ripristino completo non è una normale operazione di pulizia e richiede un backup verificato."
+        },
+        {
+          "type": "paragraph",
+          "text": "Una piccola manutenzione per non ritrovarsi al punto di partenza"
+        },
+        {
+          "type": "paragraph",
+          "text": "Una volta recuperato spazio, imposta una routine semplice: controlla lo spazio una volta al mese, elimina i download già visti, trasferisci i video importanti su un archivio separato e verifica periodicamente che il backup sia aggiornato."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se registri molti filmati, considera di trasferirli con regolarità invece di aspettare che l’avviso di memoria piena blocchi nuove riprese."
+        },
+        {
+          "type": "paragraph",
+          "text": "Approfondimento"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Il punto:** liberare spazio su iPhone non significa svuotare la galleria o cancellare app a caso. Parti da Spazio iPhone, controlla le app più pesanti, rimuovi download e allegati non necessari e tratta foto e documenti con una regola precisa: prima una copia verificata, poi l’eliminazione."
+        },
+        {
+          "type": "paragraph",
+          "text": "È il modo più sicuro per recuperare memoria senza trasformare una semplice manutenzione in una perdita di dati."
+        },
+        {
+          "type": "paragraph",
+          "text": "Approfondimento"
+        },
+        {
+          "type": "paragraph",
+          "text": "Avvertenza: Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Redazione ZazoomTek",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-06T12:16:38.050Z",
+      "date": "2026-11-06",
+      "published_at": "2026-11-06T12:16:39.019Z"
+    },
+    {
       "slug": "samsung-galaxy-wifi-non-si-connette-soluzioni-senza-perdere-dati",
       "title": "Samsung Galaxy non si connette al Wi-Fi: come risolvere senza perdere i dati",
       "category": "guide",
