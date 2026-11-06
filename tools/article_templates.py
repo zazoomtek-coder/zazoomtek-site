@@ -515,20 +515,33 @@ def studio_sectioned_body(review):
    # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
    # isolated heading or a title appended after a completed sentence; never invent one.
    if category(review)=="guide":
+    guide_headings={
+     "prima di cancellare, individua il vero responsabile",
+     "foto e video: la precauzione più importante",
+     "app: rimuovere o disinstallare mantenendo i dati",
+     "uscita e disponibilità",
+     "messaggi, download e documenti dimenticati",
+     "le operazioni da evitare quando hai fretta",
+     "una piccola manutenzione per non ritrovarsi al punto di partenza",
+    }
     heading=value.strip()
-    if 12<=len(heading)<=100 and not re.search(r"[.!?…]$",heading):
+    if heading.casefold().rstrip(":") in guide_headings:
      result.append('<h2>'+esc(heading.rstrip(":"))+'</h2>')
      headings=True
      continue
-    split=re.search(r"(?<=[.!?])\s+([A-ZÀ-ÖØ-Ý][^.!?…]{5,95}:?[^.!?…]*)$",heading)
-    if split and ":" in split.group(1) and len(split.group(1))<=100:
-     prose=heading[:split.start()].strip()
-     title=split.group(1).strip().rstrip(":")
-     if prose:
-      result.append('<p>'+studio_inline(prose)+'</p>')
-     result.append('<h2>'+esc(title)+'</h2>')
-     headings=True
+    for label in sorted(guide_headings,key=len,reverse=True):
+     match=re.search(r"(?i)(?:^|(?<=[.!?])\\s+)"+re.escape(label)+r"\\s*$",heading)
+     if match and match.start()>0:
+      prose=heading[:match.start()].strip()
+      if prose:
+       result.append('<p>'+studio_inline(prose)+'</p>')
+      result.append('<h2>'+esc(label[:1].upper()+label[1:])+'</h2>')
+      headings=True
+      break
+    else:
+     result.append('<p>'+studio_inline(value)+'</p>')
      continue
+    continue
    result.append('<p>'+studio_inline(value)+'</p>')
   elif kind=="quote" and value:
    result.append('<blockquote class="studio-content-quote">'+studio_inline(value)+'</blockquote>')
