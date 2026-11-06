@@ -97,12 +97,12 @@ def check_all(rows, output, stylesheet):
      following=source[i+1] if i+1<len(source) else ""
      if source_plain_h2(block,following,i):continue
      original.append(block)
-    expected=re.sub(r"\\*\\*(.*?)\\*\\*",r"\\1"," ".join(original),flags=re.S)
+    expected=re.sub(r"\*\*(.*?)\*\*",r"\1"," ".join(original),flags=re.S)
     without_titles=re.sub(r"<h2>.*?</h2>"," ",body,flags=re.S)
-    without_titles=re.sub(r"</p>|<br\\s*/?>"," ",without_titles,flags=re.I)
+    without_titles=re.sub(r"</p>|<br\s*/?>"," ",without_titles,flags=re.I)
     actual=unescape(re.sub(r"<[^>]*>","",without_titles))
     def word_inventory(value):
-     return Counter(re.findall(r"\\w+",value.casefold(),flags=re.UNICODE))
+     return Counter(re.findall(r"\w+",value.casefold(),flags=re.UNICODE))
     if word_inventory(expected)!=word_inventory(actual):
      raise AssertionError("Original prose words were added, removed, or duplicated")
    category=str(row.get("category") or "other")
