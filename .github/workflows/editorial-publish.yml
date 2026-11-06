@@ -37,7 +37,7 @@ jobs:
       - name: Recupera eventuale coda YouTube senza bloccare il caricamento diretto
         run: git fetch --no-tags origin editorial-queue || echo "Coda non raggiungibile; importazione diretta ancora disponibile"
       - name: IMPORTA ORA i nuovi post Community, video YouTube e notizie RSS
-        run: python3 tools/scheduled_editorial_import.py
+        run: python3 tools/youtube_independent_import_guard.py
       - name: Confronta i dati reali con l'ultima pubblicazione riuscita
         run: python3 tools/editorial_slot_gate.py prepare
 
