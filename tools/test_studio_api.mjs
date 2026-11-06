@@ -43,7 +43,9 @@ globalThis.fetch = async (input, options = {}) => {
       return json({
         sha: item.sha,
         encoding: "base64",
-        content: Buffer.from(item.content, "utf8").toString("base64"),
+        content: Buffer.isBuffer(item.content)
+          ? item.content.toString("base64")
+          : Buffer.from(item.content, "utf8").toString("base64"),
       });
     }
     if (method === "PUT") {
@@ -53,7 +55,8 @@ globalThis.fetch = async (input, options = {}) => {
       if (body.sha && (!existing || body.sha !== existing.sha)) {
         return json({ message: "sha does not match" }, 409);
       }
-      const content = Buffer.from(body.content || "", "base64").toString("utf8");
+      const decoded = Buffer.from(body.content || "", "base64");
+      const content = path.startsWith("assets/uploads/") ? decoded : decoded.toString("utf8");
       const sha = "blob-" + (++blobNumber);
       files.set(key, { sha, content });
       writes.push({ path, branch: body.branch, message: body.message, content });

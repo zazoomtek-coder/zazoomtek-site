@@ -100,6 +100,8 @@ def verify_studio_v2(output,rows):
  gate=(Path(__file__).resolve().parents[1]/"tools/editorial_slot_gate.py").read_text(encoding="utf-8")
  assert '((12, 30), (16, 0), (19, 30))' in gate, "16:00 editorial release gate missing"
  assert 'functions/api/studio/[[path]].js' in gate and 'assets/js/studio-v2.js' in gate, "Studio changes are not included in the release fingerprint"
+ for filename in ("tools/studio_build.py","assets/js/studio.js","assets/css/studio.css","tools/verify_studio.py"):
+  assert '"'+filename+'"' in gate, "Original Studio file missing from release fingerprint: "+filename
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
  assert '[[12, 30], [16, 0], [19, 30]]' in cron, "16:00 Cloudflare trigger missing"
  # Existing original SEO is frozen when an article is edited; brand-new

@@ -31,6 +31,13 @@ FILES = (
     "tools/studio_v2_build.py",
     "assets/js/studio-v2.js",
     "assets/css/studio-v2.css",
+    # The original Studio login shell redirects to V2 but remains part of
+    # the shipped editor and must also be released when its copy or code changes.
+    "tools/studio_build.py",
+    "assets/js/studio.js",
+    "assets/css/studio.css",
+    "tools/verify_studio.py",
+    "tools/verify_studio_v2.py",
     "tools/community_youtube.py",
     "tools/build.py",
     "tools/article_templates.py",
