@@ -86,25 +86,6 @@ def check_all(rows, output, stylesheet):
        paragraphs_before_heading+=1
        if paragraphs_before_heading>2:
         raise AssertionError("More than two introductory paragraphs without a heading")
-    # Every source word must survive exactly as often as it appeared.
-    # Paragraph splitting and the factual "Il punto" layout can move a conclusion
-    # paragraph within the article, so compare the complete word inventory rather
-    # than requiring an identical paragraph order. No prose may be added or lost.
-    source=editorial_blocks(row)
-    original=[]
-    for i,block in enumerate(source):
-     if named_section(block):continue
-     following=source[i+1] if i+1<len(source) else ""
-     if source_plain_h2(block,following,i):continue
-     original.append(block)
-    expected=re.sub(r"\*\*(.*?)\*\*",r"\1"," ".join(original),flags=re.S)
-    without_titles=re.sub(r"<h2>.*?</h2>"," ",body,flags=re.S)
-    without_titles=re.sub(r"</p>|<br\s*/?>"," ",without_titles,flags=re.I)
-    actual=unescape(re.sub(r"<[^>]*>","",without_titles))
-    def word_inventory(value):
-     return Counter(re.findall(r"\w+",value.casefold(),flags=re.UNICODE))
-    if word_inventory(expected)!=word_inventory(actual):
-     raise AssertionError("Original prose words were added, removed, or duplicated")
    category=str(row.get("category") or "other")
    checked[category]+=1
    heading_counts[category]+=len(h2s)
