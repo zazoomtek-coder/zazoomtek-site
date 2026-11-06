@@ -11,12 +11,13 @@
  * Only secret required in Cloudflare Pages Preview settings:
  * STUDIO_SESSION_SECRET (cryptographically random 32+ characters).
  *
- * All GitHub mutations target ONLY editorial-queue, NEVER main.
+ * Drafts remain on editorial-queue. Published articles and their media are committed to main.
  * Without the secret, the login fails closed with an actionable status.
  */
 const REPO="zazoomtek-coder/zazoomtek-site";
 const OWNER="zazoomtek-coder";
 const BRANCH="editorial-queue";
+const PUBLISH_BRANCH="main";
 const COOKIE="__Host-zzt-studio";
 const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each visit.
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
@@ -207,9 +208,9 @@ function normalizeArticle(value){
   pros:strings("pros"),cons:strings("cons"),updated_at:new Date().toISOString()};
 }
 const allowedPath=p=>/^(data\/studio_(?:posts|overrides|v2_drafts)\.json|assets\/uploads\/[a-z0-9-]+\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt))$/.test(p);
-async function readFile(token,path){
+async function readFile(token,path,branch=BRANCH){
  if(!allowedPath(path))throw new Error("Percorso non autorizzato.");
- const p="/repos/"+REPO+"/contents/"+path+"?ref="+encodeURIComponent(BRANCH);
+ const p="/repos/"+REPO+"/contents/"+path+"?ref="+encodeURIComponent(branch);
  try{
   const j=await githubRequest(token,p);
   return {sha:j.sha,content:JSON.parse(new TextDecoder().decode(fromBase64((j.content||"").replace(/\s+/g,""))))};
@@ -218,10 +219,10 @@ async function readFile(token,path){
   throw e;
  }
 }
-async function writeFile(token,path,document,oldSHA,description){
+async function writeFile(token,path,document,oldSHA,description,branch=BRANCH){
  if(!allowedPath(path))throw new Error("Percorso non autorizzato.");
  const encoded=encodeUtf8(JSON.stringify(document,null,2)+"\n");
- const body={message:description,branch:BRANCH,content:encoded};
+ const body={message:description,branch,content:encoded};
  if(oldSHA)body.sha=oldSHA;
  return githubRequest(token,"/repos/"+REPO+"/contents/"+path,{method:"PUT",body});
 }
@@ -246,7 +247,7 @@ async function saveArticle(request,env,session){
  if(Boolean(req.creating)===Boolean(current))
   throw new Error(current?"L'URL esiste già. Apri «Modifica».":"L'articolo non è nel catalogo: ricarica Studio.");
  const file=current?"data/studio_overrides.json":"data/studio_posts.json";
- const target=await readFile(session.token,file);
+ const target=await readFile(session.token,file,PUBLISH_BRANCH);
  const document=target.content||(current?{overrides:{}}:{posts:[]});
  if(current){
   document.overrides=document.overrides||{};
@@ -262,7 +263,7 @@ async function saveArticle(request,env,session){
   document.posts.unshift(record);
  }
  await writeFile(session.token,file,document,target.sha,
-  "Studio (editorial queue): "+(current?"update ":"create ")+record.slug);
+  "Studio: "+(current?"update ":"create ")+record.slug,PUBLISH_BRANCH);
  return respond({ok:true,slug:record.slug,message:"Salvato sul branch SpotNews di prova."});
 }
 async function upload(request,session){
@@ -290,8 +291,8 @@ async function upload(request,session){
   throw new Error("La firma del file non corrisponde al formato.");
  const id=crypto.randomUUID().replace(/-/g,"").slice(0,20);
  const name="assets/uploads/"+slug+"/"+id+"."+extension;
- const payload={message:"Studio: upload "+slug+" (SpotNews preview)",
-  branch:BRANCH,content:b64};
+ const payload={message:"Studio: upload "+slug,
+  branch:PUBLISH_BRANCH,content:b64};
  await githubRequest(session.token,"/repos/"+REPO+"/contents/"+name,{method:"PUT",body:payload});
  return respond({ok:true,url:"/"+name});
 }
@@ -338,7 +339,7 @@ function draftValue(raw){
  };
 }
 async function pendingV2(token){
- const [pending,edits]=await Promise.all([readFile(token,"data/studio_posts.json"),readFile(token,"data/studio_overrides.json")]);
+ const [pending,edits]=await Promise.all([readFile(token,"data/studio_posts.json",PUBLISH_BRANCH),readFile(token,"data/studio_overrides.json",PUBLISH_BRANCH)]);
  return {posts:Array.isArray(pending.content?.posts)?pending.content.posts:[],
   overrides:edits.content?.overrides&&typeof edits.content.overrides==="object"?edits.content.overrides:{}};
 }
@@ -364,7 +365,7 @@ async function saveV2(request,env,session){
  }
  const catalog=await v2Catalog(request,env);
  const existing=(catalog.posts||[]).find(p=>p.slug===record.slug);
- const queuedPosts=await readFile(session.token,"data/studio_posts.json");
+ const queuedPosts=await readFile(session.token,"data/studio_posts.json",PUBLISH_BRANCH);
  const pendingItems=Array.isArray(queuedPosts.content?.posts)?queuedPosts.content.posts:[];
  const queuedIndex=pendingItems.findIndex(p=>p.slug===record.slug);
  const queuedExisting=queuedIndex>=0?pendingItems[queuedIndex]:null;
@@ -378,17 +379,17 @@ async function saveV2(request,env,session){
   record.date=existing.date||new Date().toISOString().slice(0,10);
   record.published_at=existing.published_at||record.date;
   for(let attempt=0;attempt<5;attempt++){
-   const file=await readFile(session.token,"data/studio_overrides.json");
+   const file=await readFile(session.token,"data/studio_overrides.json",PUBLISH_BRANCH);
    const overrides={...(file.content?.overrides||{}),[record.slug]:record};
    try{
     await writeFile(session.token,"data/studio_overrides.json",{overrides},file.sha,
-     "Studio V2: pubblica modifica "+record.slug+" (in coda)");
+     "Studio V2: aggiorna articolo "+record.slug,PUBLISH_BRANCH);
     break;
    }catch(err){if(!err.isShaConflict||attempt===4)throw err;}
   }
  }else{
   for(let attempt=0;attempt<5;attempt++){
-   const file=await readFile(session.token,"data/studio_posts.json");
+   const file=await readFile(session.token,"data/studio_posts.json",PUBLISH_BRANCH);
    const posts=Array.isArray(file.content?.posts)?[...file.content.posts]:[];
    const index=posts.findIndex(p=>p.slug===record.slug);
    const next={...record};
@@ -403,7 +404,7 @@ async function saveV2(request,env,session){
    }
    try{
     await writeFile(session.token,"data/studio_posts.json",{posts},file.sha,
-     "Studio V2: "+(index>=0?"aggiorna articolo accodato ":"accoda nuovo articolo ")+record.slug);
+     "Studio V2: "+(index>=0?"aggiorna articolo ":"pubblica articolo ")+record.slug,PUBLISH_BRANCH);
     break;
    }catch(err){if(!err.isShaConflict||attempt===4)throw err;}
   }
@@ -418,8 +419,8 @@ async function saveV2(request,env,session){
   }
  }catch(_){}
  return respond({ok:true,mode:"publish",slug:record.slug,
-  record,status:"queued",next_slots:["12:30","19:30"],
-  message:"Salvato in coda: anteprima disponibile subito; pubblicazione online soltanto al prossimo slot."});
+  record,status:"saved-main",branch:PUBLISH_BRANCH,
+  message:"Articolo salvato su main. La pubblicazione sul sito avverrà con il successivo deploy editoriale autorizzato."});
 }
 
 export async function onRequest(context){
@@ -473,7 +474,7 @@ export async function onRequest(context){
    if(asset.startsWith("/"))asset=asset.slice(1);
    if(!asset.startsWith("assets/uploads/")||!allowedPath(asset))
     return respond({ok:false,error:"Media non autorizzato."},400);
-   const file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+BRANCH);
+   const file=await githubRequest(session.token,"/repos/"+REPO+"/contents/"+asset+"?ref="+PUBLISH_BRANCH);
    if(file.encoding!=="base64"||!file.content)throw new Error("Media non disponibile in anteprima.");
    const ext=asset.split(".").pop();
    const mime={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",
