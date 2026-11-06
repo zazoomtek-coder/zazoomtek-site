@@ -45,6 +45,15 @@ def verify_studio_v2(output,rows):
  manual_review={"slug":"manual-review-source-test","source":"manual-editorial","category":"recensioni-tech",
   "studio_blocks":True,"body":[{"type":"paragraph","text":"Testo di una recensione manuale."}]}
  assert "<h2>Approfondimento</h2>" in studio_sectioned_body(manual_review),"Legacy manual-review fallback changed unexpectedly"
+ guide=next((p for p in rows if p.get("slug")=="iphone-con-memoria-piena-come-liberare-spazio-senza-perdere-foto-e-dati"),None)
+ assert guide is not None,"Published iPhone storage guide missing from the article catalog"
+ guide_html=studio_sectioned_body(guide)
+ for filler in ("Approfondimento","Tutti i dettagli","Gli elementi principali","Altri dettagli","Il quadro completo","Ulteriori informazioni"):
+  assert "<p>"+filler+"</p>" not in guide_html and "<h2>"+filler+"</h2>" not in guide_html,"Filler label leaked into public guide: "+filler
+ for heading in ("Prima di cancellare, individua il vero responsabile","Foto e video: la precauzione più importante",
+                 "App: rimuovere o disinstallare mantenendo i dati","Messaggi, download e documenti dimenticati",
+                 "Le operazioni da evitare quando hai fretta","Una piccola manutenzione per non ritrovarsi al punto di partenza"):
+  assert "<h2>"+heading+"</h2>" in guide_html,"Guide heading not rendered: "+heading
  example=next((p for p in data["posts"] if p.get("slug")==
                "speciale-videogiochi-minori-italia-unione-europea"),None)
  if example:
