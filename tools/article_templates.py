@@ -595,8 +595,12 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # Do not inject generic filler headings into articles that have no explicit H2.
- # A plain article body is valid and should remain plain prose.
+ # Keep the historical fallback only for manual reviews; news and guides
+ # must never receive a generic heading that is not part of their content.
+ manual_review=(str(review.get("category") or "").startswith("recensioni-") and
+  str(review.get("source") or "") not in ("youtube-community","community-archive-full","archived-community-excerpt"))
+ if not headings and manual_review:
+  result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 
 
