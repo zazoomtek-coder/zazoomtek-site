@@ -1,0 +1,43 @@
+name: Studio publishing validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/studio-validation.yml"
+      - "functions/api/studio/**"
+      - "assets/js/studio-v2.js"
+      - "tools/studio_v2_build.py"
+      - "tools/verify_studio_v2.py"
+      - "tools/article_templates.py"
+      - "tools/build.py"
+      - "data/studio_posts.json"
+      - "data/studio_overrides.json"
+      - "assets/css/spotnews.css"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-studio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate Python and JavaScript syntax
+        run: |
+          python3 -m compileall -q tools
+          node --check assets/js/studio-v2.js
+          node --input-type=module --check < 'functions/api/studio/[[path]].js'
+      - name: Build all real editorial pages and run Studio/template audits
+        run: python3 tools/build.py
