@@ -102,7 +102,7 @@ def title_type(text):
  elif mark.startswith(("news guide:","guida:","guide:")):kind="guide"
  elif mark.startswith(("news extra:","extra:")):kind="extra"
  elif mark.startswith(("news speciali:","news special:","speciale:","special:")):kind="speciali"
- elif mark.startswith(("review:","recensione:","review tech:","review gaming:","recensione tech:","recensione gaming:")):kind="review"
+ elif mark.startswith(("review:","recensione:","recensioni:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:")):kind="review"
  elif mark.startswith("news:"):kind="news"
  else:
   # Accept known editorial headings even when punctuation or line breaks vary.
@@ -161,7 +161,7 @@ def discover(limit=160,max_pages=12):
   date=date_from_relative(item.get("when",""),reference)
   # YouTube relative dates are estimates, not a guaranteed precise published timestamp.
   heading=title.lower()
-  explicit_topic="gaming" if heading.startswith(("news gaming","review gaming")) else ("tech" if heading.startswith(("news tech","review tech")) else "")
+  explicit_topic="gaming" if heading.startswith(("news gaming","review gaming","recensione gaming","recensioni gaming")) else ("tech" if heading.startswith(("news tech","review tech","recensione tech","recensioni tech")) else "")
   item.update(title=title,type=kind,date=date[:10] if date else None,
     published_at=date or "",rank=ix,channel_id=CHANNEL_ID,text_complete=True,
     **({"topic":explicit_topic} if explicit_topic else {}))
