@@ -48,7 +48,7 @@ jobs:
         run: git fetch --no-tags origin editorial-queue || echo "Coda non disponibile: prosegue l'importazione diretta da YouTube"
 
       - name: IMPORTAZIONE YouTube video, Community e fonti RSS
-        run: python3 tools/scheduled_editorial_import.py
+        run: python3 tools/youtube_independent_import_guard.py
 
       - name: Verifica se esistono aggiornamenti da pubblicare nello slot
         run: python3 tools/editorial_slot_gate.py prepare
