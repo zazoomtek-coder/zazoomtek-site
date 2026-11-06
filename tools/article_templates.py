@@ -506,6 +506,29 @@ def studio_sectioned_body(review):
    result.append('<h2>'+esc(value)+'</h2>')
    headings=True
   elif kind=="paragraph" and value:
+   # Studio imports can contain non-editorial helper labels left by an upstream
+   # writing step. Never expose these as standalone paragraphs on the public site.
+   placeholder=value.casefold().strip().rstrip(":")
+   if placeholder in {"approfondimento","tutti i dettagli","gli elementi principali",
+                       "altri dettagli","il quadro completo","ulteriori informazioni"}:
+    continue
+   # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
+   # isolated heading or a title appended after a completed sentence; never invent one.
+   if category(review)=="guide":
+    heading=value.strip()
+    if 12<=len(heading)<=100 and not re.search(r"[.!?…]$",heading):
+     result.append('<h2>'+esc(heading.rstrip(":"))+'</h2>')
+     headings=True
+     continue
+    split=re.search(r"(?<=[.!?])\\s+([A-ZÀ-ÖØ-Ý][^.!?…]{5,95}:?[^.!?…]*)$",heading)
+    if split and ":" in split.group(1) and len(split.group(1))<=100:
+     prose=heading[:split.start()].strip()
+     title=split.group(1).strip().rstrip(":")
+     if prose:
+      result.append('<p>'+studio_inline(prose)+'</p>')
+     result.append('<h2>'+esc(title)+'</h2>')
+     headings=True
+     continue
    result.append('<p>'+studio_inline(value)+'</p>')
   elif kind=="quote" and value:
    result.append('<blockquote class="studio-content-quote">'+studio_inline(value)+'</blockquote>')
@@ -559,13 +582,8 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # YouTube-imported reviews may legitimately contain no H2 sections.
- # Preserve the legacy fallback for all other Studio articles/reviews.
- youtube_review=(str(review.get("category") or "").startswith("recensioni-") and
-  (str(review.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
-   or str(review.get("slug") or "").startswith("community-")))
- if not headings and not youtube_review:
-  result.insert(0,'<h2>Approfondimento</h2>')
+ # Do not inject generic filler headings into articles that have no explicit H2.
+ # A plain article body is valid and should remain plain prose.
  return ''.join(result)
 
 
