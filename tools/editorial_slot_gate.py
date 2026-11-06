@@ -97,6 +97,12 @@ def emit(name, value):
 
 def prepare():
     now = datetime.now(ROME)
+    if os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true":
+        target = now.isoformat(timespec="seconds")
+        print("OWNER REQUESTED IMMEDIATE RELEASE:", target, flush=True)
+        emit("EDITORIAL_NEEDS_RELEASE", "true")
+        emit("EDITORIAL_TARGET", target)
+        return
     slot = event_slot(now)
     if slot is None:
         print("NOT AN EDITORIAL SLOT:", now.isoformat(), flush=True)
@@ -123,6 +129,10 @@ def authorize():
     if slot.tzinfo is None:
         raise RuntimeError("Unaware editorial slot")
     now = datetime.now(ROME)
+    if os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true":
+        print("AUTHORIZED IMMEDIATE OWNER-REQUESTED RELEASE", slot.isoformat(), flush=True)
+        emit("EDITORIAL_RELEASE_AUTHORIZED", "true")
+        return
     if now < slot:
         seconds = (slot - now).total_seconds()
         print("PREPARED; waiting until the ONLY authorized release slot",
