@@ -11,6 +11,8 @@ CHANNEL="https://www.youtube.com/@ZazoomTek/posts"
 CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
 UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
 HEADERS={"User-Agent":UA,"Accept-Language":"it-IT,it;q=0.9,en;q=0.8"}
+# Emergency rollback: set False to restore the former cover-only Community import.
+MULTI_IMAGE_IMPORT_ENABLED = True
 def fetch(url, payload=None, timeout=9):
  headers=dict(HEADERS)
  if payload is not None:headers["Content-Type"]="application/json"
@@ -57,13 +59,21 @@ def post_records(root):
    content=re.sub(r"</?escape>","",content,flags=re.I)
    if not content:continue
    when=value(node.get("publishedTimeText") or node.get("publishedTime"))
-   thumb=""
-   for p in walk(node.get("backstageAttachment") or node.get("attachment") or {}):
-    if "thumbnails" in p and isinstance(p["thumbnails"],list):
-     candidates=[x for x in p["thumbnails"] if isinstance(x,dict) and x.get("url","").startswith("https://")]
-     if candidates:
-      thumb=candidates[-1]["url"].replace("&amp;","&");break
-   found[post_id]={"id":post_id,"text":content,"when":when,"image":thumb,"url":"https://www.youtube.com/post/"+post_id}
+   image_urls=[]
+   attachment=node.get("backstageAttachment") or node.get("attachment") or {}
+   for p in walk(attachment):
+    thumbnails=p.get("thumbnails")
+    if not isinstance(thumbnails,list):continue
+    candidates=[x for x in thumbnails if isinstance(x,dict) and isinstance(x.get("url"),str) and x["url"].startswith("https://")]
+    if not candidates:continue
+    chosen=candidates[-1]["url"].replace("&amp;","&")
+    if chosen not in image_urls:image_urls.append(chosen)
+   if not MULTI_IMAGE_IMPORT_ENABLED:
+    image_urls=image_urls[:1]
+   thumb=image_urls[0] if image_urls else ""
+   extra_images=[{"src":url,"caption":""} for url in image_urls[1:]]
+   found[post_id]={"id":post_id,"text":content,"when":when,"image":thumb,
+                   "images":extra_images,"url":"https://www.youtube.com/post/"+post_id}
  return list(found.values())
 
 def continuation_tokens(root):
