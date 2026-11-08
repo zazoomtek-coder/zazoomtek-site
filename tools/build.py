@@ -155,6 +155,7 @@ def community_posts():
    "published_at":str(item.get("published_at") or item.get("date") or ""),
    "source":"youtube-community" if youtube_full else ("community-archive-full" if archive_full else "archived-community-excerpt"),
    "is_excerpt":not is_full,"source_url":original_url,"image":image,
+    "images":item.get("images",[]) if isinstance(item.get("images"),list) else [],
    "headings":item.get("headings",[]) if isinstance(item.get("headings"),list) else [],
    "featured":bool(item.get("featured",False)),
    "editorial_pick":bool(item.get("editorial_pick",False))
