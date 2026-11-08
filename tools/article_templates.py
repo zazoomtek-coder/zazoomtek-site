@@ -15,6 +15,8 @@ H2_NAMES=set(REVIEW_TECH+REVIEW_GAMING+[
 SCORE=re.compile(r"(?:⭐\s*)?\b(?:voto\s*(?:finale)?|valutazione\s*finale|giudizio\s*finale)\s*[:\-]?\s*(10(?:[.,]0)?|[0-9](?:[.,][0-9])?)\s*(?:/\s*10)?\b",re.I)
 ONLY_SCORE=re.compile(r"^\s*(?:⭐\s*)?(?:\*\*\s*)?(?:voto\s*(?:finale)?|valutazione\s*finale)\s*(?:\*\*)?\s*[:\-]?\s*(?:10(?:[.,]0)?|[0-9](?:[.,][0-9])?)\s*(?:/\s*10)?\s*$",re.I)
 VIDEO_ID=re.compile(r"^[A-Za-z0-9_-]{11}$")
+# Emergency rollback: False restores the former cover-only review rendering.
+MULTI_IMAGE_REVIEW_RENDERING_ENABLED = True
 DATE=re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 def category(review):
@@ -288,7 +290,7 @@ def image_block(review,image_validator,extra=False):
 
 def interleave_review_images(body,review,image_validator):
  """Place every imported Community review photo inside its relevant article section."""
- if not is_review(review):return body
+ if not MULTI_IMAGE_REVIEW_RENDERING_ENABLED or not is_review(review):return body
  images=review.get("images",[])
  if not isinstance(images,list) or not images:return body
  figures=[]
