@@ -1164,14 +1164,14 @@ def archive(key,rows,page=1):
  return inside(label_page,content,rows,show_related=False,seo_path="/"+key+("" if page==1 else "-page-"+str(page)),seo_summary="Archivio "+label+" di ZazoomTek con notizie, recensioni e contenuti originali in ordine di pubblicazione."+(" Pagina "+str(page)+"." if page>1 else ""))
 
 def matching_review_video_id(row):
- """Use only a real published YouTube review, never a gameplay, test or unboxing."""
+ """Match a published review video to its text review by equivalent title."""
  if not str(row.get("category") or "").startswith("recensioni-"):return ""
  try:
   catalog=json.loads((P/"data/videos.json").read_text(encoding="utf-8")).get("videos",[])
  except (FileNotFoundError,ValueError,TypeError):return ""
  published={v.get("id") for v in catalog if v.get("kind")=="review"}
  title=re.sub(r"[^a-z0-9]+"," ",unesc(str(row.get("title") or "")).casefold()).strip()
- # Known exact review pairings, including Italian/English title variants.
+ # Keep verified historical pairings where the video title differs substantially.
  matches=(
   (("70mai","a900","ultra"),"3biZz45pUJs"),
   (("thermomate","2500w"),"e7rAYQprXTM"),
@@ -1191,9 +1191,26 @@ def matching_review_video_id(row):
  )
  # Prefer the Ultra review over a different 70mai A900 review.
  for words,vid in matches:
-  if all(re.search(r"\b"+re.escape(w)+r"\b",title) for w in words) and (vid in published or vid=="l3pgBTunwS4" or (vid=="mTZN5hXJkyQ" and any(v.get("id")==vid and "recensione" in str(v.get("title") or "").casefold() for v in catalog))):
+  if all(re.search(r"\\b"+re.escape(w)+r"\\b",title) for w in words) and (vid in published or vid=="l3pgBTunwS4" or (vid=="mTZN5hXJkyQ" and any(v.get("id")==vid and "recensione" in str(v.get("title") or "").casefold() for v in catalog))):
    return vid
- return ""
+ # Generic fallback: compare the product/game title, ignoring separators,
+ # review labels and platform suffixes (e.g. PS5). Only one unambiguous
+ # published review is attached; no gameplay/test/unboxing is eligible.
+ ignored={"recensione","recensioni","review","ps5","ps4","ps3","xbox","series","switch","pc","gaming","tech"}
+ def subject_key(value):
+  value=unesc(str(value or "")).casefold().split("|",1)[0]
+  tokens=re.findall(r"[a-z0-9]+",value)
+  return " ".join(token for token in tokens if token not in ignored)
+ wanted=subject_key(row.get("title"))
+ if len(wanted.split())<2:return ""
+ candidates=[]
+ for item in catalog:
+  vid=item.get("id")
+  if item.get("kind")!="review" or not isinstance(vid,str) or not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid):
+   continue
+  if subject_key(item.get("title"))==wanted:
+   candidates.append(vid)
+ return candidates[0] if len(set(candidates))==1 else ""
 
 def article(r,rows):
  from article_templates import render
