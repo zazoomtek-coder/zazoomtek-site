@@ -274,7 +274,7 @@ def image_block(review,image_validator,extra=False):
   images=review.get("images",[])
   if isinstance(images,list):candidates=[i for i in images if isinstance(i,dict)]
  result=[]
- for item in candidates[:6]:
+ for item in candidates:
   src=image_validator(item.get("src",""))
   if not src:continue
   caption=plain(item.get("caption",""))
@@ -284,6 +284,44 @@ def image_block(review,image_validator,extra=False):
   image='<img '+priority+' decoding="async" src="'+esc(src,quote=True)+'" alt="'+esc(caption or plain(review.get("title")),quote=True)+'">'
   result.append('<figure class="story-figure">'+image+('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
  return ''.join(result)
+
+
+def interleave_review_images(body,review,image_validator):
+ """Place every imported Community review photo inside its relevant article section."""
+ if not is_review(review):return body
+ images=review.get("images",[])
+ if not isinstance(images,list) or not images:return body
+ figures=[]
+ for item in images:
+  if not isinstance(item,dict):continue
+  markup=image_block({"title":review.get("title",""),"images":[item]},image_validator,extra=True)
+  if markup:figures.append(markup)
+ if not figures:return body
+ parts=re.split(r"(<h2(?:\\s[^>]*)?>.*?</h2>)",body,flags=re.I|re.S)
+ section_positions=[i for i in range(1,len(parts),2)]
+ if not section_positions:
+  paragraphs=list(re.finditer(r"</p>",body,re.I))
+  if paragraphs:
+   at=paragraphs[-1].end()
+   return body[:at]+"".join(figures)+body[at:]
+  return body+"".join(figures)
+ targets=("materiali","design","hardware","prestazioni","uso quotidiano","esperienza complessiva") if category(review)=="recensioni-tech" else ("storia","gameplay","aspetto tecnico")
+ matching=[]
+ for pos in section_positions:
+  heading=re.sub(r"<[^>]+>"," ",parts[pos]).casefold()
+  if any(label in heading for label in targets):matching.append(pos)
+ chosen=matching or section_positions
+ placements={pos:[] for pos in chosen}
+ for index,figure in enumerate(figures):
+  placements[chosen[index % len(chosen)]].append(figure)
+ for pos,items in placements.items():
+  content_pos=pos+1
+  segment=parts[content_pos] if content_pos<len(parts) else ""
+  paragraphs=list(re.finditer(r"</p>",segment,re.I))
+  insertion=paragraphs[-1].end() if paragraphs else len(segment)
+  parts[content_pos]=segment[:insertion]+"".join(items)+segment[insertion:]
+ return "".join(parts)
+
 
 def video(review):
  vid=plain(review.get("youtube_id"))
@@ -776,12 +814,15 @@ def render(review,image_validator):
  if not media:
   media=('<div class="story-cover-fallback" role="img" aria-label="Copertina editoriale senza fotografia originale">'
          '<span>'+esc("Recensione" if reviews else "Articolo")+'</span><strong>'+title+'</strong></div>')
- extra=image_block(review,image_validator,extra=True)
+ extra="" if reviews else image_block(review,image_validator,extra=True)
  notice='<p class="excerpt-notice">Questo contenuto proviene da un estratto di archivio: il testo originale completo non è disponibile.</p>' if review.get("is_excerpt") else ""
  source_notes=review.get("ending_notes",[]) if reviews else []
  if not isinstance(source_notes,list):source_notes=[]
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
+ article_body=sectioned_body(review)+retained_notes
+ if reviews:article_body=interleave_review_images(article_body,review,image_validator)
+ article_body+=extra
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +(video(review) if reviews else "")+notice+'<div class="article-text">'+normalize_editorial_headings(merge_repeated_info_sections(with_official_link(sectioned_body(review)+retained_notes+extra,review)))+'</div>'
+         +(video(review) if reviews else "")+notice+'<div class="article-text">'+normalize_editorial_headings(merge_repeated_info_sections(with_official_link(article_body,review)))+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
