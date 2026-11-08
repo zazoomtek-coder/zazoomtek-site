@@ -297,7 +297,7 @@ def interleave_review_images(body,review,image_validator):
   markup=image_block({"title":review.get("title",""),"images":[item]},image_validator,extra=True)
   if markup:figures.append(markup)
  if not figures:return body
- parts=re.split(r"(<h2(?:\\s[^>]*)?>.*?</h2>)",body,flags=re.I|re.S)
+ parts=re.split(r"(<h2(?:\s[^>]*)?>.*?</h2>)",body,flags=re.I|re.S)
  section_positions=[i for i in range(1,len(parts),2)]
  if not section_positions:
   paragraphs=list(re.finditer(r"</p>",body,re.I))
