@@ -1430,7 +1430,7 @@ def rss_feed(rows):
     value=""
    if value:
     description_parts.append(value)
-  SubElement(item,"description").text="\\n\\n".join(description_parts)
+  SubElement(item,"description").text="\n\n".join(description_parts)
   if len(posted)>=50:break
  (O/"feed.xml").parent.mkdir(parents=True,exist_ok=True)
  ElementTree(rss).write(O/"feed.xml",encoding="utf-8",xml_declaration=True)
