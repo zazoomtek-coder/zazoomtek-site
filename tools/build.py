@@ -1430,7 +1430,7 @@ def rss_feed(rows):
      value=""
     if value:
      description_parts.append(value)
-   SubElement(item,"description").text="\\n\\n".join(description_parts)
+   SubElement(item,"description").text="\n\n".join(description_parts)
    if len(posted)>=50:break
   ElementTree(rss).write(O/filename,encoding="utf-8",xml_declaration=True)
   print("RSS feed generated:",filename,len(posted),"articles",flush=True)
