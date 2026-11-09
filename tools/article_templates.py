@@ -463,8 +463,11 @@ def news_body(review,blocks):
    if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
     heading=clean_heading(raw)
   if heading:
-   if not tokens or tokens[-1]!=("h2",heading):
-    if youtube_source or heading.casefold() not in ("pro","contro","voto finale"):
+   if youtube_source:
+    # Source paragraph titles are bold text, not newly styled editorial H2 sections.
+    tokens.append(("p","**"+heading+"**"))
+   elif not tokens or tokens[-1]!=("h2",heading):
+    if heading.casefold() not in ("pro","contro","voto finale"):
      tokens.append(("h2",heading))
    continue
   # Keep each original YouTube paragraph intact; no character-based splitting.
