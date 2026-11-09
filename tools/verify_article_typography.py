@@ -61,6 +61,19 @@ def verify():
  assert all(formatted.count("<p>"+p+"</p>")==1 for p in sample)
  assert [formatted.index(p) for p in sample]==sorted(formatted.index(p) for p in sample)
 
+ # YouTube Community source paragraphs stay intact, even when longer than 430 chars.
+ community_text=("Testo originale del post YouTube. " * 45).strip()
+ community={"source":"youtube-community","category":"news-tech","title":"News Tech: Titolo originale",
+            "body":[community_text,"**Dettagli ufficiali**","Secondo paragrafo originale."]}
+ community_blocks=editorial_blocks(community)
+ community_html=sectioned_body(community)
+ assert community_blocks==community["body"]
+ assert community_html.count("<p>")==2
+ assert community_html.count("<h2>")==1
+ assert "<h2>Dettagli ufficiali</h2>" in community_html
+ assert community_html.count("Testo originale del post YouTube.")==45
+ assert "<h2>Design e caratteristiche</h2>" not in community_html
+
  # Regression for the long, run-on Expeditions: Samurai-style Community post.
  # It must become several short paragraphs and multiple red-bar headings,
  # without losing/rewording any single original sentence.
