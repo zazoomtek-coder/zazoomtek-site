@@ -1388,54 +1388,59 @@ def about_page(rows):
          seo_summary=summary),encoding="utf-8")
 
 def rss_feed(rows):
- """Generate a real RSS 2.0 feed with only first-party editorial content."""
+ """Generate the general RSS and a separate gaming-only feed for Ludomedia."""
  from xml.etree.ElementTree import Element,SubElement,ElementTree
  from email.utils import format_datetime
  from datetime import datetime,timezone
  base=((os.getenv("CF_PAGES_URL") or "https://zazoomtek-spotnews-preview.pages.dev") if PREVIEW else "https://zazoomtek.it").rstrip("/")
  # CF_PAGES_URL might not be set in a local build; never emit localhost links.
  if not base.startswith("https://"):base="https://zazoomtek.it"
- rss=Element("rss",{"version":"2.0"})
- channel=SubElement(rss,"channel")
- for key,value in (("title","ZazoomTek - Tecnologia e Gaming"),("link",base+"/"),("description","Ultime notizie, recensioni, guide e approfondimenti di ZazoomTek."),("language","it-it")):
-  SubElement(channel,key).text=value
- posted=set()
- for row in sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True):
-  slug=row.get("slug","")
-  if not slug or slug in posted:continue
-  if row.get("category") not in TYPES or row.get("category")=="video":continue
-  posted.add(slug)
-  item=SubElement(channel,"item")
-  url=base+"/"+slug
-  SubElement(item,"title").text=clean_title(row.get("title") or "")
-  SubElement(item,"link").text=url
-  SubElement(item,"guid",{"isPermaLink":"true"}).text=url
-  data=row.get("published_at") or row.get("date") or ""
-  try:
-   when=datetime.fromisoformat(str(data).replace("Z","+00:00"))
-   if when.tzinfo is None:when=when.replace(tzinfo=timezone.utc)
-   SubElement(item,"pubDate").text=format_datetime(when)
-  except (ValueError,TypeError):pass
-  SubElement(item,"category").text=TYPES.get(row.get("category"),"Articolo")
-  body=row.get("body") or []
-  if isinstance(body,str):body=[body]
-  # Ludomedia requires a complete article or a substantial preview.
-  # Export all available article text instead of only the first paragraph.
-  description_parts=[]
-  for block in body:
-   if isinstance(block,str):
-    value=block.strip()
-   elif isinstance(block,dict):
-    value=str(block.get("text") or block.get("content") or "").strip()
-   else:
-    value=""
-   if value:
-    description_parts.append(value)
-  SubElement(item,"description").text="\n\n".join(description_parts)
-  if len(posted)>=50:break
+ def write_feed(filename,title,description,selected_rows):
+  rss=Element("rss",{"version":"2.0"})
+  channel=SubElement(rss,"channel")
+  for key,value in (("title",title),("link",base+"/"),("description",description),("language","it-it")):
+   SubElement(channel,key).text=value
+  posted=set()
+  for row in sorted(selected_rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True):
+   slug=row.get("slug","")
+   if not slug or slug in posted:continue
+   posted.add(slug)
+   item=SubElement(channel,"item")
+   url=base+"/"+slug
+   SubElement(item,"title").text=clean_title(row.get("title") or "")
+   SubElement(item,"link").text=url
+   SubElement(item,"guid",{"isPermaLink":"true"}).text=url
+   data=row.get("published_at") or row.get("date") or ""
+   try:
+    when=datetime.fromisoformat(str(data).replace("Z","+00:00"))
+    if when.tzinfo is None:when=when.replace(tzinfo=timezone.utc)
+    SubElement(item,"pubDate").text=format_datetime(when)
+   except (ValueError,TypeError):pass
+   SubElement(item,"category").text=TYPES.get(row.get("category"),"Articolo")
+   body=row.get("body") or []
+   if isinstance(body,str):body=[body]
+   # Export all available article text instead of only the first paragraph.
+   description_parts=[]
+   for block in body:
+    if isinstance(block,str):
+     value=block.strip()
+    elif isinstance(block,dict):
+     value=str(block.get("text") or block.get("content") or "").strip()
+    else:
+     value=""
+    if value:
+     description_parts.append(value)
+   SubElement(item,"description").text="\n\n".join(description_parts)
+   if len(posted)>=50:break
+  ElementTree(rss).write(O/filename,encoding="utf-8",xml_declaration=True)
+  print("RSS feed generated:",filename,len(posted),"articles",flush=True)
  (O/"feed.xml").parent.mkdir(parents=True,exist_ok=True)
- ElementTree(rss).write(O/"feed.xml",encoding="utf-8",xml_declaration=True)
- print("RSS feed generated:",len(posted),"articles",flush=True)
+ write_feed("feed.xml","ZazoomTek - Tecnologia e Gaming",
+            "Ultime notizie, recensioni, guide e approfondimenti di ZazoomTek.",
+            [r for r in rows if r.get("category") in TYPES and r.get("category")!="video"])
+ write_feed("feed-ludomedia-gaming.xml","ZazoomTek - News e Recensioni Gaming",
+            "News Gaming e Recensioni Gaming di ZazoomTek.",
+            [r for r in rows if r.get("category") in ("news-gaming","recensioni-gaming")])
 
 def audit_published_articles(rows):
  """A whole-site audit: no article with only a title, cover or archived snippet."""
