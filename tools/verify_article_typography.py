@@ -68,9 +68,9 @@ def verify():
  community_blocks=editorial_blocks(community)
  community_html=sectioned_body(community)
  assert community_blocks==community["body"]
- assert community_html.count("<p>")==2
- assert community_html.count("<h2>")==1
- assert "<h2>Dettagli ufficiali</h2>" in community_html
+ assert community_html.count("<p>")==3
+ assert community_html.count("<h2>")==0
+ assert "<p><strong>Dettagli ufficiali</strong></p>" in community_html
  assert community_html.count("Testo originale del post YouTube.")==45
  assert "<h2>Design e caratteristiche</h2>" not in community_html
 
