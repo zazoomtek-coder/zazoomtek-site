@@ -1419,10 +1419,19 @@ def rss_feed(rows):
   SubElement(item,"category").text=TYPES.get(row.get("category"),"Articolo")
   body=row.get("body") or []
   if isinstance(body,str):body=[body]
-  first=next((v if isinstance(v,str) else str(v.get("text") or "") for v in body
-   if (isinstance(v,str) and v.strip() and not v.strip().startswith(("##","**"))) or
-      (isinstance(v,dict) and v.get("type")=="paragraph" and str(v.get("text") or "").strip())),"")
-  SubElement(item,"description").text=first.strip()[:500]
+  # Ludomedia requires a complete article or a substantial preview.
+  # Export all available article text instead of only the first paragraph.
+  description_parts=[]
+  for block in body:
+   if isinstance(block,str):
+    value=block.strip()
+   elif isinstance(block,dict):
+    value=str(block.get("text") or block.get("content") or "").strip()
+   else:
+    value=""
+   if value:
+    description_parts.append(value)
+  SubElement(item,"description").text="\n\n".join(description_parts)
   if len(posted)>=50:break
  (O/"feed.xml").parent.mkdir(parents=True,exist_ok=True)
  ElementTree(rss).write(O/"feed.xml",encoding="utf-8",xml_declaration=True)
