@@ -1,5 +1,5 @@
 """Standard-library checks for the ZazoomTek article typography parser."""
-from article_templates import rich_text,compact_prose_html,news_body,sectioned_body,paragraphs
+from article_templates import rich_text,compact_prose_html,news_body,sectioned_body,paragraphs,editorial_blocks
 
 def verify():
  # Soft source line breaks are not editorial paragraph boundaries.
