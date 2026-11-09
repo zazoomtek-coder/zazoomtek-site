@@ -348,28 +348,8 @@ def editorial_blocks(review):
  pieces=paragraphs(review)
  youtube_source=str(review.get("source") or "")=="youtube-community"
  if youtube_source:
-  cleaned=[p.strip() for p in pieces if p.strip()]
-  # Remove only the exact final channel-promotion footer and everything after it.
-  # Preserve all article paragraphs, source headings, bold text, links and CTAs before it.
-  footer=re.compile(r"(?is)\s*Subscribe\s+🌐\s*zazoomtek\.it\b.*$")
-  for index,block in enumerate(cleaned):
-   match=footer.search(block)
-   if match:
-    remainder=block[:match.start()].strip()
-    if remainder:cleaned[index]=remainder
-    else:cleaned=cleaned[:index]
-    break
-  # Remove only a repeated source headline; keep all remaining source content in order.
-  if cleaned:
-   first=cleaned[0]
-   first_without_prefix=re.sub(r"(?i)^\\s*(?:(?:News|Review|Recensione)(?:\\s+(?:Tech|Gaming|Extra))?|Articolo)\\s*:\\s*","",first)
-   lines=first_without_prefix.split("\\n",1)
-   title=re.sub(r"(?i)^\\s*(?:News|Review|Recensione)(?:\\s+(?:Tech|Gaming|Extra))?\\s*:\\s*","",plain(review.get("title","")))
-   key=lambda value:re.sub(r"[^a-z0-9]","",plain(value).casefold())
-   if key(lines[0])==key(title):
-    if len(lines)>1 and lines[1].strip():cleaned[0]=lines[1].strip()
-    else:cleaned.pop(0)
-  return cleaned
+  # The imported YouTube post is authoritative: preserve every source block.
+  return [p for p in pieces if p.strip()]
  cleaned=[]
  for p in pieces:
   p=p.strip()
@@ -473,18 +453,22 @@ def news_body(review,blocks):
  youtube_source=str(review.get("source") or "")=="youtube-community"
  tokens=[]
  for i,raw in enumerate(blocks):
-  if i in supplied:
-   tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
-  heading=named_section(raw)
-  if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
-   heading=clean_heading(raw)
+  if youtube_source:
+   # Promote only explicit source headings; never infer or generate section titles.
+   heading=named_section(raw)
+  else:
+   if i in supplied:
+    tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
+   heading=named_section(raw)
+   if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
+    heading=clean_heading(raw)
   if heading:
-   if heading.casefold() in ("il punto","gli elementi principali"):heading="Il punto:"
    if not tokens or tokens[-1]!=("h2",heading):
-    if heading.casefold() not in ("pro","contro","voto finale"):
+    if youtube_source or heading.casefold() not in ("pro","contro","voto finale"):
      tokens.append(("h2",heading))
    continue
-  for paragraph in split_news_prose(raw):
+  # Keep each original YouTube paragraph intact; no character-based splitting.
+  for paragraph in ([raw] if youtube_source else split_news_prose(raw)):
    tokens.append(("p",paragraph))
  prose=[t for kind,t in tokens if kind=="p"]
  if not prose:return ""
@@ -826,5 +810,5 @@ def render(review,image_validator):
  article_body+=extra
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
-         +(video(review) if reviews else "")+notice+'<div class="article-text">'+normalize_editorial_headings(merge_repeated_info_sections(with_official_link(article_body,review)))+'</div>'
+         +(video(review) if reviews else "")+notice+'<div class="article-text">'+(article_body if str(review.get("source") or "")=="youtube-community" else normalize_editorial_headings(merge_repeated_info_sections(with_official_link(article_body,review))))+'</div>'
          +(verdict(review) if reviews else '')+'</article>')
