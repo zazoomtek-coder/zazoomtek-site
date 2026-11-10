@@ -1,0 +1,20 @@
+name: SEO optimizer tests
+on:
+  push:
+    branches:
+      - seo-community-metadata
+permissions:
+  contents: read
+jobs:
+  test-seo-optimizer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile changed Python modules
+        run: python -m py_compile tools/seo_editorial_optimizer.py tools/scheduled_editorial_import.py tools/build.py tools/seo.py tools/article_templates.py tools/editorial_slot_gate.py
+      - name: Run SEO optimizer unit tests
+        working-directory: tools
+        run: python -m unittest -v test_seo_editorial_optimizer

@@ -43,6 +43,7 @@ FILES = (
     "tools/article_templates.py",
     "assets/js/site.js",
     "tools/seo.py",
+    "tools/seo_editorial_optimizer.py",
     "tools/verify_seo.py",
     "tools/scheduled_editorial_import.py",
     "tools/verify_editorial_live.py",

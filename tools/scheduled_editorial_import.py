@@ -255,6 +255,9 @@ def sync_studio_assets():
 
 
 def main():
+    community_before = snapshot("community_imported.json", "posts")["posts"]
+    before_community_ids = {str(row.get("id")) for row in community_before
+                            if isinstance(row, dict) and row.get("id")}
     before = {name: len(snapshot(name, key)[key]) for name, key in
               (("community_imported.json", "posts"), ("videos.json", "videos"))}
     archive = {x.get("id") for x in snapshot("community_full.json", "posts")["posts"]}
@@ -275,12 +278,20 @@ def main():
             results[name] = False
             print("LIVE SOURCE FAILED; archived content preserved:",
                   name, type(exc).__name__, str(exc)[:170], flush=True)
+    seo_result = {"optimized": 0, "skipped": 0, "failed": 0}
+    try:
+        from seo_editorial_optimizer import optimize_new_community_posts
+        seo_result = optimize_new_community_posts(before_community_ids)
+    except Exception as exc:
+        print("SEO AI FAILED OPEN; original Community content preserved:",
+              type(exc).__name__, str(exc)[:170], flush=True)
     after = {name: len(snapshot(name, key)[key]) for name, key in
              (("community_imported.json", "posts"), ("videos.json", "videos"))}
     print("IMPORT RESULT",
           "new Community:", after["community_imported.json"] - before["community_imported.json"],
           "new videos:", after["videos.json"] - before["videos.json"],
           "RSS OK:", results["rss"],
+          "SEO AI:", seo_result,
           "Studio publications:", studio_updates, "Studio uploads:", studio_assets, flush=True)
     print("LIVE SOURCES:", results, flush=True)
     for p in snapshot("community_imported.json", "posts")["posts"][:8]:
