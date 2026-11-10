@@ -9,6 +9,9 @@ NS={"atom":"http://www.w3.org/2005/Atom","yt":"http://www.youtube.com/xml/schema
 def is_short_title(title):
  low=title.casefold()
  return bool(re.search(r"(?:#|\b)shorts?\b|/shorts/",low))
+def is_short_entry(entry):
+ return any("/shorts/" in (link.get("href") or "").casefold()
+            for link in entry.findall("atom:link",NS))
 def classify(title):
  low=title.casefold()
  if is_short_title(title) or "gameplay" in low or "trailer" in low:return None
@@ -32,6 +35,7 @@ def main():
   title=entry.findtext("atom:title",default="",namespaces=NS)
   day=entry.findtext("atom:published",default="",namespaces=NS)
   if not re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) or not title or not day or vid in previous:continue
+  if is_short_entry(entry):continue
   kindtopic=classify(title)
   if not kindtopic:continue
   kind,topic=kindtopic
