@@ -5,7 +5,7 @@ Canale ufficiale: https://www.youtube.com/@ZazoomTek · UCJs0ZT10hUiPRD0UZtUpI1Q
 ## Video
 \`data/videos.json\` contiene metadati dei video verificati attraverso il canale connesso (titoli, ID e date). Solo \`kind=review|test|unboxing\` appare in «Ultimi Video» e in \`/video.html\`. Gameplay, news video, promozioni e Shorts non appaiono in questa sezione. Collegamenti e miniature aprono YouTube. Il menu **VIDEO** va direttamente al canale YouTube.
 
-Per aggiornamenti successivi usare \`python3 tools/sync_videos.py\`, che legge il feed ufficiale RSS e aggiunge solo video con tipologia e argomento riconosciuti. **Nessuna pianificazione è attiva** sul branch di prova.
+Regola permanente: gli YouTube Shorts non devono essere importati. L'importazione automatica ammette soltanto video classificati come recensione, test o unboxing; i contenuti con marcatori Shorts e i video generici/non classificati vengono esclusi anche quando arrivano dalla coda.\n\nPer aggiornamenti successivi usare \`python3 tools/sync_videos.py\`, che legge il feed ufficiale RSS e aggiunge solo video con tipologia e argomento riconosciuti. **Nessuna pianificazione è attiva** sul branch di prova.
 
 ## Post scritti YouTube Community
 La YouTube Data API e gli strumenti attualmente collegati non forniscono qui l'elenco e il testo originale di tutti i post Community. È vietato sostituire una recensione scritta con il titolo di un video o con un testo inventato.
