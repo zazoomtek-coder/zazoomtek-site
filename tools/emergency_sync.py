@@ -35,9 +35,19 @@ def save(name, obj):
     return False
 
 def classify_upload(title):
-    # Importa esclusivamente recensioni, test e unboxing riconosciuti.
-    # Gli Shorts e i video generici non entrano mai nell'archivio.
-    return classify(title)
+    # Mantiene la classificazione storica: esclude soltanto gli YouTube Shorts.
+    from sync_videos import is_short_title
+    if is_short_title(title):
+        return None
+    original = classify(title)
+    if original:
+        return original
+    low = title.casefold()
+    if "gameplay" in low:
+        return "gameplay", "gaming"
+    if "trailer" in low:
+        return "trailer", "gaming"
+    return "video", "general"
 
 def youtube_videos():
     db = load("videos.json", "videos")
