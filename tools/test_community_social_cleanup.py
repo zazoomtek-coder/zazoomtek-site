@@ -26,6 +26,13 @@ class CommunitySocialCleanupTests(unittest.TestCase):
         ]
         self.assertEqual(clean_community_social_boilerplate(blocks), blocks)
 
+    def test_preserves_hashtags_inside_editorial_body(self):
+        blocks = [
+            "Aggiornamento #GTA6 e #RockstarGames.",
+            "Ulteriori dettagli editoriali.",
+        ]
+        self.assertEqual(clean_community_social_boilerplate(blocks), blocks)
+
     def test_removes_trailing_rows_inside_same_block(self):
         block = (
             "Testo editoriale completo.\n"
