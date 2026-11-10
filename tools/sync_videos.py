@@ -6,9 +6,12 @@ ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/"data/videos.json"
 CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
 NS={"atom":"http://www.w3.org/2005/Atom","yt":"http://www.youtube.com/xml/schemas/2015"}
+def is_short_title(title):
+ low=title.casefold()
+ return bool(re.search(r"(?:#|\\b)shorts?\\b|/shorts/",low))
 def classify(title):
  low=title.casefold()
- if "gameplay" in low or "trailer" in low or "shorts" in low:return None
+ if is_short_title(title) or "gameplay" in low or "trailer" in low:return None
  if "unboxing" in low:kind="unboxing"
  elif re.search(r"\btest\b",low):kind="test"
  elif "recensione" in low or "review" in low:kind="review"
