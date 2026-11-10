@@ -156,6 +156,8 @@ def community_posts():
    "source":"youtube-community" if youtube_full else ("community-archive-full" if archive_full else "archived-community-excerpt"),
    "is_excerpt":not is_full,"source_url":original_url,"image":image,
     "images":item.get("images",[]) if isinstance(item.get("images"),list) else [],
+   "image_alt":item.get("image_alt", "") if isinstance(item.get("image_alt"), str) else "",
+   "seo":item.get("seo", {}) if isinstance(item.get("seo"), dict) else {},
    "headings":item.get("headings",[]) if isinstance(item.get("headings"),list) else [],
    "featured":bool(item.get("featured",False)),
    "editorial_pick":bool(item.get("editorial_pick",False))

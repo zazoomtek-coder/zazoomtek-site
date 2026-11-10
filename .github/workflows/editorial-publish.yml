@@ -22,6 +22,8 @@ jobs:
       CF_PAGES_BRANCH: main
       CF_PAGES_URL: https://zazoomtek.it
       EDITORIAL_FORCE_RELEASE: ${{ inputs.publish_now }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ZAZOOMTEK_SEO_MODEL: gpt-4o-mini
     steps:
       - name: Carica la versione ufficiale di main
         uses: actions/checkout@v4

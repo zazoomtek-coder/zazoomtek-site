@@ -29,6 +29,11 @@ def keywords(row):
  locked=row.get("seo_lock")
  if isinstance(locked,dict) and isinstance(locked.get("keywords"),list) and locked["keywords"]:
   return [plain(x) for x in locked["keywords"] if plain(x)][:8]
+ seo=row.get("seo") if row.get("source")=="youtube-community" else None
+ if isinstance(seo,dict):
+  values=[seo.get("primary_keyword")]+(seo.get("related_keywords") if isinstance(seo.get("related_keywords"),list) else [])
+  values=[plain(x) for x in values if plain(x)]
+  if len(values)>=3:return values[:5]
  title=terms(row.get("title"))
  corpus=terms(" ".join(prose(row))) # entire article, never only the teaser
  freq=Counter(corpus)
@@ -38,7 +43,11 @@ def keywords(row):
   if word not in found:found.append(word)
  return found[:8]
 def title_tag(row):
- """Preserve meaningful complete headlines; never cut at 70 chars then add a brand."""
+ """Use validated AI SERP metadata without changing the visible editorial H1."""
+ seo=row.get("seo") if row.get("source")=="youtube-community" else None
+ if isinstance(seo,dict):
+  candidate=plain(seo.get("seo_title"))
+  if 15<=len(candidate)<=60:return candidate
  locked=row.get("seo_lock")
  if isinstance(locked,dict) and plain(locked.get("title")):
   return plain(locked["title"])[:115]
@@ -61,6 +70,10 @@ def title_tag(row):
  chosen=re.sub(r"\s+(?:e|ed|di|del|della|dei|per|con|tra|fra|in|su|a|da|il|la|le|lo|gli|i|un|una)$","",chosen,flags=re.I)
  return chosen.strip(" ,;:-–—") or name[:110]
 def description(row):
+ seo=row.get("seo") if row.get("source")=="youtube-community" else None
+ if isinstance(seo,dict):
+  candidate=plain(seo.get("meta_description"))
+  if 70<=len(candidate)<=155:return candidate
  locked=row.get("seo_lock")
  if isinstance(locked,dict) and plain(locked.get("description")):
   return plain(locked["description"])[:165]
