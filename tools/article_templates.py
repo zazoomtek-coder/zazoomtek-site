@@ -359,7 +359,7 @@ def _is_community_promo_line(line):
 def _is_trailing_hashtag_line(line):
  """Only a standalone trailing hashtag row is boilerplate."""
  value=plain(line)
- return bool(value and re.fullmatch(r"(?:#[\\w]+(?:[.-][\\w]+)*)(?:\\s+#[\\w]+(?:[.-][\\w]+)*)*", value, re.UNICODE))
+ return bool(value and re.fullmatch(r"(?:#\w+(?:[.-]\w+)*)(?:\s+#\w+(?:[.-]\w+)*)*", value, re.UNICODE))
 
 
 def clean_community_social_boilerplate(blocks):
@@ -369,11 +369,11 @@ def clean_community_social_boilerplate(blocks):
  """
  cleaned=[]
  for block in blocks:
-  lines=str(block).replace("\\r\\n","\\n").replace("\\r","\\n").split("\\n")
+  lines=str(block).replace("\r\n","\n").replace("\r","\n").split("\n")
   while lines and (not lines[-1].strip() or _is_community_promo_line(lines[-1]) or
                    _is_trailing_hashtag_line(lines[-1])):
    lines.pop()
-  value="\\n".join(lines).strip()
+  value="\n".join(lines).strip()
   if value:
    cleaned.append(value)
  # Some source posts store the promo and hashtags as separate final paragraphs.
