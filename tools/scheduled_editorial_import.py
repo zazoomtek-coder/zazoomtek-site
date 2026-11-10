@@ -59,7 +59,9 @@ def merge_queue(queue_file, dest_file, key, archived):
                 continue
             title = str(r.get("title") or "")
             kind = str(r.get("kind") or "").lower()
-            if re.search(r"(?:#|\b)shorts?\b|/shorts/", title, re.IGNORECASE):
+            link_values = " ".join(str(r.get(field) or "") for field in ("url", "link", "video_url"))
+            if (re.search(r"(?:#|\b)shorts?\b|/shorts/", title + " " + link_values, re.IGNORECASE)
+                    or "youtube.com/shorts/" in link_values.casefold()):
                 continue
             if kind not in {"review", "test", "unboxing"}:
                 continue
