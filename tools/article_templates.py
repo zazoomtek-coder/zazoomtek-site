@@ -454,8 +454,11 @@ def news_body(review,blocks):
  tokens=[]
  for i,raw in enumerate(blocks):
   if youtube_source:
-   # Promote only explicit source headings; never infer or generate section titles.
+   # Preserve explicit headings and recognize isolated source-authored paragraph
+   # titles, without generating headings from ordinary prose.
    heading=named_section(raw)
+   if not heading and source_plain_h2(raw,blocks[i+1] if i+1<len(blocks) else "",i):
+    heading=clean_heading(raw)
   else:
    if i in supplied:
     tokens.append(("h2","Il punto:" if clean_heading(supplied[i]).casefold() in ("il punto","gli elementi principali") else supplied[i]))
