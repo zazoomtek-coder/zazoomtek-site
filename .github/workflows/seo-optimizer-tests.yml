@@ -18,3 +18,5 @@ jobs:
       - name: Run SEO optimizer unit tests
         working-directory: tools
         run: python -m unittest -v test_seo_editorial_optimizer
+      - name: Build static site and run integrated SEO audit (no deployment)
+        run: python tools/build.py

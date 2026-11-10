@@ -101,13 +101,8 @@ def _request_metadata(post, api_key, model):
 
 
 def optimize_new_community_posts(before_ids, path=None, environ=None):
-    """Enrich only new complete Community records; all errors preserve original data."""
+    """Enrich new complete Community records and retry pending ones; all errors fail open."""
     env = os.environ if environ is None else environ
-    api_key = str(env.get("OPENAI_API_KEY") or "").strip()
-    if not api_key:
-        print("SEO AI skipped: OPENAI_API_KEY not configured", flush=True)
-        return {"optimized": 0, "skipped": 0, "failed": 0, "reason": "missing_api_key"}
-    model = str(env.get("ZAZOOMTEK_SEO_MODEL") or DEFAULT_MODEL).strip() or DEFAULT_MODEL
     target = Path(path) if path else DATA / "community_imported.json"
     try:
         document = json.loads(target.read_text(encoding="utf-8"))
@@ -117,33 +112,63 @@ def optimize_new_community_posts(before_ids, path=None, environ=None):
     except Exception as exc:
         print("SEO AI skipped: cannot read Community data:", type(exc).__name__, flush=True)
         return {"optimized": 0, "skipped": 0, "failed": 1, "reason": "invalid_input"}
+
     known = {str(item) for item in before_ids}
+    api_key = str(env.get("OPENAI_API_KEY") or "").strip()
     stats = {"optimized": 0, "skipped": 0, "failed": 0}
     changed = False
+    eligible = []
     for post in posts:
         if not isinstance(post, dict):
             continue
         post_id = str(post.get("id") or "")
-        if not post_id or post_id in known:
+        is_new = bool(post_id and post_id not in known)
+        if not post_id or not (is_new or post.get("seo_pending")):
             continue
         if not post.get("text_complete") or not isinstance(post.get("text"), str) or len(post["text"]) < 60:
             stats["skipped"] += 1
             continue
         if isinstance(post.get("seo"), dict) and post.get("seo_optimized_at"):
+            post.pop("seo_pending", None)
+            changed = True
             stats["skipped"] += 1
             continue
+        eligible.append(post)
+
+    if not api_key:
+        for post in eligible:
+            if not post.get("seo_pending"):
+                post["seo_pending"] = True
+                changed = True
+        if changed:
+            temporary = target.with_name(target.name + ".seo-tmp")
+            temporary.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            temporary.replace(target)
+        print("SEO AI skipped: OPENAI_API_KEY not configured; new posts remain pending", flush=True)
+        stats["skipped"] += len(eligible)
+        stats["reason"] = "missing_api_key"
+        return stats
+
+    model = str(env.get("ZAZOOMTEK_SEO_MODEL") or DEFAULT_MODEL).strip() or DEFAULT_MODEL
+    for post in eligible:
+        post_id = str(post.get("id") or "")
         try:
             post["seo"] = _request_metadata(post, api_key, model)
             post["seo_optimized_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            post.pop("seo_pending", None)
             stats["optimized"] += 1
             changed = True
             print("SEO AI optimized Community post:", post_id, flush=True)
         except (HTTPError, URLError, TimeoutError, OSError, UnicodeError, ValueError,
                 KeyError, IndexError, TypeError) as exc:
+            post["seo_pending"] = True
+            changed = True
             stats["failed"] += 1
             print("SEO AI failed open for Community post:", post_id,
                   type(exc).__name__, str(exc)[:150], flush=True)
         except Exception as exc:
+            post["seo_pending"] = True
+            changed = True
             stats["failed"] += 1
             print("SEO AI unexpected failure; source preserved:", post_id,
                   type(exc).__name__, str(exc)[:150], flush=True)

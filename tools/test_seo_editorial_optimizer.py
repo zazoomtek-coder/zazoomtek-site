@@ -37,7 +37,9 @@ class SEOOptimizerTests(unittest.TestCase):
             path.write_text(json.dumps(original), encoding="utf-8")
             result = optimizer.optimize_new_community_posts(set(), path, {})
             self.assertEqual(result["reason"], "missing_api_key")
-            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), original)
+            saved = json.loads(path.read_text(encoding="utf-8"))["posts"][0]
+            self.assertTrue(saved["seo_pending"])
+            self.assertEqual(saved["text"], POST["text"])
 
     @patch("seo_editorial_optimizer.urlopen")
     def test_valid_metadata_saved_without_touching_source(self, mocked):
@@ -86,6 +88,19 @@ class SEOOptimizerTests(unittest.TestCase):
             result = optimizer.optimize_new_community_posts(set(), path, {"OPENAI_API_KEY": "test"})
             self.assertEqual(result["failed"], 1)
             self.assertEqual(json.loads(path.read_text(encoding="utf-8")), original)
+
+    @patch("seo_editorial_optimizer.urlopen")
+    def test_pending_posts_are_retried_even_when_not_new(self, mocked):
+        mocked.return_value = Response(api_response(VALID))
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "community.json"
+            pending = dict(POST, seo_pending=True)
+            path.write_text(json.dumps({"posts": [pending]}), encoding="utf-8")
+            result = optimizer.optimize_new_community_posts({POST["id"]}, path, {"OPENAI_API_KEY": "test"})
+            saved = json.loads(path.read_text(encoding="utf-8"))["posts"][0]
+            self.assertEqual(result["optimized"], 1)
+            self.assertNotIn("seo_pending", saved)
+            self.assertIn("seo", saved)
 
     @patch("seo_editorial_optimizer.urlopen")
     def test_old_posts_are_not_sent_to_ai(self, mocked):
