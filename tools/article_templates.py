@@ -367,20 +367,23 @@ def clean_community_social_boilerplate(blocks):
 
  Editorial hashtags or social references inside the article remain untouched.
  """
- cleaned=[]
- for block in blocks:
-  lines=str(block).replace("\r\n","\n").replace("\r","\n").split("\n")
-  while lines and (not lines[-1].strip() or _is_community_promo_line(lines[-1]) or
-                   _is_trailing_hashtag_line(lines[-1])):
-   lines.pop()
-  value="\n".join(lines).strip()
-  if value:
-   cleaned.append(value)
- # Some source posts store the promo and hashtags as separate final paragraphs.
- while cleaned and (_is_community_promo_line(cleaned[-1]) or
-                    _is_trailing_hashtag_line(cleaned[-1])):
-  cleaned.pop()
- return cleaned
+ cleaned=[str(block).replace("\r\n","\n").replace("\r","\n").split("\n")
+          for block in blocks if str(block).strip()]
+ # Walk backwards across paragraph boundaries: only the final boilerplate is removed.
+ while cleaned:
+  while cleaned and (not cleaned[-1] or not cleaned[-1][-1].strip()):
+   if cleaned[-1]:
+    cleaned[-1].pop()
+   else:
+    cleaned.pop()
+  if not cleaned:
+   break
+  tail=cleaned[-1][-1]
+  if _is_community_promo_line(tail) or _is_trailing_hashtag_line(tail):
+   cleaned[-1].pop()
+   continue
+  break
+ return ["\n".join(lines).strip() for lines in cleaned if "\n".join(lines).strip()]
 
 
 def editorial_blocks(review):
