@@ -74,6 +74,37 @@ def verify():
  assert community_html.count("Testo originale del post YouTube.")==45
  assert "<h2>Design e caratteristiche</h2>" not in community_html
 
+ # Plain, isolated YouTube Community paragraph titles are bolded like "Il punto",
+ # while the source prose and paragraph boundaries remain unchanged.
+ community_headings=[
+  "Introduzione originale con informazioni complete.",
+  "Design semitrasparente e comfort ultraleggero",
+  "Le HUAWEI FreeBuds SE 5 MAX si distinguono per la custodia semitrasparente. " * 4,
+  "Fino a 80 ore di autonomia e ricarica rapida",
+  "Una singola ricarica offre fino a 10 ore di ascolto. " * 4,
+  "Cancellazione attiva del rumore fino a 52 dB",
+  "Il sistema offre diverse modalità di cancellazione del rumore. " * 4,
+  "Il punto",
+  "Le caratteristiche principali comprendono autonomia e cancellazione del rumore. " * 4,
+  "Preferiresti una maggiore autonomia oppure una cancellazione del rumore più efficace?"
+ ]
+ community_formatted=sectioned_body({
+  "source":"youtube-community","category":"news-tech",
+  "title":"News Tech: HUAWEI FreeBuds SE 5 MAX",
+  "body":community_headings
+ })
+ for heading in (
+  "Design semitrasparente e comfort ultraleggero",
+  "Fino a 80 ore di autonomia e ricarica rapida",
+  "Cancellazione attiva del rumore fino a 52 dB",
+  "Il punto"
+ ):
+  assert "<p><strong>"+heading+"</strong></p>" in community_formatted, ("Missing bold Community title",heading)
+ assert "<p>Introduzione originale con informazioni complete.</p>" in community_formatted
+ assert "<p>"+community_headings[2]+"</p>" in community_formatted
+ assert "<p>"+community_headings[-1]+"</p>" in community_formatted
+ assert community_formatted.count("<h2>")==0
+
  # Regression for the long, run-on Expeditions: Samurai-style Community post.
  # It must become several short paragraphs and multiple red-bar headings,
  # without losing/rewording any single original sentence.
