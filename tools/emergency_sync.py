@@ -35,17 +35,9 @@ def save(name, obj):
     return False
 
 def classify_upload(title):
-    original = classify(title)
-    if original:
-        return original
-    low = title.casefold()
-    if "short" in low:
-        return "short", "general"
-    if "gameplay" in low:
-        return "gameplay", "gaming"
-    if "trailer" in low:
-        return "trailer", "gaming"
-    return "video", "general"
+    # Importa esclusivamente recensioni, test e unboxing riconosciuti.
+    # Gli Shorts e i video generici non entrano mai nell'archivio.
+    return classify(title)
 
 def youtube_videos():
     db = load("videos.json", "videos")
@@ -67,7 +59,10 @@ def youtube_videos():
                 recent.append((published_at[:10], title))
             if video_id in known:
                 continue
-            kind, topic = classify_upload(title)
+            kindtopic = classify_upload(title)
+            if not kindtopic:
+                continue
+            kind, topic = kindtopic
             known[video_id] = {"id": video_id, "title": title, "date": published_at, "topic": topic, "kind": kind}
             count += 1
         db["videos"] = sorted(known.values(), key=lambda x: x.get("date", ""), reverse=True)
