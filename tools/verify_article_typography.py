@@ -101,8 +101,9 @@ def verify():
  ):
   assert "<p><strong>"+heading+"</strong></p>" in community_formatted, ("Missing bold Community title",heading)
  assert "<p>Introduzione originale con informazioni complete.</p>" in community_formatted
- assert "<p>"+community_headings[2]+"</p>" in community_formatted
- assert "<p>"+community_headings[-1]+"</p>" in community_formatted
+ assert "Le HUAWEI FreeBuds SE 5 MAX si distinguono per la custodia semitrasparente." in community_formatted
+ assert community_formatted.count("si distinguono per la custodia semitrasparente.")==1
+ assert "Preferiresti una maggiore autonomia oppure una cancellazione del rumore più efficace?" in community_formatted
  assert community_formatted.count("<h2>")==0
 
  # Regression for the long, run-on Expeditions: Samurai-style Community post.
