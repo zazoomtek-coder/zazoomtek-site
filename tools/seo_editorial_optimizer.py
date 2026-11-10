@@ -46,6 +46,9 @@ def validate_result(result, post):
     corpus = (_plain(post.get("title")) + " " + _plain(post.get("text"))).casefold()
     if not all(token.casefold() in corpus for token in primary.split() if len(token) > 2):
         raise ValueError("Primary keyword is not grounded in the source")
+    for phrase in related:
+        if not all(token.casefold() in corpus for token in phrase.split() if len(token) > 2):
+            raise ValueError("A related keyword is not grounded in the source")
     has_image = bool(post.get("image") or post.get("images"))
     image_alt = _plain(result.get("image_alt"))
     if has_image and not _valid_text(image_alt, 5, 160):
@@ -145,5 +148,7 @@ def optimize_new_community_posts(before_ids, path=None, environ=None):
             print("SEO AI unexpected failure; source preserved:", post_id,
                   type(exc).__name__, str(exc)[:150], flush=True)
     if changed:
-        target.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        temporary = target.with_name(target.name + ".seo-tmp")
+        temporary.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(target)
     return stats

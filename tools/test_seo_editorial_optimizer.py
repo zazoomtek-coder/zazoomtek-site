@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 import seo_editorial_optimizer as optimizer
+import seo
 
 POST = {
     "id": "UgABCDEFGHIJKLMN", "text_complete": True,
@@ -56,6 +57,15 @@ class SEOOptimizerTests(unittest.TestCase):
         invalid = dict(VALID, seo_title="Titolo troppo lungo " * 5)
         with self.assertRaises(ValueError):
             optimizer.validate_result(invalid, POST)
+
+    def test_seo_metadata_is_used_without_replacing_editorial_headline(self):
+        row = dict(POST, source="youtube-community", body=[POST["text"]], seo=VALID)
+        self.assertEqual(seo.title_tag(row), VALID["seo_title"])
+        self.assertEqual(seo.description(row), VALID["meta_description"])
+        self.assertIn(VALID["primary_keyword"], seo.keywords(row))
+        schema = seo.article_schema(row, "https://zazoomtek.it/test", seo.description(row), "")
+        self.assertEqual(schema["headline"], POST["title"])
+        self.assertEqual(schema["description"], VALID["meta_description"])
 
     @patch("seo_editorial_optimizer.urlopen", side_effect=TimeoutError("timeout"))
     def test_timeout_is_fail_open(self, mocked):
