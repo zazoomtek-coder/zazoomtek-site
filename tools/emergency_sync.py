@@ -12,7 +12,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 
 from community_youtube import discover, date_from_relative
-from sync_videos import CHANNEL_ID, NS, classify, is_short_entry
+from sync_videos import CHANNEL_ID, NS, classify, is_short_entry, is_short_title
 from build import tech_sources, rss_card_for_source
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,7 +36,6 @@ def save(name, obj):
 
 def classify_upload(title):
     # Mantiene la classificazione storica: esclude soltanto gli YouTube Shorts.
-    from sync_videos import is_short_title
     if is_short_title(title):
         return None
     original = classify(title)
