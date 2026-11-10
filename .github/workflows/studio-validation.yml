@@ -20,6 +20,7 @@ on:
       - "assets/js/studio.js"
       - "assets/css/studio.css"
       - "tools/article_templates.py"
+      - "tools/verify_article_typography.py"
       - "tools/build.py"
       - "data/studio_posts.json"
       - "data/studio_overrides.json"
