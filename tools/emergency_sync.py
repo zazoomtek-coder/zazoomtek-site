@@ -12,7 +12,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 
 from community_youtube import discover, date_from_relative
-from sync_videos import CHANNEL_ID, NS, classify
+from sync_videos import CHANNEL_ID, NS, classify, is_short_entry
 from build import tech_sources, rss_card_for_source
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +58,8 @@ def youtube_videos():
             if published_at[:10] >= CATCHUP_FROM:
                 recent.append((published_at[:10], title))
             if video_id in known:
+                continue
+            if is_short_entry(item):
                 continue
             kindtopic = classify_upload(title)
             if not kindtopic:
