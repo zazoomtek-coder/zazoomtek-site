@@ -59,7 +59,7 @@ def merge_queue(queue_file, dest_file, key, archived):
                 continue
             title = str(r.get("title") or "")
             kind = str(r.get("kind") or "").lower()
-            if re.search(r"(?:#|\\b)shorts?\\b|/shorts/", title, re.IGNORECASE):
+            if re.search(r"(?:#|\b)shorts?\b|/shorts/", title, re.IGNORECASE):
                 continue
             if kind not in {"review", "test", "unboxing"}:
                 continue
