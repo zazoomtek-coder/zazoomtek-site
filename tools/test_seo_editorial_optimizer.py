@@ -30,7 +30,7 @@ def api_response(content):
     return {"choices": [{"message": {"content": json.dumps(content, ensure_ascii=False)}}]}
 
 class SEOOptimizerTests(unittest.TestCase):
-    def test_missing_key_is_noop(self):
+    def test_missing_key_marks_new_post_pending_without_touching_source(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "community.json"
             original = {"posts": [dict(POST)]}
@@ -77,7 +77,9 @@ class SEOOptimizerTests(unittest.TestCase):
             path.write_text(json.dumps(original), encoding="utf-8")
             result = optimizer.optimize_new_community_posts(set(), path, {"OPENAI_API_KEY": "test"})
             self.assertEqual(result["failed"], 1)
-            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), original)
+            saved = json.loads(path.read_text(encoding="utf-8"))["posts"][0]
+            self.assertTrue(saved["seo_pending"])
+            self.assertEqual(saved["text"], POST["text"])
 
     @patch("seo_editorial_optimizer.urlopen", return_value=Response({"choices": []}))
     def test_malformed_response_is_fail_open(self, mocked):
