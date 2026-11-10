@@ -343,13 +343,53 @@ def video(review):
          ' aria-label="Guarda la videorecensione ufficiale su YouTube: '+title+'">'
          '▶ GUARDA LA VIDEORECENSIONE SU YOUTUBE ↗</a></div>')
 
+def _is_community_promo_line(line):
+ """Recognize the channel's trailing self-promotion, not editorial mentions."""
+ value=plain(line)
+ if not value:
+  return False
+ low=value.casefold()
+ return (
+  low.startswith("subscribe") and "zazoomtek.it" in low and
+  "youtube" in low and "patreon" in low and "tiktok" in low and
+  "whatsapp" in low
+ )
+
+
+def _is_trailing_hashtag_line(line):
+ """Only a standalone trailing hashtag row is boilerplate."""
+ value=plain(line)
+ return bool(value and re.fullmatch(r"(?:#[\\w]+(?:[.-][\\w]+)*)(?:\\s+#[\\w]+(?:[.-][\\w]+)*)*", value, re.UNICODE))
+
+
+def clean_community_social_boilerplate(blocks):
+ """Remove only terminal channel-promotion and hashtag rows from Community posts.
+
+ Editorial hashtags or social references inside the article remain untouched.
+ """
+ cleaned=[]
+ for block in blocks:
+  lines=str(block).replace("\\r\\n","\\n").replace("\\r","\\n").split("\\n")
+  while lines and (not lines[-1].strip() or _is_community_promo_line(lines[-1]) or
+                   _is_trailing_hashtag_line(lines[-1])):
+   lines.pop()
+  value="\\n".join(lines).strip()
+  if value:
+   cleaned.append(value)
+ # Some source posts store the promo and hashtags as separate final paragraphs.
+ while cleaned and (_is_community_promo_line(cleaned[-1]) or
+                    _is_trailing_hashtag_line(cleaned[-1])):
+  cleaned.pop()
+ return cleaned
+
+
 def editorial_blocks(review):
- """Keep legacy cleanup for archives; preserve every YouTube Community source paragraph."""
+ """Keep legacy cleanup for archives; remove only trailing channel boilerplate from new Community posts."""
  pieces=paragraphs(review)
  youtube_source=str(review.get("source") or "")=="youtube-community"
  if youtube_source:
-  # The imported YouTube post is authoritative: preserve every source block.
-  return [p for p in pieces if p.strip()]
+  # Keep all editorial prose and internal hashtags exactly as published.
+  return clean_community_social_boilerplate([p for p in pieces if p.strip()])
  cleaned=[]
  for p in pieces:
   p=p.strip()
