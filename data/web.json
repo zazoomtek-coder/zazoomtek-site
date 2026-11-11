@@ -1,52 +1,52 @@
 {
-  "updated": "2026-11-10",
+  "updated": "2026-11-11",
   "items": [
     {
       "source": "HDblog",
-      "title": "Samsung produrrà un chip AI a 2 nm che consuma appena 5 watt",
-      "url": "https://www.hdblog.it/hardware/articoli/n676509/samsung-deepx-dx-m2-chip-ai-2nm/",
-      "image": "https://hd2.tudocdn.net/1384055?w=660",
-      "date": "2026-11-10",
+      "title": "Apple lavora a un'app per trasformare i Mac in datacenter AI in locale",
+      "url": "https://www.hdblog.it/apple/articoli/n676667/apple-app-mac-cluster-ai-locale-harbor/",
+      "image": "https://hd2.tudocdn.net/1384458?w=660",
+      "date": "2026-11-11",
       "from_feed": true
     },
     {
       "source": "SmartWorld",
-      "title": "Aggiornate subito i Meta Glasses: con sudore e umidità possono surriscaldarsi",
-      "url": "https://www.smartworld.it/news/meta-glasses-aggiornamento-surriscaldamento-umidita-email.html",
-      "image": "https://www.smartworld.it/images/2026/06/23/meta-ai-glasses-orig.jpg",
-      "date": "2026-11-10",
+      "title": "Google e Adobe, i PDF di Gmail e Drive si potranno modificare con Acrobat",
+      "url": "https://www.smartworld.it/news/google-adobe-acrobat-gmail-drive-gemini-photoshop.html",
+      "image": "https://www.smartworld.it/images/2026/11/11/adobe-orig.jpg",
+      "date": "2026-11-11",
       "from_feed": true
     },
     {
       "source": "DDay.it",
-      "title": "Sembrano orecchini, ma sono auricolari: Huawei FreeClip in offerta",
-      "url": "https://www.dday.it/redazione/59411/sembrano-orecchini-ma-sono-auricolari-huawei-freeclip-in-offerta",
+      "title": "Google lancia tre nuovi domini per il web: .eat, .fly e .here",
+      "url": "https://www.dday.it/redazione/59420/google-lancia-tre-nuovi-domini-per-il-web-eat-fly-e-here",
       "image": "",
-      "date": "2026-11-10",
+      "date": "2026-11-11",
       "from_feed": true
     },
     {
       "source": "Tom's Hardware",
-      "title": "Aqara W600 prepara la stanza al tuo rientro e costa 55,99€",
-      "url": "https://www.tomshw.it/altro/aqara-w600-prepara-la-stanza-al-tuo-rientro-e-costa-5599eur",
-      "image": "https://cdn.tomshw.it/storage/media/2026/11/123252/tomshw-offer-2180878.png",
-      "date": "2026-11-10",
+      "title": "È il momento migliore per regalarsi Disney+: 2 mesi da 4,99€ al mese",
+      "url": "https://www.tomshw.it/offerte/disney-2-mesi-da-499-eur-al-mese-prezzi-e-novita-da-guardare",
+      "image": "https://cdn.tomshw.it/storage/media/2026/11/123369/disneyplus-202611-cover.jpg",
+      "date": "2026-11-11",
       "from_feed": true
     },
     {
       "source": "Hardware Upgrade",
-      "title": "AMD EPYC Venice: dentro Zen 6, i SoC a 256 core e la sfida al costo della memoria",
-      "url": "https://www.hwupgrade.it/articoli/cpu/7347/amd-epyc-venice-dentro-zen-6-i-soc-a-256-core-e-la-sfida-al-costo-della-memoria_index.html",
+      "title": "Google Gemini: i contenuti di Gmail e Drive finiscono davanti a revisori umani",
+      "url": "https://www.hwupgrade.it/news/web/google-gemini-i-contenuti-di-gmail-e-drive-finiscono-davanti-a-revisori-umani_161885.html",
       "image": "",
-      "date": "2026-11-10",
+      "date": "2026-11-11",
       "from_feed": true
     },
     {
       "source": "Punto Informatico",
-      "title": "Binance avvisa: bug di iOS permette l’accesso ai wallet",
-      "url": "https://www.punto-informatico.it/binance-avvisa-bug-ios-permette-accesso-wallet/",
-      "image": "https://www.punto-informatico.it/app/uploads/2026/11/Binance-3.jpg",
-      "date": "2026-11-10",
+      "title": "Digital Fairness Act: nuove tutele per consumatori e minori",
+      "url": "https://www.punto-informatico.it/digital-fairness-act-nuove-tutele-consumatori-minori/",
+      "image": "https://www.punto-informatico.it/app/uploads/2026/11/Digital-Fairness-Act-1.jpg",
+      "date": "2026-11-11",
       "from_feed": true
     }
   ]
