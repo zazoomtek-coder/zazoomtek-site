@@ -1531,10 +1531,10 @@ def main():
   "/studio/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: private, no-store\n"+
   "/studio-v2/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: private, no-store\n",
   encoding="utf-8")
- # Pages Functions invoke ONLY protected Studio endpoints. Static traffic stays
- # free and cacheable; public pages are never routed through the editor API.
+ # Canonical middleware must run before static files are served so host
+ # and extension aliases resolve to one permanent public URL.
  (O/"_routes.json").write_text(json.dumps({
-  "version":1,"include":["/api/studio/*"],"exclude":[]
+  "version":1,"include":["/*"],"exclude":[]
  },separators=(",",":")),encoding="utf-8")
  from seo import write_indexing
  write_indexing(O,rows,GROUPS,ARCHIVE_PAGE_SIZE,PREVIEW)
