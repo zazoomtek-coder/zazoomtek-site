@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 import seo_editorial_optimizer as optimizer
 import seo
+from editorial_title import clean_imported_title
 
 POST = {
     "id": "UgABCDEFGHIJKLMN", "text_complete": True,
@@ -30,6 +31,33 @@ def api_response(content):
     return {"choices": [{"message": {"content": json.dumps(content, ensure_ascii=False)}}]}
 
 class SEOOptimizerTests(unittest.TestCase):
+    def test_only_known_leading_editorial_class_is_removed(self):
+        self.assertEqual(
+            clean_imported_title("NEWS GUIDE – Zelda Ocarina of Time: come usare ZELDA NOTES"),
+            "Zelda Ocarina of Time: come usare ZELDA NOTES",
+        )
+        self.assertEqual(
+            clean_imported_title("NEWS TECH - Come configurare il router"),
+            "Come configurare il router",
+        )
+        self.assertEqual(
+            clean_imported_title("NEWS: le novità della settimana"),
+            "NEWS: le novità della settimana",
+        )
+
+    def test_imported_title_is_cleaned_even_without_seo_api_key(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "community.json"
+            source = dict(POST, title="NEWS GUIDE – Zelda Ocarina of Time: come usare ZELDA NOTES")
+            path.write_text(json.dumps({"posts": [source]}), encoding="utf-8")
+            optimizer.optimize_new_community_posts(set(), path, {})
+            saved = json.loads(path.read_text(encoding="utf-8"))["posts"][0]
+            self.assertEqual(
+                saved["title"],
+                "Zelda Ocarina of Time: come usare ZELDA NOTES",
+            )
+            self.assertEqual(saved["text"], source["text"])
+
     def test_missing_key_marks_new_post_pending_without_touching_source(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "community.json"
