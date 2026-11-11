@@ -18,6 +18,23 @@ def check_dist(root):
  real_pages={p.stem for p in documents}
  real_pages.discard("index")
  errors=[]
+ # Route every public request through the canonical URL middleware so the
+ # www host, HTTP and physical .html aliases cannot be indexed separately.
+ routes_file=root/"_routes.json"
+ middleware_file=root.parent/"functions"/"_middleware.js"
+ try:
+  route_config=json.loads(routes_file.read_text(encoding="utf-8"))
+  if "/*" not in route_config.get("include",[]):
+   errors.append("Canonical middleware is not routed across public URLs")
+  if not middleware_file.is_file():
+   errors.append("Canonical URL middleware source is missing")
+  else:
+   middleware=middleware_file.read_text(encoding="utf-8")
+   for required in ('www.zazoomtek.it','endsWith(".html")','Response.redirect','context.next()'):
+    if required not in middleware:
+     errors.append("Canonical middleware missing rule: "+required)
+ except (OSError,ValueError,TypeError) as error:
+  errors.append("Canonical middleware routing configuration is invalid: "+str(error))
  # Pages interprets /slug as dist/slug.html and normalizes /slug.html -> /slug.
  def pretty(path):
   return path.removesuffix(".html").rstrip("/") or "/"
