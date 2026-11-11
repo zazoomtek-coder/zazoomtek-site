@@ -1220,7 +1220,20 @@ def article(r,rows):
  if str(page.get("category") or "").startswith("recensioni-") and not (page.get("youtube_id") or page.get("video_url")):
   video_id=matching_review_video_id(page)
   if video_id:page["youtube_id"]=video_id
- return inside(page["title"],render(page,safe_image),rows,page["slug"],page["category"],seo_row=page,seo_path="/"+page["slug"])
+ category=str(page.get("category") or "")
+ category_label=TYPES.get(category,"Articoli")
+ title=clean_title(page.get("title") or "")
+ # Visible, crawlable breadcrumbs reinforce the relationship between each
+ # article and its editorial archive; the same path is used by canonical SEO.
+ breadcrumb=(
+  '<nav class="article-breadcrumbs" aria-label="Percorso di navigazione">'
+  '<a href="/">Home</a><span aria-hidden="true">›</span>'
+  '<a href="/'+esc(category,quote=True)+'">'+esc(category_label)+'</a>'
+  '<span aria-hidden="true">›</span>'
+  '<span aria-current="page">'+esc(title)+'</span></nav>'
+ )
+ body=breadcrumb+render(page,safe_image)
+ return inside(page["title"],body,rows,page["slug"],page["category"],seo_row=page,seo_path="/"+page["slug"])
 def legacy_article_redirects(rows):
  """Only redirect genuine legacy ALIASES to extensionless canonical pages.
  A physical slug.html is automatically served at /slug by Cloudflare Pages.
@@ -1534,7 +1547,9 @@ def main():
  # Pages Functions invoke ONLY protected Studio endpoints. Static traffic stays
  # free and cacheable; public pages are never routed through the editor API.
  (O/"_routes.json").write_text(json.dumps({
-  "version":1,"include":["/api/studio/*"],"exclude":[]
+  # The global middleware canonicalizes www and .html requests before static
+  # assets/pages are served. API handlers continue through next() unchanged.
+  "version":1,"include":["/*"],"exclude":[]
  },separators=(",",":")),encoding="utf-8")
  from seo import write_indexing
  write_indexing(O,rows,GROUPS,ARCHIVE_PAGE_SIZE,PREVIEW)
