@@ -9,6 +9,11 @@ from html import unescape as unesc
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlparse
 P=Path(__file__).resolve().parents[1]; O=P/"dist"
+from media_dimensions import dimension_attributes
+
+def media_dimension_attributes(value,row=None):
+ return dimension_attributes(value,root=P,metadata=row)
+
 JS_ASSET_VERSION=hashlib.sha256((P/"assets/js/site.js").read_bytes()).hexdigest()[:12]
 CSS_ASSET_VERSION=hashlib.sha256((P/"assets/css/spotnews.css").read_bytes()).hexdigest()[:12]
 NAV=[("HOME","/"),("NEWS","/news"),("RECENSIONI","/recensioni"),("GUIDE","/guide"),("SPECIALI","/speciali"),("EXTRA","/extra"),("VIDEO","https://www.youtube.com/@ZazoomTek")]
@@ -297,7 +302,7 @@ def playlist_cards():
   pic="https://i.ytimg.com/vi/"+vid+"/hqdefault.jpg"
   kind={"review":"Recensione","unboxing":"Unboxing","test":"Test","gameplay":"Gameplay","short":"Short","trailer":"Trailer"}.get(str(v.get("kind") or "").lower(),"Video")
   sub=kind+" · "+str(v.get("date") or "")[:10]
-  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">'
+  img='<img loading="lazy" decoding="async"'+media_dimension_attributes(pic)+' src="'+esc(pic,quote=True)+'" alt="">'
   result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>'+esc(sub)+'</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
  if result:
   return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>'
@@ -307,12 +312,12 @@ def playlist_cards():
   url="https://www.youtube.com/playlist?list="+pid
   pic=p.get("thumbnail","")
   title=p["playlist"]
-  img='<img loading="lazy" src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else '<span class="video-thumb-fallback">Playlist</span>'
+  img='<img loading="lazy" decoding="async"'+media_dimension_attributes(pic)+' src="'+esc(pic,quote=True)+'" alt="">' if pic.startswith("https://i.ytimg.com/vi/") else '<span class="video-thumb-fallback">Playlist</span>'
   result.append('<article class="card video-card"><a class="thumb play-thumb" href="'+esc(url,quote=True)+'" rel="noopener" aria-label="Apri su YouTube: '+esc(title,quote=True)+'">'+img+'</a><small>Playlist</small><h3><a href="'+esc(url,quote=True)+'" rel="noopener">'+esc(title)+'</a></h3></article>')
  return '<div class="video-magazine"><div class="video-feature">'+result[0]+'</div><div class="video-secondary">'+''.join(result[1:])+'</div></div>' if result else ""
 def video_cards(rows):
  if not rows:return blank()
- return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" loading="lazy" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
+ return '<div class="cards">'+''.join('<article class="card video-card"><a class="thumb play-thumb" href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener"><img src="https://i.ytimg.com/vi/'+v["id"]+'/hqdefault.jpg" width="480" height="360" loading="lazy" decoding="async" alt=""></a><small>'+esc(v["kind"].title())+' · '+esc(v["topic"].title())+'</small><h3><a href="https://www.youtube.com/watch?v='+v["id"]+'" rel="noopener">'+esc(v["title"])+'</a></h3></article>' for v in rows)+'</div>'
 LEGAL_LINKS=[("Privacy Policy","/privacy-policy"),("Cookie Policy","/cookie-policy"),
              ("Disclaimer","/disclaimer"),("Note legali","/note-legali")]
 FOOTER_SOCIAL_LINKS=[
@@ -529,7 +534,7 @@ def editorial_cover(row):
  if url:
   src=esc(url,quote=True)
   return ('<span class="editorial-media-frame"'+cover_focus_attributes(row)+'>'
-          '<img class="editorial-media-fg" loading="lazy" src="'+src+'" alt="'+title+'">'
+          '<img class="editorial-media-fg" loading="lazy" decoding="async"'+media_dimension_attributes(url,row)+' src="'+src+'" alt="'+title+'">'
           '<span class="editorial-media-fallback" aria-hidden="true"><small>'+section+'</small><strong>'+title+'</strong></span>'
           '</span>')
  return '<span class="editorial-media-frame is-fallback"><span class="editorial-media-fallback"><small>'+section+'</small><strong>'+title+'</strong></span></span>'
@@ -666,7 +671,8 @@ def date_label(r):
 def overlay_card(r,kind="feature-tile"):
  link="/"+r["slug"]
  pic=safe_image(r.get("image",""))
- image=('<img class="spotlight-cover-foreground" loading="lazy" src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
+ priority=('loading="eager" fetchpriority="high"' if kind=="spotlight-hero" else 'loading="lazy"')
+ image=('<img class="spotlight-cover-foreground" '+priority+' decoding="async"'+media_dimension_attributes(pic,r)+' src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
         if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>')
  label=esc(TYPES.get(r["category"],"ZazoomTek"))
  date=date_label(r)
@@ -691,7 +697,7 @@ def box(name,rows,notice=""):
  for r in rows:
   href="/"+r["slug"]
   image=safe_image(r.get("image",""))
-  thumb='<img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
+  thumb='<img loading="lazy" decoding="async" fetchpriority="low"'+media_dimension_attributes(image,r)+' src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
   cards.append('<article class="editorial-row"><a class="editorial-thumb" href="'+href+'"'+cover_focus_attributes(r)+'>'+thumb+'</a><div class="editorial-row-copy"><a href="'+href+'"><strong>'+esc(r["title"])+'</strong></a>'+('<time>'+esc(date)+'</time>' if date else '')+'</div></article>')
  return '<section class="box editorial-box compact-editorial-box">'+bar(name,archives.get(name,""),"sidebar")+'<div class="editorial-links">'+''.join(cards)+'</div></section>'
@@ -817,7 +823,7 @@ def feature_mini_cards(items):
  for r in items[:2]:
   href="/"+r["slug"]
   image=safe_image(r.get("image",""))
-  pic='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
+  pic='<img loading="lazy" decoding="async"'+media_dimension_attributes(image,r)+' src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
   rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
  # Do not generate empty placeholders or invented articles.
  return '<div class="cards">'+''.join(rendered)+'</div>'
@@ -953,7 +959,7 @@ def web_news_cards(items):
   title=esc(item["title"])
   image=item.get("image","")
   safe_image_url=image if isinstance(image,str) and image.startswith("https://") and not any(ch in image for ch in '<>"\'') else ""
-  visual=('<img src="'+esc(safe_image_url,quote=True)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true">' if safe_image_url else '<span class="web-news-fallback">'+name+'</span>')
+  visual=('<img src="'+esc(safe_image_url,quote=True)+'"'+media_dimension_attributes(safe_image_url)+' alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true">' if safe_image_url else '<span class="web-news-fallback">'+name+'</span>')
   datelabel=str(item.get("date",""))
   when='<time datetime="'+esc(datelabel,quote=True)+'">'+esc(datelabel[8:10]+"/"+datelabel[5:7]+"/"+datelabel[0:4])+'</time>' if re.fullmatch(r"\d{4}-\d{2}-\d{2}",datelabel) else ""
   sub='<span class="web-source">'+name+'</span>'
