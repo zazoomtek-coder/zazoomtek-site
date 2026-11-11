@@ -5,6 +5,9 @@ on:
       - seo-community-metadata
       - fix/strip-editorial-class-from-imported-titles
       - fix/seo-image-metadata-cwv-audit
+  pull_request:
+    branches:
+      - main
 permissions:
   contents: read
 jobs:
