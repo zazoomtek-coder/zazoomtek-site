@@ -3362,3 +3362,24 @@ main.wrap .home-column .video-magazine .video-secondary .video-card .play-thumb 
   transform:none!important;
   background:#171717!important;
 }
+
+
+/* Crawlable editorial hierarchy on individual articles. */
+.article-breadcrumbs {
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:.45rem;
+ margin:0 0 1rem;
+ color:var(--muted,#667085);
+ font-size:.84rem;
+ line-height:1.5;
+}
+.article-breadcrumbs a {
+ color:var(--accent,#1769aa);
+ text-decoration:underline;
+ text-underline-offset:2px;
+}
+.article-breadcrumbs [aria-current="page"] {
+ color:inherit;
+}
