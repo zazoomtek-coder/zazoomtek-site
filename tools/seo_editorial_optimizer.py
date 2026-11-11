@@ -8,6 +8,8 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from editorial_title import clean_imported_title
+
 DATA = Path(__file__).resolve().parents[1] / "data"
 API_URL = "https://api.openai.com/v1/chat/completions"
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -121,6 +123,12 @@ def optimize_new_community_posts(before_ids, path=None, environ=None):
     for post in posts:
         if not isinstance(post, dict):
             continue
+        # Clean only a recognized leading editorial class; keep the headline intact.
+        original_title = post.get("title")
+        cleaned_title = clean_imported_title(original_title)
+        if cleaned_title != original_title:
+            post["title"] = cleaned_title
+            changed = True
         post_id = str(post.get("id") or "")
         is_new = bool(post_id and post_id not in known)
         if not post_id or not (is_new or post.get("seo_pending")):
