@@ -1,0 +1,41 @@
+name: ZazoomTek - pulizia giornaliera coda YouTube
+on:
+  schedule:
+    # 17:00-23:59 UTC copre la finestra 19:45-03:00 Europe/Rome
+    # sia in CET sia in CEST. Lo script applica il gate locale esatto.
+    - cron: '*/5 17-23 * * *'
+    - cron: '*/5 0-2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  # Serializza la pulizia con il collector senza cancellare run in corso.
+  group: zazoomtek-editorial-queue
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout main (sola lettura dei contenuti pubblicati)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+          fetch-depth: 1
+      - name: Checkout coda editoriale
+        uses: actions/checkout@v4
+        with:
+          ref: editorial-queue
+          path: queue
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Controllo sintassi prima della pulizia
+        run: python3 -m py_compile main/tools/queue_daily_cleanup.py
+      - name: Verifica ricevuta, publisher inattivo e ogni singolo contenuto sul sito live
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 main/tools/queue_daily_cleanup.py main queue
