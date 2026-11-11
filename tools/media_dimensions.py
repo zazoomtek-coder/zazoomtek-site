@@ -39,7 +39,7 @@ def _metadata_pair(metadata):
 
 
 def _jpeg(data):
-    if not data.startswith(b"\\xff\\xd8"):
+    if not data.startswith(b"\xff\xd8"):
         return None
     i = 2
     sof = {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}
@@ -75,18 +75,18 @@ def _svg(data):
         return None
     if "<svg" not in text[:2048].lower():
         return None
-    tag = re.search(r"<svg\\b([^>]*)>", text, re.I | re.S)
+    tag = re.search(r"<svg\b([^>]*)>", text, re.I | re.S)
     if not tag:
         return None
     attrs = tag.group(1)
     values = {}
     for name in ("width", "height"):
-        match = re.search(r"\\b" + name + r"\\s*=\\s*['\"]\\s*([0-9.]+)(?:px)?\\s*['\"]", attrs, re.I)
+        match = re.search(r"\b" + name + r"\s*=\s*['\"]\s*([0-9.]+)(?:px)?\s*['\"]", attrs, re.I)
         if match:
             values[name] = match.group(1)
     if "width" in values and "height" in values:
         return _positive_pair(values["width"], values["height"])
-    view = re.search(r"\\bviewBox\\s*=\\s*['\"]\\s*[-0-9.]+[ ,]+[-0-9.]+[ ,]+([0-9.]+)[ ,]+([0-9.]+)", attrs, re.I)
+    view = re.search(r"\bviewBox\s*=\s*['\"]\s*[-0-9.]+[ ,]+[-0-9.]+[ ,]+([0-9.]+)[ ,]+([0-9.]+)", attrs, re.I)
     if view:
         return _positive_pair(view.group(1), view.group(2))
     return None
@@ -97,7 +97,7 @@ def parse_image_dimensions(data):
     if not isinstance(data, (bytes, bytearray)):
         return None
     data = bytes(data)
-    if data.startswith(b"\\x89PNG\\r\\n\\x1a\\n") and len(data) >= 24:
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) >= 24:
         return _positive_pair(*struct.unpack(">II", data[16:24]))
     if data[:6] in (b"GIF87a", b"GIF89a") and len(data) >= 10:
         return _positive_pair(*struct.unpack("<HH", data[6:10]))
@@ -107,7 +107,7 @@ def parse_image_dimensions(data):
             width = 1 + int.from_bytes(data[24:27], "little")
             height = 1 + int.from_bytes(data[27:30], "little")
             return _positive_pair(width, height)
-        if kind == b"VP8 " and len(data) >= 30 and data[23:26] == b"\\x9d\\x01\\x2a":
+        if kind == b"VP8 " and len(data) >= 30 and data[23:26] == b"\x9d\x01\x2a":
             width = int.from_bytes(data[26:28], "little") & 0x3FFF
             height = int.from_bytes(data[28:30], "little") & 0x3FFF
             return _positive_pair(width, height)
