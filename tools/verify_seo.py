@@ -133,8 +133,14 @@ def check_seo(root,rows,groups,preview):
   count+=1
  for row in rows:
   p=root/(row["slug"]+".html")
+  page_markup=p.read_text(encoding="utf-8")
   parser=MetaParser()
-  parser.feed(p.read_text(encoding="utf-8"))
+  parser.feed(page_markup)
+  category=str(row.get("category") or "")
+  if 'class="article-breadcrumbs"' not in page_markup:
+   bad.append((p.name,"Missing crawlable article breadcrumbs"))
+  if 'href="/'+category+'"' not in page_markup:
+   bad.append((p.name,"Article breadcrumb does not link to its category archive"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
   if not item:bad.append((p.name,"no article schema"))
   if str(row.get("category") or "").startswith("recensioni-"):
