@@ -21,7 +21,7 @@ export async function onRequest(context) {
 
     if (url.pathname.toLowerCase().endsWith(".html")) {
       url.pathname = url.pathname.slice(0, -5);
-      if (url.pathname === "/index") {
+      if (url.pathname.toLowerCase() === "/index") {
         url.pathname = "/";
       }
     }
