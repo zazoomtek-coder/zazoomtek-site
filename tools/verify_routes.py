@@ -1,4 +1,5 @@
 """Fail deployment if any internal page link or redirect is broken/circular."""
+import json
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit,unquote
@@ -91,7 +92,6 @@ def check_dist(root):
    errors.append("Missing discovery dataset: "+name)
    continue
   try:
-   import json
    payload=json.loads(target.read_text(encoding="utf-8"))
    entries=payload.get(key)
    if not isinstance(entries,list):raise ValueError("Expected JSON array "+key)
