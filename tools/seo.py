@@ -6,6 +6,7 @@ from pathlib import Path
 from xml.etree.ElementTree import Element,SubElement,ElementTree,register_namespace
 from math import ceil
 import json,re
+from media_dimensions import image_dimensions
 
 DOMAIN="https://zazoomtek.it"
 DESC="Notizie, recensioni, guide e approfondimenti originali su tecnologia, videogiochi, hardware e innovazione."
@@ -99,7 +100,11 @@ def canonical(path):
  return DOMAIN+path
 def full_image(value):
  url=str(value or "")
- if url.startswith("/") and not url.startswith("//"):return DOMAIN+url
+ if url.startswith("/") and not url.startswith("//") and ".." not in url.split("/"):
+  target=(Path(__file__).resolve().parents[1]/url.lstrip("/")).resolve()
+  try:target.relative_to(Path(__file__).resolve().parents[1])
+  except ValueError:return ""
+  return DOMAIN+url if target.is_file() else ""
  if url.startswith("https://") and not any(x in url for x in '"<>'):return url
  return ""
 def datetime_iso(value):
@@ -176,8 +181,17 @@ def metadata(title,path="/",row=None,preview=True,summary=None):
   '<meta name="twitter:title" content="'+esc(head,quote=True)+'">',
   '<meta name="twitter:description" content="'+esc(desc,quote=True)+'">']
  if image:
+  image_alt=plain(row.get("image_alt")) if row else ""
+  image_alt=image_alt or plain(row.get("title")) if row else "ZazoomTek"
   output+=['<meta property="og:image" content="'+esc(image,quote=True)+'">',
-    '<meta name="twitter:image" content="'+esc(image,quote=True)+'">']
+    '<meta property="og:image:secure_url" content="'+esc(image,quote=True)+'">',
+    '<meta property="og:image:alt" content="'+esc(image_alt,quote=True)+'">',
+    '<meta name="twitter:image" content="'+esc(image,quote=True)+'">',
+    '<meta name="twitter:image:alt" content="'+esc(image_alt,quote=True)+'">']
+  dimensions=image_dimensions(row.get("image"),root=Path(__file__).resolve().parents[1],metadata=row) if row else None
+  if dimensions:
+   output.append('<meta property="og:image:width" content="'+str(dimensions[0])+'">')
+   output.append('<meta property="og:image:height" content="'+str(dimensions[1])+'">')
  if row:
   date=datetime_iso(row.get("published_at") or row.get("date"))
   changed=datetime_iso(row.get("updated_at") or row.get("modified_at")) or date
