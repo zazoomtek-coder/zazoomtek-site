@@ -8,8 +8,8 @@ from media_dimensions import dimension_attributes, image_dimensions, parse_image
 
 class MediaDimensionsTests(unittest.TestCase):
     def test_png_dimensions(self):
-        data = b"\\x89PNG\\r\\n\\x1a\\n" + b"\\x00\\x00\\x00\\x0dIHDR"
-        data += struct.pack(">II", 1200, 675) + b"\\x08\\x02\\x00\\x00\\x00"
+        data = b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x0dIHDR"
+        data += struct.pack(">II", 1200, 675) + b"\x08\x02\x00\x00\x00"
         self.assertEqual(parse_image_dimensions(data), (1200, 675))
 
     def test_jpeg_dimensions(self):
