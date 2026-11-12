@@ -14,7 +14,9 @@ BASE = "https://zazoomtek.it"
 def fixture(broken=False):
     urlset = Element("{http://www.sitemaps.org/schemas/sitemap/0.9}urlset")
     for path in ("/", "/news", "/news-tech", "/news-gaming", "/recensioni-tech",
-                 "/recensioni-gaming", "/guide", "/speciali", "/extra", "/cybercultura"):
+                 "/recensioni-gaming", "/guide", "/speciali", "/extra", "/cybercultura",
+                 "/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey",
+                 "/community-ugkxbplv8ezectqusjybr33rtc48zl8cdbto"):
         item = SubElement(urlset, "{http://www.sitemaps.org/schemas/sitemap/0.9}url")
         SubElement(item, "{http://www.sitemaps.org/schemas/sitemap/0.9}loc").text = BASE + path
     xml = tostring(urlset)
@@ -29,7 +31,7 @@ def fixture(broken=False):
             return 200, clean, ('<link rel="canonical" href="' + clean + '">').encode(), {}
         if broken and url == BASE + "/news":
             return 404, url, b"Not found", {}
-        return 200, url, ('<html><head><link rel="canonical" href="' + url +
+        return 200, url, ('<html><head><title>Title</title><link rel="canonical" href="' + url +
                           '"><meta name="robots" content="index,follow"></head><body><h1>Title</h1></body></html>').encode(), {}
     return respond
 

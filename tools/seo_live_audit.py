@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit
@@ -13,7 +14,9 @@ BASE = "https://zazoomtek.it"
 UA = "ZazoomTek-SEO-Health/1.0 (read-only)"
 SECTIONS = ("/", "/news", "/news-tech", "/news-gaming",
             "/recensioni-tech", "/recensioni-gaming", "/guide",
-            "/speciali", "/extra", "/cybercultura")
+            "/speciali", "/extra")
+LEGACY_ARTICLE_PATHS = ("/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey",
+                        "/community-ugkxbplv8ezectqusjybr33rtc48zl8cdbto")
 SM = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 
 
@@ -23,14 +26,31 @@ class PageMeta(HTMLParser):
         self.canonicals = []
         self.robots = []
         self.h1 = 0
+        self.title = False
+        self.title_text = ""
+        self.h1_text = ""
+        self.in_h1 = False
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "title":
+            self.title = True
         if tag == "h1":
             self.h1 += 1
+            self.in_h1 = True
         if tag == "link" and attrs.get("rel", "").lower() == "canonical":
             self.canonicals.append(attrs.get("href", ""))
         if tag == "meta" and attrs.get("name", "").lower() in ("robots", "googlebot"):
             self.robots.append(attrs.get("content", ""))
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.title = False
+        if tag == "h1":
+            self.in_h1 = False
+    def handle_data(self, data):
+        if self.title:
+            self.title_text += data
+        if self.in_h1:
+            self.h1_text += data
 
 
 def request(url):
@@ -69,32 +89,50 @@ def audit(base=BASE, sample=10):
                 errors.append("sitemap.xml has repeated URLs")
             if any(not p.startswith(base + "/") for p in paths):
                 errors.append("sitemap.xml has URLs outside the expected domain")
+            for path in LEGACY_ARTICLE_PATHS:
+                if base + path not in paths:
+                    errors.append("Known Google article URL is missing from sitemap: " + path)
         checks.append({"url": base + "/sitemap.xml", "status": status, "entries": len(paths)})
 
         known = set(paths)
-        urls = list(dict.fromkeys([base + p for p in SECTIONS] + paths[:sample]))
-        for url in urls:
+        urls = list(dict.fromkeys([base + p for p in SECTIONS] + paths[:sample] +
+                                  [base + p for p in LEGACY_ARTICLE_PATHS]))
+        def inspect(url):
             status, final_url, body, headers = request(url)
-            entry = {"url": url, "status": status, "final_url": final_url}
-            if status != 200:
-                errors.append(url + ": HTTP " + str(status))
+            return url, status, final_url, body, headers
+
+        # Check all sitemap routes concurrently so a full 400+ URL audit stays
+        # comfortably within the read-only workflow timeout.
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            for url, status, final_url, body, headers in pool.map(inspect, urls):
+                entry = {"url": url, "status": status, "final_url": final_url}
+                if final_url.rstrip("/") != url.rstrip("/"):
+                    errors.append(url + ": redirected to a different destination " + final_url)
+                if status != 200:
+                    errors.append(url + ": HTTP " + str(status))
+                    checks.append(entry)
+                    continue
+                meta = PageMeta()
+                meta.feed(body.decode("utf-8", "replace"))
+                entry["canonical"] = meta.canonicals
+                entry["robots"] = meta.robots
+                entry["title"] = meta.title_text.strip()
+                entry["h1"] = meta.h1_text.strip()
+                if meta.h1 != 1 or not meta.h1_text.strip():
+                    errors.append(url + ": expected one visible, non-empty H1")
+                if not meta.title_text.strip():
+                    errors.append(url + ": page title is empty")
+                if len(meta.canonicals) != 1:
+                    errors.append(url + ": expected exactly one canonical")
+                elif meta.canonicals[0] != url:
+                    errors.append(url + ": canonical mismatch " + meta.canonicals[0])
+                if any("noindex" in r.casefold() for r in meta.robots):
+                    errors.append(url + ": noindex on a public, expected indexable page")
+                if "noindex" in headers.get("X-Robots-Tag", "").casefold():
+                    errors.append(url + ": noindex from X-Robots-Tag")
+                if url not in known:
+                    warnings.append(url + ": section absent from sitemap (inspect if intentional)")
                 checks.append(entry)
-                continue
-            meta = PageMeta()
-            meta.feed(body.decode("utf-8", "replace"))
-            entry["canonical"] = meta.canonicals
-            entry["robots"] = meta.robots
-            if len(meta.canonicals) != 1:
-                errors.append(url + ": expected exactly one canonical")
-            elif meta.canonicals[0] != url:
-                errors.append(url + ": canonical mismatch " + meta.canonicals[0])
-            if any("noindex" in r.casefold() for r in meta.robots):
-                errors.append(url + ": noindex on a public, expected indexable page")
-            if "noindex" in headers.get("X-Robots-Tag", "").casefold():
-                errors.append(url + ": noindex from X-Robots-Tag")
-            if url not in known:
-                warnings.append(url + ": section absent from sitemap (inspect if intentional)")
-            checks.append(entry)
 
         # The two URL forms should not introduce competing canonical documents.
         for path in ("/extra", "/speciali", "/news"):
@@ -115,8 +153,11 @@ def audit(base=BASE, sample=10):
     except (URLError, TimeoutError, ET.ParseError, UnicodeError, ValueError) as exc:
         errors.append("Audit could not complete: " + type(exc).__name__ + ": " + str(exc))
 
-    return {"site": base, "pages_checked": len(checks), "errors": errors,
-            "warnings": warnings, "checks": checks}
+    known_article_checks = [c for c in checks if c.get("url", "").removeprefix(base)
+                            in LEGACY_ARTICLE_PATHS]
+    return {"site": base, "sitemap_urls": len(paths), "pages_checked": len(checks),
+            "errors": errors, "warnings": warnings,
+            "known_article_checks": known_article_checks, "checks": checks}
 
 
 def main():
@@ -125,7 +166,7 @@ def main():
     ap.add_argument("--sample", type=int, default=10)
     ap.add_argument("--json", default="seo-live-audit.json")
     args = ap.parse_args()
-    result = audit(args.base, max(0, min(args.sample, 30)))
+    result = audit(args.base, max(0, min(args.sample, 1000)))
     with open(args.json, "w", encoding="utf-8") as out:
         json.dump(result, out, indent=2, ensure_ascii=False)
     print(json.dumps({k: v for k, v in result.items() if k != "checks"},
