@@ -56,7 +56,17 @@
       "published_at": "2026-10-11",
       "source": "archivio-originale-zazoomtek",
       "is_excerpt": false,
-      "image_source": "Original ZazoomTek YouTube thumbnail"
+      "image_source": "Original ZazoomTek YouTube thumbnail",
+      "seo_lock": {
+        "title": "X2 Pro Game Stick Lite: collegamento e guida EmuELEC",
+        "description": "Come collegare X2 Pro Game Stick Lite alla TV, configurare i controller e usare EmuELEC. Guida pratica a menu, collegamenti e hardware.",
+        "keywords": [
+          "X2 Pro Game Stick Lite guida",
+          "collegare Game Stick alla TV",
+          "EmuELEC menu",
+          "controller wireless 2.4 GHz"
+        ]
+      }
     },
     {
       "slug": "guida-the-witcher-3-remastered-pc-aumentare-fps",
@@ -83,7 +93,17 @@
       "category": "guide",
       "published_at": "2026-10-11",
       "source": "archivio-originale-zazoomtek",
-      "is_excerpt": false
+      "is_excerpt": false,
+      "seo_lock": {
+        "title": "The Witcher 3 PC: come aumentare gli FPS",
+        "description": "Due metodi per migliorare gli FPS in The Witcher 3 su PC: impostazioni HairWorks e ottimizzazione ray tracing. Cosa cambia e quali limiti considerare.",
+        "keywords": [
+          "The Witcher 3 aumentare FPS",
+          "The Witcher 3 impostazioni PC",
+          "HairWorks FPS",
+          "ray tracing prestazioni"
+        ]
+      }
     },
     {
       "slug": "news-ugkxkbtuhabtov7gniqycpz9y8wdggjht3fn",
@@ -184,7 +204,17 @@
       "product_name": "70mai A900 Ultra",
       "cover_source": "https://zazoomtek.it/assets/recensioni/70mai-a900-ultra/foto-1.png",
       "device": "70mai A900 Ultra",
-      "image_source": "Original ZazoomTek YouTube thumbnail"
+      "image_source": "Original ZazoomTek YouTube thumbnail",
+      "seo_lock": {
+        "title": "70mai A900 Ultra: recensione dash cam 4K",
+        "description": "Recensione 70mai A900 Ultra: dash cam dual 4K, sensori Sony STARVIS 2 e funzioni di sorveglianza. Caratteristiche da valutare prima dell'acquisto.",
+        "keywords": [
+          "70mai A900 Ultra recensione",
+          "dash cam dual 4K",
+          "Sony STARVIS 2",
+          "70mai A900 Ultra caratteristiche"
+        ]
+      }
     },
     {
       "slug": "thermomate-2500w-recensione-riscaldatore-infrarossi-2-in-1",
@@ -243,7 +273,17 @@
       "product_name": "ThermoMate 2500W",
       "cover_source": "https://zazoomtek.it/assets/recensioni/thermomate-2500w/cover.webp",
       "device": "ThermoMate 2500W",
-      "image_source": "Original ZazoomTek YouTube thumbnail"
+      "image_source": "Original ZazoomTek YouTube thumbnail",
+      "seo_lock": {
+        "title": "ThermoMate 2500W: recensione del riscaldatore",
+        "description": "La nostra recensione del ThermoMate 2500W a infrarossi 2-in-1: caratteristiche, utilizzo su terrazze e balconi e aspetti da valutare prima dell'acquisto.",
+        "keywords": [
+          "ThermoMate 2500W recensione",
+          "riscaldatore infrarossi 2500W",
+          "ThermoMate 2 in 1",
+          "riscaldatore terrazza"
+        ]
+      }
     },
     {
       "slug": "call-of-duty-modern-warfare-4-recensione-ps5",
@@ -310,7 +350,17 @@
       "product_name": "Call of Duty Modern Warfare 4",
       "cover_source": "",
       "platform": "PS5",
-      "image_source": "Original ZazoomTek YouTube thumbnail"
+      "image_source": "Original ZazoomTek YouTube thumbnail",
+      "seo_lock": {
+        "title": "Call of Duty Modern Warfare 4: recensione PS5",
+        "description": "Recensione PS5 di Call of Duty Modern Warfare 4: campagna, multiplayer, nuova DMZ e ritorno di Infinity Ward. Analisi dell'esperienza di gioco.",
+        "keywords": [
+          "Call of Duty Modern Warfare 4 recensione",
+          "Modern Warfare 4 PS5",
+          "Infinity Ward",
+          "DMZ multiplayer"
+        ]
+      }
     },
     {
       "slug": "sesame-street-amici-e-risate-recensione-ps5",
@@ -339,7 +389,17 @@
       ],
       "content_provenance": "Nuovo articolo redazionale verificato su fonti pubbliche; non trascrizione del testo storico originale",
       "reconstructed_on": "2026-10-27",
-      "image_source": "Original ZazoomTek YouTube thumbnail"
+      "image_source": "Original ZazoomTek YouTube thumbnail",
+      "seo_lock": {
+        "title": "Sesame Street Amici e Risate: recensione PS5",
+        "description": "La recensione di Sesame Street: Amici e Risate su PS5: scopriamo attività, gameplay e a chi si rivolge questa avventura dedicata ai più piccoli.",
+        "keywords": [
+          "Sesame Street Amici e Risate recensione",
+          "Sesame Street PS5",
+          "gioco bambini PlayStation 5",
+          "gameplay Sesame Street"
+        ]
+      }
     },
     {
       "slug": "guida-come-usare-playstation-2-tv-4k-moderna",
@@ -374,7 +434,17 @@
         "https://commons.wikimedia.org/wiki/File:Sony-PlayStation-2-30001-wController-L.jpg"
       ],
       "content_provenance": "Nuovo articolo redazionale verificato su fonti pubbliche; non trascrizione del testo storico originale",
-      "reconstructed_on": "2026-10-27"
+      "reconstructed_on": "2026-10-27",
+      "seo_lock": {
+        "title": "PS2 su TV 4K: come collegare la PlayStation 2",
+        "description": "Come usare PlayStation 2 su una TV 4K moderna: collegamenti, adattatori video, impostazioni dell'immagine e limiti da conoscere.",
+        "keywords": [
+          "come collegare PS2 a TV 4K",
+          "PlayStation 2 televisore 4K",
+          "adattatore HDMI PS2",
+          "PS2 qualità immagine"
+        ]
+      }
     },
     {
       "slug": "news-ugkxkcgzvny03vubwn5axlj9ewtxj-nqr69p",
