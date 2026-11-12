@@ -118,6 +118,10 @@ def audit(base=BASE, sample=10):
                 entry["robots"] = meta.robots
                 entry["title"] = meta.title_text.strip()
                 entry["h1"] = meta.h1_text.strip()
+                if meta.h1 != 1 or not meta.h1_text.strip():
+                    errors.append(url + ": expected one visible, non-empty H1")
+                if not meta.title_text.strip():
+                    errors.append(url + ": page title is empty")
                 if len(meta.canonicals) != 1:
                     errors.append(url + ": expected exactly one canonical")
                 elif meta.canonicals[0] != url:
@@ -151,9 +155,9 @@ def audit(base=BASE, sample=10):
 
     known_article_checks = [c for c in checks if c.get("url", "").removeprefix(base)
                             in LEGACY_ARTICLE_PATHS]
-    return {"site": base, "pages_checked": len(checks), "errors": errors,
-            "warnings": warnings, "known_article_checks": known_article_checks,
-            "checks": checks}
+    return {"site": base, "sitemap_urls": len(paths), "pages_checked": len(checks),
+            "errors": errors, "warnings": warnings,
+            "known_article_checks": known_article_checks, "checks": checks}
 
 
 def main():
