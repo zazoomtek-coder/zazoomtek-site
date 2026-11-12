@@ -97,20 +97,20 @@ def check_dist(root):
    errors.append("Redirect chain/cycle risk: "+source+" -> "+target)
   if target=="/":
    errors.append("Article/legacy redirect must never send visitors to homepage: "+source)
- # Regression guard for the historical Razer result reported in Google.
- # The old URL may itself remain the canonical article, or be a 301 alias.
+ # Regression guard for the exact Razer result reported in Google.
+ # This URL is already a generated canonical article path, not a redirect alias.
  razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
- razer_target="/community-ugkxtrknjzgjxpkttnhdqrev1pcjdw5xrjdl"
- if redirects.get(razer_old)!=razer_target:
-  existing=root/(razer_old.lstrip("/")+".html")
-  if not existing.is_file():
-   errors.append("Historical Razer Google URL has neither an article page nor a redirect: "+razer_old)
-  else:
-   identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
-   if "razer" not in (identity.title_text+" "+identity.h1_text).casefold():
-    errors.append("Historical Google URL resolves to a page whose title is not the Razer article: "+razer_old)
-   if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
-    errors.append("Historical Razer article canonical does not match its surviving URL: "+razer_old)
+ existing=root/(razer_old.lstrip("/")+".html")
+ if not existing.is_file():
+  errors.append("Historical Razer Google URL has no generated article page: "+razer_old)
+ else:
+  identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
+  if "razer hammerhead v3 chroma" not in (identity.title_text+" "+identity.h1_text).casefold():
+   errors.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
+  if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
+   errors.append("Historical Razer article canonical does not match its article URL: "+razer_old)
+  if redirects.get(razer_old) or redirects.get(razer_old+".html"):
+   errors.append("Historical Razer canonical article is incorrectly redirected: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
  for name in ("news","news-tech","news-gaming","recensioni","recensioni-tech",
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
