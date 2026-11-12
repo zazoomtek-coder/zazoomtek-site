@@ -16,7 +16,14 @@ TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Re
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
 TICKER_ROWS=[]  # Populated before all page shells are generated.
-_WEB_NEWS_CACHE=None  # Cached external tech feeds; initialize before the Home calls web_news().
+_BUILD_TRACE=[]  # Structured record of every raw editorial input and its outcome.
+_WEB_NEWS_CACHE=None
+
+def trace_record(source,index,item,status,reason="",target=""):
+ _BUILD_TRACE.append({"source":source,"index":index,"id":str(item.get("id") or item.get("source_post_id") or "") if isinstance(item,dict) else "",
+  "slug":str(item.get("slug") or "") if isinstance(item,dict) else "",
+  "title":str(item.get("title") or "")[:180] if isinstance(item,dict) else "",
+  "status":status,"reason":reason,"target":target})  # Cached external tech feeds; initialize before the Home calls web_news().
 def original_routes():
  data=json.loads((P/"data/editorial_classification.json").read_text(encoding="utf-8"))
  if len(data.get("items",[]))!=14:raise ValueError("Editorial classification manifest incomplete")
@@ -111,27 +118,40 @@ def community_posts():
  imported_path=P/"data/community_imported.json"
  imported=json.loads(imported_path.read_text(encoding="utf-8")).get("posts",[]) if imported_path.exists() else []
  result=[]
+ source_records=( [("community_imported.json",i,x) for i,x in enumerate(imported)] +
+                 [("community_full.json",i,x) for i,x in enumerate(archived)] +
+                 [("community.json",i,x) for i,x in enumerate(historical)] )
+ source_map={id(item):(name,index) for name,index,item in source_records}
  for item in list(imported)+list(archived)+list(historical):
-  if not isinstance(item,dict):continue
+  source_name,source_index=source_map[id(item)]
+  if not isinstance(item,dict):
+   trace_record(source_name,source_index,item,"excluded","record is not a JSON object");continue
   if str(item.get("id") or "") in abbreviated:
-   continue  # The full archive version supersedes this historical short excerpt.
+   alias=next((entry for entry in alias_entries if entry.get("old_id")==str(item.get("id") or "")),None)
+   trace_record(source_name,source_index,item,"merged_alias","historical short post superseded by its full-text canonical record",str(alias.get("new_id") or "") if alias else "");continue
   text=item.get("text")
-  if not isinstance(text,str) or not text.strip():continue
+  if not isinstance(text,str) or not text.strip():
+   trace_record(source_name,source_index,item,"excluded","missing or empty text");continue
   cat=category_for_post(item)
   post_id=str(item.get("id","")).strip()
   cat=canonical_category.get(post_id,cat)
   if not cat:cat="news-tech"
-  if not post_id:continue
+  if not post_id:
+   trace_record(source_name,source_index,item,"excluded","missing Community post ID");continue
   youtube_full=bool(item.get("text_complete")) and bool(re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id))
   archive_full=bool(item.get("archived_full")) and len(text)>=500
   is_full=youtube_full or archive_full
   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
-  if len(slug)>150 or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):continue
+  if len(slug)>150 or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):
+   trace_record(source_name,source_index,item,"excluded","derived slug exceeds 150 characters or is not valid kebab-case");continue
   date=parse_day(item.get("date"))
-  if not date and cat.startswith("news-"):continue
-  if date and date>datetime.now(timezone.utc).date():continue
+  if not date and cat.startswith("news-"):
+   trace_record(source_name,source_index,item,"excluded","news record has no parseable publication date");continue
+  if date and date>datetime.now(timezone.utc).date():
+   trace_record(source_name,source_index,item,"excluded","publication date is in the future");continue
   title=item.get("title")
-  if not isinstance(title,str) or not title.strip():continue
+  if not isinstance(title,str) or not title.strip():
+   trace_record(source_name,source_index,item,"excluded","missing or empty title");continue
   image=safe_image(item.get("image",""))
   original_url=str(item.get("url") or item.get("source_url") or "")
   # Preserve the former ZazoomTek article path before normalizing the source
@@ -163,8 +183,10 @@ def community_posts():
    "seo":item.get("seo", {}) if isinstance(item.get("seo"), dict) else {},
    "headings":item.get("headings",[]) if isinstance(item.get("headings"),list) else [],
    "featured":bool(item.get("featured",False)),
-   "editorial_pick":bool(item.get("editorial_pick",False))
+   "editorial_pick":bool(item.get("editorial_pick",False)),
+   "_trace_source_file":source_name,"_trace_source_index":source_index
   })
+  trace_record(source_name,source_index,item,"candidate","passed Community validation and fallback categorization",slug)
  return result
 def clean_title(text):
  """Avoid category labels, image numbering and arbitrary editorial prefixes in titles/H1/cards."""
@@ -196,21 +218,34 @@ def posts():
   for source_index,r in enumerate(source_rows):
    if not isinstance(r,dict):
     print("ARTICLE EXCLUDED:",source_name,"record",source_index,"reason=record is not an object",flush=True)
+    trace_record(source_name,source_index,r,"excluded","record is not a JSON object")
     continue
    slug=r.get("slug","")
    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",str(slug)):
-    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",repr(slug),"reason=slug is not lowercase ASCII kebab-case",flush=True)
+    reason="slug is not lowercase ASCII kebab-case"
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",repr(slug),"reason="+reason,flush=True)
+    trace_record(source_name,source_index,r,"excluded",reason)
     continue
    if slug in GROUPS:
-    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason=slug is reserved for a section route",flush=True)
+    reason="slug is reserved for a section route"
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason="+reason,flush=True)
+    trace_record(source_name,source_index,r,"excluded",reason)
     continue
    if r.get("category") not in TYPES or not isinstance(r.get("title"),str):
-    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason=unsupported category or missing string title",flush=True)
+    reason="unsupported category or missing string title"
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason="+reason,flush=True)
+    trace_record(source_name,source_index,r,"excluded",reason)
     continue
    r["category"]=classification_for_post(r) or r["category"]
    if not normalized_title(r["title"]):
-    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason=normalized title is empty",flush=True)
+    reason="normalized title is empty"
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason="+reason,flush=True)
+    trace_record(source_name,source_index,r,"excluded",reason)
     continue
+   if source_name=="community":
+    source_name=r.get("_trace_source_file",source_name)
+    source_index=r.get("_trace_source_index",source_index)
+   trace_record(source_name,source_index,r,"candidate","passed article validation",str(r.get("slug") or ""))
    candidates.append((source_name,source_index,r))
  # A repeated YouTube Community ID is the same source publication, not a second story.
  # Every distinct record survives title collisions and slug collisions.
@@ -220,6 +255,7 @@ def posts():
   if post_id and post_id in seen_community_ids:
    print("ARTICLE SOURCE MERGED:",source_name,"record",source_index,"id=",post_id,
          "reason=same canonical YouTube Community post already represented by",seen_community_ids[post_id],flush=True)
+   trace_record(source_name,source_index,r,"merged_duplicate","same canonical YouTube Community ID already has a generated article",seen_community_ids[post_id])
    continue
   if post_id:seen_community_ids[post_id]=r.get("slug","")
   r["_trace_source_file"]=source_name
@@ -237,6 +273,7 @@ def posts():
          "reason=another distinct article already owns the canonical slug",flush=True)
   r["slug"]=candidate
   occupied.add(candidate)
+  trace_record(r.get("_trace_source_file","unknown"),r.get("_trace_source_index",-1),r,"generated","article retained; canonical slug assigned",candidate)
  # Studio edits win over YouTube imports without modifying the original post.
  overrides=json.loads((P/"data/studio_overrides.json").read_text(encoding="utf-8")).get("overrides",{})
  for row in deduplicated:
