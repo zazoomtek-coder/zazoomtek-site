@@ -84,7 +84,6 @@ def run(project_root, output_root, rows, events):
             status = event.get("status", "unknown")
             reason = event.get("reason", "")
             target = event.get("target", "")
-            status_counts[status] += 1
             title = event.get("title", "")
             identifier = event.get("id", "")
             label = f"{name}[{index}] id={identifier or '-'} title={title!r}"
@@ -104,6 +103,7 @@ def run(project_root, output_root, rows, events):
                     if parser.canonicals != [url]:
                         errors.append(label + ": canonical mismatch " + repr(parser.canonicals) +
                                       " expected " + url)
+                status_counts["generated"] += 1
                 lines.append(f"GENERATED | {label} | url={url}")
             elif status == "candidate" and identifier and identifier in rows_by_id:
                 canonical_row = rows_by_id[identifier]
@@ -121,16 +121,17 @@ def run(project_root, output_root, rows, events):
                                   canonical_row.get("_trace_source_index") == index)
                 if origin_matches:
                     lines.append(f"GENERATED | {label} | url={url} | reason=matched final in-memory source identity")
-                    status_counts["generated_by_identity"] += 1
+                    status_counts["generated"] += 1
                 else:
                     lines.append(f"MERGED DUPLICATE | {label} | canonical_target={url} | reason=same canonical Community ID already generated from another source file")
-                    status_counts["merged_duplicate_by_id"] += 1
+                    status_counts["merged_duplicate"] += 1
             elif status == "merged_duplicate":
                 canonical_row = rows_by_id.get(identifier)
                 slug = str(canonical_row.get("slug") or "") if canonical_row else target
                 url = domain + "/" + slug
                 if slug not in rows_by_slug or url not in sitemap_urls:
                     errors.append(label + ": duplicate-source target is not a sitemap article: " + url)
+                status_counts["merged_duplicate"] += 1
                 lines.append(f"MERGED DUPLICATE | {label} | canonical_target={url} | reason={reason}")
             elif status == "merged_alias":
                 target_row = rows_by_id.get(target)
@@ -141,13 +142,16 @@ def run(project_root, output_root, rows, events):
                     target_url = domain + "/" + str(target_row["slug"])
                     if target_url not in sitemap_urls:
                         errors.append(label + ": historical alias target missing from sitemap: " + target_url)
+                status_counts["merged_alias"] += 1
                 lines.append(f"MERGED ALIAS | {label} | canonical_target={target_url} | reason={reason}")
             elif status == "excluded":
                 if not reason:
                     errors.append(label + ": excluded without a technical reason")
+                status_counts["excluded"] += 1
                 lines.append(f"EXCLUDED WITH REASON | {label} | reason={reason}")
             else:
                 errors.append(label + ": unfinished pipeline status " + str(status))
+                status_counts["unresolved"] += 1
                 lines.append(f"UNRESOLVED | {label} | status={status} | reason={reason}")
 
     # Every final article must have one physical HTML page and one exact sitemap URL.
