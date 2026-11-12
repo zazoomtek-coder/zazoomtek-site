@@ -80,6 +80,15 @@ def check_dist(root):
  for source,target in redirects.items():
   if target in redirects or target+".html" in redirects:
    errors.append("Redirect chain/cycle risk: "+source+" -> "+target)
+  if target=="/":
+   errors.append("Article/legacy redirect must never send visitors to homepage: "+source)
+ # Regression guard for the historical Razer result reported in Google.
+ razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
+ razer_target="/community-ugkxtrknjzgjxpkttnhdqrev1pcjdw5xrjdl"
+ if redirects.get(razer_old)!=razer_target:
+  errors.append("Historical Razer Google URL does not redirect to its article: "+razer_old)
+ if redirects.get(razer_old+".html")!=razer_target:
+  errors.append("Historical Razer .html URL does not redirect to its article: "+razer_old+".html")
  # Explicitly verify all four legal pages and editorial archives.
  for name in ("news","news-tech","news-gaming","recensioni","recensioni-tech",
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
