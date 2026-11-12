@@ -181,6 +181,14 @@ EDITORIAL_DUPLICATE_REDIRECTS = {
  "community-ugkxwgp-n8aw2rtb-ufes2cj4cb0e8klhg7m":
   "community-ugkxl6hyqdmachllpyrgvj4zncg5xwmlg9qa",
 }
+
+# Explicitly recovered Google-indexed historical article URL. The old Community
+# identifier is absent from the current archive; the Razer article survives under
+# its verified current Community ID, so preserve the old result with a 301.
+VERIFIED_HISTORICAL_ARTICLE_ALIASES = {
+ "community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey":
+  "community-ugkxtrknjzgjxpkttnhdqrev1pcjdw5xrjdl",
+}
 def posts():
  obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
  if not isinstance(obj.get("posts"),list):raise ValueError("posts must be a list")
@@ -1308,6 +1316,20 @@ def legacy_article_redirects(rows):
   if target not in by_slug or old in occupied or old in by_slug:continue
   if not re.fullmatch(r"[a-z0-9-]+",old) or not re.fullmatch(r"[a-z0-9-]+",target):
    raise ValueError("Unsafe duplicate redirect")
+  for alias in ("/"+old,"/"+old+".html"):
+   if alias in sources:continue
+   sources.add(alias)
+   lines.append(alias+" /"+target+" 301")
+ # Restore explicitly verified legacy URLs recovered from Google results.
+ # These aliases are separate from inferred source IDs: their targets must exist,
+ # and a missing target fails the build instead of silently dropping the redirect.
+ for old,target in VERIFIED_HISTORICAL_ARTICLE_ALIASES.items():
+  if not re.fullmatch(r"[A-Za-z0-9_-]+",old) or not re.fullmatch(r"[a-z0-9-]+",target):
+   raise ValueError("Unsafe verified historical article alias: "+old)
+  if target not in by_slug or not (O/(target+".html")).is_file():
+   raise ValueError("Verified historical article destination is missing: "+target)
+  if old in occupied or old in by_slug:
+   raise ValueError("Historical alias conflicts with a published page: "+old)
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
