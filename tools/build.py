@@ -64,8 +64,11 @@ def category_for_post(item):
   gaming=("gaming","videogioc","playstation"," ps5"," ps4","xbox","nintendo","switch 2","gameplay","gta ","call of duty","modern warfare","walto","sesame street","ace combat","battlefield","tomb raider")
   tech=("tecnologia","hardware","smartphone","smart glasses","occhiali","dash cam","70mai","thermomate","intel","ryzen","nvidia","notebook","mini pc","router","android","apple","iphone","fotocamera","elettronica","stampante 3d")
   is_game=any(w in text for w in gaming); is_tech=any(w in text for w in tech)
-  if is_game==is_tech:return None
-  topic="gaming" if is_game else "tech"
+  if is_game==is_tech:
+   # Community fallback: an ambiguous topic remains publishable as News Tech.
+   topic="tech"
+  else:
+   topic="gaming" if is_game else "tech"
  return ("news-" if kind=="news" else "recensioni-")+topic
 def parse_day(value):
  try:return datetime.fromisoformat(str(value).replace("Z","+00:00")).date()
@@ -117,7 +120,7 @@ def community_posts():
   cat=category_for_post(item)
   post_id=str(item.get("id","")).strip()
   cat=canonical_category.get(post_id,cat)
-  if not cat:continue
+  if not cat:cat="news-tech"
   if not post_id:continue
   youtube_full=bool(item.get("text_complete")) and bool(re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id))
   archive_full=bool(item.get("archived_full")) and len(text)>=500
@@ -185,33 +188,55 @@ def posts():
  obj=json.loads((P/"data/posts.json").read_text(encoding="utf-8"))
  if not isinstance(obj.get("posts"),list):raise ValueError("posts must be a list")
  studio_data=json.loads((P/"data/studio_posts.json").read_text(encoding="utf-8"))
- all_rows=obj["posts"]+community_posts()+studio_data.get("posts",[])
- unique={};seen_slugs=set()
- for r in all_rows:
-  slug=r.get("slug","")
-  if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug) or slug in GROUPS:continue
-  if r.get("category") not in TYPES or not isinstance(r.get("title"),str):continue
-  r["category"]=classification_for_post(r) or r["category"]
-  key=(r["category"],normalized_title(r["title"]))
-  if not key[1]:continue
-  current=unique.get(key)
-  # A full verified post always supersedes an excerpt with the same title.
-  if current is None or (current.get("is_excerpt",False) and not r.get("is_excerpt",False)):
-   unique[key]=r
- rows=list(unique.values())
- deduplicated=[]
- for r in rows:
-  # Same canonical YouTube post may have a different display title in the old site archive.
-  if r["slug"] in seen_slugs:continue
-  seen_slugs.add(r["slug"])
+ community_rows=community_posts()
+ studio_rows=studio_data.get("posts",[])
+ all_rows=obj["posts"]+community_rows+studio_rows
+ candidates=[]
+ for source_name,source_rows in (("posts.json",obj["posts"]),("community",community_rows),("studio_posts.json",studio_rows)):
+  for source_index,r in enumerate(source_rows):
+   if not isinstance(r,dict):
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"reason=record is not an object",flush=True)
+    continue
+   slug=r.get("slug","")
+   if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",str(slug)):
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",repr(slug),"reason=slug is not lowercase ASCII kebab-case",flush=True)
+    continue
+   if slug in GROUPS:
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason=slug is reserved for a section route",flush=True)
+    continue
+   if r.get("category") not in TYPES or not isinstance(r.get("title"),str):
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason=unsupported category or missing string title",flush=True)
+    continue
+   r["category"]=classification_for_post(r) or r["category"]
+   if not normalized_title(r["title"]):
+    print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason=normalized title is empty",flush=True)
+    continue
+   candidates.append((source_name,source_index,r))
+ # A repeated YouTube Community ID is the same source publication, not a second story.
+ # Every distinct record survives title collisions and slug collisions.
+ deduplicated=[];seen_community_ids={}
+ for source_name,source_index,r in candidates:
+  post_id=str(r.get("source_post_id") or "")
+  if post_id and post_id in seen_community_ids:
+   print("ARTICLE SOURCE MERGED:",source_name,"record",source_index,"id=",post_id,
+         "reason=same canonical YouTube Community post already represented by",seen_community_ids[post_id],flush=True)
+   continue
+  if post_id:seen_community_ids[post_id]=r.get("slug","")
+  r["_trace_source_file"]=source_name
+  r["_trace_source_index"]=source_index
+  r["_trace_original_slug"]=str(r.get("slug") or "")
   deduplicated.append(r)
- # Suppress an old edition ONLY when its canonical destination exists.
- slugs_present={r["slug"] for r in deduplicated}
- superseded={old:new for old,new in EDITORIAL_DUPLICATE_REDIRECTS.items()
-             if old in slugs_present and new in slugs_present}
- if superseded:
-  deduplicated=[r for r in deduplicated if r["slug"] not in superseded]
-  print("Verified redundant publications consolidated:",len(superseded),flush=True)
+ # Preserve every distinct article. Resolve URL collisions with deterministic suffixes.
+ occupied=set(GROUPS)
+ for r in deduplicated:
+  base=str(r["slug"]);candidate=base;number=2
+  while candidate in occupied:
+   candidate=base+"-"+str(number);number+=1
+  if candidate!=base:
+   print("ARTICLE SLUG COLLISION:",base,"->",candidate,"title=",repr(r.get("title")),
+         "reason=another distinct article already owns the canonical slug",flush=True)
+  r["slug"]=candidate
+  occupied.add(candidate)
  # Studio edits win over YouTube imports without modifying the original post.
  overrides=json.loads((P/"data/studio_overrides.json").read_text(encoding="utf-8")).get("overrides",{})
  for row in deduplicated:
