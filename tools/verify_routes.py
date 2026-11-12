@@ -83,12 +83,29 @@ def check_dist(root):
   if target=="/":
    errors.append("Article/legacy redirect must never send visitors to homepage: "+source)
  # Regression guard for the historical Razer result reported in Google.
+ # The old URL may already be the surviving canonical article path; otherwise
+ # it must be redirected to the verified current Razer article.
  razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
  razer_target="/community-ugkxtrknjzgjxpkttnhdqrev1pcjdw5xrjdl"
  if redirects.get(razer_old)!=razer_target:
-  errors.append("Historical Razer Google URL does not redirect to its article: "+razer_old)
- if redirects.get(razer_old+".html")!=razer_target:
-  errors.append("Historical Razer .html URL does not redirect to its article: "+razer_old+".html")
+  existing=root/(razer_old.lstrip("/")+".html")
+  if not existing.is_file():
+   errors.append("Historical Razer Google URL has neither an article page nor a redirect: "+razer_old)
+  else:
+   markup=existing.read_text(encoding="utf-8")
+   meta=LinkReader();meta.feed(markup)
+   if "Razer Barracuda V2 Pro" not in markup or (razer_old.lstrip("/") not in real_pages):
+    errors.append("Historical Razer Google URL resolves to a page that is not the Razer article: "+razer_old)
+   canonicals=[]
+   from html.parser import HTMLParser
+   class _CanonicalReader(HTMLParser):
+    def __init__(self):super().__init__();self.values=[]
+    def handle_starttag(self,tag,attrs):
+     attrs=dict(attrs)
+     if tag=="link" and attrs.get("rel")=="canonical":self.values.append(attrs.get("href",""))
+   reader=_CanonicalReader();reader.feed(markup)
+   if reader.values!=["https://zazoomtek.it"+razer_old]:
+    errors.append("Historical Razer article canonical does not match its surviving URL: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
  for name in ("news","news-tech","news-gaming","recensioni","recensioni-tech",
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
