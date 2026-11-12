@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import community_youtube
-from article_templates import interleave_review_images
+from article_templates import interleave_review_images, interleave_community_images, render
 
 
 def sample_post():
@@ -116,6 +116,95 @@ class CommunityMultiImageTests(unittest.TestCase):
             {"src": "https://yt3.ggpht.com/photo-two=s1200"}
         ]}
         self.assertEqual(interleave_review_images(body, review, lambda url: url), body)
+
+
+    def test_non_review_community_images_are_distributed_inside_the_article(self):
+        review = {
+            "source": "youtube-community",
+            "slug": "community-test-post",
+            "category": "news-tech",
+            "title": "Community photo test",
+            "image": "https://yt3.ggpht.com/cover=s1200",
+            "images": [
+                {"src": "https://yt3.ggpht.com/photo-two=s1200", "caption": ""},
+                {"src": "https://yt3.ggpht.com/photo-three=s1200", "caption": ""},
+            ],
+        }
+        body = (
+            "<h2>Contesto</h2><p>First paragraph with context.</p>"
+            "<p>Second paragraph with details.</p>"
+            "<h2>Caratteristiche</h2><p>Third paragraph with hardware details.</p>"
+            "<p>Fourth paragraph with availability details.</p>"
+        )
+        rendered = interleave_community_images(body, review, lambda url: url)
+        self.assertEqual(rendered.count('<figure class="story-figure">'), 2)
+        self.assertLess(rendered.index("First paragraph"), rendered.index("photo-two"))
+        self.assertLess(rendered.index("photo-two"), rendered.index("Third paragraph"))
+        self.assertLess(rendered.index("Third paragraph"), rendered.index("photo-three"))
+        self.assertLess(rendered.index("photo-three"), rendered.index("Fourth paragraph"))
+        self.assertEqual(review["image"], "https://yt3.ggpht.com/cover=s1200")
+
+    def test_community_render_keeps_first_image_as_cover(self):
+        review = {
+            "source": "youtube-community",
+            "slug": "community-cover-test",
+            "category": "news-tech",
+            "title": "Community cover test",
+            "image": "https://yt3.ggpht.com/cover-first=s1200",
+            "images": [{"src": "https://yt3.ggpht.com/inside-second=s1200", "caption": ""}],
+            "body": ["First paragraph of the article.", "Second paragraph of the article."],
+        }
+        rendered = render(review, lambda url: url)
+        cover = rendered.index('src="https://yt3.ggpht.com/cover-first=s1200"')
+        first_paragraph = rendered.index("First paragraph of the article.")
+        extra = rendered.index('src="https://yt3.ggpht.com/inside-second=s1200"')
+        self.assertLess(cover, first_paragraph)
+        self.assertLess(first_paragraph, extra)
+
+    def test_community_image_caption_prefers_matching_paragraph(self):
+        review = {
+            "source": "youtube-community",
+            "category": "guide",
+            "images": [{"src": "https://yt3.ggpht.com/router=s1200", "caption": "router wifi configurazione"}],
+        }
+        body = (
+            "<p>Introduzione generale al problema.</p>"
+            "<p>La configurazione del router WiFi richiede pochi passaggi.</p>"
+            "<p>Conclusioni e riepilogo.</p>"
+        )
+        rendered = interleave_community_images(body, review, lambda url: url)
+        self.assertLess(rendered.index("configurazione del router"), rendered.index("src="))
+        self.assertLess(rendered.index("src="), rendered.index("Conclusioni"))
+
+    def test_community_image_fallback_preserves_images_without_paragraphs(self):
+        review = {
+            "source": "youtube-community",
+            "category": "extra",
+            "images": [
+                {"src": "https://yt3.ggpht.com/one=s1200"},
+                {"src": "https://yt3.ggpht.com/two=s1200"},
+            ],
+        }
+        rendered = interleave_community_images("<h2>Contenuto</h2>", review, lambda url: url)
+        self.assertLess(rendered.index("Contenuto"), rendered.index("one=s1200"))
+        self.assertLess(rendered.index("one=s1200"), rendered.index("two=s1200"))
+
+    def test_community_placement_rollback_restores_append_behavior(self):
+        import article_templates
+        old = article_templates.MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED
+        try:
+            article_templates.MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED = False
+            review = {
+                "source": "youtube-community",
+                "category": "news-tech",
+                "image": "https://yt3.ggpht.com/cover=s1200",
+                "images": [{"src": "https://yt3.ggpht.com/extra=s1200"}],
+                "body": ["First paragraph.", "Second paragraph."],
+            }
+            rendered = render(review, lambda url: url)
+            self.assertLess(rendered.index("Second paragraph."), rendered.index("extra=s1200"))
+        finally:
+            article_templates.MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED = old
 
 
 if __name__ == "__main__":

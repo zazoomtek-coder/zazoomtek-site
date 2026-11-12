@@ -17,6 +17,8 @@ ONLY_SCORE=re.compile(r"^\s*(?:⭐\s*)?(?:\*\*\s*)?(?:voto\s*(?:finale)?|valutaz
 VIDEO_ID=re.compile(r"^[A-Za-z0-9_-]{11}$")
 # Emergency rollback: False restores the former cover-only review rendering.
 MULTI_IMAGE_REVIEW_RENDERING_ENABLED = True
+# Emergency rollback: False restores the former end-of-article Community image placement.
+MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED = True
 DATE=re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 def category(review):
@@ -324,6 +326,59 @@ def interleave_review_images(body,review,image_validator):
   insertion=paragraphs[-1].end() if paragraphs else len(segment)
   parts[content_pos]=segment[:insertion]+"".join(items)+segment[insertion:]
  return "".join(parts)
+
+
+def is_community_article(review):
+ return (str(review.get("source") or "") in
+         ("youtube-community","community-archive-full","archived-community-excerpt") or
+         str(review.get("slug") or "").startswith("community-"))
+
+
+def interleave_community_images(body,review,image_validator):
+ """Distribute extra Community photos through the original prose; the cover stays separate."""
+ if not MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED or not is_community_article(review) or is_review(review):
+  return body
+ images=review.get("images",[])
+ if not isinstance(images,list) or not images:return body
+ figures=[]
+ for item in images:
+  if not isinstance(item,dict):continue
+  markup=image_block({"title":review.get("title",""),"image_alt":review.get("image_alt",""),"images":[item]},image_validator,extra=True)
+  if markup:figures.append((markup,plain(item.get("caption",""))))
+ if not figures:return body
+ paragraphs=list(re.finditer(r"<p\b[^>]*>.*?</p>",body,re.I|re.S))
+ if not paragraphs:
+  # Safe fallback for source text without paragraph markup: keep every photo rather than drop it.
+  return body+"".join(markup for markup,_ in figures)
+ stop={"della","delle","dello","degli","dalla","dalle","dallo","dai","per","con","tra","fra","che","come","dove","quando","sono","dopo","prima","anche","questo","questa","quello","nella","nelle","nello","sulla","sulle","sullo","the","and","for","with","from","that","this","into","your","you","are"}
+ paragraph_words=[]
+ for match in paragraphs:
+  raw=re.sub(r"<[^>]+>"," ",match.group(0)).casefold()
+  paragraph_words.append({word for word in re.findall(r"[a-zà-ÿ0-9]{4,}",raw) if word not in stop})
+ placements={}
+ last_target=-1
+ for index,(markup,caption) in enumerate(figures):
+  caption_words={word for word in re.findall(r"[a-zà-ÿ0-9]{4,}",caption.casefold()) if word not in stop}
+  target=None
+  if caption_words:
+   ranked=[(len(caption_words & words),pos) for pos,words in enumerate(paragraph_words) if pos>=last_target]
+   if ranked:
+    score,pos=max(ranked)
+    if score>0:target=pos
+  if target is None:
+   target=((index+1)*len(paragraphs))//(len(figures)+1)
+   target=min(len(paragraphs)-1,max(last_target,target))
+  last_target=target
+  placements.setdefault(target,[]).append(markup)
+ result=[]
+ cursor=0
+ for pos,match in enumerate(paragraphs):
+  result.append(body[cursor:match.end()])
+  result.extend(placements.get(pos,[]))
+  cursor=match.end()
+ result.append(body[cursor:])
+ return "".join(result)
+
 
 
 def video(review):
@@ -850,13 +905,16 @@ def render(review,image_validator):
  if not media:
   media=('<div class="story-cover-fallback" role="img" aria-label="Copertina editoriale senza fotografia originale">'
          '<span>'+esc("Recensione" if reviews else "Articolo")+'</span><strong>'+title+'</strong></div>')
- extra="" if reviews else image_block(review,image_validator,extra=True)
+ community_article=is_community_article(review)
+ smart_community_images=community_article and MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED
+ extra="" if reviews or smart_community_images else image_block(review,image_validator,extra=True)
  notice='<p class="excerpt-notice">Questo contenuto proviene da un estratto di archivio: il testo originale completo non è disponibile.</p>' if review.get("is_excerpt") else ""
  source_notes=review.get("ending_notes",[]) if reviews else []
  if not isinstance(source_notes,list):source_notes=[]
  retained_notes=compact_prose_html(['<p>'+rich_text(line)+'</p>' for line in source_notes if isinstance(line,str) and line.strip()])
  article_body=sectioned_body(review)+retained_notes
  if reviews:article_body=interleave_review_images(article_body,review,image_validator)
+ elif smart_community_images:article_body=interleave_community_images(article_body,review,image_validator)
  article_body+=extra
  return ('<article class="article story-article '+("review-article" if reviews else "news-article")+'" data-studio-slug="'+esc(str(review.get("slug") or ""),quote=True)+'">'
          +'<h1>'+title+'</h1>'+meta(review)+machine+media
