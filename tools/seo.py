@@ -118,6 +118,13 @@ def breadcrumb(path,title,row):
  if path!="/":
   items.append({"@type":"ListItem","position":len(items)+1,"name":plain(title),"item":canonical(path)})
  return {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":items}
+def organization_schema():
+ """One stable entity for the ZazoomTek editorial publisher and its official channels."""
+ return {"@context":"https://schema.org","@type":"Organization",
+  "@id":DOMAIN+"/#organization","name":"ZazoomTek","url":DOMAIN+"/",
+  "description":"Redazione indipendente dedicata a notizie, recensioni e guide su tecnologia, videogiochi e hardware.",
+  "sameAs":["https://www.youtube.com/@ZazoomTek","https://www.tiktok.com/@zazoomtek"]}
+
 def article_schema(row,url,desc,image):
  cat=row.get("category","")
  author=plain(row.get("author")) or "Redazione ZazoomTek"
@@ -125,8 +132,8 @@ def article_schema(row,url,desc,image):
   "@id":url+"#article","mainEntityOfPage":{"@type":"WebPage","@id":url},
   "headline":plain(row.get("title"))[:300],"description":desc,"inLanguage":"it-IT",
   "articleSection":SECTIONS.get(cat,"Articoli"),
-  "author":{"@type":"Organization","name":"ZazoomTek"} if author.lower()=="redazione zazoomtek" else {"@type":"Person","name":author},
-  "publisher":{"@type":"Organization","name":"ZazoomTek","url":DOMAIN},
+  "author":{"@id":DOMAIN+"/#organization"} if author.lower()=="redazione zazoomtek" else {"@type":"Person","name":author},
+  "publisher":{"@id":DOMAIN+"/#organization"},
   "keywords":", ".join(keywords(row))}
  date=datetime_iso(row.get("published_at") or row.get("date"))
  update=datetime_iso(row.get("updated_at") or row.get("modified_at")) or date
@@ -188,9 +195,10 @@ def metadata(title,path="/",row=None,preview=True,summary=None):
    output.append('<meta property="article:tag" content="'+esc(term,quote=True)+'">')
   output.append(jsonld(article_schema(row,url,desc,image)))
  elif path=="/":
-  output.append(jsonld({"@context":"https://schema.org","@type":"WebSite","@id":DOMAIN+"/#website",
-    "name":"ZazoomTek","url":DOMAIN+"/","inLanguage":"it-IT",
-    "publisher":{"@type":"Organization","name":"ZazoomTek","url":DOMAIN}}))
+  output.append(jsonld({"@context":"https://schema.org","@graph":[
+    {"@type":"WebSite","@id":DOMAIN+"/#website","name":"ZazoomTek",
+     "url":DOMAIN+"/","inLanguage":"it-IT","publisher":{"@id":DOMAIN+"/#organization"}},
+    {k:v for k,v in organization_schema().items() if k!="@context"}]}))
  output.append(jsonld(breadcrumb(path,row.get("title") if row else title,row)))
  return "".join(output)
 
