@@ -106,7 +106,8 @@ def run(project_root, output_root, rows, events):
                                       " expected " + url)
                 lines.append(f"GENERATED | {label} | url={url}")
             elif status == "merged_duplicate":
-                slug = target
+                canonical_row = rows_by_id.get(identifier)
+                slug = str(canonical_row.get("slug") or "") if canonical_row else target
                 url = domain + "/" + slug
                 if slug not in rows_by_slug or url not in sitemap_urls:
                     errors.append(label + ": duplicate-source target is not a sitemap article: " + url)
