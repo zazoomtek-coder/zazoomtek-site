@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check Python syntax
-        run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py
+        run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py tools/audit_trace.py
       - name: Run isolated SEO live-audit tests (no external requests)
         run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
       - name: Run Community multi-image import/render regression tests
@@ -35,4 +35,12 @@ jobs:
       - name: Build production-equivalent output (no deployment)
         run: python3 tools/build.py
       - name: Check required output
-        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/robots.txt && test -s dist/_routes.json
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/robots.txt && test -s dist/_routes.json && test -s build-trace-audit.json
+      - name: Upload full record-by-record audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZazoomTek-Editorial-Trace-Audit
+          path: build-trace-audit.json
+          if-no-files-found: warn
+          retention-days: 30
