@@ -26,14 +26,31 @@ class PageMeta(HTMLParser):
         self.canonicals = []
         self.robots = []
         self.h1 = 0
+        self.title = False
+        self.title_text = ""
+        self.h1_text = ""
+        self.in_h1 = False
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "title":
+            self.title = True
         if tag == "h1":
             self.h1 += 1
+            self.in_h1 = True
         if tag == "link" and attrs.get("rel", "").lower() == "canonical":
             self.canonicals.append(attrs.get("href", ""))
         if tag == "meta" and attrs.get("name", "").lower() in ("robots", "googlebot"):
             self.robots.append(attrs.get("content", ""))
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.title = False
+        if tag == "h1":
+            self.in_h1 = False
+    def handle_data(self, data):
+        if self.title:
+            self.title_text += data
+        if self.in_h1:
+            self.h1_text += data
 
 
 def request(url):
@@ -99,6 +116,8 @@ def audit(base=BASE, sample=10):
                 meta.feed(body.decode("utf-8", "replace"))
                 entry["canonical"] = meta.canonicals
                 entry["robots"] = meta.robots
+                entry["title"] = meta.title_text.strip()
+                entry["h1"] = meta.h1_text.strip()
                 if len(meta.canonicals) != 1:
                     errors.append(url + ": expected exactly one canonical")
                 elif meta.canonicals[0] != url:
@@ -130,8 +149,11 @@ def audit(base=BASE, sample=10):
     except (URLError, TimeoutError, ET.ParseError, UnicodeError, ValueError) as exc:
         errors.append("Audit could not complete: " + type(exc).__name__ + ": " + str(exc))
 
+    known_article_checks = [c for c in checks if c.get("url", "").removeprefix(base)
+                            in LEGACY_ARTICLE_PATHS]
     return {"site": base, "pages_checked": len(checks), "errors": errors,
-            "warnings": warnings, "checks": checks}
+            "warnings": warnings, "known_article_checks": known_article_checks,
+            "checks": checks}
 
 
 def main():
