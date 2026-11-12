@@ -185,7 +185,17 @@
       "cons": [],
       "updated_at": "2026-11-06T12:16:38.050Z",
       "date": "2026-11-06",
-      "published_at": "2026-11-06T12:16:39.019Z"
+      "published_at": "2026-11-06T12:16:39.019Z",
+      "seo_lock": {
+        "title": "iPhone memoria piena: liberare spazio senza perdere dati",
+        "description": "Come liberare spazio su iPhone senza perdere foto: controlla Spazio iPhone, app, download e backup prima di cancellare file o documenti.",
+        "keywords": [
+          "iPhone memoria piena liberare spazio",
+          "liberare memoria iPhone",
+          "spazio iPhone foto video",
+          "iPhone archiviazione piena"
+        ]
+      }
     },
     {
       "slug": "samsung-galaxy-wifi-non-si-connette-soluzioni-senza-perdere-dati",
@@ -311,7 +321,17 @@
           "type": "paragraph",
           "text": "**Avvertenza:** Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
         }
-      ]
+      ],
+      "seo_lock": {
+        "title": "Samsung Galaxy non si collega al Wi-Fi: soluzioni",
+        "description": "Il Wi-Fi Samsung Galaxy non funziona o mostra Connesso senza Internet? Ecco i controlli da fare, dalla password al ripristino rete, senza cancellare i dati.",
+        "keywords": [
+          "Samsung Galaxy non si connette Wi-Fi",
+          "Samsung Wi-Fi non funziona",
+          "Galaxy connesso senza Internet",
+          "ripristinare impostazioni Wi-Fi Samsung"
+        ]
+      }
     },
     {
       "slug": "controller-ps5-dualsense-non-si-connette-soluzioni",
@@ -441,7 +461,17 @@
           "type": "paragraph",
           "text": "**Avvertenza:** Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
         }
-      ]
+      ],
+      "seo_lock": {
+        "title": "DualSense PS5 non si connette: come risolvere",
+        "description": "Il controller PS5 DualSense non si collega o si disconnette? Verifica cavo USB dati, associazione, reset e aggiornamenti con una procedura graduale.",
+        "keywords": [
+          "DualSense PS5 non si connette",
+          "controller PS5 non si collega",
+          "DualSense lampeggia",
+          "resettare controller PS5"
+        ]
+      }
     },
     {
       "slug": "windows-11-aggiornamento-bloccato-0-99-100-soluzioni",
@@ -567,7 +597,17 @@
           "type": "paragraph",
           "text": "**Avvertenza:** Le guide di ZazoomTek.it sono a scopo informativo. Le procedure possono variare in base al dispositivo. ZazoomTek declina, nei limiti di legge, ogni responsabilità per eventuali errori, perdita di dati, danni o malfunzionamenti derivanti dall'applicazione delle istruzioni. Si consiglia di seguire le indicazioni del produttore."
         }
-      ]
+      ],
+      "seo_lock": {
+        "title": "Windows 11 bloccato durante l'aggiornamento: soluzioni",
+        "description": "Windows 11 resta fermo allo 0%, 99% o 100%? Ecco cosa controllare prima di riavviare, usare gli strumenti di ripristino o intervenire su Windows Update.",
+        "keywords": [
+          "Windows 11 aggiornamento bloccato",
+          "Windows Update bloccato",
+          "aggiornamento Windows 11 fermo 99",
+          "risolvere Windows Update"
+        ]
+      }
     },
     {
       "slug": "binance-hack-63-miliardi-prelievi-fbi-tradertraitor",
@@ -801,7 +841,17 @@
       "cover_focus_y": 50,
       "cover_zoom": 100,
       "cover_rotation": 0,
-      "updated_at": "2026-11-02T11:59:00+01:00"
+      "updated_at": "2026-11-02T11:59:00+01:00",
+      "seo_lock": {
+        "title": "Fortnite One Piece: guida agli 8 incarichi e premi",
+        "description": "Come completare gli otto incarichi Fortnite x One Piece Treasure Hunters e ottenere i quattro premi gratuiti: obiettivi e passaggi della guida.",
+        "keywords": [
+          "Fortnite One Piece Treasure Hunters guida",
+          "Fortnite One Piece incarichi",
+          "Treasure Hunters premi gratis",
+          "Fortnite 8 incarichi"
+        ]
+      }
     },
     {
       "slug": "zelda-ocarina-of-time-remake-switch-2-novembre-2026-speciale",
@@ -1170,7 +1220,17 @@
           "title": "GamesRadar, crescita giocatori 27 ottobre",
           "url": "https://www.gamesradar.com/games/cyberpunk/cyberpunk-2077-lead-says-its-been-a-hell-of-a-weekend-as-the-rpg-hit-its-highest-steam-player-count-in-3-years-thanks-to-edgerunners-2-and-2-5-update/"
         }
-      ]
+      ],
+      "seo_lock": {
+        "title": "Cyberpunk 2077: sbloccare Cercasi Edgerunner e set King",
+        "description": "Guida a Cyberpunk 2077 patch 2.5: requisiti per attivare Cercasi Edgerunner, contratti di Wakako e come ottenere il set ispirato a King.",
+        "keywords": [
+          "Cyberpunk 2077 Cercasi Edgerunner",
+          "set King Cyberpunk 2077",
+          "Wakako due contratti",
+          "Cyberpunk 2077 patch 2.5 guida"
+        ]
+      }
     },
     {
       "slug": "meta-francia-diritti-editori-appello-2026",
