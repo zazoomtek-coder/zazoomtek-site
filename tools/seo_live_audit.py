@@ -14,7 +14,7 @@ BASE = "https://zazoomtek.it"
 UA = "ZazoomTek-SEO-Health/1.0 (read-only)"
 SECTIONS = ("/", "/news", "/news-tech", "/news-gaming",
             "/recensioni-tech", "/recensioni-gaming", "/guide",
-            "/speciali", "/extra", "/cybercultura")
+            "/speciali", "/extra")
 LEGACY_ARTICLE_PATHS = ("/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey",)
 SM = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 
