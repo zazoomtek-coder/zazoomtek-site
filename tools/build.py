@@ -245,11 +245,13 @@ def posts():
     print("ARTICLE EXCLUDED:",source_name,"record",source_index,"slug=",slug,"reason="+reason,flush=True)
     trace_record(source_name,source_index,r,"excluded",reason)
     continue
+   record_source_name=source_name
+   record_source_index=source_index
    if source_name=="community":
-    source_name=r.get("_trace_source_file",source_name)
-    source_index=r.get("_trace_source_index",source_index)
-   trace_record(source_name,source_index,r,"candidate","passed article validation",str(r.get("slug") or ""))
-   candidates.append((source_name,source_index,r))
+    record_source_name=r.get("_trace_source_file",source_name)
+    record_source_index=r.get("_trace_source_index",source_index)
+   trace_record(record_source_name,record_source_index,r,"candidate","passed article validation",str(r.get("slug") or ""))
+   candidates.append((record_source_name,record_source_index,r))
  # A repeated YouTube Community ID is the same source publication, not a second story.
  # Every distinct record survives title collisions and slug collisions.
  deduplicated=[];seen_community_ids={}
