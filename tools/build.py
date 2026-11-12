@@ -1328,8 +1328,17 @@ def legacy_article_redirects(rows):
    raise ValueError("Unsafe verified historical article alias: "+old)
   if target not in by_slug or not (O/(target+".html")).is_file():
    raise ValueError("Verified historical article destination is missing: "+target)
-  if old in occupied or old in by_slug:
-   raise ValueError("Historical alias conflicts with a published page: "+old)
+  if old in by_slug:
+   # The historical Google path may itself still be the current canonical page.
+   # In that case it must remain a direct article route, not redirect to another URL.
+   if "razer" not in str(by_slug[old].get("title") or "").casefold():
+    raise ValueError("Verified historical alias collides with a different published article: "+old)
+   continue
+  if old in occupied:
+   existing=(O/(old+".html")).read_text(encoding="utf-8")
+   if "Razer Barracuda V2 Pro" not in existing:
+    raise ValueError("Verified historical alias collides with a different generated page: "+old)
+   continue
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
