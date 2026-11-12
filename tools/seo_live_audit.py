@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit
@@ -78,30 +79,36 @@ def audit(base=BASE, sample=10):
         known = set(paths)
         urls = list(dict.fromkeys([base + p for p in SECTIONS] + paths[:sample] +
                                   [base + p for p in LEGACY_ARTICLE_PATHS]))
-        for url in urls:
+        def inspect(url):
             status, final_url, body, headers = request(url)
-            entry = {"url": url, "status": status, "final_url": final_url}
-            if final_url.rstrip("/") != url.rstrip("/"):
-                errors.append(url + ": redirected to a different destination " + final_url)
-            if status != 200:
-                errors.append(url + ": HTTP " + str(status))
+            return url, status, final_url, body, headers
+
+        # Check all sitemap routes concurrently so a full 400+ URL audit stays
+        # comfortably within the read-only workflow timeout.
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            for url, status, final_url, body, headers in pool.map(inspect, urls):
+                entry = {"url": url, "status": status, "final_url": final_url}
+                if final_url.rstrip("/") != url.rstrip("/"):
+                    errors.append(url + ": redirected to a different destination " + final_url)
+                if status != 200:
+                    errors.append(url + ": HTTP " + str(status))
+                    checks.append(entry)
+                    continue
+                meta = PageMeta()
+                meta.feed(body.decode("utf-8", "replace"))
+                entry["canonical"] = meta.canonicals
+                entry["robots"] = meta.robots
+                if len(meta.canonicals) != 1:
+                    errors.append(url + ": expected exactly one canonical")
+                elif meta.canonicals[0] != url:
+                    errors.append(url + ": canonical mismatch " + meta.canonicals[0])
+                if any("noindex" in r.casefold() for r in meta.robots):
+                    errors.append(url + ": noindex on a public, expected indexable page")
+                if "noindex" in headers.get("X-Robots-Tag", "").casefold():
+                    errors.append(url + ": noindex from X-Robots-Tag")
+                if url not in known:
+                    warnings.append(url + ": section absent from sitemap (inspect if intentional)")
                 checks.append(entry)
-                continue
-            meta = PageMeta()
-            meta.feed(body.decode("utf-8", "replace"))
-            entry["canonical"] = meta.canonicals
-            entry["robots"] = meta.robots
-            if len(meta.canonicals) != 1:
-                errors.append(url + ": expected exactly one canonical")
-            elif meta.canonicals[0] != url:
-                errors.append(url + ": canonical mismatch " + meta.canonicals[0])
-            if any("noindex" in r.casefold() for r in meta.robots):
-                errors.append(url + ": noindex on a public, expected indexable page")
-            if "noindex" in headers.get("X-Robots-Tag", "").casefold():
-                errors.append(url + ": noindex from X-Robots-Tag")
-            if url not in known:
-                warnings.append(url + ": section absent from sitemap (inspect if intentional)")
-            checks.append(entry)
 
         # The two URL forms should not introduce competing canonical documents.
         for path in ("/extra", "/speciali", "/news"):
