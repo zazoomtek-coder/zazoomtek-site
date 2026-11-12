@@ -105,6 +105,26 @@ def run(project_root, output_root, rows, events):
                         errors.append(label + ": canonical mismatch " + repr(parser.canonicals) +
                                       " expected " + url)
                 lines.append(f"GENERATED | {label} | url={url}")
+            elif status == "candidate" and identifier and identifier in rows_by_id:
+                canonical_row = rows_by_id[identifier]
+                slug = str(canonical_row.get("slug") or "")
+                url = domain + "/" + slug
+                page = output_root / (slug + ".html")
+                if not page.is_file() or url not in sitemap_urls:
+                    errors.append(label + ": canonical-ID match has no generated HTML/sitemap destination: " + url)
+                if page.is_file():
+                    parser = CanonicalReader()
+                    parser.feed(page.read_text(encoding="utf-8"))
+                    if parser.canonicals != [url]:
+                        errors.append(label + ": canonical-ID match has wrong canonical: " + repr(parser.canonicals))
+                origin_matches = (canonical_row.get("_trace_source_file") == name and
+                                  canonical_row.get("_trace_source_index") == index)
+                if origin_matches:
+                    lines.append(f"GENERATED | {label} | url={url} | reason=matched final in-memory source identity")
+                    status_counts["generated_by_identity"] += 1
+                else:
+                    lines.append(f"MERGED DUPLICATE | {label} | canonical_target={url} | reason=same canonical Community ID already generated from another source file")
+                    status_counts["merged_duplicate_by_id"] += 1
             elif status == "merged_duplicate":
                 canonical_row = rows_by_id.get(identifier)
                 slug = str(canonical_row.get("slug") or "") if canonical_row else target
