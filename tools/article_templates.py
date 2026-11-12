@@ -363,7 +363,7 @@ def interleave_community_images(body,review,image_validator):
   if caption_words:
    ranked=[(len(caption_words & words),pos) for pos,words in enumerate(paragraph_words) if pos>=last_target]
    if ranked:
-    score,pos=max(ranked)
+    score,pos=max(ranked,key=lambda item:item[0])
     if score>0:target=pos
   if target is None:
    target=((index+1)*len(paragraphs))//(len(figures)+1)

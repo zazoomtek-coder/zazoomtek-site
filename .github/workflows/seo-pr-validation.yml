@@ -30,6 +30,8 @@ jobs:
         run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py
       - name: Run isolated SEO live-audit tests (no external requests)
         run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
+      - name: Run Community multi-image import/render regression tests
+        run: python3 tools/test_community_images.py
       - name: Build production-equivalent output (no deployment)
         run: python3 tools/build.py
       - name: Check required output
