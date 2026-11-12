@@ -14,6 +14,7 @@ UA = "ZazoomTek-SEO-Health/1.0 (read-only)"
 SECTIONS = ("/", "/news", "/news-tech", "/news-gaming",
             "/recensioni-tech", "/recensioni-gaming", "/guide",
             "/speciali", "/extra", "/cybercultura")
+LEGACY_ARTICLE_PATHS = ("/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey",)
 SM = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 
 
@@ -69,13 +70,19 @@ def audit(base=BASE, sample=10):
                 errors.append("sitemap.xml has repeated URLs")
             if any(not p.startswith(base + "/") for p in paths):
                 errors.append("sitemap.xml has URLs outside the expected domain")
+            for path in LEGACY_ARTICLE_PATHS:
+                if base + path not in paths:
+                    errors.append("Known Google article URL is missing from sitemap: " + path)
         checks.append({"url": base + "/sitemap.xml", "status": status, "entries": len(paths)})
 
         known = set(paths)
-        urls = list(dict.fromkeys([base + p for p in SECTIONS] + paths[:sample]))
+        urls = list(dict.fromkeys([base + p for p in SECTIONS] + paths[:sample] +
+                                  [base + p for p in LEGACY_ARTICLE_PATHS]))
         for url in urls:
             status, final_url, body, headers = request(url)
             entry = {"url": url, "status": status, "final_url": final_url}
+            if final_url.rstrip("/") != url.rstrip("/"):
+                errors.append(url + ": redirected to a different destination " + final_url)
             if status != 200:
                 errors.append(url + ": HTTP " + str(status))
                 checks.append(entry)
@@ -125,7 +132,7 @@ def main():
     ap.add_argument("--sample", type=int, default=10)
     ap.add_argument("--json", default="seo-live-audit.json")
     args = ap.parse_args()
-    result = audit(args.base, max(0, min(args.sample, 30)))
+    result = audit(args.base, max(0, min(args.sample, 1000)))
     with open(args.json, "w", encoding="utf-8") as out:
         json.dump(result, out, indent=2, ensure_ascii=False)
     print(json.dumps({k: v for k, v in result.items() if k != "checks"},
