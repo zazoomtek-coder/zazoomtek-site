@@ -14,7 +14,8 @@ BASE = "https://zazoomtek.it"
 def fixture(broken=False):
     urlset = Element("{http://www.sitemaps.org/schemas/sitemap/0.9}urlset")
     for path in ("/", "/news", "/news-tech", "/news-gaming", "/recensioni-tech",
-                 "/recensioni-gaming", "/guide", "/speciali", "/extra", "/cybercultura"):
+                 "/recensioni-gaming", "/guide", "/speciali", "/extra", "/cybercultura",
+                 "/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"):
         item = SubElement(urlset, "{http://www.sitemaps.org/schemas/sitemap/0.9}url")
         SubElement(item, "{http://www.sitemaps.org/schemas/sitemap/0.9}loc").text = BASE + path
     xml = tostring(urlset)
