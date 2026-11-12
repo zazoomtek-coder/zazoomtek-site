@@ -4,6 +4,7 @@ Select authoritative original ZazoomTek editorial coverage before offering
 an external publisher. Never copy the feed article or invent source text.
 The internal Web-news gateway is a nonindexable editorial navigation page.
 """
+from media_dimensions import dimension_attributes
 import hashlib,re
 from html import escape as esc
 from urllib.parse import urlparse
@@ -196,7 +197,7 @@ def gateway_html(entry,original_articles,image_validator=None):
  for row in suggested:
   url="/"+str(row["slug"])
   safe=image_validator(row.get("image","")) if image_validator else ""
-  image=('<img loading="lazy" decoding="async" src="'+esc(safe,quote=True)+'" alt="">' if safe
+  image=('<img loading="lazy" decoding="async"'+dimension_attributes(safe)+' src="'+esc(safe,quote=True)+'" alt="">' if safe
          else '<span class="web-gateway-card-fallback" aria-hidden="true">ZazoomTek</span>')
   day=str(row.get("date") or row.get("published_at") or "")[:10]
   when=('<time datetime="'+esc(day,quote=True)+'">'+esc(day[8:10]+"/"+day[5:7]+"/"+day[:4])+'</time>'

@@ -4,6 +4,8 @@ Never synthesize editorial scores or pros/cons.
 """
 import re
 from html import escape as esc
+from pathlib import Path
+from media_dimensions import dimension_attributes
 from urllib.parse import urlparse
 
 REVIEW_TECH=["Materiali e Design","Hardware e Prestazioni","Uso Quotidiano","Esperienza Complessiva","Conclusioni"]
@@ -286,7 +288,9 @@ def image_block(review,image_validator,extra=False):
   # First editorial cover is often the LCP image; do not lazy-load it.
   # Extra article images remain deferred to conserve bandwidth.
   priority='loading="eager" fetchpriority="high"' if not extra else 'loading="lazy" fetchpriority="low"'
-  image='<img '+priority+' decoding="async" src="'+esc(src,quote=True)+'" alt="'+esc(alt,quote=True)+'">'
+  metadata=review if not extra else item
+  dimensions=dimension_attributes(src,root=Path(__file__).resolve().parents[1],metadata=metadata)
+  image='<img '+priority+' decoding="async"'+dimensions+' src="'+esc(src,quote=True)+'" alt="'+esc(alt,quote=True)+'">'
   result.append('<figure class="story-figure">'+image+('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
  return ''.join(result)
 
@@ -704,7 +708,7 @@ def studio_sectioned_body(review):
    angle=clamp(block.get("rotation"),-180,180,0)
    image_style='object-position:'+str(x)+'% '+str(y)+'%;transform:scale('+str(zoom)+') rotate('+str(angle)+'deg)'
    result.append('<figure class="story-figure studio-content-image studio-align-'+align+'"><div class="studio-image-crop">'
-                 '<img loading="lazy" src="'+esc(url,quote=True)+'" style="'+image_style+'" alt="'+esc(title,quote=True)+'"></div>'+
+                 '<img loading="lazy" decoding="async"'+dimension_attributes(url,root=Path(__file__).resolve().parents[1],metadata=block)+' src="'+esc(url,quote=True)+'" style="'+image_style+'" alt="'+esc(title,quote=True)+'"></div>'+
                  ('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
   elif kind=="button":
    url=studio_link(block.get("url"))
@@ -723,7 +727,7 @@ def studio_sectioned_body(review):
      if not vid and parsed.path.startswith(("/embed/","/shorts/")):vid=parsed.path.split("/",2)[2]
    if VIDEO_ID.fullmatch(vid):
     result.append('<div class="player studio-content-video"><button type="button" class="video-start" data-youtube-id="'+
-                  esc(vid,quote=True)+'" aria-label="Riproduci il video"><img loading="lazy" src="https://i.ytimg.com/vi/'+
+                  esc(vid,quote=True)+'" aria-label="Riproduci il video"><img width="480" height="360" loading="lazy" decoding="async" src="https://i.ytimg.com/vi/'+
                   esc(vid,quote=True)+'/hqdefault.jpg" alt=""><span class="video-start-label">▶ Riproduci video</span></button></div>')
   elif kind=="audio":
    url=studio_link(block.get("url"))

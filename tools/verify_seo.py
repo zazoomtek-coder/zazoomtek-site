@@ -5,7 +5,8 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from urllib.parse import urlparse
 import json,re
-from seo import DOMAIN,metadata,full_image,keywords,description
+from seo import DOMAIN,metadata,full_image,keywords,description,plain
+from media_dimensions import image_dimensions
 
 class MetaParser(HTMLParser):
  def __init__(self):
@@ -14,6 +15,7 @@ class MetaParser(HTMLParser):
   self.current_title=False
   self.meta={}
   self.links=[]
+  self.images=[]
   self.ld=[]
   self.script=False
   self.text=""
@@ -25,6 +27,7 @@ class MetaParser(HTMLParser):
    k=attrs.get("name") or attrs.get("property")
    if k:self.meta[k]=attrs.get("content","")
   if tag=="link":self.links.append(attrs)
+  if tag=="img":self.images.append(attrs)
   if tag=="script" and attrs.get("type")=="application/ld+json":
    self.script=True
    self.text=""
@@ -86,6 +89,8 @@ def check_seo(root,rows,groups,preview):
   raise AssertionError("Sitemap includes noncanonical URL")
  if (DOMAIN+"/404") in urls:raise AssertionError("404 must not be in sitemap")
  count=0
+ article_images=0
+ articles_without_cover=0
  bad=[]
  for page in root.glob("*.html"):
   parser=MetaParser()
@@ -122,6 +127,10 @@ def check_seo(root,rows,groups,preview):
    bad.append((page.name,"missing sitemap URL"))
   if not parser.ld or any("invalid" in x for x in parser.ld):
    bad.append((page.name,"missing/invalid structured data"))
+  for img in parser.images:
+   dimensions=image_dimensions(img.get("src"),root=Path(__file__).resolve().parents[1])
+   if dimensions and (img.get("width")!=str(dimensions[0]) or img.get("height")!=str(dimensions[1])):
+    bad.append((page.name,"image intrinsic width/height missing or mismatched: "+str(img.get("src",""))[:100]))
   if preview and "noindex" not in parser.meta.get("robots",""):
    bad.append((page.name,"Preview is not noindex"))
   if not preview and expected in urls and "noindex" in parser.meta.get("googlebot","").lower():
@@ -137,6 +146,33 @@ def check_seo(root,rows,groups,preview):
   parser.feed(p.read_text(encoding="utf-8"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
   if not item:bad.append((p.name,"no article schema"))
+  expected_image=full_image(row.get("image"))
+  raw_image=str(row.get("image") or "")
+  if raw_image and not expected_image:
+   bad.append((p.name,"cover URL is invalid or local asset is missing"))
+  if expected_image:
+   article_images+=1
+   for key in ("og:image","twitter:image"):
+    if parser.meta.get(key)!=expected_image:
+     bad.append((p.name,"missing or mismatched "+key))
+   if parser.meta.get("twitter:card")!="summary_large_image":
+    bad.append((p.name,"article cover must use summary_large_image"))
+   expected_alt=plain(row.get("image_alt")) or plain(row.get("title"))
+   if parser.meta.get("og:image:alt")!=expected_alt:
+    bad.append((p.name,"Open Graph image alt missing or mismatched"))
+   dimensions=image_dimensions(row.get("image"),root=Path(__file__).resolve().parents[1],metadata=row)
+   if dimensions:
+    if parser.meta.get("og:image:width")!=str(dimensions[0]) or parser.meta.get("og:image:height")!=str(dimensions[1]):
+     bad.append((p.name,"Open Graph image dimensions missing or mismatched"))
+    cover_tag=next((img for img in parser.images if img.get("src")==row.get("image")),None)
+    if not cover_tag:
+     bad.append((p.name,"article cover image element missing"))
+    elif cover_tag.get("width")!=str(dimensions[0]) or cover_tag.get("height")!=str(dimensions[1]):
+     bad.append((p.name,"article cover width/height attributes missing or mismatched"))
+   if not item or not item.get("image") or item["image"][0]!=expected_image:
+    bad.append((p.name,"structured-data cover image missing or mismatched"))
+  else:
+   articles_without_cover+=1
   if str(row.get("category") or "").startswith("recensioni-"):
    from article_templates import score as actual_score,paragraphs
    rating=actual_score(row,paragraphs(row))
@@ -147,12 +183,10 @@ def check_seo(root,rows,groups,preview):
     bad.append((p.name,"Article structured description mismatch"))
    if not keywords(row) or not item.get("keywords"):
     bad.append((p.name,"No content-derived topic"))
-   if item.get("image") and item["image"][0]!=full_image(row.get("image")):
-    bad.append((p.name,"Incorrect original cover URL"))
  if bad:
   raise AssertionError("SEO audit FAILED "+str(len(bad))+" violations: "+"; ".join(str(x) for x in bad[:22]))
  robots=(root/"robots.txt").read_text(encoding="utf-8")
  if preview and "Disallow: /" not in robots:raise AssertionError("Preview not disallowed")
  if not preview and DOMAIN+"/sitemap.xml" not in robots:raise AssertionError("Production sitemap not advertised")
  if not preview and DOMAIN+"/news-sitemap.xml" not in robots:raise AssertionError("Google News sitemap not advertised")
- print("SEO AUDIT PASS:",count,"HTML pages and",len(urls),"canonical sitemap URLs",flush=True)
+ print("SEO AUDIT PASS:",count,"HTML pages and",len(urls),"canonical sitemap URLs; article covers with OG:",article_images,"without a usable cover:",articles_without_cover,flush=True)
