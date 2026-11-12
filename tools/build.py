@@ -62,7 +62,7 @@ def category_for_post(item):
   elif text.startswith(("guida:","guide:")):kind="guide"
   elif text.startswith(("speciale:","special:")):kind="speciali"
   elif text.startswith("extra:"):kind="extra"
-  else:return None
+  else:return "news-tech"  # Community fallback when no editorial type can be inferred.
  if kind in ("guida","guide"):return "guide"
  if kind in ("speciale","speciali"):return "speciali"
  if kind=="extra":return "extra"
@@ -141,6 +141,9 @@ def community_posts():
   youtube_full=bool(item.get("text_complete")) and bool(re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id))
   archive_full=bool(item.get("archived_full")) and len(text)>=500
   is_full=youtube_full or archive_full
+  if not is_full:
+   trace_record(source_name,source_index,item,"excluded","Community source is an excerpt or incomplete text; the existing editorial quality gate requires a complete post")
+   continue
   slug="community-"+re.sub(r"[^a-z0-9]+","-",post_id.lower()).strip("-")
   if len(slug)>150 or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",slug):
    trace_record(source_name,source_index,item,"excluded","derived slug exceeds 150 characters or is not valid kebab-case");continue
