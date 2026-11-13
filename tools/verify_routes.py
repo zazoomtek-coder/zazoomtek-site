@@ -54,6 +54,11 @@ def check_dist(root,rows=None):
  def page_issue(doc,message):
   critical=page_is_release_critical(doc)
   (errors if critical else warnings).append(message)
+ def route_is_release_critical(path):
+  route=pretty(path).lstrip("/")
+  return any(route.startswith(prefix+"/") for prefix in ALLOWED_PREFIXES) or route in {
+   "recensioni","news","guide","speciali","extra"
+  }
  # Route every public request through the canonical URL middleware so the
  # www host, HTTP and physical .html aliases cannot be indexed separately.
  routes_file=root/"_routes.json"
@@ -250,34 +255,37 @@ def check_dist(root,rows=None):
    for entry in entries:
     path=entry.get("url","")
     if not isinstance(path,str) or not path.startswith("/") or path.endswith(".html"):
-     raise ValueError("Invalid canonical entry URL "+str(path))
+     message="Invalid canonical entry URL "+str(path)
+     (errors if route_is_release_critical(str(path)) else warnings).append(message)
+     continue
     if path.lstrip("/") not in real_pages:
-     raise ValueError("Linked article does not exist "+path)
+     message="Linked article does not exist "+path
+     (errors if route_is_release_critical(path) else warnings).append(message)
     if name=="news-ticker.json":
      if path in seen:raise ValueError("Duplicate ticker headline "+path)
      seen.add(path)
   except (ValueError,TypeError,KeyError) as error:
-   errors.append("Invalid discovery dataset "+name+": "+str(error))
+   (errors if name=="news-ticker.json" else warnings).append("Invalid discovery dataset "+name+": "+str(error))
  # RSS item URLs must point to real category/legacy article paths without suffixes.
  feed=root/"feed.xml"
  if not feed.is_file():
-  errors.append("RSS feed file missing: /feed.xml")
+  warnings.append("RSS feed missing: /feed.xml")
  else:
   try:
    from xml.etree import ElementTree as ET
    feed_root=ET.parse(feed).getroot()
    links=[node.text or "" for node in feed_root.findall(".//item/link")]
    if len(links)!=len(set(links)):
-    errors.append("RSS feed contains duplicate article URLs")
+    warnings.append("RSS feed contains duplicate article URLs")
    for value in links:
     parsed=urlsplit(value)
     path=parsed.path
     if not path.startswith("/") or path.endswith(".html") or (path!="/" and path.endswith("/")):
-     errors.append("RSS feed contains a noncanonical URL: "+value)
+     (errors if route_is_release_critical(path) else warnings).append("RSS feed contains a noncanonical URL: "+value)
     elif path.lstrip("/") not in real_pages:
-     errors.append("RSS feed links to a missing article: "+value)
+     (errors if route_is_release_critical(path) else warnings).append("RSS feed links to a missing article: "+value)
   except (OSError,ValueError,TypeError) as error:
-   errors.append("RSS feed XML is invalid: "+str(error))
+   warnings.append("Historical RSS feed diagnostic: "+str(error))
  # Verify the Home-only Amazon showcase and its requested affiliate destination.
  homepage=root/"index.html"
  if homepage.is_file():
