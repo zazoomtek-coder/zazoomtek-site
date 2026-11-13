@@ -1,4 +1,4 @@
-"""Central, deterministic URL policy for new and legacy ZazoomTek articles."""
+"""Central, deterministic URL policy for new and historical ZazoomTek articles."""
 import re
 import unicodedata
 
@@ -16,6 +16,7 @@ on with by from at is are this that
 """.split())
 LEGACY_RE = re.compile(r"^/community-[a-z0-9]+(?:-[a-z0-9]+)*$")
 PUBLIC_RE = re.compile(r"^/(recensioni|news|speciali|guide|extra)/[a-z0-9]+(?:-[a-z0-9]+)*$")
+SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 def normalize_public_path(path):
@@ -42,9 +43,13 @@ def slugify_title(title, max_length=68):
 
 
 def unique_slug(title, occupied, max_length=68):
+    """Allocate a slug against either sibling slugs or full public paths."""
     base = slugify_title(title, max_length)
     candidate, number = base, 2
-    while candidate in occupied:
+    while candidate in occupied or any(
+        isinstance(path, str) and path.rsplit("/", 1)[-1] == candidate
+        for path in occupied
+    ):
         suffix = "-" + str(number)
         candidate = base[:max_length-len(suffix)].rstrip("-") + suffix
         number += 1
@@ -52,25 +57,67 @@ def unique_slug(title, occupied, max_length=68):
     return candidate
 
 
+def is_v2(article):
+    return article.get("route_version") in (2, "2", "v2")
+
+
 def build_article_url(article):
-    """Legacy path is immutable; new paths require an explicit v2 marker."""
+    """Return the immutable original URL for legacy rows and v2 URL for new rows."""
     if not isinstance(article, dict):
         raise TypeError("Article must be a mapping")
-    for candidate in (article.get("legacy_path"), article.get("url")):
+    # Explicit legacy_path is authoritative and must be returned byte-for-byte.
+    legacy = str(article.get("legacy_path") or "").strip()
+    if legacy:
+        if not legacy.startswith("/") or legacy.startswith("//") or "?" in legacy or "#" in legacy:
+            raise ValueError("Invalid explicit legacy path: " + legacy)
+        return legacy
+    # Preserve historical Community URLs even when they have no explicit marker.
+    for candidate in (article.get("url"),):
         candidate = str(candidate or "").strip()
         if candidate.startswith("/community-"):
             if not LEGACY_RE.fullmatch(candidate):
                 raise ValueError("Invalid legacy Community path: " + candidate)
             return candidate
+    # Missing route_version means historic content: never derive a new slug.
+    if not is_v2(article):
+        original = str(article.get("url") or "").strip()
+        if original.startswith("/") and not original.startswith("//"):
+            return original
+        slug = str(article.get("slug") or "").strip()
+        if not slug:
+            raise ValueError("Legacy article has no original path or slug")
+        return "/" + slug.removesuffix(".html")
     if article.get("public_path"):
         return normalize_public_path(article["public_path"])
-    if article.get("route_version") != "v2":
-        raise ValueError("Article requires explicit route_version='v2' or legacy_path")
     category = str(article.get("category") or "")
     prefix = CATEGORY_PREFIX.get(category)
     if prefix not in ALLOWED_PREFIXES:
         raise ValueError("Unsupported article category for public routing: " + category)
-    slug = str(article.get("public_slug") or article.get("slug") or "")
-    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+    slug = str(article.get("public_slug") or "")
+    if not SLUG_RE.fullmatch(slug):
         slug = slugify_title(article.get("title") or "")
     return normalize_public_path("/" + prefix + "/" + slug)
+
+
+def assign_public_routes(rows):
+    """Assign once to v2 rows; existing public_path values are immutable."""
+    occupied = {str(row.get("public_path")) for row in rows
+                if isinstance(row, dict) and row.get("public_path")}
+    for row in rows:
+        if not isinstance(row, dict) or not is_v2(row):
+            continue
+        if row.get("legacy_path"):
+            continue
+        if row.get("public_path"):
+            row["public_path"] = normalize_public_path(row["public_path"])
+            continue
+        category = str(row.get("category") or "")
+        prefix = CATEGORY_PREFIX.get(category)
+        if prefix not in ALLOWED_PREFIXES:
+            raise ValueError("Unsupported v2 article category: " + category)
+        slug = unique_slug(row.get("title") or row.get("slug") or "", occupied)
+        path = normalize_public_path("/" + prefix + "/" + slug)
+        row["public_slug"] = slug
+        row["public_path"] = path
+        occupied.add(path)
+    return rows
