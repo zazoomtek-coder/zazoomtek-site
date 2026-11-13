@@ -6,7 +6,7 @@ from xml.etree import ElementTree as ET
 from urllib.parse import urlparse
 import json,re
 from seo import DOMAIN,metadata,full_image,keywords,description
-from article_routes import build_article_url, CATEGORY_PREFIX
+from article_routes import build_article_url, CATEGORY_PREFIX, is_v2, normalize_public_path
 from editorial_scope import imported_ids, is_release_critical
 
 class MetaParser(HTMLParser):
@@ -66,10 +66,23 @@ def check_seo(root,rows,groups,preview):
   route=str(path or "").lstrip("/")
   return route.split("/",1)[0] in set(CATEGORY_PREFIX.values()) or route in ("recensioni","news","speciali","guide","extra")
  ns={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}
+ v2_article_urls={
+  DOMAIN+normalize_public_path(build_article_url(row))
+  for row in rows if is_v2(row) and not row.get("legacy_path")
+ }
+ legacy_article_urls={
+  DOMAIN+build_article_url(row)
+  for row in rows if not is_v2(row) or row.get("legacy_path")
+ }
  document=ET.parse(root/"sitemap.xml").getroot()
  urls=[x.text for x in document.findall(".//sm:url/sm:loc",ns)]
  if not urls:raise AssertionError("Sitemap contains zero indexed URLs")
  if len(urls)!=len(set(urls)):raise AssertionError("Sitemap contains duplicate canonical URLs")
+ url_set=set(urls)
+ missing_v2=v2_article_urls-url_set
+ if missing_v2:raise AssertionError("Canonical v2 articles missing from sitemap: "+", ".join(sorted(missing_v2)[:12]))
+ legacy_included=url_set & legacy_article_urls
+ if legacy_included:raise AssertionError("Legacy permalink included in sitemap: "+", ".join(sorted(legacy_included)[:12]))
  for value in urls:
   path=urlparse(value).path
   if not value.startswith(DOMAIN) or "//" in path or path.endswith(".html") or (path!="/" and path.endswith("/")):
@@ -120,7 +133,9 @@ def check_seo(root,rows,groups,preview):
   date=datetime.fromisoformat(stamp.replace("Z","+00:00"))
   if date.tzinfo is None or not now-timedelta(days=2,minutes=2)<=date<=now+timedelta(minutes=2):
    raise AssertionError("Google News sitemap must contain only recent publications: "+str(url))
-  if url not in {DOMAIN+build_article_url(r) for r in rows if r.get("category") in ("news-tech","news-gaming")}:
+  if url not in {DOMAIN+normalize_public_path(build_article_url(r)) for r in rows
+                 if is_v2(r) and not r.get("legacy_path")
+                 and r.get("category") in ("news-tech","news-gaming")}:
    raise AssertionError("Google News sitemap contains a non-news article: "+str(url))
   news_links.append(url)
  if len(news_links)!=len(set(news_links)):
@@ -163,7 +178,7 @@ def check_seo(root,rows,groups,preview):
    if expected in urls:page_issue(page,(page.name,"Thin external-link gateway included in sitemap"))
    if "noindex" not in parser.meta.get("robots",""):
     page_issue(page,(page.name,"External gateway must be noindex"))
-  elif expected not in urls:
+  elif expected not in urls and path not in {urlparse(x).path for x in legacy_article_urls}:
    page_issue(page,(page.name,"missing sitemap URL"))
   if not parser.ld or any("invalid" in x for x in parser.ld):
    page_issue(page,(page.name,"missing/invalid structured data"))
