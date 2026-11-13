@@ -42,13 +42,13 @@ def slugify_title(title, max_length=68):
     return slug
 
 
-def unique_slug(title, occupied, max_length=68):
-    """Allocate a slug against either sibling slugs or full public paths."""
+def unique_slug(title, occupied, max_length=68, prefix=None):
+    """Allocate a slug against existing sibling slugs or paths in one category."""
     base = slugify_title(title, max_length)
     candidate, number = base, 2
     while candidate in occupied or any(
-        isinstance(path, str) and path.rsplit("/", 1)[-1] == candidate
-        for path in occupied
+        isinstance(path, str) and (prefix is None or path.startswith("/" + prefix + "/"))
+        and path.rsplit("/", 1)[-1] == candidate for path in occupied
     ):
         suffix = "-" + str(number)
         candidate = base[:max_length-len(suffix)].rstrip("-") + suffix
@@ -115,7 +115,7 @@ def assign_public_routes(rows):
         prefix = CATEGORY_PREFIX.get(category)
         if prefix not in ALLOWED_PREFIXES:
             raise ValueError("Unsupported v2 article category: " + category)
-        slug = unique_slug(row.get("title") or row.get("slug") or "", occupied)
+        slug = unique_slug(row.get("title") or row.get("slug") or "", occupied, prefix=prefix)
         path = normalize_public_path("/" + prefix + "/" + slug)
         row["public_slug"] = slug
         row["public_path"] = path
