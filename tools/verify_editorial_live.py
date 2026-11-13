@@ -16,6 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
+from article_routes import build_article_url
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://zazoomtek.it"
@@ -36,20 +37,28 @@ def is_today(value):
         return False
 
 
+def live_article_route(row, fallback_slug=""):
+    """Resolve today's live check to the same canonical path used by the build."""
+    article = dict(row) if isinstance(row, dict) else {}
+    if fallback_slug and not article.get("slug"):
+        article["slug"] = fallback_slug
+    return build_article_url(article)
+
+
 def targets():
     chosen = []
     for row in rows("studio_posts.json", "posts"):
         if row.get("date") == TODAY and row.get("slug"):
-            chosen.append((row["slug"], row["title"]))
+            chosen.append((live_article_route(row), row["title"]))
     # An edit to an existing article keeps its original publication date.
     # Use updated_at so the live verifier checks the changed page in today's slot.
     for slug, row in rows("studio_overrides.json", "overrides").items():
         if slug and row.get("title") and is_today(row.get("updated_at")):
-            chosen.append((slug, row["title"]))
+            chosen.append((live_article_route(row, slug), row["title"]))
     for row in rows("community_imported.json", "posts"):
         if row.get("date") == TODAY and row.get("id") and row.get("title"):
-            slug = "community-" + re.sub(r"[^a-z0-9]+", "-", row["id"].lower()).strip("-")
-            chosen.append((slug, row["title"]))
+            route = live_article_route(row)
+            chosen.append((route, row["title"]))
     return list(dict(((slug, title) for slug, title in chosen)).items())
 
 
@@ -62,15 +71,15 @@ def main():
         return 0
     problems = []
     urls = []
-    for slug, title in selected:
+    for route, title in selected:
         matched = [html.unescape(u) for u in locs
-                   if urlparse(html.unescape(u)).path.rstrip("/").split("/")[-1] == slug]
+                   if urlparse(html.unescape(u)).path.rstrip("/") == route]
         if len(matched) != 1:
-            problems.append(f"Article missing or ambiguous in built sitemap: {slug}")
+            problems.append(f"Article missing or ambiguous in built sitemap: {route}")
         else:
             urls.append((matched[0], title))
-            if not (ROOT / "dist" / (slug + ".html")).is_file():
-                problems.append(f"Article missing in built site: {slug}")
+            if not (ROOT / "dist" / (route.lstrip("/") + ".html")).is_file():
+                problems.append(f"Article missing in built site: {route}")
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
