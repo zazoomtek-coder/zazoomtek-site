@@ -79,8 +79,8 @@ def content_digest():
             editorial_value(records), ensure_ascii=False, sort_keys=True,
             separators=(",", ":"),
         ).encode("utf-8")
-        hasher.update(filename.encode("utf-8") + b"\\0")
-        hasher.update(canonical + b"\\0")
+        hasher.update(filename.encode("utf-8") + b"\0")
+        hasher.update(canonical + b"\0")
 
     # Include only media referenced by approved Studio publications.
     referenced = set()
@@ -104,8 +104,8 @@ def content_digest():
         path = ROOT / relative
         if not path.is_file():
             raise RuntimeError("Approved editorial media is missing: " + relative)
-        hasher.update(relative.encode("utf-8") + b"\\0")
-        hasher.update(path.read_bytes() + b"\\0")
+        hasher.update(relative.encode("utf-8") + b"\0")
+        hasher.update(path.read_bytes() + b"\0")
     return hasher.hexdigest()
 
 
