@@ -38,6 +38,8 @@ jobs:
         run: python3 tools/test_editorial_live_routes.py
       - name: Run import-versus-history isolation tests
         run: python3 tools/test_editorial_scope.py
+      - name: Test YouTube import with damaged historical archives
+        run: python3 tools/test_scheduled_import_history.py
       - name: Run editorial category prefix regression tests
         run: python3 tools/test_editorial_category_prefixes.py
       - name: Run Cloudflare middleware one-hop redirect tests
