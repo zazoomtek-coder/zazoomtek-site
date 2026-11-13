@@ -138,13 +138,13 @@ def check_dist(root,rows=None):
  razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
  existing=root/(razer_old.lstrip("/")+".html")
  if not existing.is_file():
-  warnings.append("Historical Razer Google URL has no generated article page: "+razer_old)
+  route_warnings.append("Historical Razer Google URL has no generated article page: "+razer_old)
  else:
   identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
   if "razer hammerhead v3 chroma" not in (identity.title_text+" "+identity.h1_text).casefold():
-   route_warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
+   route_route_warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
   if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
-   route_warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
+   route_route_warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
   if redirects.get(razer_old) or redirects.get(razer_old+".html"):
    errors.append("Historical Razer canonical article is incorrectly redirected: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
@@ -185,7 +185,7 @@ def check_dist(root,rows=None):
     if not prefix or not route.startswith("/"+prefix+"/"):
      errors.append("route_version v2 does not match category: "+route)
    elif row.get("legacy_path") and route!=row["legacy_path"]:
-    warnings.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
+    route_warnings.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
    if route.startswith("/community-") and (route in redirects or route+".html" in redirects):
     errors.append("Historical Community route was redirected: "+route)
 
@@ -269,14 +269,14 @@ def check_dist(root,rows=None):
  # RSS item URLs must point to real category/legacy article paths without suffixes.
  feed=root/"feed.xml"
  if not feed.is_file():
-  warnings.append("RSS feed missing: /feed.xml")
+  route_warnings.append("RSS feed missing: /feed.xml")
  else:
   try:
    from xml.etree import ElementTree as ET
    feed_root=ET.parse(feed).getroot()
    links=[node.text or "" for node in feed_root.findall(".//item/link")]
    if len(links)!=len(set(links)):
-    warnings.append("RSS feed contains duplicate article URLs")
+    route_warnings.append("RSS feed contains duplicate article URLs")
    for value in links:
     parsed=urlsplit(value)
     path=parsed.path
@@ -285,7 +285,7 @@ def check_dist(root,rows=None):
     elif path.lstrip("/") not in real_pages:
      (errors if route_is_release_critical(path) else warnings).append("RSS feed links to a missing article: "+value)
   except (OSError,ValueError,TypeError) as error:
-   warnings.append("Historical RSS feed diagnostic: "+str(error))
+   route_warnings.append("Historical RSS feed diagnostic: "+str(error))
  # Verify the Home-only Amazon showcase and its requested affiliate destination.
  homepage=root/"index.html"
  if homepage.is_file():
@@ -332,8 +332,8 @@ def check_dist(root,rows=None):
    if parsed.tag!="rss" or not parsed.find("./channel/item"):
     errors.append("RSS feed is empty or invalid")
   except Exception as exc:errors.append("RSS XML could not be parsed: "+str(exc))
- for warning in warnings:
+ for warning in route_warnings:
   print("WARNING: historical route diagnostic:",warning,flush=True)
  if errors:
   raise ValueError("Site route verification failed:\\n"+"\\n".join(errors[:50]))
- print(f"Route verification successful: {len(documents)} HTML pages, {len(warnings)} historical warnings, {len(redirects)} safe redirect aliases",flush=True)
+ print(f"Route verification successful: {len(documents)} HTML pages, {len(route_warnings)} historical warnings, {len(redirects)} safe redirect aliases",flush=True)
