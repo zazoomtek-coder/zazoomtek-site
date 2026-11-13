@@ -108,11 +108,23 @@ def verify_studio_v2(output,rows):
   assert marker in api,"V2 backend missing "+marker
  gate=(Path(__file__).resolve().parents[1]/"tools/editorial_slot_gate.py").read_text(encoding="utf-8")
  assert '((12, 30), (16, 0), (19, 30))' in gate, "16:00 editorial release gate missing"
- assert 'functions/api/studio/[[path]].js' in gate and 'assets/js/studio-v2.js' in gate, "Studio changes are not included in the release fingerprint"
- for filename in ("tools/studio_build.py","assets/js/studio.js","assets/css/studio.css","tools/verify_studio.py"):
-  assert '"'+filename+'"' in gate, "Original Studio file missing from release fingerprint: "+filename
+ assert 'EDITORIAL_COLLECTIONS = {' in gate, "Editorial collections must be fingerprinted semantically"
+ for collection in ('"data/community_imported.json": "posts"',
+                    '"data/videos.json": "videos"',
+                    '"data/web.json": "items"',
+                    '"data/studio_posts.json": "posts"',
+                    '"data/studio_overrides.json": "overrides"'):
+  assert collection in gate, "Editorial collection missing from release fingerprint: "+collection
+ assert '"updated"' in gate and '"updated_at"' in gate, "Generated service metadata must be excluded from release fingerprint"
+ assert "Approved editorial media is missing" in gate and 'path.read_bytes()' in gate, "Referenced Studio media must remain part of the release fingerprint"
+ from editorial_slot_gate import editorial_value
+ metadata_only_a={"updated":"2026-11-12","items":[{"title":"Nuovo articolo","updated_at":"2026-11-12T10:00:00Z"}]}
+ metadata_only_b={"updated":"2026-11-13","items":[{"title":"Nuovo articolo","updated_at":"2026-11-13T10:00:00Z"}]}
+ assert editorial_value(metadata_only_a)==editorial_value(metadata_only_b), "Service metadata must not change the editorial fingerprint"
+ changed_article={"updated":"2026-11-13","items":[{"title":"Titolo modificato"}]}
+ assert editorial_value(metadata_only_b)!=editorial_value(changed_article), "Actual editorial changes must change the fingerprint"
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
- assert '[[12, 30], [16, 0], [19, 30]]' in cron, "16:00 Cloudflare trigger missing"
+ assert 'new Set(["12:30", "16:00", "19:30"])' in cron, "Cloudflare Worker must accept only the three exact local slots"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
  assert 'rows("studio_overrides.json", "overrides")' in live_check and 'is_today(row.get("updated_at"))' in live_check, "Live release verification must check Studio edits as well as new articles"
  # Existing original SEO is frozen when an article is edited; brand-new
