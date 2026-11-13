@@ -648,7 +648,7 @@ def news_tech_magazine(rows):
  """
  if not rows:return ""
  def item(row,large=False):
-  href="'+esc(article_path(row),quote=True)+'"
+  href=esc(article_path(row),quote=True)
   title=esc(clean_title(row["title"]))
   stamp=date_label(row)
   raw_date=str(row.get("date") or row.get("published_at") or "")[:10]
@@ -683,7 +683,7 @@ def gaming_magazine(rows):
  second=""
  if len(rows)>1:
   other=rows[1]
-  other_url="/"+other["slug"]
+  other_url=esc(article_path(other),quote=True)
   other_title=esc(clean_title(other["title"]))
   other_date=date_label(other)
   second=('<article class="gaming-magazine-lead gaming-magazine-lead-secondary">'
@@ -711,7 +711,7 @@ def reviews_three_column(rows):
  if not rows:return ""
  out=[]
  for item in rows[:3]:
-  href="/"+item["slug"]
+  href=esc(article_path(item),quote=True)
   title=esc(clean_title(item["title"]))
   category=esc(TYPES.get(item["category"],"Recensione"))
   date=date_label(item)
@@ -880,7 +880,7 @@ def related_articles(rows,exclude="",category=None):
 def related_markup(chosen):
  if len(chosen)!=3:raise ValueError("Related markup needs exactly three articles")
  return '<section class="related"><h2>Articoli correlati</h2><ul>'+''.join(
-  '<li><a href="/'+r["slug"]+'"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
+  '<li><a href="'+esc(article_path(r),quote=True)+'"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
   for r in chosen)+'</ul></section>'
 
 def feature_mini_cards(items):
@@ -1480,7 +1480,7 @@ def rss_feed(rows):
   if row.get("category") not in TYPES or row.get("category")=="video":continue
   posted.add(slug)
   item=SubElement(channel,"item")
-  url=base+"/"+slug
+  url=base+article_path(row)
   SubElement(item,"title").text=clean_title(row.get("title") or "")
   SubElement(item,"link").text=url
   SubElement(item,"guid",{"isPermaLink":"true"}).text=url
