@@ -32,6 +32,10 @@ jobs:
         run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
       - name: Run article route unit tests
         run: python3 -m unittest tools/test_article_routes.py -v
+      - name: Run orphan Community link cleanup tests
+        run: python3 tools/test_route_link_cleanup.py
+      - name: Run editorial category prefix regression tests
+        run: python3 tools/test_editorial_category_prefixes.py
       - name: Run Cloudflare middleware one-hop redirect tests
         run: node tools/test_middleware_routes.mjs
       - name: Run Studio route allocation parity tests

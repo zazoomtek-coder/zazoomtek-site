@@ -8,6 +8,7 @@ import hashlib,re
 from html import escape as esc
 from urllib.parse import urlparse
 from seo import terms,plain
+from article_routes import build_article_url
 
 # Generic news/marketing terms do not establish that two stories are the same.
 GENERIC=set(("tech","gaming","gamer","videogiochi","videogioco","game","games",
@@ -189,12 +190,12 @@ def gateway_html(entry,original_articles,image_validator=None):
        '<h2>Approfondimento originale ZazoomTek</h2>'
        '<p>ZazoomTek ha già pubblicato un contenuto dedicato allo stesso argomento.'
        ' Per un approfondimento della redazione, parti dal nostro articolo originale.</p>'
-       '<p><a class="web-gateway-main-cta" href="/'+esc(match["slug"],quote=True)+'">'
+       '<p><a class="web-gateway-main-cta" href="/'+esc(build_article_url(match),quote=True)+'">'
        'Leggi su ZazoomTek: '+esc(plain(match["title"]))+'</a></p></section>')
  else:cta=''
  cards=[]
  for row in suggested:
-  url="/"+str(row["slug"])
+  url=build_article_url(row)
   safe=image_validator(row.get("image","")) if image_validator else ""
   image=('<img loading="lazy" decoding="async" src="'+esc(safe,quote=True)+'" alt="">' if safe
          else '<span class="web-gateway-card-fallback" aria-hidden="true">ZazoomTek</span>')
