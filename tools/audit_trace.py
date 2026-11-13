@@ -114,15 +114,15 @@ def run(project_root, output_root, rows, events):
                 if slug not in rows_by_slug:
                     record_issue(label + ": generated row missing from final article set", source_critical or (row is not None and is_release_critical(row, strict_ids)))
                 if not page.is_file():
-                    errors.append(label + ": HTML file missing: " + str(page.name))
+                    record_issue(label + ": HTML file missing: " + str(page.name), source_critical or (row is not None and is_release_critical(row, strict_ids)))
                 if url not in sitemap_urls:
-                    errors.append(label + ": canonical URL missing from sitemap: " + url)
+                    record_issue(label + ": canonical URL missing from sitemap: " + url, source_critical or (row is not None and is_release_critical(row, strict_ids)))
                 if page.is_file():
                     parser = CanonicalReader()
                     parser.feed(page.read_text(encoding="utf-8"))
                     if parser.canonicals != [url]:
-                        errors.append(label + ": canonical mismatch " + repr(parser.canonicals) +
-                                      " expected " + url)
+                        record_issue(label + ": canonical mismatch " + repr(parser.canonicals) +
+                                      " expected " + url, source_critical or (row is not None and is_release_critical(row, strict_ids)))
                 status_counts["generated"] += 1
                 lines.append(f"GENERATED | {label} | url={url}")
             elif status == "candidate" and identifier and identifier in rows_by_id:
@@ -132,12 +132,12 @@ def run(project_root, output_root, rows, events):
                 url = domain + path
                 page = output_root / (path.lstrip("/") + ".html")
                 if not page.is_file() or url not in sitemap_urls:
-                    errors.append(label + ": canonical-ID match has no generated HTML/sitemap destination: " + url)
+                    record_issue(label + ": canonical-ID match has no generated HTML/sitemap destination: " + url, source_critical or is_release_critical(canonical_row, strict_ids))
                 if page.is_file():
                     parser = CanonicalReader()
                     parser.feed(page.read_text(encoding="utf-8"))
                     if parser.canonicals != [url]:
-                        errors.append(label + ": canonical-ID match has wrong canonical: " + repr(parser.canonicals))
+                        record_issue(label + ": canonical-ID match has wrong canonical: " + repr(parser.canonicals), source_critical or is_release_critical(canonical_row, strict_ids))
                 origin_matches = (canonical_row.get("_trace_source_file") == name and
                                   canonical_row.get("_trace_source_index") == index)
                 if origin_matches:
@@ -152,27 +152,27 @@ def run(project_root, output_root, rows, events):
                 path = build_article_url(canonical_row) if canonical_row else "/" + slug
                 url = domain + path
                 if slug not in rows_by_slug or url not in sitemap_urls:
-                    errors.append(label + ": duplicate-source target is not a sitemap article: " + url)
+                    record_issue(label + ": duplicate-source target is not a sitemap article: " + url, source_critical or (canonical_row is not None and is_release_critical(canonical_row, strict_ids)))
                 status_counts["merged_duplicate"] += 1
                 lines.append(f"MERGED DUPLICATE | {label} | canonical_target={url} | reason={reason}")
             elif status == "merged_alias":
                 target_row = rows_by_id.get(target)
                 if target_row is None:
-                    errors.append(label + ": historical alias target ID has no generated article: " + target)
+                    record_issue(label + ": historical alias target ID has no generated article: " + target, source_critical)
                     target_url = "UNRESOLVED"
                 else:
                     target_url = domain + build_article_url(target_row)
                     if target_url not in sitemap_urls:
-                        errors.append(label + ": historical alias target missing from sitemap: " + target_url)
+                        record_issue(label + ": historical alias target missing from sitemap: " + target_url, source_critical)
                 status_counts["merged_alias"] += 1
                 lines.append(f"MERGED ALIAS | {label} | canonical_target={target_url} | reason={reason}")
             elif status == "excluded":
                 if not reason:
-                    errors.append(label + ": excluded without a technical reason")
+                    record_issue(label + ": excluded without a technical reason", source_critical)
                 status_counts["excluded"] += 1
                 lines.append(f"EXCLUDED WITH REASON | {label} | reason={reason}")
             else:
-                errors.append(label + ": unfinished pipeline status " + str(status))
+                record_issue(label + ": unfinished pipeline status " + str(status), source_critical)
                 status_counts["unresolved"] += 1
                 lines.append(f"UNRESOLVED | {label} | status={status} | reason={reason}")
 
