@@ -1,6 +1,10 @@
-// Cloudflare Cron: one exact dispatch candidate for each Europe/Rome slot.
+// Cloudflare Cron: one preflight dispatch 15 minutes before each Europe/Rome slot.
 // No retry loop, recovery window, polling, or repeated dispatch.
-const ALLOWED_SLOTS = new Set(["12:30", "16:00", "19:30"]);
+const PREFLIGHT_TO_SLOT = new Map([
+  ["12:15", "12:30"],
+  ["15:45", "16:00"],
+  ["19:15", "19:30"],
+]);
 
 const ROME_CLOCK = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/Rome",
@@ -15,14 +19,15 @@ function italianTime(timestamp) {
 
 export default {
   async scheduled(event, env) {
-    const localTime = italianTime(event.scheduledTime);
+    const preflightTime = italianTime(event.scheduledTime);
+    const releaseSlot = PREFLIGHT_TO_SLOT.get(preflightTime);
 
     // The UTC cron list includes both DST offsets. Exactly one candidate
-    // maps to each required local slot on any given date.
-    if (!ALLOWED_SLOTS.has(localTime)) {
-      console.log("Skipped non-slot UTC candidate", {
+    // maps to each preflight time on any given date.
+    if (!releaseSlot) {
+      console.log("Skipped non-preflight UTC candidate", {
         scheduledTime: new Date(event.scheduledTime).toISOString(),
-        localTime,
+        preflightTime,
       });
       return;
     }
@@ -46,7 +51,7 @@ export default {
         "User-Agent": "ZazoomTek-Cloudflare-Cron",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ref: "main", inputs: { release_slot: localTime } }),
+      body: JSON.stringify({ ref: "main", inputs: { release_slot: releaseSlot } }),
     });
 
     if (response.status !== 204) {
@@ -56,6 +61,10 @@ export default {
       );
     }
 
-    console.log("Single editorial preflight dispatch accepted", localTime, "Europe/Rome");
+    console.log("Editorial preflight dispatch accepted", {
+      preflightTime,
+      releaseSlot,
+      timezone: "Europe/Rome",
+    });
   },
 };
