@@ -1,4 +1,5 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
+# TEMPORARY SAFETY PAUSE: publishing/import job disabled pending trigger audit.
 # Cloudflare remains the only scheduler; an owner can also request an immediate manual release.
 on:
   workflow_dispatch:
@@ -16,6 +17,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   import-and-publish:
+    if: false # TEMPORARY BLOCK: no import or publication until explicitly re-enabled.
     runs-on: ubuntu-latest
     timeout-minutes: 24
     env:
