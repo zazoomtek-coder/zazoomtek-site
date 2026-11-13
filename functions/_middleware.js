@@ -1,10 +1,23 @@
 /**
  * Canonical URL enforcement for ZazoomTek.
- * Host, scheme, .html and category slash normalization share one 301.
+ * Host, scheme, review aliases, .html and category slash normalization share one 301.
  * Historical Community permalinks retain their original path and slash form.
  */
 const LEGACY_COMMUNITY = /^\/community-[a-z0-9]+(?:-[a-z0-9]+)*$/i;
 const CATEGORY_ROUTE = /^\/(?:recensioni|news|speciali|guide|extra)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?\/$/i;
+const REVIEW_LABELS = new Set(["review", "reviews", "recensione", "recensioni"]);
+const REVIEW_PREFIX_LABELS = new Set(["gaming", "tech"]);
+
+function cleanReviewSlug(value) {
+  const words = value.toLowerCase().split("-").filter(Boolean);
+  if (words.length && REVIEW_LABELS.has(words[0])) {
+    words.shift();
+    if (words.length && REVIEW_PREFIX_LABELS.has(words[0])) words.shift();
+  } else if (words.length > 1 && REVIEW_PREFIX_LABELS.has(words[0]) && REVIEW_LABELS.has(words[1])) {
+    words.splice(0, 2);
+  }
+  return words.filter(word => !REVIEW_LABELS.has(word)).join("-");
+}
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
@@ -20,7 +33,6 @@ export async function onRequest(context) {
     url.protocol = "https:";
 
     if (!legacyCommunity) {
-      // Also handle the unusual /category/article.html/ spelling in this hop.
       if (/\.html\/$/i.test(url.pathname)) {
         url.pathname = url.pathname.slice(0, -1);
       }
@@ -28,6 +40,15 @@ export async function onRequest(context) {
         url.pathname = url.pathname.slice(0, -5);
         if (url.pathname.toLowerCase() === "/index") url.pathname = "/";
       }
+
+      const reviewMatch = url.pathname.match(/^\/recensioni\/([a-z0-9]+(?:-[a-z0-9]+)*)$/i);
+      if (reviewMatch) {
+        const clean = cleanReviewSlug(reviewMatch[1]);
+        if (clean && clean !== reviewMatch[1].toLowerCase()) {
+          url.pathname = "/recensioni/" + clean;
+        }
+      }
+
       if (CATEGORY_ROUTE.test(url.pathname)) {
         url.pathname = url.pathname.slice(0, -1);
       }
