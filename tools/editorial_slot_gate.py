@@ -71,13 +71,16 @@ def state():
         return {}
 
 
-def current_slot(now):
-    """Accept only a workflow started shortly after one exact Rome slot."""
-    for hour, minute in SLOTS:
-        target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if target <= now < target + timedelta(minutes=5):
-            return target
-    return None
+def requested_slot(now):
+    """Validate the exact slot supplied by the Worker, including DST date."""
+    value = os.getenv("EDITORIAL_REQUESTED_SLOT", "")
+    if value not in ("12:30", "16:00", "19:30"):
+        return None
+    hour, minute = map(int, value.split(":"))
+    target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if now < target or now >= target + timedelta(minutes=30):
+        return None
+    return target
 
 
 def emit(name, value):
@@ -90,7 +93,7 @@ def emit(name, value):
 
 def prepare():
     now = datetime.now(ROME)
-    slot = current_slot(now)
+    slot = requested_slot(now)
     if slot is None:
         print("SKIPPED: not one of the three exact release slots", now.isoformat(), flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
@@ -122,7 +125,7 @@ def authorize():
         raise RuntimeError("Missing slot or verified content digest")
     slot = datetime.fromisoformat(slot_value)
     now = datetime.now(ROME)
-    if slot.tzinfo is None or now < slot or now >= slot + timedelta(minutes=5):
+    if slot.tzinfo is None or now < slot or now >= slot + timedelta(minutes=30):
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
         print("SKIPPED: exact slot window has expired", now.isoformat(), flush=True)
         return
