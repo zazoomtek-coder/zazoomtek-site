@@ -30,9 +30,11 @@ class PageIdentity(HTMLParser):
 
 def check_dist(root):
  root=Path(root)
- documents=list(root.glob("*.html"))
- real_pages={p.stem for p in documents}
- real_pages.discard("index")
+ documents=list(root.rglob("*.html"))
+ def route_for(page):
+  rel=page.relative_to(root).with_suffix("").as_posix()
+  return "/" if rel=="index" else "/"+rel
+ real_pages={route_for(page).lstrip("/") for page in documents}
  errors=[]
  # Route every public request through the canonical URL middleware so the
  # www host, HTTP and physical .html aliases cannot be indexed separately.
@@ -46,7 +48,7 @@ def check_dist(root):
    errors.append("Canonical URL middleware source is missing")
   else:
    middleware=middleware_file.read_text(encoding="utf-8")
-   for required in ('www.zazoomtek.it','endsWith(".html")','Response.redirect','context.next()'):
+   for required in ('www.zazoomtek.it','endsWith(".html")','CATEGORY_ROUTE','Response.redirect','context.next()','301'):
     if required not in middleware:
      errors.append("Canonical middleware missing rule: "+required)
  except (OSError,ValueError,TypeError) as error:
@@ -116,6 +118,22 @@ def check_dist(root):
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
               "cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):
   if name not in real_pages:errors.append("Required page missing: /"+name)
+ # The five public category archives must be physical, self-canonical 200 pages.
+ for name in ("recensioni","news","speciali","guide","extra"):
+  page=root/(name+".html")
+  if not page.is_file():
+   errors.append("Required category archive missing: /"+name)
+   continue
+  identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
+  expected="https://zazoomtek.it/"+name
+  if identity.canonicals!=[expected]:
+   errors.append("Category archive canonical mismatch: /"+name)
+  if not identity.title_text.strip() or not identity.h1_text.strip():
+   errors.append("Category archive title/H1 missing: /"+name)
+  elif not identity.title_text.strip().startswith(identity.h1_text.strip()):
+   errors.append("Category archive title is incoherent with H1: /"+name)
+ if any(source.startswith("/community-") for source in redirects):
+  errors.append("Historical Community URLs must not be redirected or rewritten")
  # Internal search and breaking news datasets must resolve to actual published articles.
  for name,key in (("search-index.json","articles"),("news-ticker.json","items")):
   target=root/name
