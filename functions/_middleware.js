@@ -41,11 +41,14 @@ export async function onRequest(context) {
         if (url.pathname.toLowerCase() === "/index") url.pathname = "/";
       }
 
-      const reviewMatch = url.pathname.match(/^\/recensioni\/([a-z0-9]+(?:-[a-z0-9]+)*)$/i);
+      const reviewPath = url.pathname.replace(/\/$/, "");
+      const reviewMatch = reviewPath.match(/^\/recensioni\/([a-z0-9]+(?:-[a-z0-9]+)*)$/i);
       if (reviewMatch) {
         const clean = cleanReviewSlug(reviewMatch[1]);
         if (clean && clean !== reviewMatch[1].toLowerCase()) {
           url.pathname = "/recensioni/" + clean;
+        } else if (reviewPath !== url.pathname) {
+          url.pathname = reviewPath;
         }
       }
 
