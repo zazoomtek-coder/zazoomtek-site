@@ -333,7 +333,7 @@ def write_import_manifest(project_root, community_ids, video_ids):
     }
     manifest["strict_ids"] = sorted(set(manifest["community_ids"] + manifest["video_ids"]))
     path = Path(project_root) / ".editorial-import-manifest.json"
-    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8")
     return manifest
 
