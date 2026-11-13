@@ -32,22 +32,25 @@ jobs:
         env:
           REQUESTED_SLOT: ${{ inputs.release_slot }}
         run: |
-          current="$(TZ=Europe/Rome date +'%H:%M')"
-          case "$current" in
+          case "$REQUESTED_SLOT" in
             "12:30"|"16:00"|"19:30") ;;
             *)
               echo "allowed=false" >> "$GITHUB_OUTPUT"
-              echo "STOP: ora italiana $current fuori dagli slot autorizzati."
+              echo "STOP: slot richiesto '$REQUESTED_SLOT' non valido."
               exit 0
               ;;
           esac
-          if [ "$REQUESTED_SLOT" != "$current" ]; then
+          now_epoch="$(TZ=Europe/Rome date +%s)"
+          target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $REQUESTED_SLOT" +%s)"
+          delta=$((now_epoch - target_epoch))
+          absolute_delta=$((delta < 0 ? -delta : delta))
+          if [ "$absolute_delta" -gt 600 ]; then
             echo "allowed=false" >> "$GITHUB_OUTPUT"
-            echo "STOP: slot richiesto '$REQUESTED_SLOT' diverso dall'ora italiana '$current'."
+            echo "STOP: dispatch fuori dalla tolleranza di 10 minuti per lo slot $REQUESTED_SLOT (scarto ${delta}s)."
             exit 0
           fi
           echo "allowed=true" >> "$GITHUB_OUTPUT"
-          echo "OK: slot autorizzato $current Europe/Rome."
+          echo "OK: slot $REQUESTED_SLOT Europe/Rome accettato con scarto ${delta}s (tolleranza ±600s)."
   import-and-publish:
     needs: rome-slot-guard
     if: ${{ inputs.publish_now == true || needs.rome-slot-guard.outputs.allowed == 'true' }}
@@ -58,6 +61,7 @@ jobs:
       CF_PAGES_URL: https://zazoomtek.it
       EDITORIAL_FORCE_RELEASE: ${{ inputs.publish_now }}
       EDITORIAL_REQUESTED_SLOT: ${{ inputs.release_slot }}
+      EDITORIAL_SLOT_GATE_PASSED: ${{ needs.rome-slot-guard.outputs.allowed }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ZAZOOMTEK_SEO_MODEL: gpt-4o-mini
     steps:
