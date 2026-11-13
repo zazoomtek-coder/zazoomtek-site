@@ -1381,7 +1381,7 @@ def legacy_article_redirects(rows):
  # Preserve the search equity of both intentionally consolidated pages.
  # Reject missing destinations and never redirect an existing physical page.
  for old,target in EDITORIAL_DUPLICATE_REDIRECTS.items():
-  if target not in by_slug or old in occupied or old in by_slug:continue
+  if old.startswith("community-") or target not in by_slug or old in occupied or old in by_slug:continue
   if not re.fullmatch(r"[a-z0-9-]+",old) or not re.fullmatch(r"[a-z0-9-]+",target):
    raise ValueError("Unsafe duplicate redirect")
   destination=article_path(by_slug[target])
