@@ -1,11 +1,11 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
-# TEMPORARY SAFETY PAUSE: publishing/import job disabled pending trigger audit.
-# Cloudflare remains the only scheduler; an owner can also request an immediate manual release.
+# Cloudflare may dispatch this workflow frequently; the first job is a strict Europe/Rome slot gate.
+# Manual publish_now remains an explicit owner-only override.
 on:
   workflow_dispatch:
     inputs:
       publish_now:
-        description: "Pubblica subito su zazoomtek.it (avvio manuale del proprietario)"
+        description: "Pubblica subito contenuti editoriali (avvio manuale esplicito del proprietario)"
         required: false
         type: boolean
         default: false
@@ -20,8 +20,37 @@ concurrency:
   group: zazoomtek-pages-production
   cancel-in-progress: false
 jobs:
+  rome-slot-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      allowed: ${{ steps.check.outputs.allowed }}
+    steps:
+      - name: Blocca immediatamente ogni chiamata fuori dagli slot italiani
+        id: check
+        shell: bash
+        env:
+          REQUESTED_SLOT: ${{ inputs.release_slot }}
+        run: |
+          current="$(TZ=Europe/Rome date +'%H:%M')"
+          case "$current" in
+            "12:30"|"16:00"|"19:30") ;;
+            *)
+              echo "allowed=false" >> "$GITHUB_OUTPUT"
+              echo "STOP: ora italiana $current fuori dagli slot autorizzati."
+              exit 0
+              ;;
+          esac
+          if [ "$REQUESTED_SLOT" != "$current" ]; then
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+            echo "STOP: slot richiesto '$REQUESTED_SLOT' diverso dall'ora italiana '$current'."
+            exit 0
+          fi
+          echo "allowed=true" >> "$GITHUB_OUTPUT"
+          echo "OK: slot autorizzato $current Europe/Rome."
   import-and-publish:
-    if: false # TEMPORARY BLOCK: no import or publication until explicitly re-enabled.
+    needs: rome-slot-guard
+    if: ${{ inputs.publish_now == true || needs.rome-slot-guard.outputs.allowed == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     env:
@@ -68,8 +97,6 @@ jobs:
           path: build-trace-audit.json
           if-no-files-found: warn
           retention-days: 30
-      # Scheduled Cloudflare runs remain limited to their three slots.
-      # An explicit owner-triggered manual run can publish immediately.
       - name: Autorizza la pubblicazione nello slot o su richiesta manuale del proprietario
         if: env.EDITORIAL_NEEDS_RELEASE == 'true'
         run: python3 tools/editorial_slot_gate.py authorize
