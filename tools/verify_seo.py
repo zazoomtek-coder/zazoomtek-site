@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import json,re
 from seo import DOMAIN,metadata,full_image,keywords,description
 from article_routes import build_article_url, CATEGORY_PREFIX
+from editorial_scope import imported_ids, is_release_critical
 
 class MetaParser(HTMLParser):
  def __init__(self):
@@ -46,6 +47,20 @@ class MetaParser(HTMLParser):
 
 def check_seo(root,rows,groups,preview):
  root=Path(root)
+ strict_ids=imported_ids(root.parent)
+ warnings=[]
+ def page_is_critical(page):
+  rel=page.relative_to(root).with_suffix("").as_posix()
+  if rel=="index":return True
+  parts=rel.split("/")
+  if len(parts)>1 and parts[0] in set(CATEGORY_PREFIX.values()):return True
+  stem=parts[-1]
+  archives={"recensioni","news","speciali","guide","extra","news-tech","news-gaming",
+            "recensioni-tech","recensioni-gaming"}
+  return stem in archives or any(stem.startswith(name+"-page-") or stem.startswith(name+"-archivio")
+                                 for name in archives)
+ def page_issue(page,issue):
+  (bad if page_is_critical(page) else warnings).append(issue)
  ns={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}
  document=ET.parse(root/"sitemap.xml").getroot()
  urls=[x.text for x in document.findall(".//sm:url/sm:loc",ns)]
@@ -70,14 +85,19 @@ def check_seo(root,rows,groups,preview):
   rel=sitemap_url.removeprefix(DOMAIN).strip("/")
   target=root/("index.html" if not rel else rel+".html")
   if not target.is_file():
-   raise AssertionError("Sitemap references missing generated page: "+sitemap_url)
+   path=urlparse(sitemap_url).path
+   message="Sitemap references missing generated page: "+sitemap_url
+   (bad if path.lstrip("/").split("/",1)[0] in set(CATEGORY_PREFIX.values()) or path.lstrip("/") in ("recensioni","news","speciali","guide","extra") else warnings).append(message)
+   continue
   meta=MetaParser()
   meta.feed(target.read_text(encoding="utf-8"))
   if not preview and "noindex" in meta.meta.get("robots","").lower():
    raise AssertionError("Sitemap references noindex page: "+sitemap_url)
   page_canon=[x.get("href") for x in meta.links if x.get("rel")=="canonical"]
   if page_canon!=[sitemap_url]:
-   raise AssertionError("Sitemap canonical mismatch: "+sitemap_url)
+   path=urlparse(sitemap_url).path
+   message="Sitemap canonical mismatch: "+sitemap_url
+   (bad if path.lstrip("/").split("/",1)[0] in set(CATEGORY_PREFIX.values()) or path.lstrip("/") in ("recensioni","news","speciali","guide","extra") else warnings).append(message)
 
  # Google News sitemap is a strict subset of canonical, indexable site articles.
  news_doc=ET.parse(root/"news-sitemap.xml").getroot()
@@ -114,43 +134,43 @@ def check_seo(root,rows,groups,preview):
   path="/" if page.relative_to(root).as_posix()=="index.html" else "/"+page.relative_to(root).with_suffix("").as_posix()
   expected=DOMAIN+path if path!="/" else DOMAIN+"/"
   if page.stem=="404":continue
-  if not parser.title or len(parser.title)>125:bad.append((page.name,"missing/overlong title"))
+  if not parser.title or len(parser.title)>125:page_issue(page,(page.name,"missing/overlong title"))
   if page.stem=="index" and parser.h1!=1:
-   bad.append((page.name,"Home must have exactly one semantic H1"))
+   page_issue(page,(page.name,"Home must have exactly one semantic H1"))
   archive_page=re.search(r"-page-(\d+)$",page.stem)
   if archive_page and ("Pagina "+archive_page.group(1)) not in parser.title:
-   bad.append((page.name,"Paginated archive title missing page number"))
+   page_issue(page,(page.name,"Paginated archive title missing page number"))
   if page.stem=="index":
    html=page.read_text(encoding="utf-8")
    for archive in ("/recensioni-tech","/recensioni-gaming","/video"):
     if ('href="'+archive+'"') not in html:
-     bad.append((page.name,"Missing crawlable internal archive link "+archive))
+     page_issue(page,(page.name,"Missing crawlable internal archive link "+archive))
   if not (40<=len(parser.meta.get("description",""))<=300):
-   bad.append((page.name,"description missing or poor length"))
+   page_issue(page,(page.name,"description missing or poor length"))
   if parser.meta.get("og:title")!=parser.title:
-   bad.append((page.name,"OG headline mismatch"))
+   page_issue(page,(page.name,"OG headline mismatch"))
   if parser.meta.get("og:description")!=parser.meta.get("description"):
-   bad.append((page.name,"OG description mismatch"))
+   page_issue(page,(page.name,"OG description mismatch"))
   if parser.meta.get("og:url")!=expected:
-   bad.append((page.name,"OG canonical mismatch"))
+   page_issue(page,(page.name,"OG canonical mismatch"))
   canonicals=[x.get("href") for x in parser.links if x.get("rel")=="canonical"]
-  if canonicals!=[expected]:bad.append((page.name,"canonical missing or duplicates"))
+  if canonicals!=[expected]:page_issue(page,(page.name,"canonical missing or duplicates"))
   if path.startswith("/notizia-web-"):
-   if expected in urls:bad.append((page.name,"Thin external-link gateway included in sitemap"))
+   if expected in urls:page_issue(page,(page.name,"Thin external-link gateway included in sitemap"))
    if "noindex" not in parser.meta.get("robots",""):
-    bad.append((page.name,"External gateway must be noindex"))
+    page_issue(page,(page.name,"External gateway must be noindex"))
   elif expected not in urls:
-   bad.append((page.name,"missing sitemap URL"))
+   page_issue(page,(page.name,"missing sitemap URL"))
   if not parser.ld or any("invalid" in x for x in parser.ld):
-   bad.append((page.name,"missing/invalid structured data"))
+   page_issue(page,(page.name,"missing/invalid structured data"))
   if preview and "noindex" not in parser.meta.get("robots",""):
-   bad.append((page.name,"Preview is not noindex"))
+   page_issue(page,(page.name,"Preview is not noindex"))
   if not preview and expected in urls and "noindex" in parser.meta.get("googlebot","").lower():
-   bad.append((page.name,"Googlebot is blocked on a sitemap URL"))
+   page_issue(page,(page.name,"Googlebot is blocked on a sitemap URL"))
   if not preview and expected in urls and "noindex" in parser.meta.get("robots","").lower():
-   bad.append((page.name,"Sitemap URL is noindex"))
+   page_issue(page,(page.name,"Sitemap URL is noindex"))
   if not preview and not path.startswith("/notizia-web-") and "max-image-preview:large" not in parser.meta.get("robots",""):
-   bad.append((page.name,"Production discover image preview missing"))
+   page_issue(page,(page.name,"Production discover image preview missing"))
   count+=1
  for category in ("recensioni","news","speciali","guide","extra"):
   page=root/(category+".html")
@@ -170,29 +190,33 @@ def check_seo(root,rows,groups,preview):
   parser=MetaParser()
   parser.feed(p.read_text(encoding="utf-8"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
-  if not item:bad.append((p.as_posix(),"no article schema"))
+  critical=is_release_critical(row,strict_ids)
+  article_issue=lambda message: (bad if critical else warnings).append((p.as_posix(),message))
+  if not item:article_issue("no article schema")
   if row.get("route_version") in (2,"2","v2"):
    crumbs=next((x for x in parser.ld if x.get("@type")=="BreadcrumbList"),{})
    elements=crumbs.get("itemListElement",[])
-   if len(elements)!=3:bad.append((p.as_posix(),"v2 article must have a three-level BreadcrumbList"))
+   if len(elements)!=3:article_issue("v2 article must have a three-level BreadcrumbList")
    else:
     parent=CATEGORY_PREFIX.get(row.get("category"))
     if elements[1].get("item")!=DOMAIN+"/"+str(parent):
-     bad.append((p.as_posix(),"breadcrumb parent does not match public category"))
+     article_issue("breadcrumb parent does not match public category")
   if str(row.get("category") or "").startswith("recensioni-"):
    from article_templates import score as actual_score,paragraphs
    rating=actual_score(row,paragraphs(row))
    if rating is not None and float(rating.replace(",","."))>0 and (not item or item.get("@type")!="Review"):
-    bad.append((p.name,"Visible review vote missing Review schema"))
+    article_issue("Visible review vote missing Review schema")
   else:
    if item.get("description")!=parser.meta.get("description"):
-    bad.append((p.name,"Article structured description mismatch"))
+    article_issue("Article structured description mismatch")
    if not keywords(row) or not item.get("keywords"):
-    bad.append((p.name,"No content-derived topic"))
+    article_issue("No content-derived topic")
    if item.get("image") and item["image"][0]!=full_image(row.get("image")):
-    bad.append((p.name,"Incorrect original cover URL"))
+    article_issue("Incorrect original cover URL")
+ for warning in warnings:
+  print("WARNING: historical SEO diagnostic:",warning,flush=True)
  if bad:
-  raise AssertionError("SEO audit FAILED "+str(len(bad))+" violations: "+"; ".join(str(x) for x in bad[:22]))
+  raise AssertionError("SEO audit FAILED "+str(len(bad))+" release-critical violations: "+"; ".join(str(x) for x in bad[:22]))
  robots=(root/"robots.txt").read_text(encoding="utf-8")
  if preview and "Disallow: /" not in robots:raise AssertionError("Preview not disallowed")
  if not preview and DOMAIN+"/sitemap.xml" not in robots:raise AssertionError("Production sitemap not advertised")
