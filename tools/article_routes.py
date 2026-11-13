@@ -103,8 +103,14 @@ def build_article_url(article):
 
 def assign_public_routes(rows):
     """Assign once to v2 rows; existing public_path values are immutable."""
-    occupied = {str(row.get("public_path")) for row in rows
-                if isinstance(row, dict) and row.get("public_path")}
+    occupied = set()
+    for row in rows:
+        if not isinstance(row, dict) or not is_v2(row) or not row.get("public_path"):
+            continue
+        path = normalize_public_path(row["public_path"])
+        if path in occupied:
+            raise ValueError("Duplicate immutable public_path in category: " + path)
+        occupied.add(path)
     for row in rows:
         if not isinstance(row, dict) or not is_v2(row):
             continue
