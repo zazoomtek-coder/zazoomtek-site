@@ -177,10 +177,19 @@ def check_dist(root,rows=None):
  try:
   base="http://127.0.0.1:"+str(server.server_address[1])
   checks=["/recensioni","/news","/speciali","/guide","/extra"]
+  fixture_file=None
   if rows:
    nested=next((build_article_url(row) for row in rows if row.get("route_version") in (2,"2","v2")),None)
    legacy=next((build_article_url(row) for row in rows if build_article_url(row).startswith("/community-")),None)
    if nested:checks.append(nested)
+   else:
+    fixture={"route_version":2,"category":"guide","public_slug":"route-integration-fixture",
+             "public_path":"/guide/route-integration-fixture"}
+    nested=build_article_url(fixture)
+    fixture_file=root/(nested.lstrip("/")+".html")
+    fixture_file.parent.mkdir(parents=True,exist_ok=True)
+    fixture_file.write_text('<!doctype html><title>Route fixture</title><link rel="canonical" href="https://zazoomtek.it'+nested+'">',encoding="utf-8")
+    checks.append(nested)
    if legacy:checks.append(legacy)
   for route in checks:
    with urlopen(base+route,timeout=3) as response:
@@ -193,6 +202,10 @@ def check_dist(root,rows=None):
     if response.code!=404:errors.append("Unknown route did not return HTTP 404: "+route)
  finally:
   server.shutdown();server.server_close();worker.join(timeout=2)
+  if fixture_file and fixture_file.exists():
+   fixture_file.unlink()
+   try:fixture_file.parent.rmdir()
+   except OSError:pass
  # Internal search and breaking news datasets must resolve to actual published articles.
  for name,key in (("search-index.json","articles"),("news-ticker.json","items")):
   target=root/name
