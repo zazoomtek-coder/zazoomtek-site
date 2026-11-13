@@ -232,6 +232,26 @@ def check_dist(root,rows=None):
      seen.add(path)
   except (ValueError,TypeError,KeyError) as error:
    errors.append("Invalid discovery dataset "+name+": "+str(error))
+ # RSS item URLs must point to real category/legacy article paths without suffixes.
+ feed=root/"feed.xml"
+ if not feed.is_file():
+  errors.append("RSS feed file missing: /feed.xml")
+ else:
+  try:
+   from xml.etree import ElementTree as ET
+   feed_root=ET.parse(feed).getroot()
+   links=[node.text or "" for node in feed_root.findall(".//item/link")]
+   if len(links)!=len(set(links)):
+    errors.append("RSS feed contains duplicate article URLs")
+   for value in links:
+    parsed=urlsplit(value)
+    path=parsed.path
+    if not path.startswith("/") or path.endswith(".html") or (path!="/" and path.endswith("/")):
+     errors.append("RSS feed contains a noncanonical URL: "+value)
+    elif path.lstrip("/") not in real_pages:
+     errors.append("RSS feed links to a missing article: "+value)
+  except (OSError,ValueError,TypeError) as error:
+   errors.append("RSS feed XML is invalid: "+str(error))
  # Verify the Home-only Amazon showcase and its requested affiliate destination.
  homepage=root/"index.html"
  if homepage.is_file():
