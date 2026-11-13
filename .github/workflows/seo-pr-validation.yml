@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check Python syntax
-        run: python3 -m py_compile tools/build.py tools/seo.py tools/article_routes.py tools/verify_seo.py tools/verify_routes.py tools/verify_editorial_live.py tools/editorial_slot_gate.py tools/audit_trace.py tools/emergency_sync.py tools/scheduled_editorial_import.py tools/studio_build.py tools/studio_v2_build.py
+        run: python3 -m py_compile tools/build.py tools/seo.py tools/article_routes.py tools/verify_seo.py tools/verify_routes.py tools/verify_editorial_live.py tools/editorial_slot_gate.py tools/audit_trace.py tools/editorial_scope.py tools/emergency_sync.py tools/scheduled_editorial_import.py tools/studio_build.py tools/studio_v2_build.py
       - name: Run isolated SEO live-audit tests (no external requests)
         run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
       - name: Run article route unit tests
@@ -36,6 +36,10 @@ jobs:
         run: python3 tools/test_route_link_cleanup.py
       - name: Run editorial live-route mapping tests
         run: python3 tools/test_editorial_live_routes.py
+      - name: Run import-versus-history isolation tests
+        run: python3 tools/test_editorial_scope.py
+      - name: Test YouTube import with damaged historical archives
+        run: python3 tools/test_scheduled_import_history.py
       - name: Run editorial category prefix regression tests
         run: python3 tools/test_editorial_category_prefixes.py
       - name: Run Cloudflare middleware one-hop redirect tests

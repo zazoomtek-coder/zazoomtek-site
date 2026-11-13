@@ -47,7 +47,9 @@ def merge_queue(queue_file, dest_file, key, archived):
     for filename in ("posts.json", "studio_posts.json", "community_imported.json", "community_full.json"):
         try:
             existing_rows = snapshot(filename, "posts").get("posts", [])
-        except (OSError, ValueError, KeyError):
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("WARNING: ignoring historical slug registry during queue import:",
+                  filename, type(exc).__name__, str(exc)[:120], flush=True)
             existing_rows = []
         occupied_paths.update(str(x.get("public_path")) for x in existing_rows
                               if isinstance(x, dict) and x.get("public_path"))
@@ -308,15 +310,45 @@ def sync_studio_assets():
     return added
 
 
+def _historical_community_ids():
+    """Best-effort duplicate hints; damaged legacy archives never stop imports."""
+    ids = set()
+    for filename in ("community_full.json", "community.json"):
+        try:
+            records = snapshot(filename, "posts")["posts"]
+            ids.update(str(row.get("id")) for row in records
+                       if isinstance(row, dict) and row.get("id"))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("WARNING: historical archive unavailable; continuing import:",
+                  filename, type(exc).__name__, str(exc)[:140], flush=True)
+    return ids
+
+
+def write_import_manifest(project_root, community_ids, video_ids):
+    """Persist the exact IDs added by this import run for release-scoped audits."""
+    manifest = {
+        "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "community_ids": sorted(set(str(value) for value in community_ids if value)),
+        "video_ids": sorted(set(str(value) for value in video_ids if value)),
+    }
+    manifest["strict_ids"] = sorted(set(manifest["community_ids"] + manifest["video_ids"]))
+    path = Path(project_root) / ".editorial-import-manifest.json"
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8")
+    return manifest
+
+
 def main():
     community_before = snapshot("community_imported.json", "posts")["posts"]
+    video_before = snapshot("videos.json", "videos")["videos"]
     before_community_ids = {str(row.get("id")) for row in community_before
                             if isinstance(row, dict) and row.get("id")}
+    before_video_ids = {str(row.get("id")) for row in video_before
+                        if isinstance(row, dict) and row.get("id")}
     before = {name: len(snapshot(name, key)[key]) for name, key in
               (("community_imported.json", "posts"), ("videos.json", "videos"))}
-    archive = {x.get("id") for x in snapshot("community_full.json", "posts")["posts"]}
-    archive.update(x.get("id") for x in snapshot("community.json", "posts")["posts"]
-                   if isinstance(x, dict) and x.get("id"))
+    # Old archive snapshots are duplicate hints only, never prerequisites.
+    archive = _historical_community_ids()
     queue_posts = merge_queue("queue_community.json", "community_imported.json",
                               "posts", archive)
     queue_videos = merge_queue("queue_videos.json", "videos.json", "videos", set())
@@ -341,8 +373,18 @@ def main():
     except Exception as exc:
         print("SEO AI FAILED OPEN; original Community content preserved:",
               type(exc).__name__, str(exc)[:170], flush=True)
-    after = {name: len(snapshot(name, key)[key]) for name, key in
-             (("community_imported.json", "posts"), ("videos.json", "videos"))}
+    after_community = snapshot("community_imported.json", "posts")["posts"]
+    after_videos = snapshot("videos.json", "videos")["videos"]
+    after = {"community_imported.json": len(after_community), "videos.json": len(after_videos)}
+    new_community_ids = sorted(str(row.get("id")) for row in after_community
+                               if isinstance(row, dict) and row.get("id")
+                               and str(row.get("id")) not in before_community_ids)
+    new_video_ids = sorted(str(row.get("id")) for row in after_videos
+                           if isinstance(row, dict) and row.get("id")
+                           and str(row.get("id")) not in before_video_ids)
+    manifest = write_import_manifest(
+        Path(__file__).resolve().parents[1], new_community_ids, new_video_ids)
+    print("IMPORT RELEASE MANIFEST:", manifest, flush=True)
     print("IMPORT RESULT",
           "new Community:", after["community_imported.json"] - before["community_imported.json"],
           "new videos:", after["videos.json"] - before["videos.json"],

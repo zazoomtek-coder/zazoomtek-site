@@ -90,20 +90,26 @@ def youtube_videos():
 def youtube_community():
     db = load("community_imported.json", "posts")
     existing = {r.get("id"): r for r in db["posts"] if r.get("id")}
-    archived = load("community_full.json", "posts")["posts"]
-    archived_ids = {x.get("id") for x in archived}
-    try:
-        historical = load("community.json", "posts")["posts"]
-    except (OSError, ValueError, KeyError):
-        historical = []
-    archived_ids.update(x.get("id") for x in historical if isinstance(x, dict) and x.get("id"))
+    # Historical archives are optional duplicate hints. A damaged old snapshot
+    # must never make a valid current YouTube post unavailable for import.
+    archived_ids = set()
+    for filename in ("community_full.json", "community.json"):
+        try:
+            historical = load(filename, "posts")["posts"]
+            archived_ids.update(x.get("id") for x in historical
+                                if isinstance(x, dict) and x.get("id"))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("WARNING: ignoring unavailable historical archive during import:",
+                  filename, type(exc).__name__, str(exc)[:160], flush=True)
     occupied_paths = set()
     for filename, key in (("posts.json", "posts"), ("studio_posts.json", "posts"),
                           ("community_imported.json", "posts"), ("community_full.json", "posts"),
                           ("community.json", "posts")):
         try:
             records = load(filename, key)[key]
-        except (OSError, ValueError, KeyError):
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("WARNING: ignoring unavailable legacy slug registry:",
+                  filename, type(exc).__name__, str(exc)[:120], flush=True)
             records = []
         occupied_paths.update(str(x.get("public_path")) for x in records
                               if isinstance(x, dict) and x.get("public_path"))

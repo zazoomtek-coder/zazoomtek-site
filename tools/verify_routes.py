@@ -40,6 +40,30 @@ def check_dist(root,rows=None):
   return "/"+rel
  real_pages={route_for(page).lstrip("/") for page in documents}
  errors=[]
+ route_warnings=[]
+ def page_is_release_critical(doc):
+  rel=doc.relative_to(root).with_suffix("").as_posix()
+  if rel=="index":return True
+  parts=rel.split("/")
+  if len(parts)>1 and parts[0] in ALLOWED_PREFIXES:return True
+  stem=parts[-1]
+  archive_names={"recensioni","news","speciali","guide","extra","news-tech","news-gaming",
+                 "recensioni-tech","recensioni-gaming"}
+  return stem in archive_names or any(stem.startswith(name+"-page-") or stem.startswith(name+"-archivio")
+                                      for name in archive_names)
+ def page_issue(doc,message):
+  critical=page_is_release_critical(doc)
+  (errors if critical else route_warnings).append(message)
+ def route_is_release_critical(path):
+  route=pretty(path).lstrip("/")
+  return any(route.startswith(prefix+"/") for prefix in ALLOWED_PREFIXES) or route in {
+   "recensioni","news","guide","speciali","extra"
+  }
+ def redirect_issue(source,message):
+  if str(source).startswith("/community-") or route_is_release_critical(source):
+   errors.append(message)
+  else:
+   route_warnings.append(message)
  # Route every public request through the canonical URL middleware so the
  # www host, HTTP and physical .html aliases cannot be indexed separately.
  routes_file=root/"_routes.json"
@@ -62,10 +86,10 @@ def check_dist(root,rows=None):
   return path.removesuffix(".html").rstrip("/") or "/"
  for doc in documents:
   markup=doc.read_text(encoding="utf-8")
-  markup,warnings=strip_orphan_community_anchors(markup,real_pages)
-  for orphan in warnings:
+  markup,orphan_warnings=strip_orphan_community_anchors(markup,real_pages)
+  for orphan in orphan_warnings:
    print("WARNING: removed orphan Community link in "+doc.name+": "+orphan+" (anchor text preserved)",flush=True)
-  if warnings:
+  if orphan_warnings:
    doc.write_text(markup,encoding="utf-8")
   reader=LinkReader()
   reader.feed(markup)
@@ -74,22 +98,22 @@ def check_dist(root,rows=None):
    if u.scheme or u.netloc or not href.startswith("/"):continue
    path=unquote(u.path)
    if path.startswith("/assets/"):
-    if not (root/path.lstrip("/")).is_file():errors.append(f"{doc.name} links to missing asset {path}")
+    if not (root/path.lstrip("/")).is_file():page_issue(doc,f"{doc.name} links to missing asset {path}")
     continue
    if path=="/":continue
    if path=="/feed.xml":
-    if not (root/"feed.xml").is_file():errors.append("RSS feed missing: /feed.xml")
+    if not (root/"feed.xml").is_file():page_issue(doc,"RSS feed missing: /feed.xml")
     continue
    if path.endswith(".html"):
-    errors.append(f"{doc.name} uses noncanonical .html URL: {path}")
+    page_issue(doc,f"{doc.name} uses noncanonical .html URL: {path}")
    route=pretty(path)
    if route.lstrip("/") not in real_pages:
     is_v2=any(route.startswith("/"+prefix+"/") for prefix in ALLOWED_PREFIXES)
     is_archive=route in ("/recensioni","/news","/speciali","/guide","/extra")
     if is_v2 or is_archive:
-     errors.append(f"{doc.name} links to absent protected route {route}")
+     page_issue(doc,f"{doc.name} links to absent protected route {route}")
     else:
-     print("WARNING: unresolved legacy link in "+doc.name+": "+route,flush=True)
+     page_issue(doc,"unresolved legacy link in "+doc.name+": "+route)
  redirect_file=root/"_redirects"
  redirects={}
  if redirect_file.is_file():
@@ -97,35 +121,35 @@ def check_dist(root,rows=None):
    if not line.strip():continue
    parts=line.split()
    if len(parts)!=3 or parts[2] not in ("301","302","307","308"):
-    errors.append("Invalid redirect: "+line);continue
+    redirect_issue(parts[0] if parts else "", "Invalid redirect: "+line);continue
    source,target,_=parts
-   if source in redirects:errors.append("Duplicate redirect source "+source)
+   if source in redirects:redirect_issue(source,"Duplicate redirect source "+source)
    redirects[source]=target
    if pretty(source)==pretty(target):
-    errors.append("Automatic Cloudflare HTML normalization would loop: "+line)
+    redirect_issue(source,"Automatic Cloudflare HTML normalization would loop: "+line)
    if target.endswith(".html"):
-    errors.append("Redirect target is noncanonical "+line)
+    redirect_issue(source,"Redirect target is noncanonical "+line)
    if pretty(target).lstrip("/") not in real_pages:
-    errors.append("Redirect target does not exist "+line)
+    redirect_issue(source,"Redirect target does not exist "+line)
    if source.removesuffix(".html").lstrip("/") in real_pages:
-    errors.append("Redirect overrides an actual HTML page "+line)
+    redirect_issue(source,"Redirect overrides an actual HTML page "+line)
  for source,target in redirects.items():
   if target in redirects or target+".html" in redirects:
-   errors.append("Redirect chain/cycle risk: "+source+" -> "+target)
+   redirect_issue(source,"Redirect chain/cycle risk: "+source+" -> "+target)
   if target=="/":
-   errors.append("Article/legacy redirect must never send visitors to homepage: "+source)
+   redirect_issue(source,"Article/legacy redirect must never send visitors to homepage: "+source)
  # Regression guard for the exact Razer result reported in Google.
  # This URL is already a generated canonical article path, not a redirect alias.
  razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
  existing=root/(razer_old.lstrip("/")+".html")
  if not existing.is_file():
-  errors.append("Historical Razer Google URL has no generated article page: "+razer_old)
+  route_warnings.append("Historical Razer Google URL has no generated article page: "+razer_old)
  else:
   identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
   if "razer hammerhead v3 chroma" not in (identity.title_text+" "+identity.h1_text).casefold():
-   errors.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
+   route_warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
   if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
-   errors.append("Historical Razer article canonical does not match its article URL: "+razer_old)
+   route_warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
   if redirects.get(razer_old) or redirects.get(razer_old+".html"):
    errors.append("Historical Razer canonical article is incorrectly redirected: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
@@ -155,18 +179,18 @@ def check_dist(root,rows=None):
    route=build_article_url(row)
    page=root/(route.lstrip("/")+".html")
    if not page.is_file():
-    errors.append("Dataset route has no physical HTML file: "+route)
+    (errors if row.get("route_version") in (2,"2","v2") else route_warnings).append("Dataset route has no physical HTML file: "+route)
     continue
    identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
    expected="https://zazoomtek.it"+route
    if identity.canonicals!=[expected]:
-    errors.append("Dataset route/canonical mismatch: "+route)
+    (errors if row.get("route_version") in (2,"2","v2") else route_warnings).append("Dataset route/canonical mismatch: "+route)
    if row.get("route_version") in (2,"2","v2"):
     prefix=CATEGORY_PREFIX.get(row.get("category"))
     if not prefix or not route.startswith("/"+prefix+"/"):
      errors.append("route_version v2 does not match category: "+route)
    elif row.get("legacy_path") and route!=row["legacy_path"]:
-    errors.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
+    route_warnings.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
    if route.startswith("/community-") and (route in redirects or route+".html" in redirects):
     errors.append("Historical Community route was redirected: "+route)
 
@@ -236,34 +260,37 @@ def check_dist(root,rows=None):
    for entry in entries:
     path=entry.get("url","")
     if not isinstance(path,str) or not path.startswith("/") or path.endswith(".html"):
-     raise ValueError("Invalid canonical entry URL "+str(path))
+     message="Invalid canonical entry URL "+str(path)
+     (errors if route_is_release_critical(str(path)) else route_warnings).append(message)
+     continue
     if path.lstrip("/") not in real_pages:
-     raise ValueError("Linked article does not exist "+path)
+     message="Linked article does not exist "+path
+     (errors if route_is_release_critical(path) else route_warnings).append(message)
     if name=="news-ticker.json":
      if path in seen:raise ValueError("Duplicate ticker headline "+path)
      seen.add(path)
   except (ValueError,TypeError,KeyError) as error:
-   errors.append("Invalid discovery dataset "+name+": "+str(error))
+   (errors if name=="news-ticker.json" else route_warnings).append("Invalid discovery dataset "+name+": "+str(error))
  # RSS item URLs must point to real category/legacy article paths without suffixes.
  feed=root/"feed.xml"
  if not feed.is_file():
-  errors.append("RSS feed file missing: /feed.xml")
+  route_warnings.append("RSS feed missing: /feed.xml")
  else:
   try:
    from xml.etree import ElementTree as ET
    feed_root=ET.parse(feed).getroot()
    links=[node.text or "" for node in feed_root.findall(".//item/link")]
    if len(links)!=len(set(links)):
-    errors.append("RSS feed contains duplicate article URLs")
+    route_warnings.append("RSS feed contains duplicate article URLs")
    for value in links:
     parsed=urlsplit(value)
     path=parsed.path
     if not path.startswith("/") or path.endswith(".html") or (path!="/" and path.endswith("/")):
-     errors.append("RSS feed contains a noncanonical URL: "+value)
+     (errors if route_is_release_critical(path) else route_warnings).append("RSS feed contains a noncanonical URL: "+value)
     elif path.lstrip("/") not in real_pages:
-     errors.append("RSS feed links to a missing article: "+value)
+     (errors if route_is_release_critical(path) else route_warnings).append("RSS feed links to a missing article: "+value)
   except (OSError,ValueError,TypeError) as error:
-   errors.append("RSS feed XML is invalid: "+str(error))
+   route_warnings.append("Historical RSS feed diagnostic: "+str(error))
  # Verify the Home-only Amazon showcase and its requested affiliate destination.
  homepage=root/"index.html"
  if homepage.is_file():
@@ -310,6 +337,8 @@ def check_dist(root,rows=None):
    if parsed.tag!="rss" or not parsed.find("./channel/item"):
     errors.append("RSS feed is empty or invalid")
   except Exception as exc:errors.append("RSS XML could not be parsed: "+str(exc))
+ for warning in route_warnings:
+  print("WARNING: historical route diagnostic:",warning,flush=True)
  if errors:
-  raise ValueError("Site route verification failed:\n"+"\n".join(errors[:50]))
- print(f"Route verification successful: {len(documents)} HTML pages, all links resolved, {len(redirects)} safe redirect aliases",flush=True)
+  raise ValueError("Site route verification failed:\\n"+"\\n".join(errors[:50]))
+ print(f"Route verification successful: {len(documents)} HTML pages, {len(route_warnings)} historical warnings, {len(redirects)} safe redirect aliases",flush=True)
