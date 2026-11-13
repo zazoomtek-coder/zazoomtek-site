@@ -108,9 +108,15 @@ def verify_studio_v2(output,rows):
   assert marker in api,"V2 backend missing "+marker
  gate=(Path(__file__).resolve().parents[1]/"tools/editorial_slot_gate.py").read_text(encoding="utf-8")
  assert '((12, 30), (16, 0), (19, 30))' in gate, "16:00 editorial release gate missing"
- assert 'functions/api/studio/[[path]].js' in gate and 'assets/js/studio-v2.js' in gate, "Studio changes are not included in the release fingerprint"
- for filename in ("tools/studio_build.py","assets/js/studio.js","assets/css/studio.css","tools/verify_studio.py"):
-  assert '"'+filename+'"' in gate, "Original Studio file missing from release fingerprint: "+filename
+ assert 'EDITORIAL_COLLECTIONS = {' in gate, "Editorial collections must be fingerprinted semantically"
+ for collection in ('"data/community_imported.json": "posts"',
+                    '"data/videos.json": "videos"',
+                    '"data/web.json": "items"',
+                    '"data/studio_posts.json": "posts"',
+                    '"data/studio_overrides.json": "overrides"'):
+  assert collection in gate, "Editorial collection missing from release fingerprint: "+collection
+ assert '"updated"' in gate and '"updated_at"' in gate, "Generated service metadata must be excluded from release fingerprint"
+ assert "Approved editorial media is missing" in gate and 'path.read_bytes()' in gate, "Referenced Studio media must remain part of the release fingerprint"
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
  assert '[[12, 30], [16, 0], [19, 30]]' in cron, "16:00 Cloudflare trigger missing"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
