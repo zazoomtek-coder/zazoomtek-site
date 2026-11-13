@@ -14,6 +14,10 @@ in nel nello nella nei negli su sul sulla per tra fra con e ed il lo la i gli
 le un uno una che come oggi nuovo nuova nuovi nuove the an and or of for to
 on with by from at is are this that
 """.split())
+REVIEW_LABELS = frozenset({"review", "reviews", "recensione", "recensioni"})
+REVIEW_PREFIX_LABELS = frozenset({"gaming", "tech"})
+CATEGORY_LABELS = frozenset({"recensioni", "news", "guide", "speciali", "extra"})
+CATEGORY_QUALIFIERS = frozenset({"tech", "gaming", "extra", "review", "reviews", "recensione", "recensioni"})
 LEGACY_RE = re.compile(r"^/community-[a-z0-9]+(?:-[a-z0-9]+)*$")
 PUBLIC_RE = re.compile(r"^/(recensioni|news|speciali|guide|extra)/[a-z0-9]+(?:-[a-z0-9]+)*$")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -29,16 +33,62 @@ def normalize_public_path(path):
     return value
 
 
-def slugify_title(title, max_length=68):
+def _title_tokens(title):
     text = unicodedata.normalize("NFKD", str(title or ""))
     text = "".join(ch for ch in text if not unicodedata.combining(ch)).casefold()
-    words = re.findall(r"[a-z0-9]+", text)
-    words = [word for word in words if word not in STOP_WORDS]
+    return re.findall(r"[a-z0-9]+", text)
+
+
+def slugify_title(title, max_length=68):
+    words = [word for word in _title_tokens(title) if word not in STOP_WORDS]
     if not words:
-        words = re.findall(r"[a-z0-9]+", text)
+        words = _title_tokens(title)
     slug = "-".join(words)[:max_length].rstrip("-")
     if not slug:
         raise ValueError("Cannot create a public slug from an empty title")
+    return slug
+
+
+def clean_category_slug(slug, category_prefix, max_length=68):
+    """Remove duplicated category/editorial labels only from the beginning of a slug."""
+    words = [word for word in str(slug or "").lower().split("-") if word]
+    prefix = str(category_prefix or "").lower()
+    changed = True
+    while words and changed:
+        changed = False
+        if words[0] == prefix:
+            words.pop(0)
+            changed = True
+            if words and words[0] in CATEGORY_QUALIFIERS:
+                words.pop(0)
+                changed = True
+        elif words[0] in CATEGORY_LABELS:
+            words.pop(0)
+            changed = True
+            if words and words[0] in CATEGORY_QUALIFIERS:
+                words.pop(0)
+                changed = True
+    result = "-".join(words)[:max_length].rstrip("-")
+    if not result:
+        raise ValueError("Cannot create a public slug after category-label cleanup")
+    return result
+
+
+def slugify_review_title(title, max_length=68):
+    """Create review slugs from the subject/platform, never editorial labels."""
+    words = _title_tokens(title)
+    if words and words[0] in REVIEW_LABELS:
+        words.pop(0)
+        if words and words[0] in REVIEW_PREFIX_LABELS:
+            words.pop(0)
+    elif len(words) > 1 and words[0] in REVIEW_PREFIX_LABELS and words[1] in REVIEW_LABELS:
+        words = words[2:]
+    words = [word for word in words if word not in REVIEW_LABELS and word not in STOP_WORDS]
+    if not words:
+        raise ValueError("Cannot create a public review slug from an empty title")
+    slug = "-".join(words)[:max_length].rstrip("-")
+    if not slug:
+        raise ValueError("Cannot create a public review slug from an empty title")
     return slug
 
 
@@ -61,25 +111,26 @@ def is_v2(article):
     return article.get("route_version") in (2, "2", "v2")
 
 
+def is_review(article):
+    return str(article.get("category") or "") in ("recensioni-tech", "recensioni-gaming")
+
+
 def build_article_url(article):
     """Return the immutable original URL for legacy rows and v2 URL for new rows."""
     if not isinstance(article, dict):
         raise TypeError("Article must be a mapping")
-    # Explicit legacy_path is authoritative and must be returned byte-for-byte.
     legacy_value = article.get("legacy_path")
     legacy = legacy_value if isinstance(legacy_value, str) else ""
     if legacy:
         if not legacy.startswith("/") or legacy.startswith("//") or "?" in legacy or "#" in legacy:
             raise ValueError("Invalid explicit legacy path: " + legacy)
         return legacy
-    # Preserve historical Community URLs even when they have no explicit marker.
     for candidate in (article.get("url"),):
         candidate = candidate if isinstance(candidate, str) else ""
         if candidate.startswith("/community-"):
             if not LEGACY_RE.fullmatch(candidate):
                 raise ValueError("Invalid legacy Community path: " + candidate)
             return candidate
-    # Missing route_version means historic content: never derive a new slug.
     if not is_v2(article):
         original_value = article.get("url")
         original = original_value if isinstance(original_value, str) else ""
@@ -90,41 +141,78 @@ def build_article_url(article):
             raise ValueError("Legacy article has no original path or slug")
         return "/" + slug.removesuffix(".html")
     if article.get("public_path"):
-        return normalize_public_path(article["public_path"])
+        existing = normalize_public_path(article["public_path"])
+        category = str(article.get("category") or "")
+        prefix = CATEGORY_PREFIX.get(category)
+        if prefix not in ALLOWED_PREFIXES:
+            raise ValueError("Unsupported article category for public routing: " + category)
+        existing_slug = existing.rsplit("/", 1)[-1]
+        cleaned = clean_category_slug(existing_slug, prefix)
+        if is_review(article):
+            has_review_label = any(word in REVIEW_LABELS for word in existing_slug.split("-"))
+            if has_review_label:
+                cleaned = slugify_review_title(article.get("title") or "")
+        if cleaned != existing_slug:
+            return normalize_public_path("/" + prefix + "/" + cleaned)
+        return existing
     category = str(article.get("category") or "")
     prefix = CATEGORY_PREFIX.get(category)
     if prefix not in ALLOWED_PREFIXES:
         raise ValueError("Unsupported article category for public routing: " + category)
     slug = str(article.get("public_slug") or "")
     if not SLUG_RE.fullmatch(slug):
-        slug = slugify_title(article.get("title") or "")
+        slug = slugify_review_title(article.get("title") or "") if is_review(article) else slugify_title(article.get("title") or "")
+    slug = clean_category_slug(slug, prefix)
     return normalize_public_path("/" + prefix + "/" + slug)
 
 
 def assign_public_routes(rows):
-    """Assign once to v2 rows; existing public_path values are immutable."""
+    """Persist clean v2 paths with one top-level category and a title-only slug."""
     occupied = set()
+    review_rows = []
     for row in rows:
-        if not isinstance(row, dict) or not is_v2(row) or not row.get("public_path"):
-            continue
-        path = normalize_public_path(row["public_path"])
-        if path in occupied:
-            raise ValueError("Duplicate immutable public_path in category: " + path)
-        occupied.add(path)
-    for row in rows:
-        if not isinstance(row, dict) or not is_v2(row):
-            continue
-        if row.get("legacy_path"):
-            continue
-        if row.get("public_path"):
-            row["public_path"] = normalize_public_path(row["public_path"])
+        if not isinstance(row, dict) or not is_v2(row) or row.get("legacy_path"):
             continue
         category = str(row.get("category") or "")
-        if CATEGORY_PREFIX.get(category) not in ALLOWED_PREFIXES:
+        prefix = CATEGORY_PREFIX.get(category)
+        if prefix not in ALLOWED_PREFIXES:
             raise ValueError("Unsupported v2 article category: " + category)
-        raise ValueError(
-            "New route_version v2 article has no persisted public_path; "
-            "allocate and save its immutable URL in the creation/import pipeline: "
-            + str(row.get("title") or row.get("slug") or "<untitled>")
-        )
+        if is_review(row):
+            review_rows.append(row)
+            continue
+        if not row.get("public_path"):
+            raise ValueError(
+                "New route_version v2 article has no persisted public_path; "
+                "allocate and save its immutable URL in the creation/import pipeline: "
+                + str(row.get("title") or row.get("slug") or "<untitled>")
+            )
+        path = normalize_public_path(row["public_path"])
+        current_slug = path.rsplit("/", 1)[-1]
+        clean_slug = clean_category_slug(current_slug, prefix)
+        path = normalize_public_path("/" + prefix + "/" + clean_slug)
+        row["public_slug"] = clean_slug
+        row["public_path"] = path
+        if path in occupied:
+            raise ValueError("Duplicate canonical public_path in category: " + path)
+        occupied.add(path)
+
+    for row in review_rows:
+        prefix = CATEGORY_PREFIX[str(row["category"])]
+        slug = slugify_review_title(row.get("title") or "")
+        base = slug
+        number = 2
+        path = "/" + prefix + "/" + slug
+        while path in occupied:
+            suffix = "-" + str(number)
+            slug = base[:68-len(suffix)].rstrip("-") + suffix
+            path = "/" + prefix + "/" + slug
+            number += 1
+        row["public_slug"] = slug
+        row["public_path"] = path
+        occupied.add(path)
+
+    for row in rows:
+        if not isinstance(row, dict) or not is_v2(row) or row.get("legacy_path") or is_review(row):
+            continue
+        row["public_path"] = normalize_public_path(row["public_path"])
     return rows
