@@ -21,14 +21,13 @@ jobs:
     timeout-minutes: 20
     env:
       CF_PAGES_BRANCH: feat/category-based-article-routes-20261113
-      CF_PAGES_URL: https://zazoomtek.it
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Check Python syntax
-        run: python3 -m py_compile tools/build.py tools/seo.py tools/article_routes.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py tools/audit_trace.py
+        run: python3 -m py_compile tools/build.py tools/seo.py tools/article_routes.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py tools/audit_trace.py tools/emergency_sync.py tools/scheduled_editorial_import.py tools/studio_build.py tools/studio_v2_build.py
       - name: Run isolated SEO live-audit tests (no external requests)
         run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
       - name: Run article route unit tests
