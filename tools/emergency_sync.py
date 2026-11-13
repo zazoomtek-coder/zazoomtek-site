@@ -102,6 +102,13 @@ def youtube_community():
             records = []
         occupied_paths.update(str(x.get("public_path")) for x in records
                               if isinstance(x, dict) and x.get("public_path"))
+    try:
+        overrides = json.loads((DATA / "studio_overrides.json").read_text(encoding="utf-8")).get("overrides", {})
+    except (OSError, ValueError, TypeError):
+        overrides = {}
+    if isinstance(overrides, dict):
+        occupied_paths.update(str(x.get("public_path")) for x in overrides.values()
+                              if isinstance(x, dict) and x.get("public_path"))
     today = datetime.now(timezone.utc).date().isoformat()
     try:
         items = discover(limit=180, max_pages=15)
