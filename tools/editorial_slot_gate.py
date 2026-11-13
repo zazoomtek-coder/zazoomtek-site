@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Exactly three authorized editorial release slots in Europe/Rome, idempotently.
+"""Strict Europe/Rome editorial gate.
 
-- prepare: decide if the imported data changed since the last successful deploy
-- authorize: sleep until 12:30, 16:00 or 19:30, reject out-of-slot publishing
-- stamp: record a successful Cloudflare deployment for deduplication
-Only Cloudflare Wrangler itself deploys; this module never accesses Cloudflare.
+The workflow imports sources first. This gate then compares the resulting
+published-content snapshots with the last successful release. No content
+change means no build and no deployment.
 """
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -13,77 +12,70 @@ import hashlib
 import json
 import os
 import sys
-import time
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "data" / "editorial_release_state.json"
-FILES = (
-    # Ownership proof is a release-critical asset, even without fresh YouTube/RSS items.
-    "BingSiteAuth.xml",
+ROME = ZoneInfo("Europe/Rome")
+SLOTS = ((12, 30), (16, 0), (19, 30))
+# Only editorial payloads are fingerprinted. Code, templates, workflow files,
+# verification scripts and unused uploaded files cannot trigger a release.
+CONTENT_FILES = (
     "data/community_imported.json",
     "data/videos.json",
     "data/web.json",
     "data/studio_posts.json",
     "data/studio_overrides.json",
-    # Approved Studio editor features are delivered at the next editorial slot,
-    # even if no new news happens to arrive. Otherwise a changed editor could
-    # remain unpublished indefinitely while all editorial JSON is unchanged.
-    "tools/studio_v2_build.py",
-    "assets/js/studio-v2.js",
-    "assets/css/studio-v2.css",
-    # The original Studio login shell redirects to V2 but remains part of
-    # the shipped editor and must also be released when its copy or code changes.
-    "tools/studio_build.py",
-    "assets/js/studio.js",
-    "assets/css/studio.css",
-    "tools/verify_studio.py",
-    "tools/verify_studio_v2.py",
-    "tools/community_youtube.py",
-    "tools/build.py",
-    "tools/article_templates.py",
-    "assets/js/site.js",
-    "tools/seo.py",
-    "tools/seo_editorial_optimizer.py",
-    "tools/verify_seo.py",
-    "tools/scheduled_editorial_import.py",
-    "tools/verify_editorial_live.py",
-    ".github/workflows/editorial-publish.yml",
-    # Aggiornamenti server Studio al prossimo slot.
-    "functions/api/studio/[[path]].js",
-    # Anche le correzioni grafiche approvate richiedono lo slot.
-    "assets/css/spotnews.css",
 )
-ROME = ZoneInfo("Europe/Rome")
 
 
-def digest():
+def content_digest():
     hasher = hashlib.sha256()
-    for filename in FILES:
-        data = (ROOT / filename).read_bytes()
-        hasher.update(filename.encode("utf-8") + b"\x00" + data + b"\x00")
-    # Uploaded media is a published dependency of Studio articles: the
-    # content fingerprint must change when previously missing assets arrive.
-    uploads = ROOT / "assets" / "uploads"
-    if uploads.exists():
-        for file in sorted(p for p in uploads.rglob("*") if p.is_file()):
-            name = file.relative_to(ROOT).as_posix()
-            hasher.update(name.encode("utf-8") + b"\x00")
-            hasher.update(file.read_bytes() + b"\x00")
+    for filename in CONTENT_FILES:
+        path = ROOT / filename
+        if not path.is_file():
+            raise RuntimeError("Missing editorial content snapshot: " + filename)
+        hasher.update(filename.encode("utf-8") + b"\0")
+        hasher.update(path.read_bytes() + b"\0")
+    # Include only media referenced by approved Studio publications.
+    referenced = set()
+    for filename, key in (("studio_posts.json", "posts"),
+                          ("studio_overrides.json", "overrides")):
+        payload = json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))
+        rows = payload.get(key, [])
+        records = rows if isinstance(rows, list) else rows.values()
+        for row in records:
+            if not isinstance(row, dict):
+                continue
+            urls = [row.get("image")]
+            urls.extend(block.get("url") for block in row.get("body", [])
+                        if isinstance(block, dict))
+            for url in urls:
+                if isinstance(url, str) and url.startswith("/assets/uploads/"):
+                    relative = url.lstrip("/")
+                    if relative.startswith("assets/uploads/") and ".." not in Path(relative).parts:
+                        referenced.add(relative)
+    for relative in sorted(referenced):
+        path = ROOT / relative
+        if not path.is_file():
+            raise RuntimeError("Approved editorial media is missing: " + relative)
+        hasher.update(relative.encode("utf-8") + b"\0")
+        hasher.update(path.read_bytes() + b"\0")
     return hasher.hexdigest()
 
 
 def state():
     try:
-        ob = json.loads(STATE.read_text(encoding="utf-8"))
-        return ob if isinstance(ob, dict) else {}
+        value = json.loads(STATE.read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else {}
     except (OSError, ValueError, TypeError):
         return {}
 
 
-def event_slot(now):
-    for hour, minute in ((12, 30), (16, 0), (19, 30)):
+def current_slot(now):
+    """Accept only a workflow started shortly after one exact Rome slot."""
+    for hour, minute in SLOTS:
         target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if target - timedelta(minutes=10) <= now < target + timedelta(minutes=30):
+        if target <= now < target + timedelta(minutes=5):
             return target
     return None
 
@@ -92,79 +84,80 @@ def emit(name, value):
     path = os.getenv("GITHUB_ENV")
     if not path:
         raise RuntimeError("GITHUB_ENV absent; refuses any deployment")
-    with open(path, "a", encoding="utf-8") as out:
-        out.write(f"{name}={value}\n")
+    with open(path, "a", encoding="utf-8") as output:
+        output.write(f"{name}={value}\n")
 
 
 def prepare():
     now = datetime.now(ROME)
-    if os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true":
-        target = now.isoformat(timespec="seconds")
-        print("OWNER REQUESTED IMMEDIATE RELEASE:", target, flush=True)
-        emit("EDITORIAL_NEEDS_RELEASE", "true")
-        emit("EDITORIAL_TARGET", target)
-        return
-    slot = event_slot(now)
+    slot = current_slot(now)
     if slot is None:
-        print("NOT AN EDITORIAL SLOT:", now.isoformat(), flush=True)
+        print("SKIPPED: not one of the three exact release slots", now.isoformat(), flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
         return
-    old = state()
-    current = digest()
-    if old.get("slot") == slot.isoformat():
-        print("THIS SLOT IS ALREADY PUBLISHED", slot.isoformat(), flush=True)
+
+    current_digest = content_digest()
+    previous = state()
+    if previous.get("slot") == slot.isoformat():
+        print("SKIPPED: this daily slot has already been released", slot.isoformat(), flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
         return
-    print("SCHEDULED SLOT RELEASE REQUIRED:", slot.isoformat(),
-          "CONTENT SHA256:", current[:20],
-          "(full import/build/deploy is required even when the digest is unchanged)", flush=True)
+    if previous.get("content_digest") == current_digest:
+        print("SKIPPED: import completed but no new or changed editorial content exists",
+              current_digest[:20], flush=True)
+        emit("EDITORIAL_NEEDS_RELEASE", "false")
+        return
+
+    print("NEW EDITORIAL CONTENT VERIFIED; release candidate",
+          slot.isoformat(), "digest", current_digest[:20], flush=True)
     emit("EDITORIAL_NEEDS_RELEASE", "true")
     emit("EDITORIAL_TARGET", slot.isoformat())
+    emit("EDITORIAL_CONTENT_DIGEST", current_digest)
 
 
 def authorize():
-    slot_str = os.getenv("EDITORIAL_TARGET")
-    if not slot_str:
-        raise RuntimeError("Missing authorized slot")
-    slot = datetime.fromisoformat(slot_str)
-    if slot.tzinfo is None:
-        raise RuntimeError("Unaware editorial slot")
+    slot_value = os.getenv("EDITORIAL_TARGET")
+    expected_digest = os.getenv("EDITORIAL_CONTENT_DIGEST")
+    if not slot_value or not expected_digest:
+        raise RuntimeError("Missing slot or verified content digest")
+    slot = datetime.fromisoformat(slot_value)
     now = datetime.now(ROME)
-    if os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true":
-        print("AUTHORIZED IMMEDIATE OWNER-REQUESTED RELEASE", slot.isoformat(), flush=True)
-        emit("EDITORIAL_RELEASE_AUTHORIZED", "true")
-        return
-    if now < slot:
-        seconds = (slot - now).total_seconds()
-        print("PREPARED; waiting until the ONLY authorized release slot",
-              slot.isoformat(), "seconds", round(seconds), flush=True)
-        time.sleep(seconds + 0.3)
-    now = datetime.now(ROME)
-    if not (slot <= now < slot + timedelta(minutes=30)):
-        print("SKIPPED: slot expired; no out-of-window deployment",
-              now.isoformat(), flush=True)
+    if slot.tzinfo is None or now < slot or now >= slot + timedelta(minutes=5):
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
+        print("SKIPPED: exact slot window has expired", now.isoformat(), flush=True)
         return
-    # Another run for the same slot may have completed while this one was queued.
-    if state().get("slot") == slot.isoformat():
-        print("SKIPPED: slot already released by an earlier run", flush=True)
+    previous = state()
+    if previous.get("slot") == slot.isoformat():
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
+        print("SKIPPED: slot already released by another run", slot.isoformat(), flush=True)
         return
-    print("AUTHORIZED EXACT SLOT", slot.isoformat(), "started", now.isoformat(), flush=True)
+    # Recheck after the import/build preparation to ensure content is still
+    # exactly the verified snapshot and has not disappeared or been replaced.
+    if content_digest() != expected_digest:
+        emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
+        print("SKIPPED: editorial content changed after preflight; require next slot", flush=True)
+        return
     emit("EDITORIAL_RELEASE_AUTHORIZED", "true")
+    print("AUTHORIZED: verified new content in exact slot", slot.isoformat(), flush=True)
 
 
 def stamp():
-    slot = os.getenv("EDITORIAL_TARGET")
-    if not slot or os.getenv("EDITORIAL_RELEASE_AUTHORIZED") != "true":
-        raise RuntimeError("Cannot mark an unauthorized release")
+    slot_value = os.getenv("EDITORIAL_TARGET")
+    expected_digest = os.getenv("EDITORIAL_CONTENT_DIGEST")
+    if (not slot_value or not expected_digest
+            or os.getenv("EDITORIAL_RELEASE_AUTHORIZED") != "true"):
+        raise RuntimeError("Cannot record an unauthorized editorial release")
+    actual_digest = content_digest()
+    if actual_digest != expected_digest:
+        raise RuntimeError("Content digest changed before release receipt")
     body = {
-        "slot": slot,
-        "content_digest": digest(),
+        "slot": slot_value,
+        "content_digest": actual_digest,
         "finished_at": datetime.now(ROME).isoformat(timespec="seconds"),
     }
-    STATE.write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("SUCCESSFUL DEPLOY RECEIPT", body, flush=True)
+    STATE.write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n",
+                     encoding="utf-8")
+    print("SUCCESSFUL EDITORIAL RELEASE RECEIPT", body, flush=True)
 
 
 if __name__ == "__main__":
