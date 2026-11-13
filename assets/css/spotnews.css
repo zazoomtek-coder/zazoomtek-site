@@ -3362,3 +3362,40 @@ main.wrap .home-column .video-magazine .video-secondary .video-card .play-thumb 
   transform:none!important;
   background:#171717!important;
 }
+
+
+/* 13 Nov 2026 — HOME cover framing: preserve left-edge lettering and remove letterbox bands.
+   Scoped to the homepage only; article bodies, archive layouts and non-home media stay unchanged. */
+main.wrap .featured-wide img,
+main.wrap .home-layout img {
+  display:block;
+  object-fit:cover!important;
+  object-position:15% center!important;
+  background:transparent!important;
+}
+main.wrap .home-layout .editorial-thumb {
+  aspect-ratio:16/9!important;
+  background:transparent!important;
+}
+main.wrap .home-layout .editorial-thumb img {
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:15% center!important;
+  background:transparent!important;
+}
+
+
+/* Final cascade override for legacy high-specificity cover rules on Home only. */
+main.wrap .featured-wide .spotlight-grid img,
+main.wrap .featured-wide .spotlight-grid .tile img,
+main.wrap .home-layout .home-column img,
+main.wrap .home-layout .home-sidebar img,
+main.wrap .home-layout .home-sidebar .compact-editorial-box .editorial-thumb img,
+main.wrap .home-layout .home-sidebar .editorial-links img,
+main.wrap .home-layout .home-column .video-magazine img {
+  object-fit:cover!important;
+  object-position:15% center!important;
+  background:transparent!important;
+  background-color:transparent!important;
+}
