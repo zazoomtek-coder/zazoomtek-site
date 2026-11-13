@@ -25,6 +25,18 @@ class ArticleRoutesTests(unittest.TestCase):
             "category": "recensioni-gaming", "slug": "new-title",
         }), path)
 
+    def test_historical_flat_slug_is_preserved_without_route_version(self):
+        self.assertEqual(build_article_url({"slug": "recensione-storica"}), "/recensione-storica")
+
+    def test_legacy_path_is_returned_exactly(self):
+        path = "/old-article-path"
+        self.assertEqual(build_article_url({"legacy_path": path}), path)
+
+    def test_integer_route_version_is_supported(self):
+        self.assertEqual(build_article_url({
+            "route_version": 2, "category": "guide", "public_slug": "router-wifi"
+        }), "/guide/router-wifi")
+
     def test_legacy_url_field_is_preserved(self):
         path = "/community-ugkxrvwng0aanuqnw2w-cqhip06jqlklaktr"
         self.assertEqual(build_article_url({"url": path}), path)
