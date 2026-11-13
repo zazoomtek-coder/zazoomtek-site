@@ -18,7 +18,7 @@ STATE = ROOT / "data" / "editorial_release_state.json"
 ROME = ZoneInfo("Europe/Rome")
 SLOTS = ((12, 30), (16, 0), (19, 30))
 # Only approved editorial collections and their referenced media are fingerprinted.
-MAX_DISPATCH_DELAY_SECONDS = 120
+MAX_DISPATCH_DELAY_SECONDS = 600
 
 
 # Each snapshot contributes only its actual editorial collection. Service-level
@@ -111,14 +111,24 @@ def state():
 
 
 def requested_slot(now):
-    """Validate the exact slot supplied by the Worker, including DST date."""
+    """Resolve the validated Rome slot, or an explicit immediate release."""
+    if os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true":
+        return now.replace(second=0, microsecond=0)
+
     value = os.getenv("EDITORIAL_REQUESTED_SLOT", "")
     if value not in ("12:30", "16:00", "19:30"):
         return None
     hour, minute = map(int, value.split(":"))
     target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-    delay_seconds = (now - target).total_seconds()
-    if delay_seconds < 0 or delay_seconds > MAX_DISPATCH_DELAY_SECONDS:
+
+    # The workflow's first job validates the actual dispatch against this
+    # slot with a ±10-minute tolerance. Preserve that decision while the
+    # importer runs, even if importing takes longer than the dispatch window.
+    if os.getenv("EDITORIAL_SLOT_GATE_PASSED", "").lower() == "true":
+        return target
+
+    delay_seconds = abs((now - target).total_seconds())
+    if delay_seconds > MAX_DISPATCH_DELAY_SECONDS:
         return None
     return target
 
@@ -165,14 +175,18 @@ def authorize():
         raise RuntimeError("Missing slot or verified content digest")
     slot = datetime.fromisoformat(slot_value)
     now = datetime.now(ROME)
-    # prepare() already checked the Worker dispatch arrived within the
-    # short two-minute scheduling tolerance. Authorization may complete after
-    # the build, but never on a different local calendar day or before the slot.
-    if slot.tzinfo is None or now.date() != slot.date() or now < slot:
-        emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
-        print("SKIPPED: release slot is invalid or belongs to another day",
-              now.isoformat(), flush=True)
-        return
+    force_release = os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true"
+    slot_gate_passed = os.getenv("EDITORIAL_SLOT_GATE_PASSED", "").lower() == "true"
+    # The workflow gate already validated the dispatch within ±10 minutes.
+    # Do not reapply a second clock check after the potentially long import/build.
+    if not force_release and not slot_gate_passed:
+        delay_seconds = (now - slot).total_seconds()
+        if (slot.tzinfo is None or now.date() != slot.date()
+                or abs(delay_seconds) > MAX_DISPATCH_DELAY_SECONDS):
+            emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
+            print("SKIPPED: release slot is invalid or outside ±10 minutes",
+                  now.isoformat(), flush=True)
+            return
     previous = state()
     if previous.get("slot") == slot.isoformat():
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
