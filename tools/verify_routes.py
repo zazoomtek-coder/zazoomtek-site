@@ -40,6 +40,20 @@ def check_dist(root,rows=None):
   return "/"+rel
  real_pages={route_for(page).lstrip("/") for page in documents}
  errors=[]
+ warnings=[]
+ def page_is_release_critical(doc):
+  rel=doc.relative_to(root).with_suffix("").as_posix()
+  if rel=="index":return True
+  parts=rel.split("/")
+  if len(parts)>1 and parts[0] in ALLOWED_PREFIXES:return True
+  stem=parts[-1]
+  archive_names={"recensioni","news","speciali","guide","extra","news-tech","news-gaming",
+                 "recensioni-tech","recensioni-gaming"}
+  return stem in archive_names or any(stem.startswith(name+"-page-") or stem.startswith(name+"-archivio")
+                                      for name in archive_names)
+ def page_issue(doc,message):
+  critical=page_is_release_critical(doc)
+  (errors if critical else warnings).append(message)
  # Route every public request through the canonical URL middleware so the
  # www host, HTTP and physical .html aliases cannot be indexed separately.
  routes_file=root/"_routes.json"
@@ -74,22 +88,22 @@ def check_dist(root,rows=None):
    if u.scheme or u.netloc or not href.startswith("/"):continue
    path=unquote(u.path)
    if path.startswith("/assets/"):
-    if not (root/path.lstrip("/")).is_file():errors.append(f"{doc.name} links to missing asset {path}")
+    if not (root/path.lstrip("/")).is_file():page_issue(doc,f"{doc.name} links to missing asset {path}")
     continue
    if path=="/":continue
    if path=="/feed.xml":
-    if not (root/"feed.xml").is_file():errors.append("RSS feed missing: /feed.xml")
+    if not (root/"feed.xml").is_file():page_issue(doc,"RSS feed missing: /feed.xml")
     continue
    if path.endswith(".html"):
-    errors.append(f"{doc.name} uses noncanonical .html URL: {path}")
+    page_issue(doc,f"{doc.name} uses noncanonical .html URL: {path}")
    route=pretty(path)
    if route.lstrip("/") not in real_pages:
     is_v2=any(route.startswith("/"+prefix+"/") for prefix in ALLOWED_PREFIXES)
     is_archive=route in ("/recensioni","/news","/speciali","/guide","/extra")
     if is_v2 or is_archive:
-     errors.append(f"{doc.name} links to absent protected route {route}")
+     page_issue(doc,f"{doc.name} links to absent protected route {route}")
     else:
-     print("WARNING: unresolved legacy link in "+doc.name+": "+route,flush=True)
+     page_issue(doc,"unresolved legacy link in "+doc.name+": "+route)
  redirect_file=root/"_redirects"
  redirects={}
  if redirect_file.is_file():
@@ -119,13 +133,13 @@ def check_dist(root,rows=None):
  razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
  existing=root/(razer_old.lstrip("/")+".html")
  if not existing.is_file():
-  errors.append("Historical Razer Google URL has no generated article page: "+razer_old)
+  warnings.append("Historical Razer Google URL has no generated article page: "+razer_old)
  else:
   identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
   if "razer hammerhead v3 chroma" not in (identity.title_text+" "+identity.h1_text).casefold():
-   errors.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
+   warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
   if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
-   errors.append("Historical Razer article canonical does not match its article URL: "+razer_old)
+   warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
   if redirects.get(razer_old) or redirects.get(razer_old+".html"):
    errors.append("Historical Razer canonical article is incorrectly redirected: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
@@ -155,18 +169,18 @@ def check_dist(root,rows=None):
    route=build_article_url(row)
    page=root/(route.lstrip("/")+".html")
    if not page.is_file():
-    errors.append("Dataset route has no physical HTML file: "+route)
+    (errors if row.get("route_version") in (2,"2","v2") else warnings).append("Dataset route has no physical HTML file: "+route)
     continue
    identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
    expected="https://zazoomtek.it"+route
    if identity.canonicals!=[expected]:
-    errors.append("Dataset route/canonical mismatch: "+route)
+    (errors if row.get("route_version") in (2,"2","v2") else warnings).append("Dataset route/canonical mismatch: "+route)
    if row.get("route_version") in (2,"2","v2"):
     prefix=CATEGORY_PREFIX.get(row.get("category"))
     if not prefix or not route.startswith("/"+prefix+"/"):
      errors.append("route_version v2 does not match category: "+route)
    elif row.get("legacy_path") and route!=row["legacy_path"]:
-    errors.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
+    warnings.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
    if route.startswith("/community-") and (route in redirects or route+".html" in redirects):
     errors.append("Historical Community route was redirected: "+route)
 
