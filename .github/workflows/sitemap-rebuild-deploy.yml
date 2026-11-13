@@ -1,0 +1,62 @@
+name: ZazoomTek - rebuild canonical sitemaps and deploy Pages
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tools/seo.py"
+      - "tools/verify_seo.py"
+      - ".github/workflows/sitemap-rebuild-deploy.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-sitemap-deploy
+  cancel-in-progress: false
+jobs:
+  rebuild-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Python sources
+        run: python3 -m compileall -q tools
+      - name: Rebuild site and both XML sitemaps from current repository data
+        run: python3 tools/build.py
+      - name: Verify both sitemap files exist and are valid XML
+        run: |
+          test -s dist/sitemap.xml
+          test -s dist/news-sitemap.xml
+          test -s dist/robots.txt
+          python3 - <<'PY'
+          from xml.etree import ElementTree as ET
+          main = ET.parse("dist/sitemap.xml").getroot()
+          news = ET.parse("dist/news-sitemap.xml").getroot()
+          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+          main_urls = {node.text for node in main.findall(".//sm:url/sm:loc", ns)}
+          news_urls = [node.text for node in news.findall(".//sm:url/sm:loc", ns)]
+          assert main_urls, "Main sitemap is empty"
+          assert len(news_urls) == len(set(news_urls)), "News sitemap contains duplicate URLs"
+          assert set(news_urls) <= main_urls, "News sitemap is not a subset of the main sitemap"
+          assert not any("/community-" in url or url.endswith(".html") for url in main_urls), "Legacy URL found in main sitemap"
+          assert not any("/community-" in url or url.endswith(".html") for url in news_urls), "Legacy URL found in news sitemap"
+          print(f"Validated {len(main_urls)} main URLs and {len(news_urls)} Google News URLs")
+          PY
+      - name: Deploy verified build to Cloudflare Pages production
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
