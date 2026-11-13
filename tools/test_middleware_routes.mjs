@@ -22,10 +22,17 @@ assert(combined.headers.get("Location") === "https://zazoomtek.it/news/prova-art
 const secondHop = await request(combined.headers.get("Location"));
 assert(secondHop.status === 200, "Canonical destination must not redirect again");
 
-const archive = await request("https://zazoomtek.it/recensioni/");
-assert(archive.status === 301, "Category archive trailing slash must redirect");
-assert(archive.headers.get("Location") === "https://zazoomtek.it/recensioni",
-  "Category archive must normalize without trailing slash");
+for (const category of ["recensioni", "news", "speciali", "guide", "extra"]) {
+  const canonical = await request("https://zazoomtek.it/" + category);
+  assert(canonical.status === 200 && !canonical.headers.has("Location"),
+    "Canonical category archive must serve directly without redirect: " + category);
+  const trailing = await request("https://zazoomtek.it/" + category + "/");
+  assert(trailing.status === 301, "Category archive trailing slash must redirect: " + category);
+  assert(trailing.headers.get("Location") === "https://zazoomtek.it/" + category,
+    "Category archive must normalize in one hop: " + category);
+  const destination = await request(trailing.headers.get("Location"));
+  assert(destination.status === 200, "Category archive redirect target must serve HTTP 200: " + category);
+}
 
 const htmlAlias = await request("https://zazoomtek.it/guide/come-configurare-wifi.html");
 assert(htmlAlias.status === 301, ".html article alias must redirect");
