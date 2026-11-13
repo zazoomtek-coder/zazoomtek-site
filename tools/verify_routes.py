@@ -40,7 +40,7 @@ def check_dist(root,rows=None):
   return "/"+rel
  real_pages={route_for(page).lstrip("/") for page in documents}
  errors=[]
- warnings=[]
+ route_warnings=[]
  def page_is_release_critical(doc):
   rel=doc.relative_to(root).with_suffix("").as_posix()
   if rel=="index":return True
@@ -53,7 +53,7 @@ def check_dist(root,rows=None):
                                       for name in archive_names)
  def page_issue(doc,message):
   critical=page_is_release_critical(doc)
-  (errors if critical else warnings).append(message)
+  (errors if critical else route_warnings).append(message)
  def route_is_release_critical(path):
   route=pretty(path).lstrip("/")
   return any(route.startswith(prefix+"/") for prefix in ALLOWED_PREFIXES) or route in {
@@ -81,10 +81,10 @@ def check_dist(root,rows=None):
   return path.removesuffix(".html").rstrip("/") or "/"
  for doc in documents:
   markup=doc.read_text(encoding="utf-8")
-  markup,warnings=strip_orphan_community_anchors(markup,real_pages)
-  for orphan in warnings:
+  markup,orphan_warnings=strip_orphan_community_anchors(markup,real_pages)
+  for orphan in orphan_warnings:
    print("WARNING: removed orphan Community link in "+doc.name+": "+orphan+" (anchor text preserved)",flush=True)
-  if warnings:
+  if orphan_warnings:
    doc.write_text(markup,encoding="utf-8")
   reader=LinkReader()
   reader.feed(markup)
@@ -142,9 +142,9 @@ def check_dist(root,rows=None):
  else:
   identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
   if "razer hammerhead v3 chroma" not in (identity.title_text+" "+identity.h1_text).casefold():
-   route_route_warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
+   route_warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
   if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
-   route_route_warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
+   route_warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
   if redirects.get(razer_old) or redirects.get(razer_old+".html"):
    errors.append("Historical Razer canonical article is incorrectly redirected: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
@@ -174,12 +174,12 @@ def check_dist(root,rows=None):
    route=build_article_url(row)
    page=root/(route.lstrip("/")+".html")
    if not page.is_file():
-    (errors if row.get("route_version") in (2,"2","v2") else warnings).append("Dataset route has no physical HTML file: "+route)
+    (errors if row.get("route_version") in (2,"2","v2") else route_warnings).append("Dataset route has no physical HTML file: "+route)
     continue
    identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
    expected="https://zazoomtek.it"+route
    if identity.canonicals!=[expected]:
-    (errors if row.get("route_version") in (2,"2","v2") else warnings).append("Dataset route/canonical mismatch: "+route)
+    (errors if row.get("route_version") in (2,"2","v2") else route_warnings).append("Dataset route/canonical mismatch: "+route)
    if row.get("route_version") in (2,"2","v2"):
     prefix=CATEGORY_PREFIX.get(row.get("category"))
     if not prefix or not route.startswith("/"+prefix+"/"):
@@ -256,16 +256,16 @@ def check_dist(root,rows=None):
     path=entry.get("url","")
     if not isinstance(path,str) or not path.startswith("/") or path.endswith(".html"):
      message="Invalid canonical entry URL "+str(path)
-     (errors if route_is_release_critical(str(path)) else warnings).append(message)
+     (errors if route_is_release_critical(str(path)) else route_warnings).append(message)
      continue
     if path.lstrip("/") not in real_pages:
      message="Linked article does not exist "+path
-     (errors if route_is_release_critical(path) else warnings).append(message)
+     (errors if route_is_release_critical(path) else route_warnings).append(message)
     if name=="news-ticker.json":
      if path in seen:raise ValueError("Duplicate ticker headline "+path)
      seen.add(path)
   except (ValueError,TypeError,KeyError) as error:
-   (errors if name=="news-ticker.json" else warnings).append("Invalid discovery dataset "+name+": "+str(error))
+   (errors if name=="news-ticker.json" else route_warnings).append("Invalid discovery dataset "+name+": "+str(error))
  # RSS item URLs must point to real category/legacy article paths without suffixes.
  feed=root/"feed.xml"
  if not feed.is_file():
@@ -281,9 +281,9 @@ def check_dist(root,rows=None):
     parsed=urlsplit(value)
     path=parsed.path
     if not path.startswith("/") or path.endswith(".html") or (path!="/" and path.endswith("/")):
-     (errors if route_is_release_critical(path) else warnings).append("RSS feed contains a noncanonical URL: "+value)
+     (errors if route_is_release_critical(path) else route_warnings).append("RSS feed contains a noncanonical URL: "+value)
     elif path.lstrip("/") not in real_pages:
-     (errors if route_is_release_critical(path) else warnings).append("RSS feed links to a missing article: "+value)
+     (errors if route_is_release_critical(path) else route_warnings).append("RSS feed links to a missing article: "+value)
   except (OSError,ValueError,TypeError) as error:
    route_warnings.append("Historical RSS feed diagnostic: "+str(error))
  # Verify the Home-only Amazon showcase and its requested affiliate destination.
@@ -336,4 +336,4 @@ def check_dist(root,rows=None):
   print("WARNING: historical route diagnostic:",warning,flush=True)
  if errors:
   raise ValueError("Site route verification failed:\\n"+"\\n".join(errors[:50]))
- print(f"Route verification successful: {len(documents)} HTML pages, {len(route_warnings)} historical warnings, {len(redirects)} safe redirect aliases",flush=True)
+ print(f"Route verification successful: {len(documents)} HTML pages, {len(route_warnings)} historical route_warnings, {len(redirects)} safe redirect aliases",flush=True)
