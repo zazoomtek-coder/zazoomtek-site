@@ -92,6 +92,11 @@ def youtube_community():
     existing = {r.get("id"): r for r in db["posts"] if r.get("id")}
     archived = load("community_full.json", "posts")["posts"]
     archived_ids = {x.get("id") for x in archived}
+    try:
+        historical = load("community.json", "posts")["posts"]
+    except (OSError, ValueError, KeyError):
+        historical = []
+    archived_ids.update(x.get("id") for x in historical if isinstance(x, dict) and x.get("id"))
     occupied_paths = set()
     for filename, key in (("posts.json", "posts"), ("studio_posts.json", "posts"),
                           ("community_imported.json", "posts"), ("community_full.json", "posts"),
