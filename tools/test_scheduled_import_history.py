@@ -7,6 +7,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import scheduled_editorial_import as scheduled
 import emergency_sync
+import json
 
 
 class HistoricalImportIsolationTests(unittest.TestCase):
@@ -20,6 +21,14 @@ class HistoricalImportIsolationTests(unittest.TestCase):
 
         with patch.object(scheduled, "snapshot", side_effect=fake_snapshot):
             self.assertEqual(scheduled._historical_community_ids(), {"old-archive-id"})
+
+    def test_import_manifest_is_valid_json_and_contains_only_new_ids(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = scheduled.write_import_manifest(tmp, ["new-post", "new-post"], ["new-video"])
+            stored = json.loads(Path(tmp, ".editorial-import-manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(stored["strict_ids"], ["new-post", "new-video"])
+        self.assertEqual(manifest["community_ids"], ["new-post"])
+        self.assertEqual(manifest["video_ids"], ["new-video"])
 
     def test_youtube_community_import_survives_broken_historical_archives(self):
         imported = {"posts": []}
