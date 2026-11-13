@@ -1,5 +1,5 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
-# Cloudflare may dispatch this workflow frequently; the first job is a strict Europe/Rome slot gate.
+# Cloudflare dispatches 15 minutes before each editorial slot; the first job validates the preflight window.
 # Manual publish_now remains an explicit owner-only override.
 on:
   workflow_dispatch:
@@ -44,13 +44,13 @@ jobs:
           target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $REQUESTED_SLOT" +%s)"
           delta=$((now_epoch - target_epoch))
           absolute_delta=$((delta < 0 ? -delta : delta))
-          if [ "$absolute_delta" -gt 600 ]; then
+          if [ "$absolute_delta" -gt 900 ]; then
             echo "allowed=false" >> "$GITHUB_OUTPUT"
-            echo "STOP: dispatch fuori dalla tolleranza di 10 minuti per lo slot $REQUESTED_SLOT (scarto ${delta}s)."
+            echo "STOP: dispatch fuori dalla finestra di preflight di 15 minuti per lo slot $REQUESTED_SLOT (scarto ${delta}s)."
             exit 0
           fi
           echo "allowed=true" >> "$GITHUB_OUTPUT"
-          echo "OK: slot $REQUESTED_SLOT Europe/Rome accettato con scarto ${delta}s (tolleranza ±600s)."
+          echo "OK: preflight per slot $REQUESTED_SLOT Europe/Rome accettato con scarto ${delta}s (finestra ±900s)."
   import-and-publish:
     needs: rome-slot-guard
     if: ${{ inputs.publish_now == true || needs.rome-slot-guard.outputs.allowed == 'true' }}
