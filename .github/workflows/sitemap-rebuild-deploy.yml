@@ -7,6 +7,13 @@ on:
       - "tools/seo.py"
       - "tools/verify_seo.py"
       - ".github/workflows/sitemap-rebuild-deploy.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "tools/seo.py"
+      - "tools/verify_seo.py"
+      - ".github/workflows/sitemap-rebuild-deploy.yml"
   workflow_dispatch:
 permissions:
   contents: read
@@ -54,6 +61,7 @@ jobs:
           print(f"Validated {len(main_urls)} main URLs and {len(news_urls)} Google News URLs")
           PY
       - name: Deploy verified build to Cloudflare Pages production
+        if: github.event_name != 'pull_request'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
