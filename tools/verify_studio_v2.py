@@ -124,7 +124,10 @@ def verify_studio_v2(output,rows):
  changed_article={"updated":"2026-11-13","items":[{"title":"Titolo modificato"}]}
  assert editorial_value(metadata_only_b)!=editorial_value(changed_article), "Actual editorial changes must change the fingerprint"
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
- assert 'new Set(["12:30", "16:00", "19:30"])' in cron, "Cloudflare Worker must accept only the three exact local slots"
+ preflight_map=re.findall(r'\["(\d{2}:\d{2})", "(\d{2}:\d{2})"\]',cron)
+ assert preflight_map==[("12:15","12:30"),("15:45","16:00"),("19:15","19:30")], "Cloudflare Worker must map only the three exact preflight times to their editorial slots"
+ wrangler=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/wrangler.toml").read_text(encoding="utf-8")
+ assert 'crons = ["15 10,11 * * *", "45 13,14 * * *", "15 17,18 * * *"]' in wrangler, "Cloudflare Worker cron must trigger at the three 15-minute preflight times"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
  assert 'rows("studio_overrides.json", "overrides")' in live_check and 'is_today(row.get("updated_at"))' in live_check, "Live release verification must check Studio edits as well as new articles"
  # Existing original SEO is frozen when an article is edited; brand-new
