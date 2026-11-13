@@ -1305,6 +1305,8 @@ def legacy_article_redirects(rows):
  lines=[];sources=set();linked=0
  for entry in original_routes():
   old=str(entry["path"]).removesuffix(".html")
+  if old.startswith("community-"):
+   continue
   if not re.fullmatch(r"[A-Za-z0-9_-]+",old):
    raise ValueError("Unsafe legacy article path: "+old)
   desired=entry.get("canonical_slug") or ""
@@ -1317,7 +1319,7 @@ def legacy_article_redirects(rows):
    continue
   if found["category"]!=entry["category"]:
    raise ValueError("Legacy URL category disagrees with article: "+old)
-  dest="/"+found["slug"]
+  dest=article_path(found)
   # Physical pages and clean paths resolve to the same Cloudflare destination.
   if old==found["slug"] or old in occupied:
    continue
@@ -1338,7 +1340,7 @@ def legacy_article_redirects(rows):
   target=str(row.get("slug") or "")
   if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
   if row.get("is_excerpt") or target not in by_slug:continue
-  if not (O/(target+".html")).is_file():continue
+  if not (O/(article_path(by_slug[target]).lstrip("/")+".html")).is_file():continue
   cat=str(row.get("category") or "")
   if cat in ("recensioni-tech","recensioni-gaming"):
    prefix="recensione-"
@@ -1362,6 +1364,8 @@ def legacy_article_redirects(rows):
  alias_entries=json.loads((P/"data/community_aliases.json").read_text(encoding="utf-8")).get("entries",[])
  for entry in alias_entries:
   old="community-"+re.sub(r"[^a-z0-9]+","-",entry["old_id"].lower()).strip("-")
+  # Historical Community permalinks are preserved exactly, never redirected.
+  continue
   target="community-"+re.sub(r"[^a-z0-9]+","-",entry["new_id"].lower()).strip("-")
   if old==target or old in occupied:continue
   # Some exact-title Community posts may be superseded by a preferred archive edition.
@@ -1389,11 +1393,11 @@ def legacy_article_redirects(rows):
  for row in rows:
   old=str(row.get("original_slug") or "").strip().strip("/")
   target=str(row.get("slug") or "")
-  if not old or old==target:continue
+  if not old or old==target or old.startswith("community-"):continue
   if not re.fullmatch(r"[A-Za-z0-9_-]+(?:\.html)?",old):continue
   old=old.removesuffix(".html")
   if old==target or old in occupied or old in by_slug:continue
-  if target not in by_slug or not (O/(target+".html")).is_file():continue
+  if target not in by_slug or not (O/(article_path(by_slug[target]).lstrip("/")+".html")).is_file():continue
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
