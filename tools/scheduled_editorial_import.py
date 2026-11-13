@@ -84,10 +84,11 @@ def merge_queue(queue_file, dest_file, key, archived):
             prefix = CATEGORY_PREFIX.get(category)
             if not prefix:
                 raise ValueError("Nuovo post Community in coda senza categoria valida: " + str(category))
-            public_slug = unique_slug(clean.get("title") or "", occupied_paths, prefix=prefix)
-            clean.update({"category": category, "route_version": 2,
-                          "public_slug": public_slug,
-                          "public_path": "/" + prefix + "/" + public_slug})
+            clean["category"] = category
+            if clean.get("route_version") not in (2, "2", "v2") or not clean.get("public_path"):
+                public_slug = unique_slug(clean.get("title") or "", occupied_paths, prefix=prefix)
+                clean.update({"route_version": 2, "public_slug": public_slug,
+                              "public_path": "/" + prefix + "/" + public_slug})
             occupied_paths.add(clean["public_path"])
         rows.append(clean)
         ids.add(rid)
@@ -216,9 +217,10 @@ def sync_studio_publications():
                     prefix = CATEGORY_PREFIX.get(item["category"])
                     if not prefix:
                         raise ValueError("Nuovo articolo Studio senza categoria pubblica valida: " + item["category"])
-                    public_slug = unique_slug(item.get("title") or "", occupied, prefix=prefix)
-                    item.update({"route_version": 2, "public_slug": public_slug,
-                                 "public_path": "/" + prefix + "/" + public_slug})
+                    if item.get("route_version") not in (2, "2", "v2") or not item.get("public_path"):
+                        public_slug = unique_slug(item.get("title") or "", occupied, prefix=prefix)
+                        item.update({"route_version": 2, "public_slug": public_slug,
+                                     "public_path": "/" + prefix + "/" + public_slug})
                     rows.insert(0, item)
                     indexed = {r["slug"]: i for i, r in enumerate(rows)
                                if isinstance(r, dict) and r.get("slug")}
