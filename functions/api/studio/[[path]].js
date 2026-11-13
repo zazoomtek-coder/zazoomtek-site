@@ -26,7 +26,8 @@ const PUBLIC_PREFIX={"news-tech":"news","news-gaming":"news","recensioni-tech":"
 const PUBLIC_STOP=new Set("a ad al alla alle allo ai agli all dalle dalla da di del della delle dei degli in nel nello nella nei negli su sul sulla per tra fra con e ed il lo la i gli le un uno una che come oggi the an and or of for to on with by from at is are this that".split(" "));
 function publicSlug(title){
  let words=clean(title).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().match(/[a-z0-9]+/g)||[];
- words=words.filter(x=>!PUBLIC_STOP.has(x));if(!words.length)throw new Error("Titolo non utilizzabile per l'indirizzo pubblico.");
+ const original=[...words];words=words.filter(x=>!PUBLIC_STOP.has(x));if(!words.length)words=original;
+ if(!words.length)throw new Error("Titolo non utilizzabile per l'indirizzo pubblico.");
  return words.join("-").slice(0,68).replace(/-+$/,"")||"articolo";
 }
 function assignPublicRoute(record,records){
