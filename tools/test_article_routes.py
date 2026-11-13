@@ -1,5 +1,5 @@
 import unittest
-from article_routes import build_article_url, normalize_public_path, slugify_title, unique_slug
+from tools.article_routes import build_article_url, normalize_public_path, slugify_title, unique_slug
 
 class ArticleRoutesTests(unittest.TestCase):
     def test_category_mapping(self):
