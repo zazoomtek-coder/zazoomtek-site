@@ -1,7 +1,7 @@
 /**
  * Canonical URL enforcement for ZazoomTek.
- * Combine host, scheme, .html and category trailing-slash normalization in one 301.
- * Historical Community paths retain their exact path component.
+ * Host, scheme, .html and category slash normalization share one 301.
+ * Historical Community permalinks retain their original path and slash form.
  */
 const LEGACY_COMMUNITY = /^\/community-[a-z0-9]+(?:-[a-z0-9]+)*$/i;
 const CATEGORY_ROUTE = /^\/(?:recensioni|news|speciali|guide|extra)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?\/$/i;
@@ -9,7 +9,8 @@ const CATEGORY_ROUTE = /^\/(?:recensioni|news|speciali|guide|extra)(?:\/[a-z0-9]
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   const original = url.toString();
-  const legacyCommunity = LEGACY_COMMUNITY.test(url.pathname.replace(/\/$/, ""));
+  const legacyPath = url.pathname.replace(/\/$/, "");
+  const legacyCommunity = LEGACY_COMMUNITY.test(legacyPath);
 
   if (url.hostname.toLowerCase() === "www.zazoomtek.it") {
     url.hostname = "zazoomtek.it";
@@ -19,7 +20,11 @@ export async function onRequest(context) {
     url.protocol = "https:";
 
     if (!legacyCommunity) {
-      if (url.pathname.toLowerCase().endsWith(".html")) {
+      // Also handle the unusual /category/article.html/ spelling in this hop.
+      if (/\.html\/$/i.test(url.pathname)) {
+        url.pathname = url.pathname.slice(0, -1);
+      }
+      if (/\.html$/i.test(url.pathname)) {
         url.pathname = url.pathname.slice(0, -5);
         if (url.pathname.toLowerCase() === "/index") url.pathname = "/";
       }
