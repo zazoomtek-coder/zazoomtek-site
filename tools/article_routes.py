@@ -66,21 +66,23 @@ def build_article_url(article):
     if not isinstance(article, dict):
         raise TypeError("Article must be a mapping")
     # Explicit legacy_path is authoritative and must be returned byte-for-byte.
-    legacy = str(article.get("legacy_path") or "").strip()
+    legacy_value = article.get("legacy_path")
+    legacy = legacy_value if isinstance(legacy_value, str) else ""
     if legacy:
         if not legacy.startswith("/") or legacy.startswith("//") or "?" in legacy or "#" in legacy:
             raise ValueError("Invalid explicit legacy path: " + legacy)
         return legacy
     # Preserve historical Community URLs even when they have no explicit marker.
     for candidate in (article.get("url"),):
-        candidate = str(candidate or "").strip()
+        candidate = candidate if isinstance(candidate, str) else ""
         if candidate.startswith("/community-"):
             if not LEGACY_RE.fullmatch(candidate):
                 raise ValueError("Invalid legacy Community path: " + candidate)
             return candidate
     # Missing route_version means historic content: never derive a new slug.
     if not is_v2(article):
-        original = str(article.get("url") or "").strip()
+        original_value = article.get("url")
+        original = original_value if isinstance(original_value, str) else ""
         if original.startswith("/") and not original.startswith("//"):
             return original
         slug = str(article.get("slug") or "").strip()
