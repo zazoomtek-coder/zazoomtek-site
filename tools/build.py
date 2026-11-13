@@ -1625,7 +1625,7 @@ def main():
  from verify_seo import check_seo
  check_seo(O,rows,GROUPS,PREVIEW)
  from verify_routes import check_dist
- check_dist(O)
+ check_dist(O,rows)
  from audit_trace import run as audit_editorial_trace
  audit_editorial_trace(P,O,rows,_BUILD_TRACE)
  print("SpotNews build OK:",len(rows),"articoli,",len(GROUPS)+2,"pagine.")
