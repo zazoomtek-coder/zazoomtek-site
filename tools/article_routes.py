@@ -16,6 +16,8 @@ on with by from at is are this that
 """.split())
 REVIEW_LABELS = frozenset({"review", "reviews", "recensione", "recensioni"})
 REVIEW_PREFIX_LABELS = frozenset({"gaming", "tech"})
+CATEGORY_LABELS = frozenset({"recensioni", "news", "guide", "speciali", "extra"})
+CATEGORY_QUALIFIERS = frozenset({"tech", "gaming", "extra", "review", "reviews", "recensione", "recensioni"})
 LEGACY_RE = re.compile(r"^/community-[a-z0-9]+(?:-[a-z0-9]+)*$")
 PUBLIC_RE = re.compile(r"^/(recensioni|news|speciali|guide|extra)/[a-z0-9]+(?:-[a-z0-9]+)*$")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -45,6 +47,31 @@ def slugify_title(title, max_length=68):
     if not slug:
         raise ValueError("Cannot create a public slug from an empty title")
     return slug
+
+
+def clean_category_slug(slug, category_prefix, max_length=68):
+    """Remove duplicated category/editorial labels only from the beginning of a slug."""
+    words = [word for word in str(slug or "").lower().split("-") if word]
+    prefix = str(category_prefix or "").lower()
+    changed = True
+    while words and changed:
+        changed = False
+        if words[0] == prefix:
+            words.pop(0)
+            changed = True
+            if words and words[0] in CATEGORY_QUALIFIERS:
+                words.pop(0)
+                changed = True
+        elif words[0] in CATEGORY_LABELS:
+            words.pop(0)
+            changed = True
+            if words and words[0] in CATEGORY_QUALIFIERS:
+                words.pop(0)
+                changed = True
+    result = "-".join(words)[:max_length].rstrip("-")
+    if not result:
+        raise ValueError("Cannot create a public slug after category-label cleanup")
+    return result
 
 
 def slugify_review_title(title, max_length=68):
@@ -115,15 +142,18 @@ def build_article_url(article):
         return "/" + slug.removesuffix(".html")
     if article.get("public_path"):
         existing = normalize_public_path(article["public_path"])
+        category = str(article.get("category") or "")
+        prefix = CATEGORY_PREFIX.get(category)
+        if prefix not in ALLOWED_PREFIXES:
+            raise ValueError("Unsupported article category for public routing: " + category)
+        existing_slug = existing.rsplit("/", 1)[-1]
+        cleaned = clean_category_slug(existing_slug, prefix)
         if is_review(article):
-            existing_slug = existing.rsplit("/", 1)[-1]
-            existing_words = existing_slug.split("-")
-            has_editorial_label = any(word in REVIEW_LABELS for word in existing_words) or (
-                len(existing_words) > 1 and existing_words[0] in REVIEW_PREFIX_LABELS
-                and existing_words[1] in REVIEW_LABELS
-            )
-            if has_editorial_label:
-                return normalize_public_path("/recensioni/" + slugify_review_title(article.get("title") or ""))
+            has_review_label = any(word in REVIEW_LABELS for word in existing_slug.split("-"))
+            if has_review_label:
+                cleaned = slugify_review_title(article.get("title") or "")
+        if cleaned != existing_slug:
+            return normalize_public_path("/" + prefix + "/" + cleaned)
         return existing
     category = str(article.get("category") or "")
     prefix = CATEGORY_PREFIX.get(category)
@@ -132,11 +162,12 @@ def build_article_url(article):
     slug = str(article.get("public_slug") or "")
     if not SLUG_RE.fullmatch(slug):
         slug = slugify_review_title(article.get("title") or "") if is_review(article) else slugify_title(article.get("title") or "")
+    slug = clean_category_slug(slug, prefix)
     return normalize_public_path("/" + prefix + "/" + slug)
 
 
 def assign_public_routes(rows):
-    """Persist canonical v2 paths; review routes are normalized from title + platform."""
+    """Persist clean v2 paths with one top-level category and a title-only slug."""
     occupied = set()
     review_rows = []
     for row in rows:
@@ -156,8 +187,13 @@ def assign_public_routes(rows):
                 + str(row.get("title") or row.get("slug") or "<untitled>")
             )
         path = normalize_public_path(row["public_path"])
+        current_slug = path.rsplit("/", 1)[-1]
+        clean_slug = clean_category_slug(current_slug, prefix)
+        path = normalize_public_path("/" + prefix + "/" + clean_slug)
+        row["public_slug"] = clean_slug
+        row["public_path"] = path
         if path in occupied:
-            raise ValueError("Duplicate immutable public_path in category: " + path)
+            raise ValueError("Duplicate canonical public_path in category: " + path)
         occupied.add(path)
 
     for row in review_rows:
