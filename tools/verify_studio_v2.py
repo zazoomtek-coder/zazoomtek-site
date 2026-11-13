@@ -117,6 +117,12 @@ def verify_studio_v2(output,rows):
   assert collection in gate, "Editorial collection missing from release fingerprint: "+collection
  assert '"updated"' in gate and '"updated_at"' in gate, "Generated service metadata must be excluded from release fingerprint"
  assert "Approved editorial media is missing" in gate and 'path.read_bytes()' in gate, "Referenced Studio media must remain part of the release fingerprint"
+ from editorial_slot_gate import editorial_value
+ metadata_only_a={"updated":"2026-11-12","items":[{"title":"Nuovo articolo","updated_at":"2026-11-12T10:00:00Z"}]}
+ metadata_only_b={"updated":"2026-11-13","items":[{"title":"Nuovo articolo","updated_at":"2026-11-13T10:00:00Z"}]}
+ assert editorial_value(metadata_only_a)==editorial_value(metadata_only_b), "Service metadata must not change the editorial fingerprint"
+ changed_article={"updated":"2026-11-13","items":[{"title":"Titolo modificato"}]}
+ assert editorial_value(metadata_only_b)!=editorial_value(changed_article), "Actual editorial changes must change the fingerprint"
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
  assert 'new Set(["12:30", "16:00", "19:30"])' in cron, "Cloudflare Worker must accept only the three exact local slots"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
