@@ -24,6 +24,10 @@ function cleanCategorySlug(value, category) {
     }
   }
   if (category === "recensioni") {
+    if (words[0] === "review" || words[0] === "reviews" || words[0] === "recensione") {
+      words.shift();
+      if (words[0] === "gaming" || words[0] === "tech") words.shift();
+    }
     return words.filter(word => !REVIEW_LABELS.has(word)).join("-");
   }
   return words.join("-");
