@@ -1,5 +1,5 @@
 import unittest
-from tools.article_routes import build_article_url, normalize_public_path, slugify_title, unique_slug, assign_public_routes
+from tools.article_routes import build_article_url, normalize_public_path, slugify_title, slugify_review_title, unique_slug, assign_public_routes
 
 class ArticleRoutesTests(unittest.TestCase):
     def test_category_mapping(self):
@@ -17,6 +17,41 @@ class ArticleRoutesTests(unittest.TestCase):
                 "route_version": "v2", "category": category,
                 "public_slug": expected.rsplit("/", 1)[-1],
             }), expected)
+
+    def test_review_slug_removes_editorial_prefix_and_suffix(self):
+        self.assertEqual(
+            slugify_review_title("Review Gaming: PAYDAY: ACES HIGH | Recensione PCVR"),
+            "payday-aces-high-pcvr",
+        )
+        self.assertEqual(
+            slugify_review_title("Review Tech: Xiaomi Buds | Recensione"),
+            "xiaomi-buds",
+        )
+
+    def test_review_route_rewrites_existing_long_v2_path(self):
+        rows = [{
+            "route_version": 2, "category": "recensioni-gaming",
+            "title": "Review Gaming: PAYDAY: ACES HIGH | Recensione PCVR",
+            "public_slug": "review-gaming-payday-aces-high-recensione-pcvr",
+            "public_path": "/recensioni/review-gaming-payday-aces-high-recensione-pcvr",
+        }]
+        assign_public_routes(rows)
+        self.assertEqual(rows[0]["public_slug"], "payday-aces-high-pcvr")
+        self.assertEqual(rows[0]["public_path"], "/recensioni/payday-aces-high-pcvr")
+        self.assertEqual(build_article_url(rows[0]), "/recensioni/payday-aces-high-pcvr")
+
+    def test_review_collision_gets_deterministic_suffix(self):
+        rows = [
+            {"route_version": 2, "category": "recensioni-tech",
+             "title": "Review Tech: Xiaomi Buds | Recensione",
+             "public_path": "/recensioni/old-xiaomi-buds"},
+            {"route_version": 2, "category": "recensioni-gaming",
+             "title": "Review Gaming: Xiaomi Buds | Recensione",
+             "public_path": "/recensioni/old-xiaomi-buds-2"},
+        ]
+        assign_public_routes(rows)
+        self.assertEqual(rows[0]["public_path"], "/recensioni/xiaomi-buds")
+        self.assertEqual(rows[1]["public_path"], "/recensioni/xiaomi-buds-2")
 
     def test_explicit_legacy_path_is_immutable(self):
         path = "/community-ugkxrvwng0aanuqnw2w-cqhip06jqlklaktr"
