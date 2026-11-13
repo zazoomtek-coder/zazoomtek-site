@@ -142,9 +142,9 @@ def check_dist(root,rows=None):
  else:
   identity=PageIdentity();identity.feed(existing.read_text(encoding="utf-8"))
   if "razer hammerhead v3 chroma" not in (identity.title_text+" "+identity.h1_text).casefold():
-   warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
+   route_warnings.append("Historical Razer Google URL does not resolve to the Hammerhead V3 Chroma article: "+razer_old)
   if identity.canonicals!=["https://zazoomtek.it"+razer_old]:
-   warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
+   route_warnings.append("Historical Razer article canonical does not match its article URL: "+razer_old)
   if redirects.get(razer_old) or redirects.get(razer_old+".html"):
    errors.append("Historical Razer canonical article is incorrectly redirected: "+razer_old)
  # Explicitly verify all four legal pages and editorial archives.
