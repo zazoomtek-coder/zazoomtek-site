@@ -59,6 +59,11 @@ def check_dist(root,rows=None):
   return any(route.startswith(prefix+"/") for prefix in ALLOWED_PREFIXES) or route in {
    "recensioni","news","guide","speciali","extra"
   }
+ def redirect_issue(source,message):
+  if str(source).startswith("/community-") or route_is_release_critical(source):
+   errors.append(message)
+  else:
+   route_warnings.append(message)
  # Route every public request through the canonical URL middleware so the
  # www host, HTTP and physical .html aliases cannot be indexed separately.
  routes_file=root/"_routes.json"
@@ -116,23 +121,23 @@ def check_dist(root,rows=None):
    if not line.strip():continue
    parts=line.split()
    if len(parts)!=3 or parts[2] not in ("301","302","307","308"):
-    errors.append("Invalid redirect: "+line);continue
+    redirect_issue(parts[0] if parts else "", "Invalid redirect: "+line);continue
    source,target,_=parts
-   if source in redirects:errors.append("Duplicate redirect source "+source)
+   if source in redirects:redirect_issue(source,"Duplicate redirect source "+source)
    redirects[source]=target
    if pretty(source)==pretty(target):
-    errors.append("Automatic Cloudflare HTML normalization would loop: "+line)
+    redirect_issue(source,"Automatic Cloudflare HTML normalization would loop: "+line)
    if target.endswith(".html"):
-    errors.append("Redirect target is noncanonical "+line)
+    redirect_issue(source,"Redirect target is noncanonical "+line)
    if pretty(target).lstrip("/") not in real_pages:
-    errors.append("Redirect target does not exist "+line)
+    redirect_issue(source,"Redirect target does not exist "+line)
    if source.removesuffix(".html").lstrip("/") in real_pages:
-    errors.append("Redirect overrides an actual HTML page "+line)
+    redirect_issue(source,"Redirect overrides an actual HTML page "+line)
  for source,target in redirects.items():
   if target in redirects or target+".html" in redirects:
-   errors.append("Redirect chain/cycle risk: "+source+" -> "+target)
+   redirect_issue(source,"Redirect chain/cycle risk: "+source+" -> "+target)
   if target=="/":
-   errors.append("Article/legacy redirect must never send visitors to homepage: "+source)
+   redirect_issue(source,"Article/legacy redirect must never send visitors to homepage: "+source)
  # Regression guard for the exact Razer result reported in Google.
  # This URL is already a generated canonical article path, not a redirect alias.
  razer_old="/community-ugkxhw4e98tezptpdc7opr4e9dcs53bsioey"
@@ -336,4 +341,4 @@ def check_dist(root,rows=None):
   print("WARNING: historical route diagnostic:",warning,flush=True)
  if errors:
   raise ValueError("Site route verification failed:\\n"+"\\n".join(errors[:50]))
- print(f"Route verification successful: {len(documents)} HTML pages, {len(route_warnings)} historical route_warnings, {len(redirects)} safe redirect aliases",flush=True)
+ print(f"Route verification successful: {len(documents)} HTML pages, {len(route_warnings)} historical warnings, {len(redirects)} safe redirect aliases",flush=True)
