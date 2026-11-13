@@ -3,11 +3,11 @@ main = "src/index.js"
 compatibility_date = "2026-10-31"
 workers_dev = false
 
-# Sei candidati UTC coprono i tre orari Europe/Rome sia in ora solare
-# sia in ora legale. Il Worker accetta soltanto i tre orari locali esatti.
-# Nessun polling, retry o finestra di recupero.
+# Trigger anticipati di 15 minuti rispetto agli slot Europe/Rome.
+# Le coppie UTC coprono ora solare e legale; il Worker converte il preflight
+# nello slot editoriale effettivo prima di inviare workflow_dispatch.
 [triggers]
-crons = ["30 10,11 * * *", "0 14,15 * * *", "30 17,18 * * *"]
+crons = ["15 10,11 * * *", "45 13,14 * * *", "15 17,18 * * *"]
 
 [vars]
 GITHUB_REPO = "zazoomtek-coder/zazoomtek-site"
