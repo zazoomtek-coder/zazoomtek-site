@@ -48,6 +48,7 @@ class MetaParser(HTMLParser):
 def check_seo(root,rows,groups,preview):
  root=Path(root)
  strict_ids=imported_ids(root.parent)
+ bad=[]
  warnings=[]
  def page_is_critical(page):
   rel=page.relative_to(root).with_suffix("").as_posix()
@@ -125,7 +126,6 @@ def check_seo(root,rows,groups,preview):
   raise AssertionError("Sitemap includes noncanonical URL")
  if (DOMAIN+"/404") in urls:raise AssertionError("404 must not be in sitemap")
  count=0
- bad=[]
  for page in root.rglob("*.html"):
   if page.relative_to(root).parts[0] in ("studio","studio-v2"):
    continue
