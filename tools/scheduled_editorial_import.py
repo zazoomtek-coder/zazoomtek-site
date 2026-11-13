@@ -324,6 +324,20 @@ def _historical_community_ids():
     return ids
 
 
+def write_import_manifest(project_root, community_ids, video_ids):
+    """Persist the exact IDs added by this import run for release-scoped audits."""
+    manifest = {
+        "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "community_ids": sorted(set(str(value) for value in community_ids if value)),
+        "video_ids": sorted(set(str(value) for value in video_ids if value)),
+    }
+    manifest["strict_ids"] = sorted(set(manifest["community_ids"] + manifest["video_ids"]))
+    path = Path(project_root) / ".editorial-import-manifest.json"
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+                    encoding="utf-8")
+    return manifest
+
+
 def main():
     community_before = snapshot("community_imported.json", "posts")["posts"]
     video_before = snapshot("videos.json", "videos")["videos"]
@@ -368,14 +382,8 @@ def main():
     new_video_ids = sorted(str(row.get("id")) for row in after_videos
                            if isinstance(row, dict) and row.get("id")
                            and str(row.get("id")) not in before_video_ids)
-    manifest = {
-        "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "community_ids": new_community_ids,
-        "video_ids": new_video_ids,
-        "strict_ids": sorted(set(new_community_ids + new_video_ids)),
-    }
-    (Path(__file__).resolve().parents[1] / ".editorial-import-manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    manifest = write_import_manifest(
+        Path(__file__).resolve().parents[1], new_community_ids, new_video_ids)
     print("IMPORT RELEASE MANIFEST:", manifest, flush=True)
     print("IMPORT RESULT",
           "new Community:", after["community_imported.json"] - before["community_imported.json"],
