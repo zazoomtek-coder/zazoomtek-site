@@ -5,7 +5,7 @@ The workflow imports sources first. This gate then compares the resulting
 published-content snapshots with the last successful release. No content
 change means no build and no deployment.
 """
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
 import hashlib
@@ -17,15 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "data" / "editorial_release_state.json"
 ROME = ZoneInfo("Europe/Rome")
 SLOTS = ((12, 30), (16, 0), (19, 30))
-# Only editorial payloads are fingerprinted. Code, templates, workflow files,
-# verification scripts and unused uploaded files cannot trigger a release.
-CONTENT_FILES = (
-    "data/community_imported.json",
-    "data/videos.json",
-    "data/web.json",
-    "data/studio_posts.json",
-    "data/studio_overrides.json",
-)
+# Only approved editorial collections and their referenced media are fingerprinted.
+MAX_DISPATCH_DELAY_SECONDS = 120
 
 
 # Each snapshot contributes only its actual editorial collection. Service-level
@@ -124,7 +117,8 @@ def requested_slot(now):
         return None
     hour, minute = map(int, value.split(":"))
     target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-    if now < target or now >= target + timedelta(minutes=30):
+    delay_seconds = (now - target).total_seconds()
+    if delay_seconds < 0 or delay_seconds > MAX_DISPATCH_DELAY_SECONDS:
         return None
     return target
 
@@ -171,9 +165,13 @@ def authorize():
         raise RuntimeError("Missing slot or verified content digest")
     slot = datetime.fromisoformat(slot_value)
     now = datetime.now(ROME)
-    if slot.tzinfo is None or now < slot or now >= slot + timedelta(minutes=30):
+    # prepare() already checked the Worker dispatch arrived within the
+    # short two-minute scheduling tolerance. Authorization may complete after
+    # the build, but never on a different local calendar day or before the slot.
+    if slot.tzinfo is None or now.date() != slot.date() or now < slot:
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
-        print("SKIPPED: exact slot window has expired", now.isoformat(), flush=True)
+        print("SKIPPED: release slot is invalid or belongs to another day",
+              now.isoformat(), flush=True)
         return
     previous = state()
     if previous.get("slot") == slot.isoformat():
