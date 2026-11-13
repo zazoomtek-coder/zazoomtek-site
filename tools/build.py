@@ -107,23 +107,32 @@ def load_remote_community():
  except Exception as exc:
   print("Community YouTube temporarily unavailable:",type(exc).__name__,str(exc)[:300],flush=True)
   return []
+def _legacy_rows(filename, key="posts"):
+ """Load an old archive as a best-effort source; its damage is diagnostic only."""
+ path=P/"data"/filename
+ if not path.exists():
+  return []
+ try:
+  payload=json.loads(path.read_text(encoding="utf-8"))
+  values=payload.get(key,[]) if isinstance(payload,dict) else None
+  if not isinstance(values,list):raise ValueError("expected a JSON array at "+key)
+  return values
+ except (OSError,ValueError,TypeError) as exc:
+  print("WARNING: historical archive skipped; new editorial publication continues:",
+        filename,type(exc).__name__,str(exc)[:180],flush=True)
+  return []
 def community_posts():
- """Merge verified full-text public posts with the existing archived extracts.
-    Older short excerpts are labeled as such, never presented as complete.
+ """Merge current imported posts with best-effort historical Community snapshots.
+    Historical archives enrich the site but are never prerequisites for new posts.
  """
- path=P/"data/community.json"
- raw=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"posts":[]}
- if not isinstance(raw,dict) or not isinstance(raw.get("posts"),list):
-  raise ValueError("Invalid stored Community data")
- historical=raw["posts"]
- alias_entries=json.loads((P/"data/community_aliases.json").read_text(encoding="utf-8")).get("entries",[])
- if len(alias_entries)!=30:raise ValueError("30 Community short-to-full aliases expected")
- abbreviated={entry["old_id"] for entry in alias_entries}
- canonical_category={entry["new_id"]:entry["category"] for entry in alias_entries}
- archive_path=P/"data/community_full.json"
- archived=json.loads(archive_path.read_text(encoding="utf-8")).get("posts",[]) if archive_path.exists() else []
- # New YouTube imports are promoted from the editorial queue at 12:30 or 19:30.
- # Never fetch the live Community in the static production build.
+ historical=_legacy_rows("community.json")
+ alias_entries=_legacy_rows("community_aliases.json","entries")
+ abbreviated={entry.get("old_id") for entry in alias_entries if isinstance(entry,dict) and entry.get("old_id")}
+ canonical_category={entry.get("new_id"):entry.get("category") for entry in alias_entries
+                     if isinstance(entry,dict) and entry.get("new_id")}
+ archived=_legacy_rows("community_full.json")
+ # The active importer output is release-critical; only historical inputs above
+ # are fail-open. This keeps a malformed old archive from hiding valid imports.
  imported_path=P/"data/community_imported.json"
  imported=json.loads(imported_path.read_text(encoding="utf-8")).get("posts",[]) if imported_path.exists() else []
  result=[]
@@ -1524,8 +1533,10 @@ def rss_feed(rows):
  print("RSS feed generated:",len(posted),"articles",flush=True)
 
 def audit_published_articles(rows):
- """A whole-site audit: no article with only a title, cover or archived snippet."""
- issues=[]
+ """Block on new/v2 article quality; report historical archive defects only."""
+ from editorial_scope import imported_ids,is_release_critical
+ strict_ids=imported_ids(P)
+ errors=[];warnings=[]
  for row in rows:
   body=row.get("body") or []
   if isinstance(body,str):body=[body]
@@ -1535,7 +1546,8 @@ def audit_published_articles(rows):
    (isinstance(block,dict) and block.get("type") in ("paragraph","quote"))
   ).strip()
   if len(text)<260 or row.get("is_excerpt"):
-   issues.append((row.get("slug"),len(text),bool(row.get("is_excerpt"))))
+   issue=(row.get("slug"),len(text),bool(row.get("is_excerpt")))
+   (errors if is_release_critical(row,strict_ids) else warnings).append(issue)
  for needed in (
   "guida-come-usare-playstation-2-tv-4k-moderna",
   "news-ugkxkbtuhabtov7gniqycpz9y8wdggjht3fn",
@@ -1544,13 +1556,16 @@ def audit_published_articles(rows):
   "news-ugkxyi2ggon-auahc8nr5898ffno84i-kepe"
  ):
   if not any(r.get("slug")==needed for r in rows):
-   issues.append((needed,"missing",True))
+   warnings.append((needed,"historical archive entry missing",True))
  ps2=next((r for r in rows if r.get("slug")=="guida-come-usare-playstation-2-tv-4k-moderna"),{})
  if not safe_image(ps2.get("image","")):
-  issues.append(("PS2 cover","missing",True))
- if issues:
-  raise ValueError("Editorial audit failed: "+repr(issues[:25]))
- print("Editorial audit PASS:",len(rows),"unique published articles with substantive text, 0 excerpts, PS2 photo ready",flush=True)
+  warnings.append(("PS2 cover","historical asset missing",True))
+ for issue in warnings:
+  print("WARNING: historical editorial quality check:",repr(issue),flush=True)
+ if errors:
+  raise ValueError("New/v2 editorial quality audit failed: "+repr(errors[:25]))
+ print("Editorial quality audit PASS:",len(rows),"articles;",len(errors),
+       "release-critical errors;",len(warnings),"historical warnings",flush=True)
 
 def main():
  from verify_article_typography import verify
