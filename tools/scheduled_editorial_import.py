@@ -51,6 +51,13 @@ def merge_queue(queue_file, dest_file, key, archived):
             existing_rows = []
         occupied_paths.update(str(x.get("public_path")) for x in existing_rows
                               if isinstance(x, dict) and x.get("public_path"))
+    try:
+        overrides = json.loads((DATA / "studio_overrides.json").read_text(encoding="utf-8")).get("overrides", {})
+    except (OSError, ValueError, TypeError):
+        overrides = {}
+    if isinstance(overrides, dict):
+        occupied_paths.update(str(x.get("public_path")) for x in overrides.values()
+                              if isinstance(x, dict) and x.get("public_path"))
     added = []
     for r in source:
         if not isinstance(r, dict):
@@ -191,8 +198,21 @@ def sync_studio_publications():
 
                 idx = indexed.get(item["slug"])
                 if idx is None:
-                    occupied = {str(r.get("public_path")) for r in rows
-                                if isinstance(r, dict) and r.get("public_path")}
+                    occupied = set()
+                    for source_name in ("posts.json", "studio_posts.json", "community_imported.json", "community_full.json"):
+                        try:
+                            source_rows = snapshot(source_name, "posts").get("posts", [])
+                        except (OSError, ValueError, KeyError):
+                            source_rows = []
+                        occupied.update(str(r.get("public_path")) for r in source_rows
+                                        if isinstance(r, dict) and r.get("public_path"))
+                    try:
+                        existing_overrides = json.loads((DATA / "studio_overrides.json").read_text(encoding="utf-8")).get("overrides", {})
+                    except (OSError, ValueError, TypeError):
+                        existing_overrides = {}
+                    if isinstance(existing_overrides, dict):
+                        occupied.update(str(r.get("public_path")) for r in existing_overrides.values()
+                                        if isinstance(r, dict) and r.get("public_path"))
                     prefix = CATEGORY_PREFIX.get(item["category"])
                     if not prefix:
                         raise ValueError("Nuovo articolo Studio senza categoria pubblica valida: " + item["category"])
