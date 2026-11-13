@@ -46,6 +46,31 @@ assert(oldReview.headers.get("Location") === "https://zazoomtek.it/recensioni/pa
 const cleanReview = await request(oldReview.headers.get("Location"));
 assert(cleanReview.status === 200, "Clean review canonical must not redirect again");
 
+const categoryAliases = [
+  ["news", "news-tech-funko-calendari-avvento-2026-disney-harry-potter",
+    "https://zazoomtek.it/news/funko-calendari-avvento-2026-disney-harry-potter"],
+  ["news", "news-extra-nuovo-prodotto-tech",
+    "https://zazoomtek.it/news/nuovo-prodotto-tech"],
+  ["extra", "extra-funko-calendari-avvento-2026-disney-harry-potter",
+    "https://zazoomtek.it/extra/funko-calendari-avvento-2026-disney-harry-potter"],
+  ["extra", "news-extra-funko-calendari-avvento-2026",
+    "https://zazoomtek.it/extra/funko-calendari-avvento-2026"],
+  ["guide", "guide-configurare-router",
+    "https://zazoomtek.it/guide/configurare-router"],
+  ["speciali", "speciali-console",
+    "https://zazoomtek.it/speciali/console"],
+  ["recensioni", "review-gaming-payday-aces-high-recensione-pcvr",
+    "https://zazoomtek.it/recensioni/payday-aces-high-pcvr"]
+];
+for (const [category, slug, expected] of categoryAliases) {
+  const alias = await request("https://zazoomtek.it/" + category + "/" + slug + "?utm_source=legacy");
+  assert(alias.status === 301, "Duplicated category/editorial prefix must 301: " + category + "/" + slug);
+  assert(alias.headers.get("Location") === expected + "?utm_source=legacy",
+    "Alias must redirect directly to clean category/title URL and preserve query: " + slug);
+  const canonical = await request(alias.headers.get("Location"));
+  assert(canonical.status === 200, "Clean category destination must not redirect again: " + slug);
+}
+
 for (const url of [
   "https://zazoomtek.it/community-ugkx123456789/",
   "https://zazoomtek.it/community-ugkx123456789"
