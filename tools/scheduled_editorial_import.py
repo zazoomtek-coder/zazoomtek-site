@@ -206,8 +206,10 @@ def sync_studio_publications():
                     added += 1
                 elif rows[idx] != item and _date_stamp(item) > _date_stamp(rows[idx]):
                     for field in ("route_version", "legacy_path", "public_slug", "public_path"):
-                        if field not in item and field in rows[idx]:
+                        if field in rows[idx]:
                             item[field] = rows[idx][field]
+                        else:
+                            item.pop(field, None)
                     rows[idx] = item
                     changed = True
                     added += 1
