@@ -23,7 +23,7 @@ const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each vi
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
 
 const PUBLIC_PREFIX={"news-tech":"news","news-gaming":"news","recensioni-tech":"recensioni","recensioni-gaming":"recensioni","guide":"guide","speciali":"speciali","extra":"extra"};
-const PUBLIC_STOP=new Set("a ad al alla alle allo ai agli all dalle dalla da di del della delle dei degli in nel nello nella nei negli su sul sulla per tra fra con e ed il lo la i gli le un uno una che come oggi the an and or of for to on with by from at is are this that".split(" "));
+const PUBLIC_STOP=new Set("a ad al alla alle allo ai agli all dalle dalla da di del della delle dei degli in nel nello nella nei negli su sul sulla per tra fra con e ed il lo la i gli le un uno una che come oggi nuovo nuova nuovi nuove the an and or of for to on with by from at is are this that".split(" "));
 export function publicSlug(title){
  let words=clean(title).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/ß/g,"ss").toLowerCase().match(/[a-z0-9]+/g)||[];
  const original=[...words];words=words.filter(x=>!PUBLIC_STOP.has(x));if(!words.length)words=original;
