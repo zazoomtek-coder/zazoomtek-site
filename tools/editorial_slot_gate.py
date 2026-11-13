@@ -28,14 +28,60 @@ CONTENT_FILES = (
 )
 
 
+# Each snapshot contributes only its actual editorial collection. Service-level
+# fields (for example web.json's daily "updated" marker) are deliberately ignored.
+EDITORIAL_COLLECTIONS = {
+    "data/community_imported.json": "posts",
+    "data/videos.json": "videos",
+    "data/web.json": "items",
+    "data/studio_posts.json": "posts",
+    "data/studio_overrides.json": "overrides",
+}
+SERVICE_METADATA_KEYS = {
+    "updated", "updated_at", "created_at", "generated_at", "synced_at",
+    "fetched_at", "last_updated", "last_synced", "first_seen_at",
+    "source_updated_at", "cache_updated_at",
+}
+
+
+def editorial_value(value):
+    """Return stable editorial data, excluding generated/service metadata."""
+    if isinstance(value, dict):
+        return {
+            key: editorial_value(item)
+            for key, item in sorted(value.items())
+            if key not in SERVICE_METADATA_KEYS
+        }
+    if isinstance(value, list):
+        return [editorial_value(item) for item in value]
+    return value
+
+
 def content_digest():
     hasher = hashlib.sha256()
-    for filename in CONTENT_FILES:
+    for filename, collection in EDITORIAL_COLLECTIONS.items():
         path = ROOT / filename
         if not path.is_file():
             raise RuntimeError("Missing editorial content snapshot: " + filename)
-        hasher.update(filename.encode("utf-8") + b"\0")
-        hasher.update(path.read_bytes() + b"\0")
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (UnicodeError, ValueError) as exc:
+            raise RuntimeError("Invalid editorial content snapshot: " + filename) from exc
+        if not isinstance(payload, dict) or collection not in payload:
+            raise RuntimeError("Missing editorial collection " + collection + " in " + filename)
+        records = payload[collection]
+        if collection == "overrides":
+            if not isinstance(records, dict):
+                raise RuntimeError("Invalid editorial collection overrides in " + filename)
+        elif not isinstance(records, list):
+            raise RuntimeError("Invalid editorial collection " + collection + " in " + filename)
+        canonical = json.dumps(
+            editorial_value(records), ensure_ascii=False, sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        hasher.update(filename.encode("utf-8") + b"\\0")
+        hasher.update(canonical + b"\\0")
+
     # Include only media referenced by approved Studio publications.
     referenced = set()
     for filename, key in (("studio_posts.json", "posts"),
@@ -58,8 +104,8 @@ def content_digest():
         path = ROOT / relative
         if not path.is_file():
             raise RuntimeError("Approved editorial media is missing: " + relative)
-        hasher.update(relative.encode("utf-8") + b"\0")
-        hasher.update(path.read_bytes() + b"\0")
+        hasher.update(relative.encode("utf-8") + b"\\0")
+        hasher.update(path.read_bytes() + b"\\0")
     return hasher.hexdigest()
 
 
