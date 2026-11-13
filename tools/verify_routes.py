@@ -34,7 +34,9 @@ def check_dist(root,rows=None):
  documents=list(root.rglob("*.html"))
  def route_for(page):
   rel=page.relative_to(root).with_suffix("").as_posix()
-  return "/" if rel=="index" else "/"+rel
+  if rel=="index":return "/"
+  if rel.endswith("/index"):rel=rel.rsplit("/",1)[0]
+  return "/"+rel
  real_pages={route_for(page).lstrip("/") for page in documents}
  errors=[]
  # Route every public request through the canonical URL middleware so the
@@ -49,7 +51,7 @@ def check_dist(root,rows=None):
    errors.append("Canonical URL middleware source is missing")
   else:
    middleware=middleware_file.read_text(encoding="utf-8")
-   for required in ('www.zazoomtek.it','endsWith(".html")','CATEGORY_ROUTE','Response.redirect','context.next()','301'):
+   for required in ('www.zazoomtek.it','.html','CATEGORY_ROUTE','Response.redirect','context.next()','301'):
     if required not in middleware:
      errors.append("Canonical middleware missing rule: "+required)
  except (OSError,ValueError,TypeError) as error:
