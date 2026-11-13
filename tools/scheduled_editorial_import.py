@@ -11,7 +11,8 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from emergency_sync import youtube_videos, youtube_community, refresh_rss
+from emergency_sync import youtube_videos, youtube_community, refresh_rss, category_for_post
+from article_routes import CATEGORY_PREFIX, unique_slug
 
 DATA = Path(__file__).resolve().parents[1] / "data"
 
@@ -42,6 +43,14 @@ def merge_queue(queue_file, dest_file, key, archived):
     doc = snapshot(dest_file, key)
     rows = doc[key]
     ids = {r.get("id") for r in rows if isinstance(r, dict)}
+    occupied_paths = set()
+    for filename in ("posts.json", "studio_posts.json", "community_imported.json", "community_full.json"):
+        try:
+            existing_rows = snapshot(filename, "posts").get("posts", [])
+        except (OSError, ValueError, KeyError):
+            existing_rows = []
+        occupied_paths.update(str(x.get("public_path")) for x in existing_rows
+                              if isinstance(x, dict) and x.get("public_path"))
     added = []
     for r in source:
         if not isinstance(r, dict):
@@ -63,6 +72,16 @@ def merge_queue(queue_file, dest_file, key, archived):
                     or "youtube.com/shorts/" in link_values.casefold()):
                 continue
         clean = {k: v for k, v in r.items() if k != "first_seen_at"}
+        if key == "posts":
+            category = category_for_post(clean)
+            prefix = CATEGORY_PREFIX.get(category)
+            if not prefix:
+                raise ValueError("Nuovo post Community in coda senza categoria valida: " + str(category))
+            public_slug = unique_slug(clean.get("title") or "", occupied_paths, prefix=prefix)
+            clean.update({"category": category, "route_version": 2,
+                          "public_slug": public_slug,
+                          "public_path": "/" + prefix + "/" + public_slug})
+            occupied_paths.add(clean["public_path"])
         rows.append(clean)
         ids.add(rid)
         added.append(clean)
@@ -172,12 +191,23 @@ def sync_studio_publications():
 
                 idx = indexed.get(item["slug"])
                 if idx is None:
+                    occupied = {str(r.get("public_path")) for r in rows
+                                if isinstance(r, dict) and r.get("public_path")}
+                    prefix = CATEGORY_PREFIX.get(item["category"])
+                    if not prefix:
+                        raise ValueError("Nuovo articolo Studio senza categoria pubblica valida: " + item["category"])
+                    public_slug = unique_slug(item.get("title") or "", occupied, prefix=prefix)
+                    item.update({"route_version": 2, "public_slug": public_slug,
+                                 "public_path": "/" + prefix + "/" + public_slug})
                     rows.insert(0, item)
                     indexed = {r["slug"]: i for i, r in enumerate(rows)
                                if isinstance(r, dict) and r.get("slug")}
                     changed = True
                     added += 1
                 elif rows[idx] != item and _date_stamp(item) > _date_stamp(rows[idx]):
+                    for field in ("route_version", "legacy_path", "public_slug", "public_path"):
+                        if field not in item and field in rows[idx]:
+                            item[field] = rows[idx][field]
                     rows[idx] = item
                     changed = True
                     added += 1
