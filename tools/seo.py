@@ -6,7 +6,7 @@ from pathlib import Path
 from xml.etree.ElementTree import Element,SubElement,ElementTree,register_namespace
 from math import ceil
 import json,re
-from article_routes import build_article_url, CATEGORY_PREFIX
+from article_routes import build_article_url, CATEGORY_PREFIX, is_v2, normalize_public_path
 
 DOMAIN="https://zazoomtek.it"
 DESC="Notizie, recensioni, guide e approfondimenti originali su tecnologia, videogiochi, hardware e innovazione."
@@ -206,6 +206,7 @@ def write_indexing(output,rows,groups,page_size,preview):
  def add(path,stamp=""):
   name="index.html" if path=="/" else path.lstrip("/")+".html"
   if not (root/name).is_file():raise AssertionError("Sitemap target missing: "+path)
+  if path in found:raise AssertionError("Duplicate sitemap path: "+path)
   found[path]=stamp
  add("/")
  # Keep the sitemap synchronized with the three-month category split.
@@ -227,9 +228,20 @@ def write_indexing(output,rows,groups,page_size,preview):
    add("/"+key+"-archivio")
    for n in range(2,max(1,ceil(historical/page_size))+1):add("/"+key+"-archivio-page-"+str(n))
  for page in ("notizie-web","privacy-policy","cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):add("/"+page)
+ # Only immutable v2 article routes belong in the public sitemap. Historical
+ # root-level and Community permalinks remain reachable but are not indexed here.
+ canonical_article_paths=set()
  for row in rows:
+  if not is_v2(row) or row.get("legacy_path"):
+   continue
+  path=normalize_public_path(article_path(row))
+  if row.get("public_path") != path:
+   raise AssertionError("V2 article public_path is not its canonical route: "+str(row.get("title") or path))
+  if path in canonical_article_paths:
+   raise AssertionError("Duplicate canonical article URL: "+path)
+  canonical_article_paths.add(path)
   date=datetime_iso(row.get("updated_at") or row.get("modified_at") or row.get("published_at") or row.get("date"))
-  add(article_path(row),date[:10] if date else "")
+  add(path,date[:10] if date else "")
  register_namespace("","http://www.sitemaps.org/schemas/sitemap/0.9")
  ns="{http://www.sitemaps.org/schemas/sitemap/0.9}"
  pages=sorted(found.items())
@@ -258,9 +270,12 @@ def write_indexing(output,rows,groups,page_size,preview):
  news_count=0
  seen_news=set()
  for row in sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True):
-  if row.get("category") not in ("news-tech","news-gaming") or row.get("is_excerpt"):continue
-  path=article_path(row)
-  if path not in found or path in seen_news:continue
+  if (not is_v2(row) or row.get("legacy_path")
+      or row.get("category") not in ("news-tech","news-gaming")
+      or row.get("is_excerpt")):continue
+  path=normalize_public_path(article_path(row))
+  if path not in found:raise AssertionError("News sitemap URL missing from main sitemap: "+path)
+  if path in seen_news:raise AssertionError("Duplicate canonical news URL: "+path)
   published=datetime_iso(row.get("published_at") or row.get("date"))
   if not published:continue
   when=datetime.fromisoformat(published)
