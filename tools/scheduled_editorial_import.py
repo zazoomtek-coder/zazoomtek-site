@@ -47,7 +47,9 @@ def merge_queue(queue_file, dest_file, key, archived):
     for filename in ("posts.json", "studio_posts.json", "community_imported.json", "community_full.json"):
         try:
             existing_rows = snapshot(filename, "posts").get("posts", [])
-        except (OSError, ValueError, KeyError):
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("WARNING: ignoring historical slug registry during queue import:",
+                  filename, type(exc).__name__, str(exc)[:120], flush=True)
             existing_rows = []
         occupied_paths.update(str(x.get("public_path")) for x in existing_rows
                               if isinstance(x, dict) and x.get("public_path"))
