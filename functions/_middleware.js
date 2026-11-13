@@ -1,22 +1,32 @@
 /**
  * Canonical URL enforcement for ZazoomTek.
- * Host, scheme, review aliases, .html and category slash normalization share one 301.
+ * Category-label aliases, host, scheme, .html and trailing slashes share one 301.
  * Historical Community permalinks retain their original path and slash form.
  */
 const LEGACY_COMMUNITY = /^\/community-[a-z0-9]+(?:-[a-z0-9]+)*$/i;
 const CATEGORY_ROUTE = /^\/(?:recensioni|news|speciali|guide|extra)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?\/$/i;
+const CATEGORY_PREFIXES = new Set(["recensioni", "news", "speciali", "guide", "extra"]);
+const CATEGORY_QUALIFIERS = new Set(["tech", "gaming", "extra", "review", "reviews", "recensione", "recensioni"]);
 const REVIEW_LABELS = new Set(["review", "reviews", "recensione", "recensioni"]);
-const REVIEW_PREFIX_LABELS = new Set(["gaming", "tech"]);
 
-function cleanReviewSlug(value) {
+function cleanCategorySlug(value, category) {
   const words = value.toLowerCase().split("-").filter(Boolean);
-  if (words.length && REVIEW_LABELS.has(words[0])) {
-    words.shift();
-    if (words.length && REVIEW_PREFIX_LABELS.has(words[0])) words.shift();
-  } else if (words.length > 1 && REVIEW_PREFIX_LABELS.has(words[0]) && REVIEW_LABELS.has(words[1])) {
-    words.splice(0, 2);
+  let changed = true;
+  while (words.length && changed) {
+    changed = false;
+    if (words[0] === category || CATEGORY_PREFIXES.has(words[0])) {
+      words.shift();
+      changed = true;
+      if (words.length && CATEGORY_QUALIFIERS.has(words[0])) {
+        words.shift();
+        changed = true;
+      }
+    }
   }
-  return words.filter(word => !REVIEW_LABELS.has(word)).join("-");
+  if (category === "recensioni") {
+    return words.filter(word => !REVIEW_LABELS.has(word)).join("-");
+  }
+  return words.join("-");
 }
 
 export async function onRequest(context) {
@@ -41,14 +51,15 @@ export async function onRequest(context) {
         if (url.pathname.toLowerCase() === "/index") url.pathname = "/";
       }
 
-      const reviewPath = url.pathname.replace(/\/$/, "");
-      const reviewMatch = reviewPath.match(/^\/recensioni\/([a-z0-9]+(?:-[a-z0-9]+)*)$/i);
-      if (reviewMatch) {
-        const clean = cleanReviewSlug(reviewMatch[1]);
-        if (clean && clean !== reviewMatch[1].toLowerCase()) {
-          url.pathname = "/recensioni/" + clean;
-        } else if (reviewPath !== url.pathname) {
-          url.pathname = reviewPath;
+      const match = url.pathname.match(/^\/(recensioni|news|speciali|guide|extra)\/([a-z0-9]+(?:-[a-z0-9]+)*)(\/?$)/i);
+      if (match) {
+        const category = match[1].toLowerCase();
+        const currentSlug = match[2].toLowerCase();
+        const clean = cleanCategorySlug(currentSlug, category);
+        if (clean && clean !== currentSlug) {
+          url.pathname = "/" + category + "/" + clean;
+        } else if (match[3] === "/") {
+          url.pathname = "/" + category + "/" + currentSlug;
         }
       }
 
