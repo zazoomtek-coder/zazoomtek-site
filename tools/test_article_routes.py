@@ -15,7 +15,7 @@ class ArticleRoutesTests(unittest.TestCase):
         for category, expected in cases.items():
             self.assertEqual(build_article_url({
                 "route_version": "v2", "category": category,
-                "slug": expected.rsplit("/", 1)[-1],
+                "public_slug": expected.rsplit("/", 1)[-1],
             }), expected)
 
     def test_explicit_legacy_path_is_immutable(self):
@@ -56,15 +56,15 @@ class ArticleRoutesTests(unittest.TestCase):
 
     def test_incremental_collision_suffix(self):
         occupied = set()
-        self.assertEqual(unique_slug("Nuovo smartphone", occupied), "nuovo-smartphone")
-        self.assertEqual(unique_slug("Nuovo smartphone", occupied), "nuovo-smartphone-2")
+        self.assertEqual(unique_slug("Nuovo smartphone", occupied), "smartphone")
+        self.assertEqual(unique_slug("Nuovo smartphone", occupied), "smartphone-2")
 
     def test_category_scoped_slug_collision(self):
-        occupied = {"/news/nuovo-smartphone"}
+        occupied = {"/news/smartphone"}
         self.assertEqual(unique_slug("Nuovo smartphone", occupied, prefix="recensioni"),
-                         "nuovo-smartphone")
+                         "smartphone")
         self.assertEqual(unique_slug("Nuovo smartphone", occupied, prefix="news"),
-                         "nuovo-smartphone-2")
+                         "smartphone-2")
 
     def test_assign_routes_keeps_existing_path_immutable(self):
         rows = [
