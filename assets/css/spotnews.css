@@ -3384,3 +3384,18 @@ main.wrap .home-layout .editorial-thumb img {
   object-position:15% center!important;
   background:transparent!important;
 }
+
+
+/* Final cascade override for legacy high-specificity cover rules on Home only. */
+main.wrap .featured-wide .spotlight-grid img,
+main.wrap .featured-wide .spotlight-grid .tile img,
+main.wrap .home-layout .home-column img,
+main.wrap .home-layout .home-sidebar img,
+main.wrap .home-layout .home-sidebar .compact-editorial-box .editorial-thumb img,
+main.wrap .home-layout .home-sidebar .editorial-links img,
+main.wrap .home-layout .home-column .video-magazine img {
+  object-fit:cover!important;
+  object-position:15% center!important;
+  background:transparent!important;
+  background-color:transparent!important;
+}
