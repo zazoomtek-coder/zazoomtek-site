@@ -3,6 +3,7 @@ import json
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit,unquote
+from article_routes import build_article_url, CATEGORY_PREFIX
 
 class LinkReader(HTMLParser):
  def __init__(self):
@@ -28,7 +29,7 @@ class PageIdentity(HTMLParser):
   if self.title:self.title_text+=data
   if self.h1:self.h1_text+=data
 
-def check_dist(root):
+def check_dist(root,rows=None):
  root=Path(root)
  documents=list(root.rglob("*.html"))
  def route_for(page):
@@ -134,6 +135,62 @@ def check_dist(root):
    errors.append("Category archive title is incoherent with H1: /"+name)
  if any(source.startswith("/community-") for source in redirects):
   errors.append("Historical Community URLs must not be redirected or rewritten")
+ # Dataset -> public URL -> nested file -> canonical must be a one-to-one mapping.
+ if rows is not None:
+  for row in rows:
+   route=build_article_url(row)
+   page=root/(route.lstrip("/")+".html")
+   if not page.is_file():
+    errors.append("Dataset route has no physical HTML file: "+route)
+    continue
+   identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
+   expected="https://zazoomtek.it"+route
+   if identity.canonicals!=[expected]:
+    errors.append("Dataset route/canonical mismatch: "+route)
+   if row.get("route_version") in (2,"2","v2"):
+    prefix=CATEGORY_PREFIX.get(row.get("category"))
+    if not prefix or not route.startswith("/"+prefix+"/"):
+     errors.append("route_version v2 does not match category: "+route)
+   elif row.get("legacy_path") and route!=row["legacy_path"]:
+    errors.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
+   if route.startswith("/community-") and (route in redirects or route+".html" in redirects):
+    errors.append("Historical Community route was redirected: "+route)
+
+ # Exercise the generated Pages-style file resolver over HTTP, including real 404s.
+ from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
+ from threading import Thread
+ from functools import partial
+ from urllib.request import urlopen
+ from urllib.error import HTTPError
+ class PagesHandler(SimpleHTTPRequestHandler):
+  def translate_path(self,path):
+   mapped=Path(super().translate_path(path))
+   if not mapped.is_file() and mapped.suffix=="":
+    candidate=Path(str(mapped)+".html")
+    if candidate.is_file():return str(candidate)
+   return str(mapped)
+  def log_message(self,*args):pass
+ server=ThreadingHTTPServer(("127.0.0.1",0),partial(PagesHandler,directory=str(root)))
+ worker=Thread(target=server.serve_forever,daemon=True);worker.start()
+ try:
+  base="http://127.0.0.1:"+str(server.server_address[1])
+  checks=["/recensioni","/news","/speciali","/guide","/extra"]
+  if rows:
+   nested=next((build_article_url(row) for row in rows if row.get("route_version") in (2,"2","v2")),None)
+   legacy=next((build_article_url(row) for row in rows if build_article_url(row).startswith("/community-")),None)
+   if nested:checks.append(nested)
+   if legacy:checks.append(legacy)
+  for route in checks:
+   with urlopen(base+route,timeout=3) as response:
+    if response.status!=200:errors.append("Generated route is not HTTP 200: "+route)
+  for route in ("/blog/titolo-prova","/guide/articolo-inesistente"):
+   try:
+    with urlopen(base+route,timeout=3) as response:
+     errors.append("Unknown route unexpectedly returned HTTP "+str(response.status)+": "+route)
+   except HTTPError as response:
+    if response.code!=404:errors.append("Unknown route did not return HTTP 404: "+route)
+ finally:
+  server.shutdown();server.server_close();worker.join(timeout=2)
  # Internal search and breaking news datasets must resolve to actual published articles.
  for name,key in (("search-index.json","articles"),("news-ticker.json","items")):
   target=root/name
