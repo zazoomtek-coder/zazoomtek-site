@@ -55,6 +55,15 @@ def check_seo(root,rows,groups,preview):
   path=urlparse(value).path
   if not value.startswith(DOMAIN) or "//" in path or path.endswith(".html") or (path!="/" and path.endswith("/")):
    raise AssertionError("Noncanonical sitemap URL: "+str(value))
+ news_doc=ET.parse(root/"news-sitemap.xml").getroot()
+ news_urls=[x.text for x in news_doc.findall(".//sm:url/sm:loc",ns)]
+ if len(news_urls)!=len(set(news_urls)):raise AssertionError("News sitemap contains duplicate URLs")
+ if any(url not in urls for url in news_urls):
+  raise AssertionError("News sitemap contains a URL absent from the main sitemap")
+ for value in news_urls:
+  path=urlparse(value).path
+  if not value.startswith(DOMAIN) or "//" in path or path.endswith(".html") or path.endswith("/"):
+   raise AssertionError("Noncanonical Google News sitemap URL: "+str(value))
  # Fail a release when the sitemap references a missing, noindex or mismatched page.
  # Old deleted URLs are NOT reintroduced just to satisfy Search Console.
  for sitemap_url in urls:
