@@ -1,5 +1,5 @@
 import unittest
-from tools.article_routes import build_article_url, normalize_public_path, slugify_title, unique_slug
+from tools.article_routes import build_article_url, normalize_public_path, slugify_title, unique_slug, assign_public_routes
 
 class ArticleRoutesTests(unittest.TestCase):
     def test_category_mapping(self):
@@ -58,6 +58,23 @@ class ArticleRoutesTests(unittest.TestCase):
         occupied = set()
         self.assertEqual(unique_slug("Nuovo smartphone", occupied), "nuovo-smartphone")
         self.assertEqual(unique_slug("Nuovo smartphone", occupied), "nuovo-smartphone-2")
+
+    def test_category_scoped_slug_collision(self):
+        occupied = {"/news/nuovo-smartphone"}
+        self.assertEqual(unique_slug("Nuovo smartphone", occupied, prefix="recensioni"),
+                         "nuovo-smartphone")
+        self.assertEqual(unique_slug("Nuovo smartphone", occupied, prefix="news"),
+                         "nuovo-smartphone-2")
+
+    def test_assign_routes_keeps_existing_path_immutable(self):
+        rows = [
+            {"route_version": 2, "category": "news-tech", "title": "Titolo cambiato",
+             "public_slug": "titolo-originale", "public_path": "/news/titolo-originale"},
+            {"route_version": 2, "category": "news-gaming", "title": "Titolo duplicato"},
+        ]
+        assign_public_routes(rows)
+        self.assertEqual(rows[0]["public_path"], "/news/titolo-originale")
+        self.assertEqual(rows[1]["public_path"], "/news/titolo-duplicato")
 
 if __name__ == "__main__":
     unittest.main()
