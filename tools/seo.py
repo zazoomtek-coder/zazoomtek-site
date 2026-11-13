@@ -6,6 +6,7 @@ from pathlib import Path
 from xml.etree.ElementTree import Element,SubElement,ElementTree,register_namespace
 from math import ceil
 import json,re
+from article_routes import build_article_url, CATEGORY_PREFIX
 
 DOMAIN="https://zazoomtek.it"
 DESC="Notizie, recensioni, guide e approfondimenti originali su tecnologia, videogiochi, hardware e innovazione."
@@ -97,6 +98,9 @@ def canonical(path):
  if not path.startswith("/"):path="/"+path
  if path!="/" and path.endswith(".html"):path=path[:-5]
  return DOMAIN+path
+
+def article_path(row):
+ return build_article_url(row)
 def full_image(value):
  url=str(value or "")
  if url.startswith("/") and not url.startswith("//"):return DOMAIN+url
@@ -114,7 +118,9 @@ def breadcrumb(path,title,row):
  items=[{"@type":"ListItem","position":1,"name":"Home","item":DOMAIN+"/"}]
  if row and row.get("category") in SECTIONS:
   cat=row["category"]
-  items.append({"@type":"ListItem","position":2,"name":SECTIONS[cat],"item":canonical("/"+cat)})
+  parent=CATEGORY_PREFIX.get(cat,cat)
+  parent_name={"recensioni":"Recensioni","news":"News","speciali":"Speciali","guide":"Guide","extra":"Extra"}.get(parent,SECTIONS[cat])
+  items.append({"@type":"ListItem","position":2,"name":parent_name,"item":canonical("/"+parent)})
  if path!="/":
   items.append({"@type":"ListItem","position":len(items)+1,"name":plain(title),"item":canonical(path)})
  return {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":items}
@@ -223,7 +229,7 @@ def write_indexing(output,rows,groups,page_size,preview):
  for page in ("notizie-web","privacy-policy","cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):add("/"+page)
  for row in rows:
   date=datetime_iso(row.get("updated_at") or row.get("modified_at") or row.get("published_at") or row.get("date"))
-  add("/"+row["slug"],date[:10] if date else "")
+  add(article_path(row),date[:10] if date else "")
  register_namespace("","http://www.sitemaps.org/schemas/sitemap/0.9")
  ns="{http://www.sitemaps.org/schemas/sitemap/0.9}"
  pages=sorted(found.items())
@@ -253,7 +259,7 @@ def write_indexing(output,rows,groups,page_size,preview):
  seen_news=set()
  for row in sorted(rows,key=lambda r:str(r.get("published_at") or r.get("date") or ""),reverse=True):
   if row.get("category") not in ("news-tech","news-gaming") or row.get("is_excerpt"):continue
-  path="/"+str(row.get("slug") or "")
+  path=article_path(row)
   if path not in found or path in seen_news:continue
   published=datetime_iso(row.get("published_at") or row.get("date"))
   if not published:continue
