@@ -143,15 +143,16 @@ def emit(name, value):
 
 def prepare():
     now = datetime.now(ROME)
+    force_release = os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true"
     slot = requested_slot(now)
     if slot is None:
-        print("SKIPPED: not one of the three exact release slots", now.isoformat(), flush=True)
+        print("SKIPPED: not one of the three authorized release slots", now.isoformat(), flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
         return
 
     current_digest = content_digest()
     previous = state()
-    if previous.get("slot") == slot.isoformat():
+    if not force_release and previous.get("slot") == slot.isoformat():
         print("SKIPPED: this daily slot has already been released", slot.isoformat(), flush=True)
         emit("EDITORIAL_NEEDS_RELEASE", "false")
         return
@@ -188,7 +189,7 @@ def authorize():
                   now.isoformat(), flush=True)
             return
     previous = state()
-    if previous.get("slot") == slot.isoformat():
+    if not force_release and previous.get("slot") == slot.isoformat():
         emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
         print("SKIPPED: slot already released by another run", slot.isoformat(), flush=True)
         return
