@@ -46,7 +46,7 @@ export default {
         "User-Agent": "ZazoomTek-Cloudflare-Cron",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ref: "main" }),
+      body: JSON.stringify({ ref: "main", inputs: { release_slot: localTime } }),
     });
 
     if (response.status !== 204) {
