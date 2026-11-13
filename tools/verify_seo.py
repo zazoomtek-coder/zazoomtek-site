@@ -199,7 +199,9 @@ def check_seo(root,rows,groups,preview):
   parser.feed(p.read_text(encoding="utf-8"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
   article_issue=lambda message: (bad if critical else warnings).append((p.as_posix(),message))
-  if not item:article_issue("no article schema")
+  if not item:
+   article_issue("no article schema")
+   continue
   if row.get("route_version") in (2,"2","v2"):
    crumbs=next((x for x in parser.ld if x.get("@type")=="BreadcrumbList"),{})
    elements=crumbs.get("itemListElement",[])
