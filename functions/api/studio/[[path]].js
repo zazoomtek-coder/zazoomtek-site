@@ -21,6 +21,30 @@ const PUBLISH_BRANCH="main";
 const COOKIE="__Host-zzt-studio";
 const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each visit.
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
+
+const PUBLIC_PREFIX={"news-tech":"news","news-gaming":"news","recensioni-tech":"recensioni","recensioni-gaming":"recensioni","guide":"guide","speciali":"speciali","extra":"extra"};
+const PUBLIC_STOP=new Set("a ad al alla alle allo ai agli all dalle dalla da di del della delle dei degli in nel nello nella nei negli su sul sulla per tra fra con e ed il lo la i gli le un uno una che come oggi the an and or of for to on with by from at is are this that".split(" "));
+function publicSlug(title){
+ let words=clean(title).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().match(/[a-z0-9]+/g)||[];
+ words=words.filter(x=>!PUBLIC_STOP.has(x));if(!words.length)throw new Error("Titolo non utilizzabile per l'indirizzo pubblico.");
+ return words.join("-").slice(0,68).replace(/-+$/,"")||"articolo";
+}
+function assignPublicRoute(record,records){
+ const prefix=PUBLIC_PREFIX[record.category];if(!prefix)throw new Error("Categoria non valida per l'indirizzo pubblico.");
+ if(record.public_path)return record;
+ const occupied=new Set((records||[]).filter(x=>x&&x.category&&PUBLIC_PREFIX[x.category]===prefix)
+  .map(x=>String(x.public_path||"").split("/").pop()).filter(Boolean));
+ const base=publicSlug(record.title);let slug=base,n=2;
+ while(occupied.has(slug)){const suffix="-"+n++;slug=base.slice(0,68-suffix.length).replace(/-+$/,"")+suffix;}
+ record.route_version=2;record.public_slug=slug;record.public_path="/"+prefix+"/"+slug;
+ return record;
+}
+function preserveRouteMetadata(record,existing){
+ if(!existing)return record;
+ for(const key of ["route_version","legacy_path","public_path","public_slug"])
+  if(existing[key]!==undefined)record[key]=existing[key];else delete record[key];
+ return record;
+}
 const BLOCKS=new Set(["paragraph","heading","image","video","button","quote","audio","attachment","poll","divider"]);
 const jsonHeaders={"Content-Type":"application/json;charset=utf-8","Cache-Control":"no-store, private","X-Content-Type-Options":"nosniff"};
 function respond(data,status=200,extra={}){
@@ -246,6 +270,7 @@ async function saveArticle(request,env,session){
  const current=(list.posts||[]).find(r=>r.slug===record.slug);
  if(Boolean(req.creating)===Boolean(current))
   throw new Error(current?"L'URL esiste già. Apri «Modifica».":"L'articolo non è nel catalogo: ricarica Studio.");
+ if(current)preserveRouteMetadata(record,current);else assignPublicRoute(record,list.posts||[]);
  const file=current?"data/studio_overrides.json":"data/studio_posts.json";
  const target=await readFile(session.token,file,PUBLISH_BRANCH);
  const document=target.content||(current?{overrides:{}}:{posts:[]});
@@ -382,6 +407,9 @@ async function saveV2(request,env,session){
  const queuedExisting=queuedIndex>=0?pendingItems[queuedIndex]:null;
  if(data.creating&&(existing||queuedExisting))throw new Error("L'indirizzo esiste già: apri l'articolo con Modifica.");
  if(!data.creating&&!existing&&!queuedExisting)throw new Error("Articolo non trovato: aggiorna la libreria.");
+ const previous=existing||queuedExisting;
+ if(previous)preserveRouteMetadata(record,previous);
+ else assignPublicRoute(record,[...(catalog.posts||[]),...pendingItems]);
  if(existing){
   const oldSeo=existing.seo_lock;
   if(oldSeo&&typeof oldSeo.title==="string"&&typeof oldSeo.description==="string")
