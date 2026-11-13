@@ -120,12 +120,11 @@ def assign_public_routes(rows):
             row["public_path"] = normalize_public_path(row["public_path"])
             continue
         category = str(row.get("category") or "")
-        prefix = CATEGORY_PREFIX.get(category)
-        if prefix not in ALLOWED_PREFIXES:
+        if CATEGORY_PREFIX.get(category) not in ALLOWED_PREFIXES:
             raise ValueError("Unsupported v2 article category: " + category)
-        slug = unique_slug(row.get("title") or row.get("slug") or "", occupied, prefix=prefix)
-        path = normalize_public_path("/" + prefix + "/" + slug)
-        row["public_slug"] = slug
-        row["public_path"] = path
-        occupied.add(path)
+        raise ValueError(
+            "New route_version v2 article has no persisted public_path; "
+            "allocate and save its immutable URL in the creation/import pipeline: "
+            + str(row.get("title") or row.get("slug") or "<untitled>")
+        )
     return rows
