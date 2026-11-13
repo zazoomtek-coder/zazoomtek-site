@@ -85,7 +85,9 @@ def build_studio_v2(output,rows):
  root.mkdir(parents=True,exist_ok=True)
  catalog={"version":3,"mode":"opt-in-preview","posts":[{
   "slug":row.get("slug"),"title":row.get("title"),
-  "category":row.get("category"),"date":row.get("date"),
+  "category":row.get("category"),"route_version":row.get("route_version"),
+  "legacy_path":row.get("legacy_path"),"public_slug":row.get("public_slug"),
+  "public_path":row.get("public_path"),"date":row.get("date"),
   "published_at":row.get("published_at"),"updated_at":row.get("updated_at"),"image":row.get("image"),
   "cover_focus_x":row.get("cover_focus_x"),"cover_focus_y":row.get("cover_focus_y"),
   "cover_zoom":row.get("cover_zoom"),"cover_rotation":row.get("cover_rotation"),
