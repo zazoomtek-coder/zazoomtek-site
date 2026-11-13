@@ -672,7 +672,7 @@ def gaming_magazine(rows):
  """Home Gaming: the existing lead, a second large article below, four compact items at right."""
  if not rows:return ""
  lead=rows[0]
- url="/"+lead["slug"]
+ url=article_path(lead)
  title=esc(clean_title(lead["title"]))
  date=date_label(lead)
  feature=('<article class="gaming-magazine-lead">'
@@ -694,7 +694,7 @@ def gaming_magazine(rows):
           +'</article>')
  compact=[]
  for row in rows[2:6]:
-  href="'+esc(article_path(row),quote=True)+'"
+  href=esc(article_path(row),quote=True)
   date=date_label(row)
   compact.append('<article class="gaming-magazine-item">'
                  '<a class="gaming-magazine-thumb" href="'+href+'">'+editorial_cover(row)+'</a>'
@@ -736,7 +736,7 @@ def date_label(r):
  try:return datetime.strptime(value,"%Y-%m-%d").strftime("%d/%m/%Y")
  except ValueError:return ""
 def overlay_card(r,kind="feature-tile"):
- link="/"+r["slug"]
+ link=article_path(r)
  pic=safe_image(r.get("image",""))
  image=('<img class="spotlight-cover-foreground" loading="lazy" src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
         if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>')
@@ -761,7 +761,7 @@ def box(name,rows,notice=""):
  if not rows:return ""
  cards=[]
  for r in rows:
-  href="'+esc(article_path(r),quote=True)+'"
+  href=esc(article_path(r),quote=True)
   image=safe_image(r.get("image",""))
   thumb='<img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
@@ -887,7 +887,7 @@ def feature_mini_cards(items):
  if not items:return ""
  rendered=[]
  for r in items[:2]:
-  href="'+esc(article_path(r),quote=True)+'"
+  href=esc(article_path(r),quote=True)
   image=safe_image(r.get("image",""))
   pic='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
   rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
@@ -898,7 +898,7 @@ def compact_cards(rows):
  if not rows:return ""
  out=[]
  for r in rows:
-  href="'+esc(article_path(r),quote=True)+'"
+  href=esc(article_path(r),quote=True)
   day=date_label(r)
   out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+editorial_cover(r)+'</a>'
              '<div class="compact-item-text"><span class="compact-item-type">'+esc(TYPES.get(r["category"],""))+'</span>'
@@ -1181,7 +1181,7 @@ def archive_rows(rows,key,old=False):
  return [r for r in rows if r.get("category") in GROUPS[key] and is_archived(r)==old]
 def archive_text_cards(rows):
  return '<div class="archive-text-list">'+''.join(
-  '<article class="archive-text-item"><small>'+esc(date_label(r))+' · '+esc(TYPES[r["category"]])+'</small><h3><a href="/'+esc(r["slug"],quote=True)+'">'+esc(clean_title(r["title"]))+'</a></h3></article>'
+  '<article class="archive-text-item"><small>'+esc(date_label(r))+' · '+esc(TYPES[r["category"]])+'</small><h3><a href="'+esc(article_path(r),quote=True)+'">'+esc(clean_title(r["title"]))+'</a></h3></article>'
   for r in rows)+'</div>'
 def history_archive(key,rows,page=1):
  label={"news":"News","news-tech":"News Tech","news-gaming":"News Gaming",
