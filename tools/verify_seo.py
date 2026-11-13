@@ -6,6 +6,7 @@ from xml.etree import ElementTree as ET
 from urllib.parse import urlparse
 import json,re
 from seo import DOMAIN,metadata,full_image,keywords,description
+from article_routes import build_article_url, CATEGORY_PREFIX
 
 class MetaParser(HTMLParser):
  def __init__(self):
@@ -18,6 +19,8 @@ class MetaParser(HTMLParser):
   self.script=False
   self.text=""
   self.h1=0
+  self.current_h1=False
+  self.h1_text=""
  def handle_starttag(self,tag,attrs):
   attrs=dict(attrs)
   if tag=="title":self.current_title=True
@@ -28,15 +31,17 @@ class MetaParser(HTMLParser):
   if tag=="script" and attrs.get("type")=="application/ld+json":
    self.script=True
    self.text=""
-  if tag=="h1":self.h1+=1
+  if tag=="h1":self.h1+=1;self.current_h1=True
  def handle_endtag(self,tag):
   if tag=="title":self.current_title=False
+  if tag=="h1":self.current_h1=False
   if tag=="script" and self.script:
    try:self.ld.append(json.loads(self.text))
    except ValueError:self.ld.append({"invalid":self.text[:160]})
    self.script=False
  def handle_data(self,data):
   if self.current_title:self.title+=data
+  if self.current_h1:self.h1_text+=data
   if self.script:self.text+=data
 
 def check_seo(root,rows,groups,preview):
@@ -76,7 +81,7 @@ def check_seo(root,rows,groups,preview):
   date=datetime.fromisoformat(stamp.replace("Z","+00:00"))
   if date.tzinfo is None or not now-timedelta(days=2,minutes=2)<=date<=now+timedelta(minutes=2):
    raise AssertionError("Google News sitemap must contain only recent publications: "+str(url))
-  if url not in {DOMAIN+"/"+r["slug"] for r in rows if r.get("category") in ("news-tech","news-gaming")}:
+  if url not in {DOMAIN+build_article_url(r) for r in rows if r.get("category") in ("news-tech","news-gaming")}:
    raise AssertionError("Google News sitemap contains a non-news article: "+str(url))
   news_links.append(url)
  if len(news_links)!=len(set(news_links)):
@@ -87,10 +92,10 @@ def check_seo(root,rows,groups,preview):
  if (DOMAIN+"/404") in urls:raise AssertionError("404 must not be in sitemap")
  count=0
  bad=[]
- for page in root.glob("*.html"):
+ for page in root.rglob("*.html"):
   parser=MetaParser()
   parser.feed(page.read_text(encoding="utf-8"))
-  path="/" if page.stem=="index" else "/"+page.stem
+  path="/" if page.relative_to(root).as_posix()=="index.html" else "/"+page.relative_to(root).with_suffix("").as_posix()
   expected=DOMAIN+path if path!="/" else DOMAIN+"/"
   if page.stem=="404":continue
   if not parser.title or len(parser.title)>125:bad.append((page.name,"missing/overlong title"))
@@ -131,12 +136,33 @@ def check_seo(root,rows,groups,preview):
   if not preview and not path.startswith("/notizia-web-") and "max-image-preview:large" not in parser.meta.get("robots",""):
    bad.append((page.name,"Production discover image preview missing"))
   count+=1
+ for category in ("recensioni","news","speciali","guide","extra"):
+  page=root/(category+".html")
+  if not page.is_file():
+   bad.append((category,"category archive file missing"))
+   continue
+  parser=MetaParser();parser.feed(page.read_text(encoding="utf-8"))
+  expected=DOMAIN+"/"+category
+  canonicals=[x.get("href") for x in parser.links if x.get("rel")=="canonical"]
+  if canonicals!=[expected]:bad.append((category,"category archive canonical mismatch"))
+  if parser.h1!=1 or not parser.h1_text.strip():bad.append((category,"category archive H1 missing"))
+  if not parser.title or not parser.title.startswith(parser.h1_text.strip()):
+   bad.append((category,"category archive title is not coherent with H1"))
+  if expected not in urls:bad.append((category,"category archive missing from sitemap"))
  for row in rows:
-  p=root/(row["slug"]+".html")
+  p=root/(build_article_url(row).lstrip("/")+".html")
   parser=MetaParser()
   parser.feed(p.read_text(encoding="utf-8"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
-  if not item:bad.append((p.name,"no article schema"))
+  if not item:bad.append((p.as_posix(),"no article schema"))
+  if row.get("route_version") in (2,"2","v2"):
+   crumbs=next((x for x in parser.ld if x.get("@type")=="BreadcrumbList"),{})
+   elements=crumbs.get("itemListElement",[])
+   if len(elements)!=3:bad.append((p.as_posix(),"v2 article must have a three-level BreadcrumbList"))
+   else:
+    parent=CATEGORY_PREFIX.get(row.get("category"))
+    if elements[1].get("item")!=DOMAIN+"/"+str(parent):
+     bad.append((p.as_posix(),"breadcrumb parent does not match public category"))
   if str(row.get("category") or "").startswith("recensioni-"):
    from article_templates import score as actual_score,paragraphs
    rating=actual_score(row,paragraphs(row))
