@@ -114,7 +114,17 @@ def build_article_url(article):
             raise ValueError("Legacy article has no original path or slug")
         return "/" + slug.removesuffix(".html")
     if article.get("public_path"):
-        return normalize_public_path(article["public_path"])
+        existing = normalize_public_path(article["public_path"])
+        if is_review(article):
+            existing_slug = existing.rsplit("/", 1)[-1]
+            existing_words = existing_slug.split("-")
+            has_editorial_label = any(word in REVIEW_LABELS for word in existing_words) or (
+                len(existing_words) > 1 and existing_words[0] in REVIEW_PREFIX_LABELS
+                and existing_words[1] in REVIEW_LABELS
+            )
+            if has_editorial_label:
+                return normalize_public_path("/recensioni/" + slugify_review_title(article.get("title") or ""))
+        return existing
     category = str(article.get("category") or "")
     prefix = CATEGORY_PREFIX.get(category)
     if prefix not in ALLOWED_PREFIXES:
