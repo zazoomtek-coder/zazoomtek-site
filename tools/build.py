@@ -40,6 +40,13 @@ def classification_for_post(item):
   if title and normalized_title(title)==normalized_title(row["title"]):return row["category"]
  return None
 def category_for_post(item):
+ # Editorial title prefixes are authoritative, even when YouTube supplies
+ # a stale or generic type/category/topic for the same Community record.
+ headline=str(item.get("title") or "").strip().lstrip("#").strip().casefold()
+ if re.match(r"^review\s+gaming(?:\s*[:：–—-]\s*|\s+)",headline):
+  return "recensioni-gaming"
+ if re.match(r"^review\s+tech(?:\s*[:：–—-]\s*|\s+)",headline):
+  return "recensioni-tech"
  # Persist the verified microphone review category even on subsequent reimports.
  if str(item.get("id") or "")=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk":
   return "recensioni-tech"

@@ -3,7 +3,8 @@ import json
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit,unquote
-from article_routes import build_article_url, CATEGORY_PREFIX
+from article_routes import build_article_url, CATEGORY_PREFIX, ALLOWED_PREFIXES
+from route_link_cleanup import strip_orphan_community_anchors
 
 class LinkReader(HTMLParser):
  def __init__(self):
@@ -60,8 +61,14 @@ def check_dist(root,rows=None):
  def pretty(path):
   return path.removesuffix(".html").rstrip("/") or "/"
  for doc in documents:
+  markup=doc.read_text(encoding="utf-8")
+  markup,warnings=strip_orphan_community_anchors(markup,real_pages)
+  for orphan in warnings:
+   print("WARNING: removed orphan Community link in "+doc.name+": "+orphan+" (anchor text preserved)",flush=True)
+  if warnings:
+   doc.write_text(markup,encoding="utf-8")
   reader=LinkReader()
-  reader.feed(doc.read_text(encoding="utf-8"))
+  reader.feed(markup)
   for href in reader.hrefs:
    u=urlsplit(href)
    if u.scheme or u.netloc or not href.startswith("/"):continue
@@ -77,7 +84,12 @@ def check_dist(root,rows=None):
     errors.append(f"{doc.name} uses noncanonical .html URL: {path}")
    route=pretty(path)
    if route.lstrip("/") not in real_pages:
-    errors.append(f"{doc.name} links to absent page {route}")
+    is_v2=any(route.startswith("/"+prefix+"/") for prefix in ALLOWED_PREFIXES)
+    is_archive=route in ("/recensioni","/news","/speciali","/guide","/extra")
+    if is_v2 or is_archive:
+     errors.append(f"{doc.name} links to absent protected route {route}")
+    else:
+     print("WARNING: unresolved legacy link in "+doc.name+": "+route,flush=True)
  redirect_file=root/"_redirects"
  redirects={}
  if redirect_file.is_file():

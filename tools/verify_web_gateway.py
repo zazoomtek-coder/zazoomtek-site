@@ -3,6 +3,7 @@ from pathlib import Path
 from html.parser import HTMLParser
 from html import escape as esc
 from web_editorial import gateway_path,relevant,topic_similarity
+from article_routes import build_article_url
 import re
 
 class Links(HTMLParser):
@@ -44,7 +45,7 @@ def check_web_gateways(root,web_items,rows):
    # Sidebar links may legitimately repeat a story; only the primary
    # editorial CTA must point exactly once to the selected original article.
    primary_links=re.findall(r'class="web-gateway-main-cta" href="([^"]+)"',html)
-   if primary_links!=["/"+expected_match["slug"]]:
+   if primary_links!=[build_article_url(expected_match)]:
     issues.append(path+": primary original article link absent or repeated")
    if "Approfondimento originale ZazoomTek" not in html:
     issues.append(path+": original first-party headline not prioritized")
@@ -66,16 +67,16 @@ def check_web_gateways(root,web_items,rows):
   if len(cards)!=3:issues.append(path+": expected exactly 3 first-party related cards")
   slugs=[]
   for card in cards:
-   matched=re.search(r'class="web-gateway-card-cover" href="/([a-z0-9-]+)"',card)
+   matched=re.search(r'class="web-gateway-card-cover" href="(/[a-z0-9-]+(?:/[a-z0-9-]+)?)"',card)
    if not matched:
     issues.append(path+": related card without local href")
     continue
    slugs.append(matched.group(1))
-   if not any(r.get("slug")==matched.group(1) for r in rows):
+   if not any(build_article_url(r)==matched.group(1) for r in rows):
     issues.append(path+": related card references missing original story")
   if len(slugs)!=len(set(slugs)):
    issues.append(path+": duplicate recommendations")
-  if expected_match and expected_match["slug"] in slugs:
+  if expected_match and build_article_url(expected_match) in slugs:
    issues.append(path+": primary article repeated among recommendations")
   if 'class="inner-layout web-gateway-layout"' not in html:
    issues.append(path+": dedicated editorial gateway grid absent")
