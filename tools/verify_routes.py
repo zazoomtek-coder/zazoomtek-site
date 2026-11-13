@@ -332,6 +332,8 @@ def check_dist(root,rows=None):
    if parsed.tag!="rss" or not parsed.find("./channel/item"):
     errors.append("RSS feed is empty or invalid")
   except Exception as exc:errors.append("RSS XML could not be parsed: "+str(exc))
+ for warning in warnings:
+  print("WARNING: historical route diagnostic:",warning,flush=True)
  if errors:
-  raise ValueError("Site route verification failed:\n"+"\n".join(errors[:50]))
- print(f"Route verification successful: {len(documents)} HTML pages, all links resolved, {len(redirects)} safe redirect aliases",flush=True)
+  raise ValueError("Site route verification failed:\\n"+"\\n".join(errors[:50]))
+ print(f"Route verification successful: {len(documents)} HTML pages, {len(warnings)} historical warnings, {len(redirects)} safe redirect aliases",flush=True)
