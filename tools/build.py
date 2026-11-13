@@ -1354,7 +1354,7 @@ def legacy_article_redirects(rows):
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
-   lines.append(alias+" /"+target+" 301")
+   lines.append(alias+" "+article_path(row)+" 301")
    inserted=True
   if inserted:recovered+=1
  if len(lines)>2000:
@@ -1384,10 +1384,11 @@ def legacy_article_redirects(rows):
   if target not in by_slug or old in occupied or old in by_slug:continue
   if not re.fullmatch(r"[a-z0-9-]+",old) or not re.fullmatch(r"[a-z0-9-]+",target):
    raise ValueError("Unsafe duplicate redirect")
+  destination=article_path(by_slug[target])
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
-   lines.append(alias+" /"+target+" 301")
+   lines.append(alias+" "+destination+" 301")
  # Restore only historical article aliases explicitly preserved by the imported data.
  # Never guess old paths or redirect removed articles to the home page.
  for row in rows:
@@ -1398,10 +1399,11 @@ def legacy_article_redirects(rows):
   old=old.removesuffix(".html")
   if old==target or old in occupied or old in by_slug:continue
   if target not in by_slug or not (O/(article_path(by_slug[target]).lstrip("/")+".html")).is_file():continue
+  destination=article_path(by_slug[target])
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
-   lines.append(alias+" /"+target+" 301")
+   lines.append(alias+" "+destination+" 301")
  (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
