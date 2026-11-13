@@ -39,6 +39,13 @@ assert(htmlAlias.status === 301, ".html article alias must redirect");
 assert(htmlAlias.headers.get("Location") === "https://zazoomtek.it/guide/come-configurare-wifi",
   ".html article alias must resolve directly to category canonical");
 
+const oldReview = await request("https://zazoomtek.it/recensioni/review-gaming-payday-aces-high-recensione-pcvr?utm_source=legacy");
+assert(oldReview.status === 301, "Long review slug must redirect permanently");
+assert(oldReview.headers.get("Location") === "https://zazoomtek.it/recensioni/payday-aces-high-pcvr?utm_source=legacy",
+  "Review alias must point directly to the clean subject/platform slug and preserve query");
+const cleanReview = await request(oldReview.headers.get("Location"));
+assert(cleanReview.status === 200, "Clean review canonical must not redirect again");
+
 for (const url of [
   "https://zazoomtek.it/community-ugkx123456789/",
   "https://zazoomtek.it/community-ugkx123456789"
@@ -48,4 +55,4 @@ for (const url of [
   assert(!legacy.headers.has("Location"), "Historical Community URL must retain its original path");
 }
 
-console.log("Cloudflare middleware route tests PASS: one-hop category redirects and unchanged Community paths.");
+console.log("Cloudflare middleware route tests PASS: review aliases, one-hop normalization and unchanged Community paths.");
