@@ -14,11 +14,11 @@ class EditorialLiveRouteTests(unittest.TestCase):
             "category": "recensioni-gaming",
             "route_version": 2,
             "public_slug": "review-gaming-payday-aces-high-recensione-pcvr",
-            "public_path": "/recensioni/review-gaming-payday-aces-high-recensione-pcvr",
+            "public_path": "/recensioni/payday-aces-high-pcvr",
         }
         self.assertEqual(
             live_article_route(row),
-            "/recensioni/review-gaming-payday-aces-high-recensione-pcvr",
+            "/recensioni/payday-aces-high-pcvr",
         )
 
     def test_legacy_community_route_remains_flat(self):
