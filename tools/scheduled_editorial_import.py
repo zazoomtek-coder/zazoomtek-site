@@ -315,6 +315,8 @@ def main():
     before = {name: len(snapshot(name, key)[key]) for name, key in
               (("community_imported.json", "posts"), ("videos.json", "videos"))}
     archive = {x.get("id") for x in snapshot("community_full.json", "posts")["posts"]}
+    archive.update(x.get("id") for x in snapshot("community.json", "posts")["posts"]
+                   if isinstance(x, dict) and x.get("id"))
     queue_posts = merge_queue("queue_community.json", "community_imported.json",
                               "posts", archive)
     queue_videos = merge_queue("queue_videos.json", "videos.json", "videos", set())
