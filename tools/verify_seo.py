@@ -50,6 +50,11 @@ def check_seo(root,rows,groups,preview):
  document=ET.parse(root/"sitemap.xml").getroot()
  urls=[x.text for x in document.findall(".//sm:url/sm:loc",ns)]
  if not urls:raise AssertionError("Sitemap contains zero indexed URLs")
+ if len(urls)!=len(set(urls)):raise AssertionError("Sitemap contains duplicate canonical URLs")
+ for value in urls:
+  path=urlparse(value).path
+  if not value.startswith(DOMAIN) or "//" in path or path.endswith(".html") or (path!="/" and path.endswith("/")):
+   raise AssertionError("Noncanonical sitemap URL: "+str(value))
  # Fail a release when the sitemap references a missing, noindex or mismatched page.
  # Old deleted URLs are NOT reintroduced just to satisfy Search Console.
  for sitemap_url in urls:
