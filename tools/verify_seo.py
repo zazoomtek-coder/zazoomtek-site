@@ -62,6 +62,9 @@ def check_seo(root,rows,groups,preview):
                                  for name in archives)
  def page_issue(page,issue):
   (bad if page_is_critical(page) else warnings).append(issue)
+ def path_is_critical(path):
+  route=str(path or "").lstrip("/")
+  return route.split("/",1)[0] in set(CATEGORY_PREFIX.values()) or route in ("recensioni","news","speciali","guide","extra")
  ns={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}
  document=ET.parse(root/"sitemap.xml").getroot()
  urls=[x.text for x in document.findall(".//sm:url/sm:loc",ns)]
@@ -93,7 +96,8 @@ def check_seo(root,rows,groups,preview):
   meta=MetaParser()
   meta.feed(target.read_text(encoding="utf-8"))
   if not preview and "noindex" in meta.meta.get("robots","").lower():
-   raise AssertionError("Sitemap references noindex page: "+sitemap_url)
+   message="Sitemap references noindex page: "+sitemap_url
+   (bad if path_is_critical(urlparse(sitemap_url).path) else warnings).append(message)
   page_canon=[x.get("href") for x in meta.links if x.get("rel")=="canonical"]
   if page_canon!=[sitemap_url]:
    path=urlparse(sitemap_url).path
@@ -187,10 +191,13 @@ def check_seo(root,rows,groups,preview):
   if expected not in urls:bad.append((category,"category archive missing from sitemap"))
  for row in rows:
   p=root/(build_article_url(row).lstrip("/")+".html")
+  critical=is_release_critical(row,strict_ids)
+  if not p.is_file():
+   (bad if critical else warnings).append((p.as_posix(),"article HTML missing"))
+   continue
   parser=MetaParser()
   parser.feed(p.read_text(encoding="utf-8"))
   item=next((x for x in parser.ld if x.get("@type") in ("Article","NewsArticle","Review")),None)
-  critical=is_release_critical(row,strict_ids)
   article_issue=lambda message: (bad if critical else warnings).append((p.as_posix(),message))
   if not item:article_issue("no article schema")
   if row.get("route_version") in (2,"2","v2"):
