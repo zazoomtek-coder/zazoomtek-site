@@ -70,11 +70,16 @@ class ArticleRoutesTests(unittest.TestCase):
         rows = [
             {"route_version": 2, "category": "news-tech", "title": "Titolo cambiato",
              "public_slug": "titolo-originale", "public_path": "/news/titolo-originale"},
-            {"route_version": 2, "category": "news-gaming", "title": "Titolo duplicato"},
+            {"route_version": 2, "category": "news-gaming", "title": "Titolo duplicato",
+             "public_slug": "titolo-duplicato", "public_path": "/news/titolo-duplicato"},
         ]
         assign_public_routes(rows)
         self.assertEqual(rows[0]["public_path"], "/news/titolo-originale")
         self.assertEqual(rows[1]["public_path"], "/news/titolo-duplicato")
+
+    def test_v2_route_must_be_persisted_before_build(self):
+        with self.assertRaisesRegex(ValueError, "persisted public_path"):
+            assign_public_routes([{"route_version": 2, "category": "guide", "title": "Guida al Wi-Fi"}])
 
 if __name__ == "__main__":
     unittest.main()
