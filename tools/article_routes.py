@@ -46,14 +46,14 @@ def unique_slug(title, occupied, max_length=68, prefix=None):
     """Allocate a slug against existing sibling slugs or paths in one category."""
     base = slugify_title(title, max_length)
     candidate, number = base, 2
-    while candidate in occupied or any(
+    while (candidate in occupied if prefix is None else "/" + prefix + "/" + candidate in occupied) or any(
         isinstance(path, str) and (prefix is None or path.startswith("/" + prefix + "/"))
         and path.rsplit("/", 1)[-1] == candidate for path in occupied
     ):
         suffix = "-" + str(number)
         candidate = base[:max_length-len(suffix)].rstrip("-") + suffix
         number += 1
-    occupied.add(candidate)
+    occupied.add(candidate if prefix is None else "/" + prefix + "/" + candidate)
     return candidate
 
 
