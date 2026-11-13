@@ -10,6 +10,8 @@ def build_studio(output, rows):
  root.mkdir(parents=True,exist_ok=True)
  catalog={"version":2,"posts":[{
    "slug":r.get("slug"),"title":r.get("title"),"category":r.get("category"),
+   "route_version":r.get("route_version"),"legacy_path":r.get("legacy_path"),
+   "public_slug":r.get("public_slug"),"public_path":r.get("public_path"),
    "date":r.get("date"),"published_at":r.get("published_at"),
    "image":r.get("image"),"author":r.get("author"),
    "video_url":r.get("video_url"),"platform":r.get("platform"),

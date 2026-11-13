@@ -13,7 +13,8 @@ import xml.etree.ElementTree as ET
 
 from community_youtube import discover, date_from_relative
 from sync_videos import CHANNEL_ID, NS, classify, is_short_entry, is_short_title
-from build import tech_sources, rss_card_for_source
+from build import tech_sources, rss_card_for_source, category_for_post
+from article_routes import CATEGORY_PREFIX, unique_slug
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -91,6 +92,28 @@ def youtube_community():
     existing = {r.get("id"): r for r in db["posts"] if r.get("id")}
     archived = load("community_full.json", "posts")["posts"]
     archived_ids = {x.get("id") for x in archived}
+    try:
+        historical = load("community.json", "posts")["posts"]
+    except (OSError, ValueError, KeyError):
+        historical = []
+    archived_ids.update(x.get("id") for x in historical if isinstance(x, dict) and x.get("id"))
+    occupied_paths = set()
+    for filename, key in (("posts.json", "posts"), ("studio_posts.json", "posts"),
+                          ("community_imported.json", "posts"), ("community_full.json", "posts"),
+                          ("community.json", "posts")):
+        try:
+            records = load(filename, key)[key]
+        except (OSError, ValueError, KeyError):
+            records = []
+        occupied_paths.update(str(x.get("public_path")) for x in records
+                              if isinstance(x, dict) and x.get("public_path"))
+    try:
+        overrides = json.loads((DATA / "studio_overrides.json").read_text(encoding="utf-8")).get("overrides", {})
+    except (OSError, ValueError, TypeError):
+        overrides = {}
+    if isinstance(overrides, dict):
+        occupied_paths.update(str(x.get("public_path")) for x in overrides.values()
+                              if isinstance(x, dict) and x.get("public_path"))
     today = datetime.now(timezone.utc).date().isoformat()
     try:
         items = discover(limit=180, max_pages=15)
@@ -110,6 +133,17 @@ def youtube_community():
                 continue
             if len(row.get("text", "")) < 60 or not row.get("type"):
                 continue
+            row = dict(row)
+            category = category_for_post(row)
+            prefix = CATEGORY_PREFIX.get(category)
+            if not prefix:
+                raise ValueError("Nuovo post Community senza categoria pubblica valida: " + str(category))
+            public_slug = unique_slug(row.get("title") or "", occupied_paths, prefix=prefix)
+            row["category"] = category
+            row["route_version"] = 2
+            row["public_slug"] = public_slug
+            row["public_path"] = "/" + prefix + "/" + public_slug
+            occupied_paths.add(row["public_path"])
             existing[post_id] = row
             added.append(row)
         db["posts"] = sorted(existing.values(),

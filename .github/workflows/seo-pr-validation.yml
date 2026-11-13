@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - fix/seo-publishing-audit-20261031
+      - feat/category-based-article-routes-20261113
   pull_request:
     branches: [main]
     paths:
@@ -19,17 +20,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      CF_PAGES_BRANCH: main
-      CF_PAGES_URL: https://zazoomtek.it
+      CF_PAGES_BRANCH: feat/category-based-article-routes-20261113
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Check Python syntax
-        run: python3 -m py_compile tools/build.py tools/seo.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py tools/audit_trace.py
+        run: python3 -m py_compile tools/build.py tools/seo.py tools/article_routes.py tools/verify_seo.py tools/verify_routes.py tools/editorial_slot_gate.py tools/audit_trace.py tools/emergency_sync.py tools/scheduled_editorial_import.py tools/studio_build.py tools/studio_v2_build.py
       - name: Run isolated SEO live-audit tests (no external requests)
         run: python3 -m unittest discover -s tools -p 'test_seo_live_audit.py' -v
+      - name: Run article route unit tests
+        run: python3 -m unittest tools/test_article_routes.py -v
+      - name: Run Cloudflare middleware one-hop redirect tests
+        run: node tools/test_middleware_routes.mjs
+      - name: Run Studio route allocation parity tests
+        run: node tools/test_studio_route_policy.mjs
       - name: Run Community multi-image import/render regression tests
         run: python3 tools/test_community_images.py
       - name: Build production-equivalent output (no deployment)

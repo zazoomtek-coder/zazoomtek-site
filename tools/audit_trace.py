@@ -6,6 +6,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 import json
 import re
+from article_routes import build_article_url
 
 
 class CanonicalReader(HTMLParser):
@@ -89,8 +90,10 @@ def run(project_root, output_root, rows, events):
             label = f"{name}[{index}] id={identifier or '-'} title={title!r}"
             if status == "generated":
                 slug = target or event.get("slug", "")
-                url = domain + "/" + slug
-                page = output_root / (slug + ".html")
+                row = rows_by_slug.get(slug)
+                path = build_article_url(row) if row else "/" + slug
+                url = domain + path
+                page = output_root / (path.lstrip("/") + ".html")
                 if slug not in rows_by_slug:
                     errors.append(label + ": generated row missing from final article set")
                 if not page.is_file():
@@ -108,8 +111,9 @@ def run(project_root, output_root, rows, events):
             elif status == "candidate" and identifier and identifier in rows_by_id:
                 canonical_row = rows_by_id[identifier]
                 slug = str(canonical_row.get("slug") or "")
-                url = domain + "/" + slug
-                page = output_root / (slug + ".html")
+                path = build_article_url(canonical_row)
+                url = domain + path
+                page = output_root / (path.lstrip("/") + ".html")
                 if not page.is_file() or url not in sitemap_urls:
                     errors.append(label + ": canonical-ID match has no generated HTML/sitemap destination: " + url)
                 if page.is_file():
@@ -128,7 +132,8 @@ def run(project_root, output_root, rows, events):
             elif status == "merged_duplicate":
                 canonical_row = rows_by_id.get(identifier)
                 slug = str(canonical_row.get("slug") or "") if canonical_row else target
-                url = domain + "/" + slug
+                path = build_article_url(canonical_row) if canonical_row else "/" + slug
+                url = domain + path
                 if slug not in rows_by_slug or url not in sitemap_urls:
                     errors.append(label + ": duplicate-source target is not a sitemap article: " + url)
                 status_counts["merged_duplicate"] += 1
@@ -139,7 +144,7 @@ def run(project_root, output_root, rows, events):
                     errors.append(label + ": historical alias target ID has no generated article: " + target)
                     target_url = "UNRESOLVED"
                 else:
-                    target_url = domain + "/" + str(target_row["slug"])
+                    target_url = domain + build_article_url(target_row)
                     if target_url not in sitemap_urls:
                         errors.append(label + ": historical alias target missing from sitemap: " + target_url)
                 status_counts["merged_alias"] += 1
@@ -157,8 +162,9 @@ def run(project_root, output_root, rows, events):
     # Every final article must have one physical HTML page and one exact sitemap URL.
     for row in rows:
         slug = str(row.get("slug") or "")
-        url = domain + "/" + slug
-        page = output_root / (slug + ".html")
+        path = build_article_url(row)
+        url = domain + path
+        page = output_root / (path.lstrip("/") + ".html")
         if not slug or not page.is_file():
             errors.append("Final article has no physical HTML file: " + slug)
         if url not in sitemap_urls:
@@ -195,7 +201,7 @@ def run(project_root, output_root, rows, events):
         "sources": raw_counts,
         "source_records": sum(raw_counts.values()),
         "final_articles": len(rows),
-        "html_article_pages": sum((output_root / (str(row.get("slug")) + ".html")).is_file()
+        "html_article_pages": sum((output_root / (build_article_url(row).lstrip("/") + ".html")).is_file()
                                   for row in rows),
         "sitemap_urls": len(sitemap_urls),
         "archive_pages": len(archive_pages),

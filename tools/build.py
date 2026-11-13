@@ -5,6 +5,7 @@ from html import escape as esc
 import json,os,re,shutil,sys,hashlib
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import urllib.request,xml.etree.ElementTree as ET
+from article_routes import build_article_url, assign_public_routes
 from html import unescape as unesc
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlparse
@@ -16,6 +17,7 @@ TYPES={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Re
 GROUPS={"news":["news-tech","news-gaming"],"recensioni":["recensioni-tech","recensioni-gaming"],"guide":["guide"],"speciali":["speciali"],"extra":["extra"],"video":["video"],**{k:[k] for k in TYPES}}
 PREVIEW=os.getenv("CF_PAGES_BRANCH","feature/spotnews-clean-rebuild")!="main"
 TICKER_ROWS=[]  # Populated before all page shells are generated.
+def article_path(row):return build_article_url(row)
 _BUILD_TRACE=[]  # Structured record of every raw editorial input and its outcome.
 _WEB_NEWS_CACHE=None
 
@@ -173,6 +175,8 @@ def community_posts():
   result.append({
    **points,
    "slug":slug,"category":cat,"source_post_id":post_id,
+   "route_version":item.get("route_version"),"public_slug":item.get("public_slug"),
+   "public_path":item.get("public_path"),"legacy_path":item.get("legacy_path"),
    "original_slug":original_slug,
    "title":("TRUST GXT 269 EMITA II | Recensione" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else title.strip()),
    "device":("Trust GXT 269 Emita II" if post_id=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk" else item.get("device","")),
@@ -289,6 +293,7 @@ def posts():
      row[key]=value
    row["studio_blocks"]=True
    row["source"]="studio-editor"
+ assign_public_routes(deduplicated)
  rows=sorted(deduplicated,key=chronological_key,reverse=True)
  # Only pre-verified official game/device links saved by the two editorial slots.
  # Network fetching never occurs during static page generation.
@@ -399,7 +404,7 @@ def ticker_items(rows):
   key=normalized_title(r.get("title",""))
   if not key or key in seen:continue
   seen.add(key)
-  result.append({"title":clean_title(r["title"]),"url":"/"+r["slug"],
+  result.append({"title":clean_title(r["title"]),"url":article_path(r),
                  "date":str(r.get("date") or r.get("published_at") or "")[:10],
                  "category":TYPES.get(r["category"],"News")})
   if len(result)==10:break
@@ -434,7 +439,7 @@ def build_live_discovery(rows):
    "title":clean_title(r.get("title","")),
    "category":TYPES.get(r.get("category"),"Articolo"),
    "date":str(r.get("date") or r.get("published_at") or "")[:10],
-   "url":"/"+slug,
+   "url":article_path(r),
    "excerpt":text[:245],
    "text":text[:36000]
   })
@@ -532,7 +537,7 @@ def legal_pages(rows):
    "disclaimer":"Disclaimer di ZazoomTek: informazioni sull'utilizzo dei contenuti editoriali e sulle responsabilità del sito.",
    "note-legali":"Note legali di ZazoomTek: informazioni relative al sito, ai contenuti e ai contatti della redazione."
   }
-  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path="/"+page["slug"],seo_summary=summaries[page["slug"]]),encoding="utf-8")
+  (O/(page["slug"]+".html")).write_text(inside(page["title"],body,rows,show_related=False,seo_path=article_path(page),seo_summary=summaries[page["slug"]]),encoding="utf-8")
 
 def safe_image(value):
  if not isinstance(value,str):return ""
@@ -604,7 +609,7 @@ def cards(rows):
  if not rows:return ""
  entries=[]
  for r in rows:
-  url="/"+r["slug"]
+  url=article_path(r)
   visual=editorial_cover(r)
   label=('Recensione '+('Gaming' if r["category"]=="recensioni-gaming" else 'Tech')+
          (' · PC' if r["category"]=="recensioni-gaming" and re.search(r"\\bPC\\b",r.get("title",""),re.I) else ''))
@@ -643,7 +648,7 @@ def news_tech_magazine(rows):
  """
  if not rows:return ""
  def item(row,large=False):
-  href="/"+row["slug"]
+  href=esc(article_path(row),quote=True)
   title=esc(clean_title(row["title"]))
   stamp=date_label(row)
   raw_date=str(row.get("date") or row.get("published_at") or "")[:10]
@@ -667,7 +672,7 @@ def gaming_magazine(rows):
  """Home Gaming: the existing lead, a second large article below, four compact items at right."""
  if not rows:return ""
  lead=rows[0]
- url="/"+lead["slug"]
+ url=article_path(lead)
  title=esc(clean_title(lead["title"]))
  date=date_label(lead)
  feature=('<article class="gaming-magazine-lead">'
@@ -678,7 +683,7 @@ def gaming_magazine(rows):
  second=""
  if len(rows)>1:
   other=rows[1]
-  other_url="/"+other["slug"]
+  other_url=esc(article_path(other),quote=True)
   other_title=esc(clean_title(other["title"]))
   other_date=date_label(other)
   second=('<article class="gaming-magazine-lead gaming-magazine-lead-secondary">'
@@ -689,7 +694,7 @@ def gaming_magazine(rows):
           +'</article>')
  compact=[]
  for row in rows[2:6]:
-  href="/"+row["slug"]
+  href=esc(article_path(row),quote=True)
   date=date_label(row)
   compact.append('<article class="gaming-magazine-item">'
                  '<a class="gaming-magazine-thumb" href="'+href+'">'+editorial_cover(row)+'</a>'
@@ -706,7 +711,7 @@ def reviews_three_column(rows):
  if not rows:return ""
  out=[]
  for item in rows[:3]:
-  href="/"+item["slug"]
+  href=esc(article_path(item),quote=True)
   title=esc(clean_title(item["title"]))
   category=esc(TYPES.get(item["category"],"Recensione"))
   date=date_label(item)
@@ -731,7 +736,7 @@ def date_label(r):
  try:return datetime.strptime(value,"%Y-%m-%d").strftime("%d/%m/%Y")
  except ValueError:return ""
 def overlay_card(r,kind="feature-tile"):
- link="/"+r["slug"]
+ link=article_path(r)
  pic=safe_image(r.get("image",""))
  image=('<img class="spotlight-cover-foreground" loading="lazy" src="'+esc(pic,quote=True)+'" alt="'+esc(clean_title(r["title"]),quote=True)+'">'
         if pic else '<span class="tile-no-image"><strong>'+esc(r["title"])+'</strong></span>')
@@ -756,7 +761,7 @@ def box(name,rows,notice=""):
  if not rows:return ""
  cards=[]
  for r in rows:
-  href="/"+r["slug"]
+  href=esc(article_path(r),quote=True)
   image=safe_image(r.get("image",""))
   thumb='<img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(TYPES.get(r["category"],"ZazoomTek"))+'</strong></span>'
   date=date_label(r)
@@ -875,14 +880,14 @@ def related_articles(rows,exclude="",category=None):
 def related_markup(chosen):
  if len(chosen)!=3:raise ValueError("Related markup needs exactly three articles")
  return '<section class="related"><h2>Articoli correlati</h2><ul>'+''.join(
-  '<li><a href="/'+r["slug"]+'"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
+  '<li><a href="'+esc(article_path(r),quote=True)+'"><strong>'+esc(clean_title(r["title"]))+'</strong></a></li>'
   for r in chosen)+'</ul></section>'
 
 def feature_mini_cards(items):
  if not items:return ""
  rendered=[]
  for r in items[:2]:
-  href="/"+r["slug"]
+  href=esc(article_path(r),quote=True)
   image=safe_image(r.get("image",""))
   pic='<img loading="lazy" src="'+esc(image,quote=True)+'" alt="">' if image else '<span class="editorial-cover editorial-cover-mini"><strong>'+esc(r["title"])+'</strong></span>'
   rendered.append('<article class="card"><a class="thumb" href="'+href+'">'+pic+'</a><small>'+esc(TYPES[r["category"]])+'</small><h3><a href="'+href+'">'+esc(r["title"])+'</a></h3></article>')
@@ -893,7 +898,7 @@ def compact_cards(rows):
  if not rows:return ""
  out=[]
  for r in rows:
-  href="/"+r["slug"]
+  href=esc(article_path(r),quote=True)
   day=date_label(r)
   out.append('<article class="compact-item"><a class="compact-item-image" href="'+href+'">'+editorial_cover(r)+'</a>'
              '<div class="compact-item-text"><span class="compact-item-type">'+esc(TYPES.get(r["category"],""))+'</span>'
@@ -905,7 +910,7 @@ def feature_box(label,items):
  href="/guide" if label=="GUIDE" else "/speciali" if label=="SPECIALI" else "/extra"
  if not items:return ""
  primary=items[0]
- url="/"+primary["slug"]
+ url=article_path(primary)
  main=('<article class="feature-main-item"><a class="feature-main-thumb" href="'+url+'">'
        +editorial_cover(primary)+'</a>'
        '<div class="feature-main-description"><h3><a href="'+url+'">'+esc(clean_title(primary["title"]))+'</a></h3></div></article>')
@@ -1176,7 +1181,7 @@ def archive_rows(rows,key,old=False):
  return [r for r in rows if r.get("category") in GROUPS[key] and is_archived(r)==old]
 def archive_text_cards(rows):
  return '<div class="archive-text-list">'+''.join(
-  '<article class="archive-text-item"><small>'+esc(date_label(r))+' · '+esc(TYPES[r["category"]])+'</small><h3><a href="/'+esc(r["slug"],quote=True)+'">'+esc(clean_title(r["title"]))+'</a></h3></article>'
+  '<article class="archive-text-item"><small>'+esc(date_label(r))+' · '+esc(TYPES[r["category"]])+'</small><h3><a href="'+esc(article_path(r),quote=True)+'">'+esc(clean_title(r["title"]))+'</a></h3></article>'
   for r in rows)+'</div>'
 def history_archive(key,rows,page=1):
  label={"news":"News","news-tech":"News Tech","news-gaming":"News Gaming",
@@ -1287,7 +1292,7 @@ def article(r,rows):
  if str(page.get("category") or "").startswith("recensioni-") and not (page.get("youtube_id") or page.get("video_url")):
   video_id=matching_review_video_id(page)
   if video_id:page["youtube_id"]=video_id
- return inside(page["title"],render(page,safe_image),rows,page["slug"],page["category"],seo_row=page,seo_path="/"+page["slug"])
+ return inside(page["title"],render(page,safe_image),rows,page["slug"],page["category"],seo_row=page,seo_path=article_path(page))
 def legacy_article_redirects(rows):
  """Only redirect genuine legacy ALIASES to extensionless canonical pages.
  A physical slug.html is automatically served at /slug by Cloudflare Pages.
@@ -1300,6 +1305,8 @@ def legacy_article_redirects(rows):
  lines=[];sources=set();linked=0
  for entry in original_routes():
   old=str(entry["path"]).removesuffix(".html")
+  if old.startswith("community-"):
+   continue
   if not re.fullmatch(r"[A-Za-z0-9_-]+",old):
    raise ValueError("Unsafe legacy article path: "+old)
   desired=entry.get("canonical_slug") or ""
@@ -1312,7 +1319,7 @@ def legacy_article_redirects(rows):
    continue
   if found["category"]!=entry["category"]:
    raise ValueError("Legacy URL category disagrees with article: "+old)
-  dest="/"+found["slug"]
+  dest=article_path(found)
   # Physical pages and clean paths resolve to the same Cloudflare destination.
   if old==found["slug"] or old in occupied:
    continue
@@ -1333,7 +1340,7 @@ def legacy_article_redirects(rows):
   target=str(row.get("slug") or "")
   if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
   if row.get("is_excerpt") or target not in by_slug:continue
-  if not (O/(target+".html")).is_file():continue
+  if not (O/(article_path(by_slug[target]).lstrip("/")+".html")).is_file():continue
   cat=str(row.get("category") or "")
   if cat in ("recensioni-tech","recensioni-gaming"):
    prefix="recensione-"
@@ -1347,7 +1354,7 @@ def legacy_article_redirects(rows):
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
-   lines.append(alias+" /"+target+" 301")
+   lines.append(alias+" "+article_path(row)+" 301")
    inserted=True
   if inserted:recovered+=1
  if len(lines)>2000:
@@ -1357,6 +1364,8 @@ def legacy_article_redirects(rows):
  alias_entries=json.loads((P/"data/community_aliases.json").read_text(encoding="utf-8")).get("entries",[])
  for entry in alias_entries:
   old="community-"+re.sub(r"[^a-z0-9]+","-",entry["old_id"].lower()).strip("-")
+  # Historical Community permalinks are preserved exactly, never redirected.
+  continue
   target="community-"+re.sub(r"[^a-z0-9]+","-",entry["new_id"].lower()).strip("-")
   if old==target or old in occupied:continue
   # Some exact-title Community posts may be superseded by a preferred archive edition.
@@ -1372,27 +1381,29 @@ def legacy_article_redirects(rows):
  # Preserve the search equity of both intentionally consolidated pages.
  # Reject missing destinations and never redirect an existing physical page.
  for old,target in EDITORIAL_DUPLICATE_REDIRECTS.items():
-  if target not in by_slug or old in occupied or old in by_slug:continue
+  if old.startswith("community-") or target not in by_slug or old in occupied or old in by_slug:continue
   if not re.fullmatch(r"[a-z0-9-]+",old) or not re.fullmatch(r"[a-z0-9-]+",target):
    raise ValueError("Unsafe duplicate redirect")
+  destination=article_path(by_slug[target])
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
-   lines.append(alias+" /"+target+" 301")
+   lines.append(alias+" "+destination+" 301")
  # Restore only historical article aliases explicitly preserved by the imported data.
  # Never guess old paths or redirect removed articles to the home page.
  for row in rows:
   old=str(row.get("original_slug") or "").strip().strip("/")
   target=str(row.get("slug") or "")
-  if not old or old==target:continue
+  if not old or old==target or old.startswith("community-"):continue
   if not re.fullmatch(r"[A-Za-z0-9_-]+(?:\.html)?",old):continue
   old=old.removesuffix(".html")
   if old==target or old in occupied or old in by_slug:continue
-  if target not in by_slug or not (O/(target+".html")).is_file():continue
+  if target not in by_slug or not (O/(article_path(by_slug[target]).lstrip("/")+".html")).is_file():continue
+  destination=article_path(by_slug[target])
   for alias in ("/"+old,"/"+old+".html"):
    if alias in sources:continue
    sources.add(alias)
-   lines.append(alias+" /"+target+" 301")
+   lines.append(alias+" "+destination+" 301")
  (O/"_redirects").write_text("\n".join(lines)+("\n" if lines else ""),encoding="utf-8")
  print("Verified legacy URL aliases:",linked,"of",len(original_routes()),flush=True)
 
@@ -1475,7 +1486,7 @@ def rss_feed(rows):
   if row.get("category") not in TYPES or row.get("category")=="video":continue
   posted.add(slug)
   item=SubElement(channel,"item")
-  url=base+"/"+slug
+  url=base+article_path(row)
   SubElement(item,"title").text=clean_title(row.get("title") or "")
   SubElement(item,"link").text=url
   SubElement(item,"guid",{"isPermaLink":"true"}).text=url
@@ -1581,7 +1592,11 @@ def main():
  contacts_page(rows)
  about_page(rows)
  rss_feed(rows)
- for r in rows:(O/(r["slug"]+".html")).write_text(article(r,rows),encoding="utf-8")
+ for r in rows:
+  route=article_path(r)
+  destination=O/(route.lstrip("/")+".html")
+  destination.parent.mkdir(parents=True,exist_ok=True)
+  destination.write_text(article(r,rows),encoding="utf-8")
  from verify_studio import verify_studio
  verify_studio(O,rows)
  from verify_studio_v2 import verify_studio_v2
@@ -1612,7 +1627,7 @@ def main():
  from verify_seo import check_seo
  check_seo(O,rows,GROUPS,PREVIEW)
  from verify_routes import check_dist
- check_dist(O)
+ check_dist(O,rows)
  from audit_trace import run as audit_editorial_trace
  audit_editorial_trace(P,O,rows,_BUILD_TRACE)
  print("SpotNews build OK:",len(rows),"articoli,",len(GROUPS)+2,"pagine.")

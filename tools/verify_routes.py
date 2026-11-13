@@ -3,6 +3,7 @@ import json
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit,unquote
+from article_routes import build_article_url, CATEGORY_PREFIX
 
 class LinkReader(HTMLParser):
  def __init__(self):
@@ -28,11 +29,15 @@ class PageIdentity(HTMLParser):
   if self.title:self.title_text+=data
   if self.h1:self.h1_text+=data
 
-def check_dist(root):
+def check_dist(root,rows=None):
  root=Path(root)
- documents=list(root.glob("*.html"))
- real_pages={p.stem for p in documents}
- real_pages.discard("index")
+ documents=list(root.rglob("*.html"))
+ def route_for(page):
+  rel=page.relative_to(root).with_suffix("").as_posix()
+  if rel=="index":return "/"
+  if rel.endswith("/index"):rel=rel.rsplit("/",1)[0]
+  return "/"+rel
+ real_pages={route_for(page).lstrip("/") for page in documents}
  errors=[]
  # Route every public request through the canonical URL middleware so the
  # www host, HTTP and physical .html aliases cannot be indexed separately.
@@ -46,7 +51,7 @@ def check_dist(root):
    errors.append("Canonical URL middleware source is missing")
   else:
    middleware=middleware_file.read_text(encoding="utf-8")
-   for required in ('www.zazoomtek.it','endsWith(".html")','Response.redirect','context.next()'):
+   for required in ('www.zazoomtek.it','.html','CATEGORY_ROUTE','Response.redirect','context.next()','301'):
     if required not in middleware:
      errors.append("Canonical middleware missing rule: "+required)
  except (OSError,ValueError,TypeError) as error:
@@ -116,6 +121,91 @@ def check_dist(root):
               "recensioni-gaming","guide","speciali","extra","privacy-policy",
               "cookie-policy","disclaimer","note-legali","chi-siamo","contatti"):
   if name not in real_pages:errors.append("Required page missing: /"+name)
+ # The five public category archives must be physical, self-canonical 200 pages.
+ for name in ("recensioni","news","speciali","guide","extra"):
+  page=root/(name+".html")
+  if not page.is_file():
+   errors.append("Required category archive missing: /"+name)
+   continue
+  identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
+  expected="https://zazoomtek.it/"+name
+  if identity.canonicals!=[expected]:
+   errors.append("Category archive canonical mismatch: /"+name)
+  if not identity.title_text.strip() or not identity.h1_text.strip():
+   errors.append("Category archive title/H1 missing: /"+name)
+  elif not identity.title_text.strip().startswith(identity.h1_text.strip()):
+   errors.append("Category archive title is incoherent with H1: /"+name)
+ if any(source.startswith("/community-") for source in redirects):
+  errors.append("Historical Community URLs must not be redirected or rewritten")
+ # Dataset -> public URL -> nested file -> canonical must be a one-to-one mapping.
+ if rows is not None:
+  for row in rows:
+   route=build_article_url(row)
+   page=root/(route.lstrip("/")+".html")
+   if not page.is_file():
+    errors.append("Dataset route has no physical HTML file: "+route)
+    continue
+   identity=PageIdentity();identity.feed(page.read_text(encoding="utf-8"))
+   expected="https://zazoomtek.it"+route
+   if identity.canonicals!=[expected]:
+    errors.append("Dataset route/canonical mismatch: "+route)
+   if row.get("route_version") in (2,"2","v2"):
+    prefix=CATEGORY_PREFIX.get(row.get("category"))
+    if not prefix or not route.startswith("/"+prefix+"/"):
+     errors.append("route_version v2 does not match category: "+route)
+   elif row.get("legacy_path") and route!=row["legacy_path"]:
+    errors.append("Historical legacy_path changed: "+str(row.get("legacy_path")))
+   if route.startswith("/community-") and (route in redirects or route+".html" in redirects):
+    errors.append("Historical Community route was redirected: "+route)
+
+ # Exercise the generated Pages-style file resolver over HTTP, including real 404s.
+ from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
+ from threading import Thread
+ from functools import partial
+ from urllib.request import urlopen
+ from urllib.error import HTTPError
+ class PagesHandler(SimpleHTTPRequestHandler):
+  def translate_path(self,path):
+   mapped=Path(super().translate_path(path))
+   if not mapped.is_file() and mapped.suffix=="":
+    candidate=Path(str(mapped)+".html")
+    if candidate.is_file():return str(candidate)
+   return str(mapped)
+  def log_message(self,*args):pass
+ server=ThreadingHTTPServer(("127.0.0.1",0),partial(PagesHandler,directory=str(root)))
+ worker=Thread(target=server.serve_forever,daemon=True);worker.start()
+ try:
+  base="http://127.0.0.1:"+str(server.server_address[1])
+  checks=["/recensioni","/news","/speciali","/guide","/extra"]
+  fixture_file=None
+  if rows:
+   nested=next((build_article_url(row) for row in rows if row.get("route_version") in (2,"2","v2")),None)
+   legacy=next((build_article_url(row) for row in rows if build_article_url(row).startswith("/community-")),None)
+   if nested:checks.append(nested)
+   else:
+    fixture={"route_version":2,"category":"guide","public_slug":"route-integration-fixture",
+             "public_path":"/guide/route-integration-fixture"}
+    nested=build_article_url(fixture)
+    fixture_file=root/(nested.lstrip("/")+".html")
+    fixture_file.parent.mkdir(parents=True,exist_ok=True)
+    fixture_file.write_text('<!doctype html><title>Route fixture</title><link rel="canonical" href="https://zazoomtek.it'+nested+'">',encoding="utf-8")
+    checks.append(nested)
+   if legacy:checks.append(legacy)
+  for route in checks:
+   with urlopen(base+route,timeout=3) as response:
+    if response.status!=200:errors.append("Generated route is not HTTP 200: "+route)
+  for route in ("/blog/titolo-prova","/guide/articolo-inesistente"):
+   try:
+    with urlopen(base+route,timeout=3) as response:
+     errors.append("Unknown route unexpectedly returned HTTP "+str(response.status)+": "+route)
+   except HTTPError as response:
+    if response.code!=404:errors.append("Unknown route did not return HTTP 404: "+route)
+ finally:
+  server.shutdown();server.server_close();worker.join(timeout=2)
+  if fixture_file and fixture_file.exists():
+   fixture_file.unlink()
+   try:fixture_file.parent.rmdir()
+   except OSError:pass
  # Internal search and breaking news datasets must resolve to actual published articles.
  for name,key in (("search-index.json","articles"),("news-ticker.json","items")):
   target=root/name
@@ -142,6 +232,26 @@ def check_dist(root):
      seen.add(path)
   except (ValueError,TypeError,KeyError) as error:
    errors.append("Invalid discovery dataset "+name+": "+str(error))
+ # RSS item URLs must point to real category/legacy article paths without suffixes.
+ feed=root/"feed.xml"
+ if not feed.is_file():
+  errors.append("RSS feed file missing: /feed.xml")
+ else:
+  try:
+   from xml.etree import ElementTree as ET
+   feed_root=ET.parse(feed).getroot()
+   links=[node.text or "" for node in feed_root.findall(".//item/link")]
+   if len(links)!=len(set(links)):
+    errors.append("RSS feed contains duplicate article URLs")
+   for value in links:
+    parsed=urlsplit(value)
+    path=parsed.path
+    if not path.startswith("/") or path.endswith(".html") or (path!="/" and path.endswith("/")):
+     errors.append("RSS feed contains a noncanonical URL: "+value)
+    elif path.lstrip("/") not in real_pages:
+     errors.append("RSS feed links to a missing article: "+value)
+  except (OSError,ValueError,TypeError) as error:
+   errors.append("RSS feed XML is invalid: "+str(error))
  # Verify the Home-only Amazon showcase and its requested affiliate destination.
  homepage=root/"index.html"
  if homepage.is_file():
