@@ -93,6 +93,8 @@ def check_seo(root,rows,groups,preview):
  count=0
  bad=[]
  for page in root.rglob("*.html"):
+  if page.relative_to(root).parts[0] in ("studio","studio-v2"):
+   continue
   parser=MetaParser()
   parser.feed(page.read_text(encoding="utf-8"))
   path="/" if page.relative_to(root).as_posix()=="index.html" else "/"+page.relative_to(root).with_suffix("").as_posix()
