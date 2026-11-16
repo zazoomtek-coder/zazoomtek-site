@@ -114,18 +114,18 @@ def title_type(text):
  if not title:return "",None
  if len(title)>210:title=title[:210].rsplit(" ",1)[0].strip()
  # Normalize case and common editorial separators while retaining the visible title.
- mark=re.sub(r"\\s+"," ",title.casefold()).strip()
- compact=re.sub(r"\\s*[:：–—-]\\s*",": ",mark)
- if re.match(r"^news\\s+tech(?:\\s*[:：–—-]|\\s+)",mark):kind="news";topic="tech"
- elif re.match(r"^news\\s+gaming(?:\\s*[:：–—-]|\\s+)",mark):kind="news";topic="gaming"
- elif re.match(r"^news\\s+extra(?:\\s*[:：–—-]|\\s+)",mark):kind="extra";topic=""
- elif re.match(r"^news\\s+(?:speciali|special)(?:\\s*[:：–—-]|\\s+)",mark):kind="speciali";topic=""
- elif re.match(r"^news\\s+(?:guide|guida)(?:s)?(?:\\s*[:：–—-]|\\s+)",mark):kind="guide";topic=""
- elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?(?:\\s+(?:tech|gaming))?(?:\\s*[:：–—-]|\\s+)",mark):kind="review";topic="gaming" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+gaming",mark) else ("tech" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+tech",mark) else "")
- elif re.match(r"^(?:guida|guide|guides)(?:\\s*[:：–—-]|\\s+)",mark):kind="guide";topic=""
- elif re.match(r"^(?:speciale|speciali|special)(?:\\s*[:：–—-]|\\s+)",mark):kind="speciali";topic=""
- elif re.match(r"^extra(?:\\s*[:：–—-]|\\s+)",mark):kind="extra";topic=""
- elif re.match(r"^news(?:\\s*[:：–—-]|\\s+)",mark):kind="news";topic=""
+ mark=re.sub(r"\s+"," ",title.casefold()).strip()
+ compact=re.sub(r"\s*[:：–—-]\s*",": ",mark)
+ if re.match(r"^news\s+tech(?:\s*[:：–—-]|\s+)",mark):kind="news";topic="tech"
+ elif re.match(r"^news\s+gaming(?:\s*[:：–—-]|\s+)",mark):kind="news";topic="gaming"
+ elif re.match(r"^news\s+extra(?:\s*[:：–—-]|\s+)",mark):kind="extra";topic=""
+ elif re.match(r"^news\s+(?:speciali|special)(?:\s*[:：–—-]|\s+)",mark):kind="speciali";topic=""
+ elif re.match(r"^news\s+(?:guide|guida)(?:s)?(?:\s*[:：–—-]|\s+)",mark):kind="guide";topic=""
+ elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?(?:\s+(?:tech|gaming))?(?:\s*[:：–—-]|\s+)",mark):kind="review";topic="gaming" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+gaming",mark) else ("tech" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+tech",mark) else "")
+ elif re.match(r"^(?:guida|guide|guides)(?:\s*[:：–—-]|\s+)",mark):kind="guide";topic=""
+ elif re.match(r"^(?:speciale|speciali|special)(?:\s*[:：–—-]|\s+)",mark):kind="speciali";topic=""
+ elif re.match(r"^extra(?:\s*[:：–—-]|\s+)",mark):kind="extra";topic=""
+ elif re.match(r"^news(?:\s*[:：–—-]|\s+)",mark):kind="news";topic=""
  else:return title,None
  return title,kind
 
