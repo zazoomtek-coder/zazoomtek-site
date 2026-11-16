@@ -625,7 +625,7 @@ function smartImageAnchor(file,body,used,fallbackIndex,total){
   if(!["paragraph","heading","quote"].includes(block.type))return;
   const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/);
   let score=tokens.reduce((sum,token)=>sum+(words.includes(token)?(block.type==="heading"?4:2):0),0);
-  if(used.has(index))score-=0.25;
+  if(used.has(index))score-=100;
   candidates.push({index,score});
  });
  let chosen=candidates.filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
@@ -648,6 +648,7 @@ async function chooseMultipleImages(insertAt){
   const files=Array.from(chooser.files||[]);
   if(!files.length)return;
   if(files.some(file=>file.size>5000000)){notify("Ogni immagine deve essere inferiore a 5 MB.",true);return}
+  if(state.body.length+files.length>160){notify("Troppe immagini: il limite dell’articolo è 160 blocchi complessivi.",true);return}
   const used=new Set(),base=state.body.slice(),uploaded=[];
   let failed=[];
   for(let i=0;i<files.length;i++){
