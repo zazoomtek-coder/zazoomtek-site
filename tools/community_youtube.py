@@ -45,6 +45,15 @@ def value(node):
  if "content" in node and isinstance(node["content"],str):return html.unescape(node["content"])
  return html.unescape(str(node.get("text") or node.get("simpleText") or ""))
 
+
+def trim_youtube_promo_tail(text):
+ """Stop imported Community text immediately after the required closing sentence."""
+ if not isinstance(text, str):
+  return text
+ pattern=re.compile(re.escape("Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek.").replace(r"\\ ",r"\\s+"),re.IGNORECASE)
+ match=pattern.search(text)
+ return text[:match.end()].rstrip() if match else text
+
 def post_records(root):
  found={}
  for container in walk(root):
@@ -165,7 +174,8 @@ def discover(limit=160,max_pages=12):
   collected=list(executor.map(complete,collected))
  output=[]
  for ix,item in enumerate(collected):
-  text=item["text"].strip()
+  text=trim_youtube_promo_tail(item["text"].strip())
+  item["text"]=text
   title,kind=title_type(text)
   if not kind or len(text)<60 or not item.get("verified_detail"):continue
   date=date_from_relative(item.get("when",""),reference)
