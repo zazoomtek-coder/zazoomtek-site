@@ -11,7 +11,7 @@ import re
 import urllib.request
 import xml.etree.ElementTree as ET
 
-from community_youtube import discover, date_from_relative
+from community_youtube import discover, date_from_relative, trim_youtube_promo_tail
 from sync_videos import CHANNEL_ID, NS, classify, is_short_entry, is_short_title
 from build import tech_sources, rss_card_for_source, category_for_post
 from article_routes import CATEGORY_PREFIX, unique_slug
@@ -90,6 +90,9 @@ def youtube_videos():
 
 def youtube_community():
     db = load("community_imported.json", "posts")
+    for record in db["posts"]:
+        if isinstance(record, dict) and isinstance(record.get("text"), str):
+            record["text"] = trim_youtube_promo_tail(record["text"])
     existing = {r.get("id"): r for r in db["posts"] if r.get("id")}
     # Historical archives are optional duplicate hints. A damaged old snapshot
     # must never make a valid current YouTube post unavailable for import.
@@ -141,6 +144,7 @@ def youtube_community():
             if len(row.get("text", "")) < 60 or not row.get("type"):
                 continue
             row = dict(row)
+            row["text"] = trim_youtube_promo_tail(row.get("text", ""))
             category = category_for_post(row)
             prefix = CATEGORY_PREFIX.get(category)
             if not prefix:

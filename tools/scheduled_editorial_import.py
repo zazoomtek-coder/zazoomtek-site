@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 from emergency_sync import youtube_videos, youtube_community, refresh_rss, category_for_post
+from community_youtube import trim_youtube_promo_tail
 from article_routes import CATEGORY_PREFIX, unique_slug
 from article_templates import author_for_category
 
@@ -83,6 +84,7 @@ def merge_queue(queue_file, dest_file, key, archived):
                 continue
         clean = {k: v for k, v in r.items() if k != "first_seen_at"}
         if key == "posts":
+            clean["text"] = trim_youtube_promo_tail(clean.get("text", ""))
             category = category_for_post(clean)
             prefix = CATEGORY_PREFIX.get(category)
             if not prefix:
