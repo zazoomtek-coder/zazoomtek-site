@@ -7,6 +7,7 @@ import json
 import os
 import re
 import urllib.request
+import time
 import xml.etree.ElementTree as ET
 from community_youtube import discover, title_type
 from sync_videos import CHANNEL_ID, NS, classify
@@ -63,11 +64,20 @@ def ingest(now=None):
     videos=load("queue_videos.json","videos")
     known={x.get("id") for x in published+videos}
     try:
-        req=urllib.request.Request(
-            "https://www.youtube.com/feeds/videos.xml?channel_id="+CHANNEL_ID,
-            headers={"User-Agent":"Mozilla/5.0 ZazoomTek YouTube importer"})
-        with urllib.request.urlopen(req,timeout=20) as response:
-            root=ET.fromstring(response.read())
+        uri="https://www.youtube.com/feeds/videos.xml?channel_id="+CHANNEL_ID
+        root=None
+        last_error=None
+        for attempt in range(3):
+            try:
+                req=urllib.request.Request(uri,headers={"User-Agent":"Mozilla/5.0 ZazoomTek YouTube importer"})
+                with urllib.request.urlopen(req,timeout=25) as response:
+                    root=ET.fromstring(response.read(2_000_000))
+                break
+            except Exception as error:
+                last_error=error
+                if attempt<2:time.sleep(1+attempt)
+        if root is None:
+            raise RuntimeError("YouTube video RSS unavailable after 3 attempts") from last_error
         for entry in root.findall("atom:entry",NS):
             vid=entry.findtext("yt:videoId",default="",namespaces=NS)
             title=entry.findtext("atom:title",default="",namespaces=NS)
