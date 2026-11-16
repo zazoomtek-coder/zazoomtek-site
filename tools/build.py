@@ -42,26 +42,26 @@ def classification_for_post(item):
 def category_for_post(item):
  # The six owner-defined Community prefixes override stale or generic metadata.
  headline=str(item.get("title") or "").strip().lstrip("#").strip().casefold()
- headline=re.sub(r"\\s+"," ",headline)
- if re.match(r"^news\\s+tech(?:\\s*[:：–—-]|\\s+)",headline):
+ headline=re.sub(r"\s+"," ",headline)
+ if re.match(r"^news\s+tech(?:\s*[:：–—-]|\s+)",headline):
   return "news-tech"
- if re.match(r"^news\\s+gaming(?:\\s*[:：–—-]|\\s+)",headline):
+ if re.match(r"^news\s+gaming(?:\s*[:：–—-]|\s+)",headline):
   return "news-gaming"
- if re.match(r"^news\\s+extra(?:\\s*[:：–—-]|\\s+)",headline):
+ if re.match(r"^news\s+extra(?:\s*[:：–—-]|\s+)",headline):
   return "extra"
- if re.match(r"^news\\s+(?:speciali|special)(?:\\s*[:：–—-]|\\s+)",headline):
+ if re.match(r"^news\s+(?:speciali|special)(?:\s*[:：–—-]|\s+)",headline):
   return "speciali"
- if re.match(r"^news\\s+(?:guide|guides|guida)(?:\\s*[:：–—-]|\\s+)",headline):
+ if re.match(r"^news\s+(?:guide|guides|guida)(?:\s*[:：–—-]|\s+)",headline):
   return "guide"
- if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?(?:\\s+(?:tech|gaming))?(?:\\s*[:：–—-]|\\s+)",headline):
-  review_topic=re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+(tech|gaming)",headline)
+ if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?(?:\s+(?:tech|gaming))?(?:\s*[:：–—-]|\s+)",headline):
+  review_topic=re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+(tech|gaming)",headline)
   topic=(review_topic.group(1) if review_topic else str(item.get("topic") or "").lower())
   if topic not in ("tech","gaming"):
    topic="tech"
   return "recensioni-"+topic
- if re.match(r"^review\\s+gaming(?:\\s*[:：–—-]|\\s+)",headline):
+ if re.match(r"^review\s+gaming(?:\s*[:：–—-]|\s+)",headline):
   return "recensioni-gaming"
- if re.match(r"^review\\s+tech(?:\\s*[:：–—-]|\\s+)",headline):
+ if re.match(r"^review\s+tech(?:\s*[:：–—-]|\s+)",headline):
   return "recensioni-tech"
  explicit=item.get("category")
  if item.get("text_complete") and explicit in TYPES and explicit!="video":
@@ -71,11 +71,11 @@ def category_for_post(item):
  if explicit in TYPES and explicit!="video":return explicit
  kind=str(item.get("type","")).strip().lower()
  if kind not in ("news","review","recensione","guida","guide","speciale","speciali","extra"):
-  if re.match(r"^news(?:\\s*[:：–—-]|\\s+)",headline):kind="news"
-  elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*[:：–—-]|\\s+)",headline):kind="review"
-  elif re.match(r"^(?:guida|guide|guides)(?:\\s*[:：–—-]|\\s+)",headline):kind="guide"
-  elif re.match(r"^(?:speciale|speciali|special)(?:\\s*[:：–—-]|\\s+)",headline):kind="speciali"
-  elif re.match(r"^extra(?:\\s*[:：–—-]|\\s+)",headline):kind="extra"
+  if re.match(r"^news(?:\s*[:：–—-]|\s+)",headline):kind="news"
+  elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*[:：–—-]|\s+)",headline):kind="review"
+  elif re.match(r"^(?:guida|guide|guides)(?:\s*[:：–—-]|\s+)",headline):kind="guide"
+  elif re.match(r"^(?:speciale|speciali|special)(?:\s*[:：–—-]|\s+)",headline):kind="speciali"
+  elif re.match(r"^extra(?:\s*[:：–—-]|\s+)",headline):kind="extra"
   else:return "news-tech"
  if kind in ("guida","guide"):return "guide"
  if kind in ("speciale","speciali"):return "speciali"
