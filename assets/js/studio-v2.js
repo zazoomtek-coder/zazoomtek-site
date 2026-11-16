@@ -435,11 +435,12 @@ function addBlock(kind){
  E("v2-insert-menu").hidden=true;
  if(kind==="link"){inlineLink();return}
  state.at=insertPosition();
+ if(kind==="image"){chooseMultipleImages(state.at);return}
  const block={type:kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
  if(kind==="divider")block.text="—";
  if(kind==="poll")block.options=["Opzione 1","Opzione 2"];
  state.body.splice(state.at,0,block);renderBlocks();
- if(["image","audio","attachment","video","button","poll"].includes(kind))editMedia(block);
+ if(["audio","attachment","video","button","poll"].includes(kind))editMedia(block);
 }
 function drawField(wrapper,text,initial,onChange,textarea=false){
  const input=document.createElement(textarea?"textarea":"input");
@@ -604,41 +605,115 @@ function actionButton(text,callback){
  const b=S("button","",text);b.type="button";b.addEventListener("click",callback);return b;
 }
 
+function readImageFile(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>typeof reader.result==="string"?resolve(reader.result):reject(new Error("File immagine non leggibile."));
+  reader.onerror=()=>reject(new Error("Non riesco a leggere "+file.name+"."));
+  reader.readAsDataURL(file);
+ });
+}
+function imageTokens(name){
+ return String(name||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")
+  .replace(/\\.(jpe?g|png|webp)$/i,"").split(/[^a-z0-9]+/)
+  .filter(x=>x.length>2&&!/^(img|dsc|dscn|pxl|screenshot|photo|image|copy|final|edited|202[0-9]|[0-9]+)$/.test(x));
+}
+function smartImageAnchor(file,body,used,fallbackIndex,total){
+ const tokens=imageTokens(file.name);
+ const candidates=[];
+ body.forEach((block,index)=>{
+  if(!["paragraph","heading","quote"].includes(block.type))return;
+  const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").split(/[^a-z0-9]+/);
+  let score=tokens.reduce((sum,token)=>sum+(words.includes(token)?(block.type==="heading"?4:2):0),0);
+  if(used.has(index))score-=0.25;
+  candidates.push({index,score});
+ });
+ let chosen=candidates.filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
+ if(!chosen){
+  const paragraphs=candidates.filter(x=>body[x.index].type==="paragraph");
+  if(!paragraphs.length)return body.length-1;
+  const target=(fallbackIndex+1)/(total+1);
+  chosen=paragraphs.reduce((best,item)=>{
+   const distance=Math.abs((item.index+1)/Math.max(1,body.length)-target);
+   return !best||distance<best.distance?{...item,distance}:best;
+  },null);
+ }
+ used.add(chosen.index);
+ return chosen.index;
+}
+async function chooseMultipleImages(insertAt){
+ const chooser=document.createElement("input");
+ chooser.type="file";chooser.accept="image/jpeg,image/png,image/webp";chooser.multiple=true;
+ chooser.addEventListener("change",async()=>{
+  const files=Array.from(chooser.files||[]);
+  if(!files.length)return;
+  if(files.some(file=>file.size>5000000)){notify("Ogni immagine deve essere inferiore a 5 MB.",true);return}
+  const used=new Set(),base=state.body.slice(),uploaded=[];
+  let failed=[];
+  for(let i=0;i<files.length;i++){
+   const file=files[i];
+   try{
+    notify("Caricamento immagini "+(i+1)+"/"+files.length+"…");
+    const preview=await readImageFile(file);
+    const result=await api("upload",{
+     slug:val("v2-slug")||slugify(val("v2-title"))||"contenuto",
+     mime:file.type,base64:preview
+    });
+    const anchor=smartImageAnchor(file,base,used,i,files.length);
+    uploaded.push({anchor,block:{type:"image",url:result.url,preview,
+     alt:file.name.replace(/\\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),
+     caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0}});
+   }catch(error){failed.push(file.name+": "+error.message)}
+  }
+  const additions=new Map();
+  uploaded.forEach(item=>{
+   const key=item.anchor;
+   if(!additions.has(key))additions.set(key,[]);
+   additions.get(key).push(item.block);
+  });
+  const next=[];
+  for(let i=0;i<base.length;i++){
+   next.push(base[i]);
+   if(additions.has(i))next.push(...additions.get(i));
+  }
+  const endImages=uploaded.filter(x=>x.anchor<0);
+  if(endImages.length)next.push(...endImages.map(x=>x.block));
+  state.body=next;
+  renderBlocks();seoStatus();scheduleBackup();
+  if(failed.length)notify("Caricate "+uploaded.length+" immagini; alcuni file non sono riusciti: "+failed.join(" | "),true);
+  else notify(uploaded.length+" immagini caricate e distribuite nei punti pertinenti dell'articolo. Salva la bozza o pubblica per conservarle.");
+ });
+ chooser.click();
+}
 async function chooseFile(target,onUploaded){
  const chooser=document.createElement("input");
  chooser.type="file";
  chooser.accept=target?.type==="audio"?"audio/mpeg,audio/mp4,audio/wav":
   target?.type==="attachment"?"application/pdf,text/plain":"image/jpeg,image/png,image/webp";
- chooser.addEventListener("change",()=>{
+ chooser.addEventListener("change",async()=>{
   const file=chooser.files?.[0];if(!file)return;
   if(file.size>5000000){notify("Il file supera 5 MB.",true);return}
-  const reader=new FileReader();
-  reader.onload=async()=>{
-   const preview=typeof reader.result==="string"?reader.result:"";
+  try{
+   const preview=await readImageFile(file);
    const beforeCover=state.cover,oldPreview=state.coverPreview;
    if(!target){state.coverPreview=preview;syncCover()}
-   try{
-    notify("Anteprima immediata disponibile. Caricamento file su GitHub...");
-    const result=await api("upload",{
-     slug:val("v2-slug")||slugify(val("v2-title"))||"contenuto",
-     mime:file.type,base64:preview
-    });
-    if(target){
-     target.url=result.url;target.text=target.text||file.name;
-     // Pending deploy: keep this temporary local preview until the page reloads.
-     target.preview=preview;
-     renderBlocks();
-    }else{
-     state.cover=result.url;state.coverPreview=preview;syncCover();if(typeof onUploaded==="function")onUploaded();
-    }
-    notify("Copertina caricata. Si vede subito qui; sul sito sarà disponibile dopo il deploy. Salva in bozza o pubblica.");
-   }catch(e){
-    if(!target){state.cover=beforeCover;state.coverPreview=oldPreview;syncCover()}
-    notify("Caricamento non riuscito: "+e.message,true);
+   notify("Caricamento file su GitHub…");
+   const result=await api("upload",{
+    slug:val("v2-slug")||slugify(val("v2-title"))||"contenuto",
+    mime:file.type,base64:preview
+   });
+   if(target){
+    target.url=result.url;target.text=target.text||file.name;
+    target.preview=preview;
+    renderBlocks();
+   }else{
+    state.cover=result.url;state.coverPreview=preview;syncCover();if(typeof onUploaded==="function")onUploaded();
    }
-  };
-  reader.onerror=()=>notify("Non riesco a leggere questo file.",true);
-  reader.readAsDataURL(file);
+   notify("File caricato. Salva la bozza o pubblica per conservarlo nell'articolo.");
+  }catch(e){
+   if(!target){state.cover=beforeCover;state.coverPreview=oldPreview;syncCover()}
+   notify("Caricamento non riuscito: "+e.message,true);
+  }
  });
  chooser.click();
 }
@@ -722,8 +797,9 @@ function collect(){
  return {slug:state.newContent?(text("v2-slug")||slugify(text("v2-title"))):state.current.slug,
   title:text("v2-title"),category:text("v2-category"),author:authorForCategory(text("v2-category")),
   image:state.cover,cover_focus_x:state.coverFocusX,cover_focus_y:state.coverFocusY,
-  cover_zoom:state.coverZoom,cover_rotation:state.coverRotation,body:state.body,
-  video_url:text("v2-video-url"),platform:text("v2-platform"),score:text("v2-score"),
+  cover_zoom:state.coverZoom,cover_rotation:state.coverRotation,
+  body:state.body.map(block=>{const clean={...block};delete clean.preview;return clean;}),
+  studio_blocks:true,video_url:text("v2-video-url"),platform:text("v2-platform"),score:text("v2-score"),
   pros:lines("v2-pros"),cons:lines("v2-cons")};
 }
 async function save(mode){
