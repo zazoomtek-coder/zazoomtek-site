@@ -113,24 +113,20 @@ def title_type(text):
  title=(text or "").split("\n",1)[0].strip().lstrip("#").strip()
  if not title:return "",None
  if len(title)>210:title=title[:210].rsplit(" ",1)[0].strip()
- mark=title.lower()
- # Preserve the editorial category instead of collapsing every "News ..." post
- # into generic news. These values are consumed by the site importer.
- if mark.startswith(("news tech:","news gaming:")):kind="news"
- elif mark.startswith(("news guida:","news guide:","guida:","guide:")):kind="guide"
- elif mark.startswith(("news extra:","extra:")):kind="extra"
- elif mark.startswith(("news speciale:","news speciali:","news special:","speciale:","special:")):kind="speciali"
- elif mark.startswith(("review:","recensione:","recensioni:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:")):kind="review"
- elif mark.startswith("news:"):kind="news"
- else:
-  # Accept known editorial headings even when punctuation or line breaks vary.
-  first=" ".join((text or "").split()[:22]).lower()
-  if first.startswith(("news tech","news gaming")):kind="news"
-  elif first.startswith(("news guida","news guide","guida","guide")):kind="guide"
-  elif first.startswith(("news extra","extra")):kind="extra"
-  elif first.startswith(("news speciale","news speciali","news special","speciale","special")):kind="speciali"
-  elif first.startswith(("review","recensione")):kind="review"
-  else:return title,None
+ # Normalize case and common editorial separators while retaining the visible title.
+ mark=re.sub(r"\\s+"," ",title.casefold()).strip()
+ compact=re.sub(r"\\s*[:：–—-]\\s*",": ",mark)
+ if re.match(r"^news\\s+tech(?:\\s*[:：–—-]|\\s+)",mark):kind="news";topic="tech"
+ elif re.match(r"^news\\s+gaming(?:\\s*[:：–—-]|\\s+)",mark):kind="news";topic="gaming"
+ elif re.match(r"^news\\s+extra(?:\\s*[:：–—-]|\\s+)",mark):kind="extra";topic=""
+ elif re.match(r"^news\\s+(?:speciali|special)(?:\\s*[:：–—-]|\\s+)",mark):kind="speciali";topic=""
+ elif re.match(r"^news\\s+(?:guide|guida)(?:s)?(?:\\s*[:：–—-]|\\s+)",mark):kind="guide";topic=""
+ elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?(?:\\s+(?:tech|gaming))?(?:\\s*[:：–—-]|\\s+)",mark):kind="review";topic="gaming" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+gaming",mark) else ("tech" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+tech",mark) else "")
+ elif re.match(r"^(?:guida|guide|guides)(?:\\s*[:：–—-]|\\s+)",mark):kind="guide";topic=""
+ elif re.match(r"^(?:speciale|speciali|special)(?:\\s*[:：–—-]|\\s+)",mark):kind="speciali";topic=""
+ elif re.match(r"^extra(?:\\s*[:：–—-]|\\s+)",mark):kind="extra";topic=""
+ elif re.match(r"^news(?:\\s*[:：–—-]|\\s+)",mark):kind="news";topic=""
+ else:return title,None
  return title,kind
 
 def discover(limit=160,max_pages=12):
