@@ -98,8 +98,14 @@ def paragraphs(review):
  return result
 
 def author(review):
+ # The category mapping is authoritative, including for already-published rows
+ # that still carry the obsolete generic editorial author in their stored data.
+ mapped=author_for_category(category(review))
+ if mapped:return mapped
  value=review.get("author")
- return plain(value)[:100] if isinstance(value,str) and plain(value) else "Redazione ZazoomTek"
+ cleaned=plain(value) if isinstance(value,str) else ""
+ if cleaned and cleaned.casefold()!="redazione zazoomtek":return cleaned[:100]
+ return "ZazoomTek"
 
 def date_label(review):
  value=plain(review.get("published_at") or review.get("date"))
