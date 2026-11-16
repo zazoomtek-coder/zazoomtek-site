@@ -57,6 +57,7 @@ def ingest(now=None):
         print("EDITORIAL QUEUE RECOVERY ONLY (NO DEPLOY) at",local.isoformat(),flush=True)
     stamp=now.isoformat(timespec="seconds")
     dirty=False
+    source_failures=[]
 
     published=json.loads((DATA/"videos.json").read_text(encoding="utf-8")).get("videos",[])
     videos=load("queue_videos.json","videos")
@@ -79,7 +80,9 @@ def ingest(now=None):
             known.add(vid)
         print("Video feed checked; queued:",len(videos))
     except Exception as error:
-        print("Video feed unavailable; existing queue preserved:",type(error).__name__,str(error)[:200])
+        source_failures.append("videos")
+        print("VIDEO IMPORT FAILED; existing queue preserved for retry:",
+              type(error).__name__,str(error)[:200],flush=True)
     dirty|=write_if_changed(DATA/"queue_videos.json",{"videos":videos})
 
     archived=json.loads((DATA/"community_full.json").read_text(encoding="utf-8")).get("posts",[])
@@ -100,8 +103,17 @@ def ingest(now=None):
             seen.add(pid)
         print("Community checked; queued:",len(posts))
     except Exception as error:
-        print("Community unavailable; existing queue preserved:",type(error).__name__,str(error)[:200])
+        source_failures.append("community")
+        print("COMMUNITY IMPORT FAILED; existing queue preserved for retry:",
+              type(error).__name__,str(error)[:200],flush=True)
     dirty|=write_if_changed(DATA/"queue_community.json",{"posts":posts})
+    print("YOUTUBE QUEUE RESULT:",{
+        "videos_total":len(videos),"community_total":len(posts),
+        "source_failures":source_failures,"queue_changed":dirty
+    },flush=True)
+    if source_failures:
+        raise RuntimeError("YouTube queue import incomplete; next scheduled run must retry: "
+                           + ", ".join(source_failures))
     return dirty
 
 if __name__=="__main__":
