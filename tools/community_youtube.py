@@ -50,7 +50,7 @@ def trim_youtube_promo_tail(text):
  """Stop imported Community text immediately after the required closing sentence."""
  if not isinstance(text, str):
   return text
- pattern=re.compile(re.escape("Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek.").replace(r"\\ ",r"\\s+"),re.IGNORECASE)
+ pattern=re.compile(re.escape("Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek.").replace(r"\ ",r"\s+"),re.IGNORECASE)
  match=pattern.search(text)
  return text[:match.end()].rstrip() if match else text
 
