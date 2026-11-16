@@ -21,8 +21,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Raccogli video e Community (09:00-12:20, 12:31-19:20, Roma)
+        id: collect
         run: python3 tools/queue_collect.py
-      - name: Memorizza nuove acquisizioni senza pubblicare il sito
+      - name: Memorizza anche le acquisizioni parziali riuscite, senza pubblicare il sito
+        if: always() && steps.collect.outcome != 'skipped'
         run: |
           git add data/queue_videos.json data/queue_community.json
           if ! git diff --cached --quiet; then
