@@ -2,6 +2,8 @@
 (()=>{
 const E=id=>document.getElementById(id),S=(tag,cls,text)=>{let e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e};
 const cats={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra"};
+const authors={"news-tech":"Gimmi","news-gaming":"Gimmi","recensioni-tech":"Beppe","recensioni-gaming":"Beppe","guide":"Beppe","speciali":"Alex","extra":"Alex"};
+const authorForCategory=category=>authors[category]||"Gimmi";
 let state={rows:[],drafts:{},current:null,body:[],mode:"home",filter:"",newContent:false,busy:false,cover:"",coverPreview:"",context:null,contextBtn:null,coverFocusX:50,coverFocusY:50,coverZoom:100,coverRotation:0,modalApply:null,at:0};
 const val=id=>E(id).value.trim(),num=(v,lo,hi,def)=>Math.min(hi,Math.max(lo,Number.isFinite(+v)?+v:def));
 const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,135);
@@ -30,11 +32,12 @@ async function api(endpoint,data){
  return j;
 }
 function editorFields(row){
- const fields={"v2-title":row.title||"","v2-slug":row.slug||"","v2-author":row.author||"Redazione ZazoomTek",
+ const fields={"v2-title":row.title||"","v2-slug":row.slug||"","v2-author":authorForCategory(row.category||"news-tech"),
  "v2-video-url":row.video_url||"","v2-platform":row.platform||row.device||"","v2-score":row.score??"",
  "v2-pros":Array.isArray(row.pros)?row.pros.join("\n"):"","v2-cons":Array.isArray(row.cons)?row.cons.join("\n"):""};
  for(const [id,v] of Object.entries(fields))E(id).value=v;
  E("v2-category").value=row.category||"news-tech";
+ E("v2-author").readOnly=true;
  E("v2-slug").readOnly=!state.newContent;
  state.cover=row.image||"";state.coverPreview="";
  state.coverFocusX=num(row.cover_focus_x,0,100,50);state.coverFocusY=num(row.cover_focus_y,0,100,50);
@@ -74,7 +77,7 @@ function syncArticleChrome(row){
   if(!Number.isNaN(parsed.getTime()))dateLabel=parsed.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
  }
  for(const [cls,label,value] of [
-  ["story-meta-author","Autore:",row.author||"Redazione ZazoomTek"],
+  ["story-meta-author","Autore:",authorForCategory(row.category||val("v2-category"))],
   ["story-meta-date","Data:",dateLabel],
   ["story-meta-category","Categoria:",cats[row.category||val("v2-category")]||"Articolo"]
  ]){
@@ -239,7 +242,7 @@ function showArticlePreview(savedRecord=null){
   }
  }
  for(const [cls,label,value] of [
-  ["story-meta-author","Autore:",record.author||"Redazione ZazoomTek"],
+  ["story-meta-author","Autore:",authorForCategory(record.category)],
   ["story-meta-date","Data:",dateNode],
   ["story-meta-category","Categoria:",cats[record.category]||"Articolo"]
  ]){
@@ -384,7 +387,7 @@ function showEditor(row,newContent){
  history.replaceState({}, "", "/studio-v2/"+(newContent?"?new=1":"?edit="+encodeURIComponent(row.slug)));
  window.scrollTo(0,0);
 }
-function startNew(){showEditor({title:"",slug:"",category:"news-tech",author:"Redazione ZazoomTek",body:[{type:"paragraph",text:""}]},true)}
+function startNew(){showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true)}
 function renderList(){
  const q=val("v2-search").toLocaleLowerCase("it"),cat=state.filter||val("v2-select-filter");
  const draftOnly=Object.values(state.drafts).filter(d=>d&&d.kind==="new"&&d.record&&
@@ -717,7 +720,7 @@ function editCover(){
 function collect(){
  const text=id=>val(id),lines=id=>text(id).split("\n").map(v=>v.trim()).filter(Boolean);
  return {slug:state.newContent?(text("v2-slug")||slugify(text("v2-title"))):state.current.slug,
-  title:text("v2-title"),category:text("v2-category"),author:text("v2-author"),
+  title:text("v2-title"),category:text("v2-category"),author:authorForCategory(text("v2-category")),
   image:state.cover,cover_focus_x:state.coverFocusX,cover_focus_y:state.coverFocusY,
   cover_zoom:state.coverZoom,cover_rotation:state.coverRotation,body:state.body,
   video_url:text("v2-video-url"),platform:text("v2-platform"),score:text("v2-score"),
@@ -806,6 +809,7 @@ E("v2-cover-add").onclick=editCover;E("v2-cover-change").onclick=()=>chooseFile(
 E("v2-cover-remove").onclick=()=>{state.cover="";state.coverPreview="";syncCover()};
 E("v2-cover-sidebar").onclick=editCover;
 E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));syncArticleChrome({...state.current,...collect()});seoStatus()};
+E("v2-category").addEventListener("change",()=>{E("v2-author").value=authorForCategory(val("v2-category"));syncArticleChrome({...state.current,...collect()})});
 for(const id of ["v2-category","v2-author","v2-platform","v2-score","v2-pros","v2-cons","v2-video-url"]) E(id).addEventListener("input",()=>syncArticleChrome({...state.current,...collect()}));
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
 E("v2-modal-apply").onclick=()=>{if(state.modalApply?.()!==false)closeModal()};

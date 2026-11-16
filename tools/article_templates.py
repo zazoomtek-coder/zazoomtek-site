@@ -21,6 +21,15 @@ MULTI_IMAGE_REVIEW_RENDERING_ENABLED = True
 MULTI_IMAGE_COMMUNITY_RENDERING_ENABLED = True
 DATE=re.compile(r"^\d{4}-\d{2}-\d{2}")
 
+AUTHOR_BY_CATEGORY={
+ "news-tech":"Gimmi","news-gaming":"Gimmi",
+ "recensioni-tech":"Beppe","recensioni-gaming":"Beppe","guide":"Beppe",
+ "speciali":"Alex","extra":"Alex",
+}
+
+def author_for_category(value):
+ return AUTHOR_BY_CATEGORY.get(str(value or "").strip(), "")
+
 def category(review):
  return str(review.get("category") or "")
 

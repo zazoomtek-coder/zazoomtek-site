@@ -15,6 +15,7 @@ from community_youtube import discover, date_from_relative
 from sync_videos import CHANNEL_ID, NS, classify, is_short_entry, is_short_title
 from build import tech_sources, rss_card_for_source, category_for_post
 from article_routes import CATEGORY_PREFIX, unique_slug
+from article_templates import author_for_category
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -146,6 +147,7 @@ def youtube_community():
                 raise ValueError("Nuovo post Community senza categoria pubblica valida: " + str(category))
             public_slug = unique_slug(row.get("title") or "", occupied_paths, prefix=prefix)
             row["category"] = category
+            row["author"] = author_for_category(category)
             row["route_version"] = 2
             row["public_slug"] = public_slug
             row["public_path"] = "/" + prefix + "/" + public_slug

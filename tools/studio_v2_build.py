@@ -202,7 +202,7 @@ def build_studio_v2(output,rows):
     <aside class="v2-settings">
      <div class="v2-settings-header"><strong>Impostazioni</strong><span>CONTENUTO</span></div>
      <label class="v2-field">Categoria <select id="v2-category"></select></label>
-     <label class="v2-field">Autore <input id="v2-author" type="text" placeholder="Redazione ZazoomTek"></label>
+     <label class="v2-field">Autore <input id="v2-author" type="text" placeholder="Assegnato automaticamente in base alla categoria" readonly></label>
      <label class="v2-field">Indirizzo dell'articolo <input id="v2-slug" type="text" placeholder="titolo-articolo"></label>
      <div class="v2-settings-section">
       <div class="v2-setting-title">Copertina</div>

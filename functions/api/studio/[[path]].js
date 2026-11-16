@@ -21,6 +21,7 @@ const PUBLISH_BRANCH="main";
 const COOKIE="__Host-zzt-studio";
 const AGE=400*24*60*60; // Browser cookie inactivity bound, refreshed on each visit.
 const CATEGORIES=new Set(["news-tech","news-gaming","recensioni-tech","recensioni-gaming","guide","speciali","extra"]);
+const AUTHOR_BY_CATEGORY={"news-tech":"Gimmi","news-gaming":"Gimmi","recensioni-tech":"Beppe","recensioni-gaming":"Beppe","guide":"Beppe","speciali":"Alex","extra":"Alex"};
 
 const PUBLIC_PREFIX={"news-tech":"news","news-gaming":"news","recensioni-tech":"recensioni","recensioni-gaming":"recensioni","guide":"guide","speciali":"speciali","extra":"extra"};
 const PUBLIC_STOP=new Set("a ad al alla alle allo ai agli all dalle dalla da di del della delle dei degli in nel nello nella nei negli su sul sulla per tra fra con e ed il lo la i gli le un uno una che come oggi nuovo nuova nuovi nuove the an and or of for to on with by from at is are this that".split(" "));
@@ -223,7 +224,7 @@ function normalizeArticle(value){
  }
  const strings=k=>Array.isArray(value[k])?value[k].map(clean).filter(Boolean).slice(0,8):[];
  return {slug,title,category,image,body,studio_blocks:true,source:"studio-editor",
-  author:clean(value.author).slice(0,100)||"Redazione ZazoomTek",
+  author:AUTHOR_BY_CATEGORY[category],
   video_url:secureVideo(value.video_url),
   score,platform:clean(value.platform).slice(0,130),
   cover_focus_x:bounded(value.cover_focus_x,0,100,50),

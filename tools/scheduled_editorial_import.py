@@ -13,6 +13,7 @@ from pathlib import Path
 
 from emergency_sync import youtube_videos, youtube_community, refresh_rss, category_for_post
 from article_routes import CATEGORY_PREFIX, unique_slug
+from article_templates import author_for_category
 
 DATA = Path(__file__).resolve().parents[1] / "data"
 
@@ -87,6 +88,7 @@ def merge_queue(queue_file, dest_file, key, archived):
             if not prefix:
                 raise ValueError("Nuovo post Community in coda senza categoria valida: " + str(category))
             clean["category"] = category
+            clean["author"] = author_for_category(category)
             if clean.get("route_version") not in (2, "2", "v2") or not clean.get("public_path"):
                 public_slug = unique_slug(clean.get("title") or "", occupied_paths, prefix=prefix)
                 clean.update({"route_version": 2, "public_slug": public_slug,
