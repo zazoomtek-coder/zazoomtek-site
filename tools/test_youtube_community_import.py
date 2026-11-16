@@ -4,6 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from community_youtube import title_type
+from build import category_for_post
 
 
 class YouTubeCommunityTitleTypeTests(unittest.TestCase):
@@ -28,6 +29,24 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
                 parsed_title, kind = title_type(title)
                 self.assertEqual(parsed_title, title)
                 self.assertEqual(kind, expected)
+
+    def test_all_six_prefix_families_route_to_public_site_categories(self):
+        cases = {
+            "NEWS TECH: Smartphone": "news-tech",
+            "NEWS GAMING: Nuovo gioco": "news-gaming",
+            "NEWS EXTRA: Evento": "extra",
+            "NEWS SPECIALI: Analisi": "speciali",
+            "NEWS GUIDE: Configurazione": "guide",
+            "REVIEW TECH: Prodotto": "recensioni-tech",
+            "REVIEW GAMING: Videogioco": "recensioni-gaming",
+            "RECENSIONE/REVIEW: Prodotto": "recensioni-tech",
+        }
+        for title, expected in cases.items():
+            with self.subTest(title=title):
+                self.assertEqual(category_for_post({
+                    "title": title, "type": "news", "topic": "tech",
+                    "text_complete": True
+                }), expected)
 
     def test_legacy_prefixes_remain_supported(self):
         cases = {
