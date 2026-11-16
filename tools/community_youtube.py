@@ -152,9 +152,10 @@ def discover(limit=160,max_pages=12):
    if item["id"] in ids:continue
    ids.add(item["id"]);collected.append(item)
    if len(collected)>=limit:break
-  if len(collected)>=limit or not key:break
+  if len(collected)>=limit:break
   tokens=[token for token in continuation_tokens(root) if token not in token_seen]
   if not tokens:break
+  if not key:raise RuntimeError("YouTube returned Community continuation data without an API key; pagination incomplete")
   token=tokens[0];token_seen.add(token)
   body=json.dumps({"context":ctx,"continuation":token}).encode("utf-8")
   root=json.loads(fetch("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key),body))
