@@ -37,9 +37,13 @@ def load(name,key):
     path=DATA/name
     try:
         obj=json.loads(path.read_text(encoding="utf-8"))
-        return obj.get(key,[]) if isinstance(obj,dict) else []
-    except (FileNotFoundError,ValueError,TypeError):
+    except FileNotFoundError:
         return []
+    except (UnicodeError,ValueError) as error:
+        raise RuntimeError("Refusing to overwrite damaged queue snapshot: "+name) from error
+    if not isinstance(obj,dict) or not isinstance(obj.get(key),list):
+        raise RuntimeError("Invalid queue snapshot structure: "+name)
+    return obj[key]
 
 def ingest(now=None):
     now=now or datetime.now(timezone.utc)
@@ -95,8 +99,17 @@ def ingest(now=None):
               type(error).__name__,str(error)[:200],flush=True)
     dirty|=write_if_changed(DATA/"queue_videos.json",{"videos":videos})
 
-    archived=json.loads((DATA/"community_full.json").read_text(encoding="utf-8")).get("posts",[])
-    seen={p.get("id") for p in archived+load("community_imported.json","posts")}
+    try:
+        archive_obj=json.loads((DATA/"community_full.json").read_text(encoding="utf-8"))
+        archived=archive_obj.get("posts",[]) if isinstance(archive_obj,dict) else []
+        if not isinstance(archived,list):archived=[]
+    except (OSError,UnicodeError,ValueError,TypeError) as error:
+        # Legacy archives are duplicate hints only; they must never block a live import.
+        print("WARNING: legacy Community archive unavailable; live import continues:",
+              type(error).__name__,str(error)[:160],flush=True)
+        archived=[]
+    seen={p.get("id") for p in archived+load("community_imported.json","posts")
+          if isinstance(p,dict)}
     posts=load("queue_community.json","posts")
     seen|={p.get("id") for p in posts}
     try:
