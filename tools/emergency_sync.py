@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 import re
 import urllib.request
+import time
 import xml.etree.ElementTree as ET
 
 from community_youtube import discover, date_from_relative
@@ -54,9 +55,21 @@ def youtube_videos():
     known = {r.get("id"): r for r in db["videos"] if r.get("id")}
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL_ID
     try:
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; ZazoomTek/1.0)"})
-        with urllib.request.urlopen(request, timeout=25) as response:
-            xml = ET.fromstring(response.read(2_000_000))
+        xml = None
+        last_error = None
+        for attempt in range(3):
+            try:
+                request = urllib.request.Request(
+                    url, headers={"User-Agent": "Mozilla/5.0 (compatible; ZazoomTek/1.0)"})
+                with urllib.request.urlopen(request, timeout=25) as response:
+                    xml = ET.fromstring(response.read(2_000_000))
+                break
+            except Exception as error:
+                last_error = error
+                if attempt < 2:
+                    time.sleep(1 + attempt)
+        if xml is None:
+            raise RuntimeError("YouTube video RSS unavailable after 3 attempts") from last_error
         count = 0
         recent = []
         for item in xml.findall("atom:entry", NS):
