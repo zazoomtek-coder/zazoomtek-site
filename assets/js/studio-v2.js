@@ -614,8 +614,8 @@ function readImageFile(file){
  });
 }
 function imageTokens(name){
- return String(name||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")
-  .replace(/\\.(jpe?g|png|webp)$/i,"").split(/[^a-z0-9]+/)
+ return String(name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .replace(/\.(jpe?g|png|webp)$/i,"").split(/[^a-z0-9]+/)
   .filter(x=>x.length>2&&!/^(img|dsc|dscn|pxl|screenshot|photo|image|copy|final|edited|202[0-9]|[0-9]+)$/.test(x));
 }
 function smartImageAnchor(file,body,used,fallbackIndex,total){
@@ -623,7 +623,7 @@ function smartImageAnchor(file,body,used,fallbackIndex,total){
  const candidates=[];
  body.forEach((block,index)=>{
   if(!["paragraph","heading","quote"].includes(block.type))return;
-  const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").split(/[^a-z0-9]+/);
+  const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/);
   let score=tokens.reduce((sum,token)=>sum+(words.includes(token)?(block.type==="heading"?4:2):0),0);
   if(used.has(index))score-=0.25;
   candidates.push({index,score});
@@ -661,7 +661,7 @@ async function chooseMultipleImages(insertAt){
     });
     const anchor=smartImageAnchor(file,base,used,i,files.length);
     uploaded.push({anchor,block:{type:"image",url:result.url,preview,
-     alt:file.name.replace(/\\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),
+     alt:file.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),
      caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0}});
    }catch(error){failed.push(file.name+": "+error.message)}
   }
