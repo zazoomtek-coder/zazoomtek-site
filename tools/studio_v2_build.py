@@ -139,7 +139,7 @@ def build_studio_v2(output,rows):
   <button data-rail-filter="speciali" class="v2-rail-nav">Speciali</button>
   <button data-rail-filter="extra" class="v2-rail-nav">Extra</button>
   <div class="v2-rail-spacer"></div>
-  <div class="v2-admin">Amministratore GitHub<div id="v2-user" class="v2-user">Autenticazione in corso</div></div>
+  <div class="v2-admin">Modalità di prova<div id="v2-user" class="v2-user">Solo dispositivo · nessuna pubblicazione</div></div>
   <a href="/" class="v2-rail-site">↗ Visita il sito</a>
  </aside>
  <main class="v2-main">
@@ -168,11 +168,11 @@ def build_studio_v2(output,rows):
   <div id="v2-editor" class="v2-editor-view" hidden>
    <div class="v2-editor-header">
     <div><div class="v2-eyebrow">EDITOR VISUALE</div><h1 id="v2-editor-heading">Modifica contenuto</h1>
-     <p id="v2-editor-note">Scrivi e modifica liberamente, come su Patreon.</p></div>
+     <p id="v2-editor-note">Editor visuale in stile Patreon · prova isolata, salvataggi locali.</p></div>
     <div class="v2-editor-actions">
       <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
-      <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza</button>
-      <button type="button" id="v2-publish" class="v2-primary">Pubblica</button>
+      <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza locale</button>
+      <button type="button" id="v2-publish" class="v2-primary">Solo anteprima</button>
     </div>
    </div>
    <div class="v2-editor-layout">
@@ -195,8 +195,8 @@ def build_studio_v2(output,rows):
       <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
      </article>
      <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
-      <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza</button>
-      <button type="button" id="v2-publish-bottom" class="v2-primary">Pubblica</button></div>
+      <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
+      <button type="button" id="v2-publish-bottom" class="v2-primary">Solo anteprima</button></div>
     <p id="v2-autosave-status" class="v2-autosave-status" role="status" aria-live="polite">Bozza locale: protezione automatica del testo.</p>
     </div>
     <aside class="v2-settings">
