@@ -504,20 +504,32 @@ function safePaste(e){
 function hideContext(){if(state.contextBtn)state.contextBtn.hidden=true}
 function cursorHere(i,field){
  const sel=window.getSelection();
- if(!sel?.rangeCount||!field.contains(sel.anchorNode))return;
- const r=sel.getRangeAt(0).cloneRange();
- state.context={index:i,field,range:r};
+ if(!sel?.rangeCount||!field?.isConnected||!field.contains(sel.anchorNode))return;
+ // Keep an independent snapshot of the exact selection before the '+' steals focus.
+ const saved=sel.getRangeAt(0).cloneRange();
+ state.context={index:i,field,range:saved};
  if(!state.contextBtn){
   const plus=S("button","v2-floating-plus","＋");plus.type="button";
   plus.title="Inserisci contenuto qui";plus.setAttribute("aria-label","Inserisci qui");
+  // Prevent focus loss on mouse, pen and touch; the saved Range remains authoritative.
+  plus.addEventListener("pointerdown",e=>e.preventDefault());
   plus.addEventListener("mousedown",e=>e.preventDefault());
   plus.addEventListener("click",()=>{hideContext();E("v2-insert-menu").hidden=false});
   document.body.append(plus);state.contextBtn=plus;
  }
- const fieldRect=field.getBoundingClientRect(),caret=r.getBoundingClientRect();
- const y=caret.height?caret.top:fieldRect.top,plus=state.contextBtn;
- plus.style.left=Math.max(6,fieldRect.left-42)+"px";
- plus.style.top=Math.max(8,Math.min(innerHeight-45,y-3))+"px";plus.hidden=false;
+ // Anchor the button to the caret itself, not to the left edge of the paragraph.
+ // A collapsed clone gives a reliable caret rectangle even when text is selected.
+ const anchor=saved.cloneRange();anchor.collapse(false);
+ const rect=anchor.getBoundingClientRect(),fieldRect=field.getBoundingClientRect();
+ const hasCaret=Number.isFinite(rect.left)&&Number.isFinite(rect.top)&&
+  (rect.height>0||rect.width>0||rect.left>0||rect.top>0);
+ const x=hasCaret?rect.left:fieldRect.left;
+ const y=hasCaret?rect.top:fieldRect.top;
+ const left=x>=50?x-42:Math.min(innerWidth-44,x+8);
+ const plus=state.contextBtn;
+ plus.style.left=Math.max(6,Math.min(innerWidth-42,left))+"px";
+ plus.style.top=Math.max(8,Math.min(innerHeight-45,y-4))+"px";
+ plus.hidden=false;
 }
 function insertPosition(){
  const ctx=state.context;let pos=state.body.length;
@@ -563,7 +575,8 @@ function renderBlocks(){
    editable.append(richContent(b.text||""));
    editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus();scheduleBackup()});
    editable.addEventListener("paste",safePaste);
-   for(const event of ["focus","click","keyup","mouseup"])editable.addEventListener(event,()=>cursorHere(i,editable));
+   for(const event of ["focus","click","keyup","mouseup","pointerup","touchend"])
+    editable.addEventListener(event,()=>requestAnimationFrame(()=>cursorHere(i,editable)));
    row.append(editable);
   }else{
    const card=S("div","v2-media-block v2-inline-media");
@@ -875,7 +888,15 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden)backupNow()
 E("v2-save-draft").onclick=()=>save("draft");E("v2-draft-bottom").onclick=()=>save("draft");
 E("v2-publish").onclick=()=>save("publish");E("v2-publish-bottom").onclick=()=>save("publish");
 
-// Show the contextual '+' only while editing the position selected with the mouse.
+// Track every caret/selection movement, including keyboard, mouse, pen and touch.
+document.addEventListener("selectionchange",()=>{
+ const sel=window.getSelection(),node=sel?.anchorNode;
+ const field=node?.nodeType===1?node.closest?.("#v2-blocks .v2-rich-text"):node?.parentElement?.closest?.("#v2-blocks .v2-rich-text");
+ if(!field)return; // Do not discard the saved caret when the user opens the '+' menu.
+ const row=field.closest("[data-index]"),index=Number(row?.dataset.index);
+ if(Number.isInteger(index))cursorHere(index,field);
+});
+// Show the contextual '+' only while editing the position selected in the article.
 document.addEventListener("pointerdown",event=>{
  const target=event.target;
  if(!target.closest?.("#v2-blocks .v2-rich-text,.v2-floating-plus,#v2-insert-menu,#v2-modal"))
