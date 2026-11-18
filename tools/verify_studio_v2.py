@@ -81,6 +81,10 @@ def verify_studio_v2(output,rows):
   assert marker in script,"WYSIWYG features missing: "+marker
  assert "next.splice(position,0,...uploaded.map(item=>item.block))" in script, "Images selected with contextual + must be inserted at the exact chosen position"
  assert "smartImageAnchor(file,base" not in script, "Automatic image placement must not override the editor cursor position"
+ assert 'const rect=anchor.getBoundingClientRect(),fieldRect=field.getBoundingClientRect()' in script, "Contextual + must follow the actual caret coordinates"
+ assert 'document.addEventListener("selectionchange"' in script, "Caret movement must be tracked continuously"
+ assert '["focus","click","keyup","mouseup","pointerup","touchend"]' in script, "Caret tracking must cover mouse, keyboard, pen and touch"
+ assert 'plus.addEventListener("pointerdown",e=>e.preventDefault())' in script, "Opening contextual + must preserve the editor selection"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
