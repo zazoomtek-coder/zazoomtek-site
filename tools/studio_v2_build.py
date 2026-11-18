@@ -192,7 +192,7 @@ def build_studio_v2(output,rows):
       <div id="v2-blocks" class="v2-blocks" aria-label="Corpo dell'articolo"></div>
       <section id="v2-live-verdict" class="review-verdict" hidden></section>
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
-      <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
+      <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà il pulsante <strong>＋ Inserisci</strong> proprio nel punto scelto.</p>
      </article>
      <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
