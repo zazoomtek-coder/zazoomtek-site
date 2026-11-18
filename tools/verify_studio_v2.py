@@ -85,6 +85,10 @@ def verify_studio_v2(output,rows):
  assert 'document.addEventListener("selectionchange"' in script, "Caret movement must be tracked continuously"
  assert '["focus","click","keyup","mouseup","pointerup","touchend"]' in script, "Caret tracking must cover mouse, keyboard, pen and touch"
  assert 'plus.addEventListener("pointerdown",e=>e.preventDefault())' in script, "Opening contextual + must preserve the editor selection"
+ assert 'const row=field.closest("[data-index]"),liveIndex=Number(row?.dataset.index)' in script, "Contextual + must resolve the currently active paragraph"
+ assert 'state.context={index:liveIndex,field,range:saved,block:state.body[liveIndex]}' in script, "Context must retain the exact target block identity"
+ assert 'const index=Number.isInteger(liveIndex)&&liveIndex>=0&&state.body[liveIndex]===ctx.block' in script, "Insertion must reject stale paragraph indexes"
+ assert 'const activeField=node?.nodeType===1?node.closest?.("#v2-blocks .v2-rich-text"):node?.parentElement?.closest?.("#v2-blocks .v2-rich-text")' in script, "Plus activation must refresh the current caret before opening the menu"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
