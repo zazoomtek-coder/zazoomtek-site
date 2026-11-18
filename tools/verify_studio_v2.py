@@ -72,7 +72,7 @@ def verify_studio_v2(output,rows):
  for marker in ("v2-home-intro","v2-list-item","v2-block-row","v2-settings","v2-modal",
                 "v2-plus","v2-cover-stage","v2-article-preview","v2-preview-article"): 
   assert marker in css,"V2 CSS missing "+marker
- for marker in ("v2-save","v2-drafts","save(\"draft\")","save(\"publish\")",
+ for marker in ('save("draft")',
                 "showArticlePreview","formattedTextBlocks","restoreBackup","syncArticleChrome",
                 "scheduleBackup","pagehide","editorialBodyForDisplay",
                 "openMenu","editCover","editMedia","showHome","startNew"):
@@ -85,8 +85,10 @@ def verify_studio_v2(output,rows):
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
- assert "Articolo salvato su main: il sito si aggiornerà alle 12:30, 16:00 o 19:30." in script
- assert "Salvato su main. La pagina online si aggiornerà al prossimo slot: 12:30, 16:00 o 19:30." in script
+ assert 'zazoomtek:studio-v2:local-drafts' in script
+ assert 'fetch("/api/studio/' not in script
+ assert 'api("v2-save"' not in script
+ assert 'previewFinalArticle' in script
  assert 'cover.loading="eager"' in script and 'cover.fetchPriority="high"' in script
  preview=script.split("function showArticlePreview",1)[1].split("function closeArticlePreview",1)[0]
  assert "review-topline" not in preview, "Studio preview adds a label absent from the live article template"
