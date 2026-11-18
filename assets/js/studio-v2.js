@@ -450,6 +450,22 @@ function drawField(wrapper,text,initial,onChange,textarea=false){
  input.addEventListener("input",()=>{onChange(input.value);seoStatus()});
  wrapper.append(input);return input;
 }
+function addTextAfterBlock(i){
+ const next=i+1;
+ state.body.splice(next,0,{type:"paragraph",text:""});
+ renderBlocks();
+ const row=E("v2-blocks").querySelector('[data-index="'+next+'"]');
+ const editable=row?.querySelector(".v2-rich-text");
+ if(editable){
+  editable.focus();
+  const range=document.createRange();
+  range.selectNodeContents(editable);range.collapse(false);
+  const selection=window.getSelection();
+  selection.removeAllRanges();selection.addRange(range);
+  cursorHere(next,editable);
+ }
+ seoStatus();scheduleBackup();
+}
 function moveBlock(i,delta){
  let j=i+delta;if(j<0||j>=state.body.length)return;
  [state.body[i],state.body[j]]=[state.body[j],state.body[i]];renderBlocks();
@@ -591,6 +607,7 @@ function renderBlocks(){
    const tools=S("div","v2-media-hover-tools");
    if(b.type!=="divider")tools.append(actionButton("Modifica",()=>editMedia(b)));
    if(b.type==="image")tools.append(actionButton("Sostituisci",()=>chooseFile(b)));
+    if(b.type==="image")tools.append(actionButton("＋ Testo dopo",()=>addTextAfterBlock(i)));
    tools.append(actionButton("↑",()=>moveBlock(i,-1)));
    tools.append(actionButton("↓",()=>moveBlock(i,1)));
    tools.append(actionButton("Rimuovi",()=>{state.body.splice(i,1);renderBlocks();seoStatus()}));
