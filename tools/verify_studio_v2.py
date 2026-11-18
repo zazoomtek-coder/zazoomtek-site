@@ -78,6 +78,9 @@ def verify_studio_v2(output,rows):
                 "openMenu","editCover","editMedia","showHome","startNew"):
   assert marker in script,"V2 JS missing "+marker
  for marker in ("function richContent(", "function cursorHere(", "function insertPosition(", "function inlineLink(", "function safePaste(", "state.coverPreview"):
+ assert 'function addTextAfterBlock(i)' in script,"Images must support inserting a paragraph immediately after them"
+ assert 'actionButton("＋ Testo dopo",()=>addTextAfterBlock(i))' in script,"Image text-after action missing"
+ assert 'editable.focus();' in script and 'selection.addRange(range);' in script,"New paragraph must receive editing focus"
   assert marker in script,"WYSIWYG features missing: "+marker
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
