@@ -660,29 +660,20 @@ async function chooseMultipleImages(insertAt){
      slug:val("v2-slug")||slugify(val("v2-title"))||"contenuto",
      mime:file.type,base64:preview
     });
-    const anchor=smartImageAnchor(file,base,used,i,files.length);
-    uploaded.push({anchor,block:{type:"image",url:result.url,preview,
+    uploaded.push({block:{type:"image",url:result.url,preview,
      alt:file.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),
      caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0}});
    }catch(error){failed.push(file.name+": "+error.message)}
   }
-  const additions=new Map();
-  uploaded.forEach(item=>{
-   const key=item.anchor;
-   if(!additions.has(key))additions.set(key,[]);
-   additions.get(key).push(item.block);
-  });
-  const next=[];
-  for(let i=0;i<base.length;i++){
-   next.push(base[i]);
-   if(additions.has(i))next.push(...additions.get(i));
-  }
-  const endImages=uploaded.filter(x=>x.anchor<0);
-  if(endImages.length)next.push(...endImages.map(x=>x.block));
+  // Keep the insertion point selected with the contextual '+'.
+  // All files from the same selection are inserted there, in selection order.
+  const next=base.slice();
+  const position=Math.max(0,Math.min(Number(insertAt)||0,next.length));
+  next.splice(position,0,...uploaded.map(item=>item.block));
   state.body=next;
   renderBlocks();seoStatus();scheduleBackup();
-  if(failed.length)notify("Caricate "+uploaded.length+" immagini; alcuni file non sono riusciti: "+failed.join(" | "),true);
-  else notify(uploaded.length+" immagini caricate e distribuite nei punti pertinenti dell'articolo. Salva la bozza o pubblica per conservarle.");
+  if(failed.length)notify("Caricate "+uploaded.length+" immagini nel punto scelto; alcuni file non sono riusciti: "+failed.join(" | "),true);
+  else notify(uploaded.length+" immagini inserite nel punto scelto. Salva la bozza per conservarle.");
  });
  chooser.click();
 }
