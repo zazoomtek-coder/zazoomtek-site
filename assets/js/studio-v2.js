@@ -618,29 +618,6 @@ function imageTokens(name){
   .replace(/\.(jpe?g|png|webp)$/i,"").split(/[^a-z0-9]+/)
   .filter(x=>x.length>2&&!/^(img|dsc|dscn|pxl|screenshot|photo|image|copy|final|edited|202[0-9]|[0-9]+)$/.test(x));
 }
-function smartImageAnchor(file,body,used,fallbackIndex,total){
- const tokens=imageTokens(file.name);
- const candidates=[];
- body.forEach((block,index)=>{
-  if(!["paragraph","heading","quote"].includes(block.type))return;
-  const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/);
-  let score=tokens.reduce((sum,token)=>sum+(words.includes(token)?(block.type==="heading"?4:2):0),0);
-  if(used.has(index))score-=100;
-  candidates.push({index,score});
- });
- let chosen=candidates.filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
- if(!chosen){
-  const paragraphs=candidates.filter(x=>body[x.index].type==="paragraph");
-  if(!paragraphs.length)return body.length-1;
-  const target=(fallbackIndex+1)/(total+1);
-  chosen=paragraphs.reduce((best,item)=>{
-   const distance=Math.abs((item.index+1)/Math.max(1,body.length)-target);
-   return !best||distance<best.distance?{...item,distance}:best;
-  },null);
- }
- used.add(chosen.index);
- return chosen.index;
-}
 async function chooseMultipleImages(insertAt){
  const chooser=document.createElement("input");
  chooser.type="file";chooser.accept="image/jpeg,image/png,image/webp";chooser.multiple=true;
@@ -649,7 +626,7 @@ async function chooseMultipleImages(insertAt){
   if(!files.length)return;
   if(files.some(file=>file.size>5000000)){notify("Ogni immagine deve essere inferiore a 5 MB.",true);return}
   if(state.body.length+files.length>160){notify("Troppe immagini: il limite dell’articolo è 160 blocchi complessivi.",true);return}
-  const used=new Set(),base=state.body.slice(),uploaded=[];
+  const base=state.body.slice(),uploaded=[];
   let failed=[];
   for(let i=0;i<files.length;i++){
    const file=files[i];
