@@ -79,6 +79,8 @@ def verify_studio_v2(output,rows):
   assert marker in script,"V2 JS missing "+marker
  for marker in ("function richContent(", "function cursorHere(", "function insertPosition(", "function inlineLink(", "function safePaste(", "state.coverPreview"):
   assert marker in script,"WYSIWYG features missing: "+marker
+ assert "next.splice(position,0,...uploaded.map(item=>item.block))" in script, "Images selected with contextual + must be inserted at the exact chosen position"
+ assert "smartImageAnchor(file,base" not in script, "Automatic image placement must not override the editor cursor position"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
