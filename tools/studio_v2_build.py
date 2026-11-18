@@ -168,7 +168,7 @@ def build_studio_v2(output,rows):
   <div id="v2-editor" class="v2-editor-view" hidden>
    <div class="v2-editor-header">
     <div><div class="v2-eyebrow">EDITOR VISUALE</div><h1 id="v2-editor-heading">Modifica contenuto</h1>
-     <p id="v2-editor-note">Editor visuale in stile Patreon · prova isolata, salvataggi locali.</p></div>
+     <p id="v2-editor-note">Editor semplice in stile Patreon · aggiungi blocchi tra testo e immagini.</p></div>
     <div class="v2-editor-actions">
       <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza locale</button>
@@ -192,7 +192,7 @@ def build_studio_v2(output,rows):
       <div id="v2-blocks" class="v2-blocks" aria-label="Corpo dell'articolo"></div>
       <section id="v2-live-verdict" class="review-verdict" hidden></section>
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
-      <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà il pulsante <strong>＋ Inserisci</strong> proprio nel punto scelto.</p>
+      <p class="v2-paper-tip">Usa <strong>＋ Aggiungi contenuto</strong> tra i blocchi per inserire testo, immagini e altri elementi, anche dopo l’ultima immagine.</p>
      </article>
      <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
