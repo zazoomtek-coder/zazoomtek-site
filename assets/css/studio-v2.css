@@ -167,3 +167,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .v2-paper.story-article .v2-live-video{margin:0 0 24px}
 .v2-paper.story-article .v2-live-verdict{margin-top:28px}
 @media(max-width:650px){.v2-paper.story-article{padding:18px 15px 23px}.v2-paper.story-article .v2-title-input{font-size:clamp(26px,6vw,34px)}.v2-paper.story-article .v2-editorial-row.article-text{font-size:14.5px}}
+
+/* Patreon-inspired local-only writing workspace */
+.v2-preview-badge{background:#fff3e8!important;color:#9b4d20!important;border:1px solid #f2d4bd!important}.v2-rail{background:#fff!important;border-right:1px solid #ece8e4!important}.v2-main{background:#f7f5f2!important}.v2-paper.story-article{border:1px solid #ece8e4!important;border-radius:10px!important;box-shadow:0 2px 12px #2d20100a!important}.v2-settings{border:1px solid #ece8e4!important;border-radius:10px!important}.v2-editor-header{background:#fff!important;border-bottom:1px solid #ece8e4!important}.v2-editor-actions .v2-primary,.v2-footer-actions .v2-primary{background:#e85b43!important;border-color:#e85b43!important}
