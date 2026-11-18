@@ -201,7 +201,7 @@ function previewMediaUrl(url){
  if(value.startsWith("data:"))return value;
  const ok=value.startsWith("/assets/uploads/")&&
   ["jpg","jpeg","png","webp","mp3","m4a","wav","pdf","txt"].includes(value.split(".").pop());
- return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
+ return value;
 }
 
 function showArticlePreview(savedRecord=null){
