@@ -503,7 +503,7 @@ function cursorHere(i,field){
  const r=sel.getRangeAt(0).cloneRange();
  state.context={index:i,field,range:r};
  if(!state.contextBtn){
-  const plus=S("button","v2-floating-plus","＋");plus.type="button";
+  const plus=S("button","v2-floating-plus","＋ Inserisci");plus.type="button";
   plus.title="Inserisci contenuto qui";plus.setAttribute("aria-label","Inserisci qui");
   plus.addEventListener("mousedown",e=>e.preventDefault());
   plus.addEventListener("click",()=>{hideContext();E("v2-insert-menu").hidden=false});
@@ -609,54 +609,26 @@ function readImageFile(file){
   reader.readAsDataURL(file);
  });
 }
-function imageTokens(name){
- return String(name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-  .replace(/\.(jpe?g|png|webp)$/i,"").split(/[^a-z0-9]+/)
-  .filter(x=>x.length>2&&!/^(img|dsc|dscn|pxl|screenshot|photo|image|copy|final|edited|202[0-9]|[0-9]+)$/.test(x));
-}
-function smartImageAnchor(file,body,used,fallbackIndex,total){
- const tokens=imageTokens(file.name);
- const candidates=[];
- body.forEach((block,index)=>{
-  if(!["paragraph","heading","quote"].includes(block.type))return;
-  const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/);
-  let score=tokens.reduce((sum,token)=>sum+(words.includes(token)?(block.type==="heading"?4:2):0),0);
-  if(used.has(index))score-=100;
-  candidates.push({index,score});
- });
- let chosen=candidates.filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
- if(!chosen){
-  const paragraphs=candidates.filter(x=>body[x.index].type==="paragraph");
-  if(!paragraphs.length)return body.length-1;
-  const target=(fallbackIndex+1)/(total+1);
-  chosen=paragraphs.reduce((best,item)=>{
-   const distance=Math.abs((item.index+1)/Math.max(1,body.length)-target);
-   return !best||distance<best.distance?{...item,distance}:best;
-  },null);
- }
- used.add(chosen.index);
- return chosen.index;
-}
 async function chooseMultipleImages(insertAt){
  const chooser=document.createElement("input");chooser.type="file";chooser.accept="image/jpeg,image/png,image/webp";chooser.multiple=true;
  chooser.addEventListener("change",async()=>{
   const files=Array.from(chooser.files||[]);if(!files.length)return;
   if(files.some(file=>file.size>5000000)){notify("Ogni immagine deve essere inferiore a 5 MB.",true);return}
   if(state.body.length+files.length>160){notify("Troppe immagini: il limite è 160 blocchi.",true);return}
-  const used=new Set(),base=state.body.slice(),uploaded=[],failed=[];
-  for(let i=0;i<files.length;i++){
-   const file=files[i];
+  const uploaded=[],failed=[];
+  for(const file of files){
    try{
-    const preview=await readImageFile(file),anchor=smartImageAnchor(file,base,used,i,files.length);
-    uploaded.push({anchor,block:{type:"image",url:preview,preview,alt:file.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0}});
+    const preview=await readImageFile(file);
+    uploaded.push({type:"image",url:preview,preview,alt:file.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0});
    }catch(error){failed.push(file.name+": "+error.message)}
   }
-  const additions=new Map();uploaded.forEach(item=>{if(!additions.has(item.anchor))additions.set(item.anchor,[]);additions.get(item.anchor).push(item.block)});
-  const next=[];for(let i=0;i<base.length;i++){next.push(base[i]);if(additions.has(i))next.push(...additions.get(i))}
-  const endImages=uploaded.filter(x=>x.anchor<0);if(endImages.length)next.push(...endImages.map(x=>x.block));
-  state.body=next;renderBlocks();seoStatus();scheduleBackup();
-  if(failed.length)notify("Caricate "+uploaded.length+" immagini; file non riusciti: "+failed.join(" | "),true);
-  else notify(uploaded.length+" immagini inserite nel testo. Restano solo in questa prova locale.");
+  if(uploaded.length){
+   const position=Math.max(0,Math.min(state.body.length,Number.isInteger(insertAt)?insertAt:state.body.length));
+   state.body.splice(position,0,...uploaded);
+   renderBlocks();seoStatus();scheduleBackup();
+  }
+  if(failed.length)notify("Inserite "+uploaded.length+" immagini nella posizione scelta; file non riusciti: "+failed.join(" | "),true);
+  else notify(uploaded.length+" immagini inserite esattamente nel punto selezionato. Restano solo in questa prova locale.");
  });chooser.click();
 }
 async function chooseFile(target,onUploaded){
