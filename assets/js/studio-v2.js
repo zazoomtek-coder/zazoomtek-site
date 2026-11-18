@@ -414,12 +414,11 @@ function addBlock(kind){
  E("v2-insert-menu").hidden=true;
  if(kind==="link"){inlineLink();return}
  state.at=insertPosition();
- if(kind==="image"){chooseMultipleImages(state.at);return}
  const block={type:kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
  if(kind==="divider")block.text="—";
  if(kind==="poll")block.options=["Opzione 1","Opzione 2"];
  state.body.splice(state.at,0,block);renderBlocks();
- if(["audio","attachment","video","button","poll"].includes(kind))editMedia(block);
+ if(["image","audio","attachment","video","button","poll"].includes(kind))editMedia(block);
 }
 function drawField(wrapper,text,initial,onChange,textarea=false){
  const input=document.createElement(textarea?"textarea":"input");
@@ -609,28 +608,7 @@ function readImageFile(file){
   reader.readAsDataURL(file);
  });
 }
-async function chooseMultipleImages(insertAt){
- const chooser=document.createElement("input");chooser.type="file";chooser.accept="image/jpeg,image/png,image/webp";chooser.multiple=true;
- chooser.addEventListener("change",async()=>{
-  const files=Array.from(chooser.files||[]);if(!files.length)return;
-  if(files.some(file=>file.size>5000000)){notify("Ogni immagine deve essere inferiore a 5 MB.",true);return}
-  if(state.body.length+files.length>160){notify("Troppe immagini: il limite è 160 blocchi.",true);return}
-  const uploaded=[],failed=[];
-  for(const file of files){
-   try{
-    const preview=await readImageFile(file);
-    uploaded.push({type:"image",url:preview,preview,alt:file.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0});
-   }catch(error){failed.push(file.name+": "+error.message)}
-  }
-  if(uploaded.length){
-   const position=Math.max(0,Math.min(state.body.length,Number.isInteger(insertAt)?insertAt:state.body.length));
-   state.body.splice(position,0,...uploaded);
-   renderBlocks();seoStatus();scheduleBackup();
-  }
-  if(failed.length)notify("Inserite "+uploaded.length+" immagini nella posizione scelta; file non riusciti: "+failed.join(" | "),true);
-  else notify(uploaded.length+" immagini inserite esattamente nel punto selezionato. Restano solo in questa prova locale.");
- });chooser.click();
-}
+
 async function chooseFile(target,onUploaded){
  const chooser=document.createElement("input");chooser.type="file";
  chooser.accept=target?.type==="audio"?"audio/mpeg,audio/mp4,audio/wav":target?.type==="attachment"?"application/pdf,text/plain":"image/jpeg,image/png,image/webp";
