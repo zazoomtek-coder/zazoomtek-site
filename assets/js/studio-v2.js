@@ -505,43 +505,50 @@ function hideContext(){if(state.contextBtn)state.contextBtn.hidden=true}
 function cursorHere(i,field){
  const sel=window.getSelection();
  if(!sel?.rangeCount||!field?.isConnected||!field.contains(sel.anchorNode))return;
- // Keep an independent snapshot of the exact selection before the '+' steals focus.
+ const row=field.closest("[data-index]"),liveIndex=Number(row?.dataset.index);
+ if(!Number.isInteger(liveIndex)||state.body[liveIndex]===undefined)return;
+ // Always bind the context to the paragraph currently containing the real caret.
  const saved=sel.getRangeAt(0).cloneRange();
- state.context={index:i,field,range:saved};
+ state.context={index:liveIndex,field,range:saved,block:state.body[liveIndex]};
  if(!state.contextBtn){
   const plus=S("button","v2-floating-plus","＋");plus.type="button";
   plus.title="Inserisci contenuto qui";plus.setAttribute("aria-label","Inserisci qui");
-  // Prevent focus loss on mouse, pen and touch; the saved Range remains authoritative.
   plus.addEventListener("pointerdown",e=>e.preventDefault());
   plus.addEventListener("mousedown",e=>e.preventDefault());
-  plus.addEventListener("click",()=>{hideContext();E("v2-insert-menu").hidden=false});
+  plus.addEventListener("click",()=>{
+   // Refresh the insertion anchor at activation time; never trust a previous paragraph index.
+   const current=window.getSelection(),node=current?.anchorNode;
+   const activeField=node?.nodeType===1?node.closest?.("#v2-blocks .v2-rich-text"):node?.parentElement?.closest?.("#v2-blocks .v2-rich-text");
+   if(activeField&&current?.rangeCount)cursorHere(Number(activeField.closest("[data-index]")?.dataset.index),activeField);
+   hideContext();E("v2-insert-menu").hidden=false;
+  });
   document.body.append(plus);state.contextBtn=plus;
  }
- // Anchor the button to the caret itself, not to the left edge of the paragraph.
- // A collapsed clone gives a reliable caret rectangle even when text is selected.
  const anchor=saved.cloneRange();anchor.collapse(false);
  const rect=anchor.getBoundingClientRect(),fieldRect=field.getBoundingClientRect();
  const hasCaret=Number.isFinite(rect.left)&&Number.isFinite(rect.top)&&
   (rect.height>0||rect.width>0||rect.left>0||rect.top>0);
- const x=hasCaret?rect.left:fieldRect.left;
- const y=hasCaret?rect.top:fieldRect.top;
- const left=x>=50?x-42:Math.min(innerWidth-44,x+8);
- const plus=state.contextBtn;
+ const x=hasCaret?rect.left:fieldRect.left,y=hasCaret?rect.top:fieldRect.top;
+ const left=x>=50?x-42:Math.min(innerWidth-44,x+8),plus=state.contextBtn;
  plus.style.left=Math.max(6,Math.min(innerWidth-42,left))+"px";
- plus.style.top=Math.max(8,Math.min(innerHeight-45,y-4))+"px";
- plus.hidden=false;
+ plus.style.top=Math.max(8,Math.min(innerHeight-45,y-4))+"px";plus.hidden=false;
 }
 function insertPosition(){
  const ctx=state.context;let pos=state.body.length;
- if(ctx&&state.body[ctx.index]){
-  pos=ctx.index+1;
-  const b=state.body[ctx.index],r=ctx.range,field=ctx.field;
-  if(["paragraph","heading","quote"].includes(b.type)&&r&&field.isConnected&&field.contains(r.startContainer)){
+ // Resolve the target again from its live DOM row and block identity.
+ // This prevents a stale index from a previous paragraph being reused.
+ const liveIndex=ctx?.field?.isConnected?Number(ctx.field.closest("[data-index]")?.dataset.index):-1;
+ const index=Number.isInteger(liveIndex)&&liveIndex>=0&&state.body[liveIndex]===ctx.block?liveIndex:
+  (ctx?.block?state.body.indexOf(ctx.block):-1);
+ if(ctx&&index>=0){
+  pos=index+1;
+  const b=state.body[index],r=ctx.range,field=ctx.field;
+  if(["paragraph","heading","quote"].includes(b.type)&&r&&field?.isConnected&&field.contains(r.startContainer)){
    const l=document.createRange();l.selectNodeContents(field);l.setEnd(r.startContainer,r.startOffset);
    const rr=document.createRange();rr.selectNodeContents(field);rr.setStart(r.startContainer,r.startOffset);
    const left=richValue(l.cloneContents()).trim(),right=richValue(rr.cloneContents()).trim();
-   if(left&&right){b.text=left;state.body.splice(ctx.index+1,0,{type:b.type==="heading"?"paragraph":b.type,text:right})}
-   else if(!left)pos=ctx.index;
+   if(left&&right){b.text=left;state.body.splice(index+1,0,{type:b.type==="heading"?"paragraph":b.type,text:right})}
+   else if(!left)pos=index;
   }
  }
  state.context=null;hideContext();return pos;
