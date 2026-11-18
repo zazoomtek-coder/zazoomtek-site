@@ -408,17 +408,24 @@ function field(container,title,value="",type="text"){
  input.value=value;label.append(span,input);container.append(label);return input;
 }
 function openMenu(at){
- state.at=at;E("v2-insert-menu").hidden=false;
+ state.at=Math.max(0,Math.min(state.body.length,Number.isInteger(at)?at:state.body.length));
+ E("v2-insert-menu").hidden=false;
 }
 function addBlock(kind){
  E("v2-insert-menu").hidden=true;
- if(kind==="link"){inlineLink();return}
- state.at=insertPosition();
- const block={type:kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
+ if(kind==="link"&&state.context){inlineLink();return}
+ const position=Math.max(0,Math.min(state.body.length,Number.isInteger(state.at)?state.at:state.body.length));
+ const block={type:kind==="link"?"paragraph":kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
  if(kind==="divider")block.text="—";
  if(kind==="poll")block.options=["Opzione 1","Opzione 2"];
- state.body.splice(state.at,0,block);renderBlocks();
+ state.body.splice(position,0,block);state.at=position+1;renderBlocks();
  if(["image","audio","attachment","video","button","poll"].includes(kind))editMedia(block);
+ else if(["paragraph","heading","quote"].includes(block.type)){
+  const row=E("v2-blocks").querySelector('[data-index="'+position+'"]');
+  const editable=row?.querySelector(".v2-rich-text");
+  if(editable){editable.focus();const range=document.createRange();range.selectNodeContents(editable);range.collapse(false);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range)}
+ }
+ seoStatus();scheduleBackup();
 }
 function drawField(wrapper,text,initial,onChange,textarea=false){
  const input=document.createElement(textarea?"textarea":"input");
@@ -496,23 +503,7 @@ function safePaste(e){
  sel.removeAllRanges();sel.addRange(r);e.currentTarget.dispatchEvent(new Event("input",{bubbles:true}));
 }
 function hideContext(){if(state.contextBtn)state.contextBtn.hidden=true}
-function cursorHere(i,field){
- const sel=window.getSelection();
- if(!sel?.rangeCount||!field.contains(sel.anchorNode))return;
- const r=sel.getRangeAt(0).cloneRange();
- state.context={index:i,field,range:r};
- if(!state.contextBtn){
-  const plus=S("button","v2-floating-plus","＋ Inserisci");plus.type="button";
-  plus.title="Inserisci contenuto qui";plus.setAttribute("aria-label","Inserisci qui");
-  plus.addEventListener("mousedown",e=>e.preventDefault());
-  plus.addEventListener("click",()=>{hideContext();E("v2-insert-menu").hidden=false});
-  document.body.append(plus);state.contextBtn=plus;
- }
- const fieldRect=field.getBoundingClientRect(),caret=r.getBoundingClientRect();
- const y=caret.height?caret.top:fieldRect.top,plus=state.contextBtn;
- plus.style.left=Math.max(6,fieldRect.left-42)+"px";
- plus.style.top=Math.max(8,Math.min(innerHeight-45,y-3))+"px";plus.hidden=false;
-}
+function cursorHere(){/* Insertion is managed by between-block controls, like Patreon. */}
 function insertPosition(){
  const ctx=state.context;let pos=state.body.length;
  if(ctx&&state.body[ctx.index]){
@@ -557,7 +548,7 @@ function renderBlocks(){
    editable.append(richContent(b.text||""));
    editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus();scheduleBackup()});
    editable.addEventListener("paste",safePaste);
-   for(const event of ["focus","click","keyup","mouseup"])editable.addEventListener(event,()=>cursorHere(i,editable));
+   
    row.append(editable);
   }else{
    const card=S("div","v2-media-block v2-inline-media");
@@ -592,7 +583,16 @@ function renderBlocks(){
    card.append(tools);row.append(card);
   }
   host.append(row);
+  const slot=S("div","v2-insert-slot");
+  const insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
+  insert.type="button";insert.setAttribute("aria-label","Inserisci un blocco dopo questo elemento");
+  insert.addEventListener("click",()=>openMenu(i+1));
+  slot.append(insert);host.append(slot);
  });
+ if(!state.body.length){
+  const slot=S("div","v2-insert-slot"),insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
+  insert.type="button";insert.addEventListener("click",()=>openMenu(0));slot.append(insert);host.append(slot);
+ }
  scheduleBackup();
 }
 
