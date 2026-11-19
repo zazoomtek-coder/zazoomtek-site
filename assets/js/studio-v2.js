@@ -4,7 +4,7 @@ const E=id=>document.getElementById(id),S=(tag,cls,text)=>{let e=document.create
 const cats={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra"};
 const authors={"news-tech":"Gimmi","news-gaming":"Gimmi","recensioni-tech":"Beppe","recensioni-gaming":"Beppe","guide":"Beppe","speciali":"Alex","extra":"Alex"};
 const authorForCategory=category=>authors[category]||"Gimmi";
-let state={rows:[],drafts:{},current:null,body:[],mode:"home",filter:"",newContent:false,busy:false,cover:"",coverPreview:"",context:null,contextBtn:null,coverFocusX:50,coverFocusY:50,coverZoom:100,coverRotation:0,modalApply:null,at:0};
+let state={rows:[],drafts:{},current:null,body:[],mode:"home",filter:"",newContent:false,busy:false,cover:"",coverPreview:"",context:null,contextBtn:null,newDraftId:null,coverFocusX:50,coverFocusY:50,coverZoom:100,coverRotation:0,modalApply:null,at:0};
 const val=id=>E(id).value.trim(),num=(v,lo,hi,def)=>Math.min(hi,Math.max(lo,Number.isFinite(+v)?+v:def));
 const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,135);
 function notify(msg,error=false){const t=E("v2-toast");t.hidden=false;t.textContent=msg;t.classList.toggle("error",error)}
@@ -141,8 +141,10 @@ function signature(parts){
 const BACKUP_PREFIX="zazoomtek:studio-v2:article:";
 let backupTimer=0;
 function backupKey(){
- return BACKUP_PREFIX+(state.newContent?"new":String(state.current?.slug||"new"));
-}
+ // Ogni nuova composizione ha una chiave autonoma: non deve mai recuperare
+ // l’autosave generico lasciato da un altro articolo creato in precedenza.
+ return BACKUP_PREFIX+(state.newContent?"new:"+String(state.newDraftId||"sessione"):String(state.current?.slug||"new"));
+ }
 function backupNow(){
  if(state.mode!=="editor"||!state.restoreReady)return;
  try{
@@ -375,7 +377,10 @@ function showHome(){
 }
 function showEditor(row,newContent){
  backupNow(); // Protect previous article before replacing the editor contents.
- state.current=row;state.newContent=!!newContent;state.mode="editor";state.restoreReady=false;
+ state.current=row;state.newContent=!!newContent;
+ if(state.newContent&&!state.newDraftId)state.newDraftId=makeDraftId();
+ if(!state.newContent)state.newDraftId=null;
+ state.mode="editor";state.restoreReady=false;
  E("v2-home").hidden=true;E("v2-editor").hidden=false;E("v2-back").hidden=false;
  E("v2-home-nav").classList.remove("on");
  E("v2-editor-heading").textContent=newContent?"Crea un nuovo contenuto":"Modifica il contenuto";
@@ -383,10 +388,16 @@ function showEditor(row,newContent){
  E("v2-crumb").textContent="Studio / "+(newContent?"Nuovo contenuto":"Modifica");
  editorFields(row);
  restoreBackup();state.restoreReady=true;
- history.replaceState({}, "", "/studio-v2/"+(newContent?"?new=1":"?edit="+encodeURIComponent(row.slug)));
+ history.replaceState({}, "", "/studio-v2/"+(newContent?"?new=1&draft="+encodeURIComponent(state.newDraftId):"?edit="+encodeURIComponent(row.slug)));
  window.scrollTo(0,0);
 }
-function startNew(){showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true)}
+function makeDraftId(){
+ return (typeof crypto!=="undefined"&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,12);
+}
+function startNew(draftId=null){
+ state.newDraftId=draftId||makeDraftId();
+ showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true);
+}
 function renderList(){
  const q=val("v2-search").toLocaleLowerCase("it"),cat=state.filter||val("v2-select-filter");
  const draftOnly=Object.values(state.drafts).filter(d=>d&&d.kind==="new"&&d.record&&
@@ -741,6 +752,37 @@ async function uploadLocalAsset(value,slug){
  const result=await api("upload",{slug,mime:match[1],base64:match[2]});
  return result.url;
 }
+async function cancelDraft(){
+ if(state.busy)return;
+ const title=val("v2-title")||state.current?.title||"bozza senza titolo";
+ const slug=state.newContent?(val("v2-slug")||slugify(title)):String(state.current?.slug||"");
+ const confirmed=window.confirm("Vuoi cancellare la bozza «"+title+"»? Verranno eliminati il testo e i dati salvati automaticamente. Gli articoli già pubblicati non verranno cancellati.");
+ if(!confirmed)return;
+ state.busy=true;
+ for(const id of ["v2-cancel-draft","v2-cancel-draft-bottom"])E(id).disabled=true;
+ try{
+  if(slug)await api("v2-draft-delete",{slug});
+  const key=backupKey();
+  try{localStorage.removeItem(key)}catch(_){}
+  if(slug)delete state.drafts[slug];
+  try{
+   const draftKey="zazoomtek:studio-v2:local-drafts";
+   if(Object.keys(state.drafts).length)localStorage.setItem(draftKey,JSON.stringify(state.drafts));
+   else localStorage.removeItem(draftKey);
+  }catch(e){throw Error("La bozza remota è stata eliminata, ma il salvataggio locale del browser non è stato aggiornato.")}
+  state.restoreReady=false;
+  state.current=null;state.newContent=false;state.newDraftId=null;state.body=[];
+  state.cover="";state.coverPreview="";
+  showHome();
+  notify("Bozza «"+title+"» cancellata. Puoi creare un nuovo contenuto.");
+ }catch(error){
+  notify(error.message||"Impossibile cancellare la bozza. Il contenuto locale è stato conservato.",true);
+ }finally{
+  state.busy=false;
+  for(const id of ["v2-cancel-draft","v2-cancel-draft-bottom"])E(id).disabled=false;
+ }
+}
+
 async function save(mode){
  if(state.busy)return;
  applyEditorialFormat();const row=collect();
@@ -769,7 +811,8 @@ async function save(mode){
   }
   const result=await api("v2-save",{mode:"publish",creating:state.newContent,record:row});
   state.cover=row.image;state.coverPreview="";state.body=row.body;
-  state.current=result.record||row;state.newContent=false;
+  if(state.newContent){try{localStorage.removeItem(backupKey())}catch(_){}}
+  state.current=result.record||row;state.newContent=false;state.newDraftId=null;
   const index=state.rows.findIndex(item=>item.slug===row.slug);
   if(index>=0)state.rows[index]=state.current;else state.rows.unshift(state.current);
   delete state.drafts[row.slug];
@@ -808,7 +851,7 @@ async function init(){
   E("v2-app").hidden=false;E("v2-auth").hidden=true;
   const params=new URLSearchParams(location.search);
   if(params.get("edit")){const row=state.rows.find(r=>r.slug===params.get("edit"));if(row)openExisting(row);else showHome()}
-  else if(params.has("new"))startNew();else showHome();
+  else if(params.has("new"))startNew(params.get("draft")||null);else showHome();
  }catch(e){
   E("v2-auth").hidden=false;E("v2-app").hidden=true;
   const p=E("v2-auth").querySelector("p");
@@ -847,6 +890,7 @@ window.addEventListener("beforeunload",backupNow);
 window.addEventListener("pagehide",backupNow);
 document.addEventListener("visibilitychange",()=>{if(document.hidden)backupNow()});
 E("v2-save-draft").onclick=()=>save("draft");E("v2-draft-bottom").onclick=()=>save("draft");
+E("v2-cancel-draft").onclick=cancelDraft;E("v2-cancel-draft-bottom").onclick=cancelDraft;
 E("v2-publish").onclick=()=>save("publish");E("v2-publish-bottom").onclick=()=>save("publish");
 
 // Show the contextual '+' only while editing the position selected with the mouse.

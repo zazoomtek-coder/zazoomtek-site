@@ -174,6 +174,7 @@ def build_studio_v2(output,rows):
     <div class="v2-editor-actions">
       <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza locale</button>
+      <button type="button" id="v2-cancel-draft" class="v2-soft v2-danger">Cancella bozza</button>
       <button type="button" id="v2-publish" class="v2-primary">Pubblica</button>
     </div>
    </div>
@@ -198,6 +199,7 @@ def build_studio_v2(output,rows):
      </article>
      <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
+      <button type="button" id="v2-cancel-draft-bottom" class="v2-soft v2-danger">Cancella bozza</button>
       <button type="button" id="v2-publish-bottom" class="v2-primary">Pubblica</button></div>
     <p id="v2-autosave-status" class="v2-autosave-status" role="status" aria-live="polite">Bozza locale: protezione automatica del testo.</p>
     </div>

@@ -381,6 +381,28 @@ async function pendingV2(token){
  return {posts:[...posts.values()],
   overrides:{...(legacyEdits.content?.overrides||{}),...(mainEdits.content?.overrides||{})}};
 }
+async function deleteV2Draft(request,session){
+ const data=await parseInput(request,5000);
+ const slug=clean(data.slug).toLowerCase();
+ if(!slug)return respond({ok:true,deleted:false});
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||slug.length>150)
+  throw new Error("Indirizzo bozza non valido.");
+ for(let attempt=0;attempt<4;attempt++){
+  const file=await getDrafts(session.token);
+  const drafts={...file.drafts};
+  if(!Object.prototype.hasOwnProperty.call(drafts,slug))
+   return respond({ok:true,deleted:false,slug});
+  delete drafts[slug];
+  try{
+   await writeFile(session.token,"data/studio_v2_drafts.json",{drafts},file.sha,
+    "Studio V2: elimina bozza "+slug);
+   return respond({ok:true,deleted:true,slug});
+  }catch(error){
+   if(!error.isShaConflict||attempt===3)throw error;
+  }
+ }
+ throw new Error("Non è stato possibile eliminare la bozza.");
+}
 async function saveV2(request,env,session){
  const data=await parseInput(request,1000000),mode=clean(data.mode);
  if(!["draft","publish"].includes(mode))throw new Error("Comando non riconosciuto.");
@@ -530,6 +552,8 @@ export async function onRequest(context){
     headers:{"Content-Type":mime,"Cache-Control":"no-store, private",
      "X-Content-Type-Options":"nosniff"}});
   }
+  if(pathname==="/api/studio/v2-draft-delete"&&request.method==="POST")
+   return await deleteV2Draft(request,session);
   if(pathname==="/api/studio/v2-save"&&request.method==="POST")
    return await saveV2(request,env,session);
   if(pathname==="/api/studio/save"&&request.method==="POST")

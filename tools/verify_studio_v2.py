@@ -13,7 +13,7 @@ def verify_studio_v2(output,rows):
  assert 'id="v2-home"' in page and 'id="v2-editor" class="v2-editor-view" hidden' in page
  assert 'id="v2-append-block"' in page and 'id="v2-cover-edit"' in page
  assert all('id="'+name+'"' in page for name in
-            ("v2-preview-top","v2-preview-bottom","v2-save-draft","v2-publish",
+            ("v2-preview-top","v2-preview-bottom","v2-save-draft","v2-cancel-draft","v2-cancel-draft-bottom","v2-publish",
              "v2-draft-bottom","v2-publish-bottom","v2-close-preview",
              "v2-article-preview","v2-autosave-status"))
  assert 'id="v2-modal"' in page and 'id="v2-category"' in page
@@ -77,7 +77,10 @@ def verify_studio_v2(output,rows):
  for marker in ("v2-home-intro","v2-list-item","v2-block-row","v2-settings","v2-modal",
                 "v2-plus","v2-cover-stage","v2-article-preview","v2-preview-article"): 
   assert marker in css,"V2 CSS missing "+marker
- for marker in ('save("draft")',
+ for marker in ('async function cancelDraft()',
+                'api("v2-draft-delete",{slug})',
+                'window.confirm("Vuoi cancellare la bozza',
+                'save("draft")',
                 "showArticlePreview","formattedTextBlocks","restoreBackup","syncArticleChrome",
                 "scheduleBackup","pagehide","editorialBodyForDisplay",
                 "openMenu","editCover","editMedia","showHome","startNew"):
@@ -115,7 +118,7 @@ def verify_studio_v2(output,rows):
  assert '"token":' not in script and 'localStorage.setItem("token"' not in script
  assert 'sessionStorage' not in script
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
- for marker in ('/api/studio/v2-drafts','/api/studio/v2-save',
+ for marker in ('/api/studio/v2-drafts','/api/studio/v2-draft-delete','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
                 'const PUBLISH_BRANCH="main";','status:"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
                 'branch:PUBLISH_BRANCH','[CF-Pages-Skip] ',

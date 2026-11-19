@@ -5,6 +5,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .v2-primary{border:0;border-radius:9px;background:#ed344b;color:white;font-size:13px;font-weight:780;padding:12px 18px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
 .v2-primary:hover{background:#d62943}.v2-soft{background:white;color:#26262b;border:1px solid #dddde1;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:720}
 .v2-soft:hover{border-color:#bdbdc4;background:#fbfbfc}
+.v2-danger{border-color:#e8b8b0;color:#b83f32}.v2-danger:hover{border-color:#c85b4d;background:#fff7f5;color:#9f3027}
 .v2-brand,.v2-logo{font-size:22px;font-weight:880;letter-spacing:-.9px;color:#222;text-decoration:none}.v2-brand span,.v2-logo span{color:#ed344b}.v2-brand small,.v2-logo small{margin-left:8px;color:#999;font-size:9px;letter-spacing:1px;font-weight:850}
 .v2-auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:#f9f9fa}.v2-auth-card{background:white;max-width:490px;padding:40px;border:1px solid #ebebed;border-radius:15px;box-shadow:0 15px 50px #11111109}
 .v2-auth-card h1{margin:24px 0 10px;font-size:27px}.v2-auth-card p{font-size:14px;color:#67676a;line-height:1.7}.v2-link{display:block;margin:15px 0;color:#444}
