@@ -693,7 +693,7 @@ def studio_sectioned_body(review):
    if placeholder in {"approfondimento","tutti i dettagli","gli elementi principali",
                        "altri dettagli","il quadro completo","ulteriori informazioni"}:
     continue
-   if category(review)!="guide" and studio_paragraph_is_title(value,blocks,index):
+   if category(review) in ("news-tech","news-gaming") and studio_paragraph_is_title(value,blocks,index):
     result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
     continue
    # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
