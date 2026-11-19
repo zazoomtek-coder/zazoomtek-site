@@ -30,6 +30,22 @@ EDITORIAL_COLLECTIONS = {
     "data/studio_posts.json": "posts",
     "data/studio_overrides.json": "overrides",
 }
+# Fingerprint Studio implementation inputs as well as editorial records. This
+# lets the next existing Rome release slot deploy approved Studio fixes even
+# when no new article arrived; it never creates an extra or off-slot release.
+STUDIO_BUILD_INPUTS = (
+    "tools/build.py",
+    "tools/studio_build.py",
+    "tools/studio_v2_build.py",
+    "tools/verify_studio_v2.py",
+    "tools/editorial_slot_gate.py",
+    "assets/js/studio.js",
+    "assets/js/studio-v2.js",
+    "assets/css/studio.css",
+    "assets/css/studio-v2.css",
+    "assets/css/spotnews.css",
+    "functions/api/studio/[[path]].js",
+)
 SERVICE_METADATA_KEYS = {
     "updated", "updated_at", "created_at", "generated_at", "synced_at",
     "fetched_at", "last_updated", "last_synced", "first_seen_at",
@@ -74,6 +90,15 @@ def content_digest():
         ).encode("utf-8")
         hasher.update(filename.encode("utf-8") + b"\0")
         hasher.update(canonical + b"\0")
+
+    # Include the code and styles that produce and operate Studio. A source
+    # change therefore makes the next scheduled slot a release candidate.
+    for relative in STUDIO_BUILD_INPUTS:
+        path = ROOT / relative
+        if not path.is_file():
+            raise RuntimeError("Missing Studio build input: " + relative)
+        hasher.update(b"studio-build-input:" + relative.encode("utf-8") + b":")
+        hasher.update(path.read_bytes() + b":")
 
     # Include only media referenced by approved Studio publications.
     referenced = set()

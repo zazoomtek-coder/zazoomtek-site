@@ -6,6 +6,8 @@ on:
       - ".github/workflows/studio-validation.yml"
       - "functions/api/studio/**"
       - "assets/js/studio-v2.js"
+      - "assets/css/studio-v2.css"
+      - "tools/editorial_slot_gate.py"
       - "assets/js/studio.js"
       - "tools/studio_build.py"
       - "tools/verify_studio.py"
@@ -14,7 +16,6 @@ on:
       - "tools/test_studio_api.mjs"
       - "tools/verify_editorial_live.py"
       - "tools/scheduled_editorial_import.py"
-      - "tools/editorial_slot_gate.py"
       - "tools/studio_build.py"
       - "tools/verify_studio.py"
       - "assets/js/studio.js"
@@ -49,6 +50,8 @@ jobs:
       - name: Validate Python and JavaScript syntax
         run: |
           python3 -m compileall -q tools
+          python3 -m py_compile tools/editorial_slot_gate.py
+          python3 -c "import sys; sys.path.insert(0, 'tools'); from editorial_slot_gate import content_digest; print('STUDIO RELEASE FINGERPRINT:', content_digest())"
           node --check assets/js/studio-v2.js
           node --check assets/js/studio.js
           node --input-type=module --check < 'functions/api/studio/[[path]].js'

@@ -1,5 +1,6 @@
 """Opt-in Studio V2 acceptance audit: no modification of original Studio."""
 from pathlib import Path
+import hashlib
 import json,re
 from seo import title_tag,description,keywords,metadata
 
@@ -17,6 +18,10 @@ def verify_studio_v2(output,rows):
              "v2-article-preview","v2-autosave-status"))
  assert 'id="v2-modal"' in page and 'id="v2-category"' in page
  assert 'spotnews.css' in page and 'id="v2-live-meta"' in page
+ expected_spotnews=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/css/spotnews.css").read_bytes()).hexdigest()[:12]
+ expected_studio=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/css/studio-v2.css").read_bytes()).hexdigest()[:12]
+ assert f"/assets/css/spotnews.css?v={expected_spotnews}" in page, "Studio V2 must use a cache-busted current SpotNews stylesheet"
+ assert f"/assets/css/studio-v2.css?v={expected_studio}" in page, "Studio V2 must use a cache-busted current Patreon-like stylesheet"
  assert 'id="v2-live-equipment"' in page and 'id="v2-live-verdict"' in page
  assert 'id="v2-seo-status"' in page and 'AUTOMATICO' in page
  assert 'id="v2-content-list"' not in page # new implementation uses v2-list
@@ -84,7 +89,8 @@ def verify_studio_v2(output,rows):
  assert 'editable.focus();' in script and 'selection.addRange(range);' in script,"New paragraph must receive editing focus"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
- assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
+ expected_script=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/js/studio-v2.js").read_bytes()).hexdigest()[:12]
+ assert f"/assets/js/studio-v2.js?v={expected_script}" in page,"Browser must load the current Studio V2 JavaScript bundle"
  assert 'zazoomtek:studio-v2:local-drafts' in script
  assert 'if(Object.keys(state.drafts).length)localStorage.setItem(draftKey,JSON.stringify(state.drafts));' in script, "Publishing one article must preserve other local drafts"
  assert 'async function api(endpoint,data)' in script
