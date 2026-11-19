@@ -29,7 +29,7 @@ def fetch(url, payload=None, timeout=9, attempts=3):
  raise RuntimeError("YouTube request failed after "+str(attempts)+" attempts: "+url) from last_error
 
 def webpage_json(source):
- for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*'):
+ for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*',r'"ytInitialData"\s*:\s*'):
   match=re.search(pattern,source)
   if match:
    try:return json.JSONDecoder().raw_decode(source[match.end():])[0]
@@ -139,9 +139,29 @@ def title_type(text):
 
 def discover(limit=160,max_pages=12):
  reference=datetime.now(timezone.utc)
- raw=fetch(CHANNEL+"?hl=it&persist_hl=1")
- root=webpage_json(raw)
- if not root:raise ValueError("YouTube did not return public post data")
+ raw=""
+ root={}
+ initial_posts=[]
+ last_error=None
+ page_sources=(
+  CHANNEL+"?hl=it&persist_hl=1",
+  "https://www.youtube.com/channel/"+CHANNEL_ID+"/posts?hl=it&persist_hl=1",
+  "https://www.youtube.com/channel/"+CHANNEL_ID+"/community?hl=it&persist_hl=1",
+ )
+ for source_url in page_sources:
+  for attempt in range(3):
+   try:
+    raw=fetch(source_url,timeout=12,attempts=1)
+    root=webpage_json(raw)
+    initial_posts=post_records(root) if root else []
+    if initial_posts:break
+    last_error=RuntimeError("YouTube HTML did not contain Community post renderers")
+   except Exception as error:
+    last_error=error
+   if attempt<2:time.sleep(1+attempt)
+  if initial_posts:break
+ if not initial_posts:
+  raise RuntimeError("YouTube did not return Community post data after retries and fallback URLs") from last_error
  collected=[];ids=set()
  api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
  client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
@@ -186,7 +206,7 @@ def discover(limit=160,max_pages=12):
  output=[]
  for ix,item in enumerate(collected):
   text=trim_youtube_promo_tail(item["text"].strip())
-   item["text"]=text
+  item["text"]=text
   title,kind=title_type(text)
   if not kind or len(text)<60 or not item.get("verified_detail"):continue
   date=date_from_relative(item.get("when",""),reference)
