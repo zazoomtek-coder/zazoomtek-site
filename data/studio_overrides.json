@@ -669,6 +669,99 @@
       },
       "date": "2026-11-19",
       "published_at": "2026-11-19"
+    },
+    "community-ugkxsqccbjwlc9dsp62masysozeiw0aowy1c": {
+      "slug": "community-ugkxsqccbjwlc9dsp62masysozeiw0aowy1c",
+      "title": "ECOVACS Black Friday 2026, nuove offerte su robot piscina e aspirapolvere DEEBOT",
+      "category": "news-tech",
+      "image": "/assets/uploads/community-ugkxsqccbjwlc9dsp62masysozeiw0aowy1c/088108032f99410aa329.jpg",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "ECOVACS amplia le promozioni del Black Friday 2026 con due nuove offerte dedicate alla pulizia domestica e alla manutenzione della piscina. Le iniziative coinvolgono Amazon e MediaWorld e permettono di acquistare ULTRAMARINE P1 e DEEBOT T90S PRO OMNI Black a prezzi scontati, con ribassi disponibili rispettivamente dal 19 e dal 20 novembre."
+        },
+        {
+          "type": "heading",
+          "text": "ULTRAMARINE P1: ROBOT PISCINA A 379 EURO"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dal 19 novembre su Amazon è disponibile ULTRAMARINE P1, il robot ECOVACS progettato per automatizzare la pulizia e la manutenzione della piscina. Il dispositivo utilizza la UltraPure Suction Technology da 4.800 GPH e un sistema di filtrazione a doppio strato, capace di catturare oltre 10 tipologie di detriti con un'efficienza dichiarata fino al 99%. La navigazione SmartNavi con sensore IMU, il funzionamento senza fili e il controllo tramite app completano una soluzione pensata per garantire una copertura uniforme e ridurre gli interventi manuali."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il prezzo promozionale è di 379 euro, contro un prezzo di listino di 549 euro."
+        },
+        {
+          "type": "heading",
+          "text": "DEEBOT T90S PRO OMNI BLACK A 499 EURO DA MEDIAWORLD"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dal 20 al 30 novembre sarà invece possibile acquistare presso MediaWorld il DEEBOT T90S PRO OMNI Black a 499 euro, rispetto al prezzo di listino di 799 euro. Il robot combina diverse tecnologie dedicate all'aspirazione e al lavaggio dei pavimenti."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il sistema OZMO ROLLER 3.0 e TruEdge 3.0 punta a migliorare il lavaggio e la pulizia lungo bordi e battiscopa, mentre ZeroTangle 4.0 e BLAST offrono un'aspirazione potente riducendo i grovigli di capelli e peli. La tecnologia Fresh Flow contribuisce a mantenere pulito il rullo durante il lavaggio, mentre AGENT YIKO e PowerBoost supportano la gestione automatizzata delle operazioni."
+        },
+        {
+          "type": "heading",
+          "text": "LE OFFERTE ECOVACS PER IL BLACK FRIDAY"
+        },
+        {
+          "type": "paragraph",
+          "text": "Con queste due nuove promozioni, ECOVACS amplia la propria selezione di offerte in vista del Cyber Monday, proponendo soluzioni che spaziano dalla pulizia dei pavimenti alla manutenzione della piscina. ULTRAMARINE P1 è disponibile su Amazon a 379 euro dal 19 novembre, mentre DEEBOT T90S PRO OMNI Black sarà acquistabile da MediaWorld a 499 euro dal 20 al 30 novembre."
+        },
+        {
+          "type": "heading",
+          "text": "DOMANDA PER LA COMMUNITY"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quale di queste due soluzioni vi interessa maggiormente? Preferireste automatizzare la pulizia della piscina con ULTRAMARINE P1 oppure quella dei pavimenti con DEEBOT T90S PRO OMNI Black?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Rispondi sul canale Youtube!"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 12,
+      "cover_focus_y": 0,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-19T15:38:31.277Z",
+      "route_version": 2,
+      "legacy_path": null,
+      "public_path": "/news/ecovacs-black-friday-2026-offerte-robot-piscina-aspirapolv",
+      "public_slug": "ecovacs-black-friday-2026-offerte-robot-piscina-aspirapolv",
+      "seo_lock": {
+        "title": "ECOVACS Black Friday 2026, nuove offerte su robot piscina e aspirapolvere DEEBOT",
+        "description": "ECOVACS amplia le promozioni del Black Friday 2026 con due nuove offerte dedicate alla pulizia domestica e alla manutenzione della piscina. Le iniziative…",
+        "keywords": [
+          "ecovacs",
+          "black",
+          "friday",
+          "nuove",
+          "offerte",
+          "robot",
+          "piscina",
+          "aspirapolvere"
+        ]
+      },
+      "date": "2026-11-19",
+      "published_at": "2026-11-19"
     }
   }
 }
