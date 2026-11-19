@@ -23,6 +23,7 @@ on:
       - "tools/article_templates.py"
       - "tools/verify_article_typography.py"
       - "tools/build.py"
+      - "tools/article_routes.py"
       - "data/studio_posts.json"
       - "data/studio_overrides.json"
       - "assets/css/spotnews.css"
