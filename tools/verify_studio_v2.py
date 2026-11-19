@@ -89,7 +89,8 @@ def verify_studio_v2(output,rows):
  assert 'editable.focus();' in script and 'selection.addRange(range);' in script,"New paragraph must receive editing focus"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
- assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
+ expected_script=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/js/studio-v2.js").read_bytes()).hexdigest()[:12]
+ assert f"/assets/js/studio-v2.js?v={expected_script}" in page,"Browser must load the current Studio V2 JavaScript bundle"
  assert 'zazoomtek:studio-v2:local-drafts' in script
  assert 'if(Object.keys(state.drafts).length)localStorage.setItem(draftKey,JSON.stringify(state.drafts));' in script, "Publishing one article must preserve other local drafts"
  assert 'async function api(endpoint,data)' in script
