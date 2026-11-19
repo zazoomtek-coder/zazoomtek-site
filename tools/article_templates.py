@@ -685,8 +685,8 @@ def studio_sectioned_body(review):
   kind=str(block.get("type") or "")
   value=str(block.get("text") or "").strip()
   if kind=="heading" and value:
-   result.append('<h2>'+esc(value)+'</h2>')
-   headings=True
+   # Match YouTube Community: source headings stay as bold paragraphs, never H2s.
+   result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
   elif kind=="paragraph" and value:
    placeholder=value.casefold().strip().rstrip(":")
    # This is an upstream helper label, not article content. Never show it.
@@ -696,8 +696,7 @@ def studio_sectioned_body(review):
    if category(review) in ("news-tech","news-gaming") and studio_paragraph_is_title(value,blocks,index):
     result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
     continue
-   # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
-   # isolated heading or a title appended after a completed sentence; never invent one.
+   # Keep guide paragraphs intact; bold only a standalone known subtitle.
    if category(review)=="guide":
     guide_headings={
      "prima di cancellare, individua il vero responsabile",
@@ -708,22 +707,10 @@ def studio_sectioned_body(review):
      "le operazioni da evitare quando hai fretta",
      "una piccola manutenzione per non ritrovarsi al punto di partenza",
     }
-    heading=value.strip()
-    if heading.casefold().rstrip(":") in guide_headings:
-     result.append('<h2>'+esc(heading.rstrip(":"))+'</h2>')
-     headings=True
+    if value.casefold().rstrip(":") in guide_headings:
+     result.append('<p><strong>'+studio_inline(value.rstrip(":"))+'</strong></p>')
      continue
-    for label in sorted(guide_headings,key=len,reverse=True):
-     match=re.search(r"(?i)(?:^|(?<=[.!?])\s+)"+re.escape(label)+r"\s*$",heading)
-     if match and match.start()>0:
-      prose=heading[:match.start()].strip()
-      if prose:
-       result.append('<p>'+studio_inline(prose)+'</p>')
-      result.append('<h2>'+esc(label[:1].upper()+label[1:])+'</h2>')
-      headings=True
-      break
-    else:
-     result.append('<p>'+studio_inline(value)+'</p>')
+   result.append('<p>'+studio_inline(value)+'</p>')
      continue
     continue
    result.append('<p>'+studio_inline(value)+'</p>')
@@ -779,13 +766,7 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # Preserve the legacy fallback outside news and guides. News articles must
- # never receive a synthetic "Approfondimento" heading at the beginning.
- youtube_review=(str(review.get("category") or "").startswith("recensioni-") and
-  (str(review.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
-   or str(review.get("slug") or "").startswith("community-")))
- if not headings and category(review) not in ("guide","news-tech","news-gaming") and not youtube_review:
-  result.insert(0,'<h2>Approfondimento</h2>')
+ # Studio never synthesizes an opening H2; original blocks remain in order.
  return ''.join(result)
 
 
