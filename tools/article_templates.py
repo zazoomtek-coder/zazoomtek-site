@@ -779,11 +779,12 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # Keep the old fallback only for legacy manual reviews; news must never get
- # a synthetic "Approfondimento" heading at the beginning.
- manual_review=(str(review.get("source") or "")=="manual-editorial" and
-                str(review.get("category") or "").startswith("recensioni-"))
- if not headings and manual_review:
+ # Preserve the legacy fallback outside news and guides. News articles must
+ # never receive a synthetic "Approfondimento" heading at the beginning.
+ youtube_review=(str(review.get("category") or "").startswith("recensioni-") and
+  (str(review.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
+   or str(review.get("slug") or "").startswith("community-")))
+ if not headings and category(review) not in ("guide","news-tech","news-gaming") and not youtube_review:
   result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 
