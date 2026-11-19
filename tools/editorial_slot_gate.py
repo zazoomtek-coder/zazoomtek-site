@@ -97,8 +97,8 @@ def content_digest():
         path = ROOT / relative
         if not path.is_file():
             raise RuntimeError("Missing Studio build input: " + relative)
-        hasher.update(b"studio-build-input\\0" + relative.encode("utf-8") + b"\\0")
-        hasher.update(path.read_bytes() + b"\\0")
+        hasher.update(b"studio-build-input:" + relative.encode("utf-8") + b":")
+        hasher.update(path.read_bytes() + b":")
 
     # Include only media referenced by approved Studio publications.
     referenced = set()
