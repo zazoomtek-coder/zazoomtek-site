@@ -42,6 +42,8 @@ jobs:
         run: python3 tools/test_scheduled_import_history.py
       - name: Test YouTube Community editorial prefixes and categories
         run: python3 -m unittest tools/test_youtube_community_import.py -v
+      - name: Test YouTube video queue classification and recovery
+        run: python3 -m unittest tools/test_youtube_queue_import.py -v
       - name: Run editorial category prefix regression tests
         run: python3 tools/test_editorial_category_prefixes.py
       - name: Run Cloudflare middleware one-hop redirect tests
