@@ -622,11 +622,15 @@ function renderBlocks(){
    card.append(tools);row.append(card);
   }
   host.append(row);
-  const slot=S("div","v2-insert-slot");
-  const insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
-  insert.type="button";insert.setAttribute("aria-label","Inserisci un blocco dopo questo elemento");
-  insert.addEventListener("click",()=>openMenu(i+1));
-  slot.append(insert);host.append(slot);
+  // Never place the insertion control immediately after a subtitle.
+  // It will appear after the following paragraph/content block instead.
+  if(b.type!=="heading"){
+   const slot=S("div","v2-insert-slot");
+   const insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
+   insert.type="button";insert.setAttribute("aria-label","Inserisci un blocco dopo questo paragrafo o contenuto");
+   insert.addEventListener("click",()=>openMenu(i+1));
+   slot.append(insert);host.append(slot);
+  }
  });
  if(!state.body.length){
   const slot=S("div","v2-insert-slot"),insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
