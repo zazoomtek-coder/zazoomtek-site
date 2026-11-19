@@ -655,12 +655,12 @@ def studio_inline(value):
 def studio_paragraph_is_title(value,blocks,index):
  """Recognize an isolated Studio paragraph label without promoting normal prose."""
  text=str(value or "").strip()
- if not text or len(text)>115 or "\\n" in text:return False
+ if not text or len(text)>115 or "\n" in text:return False
  if text.startswith("**") and text.endswith("**"):return False
- if re.search(r"[.!?…][\\"'»)]?$",text):return False
+ if text[-1:] in (".","!","?","…"):return False
  letters=re.sub(r"[^A-Za-zÀ-ÿ]","",text)
  if letters and letters==letters.upper():return True
- if re.match(r"^\\d+[.)]\\s+",text):return True
+ if re.match(r"^[0-9]+[.)] ",text):return True
  labels={"tutti i dettagli","gli elementi principali","altri dettagli",
          "il quadro completo","ulteriori informazioni"}
  if text.casefold().rstrip(":") in labels:return True
@@ -710,7 +710,7 @@ def studio_sectioned_body(review):
      result.append('<p><strong>'+esc(heading.rstrip(":"))+'</strong></p>')
      continue
     for label in sorted(guide_headings,key=len,reverse=True):
-     match=re.search(r"(?i)(?:^|(?<=[.!?])\\s+)"+re.escape(label)+r"\\s*$",heading)
+     match=re.search(r"(?i)(?:^|(?<=[.!?])\s+)"+re.escape(label)+r"\s*$",heading)
      if match and match.start()>0:
       prose=heading[:match.start()].strip()
       if prose:
