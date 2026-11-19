@@ -9,28 +9,26 @@ const val=id=>E(id).value.trim(),num=(v,lo,hi,def)=>Math.min(hi,Math.max(lo,Numb
 const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,135);
 function notify(msg,error=false){const t=E("v2-toast");t.hidden=false;t.textContent=msg;t.classList.toggle("error",error)}
 async function api(endpoint,data){
- const opt={credentials:"same-origin",cache:"no-store",redirect:"manual",
-  headers:{"Accept":"application/json"}};
+ const opt={credentials:"same-origin",cache:"no-store",redirect:"manual",headers:{"Accept":"application/json"}};
  if(data!==undefined){opt.method="POST";opt.headers["Content-Type"]="application/json";opt.body=JSON.stringify(data)}
- let r;
- try{r=await fetch("/api/studio/"+endpoint,opt)}
- catch(err){throw Error("Connessione a Studio interrotta. Le modifiche sono conservate nella bozza locale.")}
- const contentType=(r.headers.get("Content-Type")||"").toLowerCase();
- if(!contentType.includes("application/json")){
-  const status=r.type==="opaqueredirect"?"reindirizzamento":String(r.status||"sconosciuto");
-  throw Error("Cloudflare non ha restituito la risposta JSON di Studio (HTTP "+status+
-   "). Nessun salvataggio confermato. Il testo resta nella bozza locale: controlla l'accesso in una nuova scheda.");
+ let response;
+ try{response=await fetch("/api/studio/"+endpoint,opt)}
+ catch(_){throw Error("Connessione a Studio interrotta. Il testo resta protetto nella bozza locale.")}
+ const type=(response.headers.get("Content-Type")||"").toLowerCase();
+ if(!type.includes("application/json")){
+  const status=response.type==="opaqueredirect"?"reindirizzamento":String(response.status||"sconosciuto");
+  throw Error("L'API Studio non ha restituito JSON (HTTP "+status+"). Nessuna pubblicazione confermata.");
  }
- let j;
- try{j=await r.json()}catch(_){throw Error("Risposta di Studio non valida. Nessun salvataggio confermato; il testo resta nella bozza locale.")}
- if(!r.ok||j.ok!==true){
-  if(r.status===401||j.code==="UNAUTHENTICATED"||j.code==="AUTH_REQUIRED")
-   throw Error("Accesso amministratore scaduto o non riconosciuto. La bozza locale è protetta: apri Studio in una nuova scheda, accedi e riprova.");
-  if(r.status===403)throw Error(j.error||"Permesso negato. La bozza locale resta disponibile.");
-  throw Error(j.error||"Operazione non autorizzata (HTTP "+r.status+").");
+ let result;
+ try{result=await response.json()}catch(_){throw Error("Risposta di Studio non valida. Nessuna pubblicazione confermata.")}
+ if(!response.ok||result.ok!==true){
+  if(response.status===401||result.code==="UNAUTHENTICATED"||result.code==="AUTH_REQUIRED")
+   throw Error("Sessione amministratore non valida. Accedi nuovamente allo Studio principale e riprova.");
+  throw Error(result.error||"Operazione non riuscita (HTTP "+response.status+").");
  }
- return j;
+ return result;
 }
+
 function editorFields(row){
  const fields={"v2-title":row.title||"","v2-slug":row.slug||"","v2-author":authorForCategory(row.category||"news-tech"),
  "v2-video-url":row.video_url||"","v2-platform":row.platform||row.device||"","v2-score":row.score??"",
@@ -220,6 +218,7 @@ function applyEditorialFormat(){
 }
 function previewMediaUrl(url){
  const value=String(url||"");
+ if(value.startsWith("data:"))return value;
  const ok=value.startsWith("/assets/uploads/")&&
   ["jpg","jpeg","png","webp","mp3","m4a","wav","pdf","txt"].includes(value.split(".").pop());
  return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
@@ -429,18 +428,24 @@ function field(container,title,value="",type="text"){
  input.value=value;label.append(span,input);container.append(label);return input;
 }
 function openMenu(at){
- state.at=at;E("v2-insert-menu").hidden=false;
+ state.at=Math.max(0,Math.min(state.body.length,Number.isInteger(at)?at:state.body.length));
+ E("v2-insert-menu").hidden=false;
 }
 function addBlock(kind){
  E("v2-insert-menu").hidden=true;
- if(kind==="link"){inlineLink();return}
- state.at=insertPosition();
- if(kind==="image"){chooseMultipleImages(state.at);return}
- const block={type:kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
+ if(kind==="link"&&state.context){inlineLink();return}
+ const position=Math.max(0,Math.min(state.body.length,Number.isInteger(state.at)?state.at:state.body.length));
+ const block={type:kind==="link"?"paragraph":kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
  if(kind==="divider")block.text="—";
  if(kind==="poll")block.options=["Opzione 1","Opzione 2"];
- state.body.splice(state.at,0,block);renderBlocks();
- if(["audio","attachment","video","button","poll"].includes(kind))editMedia(block);
+ state.body.splice(position,0,block);state.at=position+1;renderBlocks();
+ if(["image","audio","attachment","video","button","poll"].includes(kind))editMedia(block);
+ else if(["paragraph","heading","quote"].includes(block.type)){
+  const row=E("v2-blocks").querySelector('[data-index="'+position+'"]');
+  const editable=row?.querySelector(".v2-rich-text");
+  if(editable){editable.focus();const range=document.createRange();range.selectNodeContents(editable);range.collapse(false);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range)}
+ }
+ seoStatus();scheduleBackup();
 }
 function drawField(wrapper,text,initial,onChange,textarea=false){
  const input=document.createElement(textarea?"textarea":"input");
@@ -449,6 +454,22 @@ function drawField(wrapper,text,initial,onChange,textarea=false){
  if(textarea)input.rows=2;
  input.addEventListener("input",()=>{onChange(input.value);seoStatus()});
  wrapper.append(input);return input;
+}
+function addTextAfterBlock(i){
+ const next=i+1;
+ state.body.splice(next,0,{type:"paragraph",text:""});
+ renderBlocks();
+ const row=E("v2-blocks").querySelector('[data-index="'+next+'"]');
+ const editable=row?.querySelector(".v2-rich-text");
+ if(editable){
+  editable.focus();
+  const range=document.createRange();
+  range.selectNodeContents(editable);range.collapse(false);
+  const selection=window.getSelection();
+  selection.removeAllRanges();selection.addRange(range);
+  cursorHere(next,editable);
+ }
+ seoStatus();scheduleBackup();
 }
 function moveBlock(i,delta){
  let j=i+delta;if(j<0||j>=state.body.length)return;
@@ -502,23 +523,7 @@ function safePaste(e){
  sel.removeAllRanges();sel.addRange(r);e.currentTarget.dispatchEvent(new Event("input",{bubbles:true}));
 }
 function hideContext(){if(state.contextBtn)state.contextBtn.hidden=true}
-function cursorHere(i,field){
- const sel=window.getSelection();
- if(!sel?.rangeCount||!field.contains(sel.anchorNode))return;
- const r=sel.getRangeAt(0).cloneRange();
- state.context={index:i,field,range:r};
- if(!state.contextBtn){
-  const plus=S("button","v2-floating-plus","＋");plus.type="button";
-  plus.title="Inserisci contenuto qui";plus.setAttribute("aria-label","Inserisci qui");
-  plus.addEventListener("mousedown",e=>e.preventDefault());
-  plus.addEventListener("click",()=>{hideContext();E("v2-insert-menu").hidden=false});
-  document.body.append(plus);state.contextBtn=plus;
- }
- const fieldRect=field.getBoundingClientRect(),caret=r.getBoundingClientRect();
- const y=caret.height?caret.top:fieldRect.top,plus=state.contextBtn;
- plus.style.left=Math.max(6,fieldRect.left-42)+"px";
- plus.style.top=Math.max(8,Math.min(innerHeight-45,y-3))+"px";plus.hidden=false;
-}
+function cursorHere(){/* Insertion is managed by between-block controls, like Patreon. */}
 function insertPosition(){
  const ctx=state.context;let pos=state.body.length;
  if(ctx&&state.body[ctx.index]){
@@ -563,8 +568,16 @@ function renderBlocks(){
    editable.append(richContent(b.text||""));
    editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus();scheduleBackup()});
    editable.addEventListener("paste",safePaste);
-   for(const event of ["focus","click","keyup","mouseup"])editable.addEventListener(event,()=>cursorHere(i,editable));
-   row.append(editable);
+   const tools=S("div","v2-media-hover-tools");
+   tools.append(actionButton("↑",()=>moveBlock(i,-1)));
+   tools.append(actionButton("↓",()=>moveBlock(i,1)));
+   tools.append(actionButton("Rimuovi",()=>{
+    state.body.splice(i,1);
+    renderBlocks();
+    seoStatus();
+    notify("Blocco di testo rimosso.");
+   }));
+   row.append(editable,tools);
   }else{
    const card=S("div","v2-media-block v2-inline-media");
    if(b.type==="image"){
@@ -591,13 +604,23 @@ function renderBlocks(){
    const tools=S("div","v2-media-hover-tools");
    if(b.type!=="divider")tools.append(actionButton("Modifica",()=>editMedia(b)));
    if(b.type==="image")tools.append(actionButton("Sostituisci",()=>chooseFile(b)));
+    if(b.type==="image")tools.append(actionButton("＋ Testo dopo",()=>addTextAfterBlock(i)));
    tools.append(actionButton("↑",()=>moveBlock(i,-1)));
    tools.append(actionButton("↓",()=>moveBlock(i,1)));
    tools.append(actionButton("Rimuovi",()=>{state.body.splice(i,1);renderBlocks();seoStatus()}));
    card.append(tools);row.append(card);
   }
   host.append(row);
+  const slot=S("div","v2-insert-slot");
+  const insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
+  insert.type="button";insert.setAttribute("aria-label","Inserisci un blocco dopo questo elemento");
+  insert.addEventListener("click",()=>openMenu(i+1));
+  slot.append(insert);host.append(slot);
  });
+ if(!state.body.length){
+  const slot=S("div","v2-insert-slot"),insert=S("button","v2-insert-trigger","＋  Aggiungi contenuto");
+  insert.type="button";insert.addEventListener("click",()=>openMenu(0));slot.append(insert);host.append(slot);
+ }
  scheduleBackup();
 }
 
@@ -613,112 +636,21 @@ function readImageFile(file){
   reader.readAsDataURL(file);
  });
 }
-function imageTokens(name){
- return String(name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-  .replace(/\.(jpe?g|png|webp)$/i,"").split(/[^a-z0-9]+/)
-  .filter(x=>x.length>2&&!/^(img|dsc|dscn|pxl|screenshot|photo|image|copy|final|edited|202[0-9]|[0-9]+)$/.test(x));
-}
-function smartImageAnchor(file,body,used,fallbackIndex,total){
- const tokens=imageTokens(file.name);
- const candidates=[];
- body.forEach((block,index)=>{
-  if(!["paragraph","heading","quote"].includes(block.type))return;
-  const words=String(block.text||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/);
-  let score=tokens.reduce((sum,token)=>sum+(words.includes(token)?(block.type==="heading"?4:2):0),0);
-  if(used.has(index))score-=100;
-  candidates.push({index,score});
- });
- let chosen=candidates.filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)[0];
- if(!chosen){
-  const paragraphs=candidates.filter(x=>body[x.index].type==="paragraph");
-  if(!paragraphs.length)return body.length-1;
-  const target=(fallbackIndex+1)/(total+1);
-  chosen=paragraphs.reduce((best,item)=>{
-   const distance=Math.abs((item.index+1)/Math.max(1,body.length)-target);
-   return !best||distance<best.distance?{...item,distance}:best;
-  },null);
- }
- used.add(chosen.index);
- return chosen.index;
-}
-async function chooseMultipleImages(insertAt){
- const chooser=document.createElement("input");
- chooser.type="file";chooser.accept="image/jpeg,image/png,image/webp";chooser.multiple=true;
- chooser.addEventListener("change",async()=>{
-  const files=Array.from(chooser.files||[]);
-  if(!files.length)return;
-  if(files.some(file=>file.size>5000000)){notify("Ogni immagine deve essere inferiore a 5 MB.",true);return}
-  if(state.body.length+files.length>160){notify("Troppe immagini: il limite dell’articolo è 160 blocchi complessivi.",true);return}
-  const used=new Set(),base=state.body.slice(),uploaded=[];
-  let failed=[];
-  for(let i=0;i<files.length;i++){
-   const file=files[i];
-   try{
-    notify("Caricamento immagini "+(i+1)+"/"+files.length+"…");
-    const preview=await readImageFile(file);
-    const result=await api("upload",{
-     slug:val("v2-slug")||slugify(val("v2-title"))||"contenuto",
-     mime:file.type,base64:preview
-    });
-    const anchor=smartImageAnchor(file,base,used,i,files.length);
-    uploaded.push({anchor,block:{type:"image",url:result.url,preview,
-     alt:file.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim()||val("v2-title"),
-     caption:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0}});
-   }catch(error){failed.push(file.name+": "+error.message)}
-  }
-  const additions=new Map();
-  uploaded.forEach(item=>{
-   const key=item.anchor;
-   if(!additions.has(key))additions.set(key,[]);
-   additions.get(key).push(item.block);
-  });
-  const next=[];
-  for(let i=0;i<base.length;i++){
-   next.push(base[i]);
-   if(additions.has(i))next.push(...additions.get(i));
-  }
-  const endImages=uploaded.filter(x=>x.anchor<0);
-  if(endImages.length)next.push(...endImages.map(x=>x.block));
-  state.body=next;
-  renderBlocks();seoStatus();scheduleBackup();
-  if(failed.length)notify("Caricate "+uploaded.length+" immagini; alcuni file non sono riusciti: "+failed.join(" | "),true);
-  else notify(uploaded.length+" immagini caricate e distribuite nei punti pertinenti dell'articolo. Salva la bozza o pubblica per conservarle.");
- });
- chooser.click();
-}
+
 async function chooseFile(target,onUploaded){
- const chooser=document.createElement("input");
- chooser.type="file";
- chooser.accept=target?.type==="audio"?"audio/mpeg,audio/mp4,audio/wav":
-  target?.type==="attachment"?"application/pdf,text/plain":"image/jpeg,image/png,image/webp";
+ const chooser=document.createElement("input");chooser.type="file";
+ chooser.accept=target?.type==="audio"?"audio/mpeg,audio/mp4,audio/wav":target?.type==="attachment"?"application/pdf,text/plain":"image/jpeg,image/png,image/webp";
  chooser.addEventListener("change",async()=>{
   const file=chooser.files?.[0];if(!file)return;
-  if(file.size>5000000){notify("Il file supera 5 MB.",true);return}
+  if(file.size>5000000){notify("File oltre 5 MB: scegli un file più leggero.",true);return}
   try{
    const preview=await readImageFile(file);
-   const beforeCover=state.cover,oldPreview=state.coverPreview;
-   if(!target){state.coverPreview=preview;syncCover()}
-   notify("Caricamento file su GitHub…");
-   const result=await api("upload",{
-    slug:val("v2-slug")||slugify(val("v2-title"))||"contenuto",
-    mime:file.type,base64:preview
-   });
-   if(target){
-    target.url=result.url;target.text=target.text||file.name;
-    target.preview=preview;
-    renderBlocks();
-   }else{
-    state.cover=result.url;state.coverPreview=preview;syncCover();if(typeof onUploaded==="function")onUploaded();
-   }
-   notify("File caricato. Salva la bozza o pubblica per conservarlo nell'articolo.");
-  }catch(e){
-   if(!target){state.cover=beforeCover;state.coverPreview=oldPreview;syncCover()}
-   notify("Caricamento non riuscito: "+e.message,true);
-  }
- });
- chooser.click();
+   if(target){target.url=preview;target.text=target.text||file.name;target.preview=preview;renderBlocks()}
+   else{state.cover=preview;state.coverPreview=preview;syncCover();if(typeof onUploaded==="function")onUploaded()}
+   notify("File caricato nella prova locale: nessun invio al server.");scheduleBackup();
+  }catch(e){notify("Lettura file non riuscita: "+e.message,true)}
+ });chooser.click();
 }
-
 function editMedia(block){
  const body=S("div"),kind=block.type,initial={...block},change={...block};
  const u=["image","video","audio","button","attachment"].includes(kind)?field(body,kind==="button"?"Collegamento HTTPS":"URL o percorso del file",block.url||""):null;
@@ -803,75 +735,81 @@ function collect(){
   studio_blocks:true,video_url:text("v2-video-url"),platform:text("v2-platform"),score:text("v2-score"),
   pros:lines("v2-pros"),cons:lines("v2-cons")};
 }
+async function uploadLocalAsset(value,slug){
+ const match=String(value||"").match(/^data:([^;,]+);base64,([A-Za-z0-9+/=]+)$/);
+ if(!match)return value;
+ const result=await api("upload",{slug,mime:match[1],base64:match[2]});
+ return result.url;
+}
 async function save(mode){
  if(state.busy)return;
- state.busy=true;
- const buttons=[E("v2-save-draft"),E("v2-publish"),E("v2-draft-bottom"),E("v2-publish-bottom"),E("v2-preview-top"),E("v2-preview-bottom")];
- buttons.forEach(b=>b.disabled=true);
- try{
-  applyEditorialFormat();
-  const row=collect();
-  backupNow();
-  if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
-  const response=await api("v2-save",{mode,record:row,creating:state.newContent});
-  notify(mode==="draft"?"Bozza salvata: nessuna modifica al sito.":"Articolo salvato su main: il sito si aggiornerà alle 12:30, 16:00 o 19:30.");
-  if(mode==="draft"){
-   state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:new Date().toISOString()};
-   E("v2-autosave-status").textContent="Bozza salvata anche su GitHub. Il sito pubblico non è stato modificato.";
-  }else{
-   try{localStorage.removeItem(backupKey())}catch(e){}
-   E("v2-autosave-status").textContent="Salvato su main. La pagina online si aggiornerà al prossimo slot: 12:30, 16:00 o 19:30.";
-   delete state.drafts[row.slug];
-   E("v2-public-link").hidden=true; // Solo dopo la pubblicazione programmata.
-   state.current={...(state.current||{}),...(response.record||{}),...row,__queued:true};state.newContent=false;
-   E("v2-slug").readOnly=true;
-   state.rows=[state.current,...state.rows.filter(x=>x.slug!==row.slug)];
-   showArticlePreview(state.current);
-  }
- }catch(e){
-  backupNow();
-  notify(e.message,true);
-  const label=E("v2-autosave-status");
-  if(label)label.textContent="Pubblicazione non confermata. Il testo originale è protetto nella bozza locale.";
+ applyEditorialFormat();const row=collect();
+ if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
+ backupNow();
+ if(mode==="draft"){
+  const updatedAt=new Date().toISOString();
+  state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:updatedAt};
+  try{
+   localStorage.setItem("zazoomtek:studio-v2:local-drafts",JSON.stringify(state.drafts));
+   E("v2-autosave-status").textContent="Bozza salvata su questo dispositivo · "+new Date(updatedAt).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+   notify("Bozza salvata localmente. Nessun dato inviato al sito.");renderList();
+  }catch(e){notify("Salvataggio locale non disponibile: controlla lo spazio del browser.",true)}
+  return;
  }
- finally{state.busy=false;buttons.forEach(b=>b.disabled=false)}
+ state.busy=true;
+ for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=true;
+ try{
+  notify("Preparazione dei contenuti e salvataggio su main...");
+  row.image=await uploadLocalAsset(row.image,row.slug);
+  for(const block of row.body){
+   if(["image","audio","attachment"].includes(block.type)&&String(block.url||"").startsWith("data:")){
+    block.url=await uploadLocalAsset(block.url,row.slug);
+    delete block.preview;
+   }
+  }
+  const result=await api("v2-save",{mode:"publish",creating:state.newContent,record:row});
+  state.cover=row.image;state.coverPreview="";state.body=row.body;
+  state.current=result.record||row;state.newContent=false;
+  const index=state.rows.findIndex(item=>item.slug===row.slug);
+  if(index>=0)state.rows[index]=state.current;else state.rows.unshift(state.current);
+  delete state.drafts[row.slug];
+  try{localStorage.removeItem("zazoomtek:studio-v2:local-drafts")}catch(_){}
+  E("v2-autosave-status").textContent="Articolo salvato su main · in attesa del prossimo slot editoriale.";
+  renderList();notify(result.message||"Articolo salvato su main e inserito in coda per il prossimo slot editoriale.");
+  previewFinalArticle();
+ }catch(e){notify(e.message||"Pubblicazione non riuscita. Il testo resta nella bozza locale.",true)}
+ finally{
+  state.busy=false;
+  for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=false;
+ }
 }
 async function init(){
  try{
   const session=await api("session");
-  E("v2-user").textContent="GitHub · "+session.login;
-  const r=await fetch("/studio-v2/catalog.json",{cache:"no-store"});
-  if(!r.ok)throw Error("Catalogo Studio V2 non disponibile");
-  state.rows=(await r.json()).posts||[];
-  // Aggiorna la lista con articoli/modifiche confermati sul branch editoriale.
-  try{
-   const pending=await api("v2-pending");
-   const changes=pending.overrides||{};
-   state.rows=state.rows.map(x=>{
-    const queued=changes[x.slug];
-    if(!queued)return x;
-    const same=queued.title===x.title&&queued.image===x.image&&JSON.stringify(queued.body||[])===JSON.stringify(x.body||[]);
-    const alreadyReleased=x.updated_at&&queued.updated_at&&Date.parse(x.updated_at)>=Date.parse(queued.updated_at);
-    return same||alreadyReleased?x:{...x,...queued,__queued:true};
-   });
-   for(const r of pending.posts||[]){
-    if(!state.rows.some(x=>x.slug===r.slug))state.rows.unshift({...r,__queued:true});
-   }
-  }catch(e){notify("Coda Studio non disponibile: "+e.message,true)}
-  try{const drafts=await api("v2-drafts");state.drafts=drafts.drafts||{}}catch(e){notify("Bozze non disponibili: "+e.message,true)}
+  const r=await fetch("/studio-v2/catalog.json",{cache:"no-store"});if(!r.ok)throw Error("Catalogo Studio V2 non disponibile");
+  const catalog=(await r.json()).posts||[];
+  const pending=await api("v2-pending");
+  const bySlug=new Map(catalog.map(item=>[item.slug,item]));
+  for(const item of pending.posts||[])if(item?.slug)bySlug.set(item.slug,{...(bySlug.get(item.slug)||{}),...item});
+  for(const [slug,override] of Object.entries(pending.overrides||{}))if(bySlug.has(slug))bySlug.set(slug,{...bySlug.get(slug),...override});
+  state.rows=[...bySlug.values()];
+  try{const saved=JSON.parse(localStorage.getItem("zazoomtek:studio-v2:local-drafts")||"{}");if(saved&&typeof saved==="object"&&!Array.isArray(saved))state.drafts=saved}catch(_){state.drafts={}}
+  E("v2-user").textContent="Account GitHub: "+(session.login||"amministratore");
   for(const [cat,label] of Object.entries(cats))E("v2-select-filter").add(new Option(label,cat));
   for(const [cat,label] of Object.entries(cats))E("v2-category").add(new Option(label,cat));
   E("v2-count-all").textContent=state.rows.length;
   E("v2-count-tech").textContent=state.rows.filter(x=>x.category==="news-tech").length;
   E("v2-count-gaming").textContent=state.rows.filter(x=>x.category==="news-gaming").length;
-  E("v2-count-reviews").textContent=state.rows.filter(x=>x.category.startsWith("recensioni-")).length;
-  E("v2-app").hidden=false;
+  E("v2-count-reviews").textContent=state.rows.filter(x=>String(x.category||"").startsWith("recensioni-")).length;
+  E("v2-app").hidden=false;E("v2-auth").hidden=true;
   const params=new URLSearchParams(location.search);
-  if(params.get("edit")){
-   const row=state.rows.find(r=>r.slug===params.get("edit"));
-   if(row)openExisting(row);else showHome();
-  }else if(params.has("new"))startNew();else showHome();
- }catch(e){E("v2-auth").hidden=false;E("v2-app").hidden=true}
+  if(params.get("edit")){const row=state.rows.find(r=>r.slug===params.get("edit"));if(row)openExisting(row);else showHome()}
+  else if(params.has("new"))startNew();else showHome();
+ }catch(e){
+  E("v2-auth").hidden=false;E("v2-app").hidden=true;
+  const p=E("v2-auth").querySelector("p");
+  if(p)p.textContent=e.message.includes("Sessione amministratore")?"Accedi allo Studio principale: al termine verrai riportato automaticamente qui.": "Studio 2 non disponibile: "+e.message;
+ }
 }
 E("v2-home-nav").onclick=showHome;E("v2-back").onclick=showHome;E("v2-new-nav").onclick=startNew;E("v2-create-main").onclick=startNew;
 E("v2-append-block").onclick=()=>openMenu(state.body.length);

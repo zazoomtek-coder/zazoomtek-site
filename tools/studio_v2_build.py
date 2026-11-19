@@ -139,13 +139,13 @@ def build_studio_v2(output,rows):
   <button data-rail-filter="speciali" class="v2-rail-nav">Speciali</button>
   <button data-rail-filter="extra" class="v2-rail-nav">Extra</button>
   <div class="v2-rail-spacer"></div>
-  <div class="v2-admin">Amministratore GitHub<div id="v2-user" class="v2-user">Autenticazione in corso</div></div>
+  <div class="v2-admin">Sessione amministratore<div id="v2-user" class="v2-user">Verifica accesso in corso</div></div>
   <a href="/" class="v2-rail-site">↗ Visita il sito</a>
  </aside>
  <main class="v2-main">
   <header class="v2-top">
    <div id="v2-crumb">Studio <span>/</span> Contenuti</div>
-   <div class="v2-top-right"><span class="v2-preview-badge">ANTEPRIMA V2</span><button id="v2-back" class="v2-soft" hidden>← Contenuti</button></div>
+   <div class="v2-top-right"><span class="v2-preview-badge">STUDIO 2</span><button id="v2-back" class="v2-soft" hidden>← Contenuti</button></div>
   </header>
   <div id="v2-home" class="v2-home">
    <div class="v2-home-intro"><div><div class="v2-eyebrow">IL TUO CENTRO EDITORIALE</div>
@@ -168,10 +168,10 @@ def build_studio_v2(output,rows):
   <div id="v2-editor" class="v2-editor-view" hidden>
    <div class="v2-editor-header">
     <div><div class="v2-eyebrow">EDITOR VISUALE</div><h1 id="v2-editor-heading">Modifica contenuto</h1>
-     <p id="v2-editor-note">Scrivi e modifica liberamente, come su Patreon.</p></div>
+     <p id="v2-editor-note">Editor semplice in stile Patreon · aggiungi blocchi tra testo e immagini.</p></div>
     <div class="v2-editor-actions">
       <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
-      <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza</button>
+      <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza locale</button>
       <button type="button" id="v2-publish" class="v2-primary">Pubblica</button>
     </div>
    </div>
@@ -192,10 +192,10 @@ def build_studio_v2(output,rows):
       <div id="v2-blocks" class="v2-blocks" aria-label="Corpo dell'articolo"></div>
       <section id="v2-live-verdict" class="review-verdict" hidden></section>
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
-      <p class="v2-paper-tip">Clicca nel testo dove vuoi inserire un elemento: apparirà un solo <strong>＋</strong>, proprio nel punto scelto.</p>
+      <p class="v2-paper-tip">Usa <strong>＋ Aggiungi contenuto</strong> tra i blocchi per inserire testo, immagini e altri elementi, anche dopo l’ultima immagine.</p>
      </article>
      <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
-      <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza</button>
+      <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
       <button type="button" id="v2-publish-bottom" class="v2-primary">Pubblica</button></div>
     <p id="v2-autosave-status" class="v2-autosave-status" role="status" aria-live="polite">Bozza locale: protezione automatica del testo.</p>
     </div>
@@ -222,7 +222,7 @@ def build_studio_v2(output,rows):
        <div>Descrizione</div><span id="v2-seo-description">Ottimizzata automaticamente dal contenuto completo.</span></div>
      </div>
      <div class="v2-settings-section"><div class="v2-setting-title">Pubblicazione</div>
-      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva l’articolo in coda e apre subito la sua anteprima: sarà online solo nello slot delle 12:30 o delle 19:30. I testi restano protetti dal salvataggio locale.</p>
+      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva l’articolo in coda e apre subito la sua anteprima: sarà online nel primo slot editoriale autorizzato: 12:30, 16:00 o 19:30. I testi restano protetti dal salvataggio locale.</p>
       <a id="v2-public-link" href="#" target="_blank" rel="noopener noreferrer" hidden>↗ Apri articolo pubblicato</a>
      </div>
     </aside>
