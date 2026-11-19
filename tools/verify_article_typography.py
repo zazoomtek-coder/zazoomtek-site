@@ -21,6 +21,33 @@ def verify():
  assert "<p><strong>IL PUNTO</strong></p>" in studio_html
  assert "Approfondimento" not in studio_html
 
+ assert "<h2>" not in studio_html
+
+ # Explicit Studio heading blocks are preserved as bold source paragraphs.
+ studio_heading_html=sectioned_body({
+  "source":"studio-editor","studio_blocks":True,"category":"news-tech",
+  "body":[
+   {"type":"paragraph","text":"Primo paragrafo originale, che deve restare autonomo."},
+   {"type":"heading","text":"Dettagli tecnici e disponibilità"},
+   {"type":"paragraph","text":"Secondo paragrafo originale, senza divisioni automatiche."},
+  ]
+ })
+ assert studio_heading_html=="<p>Primo paragrafo originale, che deve restare autonomo.</p><p><strong>Dettagli tecnici e disponibilità</strong></p><p>Secondo paragrafo originale, senza divisioni automatiche.</p>"
+ assert "<h2>" not in studio_heading_html
+
+ # Studio guide subtitles are bold paragraphs; source prose is not split.
+ studio_guide_html=sectioned_body({
+  "source":"studio-editor","studio_blocks":True,"category":"guide",
+  "body":[
+   {"type":"paragraph","text":"Prima di cancellare, individua il vero responsabile"},
+   {"type":"paragraph","text":"Testo originale. Foto e video: la precauzione più importante"},
+  ]
+ })
+ assert "<p><strong>Prima di cancellare, individua il vero responsabile</strong></p>" in studio_guide_html
+ assert "<p>Testo originale. Foto e video: la precauzione più importante</p>" in studio_guide_html
+ assert "<h2>" not in studio_guide_html
+ assert "Approfondimento" not in studio_guide_html
+
 # Soft source line breaks are not editorial paragraph boundaries.
  assert rich_text("Riga prima\nriga seconda")=="Riga prima riga seconda"
  assert "<br>" in rich_text("• primo punto\n• secondo punto")
