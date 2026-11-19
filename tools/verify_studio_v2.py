@@ -86,6 +86,7 @@ def verify_studio_v2(output,rows):
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
  assert 'zazoomtek:studio-v2:local-drafts' in script
+ assert 'if(Object.keys(state.drafts).length)localStorage.setItem(draftKey,JSON.stringify(state.drafts));' in script, "Publishing one article must preserve other local drafts"
  assert 'async function api(endpoint,data)' in script
  assert 'api("session")' in script and 'api("v2-pending")' in script
  assert 'api("v2-save",{mode:"publish",creating:state.newContent,record:row})' in script
