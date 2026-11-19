@@ -652,24 +652,46 @@ def studio_inline(value):
  out.append(re.sub(r'\*\*(.+?)\*\*',r'<strong>\1</strong>',esc(raw[index:])))
  return ''.join(out)
 
+def studio_paragraph_is_title(value,blocks,index):
+ """Recognize an isolated Studio paragraph label without promoting normal prose."""
+ text=str(value or "").strip()
+ if not text or len(text)>115 or "\\n" in text:return False
+ if text.startswith("**") and text.endswith("**"):return False
+ if re.search(r"[.!?…][\\"'»)]?$",text):return False
+ letters=re.sub(r"[^A-Za-zÀ-ÿ]","",text)
+ if letters and letters==letters.upper():return True
+ if re.match(r"^\\d+[.)]\\s+",text):return True
+ labels={"tutti i dettagli","gli elementi principali","altri dettagli",
+         "il quadro completo","ulteriori informazioni"}
+ if text.casefold().rstrip(":") in labels:return True
+ following=""
+ for candidate in blocks[index+1:]:
+  if not isinstance(candidate,dict):continue
+  if candidate.get("type") in ("paragraph","heading"):
+   following=str(candidate.get("text") or "").strip()
+   if following:break
+ if not following or len(following)<70:return False
+ return bool(named_section(text) or text[:1].isupper())
+
+
 def studio_sectioned_body(review):
  """Render block order exactly: paragraphs, H2, links, images, video and CTA."""
  from urllib.parse import parse_qs
  result=[]
- headings=False
- for block in review.get("body",[]):
+ blocks=review.get("body",[])
+ for index,block in enumerate(blocks):
   if not isinstance(block,dict):continue
   kind=str(block.get("type") or "")
   value=str(block.get("text") or "").strip()
   if kind=="heading" and value:
    result.append('<h2>'+esc(value)+'</h2>')
-   headings=True
   elif kind=="paragraph" and value:
-   # Studio imports can contain non-editorial helper labels left by an upstream
-   # writing step. Never expose these as standalone paragraphs on the public site.
    placeholder=value.casefold().strip().rstrip(":")
-   if placeholder in {"approfondimento","tutti i dettagli","gli elementi principali",
-                       "altri dettagli","il quadro completo","ulteriori informazioni"}:
+   # This is an upstream helper label, not article content. Never show it.
+   if placeholder=="approfondimento":
+    continue
+   if studio_paragraph_is_title(value,blocks,index):
+    result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
     continue
    # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
    # isolated heading or a title appended after a completed sentence; never invent one.
@@ -685,17 +707,15 @@ def studio_sectioned_body(review):
     }
     heading=value.strip()
     if heading.casefold().rstrip(":") in guide_headings:
-     result.append('<h2>'+esc(heading.rstrip(":"))+'</h2>')
-     headings=True
+     result.append('<p><strong>'+esc(heading.rstrip(":"))+'</strong></p>')
      continue
     for label in sorted(guide_headings,key=len,reverse=True):
-     match=re.search(r"(?i)(?:^|(?<=[.!?])\s+)"+re.escape(label)+r"\s*$",heading)
+     match=re.search(r"(?i)(?:^|(?<=[.!?])\\s+)"+re.escape(label)+r"\\s*$",heading)
      if match and match.start()>0:
       prose=heading[:match.start()].strip()
       if prose:
        result.append('<p>'+studio_inline(prose)+'</p>')
-      result.append('<h2>'+esc(label[:1].upper()+label[1:])+'</h2>')
-      headings=True
+      result.append('<p><strong>'+esc(label[:1].upper()+label[1:])+'</strong></p>')
       break
     else:
      result.append('<p>'+studio_inline(value)+'</p>')
@@ -754,13 +774,6 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
- # Preserve the existing fallback for legacy Studio articles, but never add
- # it to guides or imported YouTube reviews.
- youtube_review=(str(review.get("category") or "").startswith("recensioni-") and
-  (str(review.get("source") or "") in ("youtube-community","community-archive-full","archived-community-excerpt")
-   or str(review.get("slug") or "").startswith("community-")))
- if not headings and category(review)!="guide" and not youtube_review:
-  result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 
 
