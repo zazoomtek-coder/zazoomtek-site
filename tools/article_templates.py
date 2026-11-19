@@ -657,6 +657,8 @@ def studio_paragraph_is_title(value,blocks,index):
  text=str(value or "").strip()
  if not text or text.startswith("**"):
   return False
+ if named_section(text):
+  return True
  following=""
  if index+1<len(blocks):
   candidate=blocks[index+1]
