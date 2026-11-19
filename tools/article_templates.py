@@ -690,7 +690,9 @@ def studio_sectioned_body(review):
    # This is an upstream helper label, not article content. Never show it.
    if placeholder=="approfondimento":
     continue
-   if studio_paragraph_is_title(value,blocks,index):
+   if placeholder in {"tutti i dettagli","gli elementi principali","altri dettagli",
+                      "il quadro completo","ulteriori informazioni"} or (
+       category(review)!="guide" and studio_paragraph_is_title(value,blocks,index)):
     result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
     continue
    # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
