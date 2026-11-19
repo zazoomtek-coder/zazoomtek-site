@@ -408,7 +408,7 @@ function renderList(){
  if(!rows.length)host.append(S("p","v2-no-results","Nessun contenuto trovato."));
  for(const row of rows){
   const item=S("div","v2-list-item");
-  const img=S("img","v2-list-cover");img.loading="lazy";img.alt="";img.src=row.image||"";item.append(img);
+  const img=S("img","v2-list-cover");img.loading="lazy";img.alt="";img.src=previewMediaUrl(row.image)||"";item.append(img);
   const meta=S("div"),title=S("div","v2-list-title",row.title||"Senza titolo");
   const desc=S("div","v2-list-meta");
   desc.append(S("b","",cats[row.category]||"Articolo"),S("span","", " · "+(row.date||"")+" · "+(state.drafts[row.slug]?"Bozza disponibile":row.__queued?"Salvato in main · in attesa del deploy":"Pubblicato")));
