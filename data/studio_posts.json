@@ -1,6 +1,80 @@
 {
   "posts": [
     {
+      "slug": "amd-adrenalin-edition-26-11-2-nuovi-driver-con-supporto-a-phantom-blade-zero-e-aggiornamenti-per-fsr-4-1",
+      "title": "AMD Adrenalin Edition 26.11.2, nuovi driver con supporto a Phantom Blade Zero e aggiornamenti per FSR 4.1",
+      "category": "news-tech",
+      "image": "/assets/uploads/amd-adrenalin-edition-26-11-2-nuovi-driver-con-supporto-a-phantom-blade-zero-e-aggiornamenti-per-fsr-4-1/cb4594d5f9244deeac95.jpg",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "AMD ha rilasciato Software: Adrenalin Edition 26.11.2, una nuova versione dei driver Radeon che introduce il supporto a Phantom Blade Zero e al DLC Crimson Desert Enhanced: Charting the Unknown. L'aggiornamento comprende anche interventi dedicati alla stabilità e all'affidabilità, con correzioni che coinvolgono Resident Evil Requiem, Phantom Blade Zero, War Thunder e OBS Studio."
+        },
+        {
+          "type": "paragraph",
+          "text": "NUOVO SUPPORTO PER I GIOCHI"
+        },
+        {
+          "type": "paragraph",
+          "text": "La novità principale dei driver 26.11.2 riguarda l'ottimizzazione per Phantom Blade Zero e per il contenuto aggiuntivo Crimson Desert Enhanced: Charting the Unknown. AMD punta così a garantire una migliore compatibilità con le nuove uscite e i contenuti in arrivo, affiancando al supporto specifico una serie di correzioni tecniche per alcuni giochi e applicazioni."
+        },
+        {
+          "type": "paragraph",
+          "text": "FSR 4.1 ARRIVA SU VULKAN CON DOOM: THE DARK AGES"
+        },
+        {
+          "type": "paragraph",
+          "text": "Novità anche per le tecnologie di upscaling AMD. Con l'Update 5 di DOOM: The Dark Ages, id Software ha introdotto AMD FSR Upscaling 4.1 e AMD FSR Frame Generation 4 sulle GPU compatibili. Il gioco diventa così il primo titolo basato su Vulkan a supportare entrambe le tecnologie, ampliando le possibilità di miglioramento della qualità visiva e della fluidità durante il gameplay."
+        },
+        {
+          "type": "paragraph",
+          "text": "AGGIORNATO ANCHE IL PLUGIN FSR PER UNREAL ENGINE"
+        },
+        {
+          "type": "paragraph",
+          "text": "AMD ha inoltre aggiornato il plugin FSR per Unreal Engine con la versione 4.1.2. L'aggiornamento estende il supporto dell'upscaling basato su machine learning alle schede Radeon RX 6000 e ai laptop e dispositivi portatili dotati di processori Ryzen. Sulle Radeon RX 9000 viene inoltre introdotta una Frame Generation più fluida. Un altro aspetto importante riguarda gli aggiornamenti futuri: i giochi che integrano il plugin potranno ricevere le nuove versioni di FSR direttamente attraverso gli aggiornamenti dei driver AMD Software: Adrenalin Edition."
+        },
+        {
+          "type": "paragraph",
+          "text": "IL PUNTO"
+        },
+        {
+          "type": "paragraph",
+          "text": "AMD continua a rafforzare il proprio ecosistema grafico con nuovi driver, correzioni e aggiornamenti delle tecnologie FSR. La versione Adrenalin Edition 26.11.2 introduce il supporto a due nuovi contenuti gaming, mentre FSR 4.1 e Frame Generation 4 ampliano la propria presenza anche su Vulkan e Unreal Engine, offrendo nuove opportunità agli sviluppatori e ai giocatori che utilizzano hardware Radeon."
+        },
+        {
+          "type": "paragraph",
+          "text": "DOMANDA PER LA COMMUNITY"
+        },
+        {
+          "type": "paragraph",
+          "text": "Utilizzate una scheda grafica AMD Radeon? Quanto considerate importanti gli aggiornamenti FSR e Frame Generation per migliorare prestazioni e fluidità nei videogiochi, soprattutto nei titoli più recenti? Rispondi sul canale Youtube!"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 100,
+      "cover_focus_y": 46,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-19T16:27:21.993Z",
+      "route_version": 2,
+      "public_slug": "amd-adrenalin-edition-26-11-2-driver-supporto-phantom-blade-zero-agg",
+      "public_path": "/news/amd-adrenalin-edition-26-11-2-driver-supporto-phantom-blade-zero-agg",
+      "date": "2026-11-19",
+      "published_at": "2026-11-19T16:27:23.096Z"
+    },
+    {
       "slug": "world-television-day-lg-racconta-l-evoluzione-della-tv-da-semplice-schermo-a-piattaforma-intelligente-di-contenuti",
       "title": "World Television Day, LG racconta l'evoluzione della TV: da semplice schermo a piattaforma intelligente di contenuti",
       "category": "news-tech",
