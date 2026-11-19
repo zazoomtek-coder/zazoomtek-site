@@ -710,7 +710,8 @@ def studio_sectioned_body(review):
     }
     heading=value.strip()
     if heading.casefold().rstrip(":") in guide_headings:
-     result.append('<p><strong>'+esc(heading.rstrip(":"))+'</strong></p>')
+     result.append('<h2>'+esc(heading.rstrip(":"))+'</h2>')
+     headings=True
      continue
     for label in sorted(guide_headings,key=len,reverse=True):
      match=re.search(r"(?i)(?:^|(?<=[.!?])\s+)"+re.escape(label)+r"\s*$",heading)
@@ -718,7 +719,8 @@ def studio_sectioned_body(review):
       prose=heading[:match.start()].strip()
       if prose:
        result.append('<p>'+studio_inline(prose)+'</p>')
-      result.append('<p><strong>'+esc(label[:1].upper()+label[1:])+'</strong></p>')
+      result.append('<h2>'+esc(label[:1].upper()+label[1:])+'</h2>')
+      headings=True
       break
     else:
      result.append('<p>'+studio_inline(value)+'</p>')
