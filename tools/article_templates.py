@@ -678,6 +678,7 @@ def studio_sectioned_body(review):
  """Render block order exactly: paragraphs, H2, links, images, video and CTA."""
  from urllib.parse import parse_qs
  result=[]
+ headings=False
  blocks=review.get("body",[])
  for index,block in enumerate(blocks):
   if not isinstance(block,dict):continue
@@ -685,14 +686,14 @@ def studio_sectioned_body(review):
   value=str(block.get("text") or "").strip()
   if kind=="heading" and value:
    result.append('<h2>'+esc(value)+'</h2>')
+   headings=True
   elif kind=="paragraph" and value:
    placeholder=value.casefold().strip().rstrip(":")
    # This is an upstream helper label, not article content. Never show it.
-   if placeholder=="approfondimento":
+   if placeholder in {"approfondimento","tutti i dettagli","gli elementi principali",
+                       "altri dettagli","il quadro completo","ulteriori informazioni"}:
     continue
-   if placeholder in {"tutti i dettagli","gli elementi principali","altri dettagli",
-                      "il quadro completo","ulteriori informazioni"} or (
-       category(review)!="guide" and studio_paragraph_is_title(value,blocks,index)):
+   if category(review)!="guide" and studio_paragraph_is_title(value,blocks,index):
     result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
     continue
    # Guide headings may arrive as plain paragraph blocks. Promote only a clear,
@@ -776,6 +777,12 @@ def studio_sectioned_body(review):
    choices=''.join('<li>'+esc(str(option))+'</li>' for option in options[:8])
    result.append('<section class="studio-content-poll"><h3>'+esc(value)+'</h3><ul>'+choices+'</ul>'
     '<p class="studio-poll-note">Sondaggio editoriale — raccolta voti non attivata in questa anteprima.</p></section>')
+ # Keep the old fallback only for legacy manual reviews; news must never get
+ # a synthetic "Approfondimento" heading at the beginning.
+ manual_review=(str(review.get("source") or "")=="manual-editorial" and
+                str(review.get("category") or "").startswith("recensioni-"))
+ if not headings and manual_review:
+  result.insert(0,'<h2>Approfondimento</h2>')
  return ''.join(result)
 
 
