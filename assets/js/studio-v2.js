@@ -773,7 +773,11 @@ async function save(mode){
   const index=state.rows.findIndex(item=>item.slug===row.slug);
   if(index>=0)state.rows[index]=state.current;else state.rows.unshift(state.current);
   delete state.drafts[row.slug];
-  try{localStorage.removeItem("zazoomtek:studio-v2:local-drafts")}catch(_){}
+  try{
+   const draftKey="zazoomtek:studio-v2:local-drafts";
+   if(Object.keys(state.drafts).length)localStorage.setItem(draftKey,JSON.stringify(state.drafts));
+   else localStorage.removeItem(draftKey);
+  }catch(_){}
   E("v2-autosave-status").textContent="Articolo salvato su main · in attesa del prossimo slot editoriale.";
   renderList();notify(result.message||"Articolo salvato su main e inserito in coda per il prossimo slot editoriale.");
   previewFinalArticle();
