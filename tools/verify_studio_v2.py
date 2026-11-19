@@ -86,8 +86,13 @@ def verify_studio_v2(output,rows):
  assert 'data-kind="link"' in page
  assert "20261105-youtube-review-layout" in page,"Browser must load updated editor CSS and JS"
  assert 'zazoomtek:studio-v2:local-drafts' in script
- assert 'fetch("/api/studio/' not in script
- assert 'api("v2-save"' not in script
+ assert 'async function api(endpoint,data)' in script
+ assert 'api("session")' in script and 'api("v2-pending")' in script
+ assert 'api("v2-save",{mode:"publish",creating:state.newContent,record:row})' in script
+ assert 'api("upload",{slug,mime:match[1],base64:match[2]})' in script
+ assert 'E("v2-publish").onclick=()=>save("publish")' in script
+ assert 'E("v2-publish-bottom").onclick=()=>save("publish")' in script
+ assert 'Solo anteprima' not in page and '>Pubblica</button>' in page
  assert 'previewFinalArticle' in script
  assert 'cover.loading="eager"' in script and 'cover.fetchPriority="high"' in script
  preview=script.split("function showArticlePreview",1)[1].split("function closeArticlePreview",1)[0]
