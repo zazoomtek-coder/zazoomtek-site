@@ -139,13 +139,13 @@ def build_studio_v2(output,rows):
   <button data-rail-filter="speciali" class="v2-rail-nav">Speciali</button>
   <button data-rail-filter="extra" class="v2-rail-nav">Extra</button>
   <div class="v2-rail-spacer"></div>
-  <div class="v2-admin">Modalità di prova<div id="v2-user" class="v2-user">Solo dispositivo · nessuna pubblicazione</div></div>
+  <div class="v2-admin">Sessione amministratore<div id="v2-user" class="v2-user">Verifica accesso in corso</div></div>
   <a href="/" class="v2-rail-site">↗ Visita il sito</a>
  </aside>
  <main class="v2-main">
   <header class="v2-top">
    <div id="v2-crumb">Studio <span>/</span> Contenuti</div>
-   <div class="v2-top-right"><span class="v2-preview-badge">ANTEPRIMA V2</span><button id="v2-back" class="v2-soft" hidden>← Contenuti</button></div>
+   <div class="v2-top-right"><span class="v2-preview-badge">STUDIO 2</span><button id="v2-back" class="v2-soft" hidden>← Contenuti</button></div>
   </header>
   <div id="v2-home" class="v2-home">
    <div class="v2-home-intro"><div><div class="v2-eyebrow">IL TUO CENTRO EDITORIALE</div>
@@ -172,7 +172,7 @@ def build_studio_v2(output,rows):
     <div class="v2-editor-actions">
       <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza locale</button>
-      <button type="button" id="v2-publish" class="v2-primary">Solo anteprima</button>
+      <button type="button" id="v2-publish" class="v2-primary">Pubblica</button>
     </div>
    </div>
    <div class="v2-editor-layout">
@@ -196,7 +196,7 @@ def build_studio_v2(output,rows):
      </article>
      <div class="v2-footer-actions"><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
-      <button type="button" id="v2-publish-bottom" class="v2-primary">Solo anteprima</button></div>
+      <button type="button" id="v2-publish-bottom" class="v2-primary">Pubblica</button></div>
     <p id="v2-autosave-status" class="v2-autosave-status" role="status" aria-live="polite">Bozza locale: protezione automatica del testo.</p>
     </div>
     <aside class="v2-settings">
@@ -222,7 +222,7 @@ def build_studio_v2(output,rows):
        <div>Descrizione</div><span id="v2-seo-description">Ottimizzata automaticamente dal contenuto completo.</span></div>
      </div>
      <div class="v2-settings-section"><div class="v2-setting-title">Pubblicazione</div>
-      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva l’articolo in coda e apre subito la sua anteprima: sarà online solo nello slot delle 12:30 o delle 19:30. I testi restano protetti dal salvataggio locale.</p>
+      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva l’articolo in coda e apre subito la sua anteprima: sarà online nel primo slot editoriale autorizzato: 12:30, 16:00 o 19:30. I testi restano protetti dal salvataggio locale.</p>
       <a id="v2-public-link" href="#" target="_blank" rel="noopener noreferrer" hidden>↗ Apri articolo pubblicato</a>
      </div>
     </aside>
