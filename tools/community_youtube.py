@@ -92,6 +92,33 @@ def post_records(root):
                    "images":extra_images,"url":"https://www.youtube.com/post/"+post_id}
  return list(found.values())
 
+def merge_post_media(listing, detail):
+ """Keep media found on the feed when the detail page omits or changes attachments."""
+ merged=dict(detail)
+ listing_cover=listing.get("image") or ""
+ detail_cover=detail.get("image") or ""
+ cover=listing_cover or detail_cover
+ extras=[]
+ seen={cover} if cover else set()
+ # The feed and detail page can expose different portions of a multi-image post.
+ # Preserve every unique extra image from both responses.
+ for source in (listing.get("images"),detail.get("images")):
+  if not isinstance(source,list):continue
+  for image in source:
+   if not isinstance(image,dict):continue
+   src=image.get("src")
+   if not isinstance(src,str) or not src.strip() or src in seen:continue
+   seen.add(src)
+   extras.append(dict(image))
+ # If the detail page exposes a different lead image, retain it as an extra
+ # instead of silently discarding either version of the post's media.
+ if listing_cover and detail_cover and detail_cover not in seen and detail_cover!=listing_cover:
+  extras.insert(0,{"src":detail_cover,"caption":detail.get("image_caption","")})
+ merged["image"]=cover
+ merged["images"]=extras
+ return merged
+
+
 def continuation_tokens(root):
  tokens=[]
  for item in walk(root):
@@ -192,7 +219,7 @@ def discover(limit=160,max_pages=12):
    detail=post_records(webpage_json(fetch(item["url"]+"?hl=it",timeout=7)))
    matched=next((x for x in detail if x["id"]==item["id"]),None)
    if matched and len(matched["text"])>=len(item["text"]):
-    item.update(matched)
+    item.update(merge_post_media(item,matched))
     item["verified_detail"]=True
    elif needs_detail:
     failed_details.append(item["id"])
