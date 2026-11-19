@@ -548,8 +548,16 @@ function renderBlocks(){
    editable.append(richContent(b.text||""));
    editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus();scheduleBackup()});
    editable.addEventListener("paste",safePaste);
-   
-   row.append(editable);
+   const tools=S("div","v2-media-hover-tools");
+   tools.append(actionButton("↑",()=>moveBlock(i,-1)));
+   tools.append(actionButton("↓",()=>moveBlock(i,1)));
+   tools.append(actionButton("Rimuovi",()=>{
+    state.body.splice(i,1);
+    renderBlocks();
+    seoStatus();
+    notify("Blocco di testo rimosso.");
+   }));
+   row.append(editable,tools);
   }else{
    const card=S("div","v2-media-block v2-inline-media");
    if(b.type==="image"){
