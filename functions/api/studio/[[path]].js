@@ -185,7 +185,7 @@ function normalizeArticle(value){
   if(!BLOCKS.has(type))throw new Error("Tipo di blocco sconosciuto.");
   const t=clean(block.text),url=secureUrl(block.url);
   if(["paragraph","heading","quote"].includes(type)){
-   if(!t||t.length>12000)throw new Error("Blocco vuoto o troppo lungo.");
+   // I blocchi di testo possono essere vuoti o superare 12.000 caratteri.
    characters+=t.length;
    return {type,text:t};
   }
