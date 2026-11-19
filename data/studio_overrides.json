@@ -326,6 +326,95 @@
       },
       "date": "2026-11-19",
       "published_at": "2026-11-19"
+    },
+    "community-ugkxqapbjunszhmtfndzgjazu1dxih6m82wb": {
+      "slug": "community-ugkxqapbjunszhmtfndzgjazu1dxih6m82wb",
+      "title": "Nintendo POP-UP STORE a Milano, apertura il 20 novembre: merchandising esclusivo e collezione Mario Winter",
+      "category": "extra",
+      "image": "/assets/uploads/community-ugkxqapbjunszhmtfndzgjazu1dxih6m82wb/63e6863b81f049298251.png",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "NIENTE CONSOLE O VIDEOGIOCHI"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il temporary store sarà interamente dedicato al merchandising ufficiale. Non saranno quindi disponibili console, videogiochi o altri prodotti hardware. I visitatori potranno anche scattare fotografie con alcuni personaggi Nintendo in costume, rendendo l'esperienza interessante anche per famiglie e appassionati."
+        },
+        {
+          "type": "heading",
+          "text": "PRENOTAZIONI: REQUISITI E REGOLE"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per prenotare durante il weekend inaugurale bisogna avere almeno 18 anni e un account Nintendo. Gli ospiti dai 7 ai 17 anni devono possedere un account collegato allo stesso gruppo famiglia dell'adulto che effettua la prenotazione. I bambini fino a 6 anni possono entrare senza biglietto, accompagnati da un genitore o tutore prenotato. Dai 7 anni in su è invece necessario un ingresso personale. La fascia oraria indica il momento previsto per entrare, con accesso secondo l'ordine di arrivo; una volta all'interno non ci saranno limiti alla permanenza."
+        },
+        {
+          "type": "heading",
+          "text": "DOVE SI TROVA E COME ARRIVARE"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il Nintendo POP-UP STORE si trova in Piazza del Liberty 8, 20122 Milano. Le fermate della metropolitana più vicine sono San Babila, con le linee M1 e M4, e Duomo, servita da M1 e M3. In alternativa si possono utilizzare i tram 15 e 16 per Duomo, il 24 per Piazza Fontana e l'1 per Teatro alla Scala. Per gli autobus sono disponibili le linee 61, fermata Duomo, e 84, fermata via Visconti di Modrone."
+        },
+        {
+          "type": "heading",
+          "text": "UN MESE DI NINTENDO A MILANO"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'iniziativa porta in Italia un format già presente in Giappone e negli Stati Uniti, dove si trovano negozi ufficiali permanenti a Tokyo, Osaka, Fukuoka, Kyoto, New York e San Francisco. L'apertura milanese rappresenta un'occasione per acquistare prodotti esclusivi e scoprire per la prima volta in Europa la collezione Mario Winter. Per il weekend inaugurale sarà indispensabile prenotare, mentre dal 23 novembre basterà presentarsi durante gli orari di apertura, tenendo conto dei limiti di capienza."
+        },
+        {
+          "type": "heading",
+          "text": "DOMANDA PER LA COMMUNITY"
+        },
+        {
+          "type": "paragraph",
+          "text": "Visitereste il Nintendo POP-UP STORE di Milano per acquistare la collezione Mario Winter o uno dei prodotti esclusivi? Quale serie vorreste trovare con il merchandising più ricco: Super Mario, Zelda, Animal Crossing o Kirby?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Rispondi sul canale Youtube!"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Alex",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 0,
+      "cover_focus_y": 0,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-19T15:37:05.766Z",
+      "route_version": 2,
+      "legacy_path": null,
+      "public_path": "/extra/nintendo-pop-up-store-milano-apertura-20-novembre-merchan",
+      "public_slug": "nintendo-pop-up-store-milano-apertura-20-novembre-merchan",
+      "seo_lock": {
+        "title": "Nintendo POP-UP STORE a Milano, apertura il 20 novembre: merchandising esclusivo e collezione Mario Winter",
+        "description": "Visitereste il Nintendo POP-UP STORE di Milano per acquistare la collezione Mario Winter o uno dei prodotti esclusivi? Quale serie vorreste trovare con il…",
+        "keywords": [
+          "nintendo",
+          "pop-up",
+          "store",
+          "milano",
+          "apertura",
+          "novembre",
+          "merchandising",
+          "esclusivo"
+        ]
+      },
+      "date": "2026-11-19",
+      "published_at": "2026-11-19"
     }
   }
 }
