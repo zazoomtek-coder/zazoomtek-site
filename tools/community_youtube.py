@@ -3,7 +3,7 @@
 No API key, browser credentials, or fabricated content. Fail softly if YouTube blocks access.
 Only posts with an actual /post/ identifier and recoverable text are returned.
 """
-import json, re, urllib.request, urllib.parse, html
+import json, re, urllib.request, urllib.parse, html, time
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
@@ -13,12 +13,20 @@ UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrom
 HEADERS={"User-Agent":UA,"Accept-Language":"it-IT,it;q=0.9,en;q=0.8"}
 # Emergency rollback: set False to restore the former cover-only Community import.
 MULTI_IMAGE_IMPORT_ENABLED = True
-def fetch(url, payload=None, timeout=9):
+def fetch(url, payload=None, timeout=9, attempts=3):
+ """Fetch YouTube data with bounded retries; never turn a transient error into an empty feed."""
  headers=dict(HEADERS)
  if payload is not None:headers["Content-Type"]="application/json"
- req=urllib.request.Request(url, data=payload, headers=headers)
- with urllib.request.urlopen(req,timeout=timeout) as result:
-  return result.read(4000000).decode("utf-8","replace")
+ last_error=None
+ for attempt in range(attempts):
+  try:
+   req=urllib.request.Request(url, data=payload, headers=headers)
+   with urllib.request.urlopen(req,timeout=timeout) as result:
+    return result.read(4000000).decode("utf-8","replace")
+  except Exception as error:
+   last_error=error
+   if attempt+1<attempts:time.sleep(1+attempt)
+ raise RuntimeError("YouTube request failed after "+str(attempts)+" attempts: "+url) from last_error
 
 def webpage_json(source):
  for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*'):
@@ -44,6 +52,14 @@ def value(node):
  if "runs" in node:return "".join(value(run) for run in node["runs"])
  if "content" in node and isinstance(node["content"],str):return html.unescape(node["content"])
  return html.unescape(str(node.get("text") or node.get("simpleText") or ""))
+
+def trim_youtube_promo_tail(text):
+ """Stop imported Community text immediately after the required closing sentence."""
+ if not isinstance(text, str):
+  return text
+ pattern=re.compile(re.escape("Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek.").replace(r"\ ",r"\s+"),re.IGNORECASE)
+ match=pattern.search(text)
+ return text[:match.end()].rstrip() if match else text
 
 def post_records(root):
  found={}
@@ -105,24 +121,20 @@ def title_type(text):
  title=(text or "").split("\n",1)[0].strip().lstrip("#").strip()
  if not title:return "",None
  if len(title)>210:title=title[:210].rsplit(" ",1)[0].strip()
- mark=title.lower()
- # Preserve the editorial category instead of collapsing every "News ..." post
- # into generic news. These values are consumed by the site importer.
- if mark.startswith(("news tech:","news gaming:")):kind="news"
- elif mark.startswith(("news guide:","guida:","guide:")):kind="guide"
- elif mark.startswith(("news extra:","extra:")):kind="extra"
- elif mark.startswith(("news speciali:","news special:","speciale:","special:")):kind="speciali"
- elif mark.startswith(("review:","recensione:","recensioni:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:")):kind="review"
- elif mark.startswith("news:"):kind="news"
- else:
-  # Accept known editorial headings even when punctuation or line breaks vary.
-  first=" ".join((text or "").split()[:22]).lower()
-  if first.startswith(("news tech","news gaming")):kind="news"
-  elif first.startswith(("news guide","guida","guide")):kind="guide"
-  elif first.startswith(("news extra","extra")):kind="extra"
-  elif first.startswith(("news speciali","news special","speciale","special")):kind="speciali"
-  elif first.startswith(("review","recensione")):kind="review"
-  else:return title,None
+ # Normalize case and common editorial separators while retaining the visible title.
+ mark=re.sub(r"\s+"," ",title.casefold()).strip()
+ compact=re.sub(r"\s*[:：–—-]\s*",": ",mark)
+ if re.match(r"^news\s+tech(?:\s*[:：–—-]|\s+)",mark):kind="news";topic="tech"
+ elif re.match(r"^news\s+gaming(?:\s*[:：–—-]|\s+)",mark):kind="news";topic="gaming"
+ elif re.match(r"^news\s+extra(?:\s*[:：–—-]|\s+)",mark):kind="extra";topic=""
+ elif re.match(r"^news\s+(?:speciali|special)(?:\s*[:：–—-]|\s+)",mark):kind="speciali";topic=""
+ elif re.match(r"^news\s+(?:guide|guida)(?:s)?(?:\s*[:：–—-]|\s+)",mark):kind="guide";topic=""
+ elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?(?:\s+(?:tech|gaming))?(?:\s*[:：–—-]|\s+)",mark):kind="review";topic="gaming" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+gaming",mark) else ("tech" if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+tech",mark) else "")
+ elif re.match(r"^(?:guida|guide|guides)(?:\s*[:：–—-]|\s+)",mark):kind="guide";topic=""
+ elif re.match(r"^(?:speciale|speciali|special)(?:\s*[:：–—-]|\s+)",mark):kind="speciali";topic=""
+ elif re.match(r"^extra(?:\s*[:：–—-]|\s+)",mark):kind="extra";topic=""
+ elif re.match(r"^news(?:\s*[:：–—-]|\s+)",mark):kind="news";topic=""
+ else:return title,None
  return title,kind
 
 def discover(limit=160,max_pages=12):
@@ -144,28 +156,37 @@ def discover(limit=160,max_pages=12):
    if item["id"] in ids:continue
    ids.add(item["id"]);collected.append(item)
    if len(collected)>=limit:break
-  if len(collected)>=limit or not key:break
+  if len(collected)>=limit:break
   tokens=[token for token in continuation_tokens(root) if token not in token_seen]
   if not tokens:break
+  if not key:raise RuntimeError("YouTube returned Community continuation data without an API key; pagination incomplete")
   token=tokens[0];token_seen.add(token)
   body=json.dumps({"context":ctx,"continuation":token}).encode("utf-8")
-  try:root=json.loads(fetch("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key),body))
-  except Exception:break
+  root=json.loads(fetch("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key),body))
  # Each detail page is opened to recover the *entire* text rather than teaser text.
+ failed_details=[]
  def complete(item):
+  title,kind=title_type(item.get("text",""))
+  needs_detail=bool(kind and len(item.get("text",""))>=60)
   try:
    detail=post_records(webpage_json(fetch(item["url"]+"?hl=it",timeout=7)))
    matched=next((x for x in detail if x["id"]==item["id"]),None)
    if matched and len(matched["text"])>=len(item["text"]):
     item.update(matched)
     item["verified_detail"]=True
-  except Exception:pass
+   elif needs_detail:
+    failed_details.append(item["id"])
+  except Exception as error:
+   if needs_detail:failed_details.append(item["id"])
   return item
  with ThreadPoolExecutor(max_workers=6) as executor:
   collected=list(executor.map(complete,collected))
+ if failed_details:
+  raise RuntimeError("Community detail verification incomplete for "+str(len(failed_details))+" editorial post(s); retry required")
  output=[]
  for ix,item in enumerate(collected):
-  text=item["text"].strip()
+  text=trim_youtube_promo_tail(item["text"].strip())
+  item["text"]=text
   title,kind=title_type(text)
   if not kind or len(text)<60 or not item.get("verified_detail"):continue
   date=date_from_relative(item.get("when",""),reference)

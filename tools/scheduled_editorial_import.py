@@ -368,6 +368,14 @@ def main():
             results[name] = False
             print("LIVE SOURCE FAILED; archived content preserved:",
                   name, type(exc).__name__, str(exc)[:170], flush=True)
+    # YouTube is required for this release: a failed Community or video import
+    # must stop before the slot gate so the next scheduled run can retry it.
+    failed_youtube = [name for name in ("videos", "community") if not results.get(name)]
+    if failed_youtube:
+        raise RuntimeError(
+            "YouTube import incomplete; publication blocked for automatic retry: "
+            + ", ".join(failed_youtube)
+        )
     seo_result = {"optimized": 0, "skipped": 0, "failed": 0}
     try:
         from seo_editorial_optimizer import optimize_new_community_posts

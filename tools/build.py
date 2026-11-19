@@ -40,18 +40,29 @@ def classification_for_post(item):
   if title and normalized_title(title)==normalized_title(row["title"]):return row["category"]
  return None
 def category_for_post(item):
- # Editorial title prefixes are authoritative, even when YouTube supplies
- # a stale or generic type/category/topic for the same Community record.
+ # The six owner-defined Community prefixes override stale or generic metadata.
  headline=str(item.get("title") or "").strip().lstrip("#").strip().casefold()
- if re.match(r"^review\s+gaming(?:\s*[:：–—-]\s*|\s+)",headline):
+ headline=re.sub(r"\s+"," ",headline)
+ if re.match(r"^news\s+tech(?:\s*[:：–—-]|\s+)",headline):
+  return "news-tech"
+ if re.match(r"^news\s+gaming(?:\s*[:：–—-]|\s+)",headline):
+  return "news-gaming"
+ if re.match(r"^news\s+extra(?:\s*[:：–—-]|\s+)",headline):
+  return "extra"
+ if re.match(r"^news\s+(?:speciali|special)(?:\s*[:：–—-]|\s+)",headline):
+  return "speciali"
+ if re.match(r"^news\s+(?:guide|guides|guida)(?:\s*[:：–—-]|\s+)",headline):
+  return "guide"
+ if re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?(?:\s+(?:tech|gaming))?(?:\s*[:：–—-]|\s+)",headline):
+  review_topic=re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+(tech|gaming)",headline)
+  topic=(review_topic.group(1) if review_topic else str(item.get("topic") or "").lower())
+  if topic not in ("tech","gaming"):
+   topic="tech"
+  return "recensioni-"+topic
+ if re.match(r"^review\s+gaming(?:\s*[:：–—-]|\s+)",headline):
   return "recensioni-gaming"
- if re.match(r"^review\s+tech(?:\s*[:：–—-]\s*|\s+)",headline):
+ if re.match(r"^review\s+tech(?:\s*[:：–—-]|\s+)",headline):
   return "recensioni-tech"
- # Persist the verified microphone review category even on subsequent reimports.
- if str(item.get("id") or "")=="UgkxNQcdbDXC4nnbq6_Wr4pcHIfxBF08VJIk":
-  return "recensioni-tech"
- # A verified YouTube Community record with explicit editorial classification
- # must supersede stale historical routing classifications.
  explicit=item.get("category")
  if item.get("text_complete") and explicit in TYPES and explicit!="video":
   return explicit
@@ -59,19 +70,13 @@ def category_for_post(item):
  if locked:return locked
  if explicit in TYPES and explicit!="video":return explicit
  kind=str(item.get("type","")).strip().lower()
- # Category prefixes set by the ZazoomTek editor must be authoritative.
- # These stories are not general News Tech/Gaming even if they mention hardware.
- headline=str(item.get("title") or "").strip().lstrip("#").strip().casefold()
- if headline.startswith("news extra:"):return "extra"
- if headline.startswith(("news speciali:","news special:")):return "speciali"
- text=(str(item.get("title",""))+" "+str(item.get("text",""))[:250]).lower()
  if kind not in ("news","review","recensione","guida","guide","speciale","speciali","extra"):
-  if text.startswith("news:"):kind="news"
-  elif text.startswith(("review:","recensione:")):kind="review"
-  elif text.startswith(("guida:","guide:")):kind="guide"
-  elif text.startswith(("speciale:","special:")):kind="speciali"
-  elif text.startswith("extra:"):kind="extra"
-  else:return "news-tech"  # Community fallback when no editorial type can be inferred.
+  if re.match(r"^news(?:\s*[:：–—-]|\s+)",headline):kind="news"
+  elif re.match(r"^(?:review|reviews|recensione|recensioni)(?:\s*[:：–—-]|\s+)",headline):kind="review"
+  elif re.match(r"^(?:guida|guide|guides)(?:\s*[:：–—-]|\s+)",headline):kind="guide"
+  elif re.match(r"^(?:speciale|speciali|special)(?:\s*[:：–—-]|\s+)",headline):kind="speciali"
+  elif re.match(r"^extra(?:\s*[:：–—-]|\s+)",headline):kind="extra"
+  else:return "news-tech"
  if kind in ("guida","guide"):return "guide"
  if kind in ("speciale","speciali"):return "speciali"
  if kind=="extra":return "extra"
@@ -79,13 +84,11 @@ def category_for_post(item):
  if topic not in ("tech","gaming"):
   gaming=("gaming","videogioc","playstation"," ps5"," ps4","xbox","nintendo","switch 2","gameplay","gta ","call of duty","modern warfare","walto","sesame street","ace combat","battlefield","tomb raider")
   tech=("tecnologia","hardware","smartphone","smart glasses","occhiali","dash cam","70mai","thermomate","intel","ryzen","nvidia","notebook","mini pc","router","android","apple","iphone","fotocamera","elettronica","stampante 3d")
-  is_game=any(w in text for w in gaming); is_tech=any(w in text for w in tech)
-  if is_game==is_tech:
-   # Community fallback: an ambiguous topic remains publishable as News Tech.
-   topic="tech"
-  else:
-   topic="gaming" if is_game else "tech"
+  is_game=any(w in headline for w in gaming); is_tech=any(w in headline for w in tech)
+  if is_game==is_tech:topic="tech"
+  else:topic="gaming" if is_game else "tech"
  return ("news-" if kind=="news" else "recensioni-")+topic
+
 def parse_day(value):
  try:return datetime.fromisoformat(str(value).replace("Z","+00:00")).date()
  except (ValueError,TypeError):return None
