@@ -156,6 +156,33 @@ const duplicate = await onRequest({
 assert.equal(duplicate.status, 400, "A pending main article must not be silently overwritten as a new article");
 assert.equal(writes.filter((item) => item.path === "data/studio_posts.json").length, 1);
 
+const unrestrictedBlocks = {
+  ...record,
+  slug: "studio-api-unrestricted-text-blocks",
+  title: "Verifica blocchi di testo senza limiti individuali",
+  body: [
+    { type: "paragraph", text: "" },
+    { type: "paragraph", text: "Testo lungo. ".repeat(1000) },
+  ],
+};
+const unrestrictedPublish = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "publish",
+    record: unrestrictedBlocks,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(unrestrictedPublish.status, 200,
+  "Studio must accept empty text blocks and text blocks longer than 12,000 characters");
+const unrestrictedResult = await unrestrictedPublish.json();
+assert.equal(unrestrictedResult.ok, true);
+assert.equal(unrestrictedResult.record.body[0].text, "",
+  "An empty text block must be preserved");
+assert.ok(unrestrictedResult.record.body[1].text.length > 12000,
+  "A text block longer than 12,000 characters must be preserved");
+
+
 const jpeg = Buffer.alloc(80);
 jpeg[0] = 0xff; jpeg[1] = 0xd8; jpeg[2] = 0xff;
 const upload = await onRequest({
