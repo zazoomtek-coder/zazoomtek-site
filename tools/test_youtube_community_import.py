@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from community_youtube import title_type, trim_youtube_promo_tail, webpage_json
+from community_youtube import merge_post_media, title_type, trim_youtube_promo_tail, webpage_json
 from build import category_for_post
 
 
@@ -47,6 +47,38 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
                     "title": title, "type": "news", "topic": "tech",
                     "text_complete": True
                 }), expected)
+
+    def test_detail_page_without_attachment_preserves_feed_cover_and_extra_images(self):
+        listing = {
+            "image": "https://yt3.ggpht.com/feed-cover=s1600",
+            "images": [{"src": "https://yt3.ggpht.com/feed-extra=s1600", "caption": "Extra"}],
+        }
+        detail = {"id": "UgExample123456", "text": "Testo completo", "image": "", "images": []}
+        merged = merge_post_media(listing, detail)
+        self.assertEqual(merged["image"], listing["image"])
+        self.assertEqual(merged["images"], listing["images"])
+        self.assertEqual(merged["text"], "Testo completo")
+
+    def test_detail_page_media_is_merged_without_dropping_feed_media(self):
+        listing = {
+            "image": "https://yt3.ggpht.com/feed-cover=s1600",
+            "images": [{"src": "https://yt3.ggpht.com/feed-extra=s1600", "caption": ""}],
+        }
+        detail = {
+            "image": "https://yt3.ggpht.com/detail-cover=s1600",
+            "images": [{"src": "https://yt3.ggpht.com/detail-extra=s1600", "caption": ""}],
+        }
+        merged = merge_post_media(listing, detail)
+        self.assertEqual(merged["image"], listing["image"])
+        self.assertEqual(
+            [item["src"] for item in merged["images"]],
+            [detail["image"], listing["images"][0]["src"], detail["images"][0]["src"]],
+        )
+
+    def test_detail_page_cover_is_used_when_feed_has_no_cover(self):
+        detail = {"image": "https://yt3.ggpht.com/detail-cover=s1600", "images": []}
+        merged = merge_post_media({"image": "", "images": []}, detail)
+        self.assertEqual(merged["image"], detail["image"])
 
     def test_webpage_json_reads_script_assignment_and_embedded_key(self):
         assignment = '<script>var ytInitialData = {"contents":{"ok":true}};</script>'
