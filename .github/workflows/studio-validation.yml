@@ -6,6 +6,8 @@ on:
       - ".github/workflows/studio-validation.yml"
       - "functions/api/studio/**"
       - "assets/js/studio-v2.js"
+      - "assets/css/studio-v2.css"
+      - "tools/editorial_slot_gate.py"
       - "assets/js/studio.js"
       - "tools/studio_build.py"
       - "tools/verify_studio.py"
@@ -49,6 +51,7 @@ jobs:
       - name: Validate Python and JavaScript syntax
         run: |
           python3 -m compileall -q tools
+          python3 -m py_compile tools/editorial_slot_gate.py
           node --check assets/js/studio-v2.js
           node --check assets/js/studio.js
           node --input-type=module --check < 'functions/api/studio/[[path]].js'
