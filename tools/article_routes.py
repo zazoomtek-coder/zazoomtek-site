@@ -188,12 +188,35 @@ def assign_public_routes(rows):
             )
         path = normalize_public_path(row["public_path"])
         current_slug = path.rsplit("/", 1)[-1]
-        clean_slug = clean_category_slug(current_slug, prefix)
+        try:
+            clean_slug = clean_category_slug(current_slug, prefix)
+        except ValueError:
+            # A Community title can contain only its editorial label (for
+            # example "NEWS TECH"). Removing that label leaves no words.
+            # Never let one malformed title abort the entire editorial build:
+            # use the immutable YouTube post ID as a deterministic URL fallback.
+            identity = str(
+                row.get("source_post_id") or row.get("id") or row.get("slug") or ""
+            ).strip()
+            clean_slug = slugify_title(identity) if identity else "articolo"
+            print(
+                "ARTICLE ROUTE FALLBACK:",
+                "category=", category,
+                "title=", repr(row.get("title")),
+                "identity=", repr(identity),
+                "public_slug=", clean_slug,
+                flush=True,
+            )
+        base_slug = clean_slug
+        number = 2
         path = normalize_public_path("/" + prefix + "/" + clean_slug)
+        while path in occupied:
+            suffix = "-" + str(number)
+            clean_slug = base_slug[:68-len(suffix)].rstrip("-") + suffix
+            path = normalize_public_path("/" + prefix + "/" + clean_slug)
+            number += 1
         row["public_slug"] = clean_slug
         row["public_path"] = path
-        if path in occupied:
-            raise ValueError("Duplicate canonical public_path in category: " + path)
         occupied.add(path)
 
     for row in review_rows:
