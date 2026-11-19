@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from community_youtube import title_type, trim_youtube_promo_tail
+from community_youtube import title_type, trim_youtube_promo_tail, webpage_json
 from build import category_for_post
 
 
@@ -47,6 +47,12 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
                     "title": title, "type": "news", "topic": "tech",
                     "text_complete": True
                 }), expected)
+
+    def test_webpage_json_reads_script_assignment_and_embedded_key(self):
+        assignment = '<script>var ytInitialData = {"contents":{"ok":true}};</script>'
+        embedded = '<script>{"ytInitialData":{"contents":{"value":2}}}</script>'
+        self.assertEqual(webpage_json(assignment), {"contents": {"ok": True}})
+        self.assertEqual(webpage_json(embedded), {"contents": {"value": 2}})
 
     def test_community_text_stops_at_required_cta(self):
         source = ("Testo editoriale.\\nSe ti piacciono tecnologia, gaming, unboxing e recensioni, "
