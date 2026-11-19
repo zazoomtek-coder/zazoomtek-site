@@ -762,6 +762,111 @@
       },
       "date": "2026-11-19",
       "published_at": "2026-11-19"
+    },
+    "community-ugkxhwjeq-wpdjagi4vloistcfmhdamjgyat": {
+      "slug": "community-ugkxhwjeq-wpdjagi4vloistcfmhdamjgyat",
+      "title": "Attivazione in Italia di Android Earthquake Alerts",
+      "category": "news-tech",
+      "image": "/assets/uploads/community-ugkxhwjeq-wpdjagi4vloistcfmhdamjgyat/dabdc4aff8234a3ba3af.webp",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Con l'attivazione in Italia, anche gli utenti del nostro Paese potranno ricevere notifiche quando si verifica un terremoto in una zona coperta dal servizio. Il sistema è progettato per fornire informazioni in tempi rapidi, anche se il preavviso può variare in base alla posizione, alle caratteristiche della scossa e alle condizioni di rilevamento."
+        },
+        {
+          "type": "heading",
+          "text": "TRE LIVELLI DI ALLERTA PER AVVISARE GLI UTENTI"
+        },
+        {
+          "type": "paragraph",
+          "text": "Android prevede tre differenti tipologie di notifiche, pensate per comunicare il livello di attenzione necessario in base alla possibile intensità del terremoto. Allerta Attenzione è il messaggio più semplice e riguarda le scosse stimate di lieve entità: serve a informare che è stato rilevato un terremoto nelle vicinanze."
+        },
+        {
+          "type": "paragraph",
+          "text": "Allerta Preparati offre invece informazioni più dettagliate in presenza di scosse potenzialmente più forti, invitando le persone a prepararsi ad agire. Il livello più elevato è Allerta Intervieni, una notifica a schermo intero destinata alle scosse da moderate a forti, con indicazioni immediate per cercare un luogo sicuro."
+        },
+        {
+          "type": "heading",
+          "text": "ARRIVANO NUOVE INFORMAZIONI CON ALLERTA PREPARATI"
+        },
+        {
+          "type": "paragraph",
+          "text": "Google ha annunciato anche un aggiornamento dedicato ad Allerta Preparati, che sarà introdotto nei prossimi mesi. La notifica includerà una mappa dell'area interessata, la magnitudo stimata del terremoto e le indicazioni sulle azioni da intraprendere."
+        },
+        {
+          "type": "paragraph",
+          "text": "Sarà inoltre presente un pulsante per ricevere ulteriori aggiornamenti quando saranno disponibili nuove informazioni. L'obiettivo è rendere gli avvisi più comprensibili e utili, fornendo agli utenti un quadro più chiaro della situazione durante un evento sismico."
+        },
+        {
+          "type": "heading",
+          "text": "UNO STRUMENTO IN PIÙ PER LA SICUREZZA"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'arrivo del servizio in Italia rappresenta un'importante estensione degli strumenti di sicurezza disponibili sugli smartphone Android. Ricevere un avviso tempestivo può aiutare a reagire più rapidamente, ma non significa che ogni terremoto possa essere anticipato: il sistema dipende dal rilevamento delle scosse e dalla disponibilità degli avvisi nell'area interessata."
+        },
+        {
+          "type": "paragraph",
+          "text": "Per conoscere meglio il funzionamento della tecnologia e verificare dove è attiva, Google mette a disposizione le pagine ufficiali dedicate al sistema Android Earthquake Alerts e alla copertura del servizio."
+        },
+        {
+          "type": "heading",
+          "text": "COSA CAMBIA PER GLI UTENTI ANDROID"
+        },
+        {
+          "type": "paragraph",
+          "text": "Con questa novità, anche in Italia diventa disponibile un sistema di notifiche che può offrire informazioni importanti durante un terremoto. I tre livelli di allerta e il futuro aggiornamento di Allerta Preparati puntano a rendere più tempestiva e chiara la comunicazione delle emergenze, aggiungendo uno strumento digitale alla preparazione e alla gestione del rischio sismico."
+        },
+        {
+          "type": "heading",
+          "text": "DOMANDA PER LA COMMUNITY"
+        },
+        {
+          "type": "paragraph",
+          "text": "Secondo voi, il sistema di allerte terremoti di Android può diventare uno strumento davvero utile per migliorare la sicurezza delle persone in Italia? Conoscevate già questa funzione di Google e avete mai ricevuto un avviso di questo tipo?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Rispondi sul canale Youtube!"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se ti piacciono tecnologia, gaming, unboxing e recensioni, segui ZazoomTek."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 0,
+      "cover_focus_y": 0,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-19T15:39:20.898Z",
+      "route_version": 2,
+      "legacy_path": null,
+      "public_path": "/news/attivazione-italia-android-earthquake-alerts",
+      "public_slug": "attivazione-italia-android-earthquake-alerts",
+      "seo_lock": {
+        "title": "Attivazione in Italia di Android Earthquake Alerts | ZazoomTek",
+        "description": "Per conoscere meglio il funzionamento della tecnologia e verificare dove è attiva, Google mette a disposizione le pagine ufficiali dedicate al sistema Android…",
+        "keywords": [
+          "attivazione",
+          "italia",
+          "android",
+          "earthquake",
+          "alerts",
+          "allerta",
+          "terremoto",
+          "sistema"
+        ]
+      },
+      "date": "2026-11-19",
+      "published_at": "2026-11-19"
     }
   }
 }
