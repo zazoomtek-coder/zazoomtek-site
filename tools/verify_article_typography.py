@@ -2,7 +2,28 @@
 from article_templates import rich_text,compact_prose_html,news_body,sectioned_body,paragraphs,editorial_blocks
 
 def verify():
- # Soft source line breaks are not editorial paragraph boundaries.
+  # Studio articles use paragraph blocks for standalone subsection titles.
+ studio_article={
+  "source":"studio-editor","studio_blocks":True,"category":"news-tech",
+  "body":[
+   {"type":"paragraph","text":"Apertura della notizia con un contesto completo e una frase introduttiva."},
+   {"type":"paragraph","text":"NUOVO SUPPORTO PER I GIOCHI"},
+   {"type":"paragraph","text":"La nuova versione introduce il supporto per i titoli annunciati e diverse correzioni tecniche che completano l'aggiornamento."},
+   {"type":"paragraph","text":"Tutti i dettagli"},
+   {"type":"paragraph","text":"Le informazioni aggiuntive descrivono nel dettaglio le modifiche introdotte e le funzionalità disponibili."},
+   {"type":"paragraph","text":"Approfondimento"},
+   {"type":"paragraph","text":"Il punto"},
+   {"type":"paragraph","text":"La novità conferma l'impegno del produttore nel migliorare il supporto e l'esperienza degli utenti."},
+  ]
+ }
+ studio_html=sectioned_body(studio_article)
+ assert "<p><strong>NUOVO SUPPORTO PER I GIOCHI</strong></p>" in studio_html
+ assert "<p><strong>Tutti i dettagli</strong></p>" in studio_html
+ assert "<p><strong>Il punto</strong></p>" in studio_html
+ assert "Approfondimento" not in studio_html
+ assert "<h2>Approfondimento</h2>" not in studio_html
+
+# Soft source line breaks are not editorial paragraph boundaries.
  assert rich_text("Riga prima\nriga seconda")=="Riga prima riga seconda"
  assert "<br>" in rich_text("• primo punto\n• secondo punto")
  a=compact_prose_html(["<p>Frase iniziale.</p>","<p>Testo collegato.</p>",
