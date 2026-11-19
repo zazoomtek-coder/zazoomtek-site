@@ -186,7 +186,7 @@ def discover(limit=160,max_pages=12):
  output=[]
  for ix,item in enumerate(collected):
   text=trim_youtube_promo_tail(item["text"].strip())
-   item["text"]=text
+  item["text"]=text
   title,kind=title_type(text)
   if not kind or len(text)<60 or not item.get("verified_detail"):continue
   date=date_from_relative(item.get("when",""),reference)
