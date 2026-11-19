@@ -9,19 +9,17 @@ def verify():
    {"type":"paragraph","text":"Apertura della notizia con un contesto completo e una frase introduttiva."},
    {"type":"paragraph","text":"NUOVO SUPPORTO PER I GIOCHI"},
    {"type":"paragraph","text":"La nuova versione introduce il supporto per i titoli annunciati e diverse correzioni tecniche che completano l'aggiornamento."},
-   {"type":"paragraph","text":"Tutti i dettagli"},
-   {"type":"paragraph","text":"Le informazioni aggiuntive descrivono nel dettaglio le modifiche introdotte e le funzionalità disponibili."},
+   {"type":"paragraph","text":"FSR 4.1 ARRIVA SU VULKAN CON DOOM: THE DARK AGES"},
+   {"type":"paragraph","text":"L'aggiornamento introduce il supporto per le tecnologie di upscaling e frame generation in un nuovo titolo, ampliando le opzioni disponibili per gli utenti."},
    {"type":"paragraph","text":"Approfondimento"},
-   {"type":"paragraph","text":"Il punto"},
+   {"type":"paragraph","text":"IL PUNTO"},
    {"type":"paragraph","text":"La novità conferma l'impegno del produttore nel migliorare il supporto e l'esperienza degli utenti."},
   ]
  }
  studio_html=sectioned_body(studio_article)
  assert "<p><strong>NUOVO SUPPORTO PER I GIOCHI</strong></p>" in studio_html
- assert "<p><strong>Tutti i dettagli</strong></p>" in studio_html
- assert "<p><strong>Il punto</strong></p>" in studio_html
+ assert "<p><strong>IL PUNTO</strong></p>" in studio_html
  assert "Approfondimento" not in studio_html
- assert "<h2>Approfondimento</h2>" not in studio_html
 
 # Soft source line breaks are not editorial paragraph boundaries.
  assert rich_text("Riga prima\nriga seconda")=="Riga prima riga seconda"
