@@ -1,6 +1,7 @@
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -27,8 +28,9 @@ class YouTubeQueueImportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "queue_videos.json"
             path.write_text("{broken", encoding="utf-8")
-            with self.assertRaises(RuntimeError):
-                load(path.name, "videos")
+            with patch("queue_collect.DATA", Path(tmp)):
+                with self.assertRaises(RuntimeError):
+                    load(path.name, "videos")
 
 
 if __name__ == "__main__":
