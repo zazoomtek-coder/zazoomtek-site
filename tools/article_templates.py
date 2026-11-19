@@ -653,25 +653,16 @@ def studio_inline(value):
  return ''.join(out)
 
 def studio_paragraph_is_title(value,blocks,index):
- """Recognize an isolated Studio paragraph label without promoting normal prose."""
+ """Use the same isolated-source-subtitle rule as YouTube Community articles."""
  text=str(value or "").strip()
- if not text or len(text)>115 or "\n" in text:return False
- if text.startswith("**") and text.endswith("**"):return False
- if text[-1:] in (".","!","?","…"):return False
- letters=re.sub(r"[^A-Za-zÀ-ÿ]","",text)
- if letters and letters==letters.upper():return True
- if re.match(r"^[0-9]+[.)] ",text):return True
- labels={"tutti i dettagli","gli elementi principali","altri dettagli",
-         "il quadro completo","ulteriori informazioni"}
- if text.casefold().rstrip(":") in labels:return True
+ if not text or text.startswith("**"):
+  return False
  following=""
- for candidate in blocks[index+1:]:
-  if not isinstance(candidate,dict):continue
-  if candidate.get("type") in ("paragraph","heading"):
-   following=str(candidate.get("text") or "").strip()
-   if following:break
- if not following or len(following)<70:return False
- return bool(named_section(text) or text[:1].isupper())
+ if index+1<len(blocks):
+  candidate=blocks[index+1]
+  if isinstance(candidate,dict) and candidate.get("type") in ("paragraph","heading"):
+   following=str(candidate.get("text") or "")
+ return source_plain_h2(text,following,index)
 
 
 def studio_sectioned_body(review):
@@ -693,7 +684,7 @@ def studio_sectioned_body(review):
    if placeholder in {"approfondimento","tutti i dettagli","gli elementi principali",
                        "altri dettagli","il quadro completo","ulteriori informazioni"}:
     continue
-   if category(review) in ("news-tech","news-gaming") and studio_paragraph_is_title(value,blocks,index):
+   if studio_paragraph_is_title(value,blocks,index):
     result.append('<p><strong>'+studio_inline(value)+'</strong></p>')
     continue
    # Keep guide paragraphs intact; bold only a standalone known subtitle.
