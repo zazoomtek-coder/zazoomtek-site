@@ -48,6 +48,18 @@ def verify():
  assert "<h2>" not in studio_guide_html
  assert "Approfondimento" not in studio_guide_html
 
+ # The same source-subtitle recognition applies to every Studio category.
+ studio_extra_html=sectioned_body({
+  "source":"studio-editor","studio_blocks":True,"category":"extra",
+  "body":[
+   {"type":"paragraph","text":"Apertura originale dell'articolo."},
+   {"type":"paragraph","text":"Design rinnovato e nuove funzionalità"},
+   {"type":"paragraph","text":"La nuova versione introduce un design rinnovato, diverse funzionalità aggiuntive e miglioramenti che ampliano le possibilità offerte agli utenti in ogni contesto di utilizzo."},
+  ]
+ })
+ assert "<p><strong>Design rinnovato e nuove funzionalità</strong></p>" in studio_extra_html
+ assert "<h2>" not in studio_extra_html
+
 # Soft source line breaks are not editorial paragraph boundaries.
  assert rich_text("Riga prima\nriga seconda")=="Riga prima riga seconda"
  assert "<br>" in rich_text("• primo punto\n• secondo punto")
