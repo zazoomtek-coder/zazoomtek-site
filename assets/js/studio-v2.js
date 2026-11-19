@@ -8,6 +8,26 @@ let state={rows:[],drafts:{},current:null,body:[],mode:"home",filter:"",newConte
 const val=id=>E(id).value.trim(),num=(v,lo,hi,def)=>Math.min(hi,Math.max(lo,Number.isFinite(+v)?+v:def));
 const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,135);
 function notify(msg,error=false){const t=E("v2-toast");t.hidden=false;t.textContent=msg;t.classList.toggle("error",error)}
+async function api(endpoint,data){
+ const opt={credentials:"same-origin",cache:"no-store",redirect:"manual",headers:{"Accept":"application/json"}};
+ if(data!==undefined){opt.method="POST";opt.headers["Content-Type"]="application/json";opt.body=JSON.stringify(data)}
+ let response;
+ try{response=await fetch("/api/studio/"+endpoint,opt)}
+ catch(_){throw Error("Connessione a Studio interrotta. Il testo resta protetto nella bozza locale.")}
+ const type=(response.headers.get("Content-Type")||"").toLowerCase();
+ if(!type.includes("application/json")){
+  const status=response.type==="opaqueredirect"?"reindirizzamento":String(response.status||"sconosciuto");
+  throw Error("L'API Studio non ha restituito JSON (HTTP "+status+"). Nessuna pubblicazione confermata.");
+ }
+ let result;
+ try{result=await response.json()}catch(_){throw Error("Risposta di Studio non valida. Nessuna pubblicazione confermata.")}
+ if(!response.ok||result.ok!==true){
+  if(response.status===401||result.code==="UNAUTHENTICATED"||result.code==="AUTH_REQUIRED")
+   throw Error("Sessione amministratore non valida. Accedi nuovamente allo Studio principale e riprova.");
+  throw Error(result.error||"Operazione non riuscita (HTTP "+response.status+").");
+ }
+ return result;
+}
 
 function editorFields(row){
  const fields={"v2-title":row.title||"","v2-slug":row.slug||"","v2-author":authorForCategory(row.category||"news-tech"),
@@ -201,7 +221,7 @@ function previewMediaUrl(url){
  if(value.startsWith("data:"))return value;
  const ok=value.startsWith("/assets/uploads/")&&
   ["jpg","jpeg","png","webp","mp3","m4a","wav","pdf","txt"].includes(value.split(".").pop());
- return value;
+ return ok?"/api/studio/v2-asset?path="+encodeURIComponent(value.slice(1)):value;
 }
 
 function showArticlePreview(savedRecord=null){
@@ -715,26 +735,66 @@ function collect(){
   studio_blocks:true,video_url:text("v2-video-url"),platform:text("v2-platform"),score:text("v2-score"),
   pros:lines("v2-pros"),cons:lines("v2-cons")};
 }
+async function uploadLocalAsset(value,slug){
+ const match=String(value||"").match(/^data:([^;,]+);base64,([A-Za-z0-9+/=]+)$/);
+ if(!match)return value;
+ const result=await api("upload",{slug,mime:match[1],base64:match[2]});
+ return result.url;
+}
 async function save(mode){
  if(state.busy)return;
  applyEditorialFormat();const row=collect();
  if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
  backupNow();
- if(mode==="publish"){previewFinalArticle();notify("Anteprima pronta: la pubblicazione è disattivata in questa prova.");return}
- const updatedAt=new Date().toISOString();
- state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:updatedAt};
+ if(mode==="draft"){
+  const updatedAt=new Date().toISOString();
+  state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:updatedAt};
+  try{
+   localStorage.setItem("zazoomtek:studio-v2:local-drafts",JSON.stringify(state.drafts));
+   E("v2-autosave-status").textContent="Bozza salvata su questo dispositivo · "+new Date(updatedAt).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+   notify("Bozza salvata localmente. Nessun dato inviato al sito.");renderList();
+  }catch(e){notify("Salvataggio locale non disponibile: controlla lo spazio del browser.",true)}
+  return;
+ }
+ state.busy=true;
+ for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=true;
  try{
-  localStorage.setItem("zazoomtek:studio-v2:local-drafts",JSON.stringify(state.drafts));
-  E("v2-autosave-status").textContent="Bozza salvata su questo dispositivo · "+new Date(updatedAt).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-  notify("Bozza salvata localmente. Nessun dato inviato a GitHub o al sito.");renderList();
- }catch(e){notify("Salvataggio locale non disponibile: controlla lo spazio del browser.",true)}
+  notify("Preparazione dei contenuti e salvataggio su main...");
+  row.image=await uploadLocalAsset(row.image,row.slug);
+  for(const block of row.body){
+   if(["image","audio","attachment"].includes(block.type)&&String(block.url||"").startsWith("data:")){
+    block.url=await uploadLocalAsset(block.url,row.slug);
+    delete block.preview;
+   }
+  }
+  const result=await api("v2-save",{mode:"publish",creating:state.newContent,record:row});
+  state.cover=row.image;state.coverPreview="";state.body=row.body;
+  state.current=result.record||row;state.newContent=false;
+  const index=state.rows.findIndex(item=>item.slug===row.slug);
+  if(index>=0)state.rows[index]=state.current;else state.rows.unshift(state.current);
+  delete state.drafts[row.slug];
+  try{localStorage.removeItem("zazoomtek:studio-v2:local-drafts")}catch(_){}
+  E("v2-autosave-status").textContent="Articolo salvato su main · in attesa del prossimo slot editoriale.";
+  renderList();notify(result.message||"Articolo salvato su main e inserito in coda per il prossimo slot editoriale.");
+  previewFinalArticle();
+ }catch(e){notify(e.message||"Pubblicazione non riuscita. Il testo resta nella bozza locale.",true)}
+ finally{
+  state.busy=false;
+  for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=false;
+ }
 }
 async function init(){
  try{
+  const session=await api("session");
   const r=await fetch("/studio-v2/catalog.json",{cache:"no-store"});if(!r.ok)throw Error("Catalogo Studio V2 non disponibile");
-  state.rows=(await r.json()).posts||[];
+  const catalog=(await r.json()).posts||[];
+  const pending=await api("v2-pending");
+  const bySlug=new Map(catalog.map(item=>[item.slug,item]));
+  for(const item of pending.posts||[])if(item?.slug)bySlug.set(item.slug,{...(bySlug.get(item.slug)||{}),...item});
+  for(const [slug,override] of Object.entries(pending.overrides||{}))if(bySlug.has(slug))bySlug.set(slug,{...bySlug.get(slug),...override});
+  state.rows=[...bySlug.values()];
   try{const saved=JSON.parse(localStorage.getItem("zazoomtek:studio-v2:local-drafts")||"{}");if(saved&&typeof saved==="object"&&!Array.isArray(saved))state.drafts=saved}catch(_){state.drafts={}}
-  E("v2-user").textContent="Modalità prova · solo dispositivo";
+  E("v2-user").textContent="Account GitHub: "+(session.login||"amministratore");
   for(const [cat,label] of Object.entries(cats))E("v2-select-filter").add(new Option(label,cat));
   for(const [cat,label] of Object.entries(cats))E("v2-category").add(new Option(label,cat));
   E("v2-count-all").textContent=state.rows.length;
@@ -745,7 +805,11 @@ async function init(){
   const params=new URLSearchParams(location.search);
   if(params.get("edit")){const row=state.rows.find(r=>r.slug===params.get("edit"));if(row)openExisting(row);else showHome()}
   else if(params.has("new"))startNew();else showHome();
- }catch(e){E("v2-auth").hidden=false;E("v2-app").hidden=true;const p=E("v2-auth").querySelector("p");if(p)p.textContent="Catalogo anteprima non disponibile: "+e.message}
+ }catch(e){
+  E("v2-auth").hidden=false;E("v2-app").hidden=true;
+  const p=E("v2-auth").querySelector("p");
+  if(p)p.textContent=e.message.includes("Sessione amministratore")?"Accedi allo Studio principale: al termine verrai riportato automaticamente qui.": "Studio 2 non disponibile: "+e.message;
+ }
 }
 E("v2-home-nav").onclick=showHome;E("v2-back").onclick=showHome;E("v2-new-nav").onclick=startNew;E("v2-create-main").onclick=startNew;
 E("v2-append-block").onclick=()=>openMenu(state.body.length);
@@ -779,7 +843,7 @@ window.addEventListener("beforeunload",backupNow);
 window.addEventListener("pagehide",backupNow);
 document.addEventListener("visibilitychange",()=>{if(document.hidden)backupNow()});
 E("v2-save-draft").onclick=()=>save("draft");E("v2-draft-bottom").onclick=()=>save("draft");
-E("v2-publish").onclick=previewFinalArticle;E("v2-publish-bottom").onclick=previewFinalArticle;
+E("v2-publish").onclick=()=>save("publish");E("v2-publish-bottom").onclick=()=>save("publish");
 
 // Show the contextual '+' only while editing the position selected with the mouse.
 document.addEventListener("pointerdown",event=>{
