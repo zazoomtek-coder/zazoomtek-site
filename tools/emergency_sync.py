@@ -109,6 +109,34 @@ def _community_is_near_duplicate(candidate, published_rows):
         }
 
     candidate_words = meaningful_words(candidate_body or candidate_full)
+
+    # Topic-level screening catches rewritten articles about the same product,
+    # game, service or event even when their sentences are not copied verbatim.
+    topic_stopwords = stopwords | {
+        "news", "tech", "gaming", "review", "reviews", "recensione", "recensioni",
+        "guida", "guide", "extra", "speciale", "speciali", "nuovo", "nuova",
+        "nuovi", "nuove", "arriva", "arrivano", "arrivera", "arriveranno",
+        "annuncia", "annunciano", "annunciato", "annunciata", "presenta",
+        "presentano", "presentato", "presentata", "scopri", "scoprite",
+        "ecco", "tutte", "tutto", "ultime", "novita", "novità", "ufficiale",
+        "disponibile", "disponibili", "lancio", "lancia", "lanciato",
+        "aggiornamento", "aggiornamenti", "nuove", "funzioni", "funzione",
+        "caratteristiche", "prezzo", "prezzi", "data", "uscita", "oggi",
+        "domani", "italia", "italiano", "italiana", "mondo", "canale",
+        "zazoomtek", "articolo", "video",
+    }
+
+    def topic_terms(value):
+        return {
+            word for word in _community_normalize(value).split()
+            if (len(word) >= 3 or (word.isdigit() and len(word) <= 3))
+            and word not in topic_stopwords
+            and not (word.isdigit() and len(word) >= 4)
+        }
+
+    candidate_title_topics = topic_terms(candidate_title)
+    candidate_body_topics = topic_terms(candidate_body)
+
     for current in published_rows:
         if not isinstance(current, dict):
             continue
@@ -132,6 +160,34 @@ def _community_is_near_duplicate(candidate, published_rows):
             SequenceMatcher(None, candidate_title, current_title).ratio()
             if candidate_title and current_title else 0
         )
+
+        current_title_topics = topic_terms(current_title)
+        current_body_topics = topic_terms(current_body)
+        shared_title_topics = candidate_title_topics & current_title_topics
+        shorter_title_size = min(len(candidate_title_topics), len(current_title_topics))
+        title_topic_coverage = (
+            len(shared_title_topics) / shorter_title_size if shorter_title_size else 0
+        )
+        has_model_identifier = any(any(char.isdigit() for char in word)
+                                   for word in shared_title_topics)
+
+        # Same named product/game/service with a rewritten headline. A shared
+        # brand alone is deliberately insufficient (e.g. two different Samsung devices).
+        title_topic_threshold = 0.62 if has_model_identifier else 0.72
+        if (len(shared_title_topics) >= 2 and shorter_title_size >= 2
+                and title_topic_coverage >= title_topic_threshold):
+            return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
+
+        # A shared subject named in the headline plus substantial overlap in
+        # distinctive body terms catches paraphrases with a different headline.
+        shared_body_topics = candidate_body_topics & current_body_topics
+        shorter_body_size = min(len(candidate_body_topics), len(current_body_topics))
+        body_topic_coverage = (
+            len(shared_body_topics) / shorter_body_size if shorter_body_size else 0
+        )
+        if (shared_title_topics and len(shared_body_topics) >= 5
+                and shorter_body_size >= 7 and body_topic_coverage >= 0.56):
+            return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
         # High coverage of the shorter text catches excerpts even when the
         # published article contains many additional paragraphs.
