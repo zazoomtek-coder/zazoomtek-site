@@ -189,13 +189,15 @@ class YouTubeImportTests(unittest.TestCase):
             raise AssertionError(name)
 
         with tempfile.TemporaryDirectory() as tmp:
-            with patch.object(emergency_sync, "DATA", Path(tmp)), \\
-                 patch.object(emergency_sync, "load", side_effect=fake_load), \\
-                 patch.object(emergency_sync, "discover", return_value=[candidate]), \\
-                 patch.object(emergency_sync, "_published_community_comparison_rows",
-                              return_value=[published]), \\
-                 patch.object(emergency_sync, "save",
-                              side_effect=lambda name, value: saved.update({name: value}) or True):
+            with (
+                patch.object(emergency_sync, "DATA", Path(tmp)),
+                patch.object(emergency_sync, "load", side_effect=fake_load),
+                patch.object(emergency_sync, "discover", return_value=[candidate]),
+                patch.object(emergency_sync, "_published_community_comparison_rows",
+                             return_value=[published]),
+                patch.object(emergency_sync, "save",
+                             side_effect=lambda name, value: saved.update({name: value}) or True),
+            ):
                 self.assertTrue(emergency_sync.youtube_community())
 
         self.assertIn("community_imported.json", saved)
