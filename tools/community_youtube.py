@@ -164,6 +164,14 @@ def title_type(text):
  else:return title,None
  return title,kind
 
+def is_verified_editorial_record(item):
+ """Only complete, classified posts with a verified detail page can be imported."""
+ return bool(
+  isinstance(item,dict) and item.get("verified_detail") and
+  item.get("type") and isinstance(item.get("text"),str) and
+  len(item["text"].strip())>=60
+ )
+
 def editorial_topic(title):
  """Return an explicit topic only when the editorial prefix defines one."""
  heading=re.sub(r"\s+"," ",str(title or "").casefold()).strip()
@@ -250,7 +258,7 @@ def discover(limit=160,max_pages=12):
   text=trim_youtube_promo_tail(item["text"].strip())
   item["text"]=text
   title,kind=title_type(text)
-  if not kind or len(text)<60 or not item.get("verified_detail"):continue
+  if not is_verified_editorial_record(item) or not kind:continue
   date=date_from_relative(item.get("when",""),reference)
   # YouTube relative dates are estimates, not a guaranteed precise published timestamp.
   heading=title.lower()
