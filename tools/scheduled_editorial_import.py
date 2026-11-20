@@ -73,7 +73,7 @@ def merge_queue(queue_file, dest_file, key, archived):
             continue
         if key == "posts":
             if not (re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", str(rid)) and
-                    r.get("text_complete") and r.get("type") and
+                     r.get("type") and
                     len(r.get("text") or "") >= 60):
                 continue
             duplicate, matched_title = _community_is_near_duplicate(r, comparison_rows)
