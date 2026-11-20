@@ -164,6 +164,15 @@ def title_type(text):
  else:return title,None
  return title,kind
 
+def editorial_topic(title):
+ """Return an explicit topic only when the editorial prefix defines one."""
+ heading=re.sub(r"\s+"," ",str(title or "").casefold()).strip()
+ if re.match(r"^(?:news\s+gaming|(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+gaming)(?:\s*[:：–—-]|\s+)",heading):
+  return "gaming"
+ if re.match(r"^(?:news\s+tech|(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+tech)(?:\s*[:：–—-]|\s+)",heading):
+  return "tech"
+ return None
+
 def discover(limit=160,max_pages=12):
  reference=datetime.now(timezone.utc)
  raw=""
@@ -239,7 +248,7 @@ def discover(limit=160,max_pages=12):
   date=date_from_relative(item.get("when",""),reference)
   # YouTube relative dates are estimates, not a guaranteed precise published timestamp.
   heading=title.lower()
-  explicit_topic="gaming" if heading.startswith(("news gaming","review gaming","recensione gaming","recensioni gaming")) else ("tech" if heading.startswith(("news tech","review tech","recensione tech","recensioni tech")) else "")
+  explicit_topic=editorial_topic(title) or ""
   item.update(title=title,type=kind,date=date[:10] if date else None,
     published_at=date or "",rank=ix,channel_id=CHANNEL_ID,text_complete=True,
     **({"topic":explicit_topic} if explicit_topic else {}))
