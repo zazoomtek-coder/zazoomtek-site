@@ -148,7 +148,7 @@ function backupKey(){
 function backupNow(){
  if(state.mode!=="editor"||!state.restoreReady)return;
  try{
-  const payload={record:collect(),updated_at:Date.now()};
+  const payload={record:collect(),category_touched:!!state.categoryTouched,updated_at:Date.now()};
   localStorage.setItem(backupKey(),JSON.stringify(payload));
   const label=E("v2-autosave-status");
   if(label)label.textContent="Testo protetto sul dispositivo · "+new Date(payload.updated_at).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -173,6 +173,7 @@ function restoreBackup(){
   // Never inherit the slug from another published article.
   const copy={...cached.record,slug:state.newContent?cached.record.slug:state.current.slug};
   editorFields(copy);
+  if(state.newContent&&cached.category_touched)state.categoryTouched=true;
   notify("Testo recuperato dal salvataggio automatico del browser. Premi Salva bozza per conservarlo anche su GitHub.");
  }catch(e){}
 }
@@ -556,7 +557,7 @@ function safePaste(e){
  const current=state.body[idx];
  if(current&&current.type==="paragraph"&&!String(current.text||"").trim()
     &&(raw.includes("\n")||raw.length>=180)){
-  if(state.newContent&&!state.categoryTouched){
+  if(state.newContent&&!state.categoryTouched&&raw.trim().length>=120){
    const detected=detectEditorialCategory(raw,val("v2-title"));
    E("v2-category").value=detected;
    E("v2-author").value=authorForCategory(detected);
