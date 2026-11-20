@@ -876,7 +876,7 @@ function collect(){
 async function uploadLocalAsset(value,slug){
  const source=String(value??"").trim();
  if(!/^data:/i.test(source))return value;
- const match=source.match(/^data:([^;,]+);base64,([\s\S]*)$/i);
+ const match=source.match(/^data:([^;,]+)(?:;[^,]*)*;base64,([\s\S]*)$/i);
  if(!match)throw Error("Immagine incorporata non riconosciuta: ricarica il file nel blocco interessato.");
  const mime=match[1].toLowerCase();
  const base64=match[2].replace(/\s/g,"").replace(/-/g,"+").replace(/_/g,"/");
