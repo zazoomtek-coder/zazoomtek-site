@@ -115,8 +115,12 @@ function syncArticleChrome(row){
 }
 
 function convertBody(row){
+ // A saved Studio override is authoritative: the live catalog's editor_blocks
+ // can be older than the body just committed to main. Never reopen stale prose.
+ if(row.source==="studio-editor"&&Array.isArray(row.body)&&row.body.length)
+  return row.body.map(b=>({...b}));
  // The server supplies the *same editorial paragraphs, red-bar H2s and order*
- // as the live article. Old Studio drafts are preserved, never discarded.
+ // as the live article. Old imported articles retain their generated editor blocks.
  if(Array.isArray(row.editor_blocks)&&row.editor_blocks.length)
   return row.editor_blocks.map(b=>({...b}));
  if(row.studio_blocks&&Array.isArray(row.body))return row.body.map(b=>({...b}));
