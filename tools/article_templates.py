@@ -704,9 +704,6 @@ def studio_sectioned_body(review):
      result.append('<p><strong>'+studio_inline(value.rstrip(":"))+'</strong></p>')
      continue
    result.append('<p>'+studio_inline(value)+'</p>')
-     continue
-    continue
-   result.append('<p>'+studio_inline(value)+'</p>')
   elif kind=="quote" and value:
    result.append('<blockquote class="studio-content-quote">'+studio_inline(value)+'</blockquote>')
   elif kind=="image":
