@@ -107,7 +107,10 @@ def verify_studio_v2(output,rows):
  assert 'api("session")' in script and 'api("v2-pending")' in script
  assert 'api("v2-save",{mode:"publish",creating:state.newContent,record:row})' in script
  assert 'in attesa del primo slot editoriale disponibile' in script and 'result.deploy_requested' not in script
- assert 'api("upload",{slug,mime:match[1],base64:match[2]})' in script
+ assert 'async function uploadLocalAsset(value,slug)' in script, "Studio V2 asset upload helper missing"
+ assert 'api("upload",{slug,mime,base64})' in script, "Studio V2 must upload normalized Base64 assets"
+ assert 'row.image=await uploadLocalAsset(row.image,row.slug)' in script, "Cover image must be uploaded before saving"
+ assert 'block.url=await uploadLocalAsset(block.url,row.slug)' in script, "Media blocks must be uploaded before saving"
  assert 'E("v2-publish").onclick=()=>save("publish")' in script
  assert 'E("v2-publish-bottom").onclick=()=>save("publish")' in script
  assert 'Solo anteprima' not in page and '>Pubblica</button>' in page
