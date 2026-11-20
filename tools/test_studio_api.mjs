@@ -159,6 +159,8 @@ const publish = await onRequest({
 assert.equal(publish.status, 200, "Studio publish endpoint should return success");
 const result = await publish.json();
 assert.equal(result.ok, true);
+const originalPublicPath = result.record.public_path;
+assert.ok(originalPublicPath, "A new article must receive its canonical public URL");
 assert.equal(result.status, "saved-main");
 assert.equal(result.branch, "main");
 assert.deepEqual(result.next_slots, ["12:30", "16:00", "19:30"]);
@@ -203,6 +205,8 @@ const editPending = await onRequest({
 assert.equal(editPending.status, 200, "Studio must allow editing an article already waiting in the queue");
 const editResult = await editPending.json();
 assert.equal(editResult.record.title, editedRecord.title);
+assert.equal(editResult.record.public_path, originalPublicPath,
+  "Replacing an existing article must preserve its original public URL");
 const latestPostWrite = writes.filter((item) => item.path === "data/studio_posts.json").at(-1);
 assert.ok(latestPostWrite, "Editing a queued article must update data/studio_posts.json");
 assert.equal(JSON.parse(latestPostWrite.content).posts[0].title, editedRecord.title);
