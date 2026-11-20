@@ -1,0 +1,60 @@
+name: ZazoomTek - pubblicazione diretta da Studio 2
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Articolo approvato da Studio 2"
+        required: true
+        type: string
+permissions:
+  contents: read
+  deployments: write
+concurrency:
+  group: zazoomtek-pages-production
+  cancel-in-progress: false
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CF_PAGES_BRANCH: main
+      CF_PAGES_URL: https://zazoomtek.it
+    steps:
+      - name: Carica i contenuti salvati da Studio 2
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verifica credenziali Cloudflare
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CF_TOKEN" || { echo "::error::Manca CLOUDFLARE_API_TOKEN"; exit 1; }
+          test -n "$CF_ACCOUNT" || { echo "::error::Manca CLOUDFLARE_ACCOUNT_ID"; exit 1; }
+      - name: Controlli sintattici senza eseguire importazioni
+        run: |
+          python3 -m compileall -q tools
+          node --check assets/js/studio-v2.js
+          node --input-type=module --check < 'functions/api/studio/[[path]].js'
+      - name: Genera il sito dai contenuti approvati su main
+        run: python3 tools/build.py
+      - name: Verifica file essenziali e articoli Studio
+        run: |
+          test -s dist/index.html
+          test -s dist/sitemap.xml
+          test -s dist/news-sitemap.xml
+          test -s dist/_routes.json
+          python3 tools/verify_editorial_live.py --build-only
+      - name: Pubblica su Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica sul dominio pubblico
+        run: python3 tools/verify_editorial_live.py
