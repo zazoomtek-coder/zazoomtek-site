@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from community_youtube import (
-    editorial_topic, merge_post_media, title_type,
+    editorial_topic, is_verified_editorial_record, merge_post_media, title_type,
     trim_youtube_promo_tail, webpage_json,
 )
 from review_pros_cons import attach, extract
@@ -49,6 +49,25 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
         for title, expected in cases.items():
             with self.subTest(title=title):
                 self.assertEqual(editorial_topic(title), expected)
+
+    def test_partial_detail_failures_do_not_admit_unverified_posts(self):
+        valid = {
+            "verified_detail": True, "type": "news",
+            "text": "NEWS TECH: " + ("contenuto verificato " * 5),
+        }
+        failed = {
+            "verified_detail": False, "type": "news",
+            "text": "NEWS TECH: " + ("contenuto non verificato " * 5),
+        }
+        incomplete = {
+            "verified_detail": True, "type": "news", "text": "NEWS TECH: breve",
+        }
+        self.assertTrue(is_verified_editorial_record(valid))
+        self.assertFalse(is_verified_editorial_record(failed))
+        self.assertFalse(is_verified_editorial_record(incomplete))
+        batch = [valid, failed]
+        accepted = [item for item in batch if is_verified_editorial_record(item)]
+        self.assertEqual(accepted, [valid])
 
     def test_review_metadata_dependency_is_available_and_non_destructive(self):
         source = "PRO:\n- Buona qualità\nCONTRO:\n- Prezzo elevato"
