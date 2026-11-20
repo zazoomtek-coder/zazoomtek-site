@@ -1,7 +1,22 @@
 name: ZazoomTek - deploy manuale su zazoomtek.it
 # Deploy the current main site only. Never enable or alter editorial workflows.
 on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/api/studio/[[path]].js"
+      - "assets/js/studio-v2.js"
+      - "tools/studio_v2_build.py"
+      - "tools/article_templates.py"
+      - "tools/verify_studio_v2.py"
+      - "tools/test_studio_api.mjs"
+      - ".github/workflows/pages-deploy-manual.yml"
   workflow_dispatch:
+    inputs:
+      slug:
+        description: "Articolo da pubblicare tramite Studio 2"
+        required: false
+        type: string
 permissions:
   contents: read
   deployments: write
@@ -31,10 +46,40 @@ jobs:
             echo "::error::Mancano CLOUDFLARE_API_TOKEN o CLOUDFLARE_ACCOUNT_ID nei repository Secrets."
             exit 1
           fi
-      - name: Genera il sito ufficiale dalla versione corrente di main
-        run: python3 tools/build.py
+      - name: Controlli sintattici e generazione del sito ufficiale
+        run: |
+          python3 -m compileall -q tools
+          node --check assets/js/studio-v2.js
+          node --input-type=module --check < 'functions/api/studio/[[path]].js'
+          python3 tools/build.py
       - name: Controlla file indispensabili
-        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/_routes.json
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/news-sitemap.xml && test -s dist/_routes.json
+      - name: Verifica che l'articolo Studio richiesto sia presente nella build
+        if: github.event_name == 'workflow_dispatch' && inputs.slug != ''
+        env:
+          INPUT_SLUG: ${{ inputs.slug }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          sys.path.insert(0, "tools")
+          from article_routes import build_article_url
+          slug=os.environ["INPUT_SLUG"]
+          found=None
+          for name,key in (("studio_posts.json","posts"),("studio_overrides.json","overrides")):
+              data=json.loads((Path("data")/name).read_text(encoding="utf-8"))[key]
+              rows=data if isinstance(data,list) else data.values()
+              for row in rows:
+                  if row.get("slug")==slug:
+                      found=row
+          if not found:
+              raise SystemExit("Articolo Studio non trovato su main: "+slug)
+          route=build_article_url(found)
+          page=Path("dist")/(route.lstrip("/")+".html")
+          if not page.is_file():
+              raise SystemExit("Pagina non generata: "+str(page))
+          print("BUILD VERIFIED:",route)
+          PY
       - name: Pubblica su zazoomtek-site con Cloudflare Wrangler
         uses: cloudflare/wrangler-action@v4
         with:
@@ -42,3 +87,43 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica pagina pubblicata da Studio 2 sul dominio pubblico
+        if: github.event_name == 'workflow_dispatch' && inputs.slug != ''
+        env:
+          INPUT_SLUG: ${{ inputs.slug }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, time, urllib.request
+          from pathlib import Path
+          sys.path.insert(0, "tools")
+          from article_routes import build_article_url
+          slug=os.environ["INPUT_SLUG"]
+          found=None
+          for name,key in (("studio_posts.json","posts"),("studio_overrides.json","overrides")):
+              data=json.loads((Path("data")/name).read_text(encoding="utf-8"))[key]
+              rows=data if isinstance(data,list) else data.values()
+              for row in rows:
+                  if row.get("slug")==slug:
+                      found=row
+          if not found:
+              raise SystemExit("Articolo Studio non trovato su main: "+slug)
+          url="https://zazoomtek.it"+build_article_url(found)
+          title=str(found.get("title") or "")
+          for attempt in range(1,7):
+              try:
+                  req=urllib.request.Request(url,headers={"User-Agent":"ZazoomTek-Studio-Publish/1.0","Cache-Control":"no-cache"})
+                  with urllib.request.urlopen(req,timeout=20) as response:
+                      body=response.read().decode("utf-8",errors="replace")
+                      if response.status==200 and title[:45] in body:
+                          print("LIVE VERIFIED:",url)
+                          break
+                  raise RuntimeError("pagina non confermata")
+              except Exception as exc:
+                  if attempt==6:
+                      raise SystemExit("PUBBLICAZIONE NON CONFERMATA: "+url+" "+str(exc))
+                  print("Verifica",attempt,"non ancora disponibile:",str(exc)[:160])
+                  time.sleep(10)
+          PY
+      - name: Verifica gli articoli editoriali dopo il deploy del codice Studio
+        if: github.event_name == 'push'
+        run: python3 tools/verify_editorial_live.py
