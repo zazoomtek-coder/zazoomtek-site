@@ -102,7 +102,7 @@ def verify_studio_v2(output,rows):
  assert 'updateAutoCategory();syncArticleChrome({...state.current,...collect()})' in script, "Pasting or editing the title must refresh the inferred category"
  assert 'updateAutoCategory();renderBlocks();seoStatus();scheduleBackup();' in script, "Pasting body text must refresh category and preserve the edit"
  assert "function safeHtmlFragment(source)" in script, "Studio preview must sanitize custom HTML before rendering"
- assert 'sandbox="allow-scripts allow-forms allow-popups"' in script, "Third-party HTML embeds must run inside a sandbox"
+ assert 'setAttribute("sandbox","allow-scripts allow-forms allow-popups")' in script, "Third-party HTML embeds must run inside a sandbox"
  assert 'id="v2-new-from-editor"' in page and 'id="v2-new-from-editor-bottom"' in page, "Create-new controls must be available inside the editor"
  assert 'state.categoryTouched=true;E("v2-author")' in script, "Manual category selection must take precedence over automatic detection for new and existing articles"
  assert 'category_touched:!!state.categoryTouched' in script, "Manual category choice must survive autosave"
