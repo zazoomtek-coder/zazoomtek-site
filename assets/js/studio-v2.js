@@ -821,9 +821,16 @@ function collect(){
   pros:lines("v2-pros"),cons:lines("v2-cons")};
 }
 async function uploadLocalAsset(value,slug){
- const match=String(value||"").match(/^data:([^;,]+);base64,([A-Za-z0-9+/=]+)$/);
- if(!match)return value;
- const result=await api("upload",{slug,mime:match[1],base64:match[2]});
+ const source=String(value??"").trim();
+ if(!/^data:/i.test(source))return value;
+ const match=source.match(/^data:([^;,]+);base64,([\s\S]*)$/i);
+ if(!match)throw Error("Immagine incorporata non riconosciuta: ricarica il file nel blocco interessato.");
+ const mime=match[1].toLowerCase();
+ const base64=match[2].replace(/\s/g,"").replace(/-/g,"+").replace(/_/g,"/");
+ if(!base64||!/^[A-Za-z0-9+/]*={0,2}$/.test(base64))
+  throw Error("Dati dell'immagine non validi: il contenuto originale è ancora conservato nella bozza.");
+ const result=await api("upload",{slug,mime,base64});
+ if(!result.url)throw Error("Il caricamento dell'immagine non ha restituito il percorso del file.");
  return result.url;
 }
 async function cancelDraft(){
@@ -878,7 +885,7 @@ async function save(mode){
   notify("Preparazione dei contenuti e salvataggio su main...");
   row.image=await uploadLocalAsset(row.image,row.slug);
   for(const block of row.body){
-   if(["image","audio","attachment"].includes(block.type)&&String(block.url||"").startsWith("data:")){
+   if(["image","audio","attachment"].includes(block.type)){
     block.url=await uploadLocalAsset(block.url,row.slug);
     delete block.preview;
    }
