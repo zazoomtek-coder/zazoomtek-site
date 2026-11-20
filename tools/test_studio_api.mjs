@@ -152,6 +152,38 @@ const pendingData = await pending.json();
 assert.ok(pendingData.posts.some((item) => item.slug === record.slug),
   "A newly saved main article must immediately appear in the Studio library");
 
+const editedRecord = {
+  ...record,
+  title: "Verifica automatica modifica articolo Studio già in coda",
+  body: [{
+    type: "paragraph",
+    text: "La modifica di un articolo ancora in coda deve aggiornare il record esistente su main, " +
+      "senza creare duplicati e senza chiedere un deploy immediato.",
+  }],
+};
+const editPending = await onRequest({
+  request: request(" /api/studio/v2-save".trim(), "POST", {
+    mode: "publish",
+    record: editedRecord,
+    creating: false,
+  }, cookie),
+  env,
+});
+assert.equal(editPending.status, 200, "Studio must allow editing an article already waiting in the queue");
+const editResult = await editPending.json();
+assert.equal(editResult.record.title, editedRecord.title);
+const latestPostWrite = writes.filter((item) => item.path === "data/studio_posts.json").at(-1);
+assert.ok(latestPostWrite, "Editing a queued article must update data/studio_posts.json");
+assert.equal(JSON.parse(latestPostWrite.content).posts[0].title, editedRecord.title);
+const pendingAfterEdit = await onRequest({
+  request: request("/api/studio/v2-pending", "GET", undefined, cookie),
+  env,
+});
+const pendingAfterEditData = await pendingAfterEdit.json();
+assert.equal(pendingAfterEditData.posts.find((item) => item.slug === record.slug)?.title,
+  editedRecord.title, "The edited queued article must remain visible in the Studio library");
+assert.equal(dispatches.length, 0, "Editing a queued article must not trigger an immediate deployment");
+
 const duplicate = await onRequest({
   request: request("/api/studio/v2-save", "POST", {
     mode: "publish",
