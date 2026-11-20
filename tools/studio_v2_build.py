@@ -227,7 +227,7 @@ def build_studio_v2(output,rows):
        <div>Descrizione</div><span id="v2-seo-description">Ottimizzata automaticamente dal contenuto completo.</span></div>
      </div>
      <div class="v2-settings-section"><div class="v2-setting-title">Pubblicazione</div>
-      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva articolo e media su main e avvia una build dedicata del sito. La pubblicazione viene confermata soltanto dopo la verifica della pagina online. I testi restano protetti dal salvataggio locale.</p>
+      <p class="v2-settings-hint">Anteprima non modifica il sito. Salva bozza conserva il lavoro. Pubblica salva articolo e media su main e li inserisce nella coda per il primo slot editoriale disponibile. Il sito viene aggiornato automaticamente al prossimo slot autorizzato. I testi restano protetti dal salvataggio locale.</p>
       <a id="v2-public-link" href="#" target="_blank" rel="noopener noreferrer" hidden>↗ Apri articolo pubblicato</a>
      </div>
     </aside>
