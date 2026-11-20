@@ -253,6 +253,29 @@ assert.ok(unrestrictedResult.record.body[1].text.length > 12000,
   "A text block longer than 12,000 characters must be preserved");
 
 
+const htmlRecord = {
+  ...record,
+  slug: "studio-api-html-check",
+  title: "Verifica blocco HTML personalizzato Studio",
+  body: [
+    { type: "paragraph", text: "Testo editoriale sufficiente per la pubblicazione del contenuto HTML personalizzato. ".repeat(5) },
+    { type: "html", html: '<p>Scopri il prodotto <a href="https://www.amazon.it/dp/B000000000">su Amazon</a></p>' },
+  ],
+};
+const htmlPublish = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "publish",
+    record: htmlRecord,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(htmlPublish.status, 200, "Studio must publish an article containing custom HTML blocks");
+const htmlResult = await htmlPublish.json();
+assert.equal(htmlResult.record.body[1].type, "html");
+assert.equal(htmlResult.record.body[1].html, htmlRecord.body[1].html,
+  "Custom HTML must be preserved exactly in the main article record");
+
 const jpeg = Buffer.alloc(80);
 jpeg[0] = 0xff; jpeg[1] = 0xd8; jpeg[2] = 0xff;
 const upload = await onRequest({
