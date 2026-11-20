@@ -141,6 +141,42 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "[CF-Pages-Skip] Conferma deploy editoriale"
           git push origin HEAD:main
+      - name: Rigenera il sito per aggiornare Studio 2 nello slot 19:30
+        if: ${{ needs.rome-slot-guard.outputs.allowed == 'true' && env.EDITORIAL_REQUESTED_SLOT == '19:30' && env.EDITORIAL_RELEASE_AUTHORIZED != 'true' }}
+        run: python3 tools/build.py
+      - name: Verifica i file della build di aggiornamento Studio 2
+        if: ${{ needs.rome-slot-guard.outputs.allowed == 'true' && env.EDITORIAL_REQUESTED_SLOT == '19:30' && env.EDITORIAL_RELEASE_AUTHORIZED != 'true' }}
+        run: test -s dist/index.html && test -s dist/sitemap.xml && test -s dist/news-sitemap.xml && test -s dist/robots.txt && test -s dist/_routes.json
+      - name: Aggiorna Cloudflare Pages con la versione corrente di main nello slot 19:30
+        if: ${{ needs.rome-slot-guard.outputs.allowed == 'true' && env.EDITORIAL_REQUESTED_SLOT == '19:30' && env.EDITORIAL_RELEASE_AUTHORIZED != 'true' }}
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=zazoomtek-site --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verifica che Studio 2 live salvi e ricarichi le bozze da GitHub
+        if: ${{ always() && needs.rome-slot-guard.outputs.allowed == 'true' && env.EDITORIAL_REQUESTED_SLOT == '19:30' }}
+        run: |
+          python3 - <<'PY'
+          import time
+          import urllib.request
+
+          url = "https://zazoomtek.it/assets/js/studio-v2.js?verify=" + str(time.time_ns())
+          request = urllib.request.Request(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              source = response.read().decode("utf-8", errors="replace")
+          required = (
+              'api("v2-save",{mode:"draft"',
+              'api("v2-drafts")',
+              'api("upload"',
+              'remoteDrafts.drafts',
+          )
+          missing = [item for item in required if item not in source]
+          if missing:
+              raise SystemExit("Studio 2 live non aggiornato: " + ", ".join(missing))
+          print("STUDIO 2 LIVE VERIFIED: salvataggio bozza GitHub, recupero remoto e upload media attivi.")
+          PY
       - name: Verifica l'esito reale delle importazioni YouTube
         if: always()
         run: |
