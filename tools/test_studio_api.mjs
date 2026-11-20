@@ -280,29 +280,6 @@ assert.equal(htmlResult.record.body[1].type, "html");
 assert.equal(htmlResult.record.body[1].html, htmlRecord.body[1].html,
   "Custom HTML must be preserved exactly in the main article record");
 
-const htmlRecord = {
-  ...record,
-  slug: "studio-api-html-check",
-  title: "Verifica blocco HTML personalizzato Studio",
-  body: [
-    { type: "paragraph", text: "Testo editoriale sufficiente per la pubblicazione del contenuto HTML personalizzato. ".repeat(5) },
-    { type: "html", html: "<p>Contenuto HTML di prova con un <strong>elemento formattato</strong>.</p>" },
-  ],
-};
-const htmlPublish = await onRequest({
-  request: request("/api/studio/v2-save", "POST", {
-    mode: "publish",
-    record: htmlRecord,
-    creating: true,
-  }, cookie),
-  env,
-});
-assert.equal(htmlPublish.status, 200, "Studio must publish an article containing custom HTML blocks");
-const htmlResult = await htmlPublish.json();
-assert.equal(htmlResult.record.body[1].type, "html");
-assert.equal(htmlResult.record.body[1].html, htmlRecord.body[1].html,
-  "Custom HTML must be preserved exactly in the main article record");
-
 const jpeg = Buffer.alloc(80);
 jpeg[0] = 0xff; jpeg[1] = 0xd8; jpeg[2] = 0xff;
 const upload = await onRequest({
@@ -329,4 +306,30 @@ assert.equal(media.status, 200, "The uploaded cover must be readable in Studio p
 assert.equal(media.headers.get("Content-Type"), "image/jpeg");
 assert.equal((await media.arrayBuffer()).byteLength, jpeg.byteLength);
 
-console.log("STUDIO API INTEGRATION PASS: login, publish-to-main, first scheduled slot, library refresh, duplicate protection, cover upload and preview.");
+const imageArticle = {
+  ...record,
+  slug: "studio-api-image-block-check",
+  title: "Verifica pubblicazione articolo con immagine interna",
+  body: [
+    { type: "paragraph", text: "Questo articolo verifica che un'immagine caricata dal computer venga collegata correttamente al contenuto e salvata su main. Il percorso restituito dal caricamento deve essere riconosciuto dall'API di pubblicazione e conservato nel blocco immagine senza errori." },
+    { type: "image", url: uploaded.url.slice(1), alt: "Immagine di prova", caption: "Immagine interna di prova" },
+  ],
+};
+const imagePublish = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "publish",
+    record: imageArticle,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(imagePublish.status, 200, "Studio must publish an article with a freshly uploaded internal image path");
+const imageResult = await imagePublish.json();
+assert.equal(imageResult.record.body[1].url, uploaded.url,
+  "An uploaded image path without a leading slash must be normalized to the canonical public asset URL");
+const imagePostWrite = writes.filter((item) => item.path === "data/studio_posts.json").at(-1);
+assert.ok(JSON.parse(imagePostWrite.content).posts.some((item) =>
+  item.slug === imageArticle.slug && item.body[1].url === uploaded.url),
+  "The article and its internal image URL must both be committed to main");
+
+console.log("STUDIO API INTEGRATION PASS: login, publish-to-main, first scheduled slot, library refresh, duplicate protection, cover upload, image blocks and preview.");
