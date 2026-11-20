@@ -141,3 +141,21 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "[CF-Pages-Skip] Conferma deploy editoriale"
           git push origin HEAD:main
+      - name: Verifica l'esito reale delle importazioni YouTube
+        if: always()
+        run: |
+          if [ ! -s .editorial-import-manifest.json ]; then
+            echo "Manifest YouTube assente: importazione non avviata o preflight interrotto."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path(".editorial-import-manifest.json").read_text(encoding="utf-8"))
+          status = manifest.get("source_status", {})
+          failed = [name for name in ("videos", "community") if status.get(name) is not True]
+          if failed:
+              raise SystemExit("IMPORTAZIONE YOUTUBE INCOMPLETA: " + ", ".join(failed) +
+                               ". I contenuti già validi sono stati preservati; il prossimo slot riproverà.")
+          print("YOUTUBE IMPORT VERIFIED:", status)
+          PY
