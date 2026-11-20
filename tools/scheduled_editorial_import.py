@@ -11,7 +11,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from emergency_sync import youtube_videos, youtube_community, refresh_rss, category_for_post
+from emergency_sync import (youtube_videos, youtube_community, refresh_rss, category_for_post,\n                            _community_is_near_duplicate, _published_community_comparison_rows)
 from article_routes import CATEGORY_PREFIX, unique_slug
 from article_templates import author_for_category
 
@@ -62,6 +62,8 @@ def merge_queue(queue_file, dest_file, key, archived):
         occupied_paths.update(str(x.get("public_path")) for x in overrides.values()
                               if isinstance(x, dict) and x.get("public_path"))
     added = []
+    comparison_rows = _published_community_comparison_rows() if key == "posts" else []
+    duplicate_skipped = 0
     for r in source:
         if not isinstance(r, dict):
             continue
@@ -72,6 +74,12 @@ def merge_queue(queue_file, dest_file, key, archived):
             if not (re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", str(rid)) and
                     r.get("text_complete") and r.get("type") and
                     len(r.get("text") or "") >= 60):
+                continue
+            duplicate, matched_title = _community_is_near_duplicate(r, comparison_rows)
+            if duplicate:
+                duplicate_skipped += 1
+                print("COMMUNITY QUEUE DUPLICATE SKIPPED:", r.get("title", "")[:120],
+                      "matches:", matched_title[:120], flush=True)
                 continue
         else:
             if not re.fullmatch(r"[A-Za-z0-9_-]{11}", str(rid)):
@@ -105,7 +113,8 @@ def merge_queue(queue_file, dest_file, key, archived):
         (DATA / dest_file).write_text(
             json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
         )
-    print("QUEUE RESTORED", queue_file, len(added), flush=True)
+    print("QUEUE RESTORED", queue_file, len(added),
+          "near-duplicates skipped:", duplicate_skipped, flush=True)
     return added
 
 
