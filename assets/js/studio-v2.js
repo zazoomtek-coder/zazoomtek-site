@@ -168,12 +168,12 @@ function restoreBackup(){
   if(!cached||!cached.record||!Array.isArray(cached.record.body))return;
   const slug=state.newContent?String(cached.record.slug||""):String(state.current?.slug||"");
   const server=state.drafts[slug];
-  const serverTime=Date.parse(server?.updated_at||"")||0;
+  const serverTime=Math.max(Date.parse(server?.updated_at||"")||0,Date.parse(state.current?.updated_at||"")||0);
   if(cached.updated_at < serverTime)return;
   // Never inherit the slug from another published article.
   const copy={...cached.record,slug:state.newContent?cached.record.slug:state.current.slug};
   editorFields(copy);
-  if(state.newContent&&cached.category_touched)state.categoryTouched=true;
+  if(cached.category_touched)state.categoryTouched=true;
   notify("Testo recuperato dal salvataggio automatico del browser. Premi Salva bozza per conservarlo anche su GitHub.");
  }catch(e){}
 }
@@ -302,7 +302,8 @@ function showArticlePreview(savedRecord=null){
    if(id){const box=S("div","player studio-content-video"),thumb=S("img");thumb.src="https://i.ytimg.com/vi/"+id+"/hqdefault.jpg";thumb.alt="Anteprima video YouTube";box.append(thumb,S("p","v2-preview-media","▶ Riproduci video"));text.append(box)}
   }else if(typ==="button"){
    const p=S("p","studio-content-action"),link=S("a","v2-preview-action",t||"Apri collegamento");link.href=block.url||"#";p.append(link);text.append(p);
-  }else if(typ==="divider")text.append(S("hr","studio-content-divider"));
+  }else if(typ==="html")text.append(safeHtmlFragment(block.html||""));
+  else if(typ==="divider")text.append(S("hr","studio-content-divider"));
   else if(typ==="poll"){
    const poll=S("section","studio-content-poll");poll.append(S("h3","",t));
    const ul=S("ul");(block.options||[]).forEach(x=>ul.append(S("li","",x)));poll.append(ul,S("p","studio-poll-note","Sondaggio editoriale — raccolta voti non attivata."));text.append(poll);
@@ -411,7 +412,7 @@ function showHome(){
 }
 function showEditor(row,newContent,skipBackup=false){
  if(!skipBackup)backupNow(); // Protect previous article before replacing the editor contents.
- state.current=row;state.newContent=!!newContent;
+ state.current=row;state.newContent=!!newContent;state.categoryTouched=false;
  if(state.newContent&&!state.newDraftId)state.newDraftId=makeDraftId();
  if(!state.newContent)state.newDraftId=null;
  state.mode="editor";state.restoreReady=false;
@@ -484,11 +485,11 @@ function addBlock(kind){
  E("v2-insert-menu").hidden=true;
  if(kind==="link"&&state.context){inlineLink();return}
  const position=Math.max(0,Math.min(state.body.length,Number.isInteger(state.at)?state.at:state.body.length));
- const block={type:kind==="link"?"paragraph":kind,text:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
+ const block={type:kind==="link"?"paragraph":kind,text:"",html:"",url:"",caption:"",alt:"",align:"center",focus_x:50,focus_y:50,zoom:100,rotation:0};
  if(kind==="divider")block.text="—";
  if(kind==="poll")block.options=["Opzione 1","Opzione 2"];
  state.body.splice(position,0,block);state.at=position+1;renderBlocks();
- if(["image","audio","attachment","video","button","poll"].includes(kind))editMedia(block);
+ if(["image","audio","attachment","video","button","poll","html"].includes(kind))editMedia(block);
  else if(["paragraph","heading","quote"].includes(block.type)){
   const row=E("v2-blocks").querySelector('[data-index="'+position+'"]');
   const editable=row?.querySelector(".v2-rich-text");
@@ -576,32 +577,62 @@ function detectEditorialCategory(input,title){
   if(extra)return "extra";
   return gaming?"news-gaming":"news-tech";
 }
+function updateAutoCategory(){
+ if(state.categoryTouched)return;
+ const title=val("v2-title");
+ const body=state.body.map(block=>block.type==="html"?String(block.html||"").replace(/<[^>]*>/g," "):String(block.text||"")).join(" ");
+ if(!title&&!body.trim())return;
+ const detected=detectEditorialCategory(body,title);
+ if(E("v2-category").value!==detected){
+  E("v2-category").value=detected;
+  E("v2-author").value=authorForCategory(detected);
+  state.current={...(state.current||{}),category:detected,author:authorForCategory(detected)};
+  syncArticleChrome({...state.current,...collect()});
+ }
+}
 function safePaste(e){
  e.preventDefault();
  const raw=e.clipboardData?.getData("text/plain")||"";
+ if(!raw)return;
  const idx=Number(e.currentTarget.closest("[data-index]")?.dataset.index);
  const current=state.body[idx];
- let autoCategory=null;
- if(current&&current.type==="paragraph"&&!String(current.text||"").trim()
-    &&(raw.includes("\n")||raw.length>=180)){
-  if(state.newContent&&!state.categoryTouched&&raw.trim().length>=120){
-   const detected=detectEditorialCategory(raw,val("v2-title"));
-   autoCategory=detected;
-   E("v2-category").value=detected;
-   E("v2-author").value=authorForCategory(detected);
-   state.current={...state.current,category:detected,author:authorForCategory(detected)};
-   state.categoryTouched=true;
-   syncArticleChrome({...state.current,...collect()});
-  }
+ if(current&&current.type==="paragraph"&&!String(current.text||"").trim()){
   const blocks=formattedTextBlocks(raw,val("v2-category"),val("v2-title"));
-  state.body.splice(idx,1,...blocks);renderBlocks();seoStatus();scheduleBackup();
-  notify("Testo inserito e impaginato secondo il modello editoriale ZazoomTek."+(autoCategory?" Categoria rilevata: "+cats[autoCategory]+". Puoi modificarla nelle impostazioni.":""));
+  state.body.splice(idx,1,...blocks);updateAutoCategory();renderBlocks();seoStatus();scheduleBackup();
+  notify("Testo inserito e impaginato. Categoria aggiornata automaticamente in base a titolo e contenuto.");
   return;
  }
  const sel=window.getSelection();if(!sel?.rangeCount)return;
  const r=sel.getRangeAt(0),node=document.createTextNode(raw);
  r.deleteContents();r.insertNode(node);r.setStartAfter(node);r.collapse(true);
  sel.removeAllRanges();sel.addRange(r);e.currentTarget.dispatchEvent(new Event("input",{bubbles:true}));
+}
+function safeHtmlFragment(source){
+ const template=document.createElement("template");template.innerHTML=String(source||"");
+ const allowed=new Set(["a","p","br","strong","b","em","i","u","s","ul","ol","li","h2","h3","h4","blockquote","hr","img","figure","figcaption","div","span","small","sup","sub","code","pre","table","thead","tbody","tr","th","td","section"]);
+ const blocked=new Set(["script","style","iframe","object","embed","svg","math","form","input","button","textarea","select","option","video","audio","source","link","meta"]);
+ const cleanNode=node=>{
+  if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.nodeValue||"");
+  if(node.nodeType!==Node.ELEMENT_NODE)return document.createDocumentFragment();
+  const tag=node.tagName.toLowerCase();if(blocked.has(tag))return document.createDocumentFragment();
+  const children=Array.from(node.childNodes).map(cleanNode);
+  if(!allowed.has(tag)){const fragment=document.createDocumentFragment();children.forEach(child=>fragment.append(child));return fragment;}
+  const element=document.createElement(tag);
+  if(tag==="a"){
+   const href=node.getAttribute("href")||"";
+   if(/^https:\/\//i.test(href)||(/^\/(?!\/)/.test(href)))element.href=href;
+   if(element.href){element.rel="noopener noreferrer external";if(/^https:\/\//i.test(href))element.target="_blank";}
+   const title=node.getAttribute("title");if(title)element.title=title.slice(0,180);
+  }else if(tag==="img"){
+   const src=node.getAttribute("src")||"";
+   if(/^https:\/\//i.test(src)||(/^\/(?!\/)/.test(src)))element.src=src;else return document.createDocumentFragment();
+   element.alt=(node.getAttribute("alt")||"").slice(0,180);element.loading="lazy";element.decoding="async";
+  }else if(tag==="td"||tag==="th"){
+   for(const name of ["colspan","rowspan"]){const v=Number(node.getAttribute(name));if(Number.isInteger(v)&&v>0&&v<=12)element.setAttribute(name,String(v));}
+  }
+  children.forEach(child=>element.append(child));return element;
+ };
+ const fragment=document.createDocumentFragment();Array.from(template.content.childNodes).map(cleanNode).forEach(node=>fragment.append(node));return fragment;
 }
 function hideContext(){if(state.contextBtn)state.contextBtn.hidden=true}
 function cursorHere(){/* Insertion is managed by between-block controls, like Patreon. */}
@@ -647,7 +678,7 @@ function renderBlocks(){
    editable.setAttribute("aria-label",b.type==="heading"?"Modifica sottotitolo":"Modifica il testo");
    editable.dataset.placeholder=b.type==="heading"?"Scrivi un sottotitolo...":"Clicca per scrivere...";
    editable.append(richContent(b.text||""));
-   editable.addEventListener("input",()=>{b.text=richValue(editable).trim();seoStatus();scheduleBackup()});
+   editable.addEventListener("input",()=>{b.text=richValue(editable).trim();updateAutoCategory();seoStatus();scheduleBackup()});
    editable.addEventListener("paste",safePaste);
    const tools=S("div","v2-media-hover-tools");
    tools.append(actionButton("↑",()=>moveBlock(i,-1)));
@@ -678,6 +709,7 @@ function renderBlocks(){
     card.append(S("h3","",b.text||"Sondaggio"));
     const ul=S("ul");(b.options||[]).forEach(x=>ul.append(S("li","",x)));card.append(ul);
    }else if(b.type==="button")card.append(S("span","v2-action-example",b.text||"Pulsante"));
+   else if(b.type==="html"){card.classList.add("v2-html-block");card.append(safeHtmlFragment(b.html||""));}
    else if(b.type==="audio"){
     if(b.url&&!b.preview){const player=S("audio");player.controls=true;player.preload="none";player.src=b.url;card.append(player)}
     card.append(S("p","",b.text||"Audio"));
@@ -743,6 +775,7 @@ function editMedia(block){
  const cap=["image","video","audio"].includes(kind)?field(body,"Didascalia (facoltativa)",block.caption||""):null;
  const alt=kind==="image"?field(body,"Descrizione immagine per Google",block.alt||""):null;
  const options=kind==="poll"?field(body,"Opzioni del sondaggio (una per riga)",(block.options||[]).join("\n"),"textarea"):null;
+ const html=kind==="html"?field(body,"HTML personalizzato · link affiliati, immagini e formattazione",block.html||"","textarea"):null;
  if(["image","audio","attachment"].includes(kind)){
   const upload=actionButton("Carica dal computer",()=>{closeModal();chooseFile(block)});upload.className="v2-soft";
   body.append(upload);
@@ -757,9 +790,10 @@ function editMedia(block){
   const rotation=field(grid,"Rotazione -180° / 180°",block.rotation??0,"number");
   crop={align,focusX,focusY,zoom,rotation};body.append(grid);
  }
- modal(({image:"Modifica immagine",video:"Inserisci video YouTube",audio:"Aggiungi audio",button:"Modifica pulsante e link",attachment:"Allegato",poll:"Sondaggio"})[kind],body,()=>{
+ modal(({image:"Modifica immagine",video:"Inserisci video YouTube",audio:"Aggiungi audio",button:"Modifica pulsante e link",attachment:"Allegato",poll:"Sondaggio",html:"HTML personalizzato"})[kind],body,()=>{
   if(u)block.url=u.value.trim();if(t)block.text=t.value.trim();if(cap)block.caption=cap.value.trim();if(alt)block.alt=alt.value.trim();
   if(options)block.options=options.value.split("\n").map(v=>v.trim()).filter(Boolean).slice(0,8);
+  if(html)block.html=html.value;
   if(crop){
    block.align=["left","center","right"].includes(crop.align.value)?crop.align.value:"center";
    block.focus_x=num(crop.focusX.value,0,100,50);block.focus_y=num(crop.focusY.value,0,100,50);
@@ -971,7 +1005,7 @@ E("v2-menu-close").onclick=()=>E("v2-insert-menu").hidden=true;
 E("v2-cover-add").onclick=editCover;E("v2-cover-change").onclick=()=>chooseFile(null);E("v2-cover-edit").onclick=editCover;
 E("v2-cover-remove").onclick=()=>{state.cover="";state.coverPreview="";syncCover()};
 E("v2-cover-sidebar").onclick=editCover;
-E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));syncArticleChrome({...state.current,...collect()});seoStatus()};
+E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));updateAutoCategory();syncArticleChrome({...state.current,...collect()});seoStatus()};
 E("v2-category").addEventListener("change",()=>{if(state.newContent)state.categoryTouched=true;E("v2-author").value=authorForCategory(val("v2-category"));syncArticleChrome({...state.current,...collect()})});
 for(const id of ["v2-category","v2-author","v2-platform","v2-score","v2-pros","v2-cons","v2-video-url"]) E(id).addEventListener("input",()=>syncArticleChrome({...state.current,...collect()}));
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
