@@ -151,8 +151,18 @@ async function authenticate(token){
  return {login:OWNER,id:user.id};
 }
 function secureUrl(v){
- const x=clean(v);
+ let x=clean(v);
  if(!x)return "";
+ // Accept repository upload paths both with and without the leading slash.
+ const uploadedPath=/^assets\/uploads\/[a-z0-9-]+\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp|mp3|m4a|wav|pdf|txt)$/i;
+ if(uploadedPath.test(x))return "/"+x;
+ // Convert Studio's authenticated preview proxy into the canonical public asset path.
+ if(x.startsWith("/api/studio/v2-asset?")){
+  try{
+   const path=new URL(x,"https://zazoomtek.it").searchParams.get("path")||"";
+   if(uploadedPath.test(path))return "/"+path;
+  }catch(_){}
+ }
  if(x.startsWith("/")&&!x.startsWith("//")&&!/[<>"'\\]/.test(x))return x;
  try{
   const p=new URL(x);
