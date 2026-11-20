@@ -624,7 +624,8 @@ function safeHtmlFragment(source){
    if(element.href){element.rel="noopener noreferrer external";if(/^https:\/\//i.test(href))element.target="_blank";}
    const title=node.getAttribute("title");if(title)element.title=title.slice(0,180);
   }else if(tag==="iframe"){
-   const src=node.getAttribute("src")||"";
+   let src=node.getAttribute("src")||"";
+   if(src.startsWith("//"))src="https:"+src;
    if(!/^https:\/\//i.test(src))return document.createDocumentFragment();
    element.src=src;element.loading="lazy";element.referrerPolicy="no-referrer";
    element.setAttribute("sandbox","allow-scripts allow-forms allow-popups");
