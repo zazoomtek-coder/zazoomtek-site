@@ -188,14 +188,22 @@ function formattedTextBlocks(input,category,title){
   if(text)output.push({type:"paragraph",text});
   paragraph.length=0;
  };
- for(const line of raw.split("\n")){
-  const value=line.trim();
+ const lines=raw.split("\n");
+ for(let i=0;i<lines.length;i++){
+  const value=lines[i].trim();
   if(!value){flush();continue}
   const markdownHeading=value.match(/^#{1,3}\s+(.+?)\s*#*$/);
   const boldHeading=value.match(/^\*\*([^*\n]{1,120})\*\*$/);
-  if(markdownHeading||boldHeading){
+  // Recognize plain, isolated editorial subtitles pasted without Markdown.
+  // A heading must start a new block, be concise, have no sentence-ending
+  // punctuation, and be followed by further article text.
+  const nextText=lines.slice(i+1).find(line=>line.trim());
+  const plainHeading=!paragraph.length&&!!nextText&&value.length<=100&&
+   value.split(/\s+/).length<=14&&!/[.!?]$/.test(value)&&
+   !/^(?:[-•]|\d+[.)])\s/.test(value);
+  if(markdownHeading||boldHeading||plainHeading){
    flush();
-   const heading=(markdownHeading?markdownHeading[1]:boldHeading[1]).trim();
+   const heading=(markdownHeading?markdownHeading[1]:boldHeading?boldHeading[1]:value).trim();
    if(heading)output.push({type:"heading",text:heading});
    continue;
   }
