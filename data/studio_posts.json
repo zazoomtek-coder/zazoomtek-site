@@ -1,6 +1,80 @@
 {
   "posts": [
     {
+      "slug": "cyberattacchi-ot-dai-sistemi-idrici-ai-frigoriferi-francesi",
+      "title": "Cyberattacchi OT, dai sistemi idrici ai frigoriferi francesi",
+      "category": "news-tech",
+      "image": "/assets/uploads/cyberattacchi-ot-dai-sistemi-idrici-ai-frigoriferi-francesi/e2b218b26e4648f18f5e.jpg",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Gli attacchi di CyberAv3ngers mostrano i rischi dei sistemi OT: dai controllori degli impianti idrici ai frigoriferi di 700 supermercati francesi."
+        },
+        {
+          "type": "paragraph",
+          "text": "Gli attacchi informatici alle infrastrutture industriali stanno assumendo una dimensione sempre più concreta, perché possono compromettere apparecchiature che gestiscono servizi essenziali e attività commerciali. Le operazioni attribuite dalla Francia all'unità iraniana Shahid Kaveh, associata al gruppo CyberAv3ngers, hanno riportato l'attenzione sui rischi della tecnologia operativa (OT), dopo la compromissione dei sistemi di refrigerazione di circa 700 punti vendita francesi nell'ottobre 2026."
+        },
+        {
+          "type": "heading",
+          "text": "CyberAv3ngers: dagli impianti idrici ai sistemi industriali"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le attività di CyberAv3ngers erano già state documentate nel 2023 da Check Point Research, quando il gruppo aveva preso di mira infrastrutture critiche statunitensi attraverso i controllori programmabili Unitronics. Questi dispositivi, conosciuti come PLC (Programmable Logic Controller), vengono utilizzati per automatizzare e gestire processi industriali, compresi quelli degli impianti di trattamento delle acque. Nel dicembre dello stesso anno, CISA, FBI, NSA ed EPA avevano pubblicato un avviso congiunto per segnalare attacchi contro PLC Unitronics esposti su Internet e utilizzati in diversi settori, tra cui quello idrico. Tra i problemi evidenziati figuravano dispositivi protetti da password predefinite o privi di adeguate misure di autenticazione, una condizione che può facilitare l'accesso non autorizzato ai sistemi di controllo. Il problema non riguarda soltanto le grandi infrastrutture. Anche apparecchiature industriali meno appariscenti possono diventare obiettivi interessanti quando sono collegate alla rete e consentono di intervenire direttamente su processi fisici."
+        },
+        {
+          "type": "heading",
+          "text": "Cosa è successo ai frigoriferi di 700 supermercati francesi"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'episodio più recente risale alla notte tra l'11 e il 12 ottobre 2026. Gli aggressori hanno compromesso i sistemi di controllo della refrigerazione di circa 700 punti vendita francesi, intervenendo da remoto sui controller utilizzati per gestire frigoriferi e congelatori commerciali. Secondo le ricostruzioni delle autorità francesi, sono stati modificati i parametri dei cicli di sbrinamento e disattivati gli avvisi di sicurezza relativi alla temperatura. Il risultato è stato un aumento anomalo delle temperature nelle apparecchiature, con conseguenze dirette sulla conservazione degli alimenti. Il rapporto del centro francese di coordinamento delle crisi informatiche ha documentato anche episodi di incendio collegati agli incidenti. Le perdite di prodotti deperibili sono state ingenti e hanno interessato diverse catene della grande distribuzione. Un dettaglio particolarmente significativo riguarda l'età di alcune apparecchiature coinvolte. Secondo quanto riportato nelle ricostruzioni della vicenda, diversi sistemi di refrigerazione appartenevano a generazioni precedenti e non ricevevano più aggiornamenti software e di sicurezza. Questo aspetto evidenzia come la manutenzione tecnologica sia importante quanto la protezione delle reti aziendali."
+        },
+        {
+          "type": "heading",
+          "text": "Perché la tecnologia OT è così importante per la sicurezza"
+        },
+        {
+          "type": "paragraph",
+          "text": "La sigla OT identifica la tecnologia operativa, ovvero l'insieme di dispositivi e sistemi informatici che controllano direttamente macchinari e processi fisici. Ne fanno parte i PLC, i sistemi di refrigerazione commerciale, gli impianti idrici e numerose apparecchiature utilizzate nei settori energetico e manifatturiero. La differenza rispetto a un normale attacco informatico riguarda soprattutto le possibili conseguenze. Un'intrusione in una rete aziendale può comportare il furto di informazioni o il blocco dei computer, mentre la compromissione di un sistema OT può alterare temperature, pressioni e funzionamento di macchinari, provocando danni materiali e interruzioni operative. Nel marzo 2026, Check Point Research aveva inoltre individuato attività di scansione contro servizi VNC accessibili da Internet presso strutture industriali israeliane. Le operazioni provenivano da infrastrutture associate a CyberAv3ngers e confermavano l'interesse del gruppo verso sistemi industriali raggiungibili da remoto. Per limitare questi rischi, le aziende dovrebbero evitare di esporre direttamente su Internet le interfacce di gestione, utilizzare sistemi di autenticazione robusti, aggiornare i dispositivi supportati e separare le reti industriali da quelle aziendali. È altrettanto importante verificare che gli allarmi di sicurezza funzionino anche indipendentemente dai sistemi di controllo eventualmente compromessi."
+        },
+        {
+          "type": "heading",
+          "text": "Shahid Kaveh e CyberAv3ngers: le responsabilità secondo la Francia"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le autorità francesi hanno attribuito l'attacco ai sistemi di refrigerazione all'unità Shahid Kaveh, affiliata al Centro Elettronico e Cibernetico dei Guardiani della Rivoluzione iraniani (IRGC). Secondo Check Point Research, CyberAv3ngers rappresenta una delle identità pubbliche associate alle attività di questa struttura."
+        },
+        {
+          "type": "paragraph",
+          "text": "I ricercatori hanno inoltre evidenziato come alcuni gruppi hacktivisti legati all'Iran abbiano accompagnato operazioni informatiche reali con rivendicazioni esagerate o non verificabili. Per questo motivo è importante distinguere gli attacchi tecnicamente documentati dalle dichiarazioni diffuse dagli stessi gruppi. La vicenda francese dimostra che la cybersecurity non riguarda più soltanto la protezione dei dati personali e dei computer. La sicurezza dei sistemi industriali è ormai fondamentale per supermercati, aziende manifatturiere e gestori di servizi essenziali. Il progressivo collegamento delle apparecchiature a Internet rende indispensabili controlli più rigorosi, aggiornamenti e una gestione attenta anche dei dispositivi che continuano a funzionare dopo molti anni."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Fonte:** Check Point Research, CERT-FR e CISA."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-20T10:03:19.349Z",
+      "route_version": 2,
+      "public_slug": "cyberattacchi-ot-dai-sistemi-idrici-frigoriferi-francesi",
+      "public_path": "/news/cyberattacchi-ot-dai-sistemi-idrici-frigoriferi-francesi",
+      "date": "2026-11-20",
+      "published_at": "2026-11-20T10:03:20.175Z"
+    },
+    {
       "slug": "amd-adrenalin-edition-26-11-2-nuovi-driver-con-supporto-a-phantom-blade-zero-e-aggiornamenti-per-fsr-4-1",
       "title": "AMD Adrenalin Edition 26.11.2, nuovi driver con supporto a Phantom Blade Zero e aggiornamenti per FSR 4.1",
       "category": "news-tech",
