@@ -88,8 +88,8 @@ def ingest(now=None):
             pid=item.get("id")
             if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",str(pid)) or pid in seen:
                 continue
-            # Never create an article from an incomplete or unclassified Community excerpt.
-            if not item.get("text_complete") or not item.get("type") or len(item.get("text",""))<60:
+            # Import feed text without requiring detail-page verification.
+            if not item.get("type") or len(item.get("text",""))<60:
                 continue
             item["first_seen_at"]=stamp
             posts.append(item)
