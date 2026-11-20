@@ -47,7 +47,7 @@ function preserveRouteMetadata(record,existing){
   if(existing[key]!==undefined)record[key]=existing[key];else delete record[key];
  return record;
 }
-const BLOCKS=new Set(["paragraph","heading","image","video","button","quote","audio","attachment","poll","divider"]);
+const BLOCKS=new Set(["paragraph","heading","image","video","button","quote","audio","attachment","poll","divider","html"]);
 const jsonHeaders={"Content-Type":"application/json;charset=utf-8","Cache-Control":"no-store, private","X-Content-Type-Options":"nosniff"};
 function respond(data,status=200,extra={}){
  return new Response(JSON.stringify(data),{status,headers:{...jsonHeaders,...extra}});
@@ -188,6 +188,11 @@ function normalizeArticle(value){
    // I blocchi di testo possono essere vuoti o superare 12.000 caratteri.
    characters+=t.length;
    return {type,text:t};
+  }
+  if(type==="html"){
+   const html=clean(block.html);
+   if(html.length>20000)throw new Error("Il blocco HTML supera il limite di 20.000 caratteri.");
+   return {type,html};
   }
   if(type==="image"){
    if(!url)throw new Error("Link immagine non valido.");
@@ -349,6 +354,7 @@ function draftValue(raw){
   for(const key of ["text","url","alt","caption","align"]){
    if(b[key]!=null)copy[key]=clean(b[key]).slice(0,12000);
   }
+  if(b.html!=null)copy.html=clean(b.html).slice(0,20000);
   for(const key of ["focus_x","focus_y","zoom","rotation"]){
    if(b[key]!=null)copy[key]=Number(b[key]);
   }
