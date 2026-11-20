@@ -4,7 +4,7 @@ const E=id=>document.getElementById(id),S=(tag,cls,text)=>{let e=document.create
 const cats={"news-tech":"News Tech","news-gaming":"News Gaming","recensioni-tech":"Recensioni Tech","recensioni-gaming":"Recensioni Gaming","guide":"Guide","speciali":"Speciali","extra":"Extra"};
 const authors={"news-tech":"Gimmi","news-gaming":"Gimmi","recensioni-tech":"Beppe","recensioni-gaming":"Beppe","guide":"Beppe","speciali":"Alex","extra":"Alex"};
 const authorForCategory=category=>authors[category]||"Gimmi";
-let state={rows:[],drafts:{},current:null,body:[],mode:"home",filter:"",newContent:false,busy:false,cover:"",coverPreview:"",context:null,contextBtn:null,newDraftId:null,coverFocusX:50,coverFocusY:50,coverZoom:100,coverRotation:0,modalApply:null,at:0};
+let state={rows:[],drafts:{},current:null,body:[],mode:"home",filter:"",newContent:false,busy:false,cover:"",coverPreview:"",context:null,contextBtn:null,newDraftId:null,categoryTouched:false,coverFocusX:50,coverFocusY:50,coverZoom:100,coverRotation:0,modalApply:null,at:0};
 const val=id=>E(id).value.trim(),num=(v,lo,hi,def)=>Math.min(hi,Math.max(lo,Number.isFinite(+v)?+v:def));
 const slugify=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,135);
 function notify(msg,error=false){const t=E("v2-toast");t.hidden=false;t.textContent=msg;t.classList.toggle("error",error)}
@@ -383,8 +383,8 @@ function showHome(){
  E("v2-crumb").textContent="Studio / Contenuti";E("v2-home-nav").classList.add("on");
  renderList();history.replaceState({}, "", "/studio-v2/");
 }
-function showEditor(row,newContent){
- backupNow(); // Protect previous article before replacing the editor contents.
+function showEditor(row,newContent,skipBackup=false){
+ if(!skipBackup)backupNow(); // Protect previous article before replacing the editor contents.
  state.current=row;state.newContent=!!newContent;
  if(state.newContent&&!state.newDraftId)state.newDraftId=makeDraftId();
  if(!state.newContent)state.newDraftId=null;
@@ -403,8 +403,11 @@ function makeDraftId(){
  return (typeof crypto!=="undefined"&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,12);
 }
 function startNew(draftId=null){
+ // Save the current article under its own recovery key before switching drafts.
+ backupNow();
+ state.categoryTouched=false;
  state.newDraftId=draftId||makeDraftId();
- showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true);
+ showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true,true);
 }
 function renderList(){
  const q=val("v2-search").toLocaleLowerCase("it"),cat=state.filter||val("v2-select-filter");
@@ -524,13 +527,43 @@ function richValue(node){
  if(tag==="p"||tag==="div")return val+"\n";
  return val;
 }
+function detectEditorialCategory(input,title){
+  const text=String(title||"")+" "+String(input||"");
+  const normalized=text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("it");
+  const hasAny=patterns=>patterns.some(pattern=>pattern.test(normalized));
+  const gaming=hasAny([
+    /\b(videogioch\w*|videogame\w*|gaming|playstation|ps5|ps4|ps vr|xbox|nintendo|switch 2|switch|steam deck|steam|epic games|game pass|gameplay|dlc|multiplayer|console|esport|e sport)\b/,
+    /\b(gears of war|call of duty|grand theft auto|gta|resident evil|final fantasy|the witcher|fortnite|minecraft|elden ring|assassin s creed)\b/
+  ]);
+  const review=hasAny([
+    /\b(recensione|recensioni|review|reviews|abbiamo provato|la nostra prova|test completo|prova approfondita|voto finale|pro e contro)\b/
+  ]);
+  const guide=hasAny([
+    /\b(guida|tutorial|come fare|come configurare|come installare|come risolvere|passo dopo passo|procedura|istruzioni pratiche)\b/
+  ]);
+  const special=hasAny([/\b(speciale|dossier|inchiesta|approfondimento|analisi approfondita|report speciale)\b/]);
+  const extra=hasAny([/\b(intervista|dietro le quinte|retroscena|evento dal vivo|fiera di settore)\b/]);
+  if(guide&&!review)return "guide";
+  if(review)return gaming?"recensioni-gaming":"recensioni-tech";
+  if(special)return "speciali";
+  if(extra)return "extra";
+  return gaming?"news-gaming":"news-tech";
+}
 function safePaste(e){
  e.preventDefault();
  const raw=e.clipboardData?.getData("text/plain")||"";
  const idx=Number(e.currentTarget.closest("[data-index]")?.dataset.index);
  const current=state.body[idx];
  if(current&&current.type==="paragraph"&&!String(current.text||"").trim()
-    &&(raw.includes("\n")||raw.length>370)){
+    &&(raw.includes("\n")||raw.length>=180)){
+  if(state.newContent&&!state.categoryTouched){
+   const detected=detectEditorialCategory(raw,val("v2-title"));
+   E("v2-category").value=detected;
+   E("v2-author").value=authorForCategory(detected);
+   state.current={...state.current,category:detected,author:authorForCategory(detected)};
+   syncArticleChrome({...state.current,...collect()});
+   notify("Categoria rilevata automaticamente: "+cats[detected]+". Puoi comunque modificarla nelle impostazioni.");
+  }
   const blocks=formattedTextBlocks(raw,val("v2-category"),val("v2-title"));
   state.body.splice(idx,1,...blocks);renderBlocks();seoStatus();scheduleBackup();
   notify("Testo inserito e impaginato secondo il modello editoriale ZazoomTek.");
@@ -871,6 +904,7 @@ async function init(){
  }
 }
 E("v2-home-nav").onclick=showHome;E("v2-back").onclick=showHome;E("v2-new-nav").onclick=startNew;E("v2-create-main").onclick=startNew;
+E("v2-new-from-editor").onclick=()=>startNew();E("v2-new-from-editor-bottom").onclick=()=>startNew();
 E("v2-append-block").onclick=()=>openMenu(state.body.length);
 E("v2-search").oninput=renderList;E("v2-select-filter").onchange=()=>{state.filter="";renderList()};
 for(const nav of document.querySelectorAll("[data-rail-filter]"))nav.addEventListener("click",()=>{
@@ -883,7 +917,7 @@ E("v2-cover-add").onclick=editCover;E("v2-cover-change").onclick=()=>chooseFile(
 E("v2-cover-remove").onclick=()=>{state.cover="";state.coverPreview="";syncCover()};
 E("v2-cover-sidebar").onclick=editCover;
 E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));syncArticleChrome({...state.current,...collect()});seoStatus()};
-E("v2-category").addEventListener("change",()=>{E("v2-author").value=authorForCategory(val("v2-category"));syncArticleChrome({...state.current,...collect()})});
+E("v2-category").addEventListener("change",()=>{if(state.newContent)state.categoryTouched=true;E("v2-author").value=authorForCategory(val("v2-category"));syncArticleChrome({...state.current,...collect()})});
 for(const id of ["v2-category","v2-author","v2-platform","v2-score","v2-pros","v2-cons","v2-video-url"]) E(id).addEventListener("input",()=>syncArticleChrome({...state.current,...collect()}));
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
 E("v2-modal-apply").onclick=()=>{if(state.modalApply?.()!==false)closeModal()};
