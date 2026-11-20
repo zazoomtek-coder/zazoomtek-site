@@ -136,6 +136,50 @@ class YouTubeImportTests(unittest.TestCase):
             self.assertEqual(saved["posts"][0]["category"], "news-tech")
             self.assertEqual(saved["posts"][0]["text"], POST_TEXT)
 
+    def test_community_import_skips_article_about_subject_already_on_site(self):
+        published = {
+            "title": "Samsung Galaxy S26 Ultra: nuove fotocamere e funzioni AI",
+            "text": (
+                "Samsung Galaxy S26 Ultra integra un sensore fotografico aggiornato, "
+                "zoom ottico, fotografia notturna e strumenti di intelligenza artificiale."
+            ),
+        }
+        candidate = {
+            "id": "UgkxSameSubjectRegression123456",
+            "title": "Galaxy S26 Ultra, tutte le novità Samsung per foto e intelligenza artificiale",
+            "text": (
+                "Il nuovo Galaxy S26 Ultra di Samsung punta su fotografia notturna, "
+                "zoom ottico, sensore aggiornato e strumenti basati sull'intelligenza artificiale."
+            ),
+            "text_complete": True,
+            "date": "2026-11-19",
+            "type": "news",
+        }
+        imported = {"posts": []}
+        saved = {}
+
+        def fake_load(name, key):
+            if name == "community_imported.json":
+                return imported
+            if name in ("community_full.json", "community.json"):
+                raise ValueError("historical archive unavailable in test")
+            if name in ("posts.json", "studio_posts.json"):
+                return {"posts": []}
+            raise AssertionError(name)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(emergency_sync, "DATA", Path(tmp)), \\
+                 patch.object(emergency_sync, "load", side_effect=fake_load), \\
+                 patch.object(emergency_sync, "discover", return_value=[candidate]), \\
+                 patch.object(emergency_sync, "_published_community_comparison_rows",
+                              return_value=[published]), \\
+                 patch.object(emergency_sync, "save",
+                              side_effect=lambda name, value: saved.update({name: value}) or True):
+                self.assertTrue(emergency_sync.youtube_community())
+
+        self.assertIn("community_imported.json", saved)
+        self.assertEqual(saved["community_imported.json"]["posts"], [])
+
     def test_community_source_failure_preserves_last_valid_archive(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
