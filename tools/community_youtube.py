@@ -168,10 +168,10 @@ def is_verified_editorial_record(item):
  """Only complete, classified posts with a verified detail page can be imported."""
  if not isinstance(item,dict) or not item.get("verified_detail"):
   return False
-  text=item.get("text")
-  if not isinstance(text,str) or len(text.strip())<60:
-   return False
-  return title_type(text)[1] is not None
+ text=item.get("text")
+ if not isinstance(text,str) or len(text.strip())<60:
+  return False
+ return title_type(text)[1] is not None
 
 def editorial_topic(title):
  """Return an explicit topic only when the editorial prefix defines one."""
