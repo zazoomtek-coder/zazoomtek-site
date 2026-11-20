@@ -238,7 +238,13 @@ def discover(limit=160,max_pages=12):
  with ThreadPoolExecutor(max_workers=6) as executor:
   collected=list(executor.map(complete,collected))
  if failed_details:
-  raise RuntimeError("Community detail verification incomplete for "+str(len(failed_details))+" editorial post(s); retry required")
+  # A transient failure on a small number of detail pages must not discard
+  # the other fully verified posts in this batch. Unverified IDs are not
+  # returned, so they remain absent from the imported queue and are retried
+  # automatically by the next scheduled collection.
+  print("COMMUNITY DETAIL RETRY: "+str(len(failed_details))+
+        " editorial post(s) could not be verified; skipped for this run: "+
+        ", ".join(failed_details),flush=True)
  output=[]
  for ix,item in enumerate(collected):
   text=trim_youtube_promo_tail(item["text"].strip())
