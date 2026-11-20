@@ -96,6 +96,9 @@ def verify_studio_v2(output,rows):
  assert 'data-kind="link"' in page
  assert 'data-kind="html"' in page, "Studio must expose a custom HTML block in Add Content"
  assert "function updateAutoCategory()" in script, "Category detection must run independently of long-paste conditions"
+ assert 'if(row.source==="studio-editor"&&Array.isArray(row.body)&&row.body.length)' in script, "Saved Studio body must override stale editor blocks from the live catalog"
+ assert 'const useImportedBlocks=!!originalBlocks&&row.source!=="studio-editor";' in script, "Reopening a Studio override must not restore old imported paragraphs"
+ assert 'state.current?.updated_at||state.current?.published_at||state.current?.date' in script, "Stale local recovery must not replace a newer server article"
  assert 'updateAutoCategory();syncArticleChrome({...state.current,...collect()})' in script, "Pasting or editing the title must refresh the inferred category"
  assert 'updateAutoCategory();renderBlocks();seoStatus();scheduleBackup();' in script, "Pasting body text must refresh category and preserve the edit"
  assert "function safeHtmlFragment(source)" in script, "Studio preview must sanitize custom HTML before rendering"
