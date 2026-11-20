@@ -162,7 +162,7 @@ const editedRecord = {
   }],
 };
 const editPending = await onRequest({
-  request: request(" /api/studio/v2-save".trim(), "POST", {
+  request: request("/api/studio/v2-save", "POST", {
     mode: "publish",
     record: editedRecord,
     creating: false,
