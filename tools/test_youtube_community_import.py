@@ -3,13 +3,15 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from community_youtube import merge_post_media, title_type, trim_youtube_promo_tail, webpage_json
+from community_youtube import (
+    editorial_topic, merge_post_media, title_type,
+    trim_youtube_promo_tail, webpage_json,
+)
 import queue_collect
-from build import category_for_post
 
 
 class YouTubeCommunityTitleTypeTests(unittest.TestCase):
-    def test_all_six_editorial_families(self):
+    def test_all_editorial_families(self):
         cases = {
             "NEWS TECH: Smartphone": "news",
             "NEWS GAMING: Nuovo gioco": "news",
@@ -31,23 +33,21 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
                 self.assertEqual(parsed_title, title)
                 self.assertEqual(kind, expected)
 
-    def test_all_six_prefix_families_route_to_public_site_categories(self):
+    def test_explicit_tech_and_gaming_prefixes_set_the_correct_topic(self):
         cases = {
-            "NEWS TECH: Smartphone": "news-tech",
-            "NEWS GAMING: Nuovo gioco": "news-gaming",
-            "NEWS EXTRA: Evento": "extra",
-            "NEWS SPECIALI: Analisi": "speciali",
-            "NEWS GUIDE: Configurazione": "guide",
-            "REVIEW TECH: Prodotto": "recensioni-tech",
-            "REVIEW GAMING: Videogioco": "recensioni-gaming",
-            "RECENSIONE/REVIEW: Prodotto": "recensioni-tech",
+            "NEWS TECH: Smartphone": "tech",
+            "NEWS GAMING: Nuovo gioco": "gaming",
+            "REVIEW TECH: Prodotto": "tech",
+            "REVIEW GAMING: Videogioco": "gaming",
+            "RECENSIONE/REVIEW TECH: Prodotto": "tech",
+            "RECENSIONE/REVIEW GAMING: Videogioco": "gaming",
+            "NEWS EXTRA: Evento": None,
+            "NEWS SPECIALI: Analisi": None,
+            "NEWS GUIDE: Configurazione": None,
         }
         for title, expected in cases.items():
             with self.subTest(title=title):
-                self.assertEqual(category_for_post({
-                    "title": title, "type": "news", "topic": "tech",
-                    "text_complete": True
-                }), expected)
+                self.assertEqual(editorial_topic(title), expected)
 
     def test_detail_page_without_attachment_preserves_feed_cover_and_extra_images(self):
         listing = {
