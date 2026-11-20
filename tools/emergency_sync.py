@@ -120,7 +120,7 @@ def _community_is_near_duplicate(candidate, published_rows):
 
         # A Community post is often a short excerpt of a much longer article.
         # Check exact normalized containment before comparing whole documents.
-        if candidate_body and len(candidate_body) >= 75 and current_body:
+        if candidate_body and len(candidate_body) >= 60 and current_body:
             if candidate_body in current_body or candidate_body in current_full:
                 return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
