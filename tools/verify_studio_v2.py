@@ -84,7 +84,8 @@ def verify_studio_v2(output,rows):
                 "showArticlePreview","formattedTextBlocks","restoreBackup","syncArticleChrome",
                 "scheduleBackup","pagehide","editorialBodyForDisplay",
                 "openMenu","editCover","editMedia","showHome","startNew",
-                 "detectEditorialCategory","categoryTouched","skipBackup","v2-new-from-editor-bottom"):
+                 "detectEditorialCategory","categoryTouched","skipBackup","v2-new-from-editor-bottom",
+                "async function refreshLibrary()","refreshLibrary();","__queued:!liveSlugs.has(item.slug)"):
   assert marker in script,"V2 JS missing "+marker
  for marker in ("function richContent(", "function cursorHere(", "function insertPosition(", "function inlineLink(", "function safePaste(", "state.coverPreview"):
   assert marker in script,"WYSIWYG features missing: "+marker
