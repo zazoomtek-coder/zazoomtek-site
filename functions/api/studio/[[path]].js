@@ -483,7 +483,7 @@ async function saveV2(request,env,session){
  }catch(_){}
  return respond({ok:true,mode:"publish",slug:record.slug,
   record,status:"saved-main",branch:PUBLISH_BRANCH,next_slots:["12:30","16:00","19:30"],
-  message:"Articolo e copertina salvati su main. Il sito verrà aggiornato al prossimo slot editoriale autorizzato."});
+  message:"Articolo e immagini salvati su main e inseriti nella coda editoriale: saranno pubblicati automaticamente al primo slot orario disponibile."});
 }
 
 export async function onRequest(context){
