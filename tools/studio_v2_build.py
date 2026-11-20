@@ -172,7 +172,7 @@ def build_studio_v2(output,rows):
     <div><div class="v2-eyebrow">EDITOR VISUALE</div><h1 id="v2-editor-heading">Modifica contenuto</h1>
      <p id="v2-editor-note">Editor semplice in stile Patreon · aggiungi blocchi tra testo e immagini.</p></div>
     <div class="v2-editor-actions">
-      <button type="button" id="v2-new-from-editor" class="v2-soft">＋ Nuovo contenuto</button>
+      <button type="button" id="v2-new-from-editor" class="v2-soft">＋ Crea nuovo contenuto</button>
       <button type="button" id="v2-preview-top" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-save-draft" class="v2-soft">Salva bozza locale</button>
       <button type="button" id="v2-cancel-draft" class="v2-soft v2-danger">Cancella bozza</button>
@@ -198,7 +198,7 @@ def build_studio_v2(output,rows):
       <button id="v2-append-block" class="v2-add-line" hidden>＋ <span>Aggiungi contenuto</span></button>
       <p class="v2-paper-tip">Usa <strong>＋ Aggiungi contenuto</strong> tra i blocchi per inserire testo, immagini e altri elementi, anche dopo l’ultima immagine.</p>
      </article>
-     <div class="v2-footer-actions"><button type="button" id="v2-new-from-editor-bottom" class="v2-soft">＋ Nuovo contenuto</button><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
+     <div class="v2-footer-actions"><button type="button" id="v2-new-from-editor-bottom" class="v2-soft">＋ Crea nuovo contenuto</button><button type="button" id="v2-preview-bottom" class="v2-soft">Anteprima</button>
       <button type="button" id="v2-draft-bottom" class="v2-soft">Salva bozza locale</button>
       <button type="button" id="v2-cancel-draft-bottom" class="v2-soft v2-danger">Cancella bozza</button>
       <button type="button" id="v2-publish-bottom" class="v2-primary">Pubblica</button></div>
