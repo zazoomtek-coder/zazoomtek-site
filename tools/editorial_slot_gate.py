@@ -37,6 +37,7 @@ STUDIO_BUILD_INPUTS = (
     "tools/build.py",
     "tools/studio_build.py",
     "tools/studio_v2_build.py",
+    "tools/article_templates.py",
     "tools/verify_studio_v2.py",
     "tools/editorial_slot_gate.py",
     "assets/js/studio.js",
