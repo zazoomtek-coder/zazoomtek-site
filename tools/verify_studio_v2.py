@@ -13,7 +13,7 @@ def verify_studio_v2(output,rows):
  assert 'id="v2-home"' in page and 'id="v2-editor" class="v2-editor-view" hidden' in page
  assert 'id="v2-append-block"' in page and 'id="v2-cover-edit"' in page
  assert all('id="'+name+'"' in page for name in
-            ("v2-preview-top","v2-preview-bottom","v2-save-draft","v2-cancel-draft","v2-cancel-draft-bottom","v2-publish",
+            ("v2-new-from-editor","v2-new-from-editor-bottom","v2-preview-top","v2-preview-bottom","v2-save-draft","v2-cancel-draft","v2-cancel-draft-bottom","v2-publish",
              "v2-draft-bottom","v2-publish-bottom","v2-close-preview",
              "v2-article-preview","v2-autosave-status"))
  assert 'id="v2-modal"' in page and 'id="v2-category"' in page
@@ -83,7 +83,8 @@ def verify_studio_v2(output,rows):
                 'save("draft")',
                 "showArticlePreview","formattedTextBlocks","restoreBackup","syncArticleChrome",
                 "scheduleBackup","pagehide","editorialBodyForDisplay",
-                "openMenu","editCover","editMedia","showHome","startNew"):
+                "openMenu","editCover","editMedia","showHome","startNew",
+                 "detectEditorialCategory","categoryTouched","skipBackup","v2-new-from-editor-bottom"):
   assert marker in script,"V2 JS missing "+marker
  for marker in ("function richContent(", "function cursorHere(", "function insertPosition(", "function inlineLink(", "function safePaste(", "state.coverPreview"):
   assert marker in script,"WYSIWYG features missing: "+marker
@@ -92,6 +93,11 @@ def verify_studio_v2(output,rows):
  assert 'editable.focus();' in script and 'selection.addRange(range);' in script,"New paragraph must receive editing focus"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
+ assert 'id="v2-new-from-editor"' in page and 'id="v2-new-from-editor-bottom"' in page, "Create-new controls must be available inside the editor"
+ assert 'if(state.newContent&&!state.categoryTouched&&raw.trim().length>=120)' in script, "Automatic category detection must run on sufficiently long pasted text"
+ assert 'if(state.newContent)state.categoryTouched=true' in script, "Manual category selection must take precedence over automatic detection"
+ assert 'category_touched:!!state.categoryTouched' in script, "Manual category choice must survive autosave"
+ assert 'showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true,true)' in script, "Starting a new article must not overwrite the previous article backup"
  expected_script=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/js/studio-v2.js").read_bytes()).hexdigest()[:12]
  assert f"/assets/js/studio-v2.js?v={expected_script}" in page,"Browser must load the current Studio V2 JavaScript bundle"
  assert 'zazoomtek:studio-v2:local-drafts' in script
