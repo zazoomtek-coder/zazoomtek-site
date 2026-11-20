@@ -102,6 +102,13 @@ def _published_community_comparison_rows():
         except (OSError, ValueError, KeyError, TypeError) as exc:
             print("WARNING: duplicate screening archive unavailable:",
                   filename, type(exc).__name__, str(exc)[:120], flush=True)
+    try:
+        overrides = json.loads((DATA / "studio_overrides.json").read_text(encoding="utf-8")).get("overrides", {})
+        if isinstance(overrides, dict):
+            rows.extend(record for record in overrides.values() if isinstance(record, dict))
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        print("WARNING: Studio overrides unavailable for duplicate screening:",
+              type(exc).__name__, str(exc)[:120], flush=True)
     return rows
 
 def classify_upload(title):
