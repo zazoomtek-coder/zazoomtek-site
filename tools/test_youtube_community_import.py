@@ -4,6 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from community_youtube import merge_post_media, title_type, trim_youtube_promo_tail, webpage_json
+import queue_collect
 from build import category_for_post
 
 
@@ -104,6 +105,26 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
         for title, expected in cases.items():
             with self.subTest(title=title):
                 self.assertEqual(title_type(title)[1], expected)
+
+
+class QueueCollectorClockTests(unittest.TestCase):
+    def test_intake_windows_and_release_cutoffs(self):
+        cases = {
+            "09:00": True, "12:20": True, "12:21": False,
+            "12:30": False, "12:31": True, "15:50": True,
+            "15:51": False, "16:00": False, "16:01": True,
+            "19:20": True, "19:21": False,
+        }
+        from datetime import time as clock_time
+        for value, expected in cases.items():
+            with self.subTest(value=value):
+                hour, minute = map(int, value.split(":"))
+                self.assertEqual(queue_collect.in_intake_window(clock_time(hour, minute)), expected)
+
+    def test_datetime_clock_and_sleep_module_remain_distinct(self):
+        from datetime import time as clock_time
+        self.assertTrue(callable(clock_time))
+        self.assertTrue(callable(queue_collect.time_module.sleep))
 
 
 if __name__ == "__main__":
