@@ -52,11 +52,11 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
 
     def test_partial_detail_failures_do_not_admit_unverified_posts(self):
         valid = {
-            "verified_detail": True, "type": "news",
+            "verified_detail": True,
             "text": "NEWS TECH: " + ("contenuto verificato " * 5),
         }
         failed = {
-            "verified_detail": False, "type": "news",
+            "verified_detail": False,
             "text": "NEWS TECH: " + ("contenuto non verificato " * 5),
         }
         incomplete = {
