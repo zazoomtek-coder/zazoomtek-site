@@ -105,6 +105,8 @@ def merge_queue(queue_file, dest_file, key, archived):
         rows.append(clean)
         ids.add(rid)
         added.append(clean)
+        if key == "posts":
+            comparison_rows.append(clean)
     if added:
         doc[key] = sorted(
             rows, key=lambda x: str(x.get("published_at") or x.get("date") or ""),
