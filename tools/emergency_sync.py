@@ -123,7 +123,11 @@ def _community_is_near_duplicate(candidate, published_rows):
         "aggiornamento", "aggiornamenti", "nuove", "funzioni", "funzione",
         "caratteristiche", "prezzo", "prezzi", "data", "uscita", "oggi",
         "domani", "italia", "italiano", "italiana", "mondo", "canale",
-        "zazoomtek", "articolo", "video",
+        "zazoomtek", "articolo", "video", "per", "con", "sul", "sulla",
+        "sulle", "sullo", "sugli", "sui", "nel", "nella", "nelle", "nello",
+        "negli", "alla", "alle", "allo", "agli", "della", "delle", "dello",
+        "degli", "dalla", "dalle", "dallo", "dal", "dai", "del", "dei",
+        "tra", "fra", "the", "and", "for", "new", "all", "how",
     }
 
     def topic_terms(value):
