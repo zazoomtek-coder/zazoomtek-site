@@ -6,6 +6,7 @@ on:
       - "functions/api/studio/[[path]].js"
       - "assets/js/studio-v2.js"
       - "tools/studio_v2_build.py"
+      - "tools/article_templates.py"
       - "tools/verify_studio_v2.py"
       - ".github/workflows/studio-publish.yml"
   workflow_dispatch:
