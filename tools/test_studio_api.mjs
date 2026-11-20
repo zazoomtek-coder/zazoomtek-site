@@ -230,7 +230,7 @@ assert.equal(editResult.record.public_path, originalPublicPath,
   "Replacing an existing article must preserve its original public URL");
 const latestPostWrite = writes.filter((item) => item.path === "data/studio_posts.json").at(-1);
 assert.ok(latestPostWrite, "Editing a queued article must update data/studio_posts.json");
-assert.equal(JSON.parse(latestPostWrite.content).posts[0].title, editedRecord.title);
+assert.equal(JSON.parse(latestPostWrite.content).posts.find((item) => item.slug === record.slug)?.title, editedRecord.title);
 const pendingAfterEdit = await onRequest({
   request: request("/api/studio/v2-pending", "GET", undefined, cookie),
   env,
