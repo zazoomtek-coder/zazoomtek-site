@@ -7,6 +7,7 @@ from community_youtube import (
     editorial_topic, merge_post_media, title_type,
     trim_youtube_promo_tail, webpage_json,
 )
+from review_pros_cons import attach, extract
 import queue_collect
 
 
@@ -48,6 +49,17 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
         for title, expected in cases.items():
             with self.subTest(title=title):
                 self.assertEqual(editorial_topic(title), expected)
+
+    def test_review_metadata_dependency_is_available_and_non_destructive(self):
+        source = "PRO:\n- Buona qualità\nCONTRO:\n- Prezzo elevato"
+        post = {"type": "review", "text": source}
+        self.assertEqual(extract(source), {
+            "pros": ["Buona qualità"], "cons": ["Prezzo elevato"]
+        })
+        self.assertIs(attach(post), post)
+        self.assertEqual(post["text"], source)
+        self.assertEqual(post["pros"], ["Buona qualità"])
+        self.assertEqual(post["cons"], ["Prezzo elevato"])
 
     def test_detail_page_without_attachment_preserves_feed_cover_and_extra_images(self):
         listing = {
