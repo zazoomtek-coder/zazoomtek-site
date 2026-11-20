@@ -1,6 +1,64 @@
 {
   "posts": [
     {
+      "slug": "pubg-mobile-e-bentley-tre-auto-di-lusso-arrivano-nel-gioco",
+      "title": "PUBG MOBILE e Bentley: tre auto di lusso arrivano nel gioco",
+      "category": "news-tech",
+      "image": "/assets/uploads/pubg-mobile-e-bentley-tre-auto-di-lusso-arrivano-nel-gioco/6c069a9ac64b40619f5a.jpg",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "PUBG MOBILE annuncia una collaborazione con Bentley: Continental GTC Mulliner, Flying Spur Mulliner e Bentayga Azure saranno disponibili fino al 12 gennaio 2027."
+        },
+        {
+          "type": "paragraph",
+          "text": "PUBG MOBILE amplia le proprie collaborazioni con il mondo automobilistico annunciando una nuova partnership con Bentley. Dal 20 novembre 2026 al 12 gennaio 2027, i giocatori potranno acquistare e utilizzare tre modelli della casa britannica direttamente nel battle royale mobile: Continental GTC Mulliner, Flying Spur Mulliner e Bentayga Azure. L'iniziativa comprende diverse finiture esclusive, accessori dedicati e ulteriori possibilità di personalizzazione estetica."
+        },
+        {
+          "type": "heading",
+          "text": "Continental GTC, Flying Spur e Bentayga: le tre Bentley disponibili"
+        },
+        {
+          "type": "paragraph",
+          "text": "La collaborazione comprende tre vetture appartenenti a segmenti differenti. La Continental GTC Mulliner è una gran turismo cabriolet caratterizzata da linee eleganti e dettagli ricercati, proposta nelle colorazioni Verdant, Silver Flash e Ice Wave. La Flying Spur Mulliner porta invece nel gioco una berlina di lusso orientata alle prestazioni, disponibile nelle finiture Kingfisher e Golden Glimmer, con interni ispirati alla tradizione artigianale del marchio. Completa la selezione la Bentayga Azure, SUV che punta su comfort e design distintivo, acquistabile nelle varianti Snow Quartz e Prismatic."
+        },
+        {
+          "type": "heading",
+          "text": "Accessori Bentley e personalizzazione delle vetture"
+        },
+        {
+          "type": "paragraph",
+          "text": "Oltre alle automobili, l'evento introduce diversi oggetti estetici dedicati alla partnership. Tra questi figura il Bentley Parachute 2026, un paracadute a tema pensato per accompagnare l'ingresso dei giocatori sul campo di battaglia. Saranno disponibili anche il Driver Set e gli occhiali coordinati Driver Sunglasses, entrambi proposti nelle colorazioni Green e Pink, per aggiungere al personaggio elementi ispirati allo stile Bentley. La personalizzazione prosegue sulle vetture con sette colori per le pinze dei freni: Red, Orange, Green, Blue, Gold, White e Black. A queste opzioni si aggiungono diversi design per i cerchi, tra cui Polished Edge Rims, 5-Spoke Polished Rims, Black e Full Black."
+        },
+        {
+          "type": "heading",
+          "text": "Quando arriva la collaborazione PUBG MOBILE x Bentley"
+        },
+        {
+          "type": "paragraph",
+          "text": "I contenuti della partnership sono disponibili dal 20 novembre 2026 e potranno essere acquistati fino al 12 gennaio 2027. L'iniziativa offre quindi una selezione di veicoli e accessori esclusivi, destinati a chi desidera personalizzare la propria esperienza di gioco con oggetti ispirati a uno dei marchi automobilistici più conosciuti nel segmento del lusso. PUBG MOBILE è scaricabile gratuitamente da [App Store](https://apps.apple.com/app/pubg-mobile/id1330123889) e [Google Play](https://play.google.com/store/apps/details?id=com.tencent.ig)."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-20T14:35:11.864Z",
+      "route_version": 2,
+      "public_slug": "pubg-mobile-bentley-tre-auto-lusso-arrivano-gioco",
+      "public_path": "/news/pubg-mobile-bentley-tre-auto-lusso-arrivano-gioco",
+      "date": "2026-11-20",
+      "published_at": "2026-11-20T14:35:12.716Z"
+    },
+    {
       "slug": "snapmaker-e-makegood-insieme-per-realizzare-ausili-alla-mobilita-infantile-con-la-stampa-3d",
       "title": "Snapmaker e MakeGood insieme per realizzare ausili alla mobilità infantile con la stampa 3D",
       "category": "news-tech",
