@@ -12,6 +12,9 @@ jobs:
   import:
     runs-on: ubuntu-latest
     timeout-minutes: 9
+    env:
+      # A manual recovery run may be started at any hour; scheduled runs keep the Rome intake windows.
+      ZAZOOMTEK_FORCE_COLLECT: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
         with:
