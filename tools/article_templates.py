@@ -4,6 +4,7 @@ Never synthesize editorial scores or pros/cons.
 """
 import re
 from html import escape as esc
+from html.parser import HTMLParser
 from urllib.parse import urlparse
 
 REVIEW_TECH=["Materiali e Design","Hardware e Prestazioni","Uso Quotidiano","Esperienza Complessiva","Conclusioni"]
@@ -634,6 +635,80 @@ def studio_link(value):
  except ValueError:pass
  return ""
 
+class _StudioHTMLSanitizer(HTMLParser):
+ """Render owner-supplied HTML with a strict tag/attribute allow-list."""
+ ALLOWED={"a","p","br","strong","b","em","i","u","s","ul","ol","li","h2","h3","h4",
+          "blockquote","hr","img","figure","figcaption","div","span","small","sup","sub",
+          "code","pre","table","thead","tbody","tr","th","td","section"}
+ VOID={"br","hr","img"}
+ BLOCKED={"script","style","iframe","object","embed","svg","math","template","noscript"}
+ def __init__(self):
+  super().__init__(convert_charrefs=True)
+  self.output=[]
+  self.open_tags=[]
+  self.blocked=[]
+ def handle_starttag(self,tag,attrs):
+  if self.blocked:
+   if tag in self.BLOCKED:self.blocked.append(tag)
+   return
+  if tag in self.BLOCKED:
+   self.blocked.append(tag);return
+  if tag not in self.ALLOWED:return
+  values=dict(attrs);rendered=[]
+  if tag=="a":
+   url=studio_link(values.get("href",""))
+   if url:
+    rendered.append('href="'+esc(url,quote=True)+'"')
+    if url.startswith("https://"):
+     rendered.extend(('target="_blank"','rel="noopener noreferrer external"'))
+   title=values.get("title","")
+   if title:rendered.append('title="'+esc(title[:180],quote=True)+'"')
+  elif tag=="img":
+   url=studio_link(values.get("src",""))
+   if not url:return
+   rendered.extend(('src="'+esc(url,quote=True)+'"',
+                    'alt="'+esc(str(values.get("alt") or "")[:180],quote=True)+'"',
+                    'loading="lazy"','decoding="async"'))
+   for key in ("width","height"):
+    raw=str(values.get(key) or "")
+    if raw.isdigit() and 1<=int(raw)<=2000:rendered.append(key+'="'+raw+'"')
+  elif tag in ("td","th"):
+   for key in ("colspan","rowspan"):
+    raw=str(values.get(key) or "")
+    if raw.isdigit() and 1<=int(raw)<=12:rendered.append(key+'="'+raw+'"')
+  self.output.append("<"+tag+(" "+" ".join(rendered) if rendered else "")+">")
+  if tag not in self.VOID:self.open_tags.append(tag)
+ def handle_startendtag(self,tag,attrs):
+  self.handle_starttag(tag,attrs)
+  if tag not in self.VOID:self.handle_endtag(tag)
+ def handle_endtag(self,tag):
+  if self.blocked:
+   if tag in self.blocked:
+    self.blocked.pop()
+   return
+  if tag not in self.ALLOWED or tag in self.VOID or tag not in self.open_tags:return
+  while self.open_tags:
+   current=self.open_tags.pop()
+   self.output.append("</"+current+">")
+   if current==tag:break
+ def handle_data(self,data):
+  if not self.blocked:self.output.append(esc(data))
+ def finish(self):
+  while self.open_tags:self.output.append("</"+self.open_tags.pop()+">")
+  return "".join(self.output)
+
+def sanitize_studio_html(value):
+ """Keep useful editorial markup and affiliate links; remove executable HTML."""
+ raw=str(value or "")
+ if not raw.strip():return ""
+ parser=_StudioHTMLSanitizer()
+ try:
+  parser.feed(raw);parser.close()
+ except Exception:
+  return esc(raw)
+ return parser.finish()
+
+
 def studio_inline(value):
  """Limited Markdown hyperlinks and bold, with escaped labels and safe URLs."""
  raw=str(value or "").strip()
@@ -723,6 +798,9 @@ def studio_sectioned_body(review):
    result.append('<figure class="story-figure studio-content-image studio-align-'+align+'"><div class="studio-image-crop">'
                  '<img loading="lazy" src="'+esc(url,quote=True)+'" style="'+image_style+'" alt="'+esc(title,quote=True)+'"></div>'+
                  ('<figcaption>'+esc(caption)+'</figcaption>' if caption else '')+'</figure>')
+  elif kind=="html":
+   markup=sanitize_studio_html(block.get("html",""))
+   if markup:result.append(markup)
   elif kind=="button":
    url=studio_link(block.get("url"))
    if not url or not value:continue
