@@ -132,7 +132,7 @@ def verify_studio_v2(output,rows):
                 'const PUBLISH_BRANCH="main";','?"deploy-requested":"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
                 'branch:PUBLISH_BRANCH','[CF-Pages-Skip] ',
                 'async function dispatchStudioPublish(token,slug)',
-                'studio-publish.yml/dispatches',
+                'pages-deploy-manual.yml/dispatches',
                 'deploy_requested:deployment.requested',
                 'readFile(token,"data/studio_posts.json",BRANCH)',
                 'readFile(token,"data/studio_overrides.json",BRANCH)'):
