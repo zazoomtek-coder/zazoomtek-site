@@ -125,14 +125,13 @@ class YouTubeImportTests(unittest.TestCase):
         duplicate, _ = emergency_sync._community_is_near_duplicate(candidate, [published])
         self.assertFalse(duplicate)
 
-    def test_community_discovery_recovers_full_original_post(self):
-        with patch.object(community_youtube, "fetch", side_effect=lambda *a, **k: youtube_page()):
+    def test_community_discovery_imports_feed_text_without_detail_verification(self):
+        with patch.object(community_youtube, "fetch", side_effect=lambda *a, **k: youtube_page()) as fetch_mock:
             posts = community_youtube.discover(limit=10, max_pages=2)
+        self.assertEqual(fetch_mock.call_count, 1)
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0]["id"], POST_ID)
         self.assertEqual(posts[0]["text"], POST_TEXT)
-        self.assertTrue(posts[0]["text_complete"])
-        self.assertTrue(posts[0]["verified_detail"])
         self.assertTrue(posts[0]["image"].startswith("https://"))
         self.assertTrue(posts[0]["date"])
 
@@ -145,7 +144,7 @@ class YouTubeImportTests(unittest.TestCase):
                 "id": POST_ID, "title": POST_TEXT.splitlines()[0],
                 "text": POST_TEXT, "date": "2026-11-19",
                 "published_at": "2026-11-19T12:00:00+00:00",
-                "type": "news", "text_complete": True,
+                "type": "news",
                 "image": "https://i.ytimg.com/vi/example/hqdefault.jpg",
             }
             with patch.object(emergency_sync, "DATA", root), \
@@ -172,7 +171,6 @@ class YouTubeImportTests(unittest.TestCase):
                 "Il nuovo Galaxy S26 Ultra di Samsung punta su fotografia notturna, "
                 "zoom ottico, sensore aggiornato e strumenti basati sull'intelligenza artificiale."
             ),
-            "text_complete": True,
             "date": "2026-11-19",
             "type": "news",
         }
