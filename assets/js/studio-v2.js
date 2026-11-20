@@ -168,7 +168,7 @@ function restoreBackup(){
   if(!cached||!cached.record||!Array.isArray(cached.record.body))return;
   const slug=state.newContent?String(cached.record.slug||""):String(state.current?.slug||"");
   const server=state.drafts[slug];
-  const serverTime=Math.max(Date.parse(server?.updated_at||"")||0,Date.parse(state.current?.updated_at||"")||0);
+  const serverTime=Math.max(Date.parse(server?.updated_at||"")||0,Date.parse(state.current?.updated_at||state.current?.published_at||state.current?.date||"")||0);
   if(cached.updated_at < serverTime)return;
   // Never inherit the slug from another published article.
   const copy={...cached.record,slug:state.newContent?cached.record.slug:state.current.slug};
