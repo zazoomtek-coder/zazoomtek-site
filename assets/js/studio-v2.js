@@ -135,7 +135,8 @@ function convertBody(row){
  return output.length?output:[{type:"paragraph",text:""}];
 }
 function signature(parts){
- return (Array.isArray(parts)?parts:[]).map(x=>typeof x==="string"?x:String(x?.text||"")).join(" ")
+ return (Array.isArray(parts)?parts:[]).map(x=>typeof x==="string"?x:
+  [x?.type||"",x?.text||"",x?.html||"",x?.url||"",x?.caption||"",...(Array.isArray(x?.options)?x.options:[])].join(" ")).join(" ")
   .replace(/\s+/g," ").trim();
 }
 
@@ -465,8 +466,9 @@ function openExisting(row){
  const content=draft?.record||row;
  const sameAsOriginal=draft&&signature(row.body)===signature(draft.record?.body);
  const originalBlocks=Array.isArray(row.editor_blocks)&&row.editor_blocks.length?row.editor_blocks:null;
- const editorData=(draft&&sameAsOriginal&&originalBlocks)?{...content,body:originalBlocks}:content;
- if(!draft&&originalBlocks)editorData.editor_blocks=originalBlocks;
+ const useImportedBlocks=!!originalBlocks&&row.source!=="studio-editor";
+ const editorData=(draft&&sameAsOriginal&&useImportedBlocks)?{...content,body:originalBlocks}:content;
+ if(!draft&&useImportedBlocks)editorData.editor_blocks=originalBlocks;
  showEditor({...editorData,slug:row.slug,seo_lock:row.seo_lock},!!row.__draftNew);
  if(draft)notify("È stata caricata la tua bozza non ancora pubblicata.");
 }
