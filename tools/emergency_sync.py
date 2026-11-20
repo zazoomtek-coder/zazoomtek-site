@@ -182,8 +182,8 @@ def _community_is_near_duplicate(candidate, published_rows):
                 and title_topic_coverage >= title_topic_threshold):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
-        # A shared subject named in the headline plus substantial overlap in
-        # distinctive body terms catches paraphrases with a different headline.
+        # Strong overlap in distinctive body terms also catches paraphrases
+        # whose headlines use different wording for the same subject.
         shared_body_topics = candidate_body_topics & current_body_topics
         shorter_body_size = min(len(candidate_body_topics), len(current_body_topics))
         body_topic_coverage = (
