@@ -154,7 +154,7 @@ function backupNow(){
   if(label)label.textContent="Testo protetto sul dispositivo · "+new Date(payload.updated_at).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
  }catch(e){
   const label=E("v2-autosave-status");
-  if(label)label.textContent="Salvataggio automatico locale non disponibile: premi Salva bozza.";
+  if(label&&!String(label.textContent||"").startsWith("Bozza salvata su GitHub"))label.textContent="Copia di recupero locale non disponibile · puoi comunque salvare la bozza su GitHub.";
  }
 }
 function scheduleBackup(){
