@@ -377,12 +377,37 @@ function syncCover(){
  if(hasCover){const copy=S("img");copy.src=state.coverPreview||state.cover;copy.alt="Miniatura copertina";copy.style.objectPosition=state.coverFocusX+"% "+state.coverFocusY+"%";box.append(copy)}
  else box.textContent="Nessuna copertina";
 }
+async function refreshLibrary(){
+ try{
+  const response=await fetch("/studio-v2/catalog.json",{cache:"no-store"});
+  if(!response.ok)return;
+  const catalog=(await response.json()).posts||[];
+  const pending=await api("v2-pending");
+  const liveSlugs=new Set(catalog.map(item=>item.slug));
+  const bySlug=new Map(catalog.map(item=>[item.slug,item]));
+  for(const item of pending.posts||[]){
+   if(item?.slug)bySlug.set(item.slug,{...(bySlug.get(item.slug)||{}),...item,__queued:!liveSlugs.has(item.slug)});
+  }
+  for(const [slug,override] of Object.entries(pending.overrides||{})){
+   if(bySlug.has(slug))bySlug.set(slug,{...bySlug.get(slug),...override});
+  }
+  state.rows=[...bySlug.values()];
+  E("v2-count-all").textContent=state.rows.length;
+  E("v2-count-tech").textContent=state.rows.filter(x=>x.category==="news-tech").length;
+  E("v2-count-gaming").textContent=state.rows.filter(x=>x.category==="news-gaming").length;
+  E("v2-count-reviews").textContent=state.rows.filter(x=>String(x.category||"").startsWith("recensioni-")).length;
+  renderList();
+ }catch(_){
+  // Mantieni visibile l'ultima libreria valida se il refresh remoto non è disponibile.
+ }
+}
 function showHome(){
  backupNow();
  hideContext();
  state.mode="home";E("v2-home").hidden=false;E("v2-editor").hidden=true;E("v2-back").hidden=true;
  E("v2-crumb").textContent="Studio / Contenuti";E("v2-home-nav").classList.add("on");
  renderList();history.replaceState({}, "", "/studio-v2/");
+ refreshLibrary();
 }
 function showEditor(row,newContent,skipBackup=false){
  if(!skipBackup)backupNow(); // Protect previous article before replacing the editor contents.
@@ -861,7 +886,7 @@ async function save(mode){
   const result=await api("v2-save",{mode:"publish",creating:state.newContent,record:row});
   state.cover=row.image;state.coverPreview="";state.body=row.body;
   if(state.newContent){try{localStorage.removeItem(backupKey())}catch(_){}}
-  state.current=result.record||row;state.newContent=false;state.newDraftId=null;
+  state.current={...(result.record||row),__queued:true};state.newContent=false;state.newDraftId=null;
   const index=state.rows.findIndex(item=>item.slug===row.slug);
   if(index>=0)state.rows[index]=state.current;else state.rows.unshift(state.current);
   delete state.drafts[row.slug];
@@ -885,8 +910,9 @@ async function init(){
   const r=await fetch("/studio-v2/catalog.json",{cache:"no-store"});if(!r.ok)throw Error("Catalogo Studio V2 non disponibile");
   const catalog=(await r.json()).posts||[];
   const pending=await api("v2-pending");
+  const liveSlugs=new Set(catalog.map(item=>item.slug));
   const bySlug=new Map(catalog.map(item=>[item.slug,item]));
-  for(const item of pending.posts||[])if(item?.slug)bySlug.set(item.slug,{...(bySlug.get(item.slug)||{}),...item});
+  for(const item of pending.posts||[])if(item?.slug)bySlug.set(item.slug,{...(bySlug.get(item.slug)||{}),...item,__queued:!liveSlugs.has(item.slug)});
   for(const [slug,override] of Object.entries(pending.overrides||{}))if(bySlug.has(slug))bySlug.set(slug,{...bySlug.get(slug),...override});
   state.rows=[...bySlug.values()];
   try{const saved=JSON.parse(localStorage.getItem("zazoomtek:studio-v2:local-drafts")||"{}");if(saved&&typeof saved==="object"&&!Array.isArray(saved))state.drafts=saved}catch(_){state.drafts={}}
