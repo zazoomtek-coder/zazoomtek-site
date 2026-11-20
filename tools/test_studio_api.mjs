@@ -113,7 +113,7 @@ const record = {
     text: "Questo testo di prova verifica il salvataggio editoriale completo su GitHub. " +
       "La procedura deve conservare il contenuto, la copertina e la categoria e deve " +
       "scrivere sul ramo principale senza attivare il deploy automatico del commit. " +
-      "La pagina verrà generata dal workflow dedicato di pubblicazione Studio.",
+      "La pagina verrà pubblicata automaticamente al primo slot editoriale disponibile.",
   }],
 };
 
@@ -128,16 +128,16 @@ const publish = await onRequest({
 assert.equal(publish.status, 200, "Studio publish endpoint should return success");
 const result = await publish.json();
 assert.equal(result.ok, true);
-assert.equal(result.status, "deploy-requested");
-assert.equal(result.deploy_requested, true);
+assert.equal(result.status, "saved-main");
 assert.equal(result.branch, "main");
-assert.equal(dispatches.length, 1, "Studio publish must dispatch its dedicated deploy workflow");
-assert.deepEqual(dispatches[0], { ref: "main" });
+assert.deepEqual(result.next_slots, ["12:30", "16:00", "19:30"]);
+assert.equal(result.deploy_requested, undefined, "Studio must not request an immediate deployment");
+assert.equal(dispatches.length, 0, "Studio must leave publication to the next scheduled editorial slot");
 
 const postWrite = writes.find((item) => item.path === "data/studio_posts.json");
 assert.ok(postWrite, "A new Studio article must be written to data/studio_posts.json");
 assert.equal(postWrite.branch, "main", "Published article must be committed to main");
-assert.ok(postWrite.message.startsWith("[CF-Pages-Skip] "), "Studio must prevent an uncontrolled automatic deploy before the dedicated workflow");
+assert.ok(postWrite.message.startsWith("[CF-Pages-Skip] "), "Studio must prevent an uncontrolled Pages deploy; the scheduled editorial workflow handles publication");
 const stored = JSON.parse(postWrite.content);
 assert.equal(stored.posts[0].slug, record.slug);
 assert.equal(stored.posts[0].source, "studio-editor");
@@ -216,4 +216,4 @@ assert.equal(media.status, 200, "The uploaded cover must be readable in Studio p
 assert.equal(media.headers.get("Content-Type"), "image/jpeg");
 assert.equal((await media.arrayBuffer()).byteLength, jpeg.byteLength);
 
-console.log("STUDIO API INTEGRATION PASS: login, publish-to-main, dedicated deploy dispatch, library refresh, duplicate protection, cover upload and preview.");
+console.log("STUDIO API INTEGRATION PASS: login, publish-to-main, first scheduled slot, library refresh, duplicate protection, cover upload and preview.");
