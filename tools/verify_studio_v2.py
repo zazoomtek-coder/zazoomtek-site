@@ -106,12 +106,12 @@ def verify_studio_v2(output,rows):
  assert 'async function api(endpoint,data)' in script
  assert 'api("session")' in script and 'api("v2-pending")' in script
  assert 'api("v2-save",{mode:"publish",creating:state.newContent,record:row})' in script
- assert 'result.deploy_requested' in script and 'Pubblicazione avviata' in script
+ assert 'in attesa del primo slot editoriale disponibile' in script and 'result.deploy_requested' not in script
  assert 'api("upload",{slug,mime:match[1],base64:match[2]})' in script
  assert 'E("v2-publish").onclick=()=>save("publish")' in script
  assert 'E("v2-publish-bottom").onclick=()=>save("publish")' in script
  assert 'Solo anteprima' not in page and '>Pubblica</button>' in page
- assert 'build dedicata del sito' in page and 'verifica della pagina online' in page
+ assert 'primo slot editoriale disponibile' in page and 'Pubblica salva articolo e media su main' in page
  assert 'previewFinalArticle' in script
  assert 'cover.loading="eager"' in script and 'cover.fetchPriority="high"' in script
  preview=script.split("function showArticlePreview",1)[1].split("function closeArticlePreview",1)[0]
@@ -129,11 +129,8 @@ def verify_studio_v2(output,rows):
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-draft-delete','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
-                'const PUBLISH_BRANCH="main";','?"deploy-requested":"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
+                'const PUBLISH_BRANCH="main";','status:"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
                 'branch:PUBLISH_BRANCH','[CF-Pages-Skip] ',
-                'async function dispatchStudioPublish(token,slug)',
-                'pages-deploy-manual.yml/dispatches',
-                'deploy_requested:deployment.requested',
                 'readFile(token,"data/studio_posts.json",BRANCH)',
                 'readFile(token,"data/studio_overrides.json",BRANCH)'):
   assert marker in api,"V2 backend missing "+marker
