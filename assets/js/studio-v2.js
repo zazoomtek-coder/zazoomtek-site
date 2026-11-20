@@ -1006,7 +1006,7 @@ E("v2-cover-add").onclick=editCover;E("v2-cover-change").onclick=()=>chooseFile(
 E("v2-cover-remove").onclick=()=>{state.cover="";state.coverPreview="";syncCover()};
 E("v2-cover-sidebar").onclick=editCover;
 E("v2-title").oninput=()=>{if(state.newContent)E("v2-slug").value=slugify(val("v2-title"));updateAutoCategory();syncArticleChrome({...state.current,...collect()});seoStatus()};
-E("v2-category").addEventListener("change",()=>{if(state.newContent)state.categoryTouched=true;E("v2-author").value=authorForCategory(val("v2-category"));syncArticleChrome({...state.current,...collect()})});
+E("v2-category").addEventListener("change",()=>{state.categoryTouched=true;E("v2-author").value=authorForCategory(val("v2-category"));syncArticleChrome({...state.current,...collect()});scheduleBackup()});
 for(const id of ["v2-category","v2-author","v2-platform","v2-score","v2-pros","v2-cons","v2-video-url"]) E(id).addEventListener("input",()=>syncArticleChrome({...state.current,...collect()}));
 E("v2-modal-close").onclick=closeModal;E("v2-modal-cancel").onclick=closeModal;
 E("v2-modal-apply").onclick=()=>{if(state.modalApply?.()!==false)closeModal()};
