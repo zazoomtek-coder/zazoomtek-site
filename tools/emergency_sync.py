@@ -127,7 +127,7 @@ def _community_is_near_duplicate(candidate, published_rows):
         "sulle", "sullo", "sugli", "sui", "nel", "nella", "nelle", "nello",
         "negli", "alla", "alle", "allo", "agli", "della", "delle", "dello",
         "degli", "dalla", "dalle", "dallo", "dal", "dai", "del", "dei",
-        "tra", "fra", "the", "and", "for", "new", "all", "how",
+        "tra", "fra", "the", "and", "for", "new", "all", "how", "una", "uno", "gli",
     }
 
     def topic_terms(value):
