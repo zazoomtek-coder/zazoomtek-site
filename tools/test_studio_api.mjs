@@ -117,6 +117,37 @@ const record = {
   }],
 };
 
+const draftRecord = {
+  ...record,
+  slug: "studio-api-draft-check",
+  title: "Verifica salvataggio bozza remota Studio 2",
+  body: [{ type: "paragraph", text: "Questa bozza deve essere conservata su GitHub nel ramo editorial-queue e recuperata dall'endpoint v2-drafts anche senza localStorage." }],
+};
+const draftSave = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "draft",
+    record: draftRecord,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(draftSave.status, 200, "Studio draft endpoint should save without local browser storage");
+const draftSaveResult = await draftSave.json();
+assert.equal(draftSaveResult.ok, true);
+assert.equal(draftSaveResult.mode, "draft");
+const remoteDrafts = await onRequest({
+  request: request("/api/studio/v2-drafts", "GET", undefined, cookie),
+  env,
+});
+assert.equal(remoteDrafts.status, 200, "Studio must read remote drafts from GitHub");
+const remoteDraftData = await remoteDrafts.json();
+assert.equal(remoteDraftData.drafts[draftRecord.slug].record.title, draftRecord.title,
+  "A saved draft must be retrievable from GitHub after a page reload");
+const draftWrite = writes.find((item) => item.path === "data/studio_v2_drafts.json");
+assert.ok(draftWrite, "Draft must be written to data/studio_v2_drafts.json");
+assert.equal(draftWrite.branch, "editorial-queue",
+  "Drafts must remain on editorial-queue and must not be published to main");
+
 const publish = await onRequest({
   request: request("/api/studio/v2-save", "POST", {
     mode: "publish",
