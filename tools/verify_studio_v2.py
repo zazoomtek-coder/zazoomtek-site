@@ -117,6 +117,9 @@ def verify_studio_v2(output,rows):
  assert 'in attesa del primo slot editoriale disponibile' in script and 'result.deploy_requested' not in script
  assert 'async function uploadLocalAsset(value,slug)' in script, "Studio V2 asset upload helper missing"
  assert 'api("upload",{slug,mime,base64})' in script, "Studio V2 must upload normalized Base64 assets"
+ assert 'async function uploadRecordMedia(row)' in script, "Studio V2 must normalize cover and image-block uploads before publishing"
+ assert 'block.url||block.src||block.preview||""' in script, "Studio V2 must recover image URLs from the editor preview when needed"
+ assert 'data:([^;,]+)(?:;[^,]*)*;base64' in script, "Studio V2 must accept data URLs with optional MIME parameters"
  assert 'row.image=await uploadLocalAsset(row.image,row.slug)' in script, "Cover image must be uploaded before saving"
  assert 'block.url=await uploadLocalAsset(block.url,row.slug)' in script, "Media blocks must be uploaded before saving"
  assert 'E("v2-publish").onclick=()=>save("publish")' in script
@@ -152,6 +155,7 @@ def verify_studio_v2(output,rows):
  assert "amazon.it/dp/B000000000" in rendered_html and "javascript:" not in rendered_html and "<script>" not in rendered_html
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
  assert '"html"' in api and 'if(type==="html")' in api, "Studio API must preserve custom HTML blocks"
+ assert 'const uploadedPath=/^assets\\/uploads\\/' in api, "Studio API must normalize repository upload paths in image blocks"
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-draft-delete','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
                 'const PUBLISH_BRANCH="main";','status:"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
