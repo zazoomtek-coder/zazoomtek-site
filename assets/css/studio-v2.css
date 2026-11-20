@@ -239,3 +239,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .v2-html-block blockquote{border-left:3px solid #ddd;margin:14px 0;padding:8px 14px}
 .v2-html-block ul,.v2-html-block ol{padding-left:24px}
 .v2-modal-body textarea{min-height:120px;line-height:1.5;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+.v2-html-live-preview{margin:10px 0 4px;padding:14px;border:1px solid #e7e1dc;border-radius:8px;background:#faf9f7;max-height:280px;overflow:auto}
+.v2-html-live-preview img{max-width:100%;height:auto}
+.v2-html-live-preview iframe{max-width:100%;border:0}
+.v2-html-live-preview a{color:#d94b3b;text-decoration:underline}
+.v2-html-live-preview table{width:100%;border-collapse:collapse}
+.v2-html-live-preview td,.v2-html-live-preview th{border:1px solid #ddd;padding:6px}
