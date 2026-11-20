@@ -49,6 +49,61 @@ class FakeResponse:
 
 
 class YouTubeImportTests(unittest.TestCase):
+    def test_reworded_article_about_same_device_is_blocked(self):
+        published = {
+            "title": "Samsung Galaxy S26 Ultra: nuove fotocamere e funzioni AI",
+            "text": (
+                "Samsung Galaxy S26 Ultra integra un sensore fotografico aggiornato, "
+                "zoom ottico, fotografia notturna e strumenti di intelligenza artificiale."
+            ),
+        }
+        candidate = {
+            "title": "Galaxy S26 Ultra, tutte le novità Samsung per foto e intelligenza artificiale",
+            "text": (
+                "Il nuovo Galaxy S26 Ultra di Samsung punta su fotografia notturna, "
+                "zoom ottico, sensore aggiornato e strumenti basati sull'intelligenza artificiale."
+            ),
+        }
+        duplicate, matched = emergency_sync._community_is_near_duplicate(candidate, [published])
+        self.assertTrue(duplicate)
+        self.assertEqual(matched, published["title"])
+
+    def test_same_brand_but_different_product_is_not_blocked(self):
+        published = {
+            "title": "Samsung Galaxy S26 Ultra: nuove fotocamere e funzioni AI",
+            "text": (
+                "Samsung Galaxy S26 Ultra integra un sensore fotografico aggiornato, "
+                "zoom ottico, fotografia notturna e strumenti di intelligenza artificiale."
+            ),
+        }
+        candidate = {
+            "title": "Samsung presenta il nuovo televisore OLED per il cinema domestico",
+            "text": (
+                "Il nuovo televisore OLED Samsung offre un pannello luminoso, "
+                "contrasto elevato, audio immersivo e modalità dedicate ai film."
+            ),
+        }
+        duplicate, _ = emergency_sync._community_is_near_duplicate(candidate, [published])
+        self.assertFalse(duplicate)
+
+    def test_different_model_numbers_are_not_treated_as_same_subject(self):
+        published = {
+            "title": "Samsung Galaxy S26: caratteristiche e fotocamera",
+            "text": (
+                "Il Samsung Galaxy S26 introduce una fotocamera aggiornata, "
+                "un nuovo processore e miglioramenti per la batteria."
+            ),
+        }
+        candidate = {
+            "title": "Samsung Galaxy S27: prime indiscrezioni sul nuovo smartphone",
+            "text": (
+                "Il futuro Samsung Galaxy S27 potrebbe adottare un processore diverso, "
+                "un display aggiornato e una batteria di maggiore capacità."
+            ),
+        }
+        duplicate, _ = emergency_sync._community_is_near_duplicate(candidate, [published])
+        self.assertFalse(duplicate)
+
     def test_community_discovery_recovers_full_original_post(self):
         with patch.object(community_youtube, "fetch", side_effect=lambda *a, **k: youtube_page()):
             posts = community_youtube.discover(limit=10, max_pages=2)
