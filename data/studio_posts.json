@@ -1,6 +1,88 @@
 {
   "posts": [
     {
+      "slug": "snapmaker-e-makegood-insieme-per-realizzare-ausili-alla-mobilita-infantile-con-la-stampa-3d",
+      "title": "Snapmaker e MakeGood insieme per realizzare ausili alla mobilità infantile con la stampa 3D",
+      "category": "news-tech",
+      "image": "/assets/uploads/snapmaker-e-makegood-insieme-per-realizzare-ausili-alla-mobilita-infantile-con-la-stampa-3d/7eb91d21b53c497bbc39.png",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Snapmaker e MakeGood avviano una collaborazione per sviluppare ausili personalizzati per bambini con difficoltà motorie attraverso la stampa 3D."
+        },
+        {
+          "type": "paragraph",
+          "text": "La stampa 3D può diventare uno strumento concreto per migliorare la vita quotidiana dei bambini con difficoltà motorie. In occasione della Giornata mondiale dell'infanzia del 20 novembre, Snapmaker e l'organizzazione no-profit MakeGood hanno annunciato una partnership dedicata alla realizzazione di dispositivi di assistenza personalizzati. Il progetto punta a rendere più semplice la produzione di ausili per la mobilità, coinvolgendo famiglie, progettisti e volontari attraverso una tecnologia accessibile e modelli open-source."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un progetto open-source per aiutare i bambini a muoversi"
+        },
+        {
+          "type": "paragraph",
+          "text": "La collaborazione parte dal 3D Toddler Mobility Trainer (3DTMT), un progetto open-source sviluppato da MakeGood per aiutare i bambini più piccoli con difficoltà motorie a muoversi ed esplorare l'ambiente circostante con maggiore indipendenza. L'obiettivo è offrire un supporto personalizzato, costruito in base alle necessità del singolo bambino."
+        },
+        {
+          "type": "paragraph",
+          "text": "MakeGood lavora direttamente con le famiglie per progettare dispositivi di assistenza e coordina una rete di volontari incaricati di realizzarli e consegnarli. Il contributo di Snapmaker riguarda invece la tecnologia di stampa 3D U1 e il supporto ingegneristico necessario per rendere più semplice la produzione degli ausili."
+        },
+        {
+          "type": "paragraph",
+          "text": "Snapmaker U1: profili di stampa per facilitare il lavoro dei volontari"
+        },
+        {
+          "type": "paragraph",
+          "text": "Uno degli aspetti centrali dell'iniziativa è lo sviluppo congiunto di profili di stampa dedicati alla Snapmaker U1. Queste configurazioni saranno realizzate per il progetto 3DTMT con l'obiettivo di semplificare il passaggio dal modello digitale al dispositivo fisico, riducendo le difficoltà tecniche per chi partecipa alla produzione."
+        },
+        {
+          "type": "paragraph",
+          "text": "I profili permetteranno ai maker volontari di realizzare gli ausili seguendo impostazioni specifiche, con la possibilità di personalizzarli anche attraverso i colori preferiti dai bambini. In questo modo, il progetto non si limita a fornire un supporto funzionale, ma cerca di rendere ogni dispositivo più vicino ai gusti e alla personalità del suo destinatario."
+        },
+        {
+          "type": "paragraph",
+          "text": "Noam Platt, fondatore e presidente di MakeGood, ha sottolineato l'importanza di offrire a ogni bambino la possibilità di muoversi, esplorare e giocare in modo più autonomo. Secondo Platt, il supporto tecnologico di Snapmaker e i nuovi profili di stampa potranno facilitare la partecipazione dei volontari e permettere a un numero maggiore di maker di contribuire all'iniziativa."
+        },
+        {
+          "type": "paragraph",
+          "text": "Anche Snapmaker considera la collaborazione un'occasione per applicare la stampa 3D a esigenze concrete. Blayne Sapelli, Creative Marketing Manager dell'azienda, ha evidenziato il valore dell'unione tra le competenze ingegneristiche del produttore e l'esperienza di MakeGood nella progettazione di dispositivi assistivi insieme alle famiglie."
+        },
+        {
+          "type": "paragraph",
+          "text": "Come partecipare al progetto MakeGood"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'iniziativa prevede diverse modalità di partecipazione. Le famiglie possono richiedere gratuitamente un ausilio per la mobilità attraverso il programma di volontariato di MakeGood, mentre chi possiede competenze e strumenti adeguati può candidarsi per contribuire alla realizzazione dei dispositivi. È inoltre possibile sostenere il progetto coprendo i costi dei materiali e dell'hardware necessari alla produzione."
+        },
+        {
+          "type": "paragraph",
+          "text": "Per conoscere le modalità di partecipazione e presentare una richiesta è disponibile il sito 3d-mobility.org. Ulteriori informazioni sulle attività e sugli altri progetti di tecnologia assistiva sono consultabili sul portale MakeGood."
+        },
+        {
+          "type": "paragraph",
+          "text": "La partnership tra Snapmaker e MakeGood mostra come la produzione additiva possa andare oltre la prototipazione e la creazione di oggetti di uso comune. Attraverso progetti open-source, competenze tecniche e il coinvolgimento delle comunità di maker, la stampa 3D può contribuire a realizzare strumenti personalizzati per rispondere a necessità specifiche, offrendo nuove possibilità di movimento e partecipazione ai bambini e alle loro famiglie."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-20T11:13:34.965Z",
+      "route_version": 2,
+      "public_slug": "snapmaker-makegood-insieme-realizzare-ausili-mobilita-infantile-stam",
+      "public_path": "/news/snapmaker-makegood-insieme-realizzare-ausili-mobilita-infantile-stam",
+      "date": "2026-11-20",
+      "published_at": "2026-11-20T11:13:36.034Z"
+    },
+    {
       "slug": "samsung-come-scegliere-l-ssd-giusto-per-preparare-il-proprio-setup-gaming",
       "title": "Samsung: come scegliere l’SSD giusto per preparare il proprio setup gaming",
       "category": "news-tech",
