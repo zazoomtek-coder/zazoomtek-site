@@ -49,7 +49,7 @@ def verify_studio_v2(output,rows):
  assert "<h2>Approfondimento</h2>" not in studio_sectioned_body(studio_review),"Synthetic heading still added to published review"
  manual_review={"slug":"manual-review-source-test","source":"manual-editorial","category":"recensioni-tech",
   "studio_blocks":True,"body":[{"type":"paragraph","text":"Testo di una recensione manuale."}]}
- assert "<h2>Approfondimento</h2>" in studio_sectioned_body(manual_review),"Legacy manual-review fallback changed unexpectedly"
+ assert "Approfondimento" not in studio_sectioned_body(manual_review),"Synthetic filler heading must not appear in Studio articles"
  guide=next((p for p in rows if p.get("slug")=="iphone-con-memoria-piena-come-liberare-spazio-senza-perdere-foto-e-dati"),None)
  assert guide is not None,"Published iPhone storage guide missing from the article catalog"
  guide_html=studio_sectioned_body(guide)
