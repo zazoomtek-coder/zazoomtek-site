@@ -11,7 +11,8 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from emergency_sync import (youtube_videos, youtube_community, refresh_rss, category_for_post,\n                            _community_is_near_duplicate, _published_community_comparison_rows)
+from emergency_sync import (youtube_videos, youtube_community, refresh_rss, category_for_post,
+                            _community_is_near_duplicate, _published_community_comparison_rows)
 from article_routes import CATEGORY_PREFIX, unique_slug
 from article_templates import author_for_category
 
