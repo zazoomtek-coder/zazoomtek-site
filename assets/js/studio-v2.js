@@ -533,11 +533,11 @@ function detectEditorialCategory(input,title){
   const normalized=text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("it");
   const hasAny=patterns=>patterns.some(pattern=>pattern.test(normalized));
   const gaming=hasAny([
-    /\b(videogioch\w*|videogame\w*|gaming|playstation|ps5|ps4|ps vr|xbox|nintendo|switch 2|switch|steam deck|steam|epic games|game pass|gameplay|dlc|multiplayer|console|esport|e sport)\b/,
+    /\b(videogioch\w*|videogame\w*|gaming|gamepad|joypad|playstation|ps5|ps4|ps vr|xbox|nintendo|switch 2|switch|steam deck|steam|epic games|game pass|gameplay|dlc|multiplayer|console|esport|e sport)\b/,
     /\b(gears of war|call of duty|grand theft auto|gta|resident evil|final fantasy|the witcher|fortnite|minecraft|elden ring|assassin s creed)\b/
   ]);
   const review=hasAny([
-    /\b(recensione|recensioni|review|reviews|abbiamo provato|la nostra prova|test completo|prova approfondita|voto finale|pro e contro)\b/
+    /\b(recensione|recensioni|review tech|review gaming|review:|abbiamo provato|la nostra prova|test completo|prova approfondita|voto finale|pro e contro)\b/
   ]);
   const guide=hasAny([
     /\b(guida|tutorial|come fare|come configurare|come installare|come risolvere|passo dopo passo|procedura|istruzioni pratiche)\b/
@@ -555,19 +555,21 @@ function safePaste(e){
  const raw=e.clipboardData?.getData("text/plain")||"";
  const idx=Number(e.currentTarget.closest("[data-index]")?.dataset.index);
  const current=state.body[idx];
+ let autoCategory=null;
  if(current&&current.type==="paragraph"&&!String(current.text||"").trim()
     &&(raw.includes("\n")||raw.length>=180)){
   if(state.newContent&&!state.categoryTouched&&raw.trim().length>=120){
    const detected=detectEditorialCategory(raw,val("v2-title"));
+   autoCategory=detected;
    E("v2-category").value=detected;
    E("v2-author").value=authorForCategory(detected);
    state.current={...state.current,category:detected,author:authorForCategory(detected)};
+   state.categoryTouched=true;
    syncArticleChrome({...state.current,...collect()});
-   notify("Categoria rilevata automaticamente: "+cats[detected]+". Puoi comunque modificarla nelle impostazioni.");
   }
   const blocks=formattedTextBlocks(raw,val("v2-category"),val("v2-title"));
   state.body.splice(idx,1,...blocks);renderBlocks();seoStatus();scheduleBackup();
-  notify("Testo inserito e impaginato secondo il modello editoriale ZazoomTek.");
+  notify("Testo inserito e impaginato secondo il modello editoriale ZazoomTek."+(autoCategory?" Categoria rilevata: "+cats[autoCategory]+". Puoi modificarla nelle impostazioni.":""));
   return;
  }
  const sel=window.getSelection();if(!sel?.rangeCount)return;
