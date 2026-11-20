@@ -243,6 +243,7 @@ def youtube_community():
             occupied_paths.add(row["public_path"])
             existing[post_id] = row
             added.append(row)
+            comparison_rows.append(row)
         db["posts"] = sorted(existing.values(),
                              key=lambda p: p.get("published_at") or p.get("date") or "",
                              reverse=True)
