@@ -37,6 +37,73 @@ def save(name, obj):
         return True
     return False
 
+def _community_plain_text(row):
+    """Return comparable editorial text from legacy, Community and Studio records."""
+    parts = [str(row.get("title") or ""), str(row.get("text") or ""),
+             str(row.get("description") or "")]
+    body = row.get("body")
+    if isinstance(body, str):
+        parts.append(body)
+    elif isinstance(body, list):
+        for block in body:
+            if isinstance(block, dict):
+                parts.append(str(block.get("text") or block.get("content") or ""))
+            elif isinstance(block, str):
+                parts.append(block)
+    return " ".join(parts)
+
+
+def _community_normalize(value):
+    value = str(value or "").casefold()
+    value = re.sub(r"<[^>]+>", " ", value)
+    value = re.sub(r"https?://\\S+", " ", value)
+    value = re.sub(r"[^a-z0-9à-ÿ]+", " ", value)
+    return re.sub(r"\\s+", " ", value).strip()
+
+
+def _community_is_near_duplicate(candidate, published_rows):
+    """Conservatively block the same editorial story, even when YouTube IDs differ."""
+    from difflib import SequenceMatcher
+
+    candidate_title = _community_normalize(candidate.get("title"))
+    candidate_text = _community_normalize(_community_plain_text(candidate))
+    if len(candidate_text) < 180:
+        return False, None
+    candidate_words = set(candidate_text.split())
+    for current in published_rows:
+        if not isinstance(current, dict):
+            continue
+        current_text = _community_normalize(_community_plain_text(current))
+        if len(current_text) < 180:
+            continue
+        current_title = _community_normalize(current.get("title"))
+        title_ratio = SequenceMatcher(None, candidate_title, current_title).ratio() if candidate_title and current_title else 0
+        body_ratio = SequenceMatcher(None, candidate_text[:12000], current_text[:12000]).ratio()
+        current_words = set(current_text.split())
+        union = candidate_words | current_words
+        word_overlap = len(candidate_words & current_words) / len(union) if union else 0
+        # Require substantial body overlap as well as a similar title, OR
+        # very high full-text similarity. This avoids blocking same-topic updates.
+        if (title_ratio >= 0.90 and (body_ratio >= 0.48 or word_overlap >= 0.55)) or body_ratio >= 0.84 or word_overlap >= 0.78:
+            return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
+    return False, None
+
+
+def _published_community_comparison_rows():
+    """Load all available published article collections for duplicate screening."""
+    rows = []
+    for filename, key in (("posts.json", "posts"), ("studio_posts.json", "posts"),
+                          ("community_imported.json", "posts"),
+                          ("community_full.json", "posts"), ("community.json", "posts")):
+        try:
+            records = load(filename, key).get(key, [])
+            if isinstance(records, list):
+                rows.extend(record for record in records if isinstance(record, dict))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("WARNING: duplicate screening archive unavailable:",
+                  filename, type(exc).__name__, str(exc)[:120], flush=True)
+    return rows
+
 def classify_upload(title):
     # Mantiene la classificazione storica: esclude soltanto gli YouTube Shorts.
     if is_short_title(title):
@@ -138,6 +205,8 @@ def youtube_community():
     try:
         items = discover(limit=180, max_pages=15)
         added = []
+        comparison_rows = _published_community_comparison_rows()
+        duplicate_skipped = 0
         for row in items:
             post_id = row.get("id", "")
             if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", post_id) or not row.get("text_complete"):
@@ -152,6 +221,13 @@ def youtube_community():
             if post_id in archived_ids or post_id in existing:
                 continue
             if len(row.get("text", "")) < 60 or not row.get("type"):
+                continue
+            duplicate, matched_title = _community_is_near_duplicate(row, comparison_rows)
+            if duplicate:
+                duplicate_skipped += 1
+                print("YOUTUBE COMMUNITY DUPLICATE SKIPPED:", row.get("title", "")[:120],
+                      "matches:", matched_title[:120], flush=True)
+                continue
                 continue
             row = dict(row)
             category = category_for_post(row)
@@ -172,7 +248,8 @@ def youtube_community():
                              reverse=True)
         save("community_imported.json", db)
         print("YOUTUBE COMMUNITY: verified recent records", len(items),
-              "new full posts", len(added), "total imported", len(db["posts"]), flush=True)
+              "new full posts", len(added), "near-duplicates skipped", duplicate_skipped,
+              "total imported", len(db["posts"]), flush=True)
         for row in added[:35]:
             print("  community", row.get("date"), row.get("title", "")[:145], flush=True)
         return True
