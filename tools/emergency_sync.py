@@ -189,8 +189,8 @@ def _community_is_near_duplicate(candidate, published_rows):
         body_topic_coverage = (
             len(shared_body_topics) / shorter_body_size if shorter_body_size else 0
         )
-        if (len(shared_body_topics) >= 6 and shorter_body_size >= 8
-                and body_topic_coverage >= 0.62):
+        if (len(shared_body_topics) >= 8 and shorter_body_size >= 12
+                and body_topic_coverage >= 0.52):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
         # High coverage of the shorter text catches excerpts even when the
