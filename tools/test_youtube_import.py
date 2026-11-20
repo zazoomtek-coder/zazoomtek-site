@@ -68,6 +68,27 @@ class YouTubeImportTests(unittest.TestCase):
         self.assertTrue(duplicate)
         self.assertEqual(matched, published["title"])
 
+    def test_same_subject_with_different_headline_is_blocked_by_body(self):
+        published = {
+            "title": "WhatsApp introduce una novità nelle chat di gruppo",
+            "text": (
+                "WhatsApp consente di modificare i messaggi inviati nelle chat di gruppo "
+                "entro quindici minuti, mantenendo una cronologia delle modifiche e "
+                "mostrando un'etichetta di messaggio modificato."
+            ),
+        }
+        candidate = {
+            "title": "Meta cambia le regole delle conversazioni mobili",
+            "text": (
+                "Meta aggiorna WhatsApp: gli utenti potranno correggere i messaggi "
+                "spediti nelle conversazioni di gruppo entro quindici minuti e vedere "
+                "la cronologia delle modifiche con l'indicazione del messaggio modificato."
+            ),
+        }
+        duplicate, matched = emergency_sync._community_is_near_duplicate(candidate, [published])
+        self.assertTrue(duplicate)
+        self.assertEqual(matched, published["title"])
+
     def test_same_brand_but_different_product_is_not_blocked(self):
         published = {
             "title": "Samsung Galaxy S26 Ultra: nuove fotocamere e funzioni AI",
