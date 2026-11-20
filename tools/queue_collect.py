@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Accumulate original ZazoomTek YouTube records on the non-deploying editorial-queue branch."""
-from datetime import datetime, timezone, time
+from datetime import datetime, timezone, time as datetime_time
 from zoneinfo import ZoneInfo
 from pathlib import Path
 import json
 import os
 import re
 import urllib.request
-import time
+import time as time_module
 import xml.etree.ElementTree as ET
 from community_youtube import discover, title_type
 from sync_videos import CHANNEL_ID, NS, classify
@@ -45,16 +45,19 @@ def load(name,key):
         raise RuntimeError("Invalid queue snapshot structure: "+name)
     return obj[key]
 
+def in_intake_window(clock):
+    return (
+        datetime_time(9,0)<=clock<=datetime_time(12,20) or
+        datetime_time(12,31)<=clock<=datetime_time(15,50) or
+        datetime_time(16,1)<=clock<=datetime_time(19,20)
+    )
+
 def ingest(now=None):
     now=now or datetime.now(timezone.utc)
     local=now.astimezone(ROME)
     clock=local.time()
     # Leave a ten-minute import cutoff before each of the three release slots.
-    intake_windows=(
-        time(9,0)<=clock<=time(12,20) or
-        time(12,31)<=clock<=time(15,50) or
-        time(16,1)<=clock<=time(19,20)
-    )
+    intake_windows=in_intake_window(clock)
     if not intake_windows and os.environ.get("ZAZOOMTEK_FORCE_COLLECT") != "1":
         print("Outside editorial intake window, nothing changed:",local.isoformat())
         return False
@@ -79,7 +82,7 @@ def ingest(now=None):
                 break
             except Exception as error:
                 last_error=error
-                if attempt<2:time.sleep(1+attempt)
+                if attempt<2:time_module.sleep(1+attempt)
         if root is None:
             raise RuntimeError("YouTube video RSS unavailable after 3 attempts") from last_error
         for entry in root.findall("atom:entry",NS):
