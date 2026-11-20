@@ -99,8 +99,9 @@ jobs:
           INPUT_SLUG: ${{ inputs.slug }}
         run: |
           python3 - <<'PY'
-          import json, os, time, urllib.request
+          import json, os, sys, time, urllib.request
           from pathlib import Path
+          sys.path.insert(0, "tools")
           from article_routes import build_article_url
           slug=os.environ["INPUT_SLUG"]
           found=None
