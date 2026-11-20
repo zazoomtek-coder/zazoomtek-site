@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "functions/api/studio/[[path]].js"
+      - "functions/api/studio/**"
       - "assets/js/studio-v2.js"
       - "tools/studio_v2_build.py"
       - "tools/article_templates.py"
