@@ -193,7 +193,7 @@ const duplicate = await onRequest({
   env,
 });
 assert.equal(duplicate.status, 400, "A pending main article must not be silently overwritten as a new article");
-assert.equal(writes.filter((item) => item.path === "data/studio_posts.json").length, 1);
+assert.equal(writes.filter((item) => item.path === "data/studio_posts.json").length, 2, "The duplicate attempt must not create a third write");
 
 const unrestrictedBlocks = {
   ...record,
