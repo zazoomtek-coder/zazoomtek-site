@@ -1,6 +1,100 @@
 {
   "posts": [
     {
+      "slug": "samsung-come-scegliere-l-ssd-giusto-per-preparare-il-proprio-setup-gaming",
+      "title": "Samsung: come scegliere l’SSD giusto per preparare il proprio setup gaming",
+      "category": "news-tech",
+      "image": "/assets/uploads/samsung-come-scegliere-l-ssd-giusto-per-preparare-il-proprio-setup-gaming/21adafff052e422180fa.jpg",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "Samsung evidenzia il ruolo degli SSD nel gaming: capacità, velocità e gestione delle temperature con 9100 PRO e 990 PRO."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'evoluzione dei videogiochi porta con sé requisiti sempre più impegnativi per i dispositivi utilizzati dai giocatori. Texture ad alta risoluzione, ambientazioni dettagliate, aggiornamenti frequenti e contenuti aggiuntivi richiedono spazio di archiviazione e accesso rapido ai dati. In questo contesto, scegliere un SSD adeguato può contribuire a migliorare l'esperienza di gioco, riducendo i tempi di caricamento e consentendo di mantenere installati più titoli senza dover liberare continuamente spazio."
+        },
+        {
+          "type": "paragraph",
+          "text": "PC e console: il gaming richiede sempre più spazio"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le abitudini dei giocatori mostrano quanto il settore sia ormai distribuito tra piattaforme differenti. Secondo il quarto Samsung Trend Radar, il 49% degli intervistati utilizza una console, il 34% gioca su un computer portatile e il 32% su un PC desktop. La ricerca, realizzata da Toluna nell'ottobre 2026 su un campione di 1.000 italiani maggiorenni, evidenzia la varietà dei dispositivi scelti per giocare."
+        },
+        {
+          "type": "paragraph",
+          "text": "Indipendentemente dalla piattaforma, la gestione dello spazio è diventata un aspetto importante per chi possiede una libreria videoludica ampia. I giochi possono occupare decine o centinaia di gigabyte e richiedere ulteriore spazio per aggiornamenti e contenuti scaricabili. Una capacità maggiore permette quindi di conservare più titoli installati, evitando di doverli rimuovere e scaricare nuovamente quando si desidera tornare a giocarli."
+        },
+        {
+          "type": "paragraph",
+          "text": "Velocità di lettura e tecnologia NVMe: cosa cambia durante il gioco"
+        },
+        {
+          "type": "paragraph",
+          "text": "Oltre alla capacità, un altro elemento da considerare è la velocità con cui l'unità riesce a leggere e trasferire i dati. Le soluzioni SSD NVMe hanno portato un significativo passo avanti rispetto ai tradizionali sistemi di archiviazione, offrendo prestazioni superiori e una gestione più reattiva delle informazioni."
+        },
+        {
+          "type": "paragraph",
+          "text": "Nel gaming questo aspetto può incidere sui tempi necessari per avviare un titolo, caricare una partita o accedere alle ambientazioni. La velocità dello storage, tuttavia, non è l'unico parametro da valutare: anche efficienza energetica e gestione delle temperature contribuiscono al comportamento complessivo dell'unità, soprattutto durante sessioni prolungate e attività particolarmente intensive."
+        },
+        {
+          "type": "paragraph",
+          "text": "Samsung 9100 PRO: PCIe 5.0 e capacità fino a 8 TB"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per i sistemi compatibili con le tecnologie di ultima generazione, Samsung propone il 9100 PRO, un SSD basato su interfaccia PCIe 5.0. Il modello è pensato per chi cerca prestazioni di fascia alta e necessita di ampliare lo spazio disponibile sul proprio computer. La gamma arriva fino a 8 TB ed è disponibile anche in una variante dotata di heatsink, utile per la gestione delle temperature nelle configurazioni compatibili."
+        },
+        {
+          "type": "paragraph",
+          "text": "La presenza dell'interfaccia PCIe 5.0 lo colloca tra le soluzioni destinate ai sistemi più recenti. Prima dell'acquisto è comunque importante verificare il supporto della scheda madre o del dispositivo utilizzato, perché per sfruttare le caratteristiche dell'unità è necessario disporre di una piattaforma compatibile."
+        },
+        {
+          "type": "paragraph",
+          "text": "Samsung 990 PRO: SSD PCIe 4.0 per configurazioni gaming"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un'altra soluzione indicata da Samsung è il 990 PRO, un SSD NVMe PCIe 4.0 progettato per il gaming e le applicazioni che richiedono prestazioni elevate. Le velocità sequenziali dichiarate raggiungono 7.450 MB/s in lettura e 6.900 MB/s in scrittura, valori che permettono di gestire rapidamente grandi quantità di dati."
+        },
+        {
+          "type": "paragraph",
+          "text": "Si tratta di un'opzione rivolta a chi desidera aggiornare una configurazione compatibile senza passare necessariamente a una piattaforma PCIe 5.0. La scelta tra 9100 PRO e 990 PRO dipende quindi soprattutto dall'hardware disponibile, dal budget e dalle esigenze di archiviazione: il primo guarda ai sistemi di nuova generazione, mentre il secondo offre prestazioni elevate nell'ambito PCIe 4.0."
+        },
+        {
+          "type": "paragraph",
+          "text": "Come valutare lo storage prima di aggiornare il setup"
+        },
+        {
+          "type": "paragraph",
+          "text": "La scelta di un SSD non dovrebbe basarsi esclusivamente sulla velocità massima dichiarata. Per un setup gaming è importante considerare anche la capacità necessaria, la compatibilità con il dispositivo e la gestione delle temperature. Chi utilizza molti giochi contemporaneamente potrebbe dare priorità allo spazio disponibile, mentre chi sta assemblando un PC recente può valutare un'unità PCIe 5.0 per sfruttare le possibilità della nuova piattaforma."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le soluzioni Samsung 9100 PRO e 990 PRO rappresentano due alternative differenti per aggiornare lo storage di un computer. La loro presenza in una configurazione gaming può contribuire a rendere più rapida la gestione dei dati e più flessibile l'organizzazione della libreria, ma le prestazioni effettive dipendono anche dal resto dell'hardware e dalle caratteristiche dei singoli videogiochi."
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Gimmi",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-20T10:21:12.079Z",
+      "route_version": 2,
+      "public_slug": "samsung-scegliere-l-ssd-giusto-preparare-proprio-setup-gaming",
+      "public_path": "/news/samsung-scegliere-l-ssd-giusto-preparare-proprio-setup-gaming",
+      "date": "2026-11-20",
+      "published_at": "2026-11-20T10:21:12.864Z"
+    },
+    {
       "slug": "il-black-friday-creative-suona-gia-come-natale-fino-al-65-di-sconto-piu-un-10-extra",
       "title": "Il Black Friday Creative suona già come Natale: fino al 65% di sconto, più un 10% extra",
       "category": "news-tech",
