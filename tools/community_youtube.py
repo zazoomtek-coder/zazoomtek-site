@@ -166,10 +166,10 @@ def title_type(text):
 
 def editorial_topic(title):
  """Return an explicit topic only when the editorial prefix defines one."""
- heading=re.sub(r"\\s+"," ",str(title or "").casefold()).strip()
- if re.match(r"^(?:news\\s+gaming|(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+gaming)(?:\\s*[:：–—-]|\\s+)",heading):
+ heading=re.sub(r"\s+"," ",str(title or "").casefold()).strip()
+ if re.match(r"^(?:news\s+gaming|(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+gaming)(?:\s*[:：–—-]|\s+)",heading):
   return "gaming"
- if re.match(r"^(?:news\\s+tech|(?:review|reviews|recensione|recensioni)(?:\\s*/\\s*(?:review|recensione))?\\s+tech)(?:\\s*[:：–—-]|\\s+)",heading):
+ if re.match(r"^(?:news\s+tech|(?:review|reviews|recensione|recensioni)(?:\s*/\s*(?:review|recensione))?\s+tech)(?:\s*[:：–—-]|\s+)",heading):
   return "tech"
  return None
 
