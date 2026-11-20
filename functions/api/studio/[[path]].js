@@ -293,7 +293,7 @@ async function saveArticle(request,env,session){
   "Studio: "+(current?"update ":"create ")+record.slug,PUBLISH_BRANCH);
  return respond({ok:true,slug:record.slug,status:"saved-main",branch:PUBLISH_BRANCH,
   next_slots:["12:30","16:00","19:30"],
-  message:"Articolo e copertina salvati su main. Il sito verrà aggiornato al prossimo slot editoriale autorizzato."});
+  message:"Articolo e immagini salvati su main e inseriti nella coda editoriale: saranno pubblicati automaticamente al primo slot orario disponibile."});
 }
 async function upload(request,session){
  const data=await parseInput(request,8500000);
@@ -403,16 +403,6 @@ async function deleteV2Draft(request,session){
  }
  throw new Error("Non è stato possibile eliminare la bozza.");
 }
-async function dispatchStudioPublish(token,slug){
- try{
-  await githubRequest(token,"/repos/"+REPO+"/actions/workflows/pages-deploy-manual.yml/dispatches",{
-   method:"POST",body:{ref:"main"}
-  });
-  return {requested:true};
- }catch(error){
-  return {requested:false,error:clean(error.message).slice(0,220)};
- }
-}
 async function saveV2(request,env,session){
  const data=await parseInput(request,1000000),mode=clean(data.mode);
  if(!["draft","publish"].includes(mode))throw new Error("Comando non riconosciuto.");
@@ -491,14 +481,9 @@ async function saveV2(request,env,session){
     drafts.sha,"Studio V2: archivia bozza pubblicata "+record.slug);
   }
  }catch(_){}
- const deployment=await dispatchStudioPublish(session.token,record.slug);
-  return respond({ok:true,mode:"publish",slug:record.slug,record,
-   status:deployment.requested?"deploy-requested":"saved-main",
-   deploy_requested:deployment.requested,branch:PUBLISH_BRANCH,
-   deploy_error:deployment.requested?undefined:deployment.error,
-   message:deployment.requested
-    ?"Articolo salvato. Pubblicazione avviata su zazoomtek.it: la pagina sarà confermata online dopo i controlli."
-    :"Articolo salvato su main, ma il deploy non è partito. Il token GitHub deve avere anche il permesso Actions: write. Dettaglio: "+deployment.error});
+ return respond({ok:true,mode:"publish",slug:record.slug,
+  record,status:"saved-main",branch:PUBLISH_BRANCH,next_slots:["12:30","16:00","19:30"],
+  message:"Articolo e copertina salvati su main. Il sito verrà aggiornato al prossimo slot editoriale autorizzato."});
 }
 
 export async function onRequest(context){
