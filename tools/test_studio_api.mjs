@@ -158,7 +158,7 @@ const editedRecord = {
   body: [{
     type: "paragraph",
     text: "La modifica di un articolo ancora in coda deve aggiornare il record esistente su main, " +
-      "senza creare duplicati e senza chiedere un deploy immediato.",
+      "senza creare duplicati e senza chiedere un deploy immediato. Il contenuto aggiornato deve restare visibile nella libreria Studio, conservare lo stesso indirizzo pubblico e mantenere la copertina e gli altri blocchi editoriali. La pubblicazione effettiva deve continuare a dipendere esclusivamente dal primo slot programmato.",
   }],
 };
 const editPending = await onRequest({
