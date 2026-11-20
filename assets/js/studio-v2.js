@@ -886,6 +886,18 @@ async function uploadLocalAsset(value,slug){
  if(!result.url)throw Error("Il caricamento dell'immagine non ha restituito il percorso del file.");
  return result.url;
 }
+async function uploadRecordMedia(row){
+ row.image=await uploadLocalAsset(row.image,row.slug);
+ for(const block of row.body){
+  if(["image","audio","attachment"].includes(block.type)){
+   const source=block.url||block.src||block.preview||"";
+   if(block.type==="image"&&!String(source).trim())
+    throw Error("Un blocco immagine non contiene un file o un collegamento valido. Apri il blocco e ricarica l'immagine.");
+   if(source)block.url=await uploadLocalAsset(source,row.slug);
+   delete block.preview;delete block.src;
+  }
+ }
+}
 async function cancelDraft(){
  if(state.busy)return;
  const title=val("v2-title")||state.current?.title||"bozza senza titolo";
@@ -927,13 +939,7 @@ async function save(mode){
   for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=true;
   try{
    notify("Caricamento immagini e salvataggio della bozza su GitHub...");
-   row.image=await uploadLocalAsset(row.image,row.slug);
-   for(const block of row.body){
-    if(["image","audio","attachment"].includes(block.type)){
-     block.url=await uploadLocalAsset(block.url,row.slug);
-     delete block.preview;
-    }
-   }
+   await uploadRecordMedia(row);
    const result=await api("v2-save",{mode:"draft",creating:state.newContent,record:row});
    state.cover=row.image;state.coverPreview="";state.body=row.body;
    const updatedAt=new Date().toISOString();
@@ -952,13 +958,7 @@ async function save(mode){
  for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=true;
  try{
   notify("Preparazione dei contenuti e salvataggio su main...");
-  row.image=await uploadLocalAsset(row.image,row.slug);
-  for(const block of row.body){
-   if(["image","audio","attachment"].includes(block.type)){
-    block.url=await uploadLocalAsset(block.url,row.slug);
-    delete block.preview;
-   }
-  }
+  await uploadRecordMedia(row);
   const result=await api("v2-save",{mode:"publish",creating:state.newContent,record:row});
   state.cover=row.image;state.coverPreview="";state.body=row.body;
   if(state.newContent){try{localStorage.removeItem(backupKey())}catch(_){}}
