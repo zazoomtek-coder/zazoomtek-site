@@ -33,7 +33,7 @@ globalThis.fetch = async (input, options = {}) => {
   if (url.pathname === "/repos/" + repo) {
     return json({ full_name: repo, permissions: { push: true } });
   }
-  if (url.pathname === "/repos/" + repo + "/actions/workflows/studio-publish.yml/dispatches" && method === "POST") {
+  if (url.pathname === "/repos/" + repo + "/actions/workflows/pages-deploy-manual.yml/dispatches" && method === "POST") {
     dispatches.push(JSON.parse(options.body || "{}"));
     return new Response(null, { status: 204 });
   }
