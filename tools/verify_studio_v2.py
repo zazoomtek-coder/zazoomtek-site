@@ -136,10 +136,12 @@ def verify_studio_v2(output,rows):
  from article_templates import sanitize_studio_html, studio_sectioned_body
  unsafe_html=('<p>Prodotto <a href="https://www.amazon.it/dp/B000000000">Amazon</a>'
               '<script>alert(1)</script><a href="javascript:alert(1)">link non sicuro</a>'
-              '<img src="https://m.media-amazon.com/example.jpg" onerror="alert(1)"></p>')
+              '<img src="https://m.media-amazon.com/example.jpg" onerror="alert(1)"></p>'
+              '<iframe src="//ws-eu.amazon-adsystem.com/widgets/q" title="Amazon" width="120" height="240"></iframe>')
  sanitized=sanitize_studio_html(unsafe_html)
  assert 'href="https://www.amazon.it/dp/B000000000" target="_blank" rel="noopener noreferrer external"' in sanitized
  assert 'src="https://m.media-amazon.com/example.jpg"' in sanitized and "onerror" not in sanitized
+ assert 'src="https://ws-eu.amazon-adsystem.com/widgets/q"' in sanitized and 'sandbox="allow-scripts allow-forms allow-popups"' in sanitized
  assert "<script>" not in sanitized and "alert(1)" not in sanitized and "javascript:" not in sanitized
  html_article={"category":"news-tech","studio_blocks":True,"body":[{"type":"html","html":unsafe_html}]}
  rendered_html=studio_sectioned_body(html_article)
