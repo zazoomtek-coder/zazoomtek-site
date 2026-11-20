@@ -51,8 +51,9 @@ jobs:
           test -s dist/news-sitemap.xml
           test -s dist/_routes.json
           python3 - <<'PY'
-          import json, os
+          import json, os, sys
           from pathlib import Path
+          sys.path.insert(0, "tools")
           from article_routes import build_article_url
           slug=os.environ["INPUT_SLUG"]
           found=None
