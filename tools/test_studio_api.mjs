@@ -15,6 +15,7 @@ const origin = "https://zazoomtek-spotnews-preview.pages.dev";
 const token = "github_pat_test_123456789012345678901234";
 const files = new Map();
 const writes = [];
+const dispatches = [];
 let blobNumber = 0;
 
 function json(value, status = 200) {
@@ -31,6 +32,10 @@ globalThis.fetch = async (input, options = {}) => {
   if (url.pathname === "/user") return json({ login: "zazoomtek-coder", id: 333682421 });
   if (url.pathname === "/repos/" + repo) {
     return json({ full_name: repo, permissions: { push: true } });
+  }
+  if (url.pathname === "/repos/" + repo + "/actions/workflows/studio-publish.yml/dispatches" && method === "POST") {
+    dispatches.push(JSON.parse(options.body || "{}"));
+    return new Response(null, { status: 204 });
   }
 
   const prefix = "/repos/" + repo + "/contents/";
@@ -107,8 +112,8 @@ const record = {
     type: "paragraph",
     text: "Questo testo di prova verifica il salvataggio editoriale completo su GitHub. " +
       "La procedura deve conservare il contenuto, la copertina e la categoria e deve " +
-      "scrivere sul ramo principale senza avviare una pubblicazione immediata di Cloudflare. " +
-      "La pagina verrà poi generata dal template editoriale condiviso negli slot previsti.",
+      "scrivere sul ramo principale senza attivare il deploy automatico del commit. " +
+      "La pagina verrà generata dal workflow dedicato di pubblicazione Studio.",
   }],
 };
 
@@ -123,14 +128,19 @@ const publish = await onRequest({
 assert.equal(publish.status, 200, "Studio publish endpoint should return success");
 const result = await publish.json();
 assert.equal(result.ok, true);
-assert.equal(result.status, "saved-main");
+assert.equal(result.status, "deploy-requested");
+assert.equal(result.deploy_requested, true);
 assert.equal(result.branch, "main");
-assert.ok(result.next_slots.includes("16:00"), "16:00 must be an advertised release slot");
+assert.equal(dispatches.length, 1, "Studio publish must dispatch its dedicated deploy workflow");
+assert.deepEqual(dispatches[0], {
+  ref: "main",
+  inputs: { slug: record.slug },
+});
 
 const postWrite = writes.find((item) => item.path === "data/studio_posts.json");
 assert.ok(postWrite, "A new Studio article must be written to data/studio_posts.json");
 assert.equal(postWrite.branch, "main", "Published article must be committed to main");
-assert.ok(postWrite.message.startsWith("[CF-Pages-Skip] "), "Studio must not bypass scheduled Cloudflare release");
+assert.ok(postWrite.message.startsWith("[CF-Pages-Skip] "), "Studio must prevent an uncontrolled automatic deploy before the dedicated workflow");
 const stored = JSON.parse(postWrite.content);
 assert.equal(stored.posts[0].slug, record.slug);
 assert.equal(stored.posts[0].source, "studio-editor");
@@ -209,4 +219,4 @@ assert.equal(media.status, 200, "The uploaded cover must be readable in Studio p
 assert.equal(media.headers.get("Content-Type"), "image/jpeg");
 assert.equal((await media.arrayBuffer()).byteLength, jpeg.byteLength);
 
-console.log("STUDIO API INTEGRATION PASS: login, publish-to-main, scheduled-release guard, library refresh, duplicate protection, cover upload and preview.");
+console.log("STUDIO API INTEGRATION PASS: login, publish-to-main, dedicated deploy dispatch, library refresh, duplicate protection, cover upload and preview.");
