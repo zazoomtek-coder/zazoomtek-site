@@ -405,7 +405,7 @@ async function deleteV2Draft(request,session){
 }
 async function dispatchStudioPublish(token,slug){
  try{
-  await githubRequest(token,"/repos/"+REPO+"/actions/workflows/studio-publish.yml/dispatches",{
+  await githubRequest(token,"/repos/"+REPO+"/actions/workflows/pages-deploy-manual.yml/dispatches",{
    method:"POST",body:{ref:"main",inputs:{slug}}
   });
   return {requested:true};
