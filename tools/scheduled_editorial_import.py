@@ -338,12 +338,13 @@ def _historical_community_ids():
     return ids
 
 
-def write_import_manifest(project_root, community_ids, video_ids):
-    """Persist the exact IDs added by this import run for release-scoped audits."""
+def write_import_manifest(project_root, community_ids, video_ids, source_status=None):
+    """Persist imported IDs and the real outcome of every live source."""
     manifest = {
         "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "community_ids": sorted(set(str(value) for value in community_ids if value)),
         "video_ids": sorted(set(str(value) for value in video_ids if value)),
+        "source_status": dict(source_status or {}),
     }
     manifest["strict_ids"] = sorted(set(manifest["community_ids"] + manifest["video_ids"]))
     path = Path(project_root) / ".editorial-import-manifest.json"
@@ -405,7 +406,7 @@ def main():
                            if isinstance(row, dict) and row.get("id")
                            and str(row.get("id")) not in before_video_ids)
     manifest = write_import_manifest(
-        Path(__file__).resolve().parents[1], new_community_ids, new_video_ids)
+        Path(__file__).resolve().parents[1], new_community_ids, new_video_ids, results)
     print("IMPORT RELEASE MANIFEST:", manifest, flush=True)
     print("IMPORT RESULT",
           "new Community:", after["community_imported.json"] - before["community_imported.json"],
