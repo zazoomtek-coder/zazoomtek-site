@@ -638,10 +638,10 @@ def studio_link(value):
 class _StudioHTMLSanitizer(HTMLParser):
  """Render owner-supplied HTML with a strict tag/attribute allow-list."""
  ALLOWED={"a","p","br","strong","b","em","i","u","s","ul","ol","li","h2","h3","h4",
-          "blockquote","hr","img","figure","figcaption","div","span","small","sup","sub",
+          "blockquote","hr","img","iframe","figure","figcaption","div","span","small","sup","sub",
           "code","pre","table","thead","tbody","tr","th","td","section"}
  VOID={"br","hr","img"}
- BLOCKED={"script","style","iframe","object","embed","svg","math","template","noscript"}
+ BLOCKED={"script","style","object","embed","svg","math","template","noscript"}
  def __init__(self):
   super().__init__(convert_charrefs=True)
   self.output=[]
@@ -663,6 +663,18 @@ class _StudioHTMLSanitizer(HTMLParser):
      rendered.extend(('target="_blank"','rel="noopener noreferrer external"'))
    title=values.get("title","")
    if title:rendered.append('title="'+esc(title[:180],quote=True)+'"')
+  elif tag=="iframe":
+   raw=str(values.get("src") or "")
+   if raw.startswith("//"):raw="https:"+raw
+   url=studio_link(raw)
+   if not url.startswith("https://"):return
+   rendered.extend(('src="'+esc(url,quote=True)+'"','loading="lazy"',
+                    'referrerpolicy="no-referrer"',
+                    'sandbox="allow-scripts allow-forms allow-popups"'))
+   rendered.append('title="'+esc(str(values.get("title") or "Contenuto incorporato")[:180],quote=True)+'"')
+   for key in ("width","height"):
+    raw=str(values.get(key) or "")
+    if raw.isdigit() and 1<=int(raw)<=2000:rendered.append(key+'="'+raw+'"')
   elif tag=="img":
    url=studio_link(values.get("src",""))
    if not url:return
