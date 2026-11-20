@@ -37,55 +37,121 @@ def save(name, obj):
         return True
     return False
 
+def _community_collect_text(value):
+    """Flatten editorial text stored as strings, rich-text blocks or nested lists."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return " ".join(_community_collect_text(item) for item in value)
+    if isinstance(value, dict):
+        return " ".join(
+            _community_collect_text(value.get(key))
+            for key in ("text", "content", "title", "description", "body", "children", "paragraphs")
+            if value.get(key) is not None
+        )
+    return ""
+
+
 def _community_plain_text(row):
     """Return comparable editorial text from legacy, Community and Studio records."""
-    parts = [str(row.get("title") or ""), str(row.get("text") or ""),
-             str(row.get("description") or "")]
-    body = row.get("body")
-    if isinstance(body, str):
-        parts.append(body)
-    elif isinstance(body, list):
-        for block in body:
-            if isinstance(block, dict):
-                parts.append(str(block.get("text") or block.get("content") or ""))
-            elif isinstance(block, str):
-                parts.append(block)
-    return " ".join(parts)
+    return " ".join(
+        _community_collect_text(row.get(key))
+        for key in ("title", "text", "description", "content", "message", "body")
+        if row.get(key) is not None
+    )
+
+
+def _community_content_text(row):
+    """Return the actual post/article body without its headline."""
+    return " ".join(
+        _community_collect_text(row.get(key))
+        for key in ("text", "description", "content", "message", "body")
+        if row.get(key) is not None
+    )
 
 
 def _community_normalize(value):
     value = str(value or "").casefold()
     value = re.sub(r"<[^>]+>", " ", value)
-    value = re.sub(r"https?://\S+", " ", value)
-    value = re.sub(r"[^a-z0-9à-ÿ]+", " ", value)
-    return re.sub(r"\s+", " ", value).strip()
+    value = re.sub(r"https?://\\S+", " ", value)
+    value = re.sub(r"[^\\wà-ÿ]+", " ", value)
+    return re.sub(r"\\s+", " ", value).strip()
 
 
 def _community_is_near_duplicate(candidate, published_rows):
-    """Conservatively block the same editorial story, even when YouTube IDs differ."""
+    """Detect copied/shortened Community versions of articles already published."""
     from difflib import SequenceMatcher
 
+    stopwords = {
+        "anche", "ancora", "come", "della", "delle", "dello", "degli", "dalla",
+        "dalle", "dallo", "dai", "dal", "dell", "dopo", "dove", "essere", "fare",
+        "fino", "hanno", "nella", "nelle", "nello", "negli", "nella", "nelle",
+        "oggi", "oltre", "perche", "perché", "prima", "questa", "queste",
+        "questi", "questo", "quella", "quelle", "quelli", "quello", "sono",
+        "sotto", "sopra", "tutto", "tutti", "tutte", "viene", "vengono",
+        "with", "from", "that", "this", "these", "those", "have", "has",
+        "will", "your", "their", "they", "them", "than", "then", "when",
+        "what", "which", "were", "been", "being", "into", "about", "after",
+        "before", "over", "under", "more", "most", "some", "such", "also",
+        "only", "very", "just", "each", "here", "there", "where", "while",
+    }
+
     candidate_title = _community_normalize(candidate.get("title"))
-    candidate_text = _community_normalize(_community_plain_text(candidate))
-    if len(candidate_text) < 180:
+    candidate_body = _community_normalize(_community_content_text(candidate))
+    candidate_full = _community_normalize(_community_plain_text(candidate))
+    if len(candidate_full) < 70:
         return False, None
-    candidate_words = set(candidate_text.split())
+
+    def meaningful_words(value):
+        return {
+            word for word in value.split()
+            if len(word) >= 3 and word not in stopwords and not word.isdigit()
+        }
+
+    candidate_words = meaningful_words(candidate_body or candidate_full)
     for current in published_rows:
         if not isinstance(current, dict):
             continue
-        current_text = _community_normalize(_community_plain_text(current))
-        if len(current_text) < 180:
-            continue
         current_title = _community_normalize(current.get("title"))
-        title_ratio = SequenceMatcher(None, candidate_title, current_title).ratio() if candidate_title and current_title else 0
-        body_ratio = SequenceMatcher(None, candidate_text[:12000], current_text[:12000]).ratio()
-        current_words = set(current_text.split())
-        union = candidate_words | current_words
-        word_overlap = len(candidate_words & current_words) / len(union) if union else 0
-        # Require substantial body overlap as well as a similar title, OR
-        # very high full-text similarity. This avoids blocking same-topic updates.
-        if (title_ratio >= 0.90 and (body_ratio >= 0.48 or word_overlap >= 0.55)) or body_ratio >= 0.84 or word_overlap >= 0.78:
+        current_body = _community_normalize(_community_content_text(current))
+        current_full = _community_normalize(_community_plain_text(current))
+        if len(current_full) < 70:
+            continue
+
+        # A Community post is often a short excerpt of a much longer article.
+        # Check exact normalized containment before comparing whole documents.
+        if candidate_body and len(candidate_body) >= 75 and current_body:
+            if candidate_body in current_body or candidate_body in current_full:
+                return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
+
+        current_words = meaningful_words(current_body or current_full)
+        shared = candidate_words & current_words
+        smaller_count = min(len(candidate_words), len(current_words))
+        containment = len(shared) / smaller_count if smaller_count else 0
+        title_ratio = (
+            SequenceMatcher(None, candidate_title, current_title).ratio()
+            if candidate_title and current_title else 0
+        )
+
+        # High coverage of the shorter text catches excerpts even when the
+        # published article contains many additional paragraphs.
+        if len(shared) >= 9 and smaller_count >= 9 and containment >= 0.86:
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
+
+        # Similar headlines are not enough: the body must independently share
+        # substantial distinctive wording to avoid blocking same-topic updates.
+        candidate_count = len(candidate_words)
+        candidate_coverage = len(shared) / candidate_count if candidate_count else 0
+        if title_ratio >= 0.88 and len(shared) >= 8 and candidate_count >= 8 and candidate_coverage >= 0.58:
+            return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
+
+        # Keep a conservative full-text fallback for records with comparable size.
+        if candidate_body and current_body:
+            shorter, longer = sorted((candidate_body, current_body), key=len)
+            if len(shorter) >= 180 and len(longer) <= len(shorter) * 1.35:
+                if SequenceMatcher(None, shorter, longer).ratio() >= 0.88:
+                    return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
+
     return False, None
 
 
