@@ -58,7 +58,7 @@ def verify_studio_v2(output,rows):
  for heading in ("Prima di cancellare, individua il vero responsabile","Foto e video: la precauzione più importante",
                  "App: rimuovere o disinstallare mantenendo i dati","Messaggi, download e documenti dimenticati",
                  "Le operazioni da evitare quando hai fretta","Una piccola manutenzione per non ritrovarsi al punto di partenza"):
-  assert "<h2>"+heading+"</h2>" in guide_html,"Guide heading not rendered: "+heading
+  assert "<p><strong>"+heading+"</strong></p>" in guide_html,"Guide subtitle not rendered in bold: "+heading
  example=next((p for p in data["posts"] if p.get("slug")==
                "speciale-videogiochi-minori-italia-unione-europea"),None)
  if example:
