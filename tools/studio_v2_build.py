@@ -34,7 +34,7 @@ def editorial_blocks_for_editor(row):
    or str(row.get("slug") or "").startswith("community-")))
  if row.get("studio_blocks") and isinstance(body,list) and body:
   has_media=any(isinstance(x,dict) and x.get("type") in
-   ("image","video","audio","button","attachment","poll","divider") for x in body)
+   ("image","video","audio","button","attachment","poll","divider","html") for x in body)
   if youtube_review or has_media:
    return [dict(block) for block in body if isinstance(block,dict)]
  # All other content keeps the existing published renderer's exact H2 and paragraph order.
@@ -252,6 +252,7 @@ def build_studio_v2(output,rows):
  <button data-kind="audio">♫ <span>Audio</span></button>
  <button data-kind="link">🔗 <span>Link nel testo</span></button>
  <button data-kind="button">↗ <span>Pulsante</span></button>
+ <button data-kind="html">&lt;/&gt; <span>HTML personalizzato</span></button>
  <button data-kind="attachment">▤ <span>Allegato</span></button>
  <button data-kind="divider">— <span>Divisore</span></button>
  <button data-kind="quote">❞ <span>Citazione</span></button>
