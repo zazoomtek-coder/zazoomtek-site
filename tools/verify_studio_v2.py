@@ -63,7 +63,7 @@ def verify_studio_v2(output,rows):
                "speciale-videogiochi-minori-italia-unione-europea"),None)
  if example:
   assert len(example["editor_blocks"])>=12,"Speciale text was truncated"
-  assert any(b.get("type")=="heading" for b in example["editor_blocks"]),"Original editorial headings missing"
+  assert any("EU KIDS Act: perché riguarda anche il gioco online." in b.get("text","") for b in example["editor_blocks"]),"Original section title missing from editor blocks"
   assert any("Tra mozione italiana ed EU KIDS Act" in b.get("text","")
              for b in example["editor_blocks"]),"Opening text changed"
 
