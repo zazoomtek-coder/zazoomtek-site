@@ -132,10 +132,7 @@ assert.equal(result.status, "deploy-requested");
 assert.equal(result.deploy_requested, true);
 assert.equal(result.branch, "main");
 assert.equal(dispatches.length, 1, "Studio publish must dispatch its dedicated deploy workflow");
-assert.deepEqual(dispatches[0], {
-  ref: "main",
-  inputs: { slug: record.slug },
-});
+assert.deepEqual(dispatches[0], { ref: "main" });
 
 const postWrite = writes.find((item) => item.path === "data/studio_posts.json");
 assert.ok(postWrite, "A new Studio article must be written to data/studio_posts.json");
