@@ -870,13 +870,29 @@ async function save(mode){
  if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
  backupNow();
  if(mode==="draft"){
-  const updatedAt=new Date().toISOString();
-  state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:updatedAt};
+  state.busy=true;
+  for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=true;
   try{
-   localStorage.setItem("zazoomtek:studio-v2:local-drafts",JSON.stringify(state.drafts));
-   E("v2-autosave-status").textContent="Bozza salvata su questo dispositivo · "+new Date(updatedAt).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-   notify("Bozza salvata localmente. Nessun dato inviato al sito.");renderList();
-  }catch(e){notify("Salvataggio locale non disponibile: controlla lo spazio del browser.",true)}
+   notify("Caricamento immagini e salvataggio della bozza su GitHub...");
+   row.image=await uploadLocalAsset(row.image,row.slug);
+   for(const block of row.body){
+    if(["image","audio","attachment"].includes(block.type)){
+     block.url=await uploadLocalAsset(block.url,row.slug);
+     delete block.preview;
+    }
+   }
+   const result=await api("v2-save",{mode:"draft",creating:state.newContent,record:row});
+   state.cover=row.image;state.coverPreview="";state.body=row.body;
+   const updatedAt=new Date().toISOString();
+   state.drafts[row.slug]={record:row,kind:state.newContent?"new":"edit",updated_at:updatedAt};
+   E("v2-autosave-status").textContent="Bozza salvata su GitHub · "+new Date(updatedAt).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+   backupNow();renderBlocks();renderList();
+   notify(result.message||"Bozza salvata su GitHub senza pubblicare la pagina.");
+  }catch(e){notify(e.message||"Salvataggio della bozza non riuscito. Il contenuto resta aperto nell'editor.",true)}
+  finally{
+   state.busy=false;
+   for(const id of ["v2-publish","v2-publish-bottom","v2-save-draft","v2-draft-bottom"])E(id).disabled=false;
+  }
   return;
  }
  state.busy=true;
@@ -917,12 +933,14 @@ async function init(){
   const r=await fetch("/studio-v2/catalog.json",{cache:"no-store"});if(!r.ok)throw Error("Catalogo Studio V2 non disponibile");
   const catalog=(await r.json()).posts||[];
   const pending=await api("v2-pending");
+  const remoteDrafts=await api("v2-drafts");
   const liveSlugs=new Set(catalog.map(item=>item.slug));
   const bySlug=new Map(catalog.map(item=>[item.slug,item]));
   for(const item of pending.posts||[])if(item?.slug)bySlug.set(item.slug,{...(bySlug.get(item.slug)||{}),...item,__queued:!liveSlugs.has(item.slug)});
   for(const [slug,override] of Object.entries(pending.overrides||{}))if(bySlug.has(slug))bySlug.set(slug,{...bySlug.get(slug),...override});
   state.rows=[...bySlug.values()];
   try{const saved=JSON.parse(localStorage.getItem("zazoomtek:studio-v2:local-drafts")||"{}");if(saved&&typeof saved==="object"&&!Array.isArray(saved))state.drafts=saved}catch(_){state.drafts={}}
+  if(remoteDrafts.drafts&&typeof remoteDrafts.drafts==="object")state.drafts={...state.drafts,...remoteDrafts.drafts};
   E("v2-user").textContent="Account GitHub: "+(session.login||"amministratore");
   for(const [cat,label] of Object.entries(cats))E("v2-select-filter").add(new Option(label,cat));
   for(const [cat,label] of Object.entries(cats))E("v2-category").add(new Option(label,cat));
