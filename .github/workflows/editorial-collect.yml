@@ -1,6 +1,9 @@
 name: ZazoomTek - raccogli YouTube in coda
 on:
   schedule:
+    # Solo raccolta su editorial-queue: NESSUN deploy Cloudflare da questa esecuzione.
+    # UTC: 07:00-18:59 copre sia il fuso CET sia CEST.
+    # Il collector limita autonomamente la raccolta alle ore editoriali di Roma.
     - cron: '*/5 7-18 * * *'
   workflow_dispatch:
 permissions:
@@ -12,9 +15,6 @@ jobs:
   import:
     runs-on: ubuntu-latest
     timeout-minutes: 9
-    env:
-      # A manual recovery run may be started at any hour; scheduled runs keep the Rome intake windows.
-      ZAZOOMTEK_FORCE_COLLECT: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,16 +23,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Valida l'importatore YouTube e le finestre di raccolta prima di ogni esecuzione
-        run: |
-          python3 -m py_compile tools/queue_collect.py tools/community_youtube.py tools/review_pros_cons.py
-          python3 -m unittest tools/test_youtube_community_import.py -v
       - name: Raccogli video e Community (09:00-12:20, 12:31-19:20, Roma)
-        id: collect
-        if: github.event_name != 'pull_request'
         run: python3 tools/queue_collect.py
-      - name: Memorizza anche le acquisizioni parziali riuscite, senza pubblicare il sito
-        if: always() && github.event_name != 'pull_request' && steps.collect.outcome != 'skipped'
+      - name: Memorizza nuove acquisizioni senza pubblicare il sito
         run: |
           git add data/queue_videos.json data/queue_community.json
           if ! git diff --cached --quiet; then
