@@ -56,9 +56,9 @@ def _community_plain_text(row):
 def _community_normalize(value):
     value = str(value or "").casefold()
     value = re.sub(r"<[^>]+>", " ", value)
-    value = re.sub(r"https?://\\S+", " ", value)
+    value = re.sub(r"https?://\S+", " ", value)
     value = re.sub(r"[^a-z0-9à-ÿ]+", " ", value)
-    return re.sub(r"\\s+", " ", value).strip()
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def _community_is_near_duplicate(candidate, published_rows):
@@ -227,7 +227,6 @@ def youtube_community():
                 duplicate_skipped += 1
                 print("YOUTUBE COMMUNITY DUPLICATE SKIPPED:", row.get("title", "")[:120],
                       "matches:", matched_title[:120], flush=True)
-                continue
                 continue
             row = dict(row)
             category = category_for_post(row)
