@@ -235,13 +235,14 @@ function normalizeArticle(value){
  let score=null;
  const rawScore=value.score;
  if(rawScore!==""&&rawScore!==undefined&&rawScore!==null){
-  const scoreText=String(rawScore).trim().replace(",",".");
-  // Studio records can contain a formatted legacy value such as "8/10".
-  // Accept only a numeric score, optionally followed by "/10".
-  const scoreMatch=scoreText.match(/^(10(?:\.0+)?|[0-9](?:\.\d+)?)(?:\s*\/\s*10)?$/);
-  if(!scoreMatch)throw new Error("Il voto deve essere un numero da 0 a 10 (esempio: 8).");
-  score=Number(scoreMatch[1]);
-  if(!Number.isFinite(score)||score<0||score>10)throw new Error("Il voto deve essere un numero da 0 a 10 (esempio: 8).");
+  let scoreText=String(rawScore).trim().replace(",",".");
+  // Accept plain numeric scores and legacy display values such as "8/10".
+  if(scoreText.endsWith("/10"))scoreText=scoreText.slice(0,-3).trim();
+  if(!/^(10(?:\.0+)?|[0-9](?:\.\d+)?)$/.test(scoreText))
+   throw new Error("Il voto deve essere un numero da 0 a 10 (esempio: 8).");
+  score=Number(scoreText);
+  if(!Number.isFinite(score)||score<0||score>10)
+   throw new Error("Il voto deve essere un numero da 0 a 10 (esempio: 8).");
  }
  const strings=k=>Array.isArray(value[k])?value[k].map(clean).filter(Boolean).slice(0,8):[];
  return {slug,title,category,image,body,studio_blocks:true,source:"studio-editor",
