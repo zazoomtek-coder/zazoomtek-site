@@ -94,9 +94,13 @@ def verify_studio_v2(output,rows):
  assert 'editable.focus();' in script and 'selection.addRange(range);' in script,"New paragraph must receive editing focus"
  assert 'const row=S("div","v2-block-row")' not in script,"Repeated +/- debug rows must be removed"
  assert 'data-kind="link"' in page
+ assert 'data-kind="html"' in page, "Studio must expose a custom HTML block in Add Content"
+ assert "function updateAutoCategory()" in script, "Category detection must run independently of long-paste conditions"
+ assert 'updateAutoCategory();syncArticleChrome({...state.current,...collect()})' in script, "Pasting or editing the title must refresh the inferred category"
+ assert 'updateAutoCategory();renderBlocks();seoStatus();scheduleBackup();' in script, "Pasting body text must refresh category and preserve the edit"
+ assert "function safeHtmlFragment(source)" in script, "Studio preview must sanitize custom HTML before rendering"
  assert 'id="v2-new-from-editor"' in page and 'id="v2-new-from-editor-bottom"' in page, "Create-new controls must be available inside the editor"
- assert 'if(state.newContent&&!state.categoryTouched&&raw.trim().length>=120)' in script, "Automatic category detection must run on sufficiently long pasted text"
- assert 'if(state.newContent)state.categoryTouched=true' in script, "Manual category selection must take precedence over automatic detection"
+ assert 'state.categoryTouched=true;E("v2-author")' in script, "Manual category selection must take precedence over automatic detection for new and existing articles"
  assert 'category_touched:!!state.categoryTouched' in script, "Manual category choice must survive autosave"
  assert 'showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true,true)' in script, "Starting a new article must not overwrite the previous article backup"
  expected_script=hashlib.sha256((Path(__file__).resolve().parents[1]/"assets/js/studio-v2.js").read_bytes()).hexdigest()[:12]
@@ -129,7 +133,19 @@ def verify_studio_v2(output,rows):
  assert 'record:collect()' in script
  assert '"token":' not in script and 'localStorage.setItem("token"' not in script
  assert 'sessionStorage' not in script
+ from article_templates import sanitize_studio_html, studio_sectioned_body
+ unsafe_html=('<p>Prodotto <a href="https://www.amazon.it/dp/B000000000">Amazon</a>'
+              '<script>alert(1)</script><a href="javascript:alert(1)">link non sicuro</a>'
+              '<img src="https://m.media-amazon.com/example.jpg" onerror="alert(1)"></p>')
+ sanitized=sanitize_studio_html(unsafe_html)
+ assert 'href="https://www.amazon.it/dp/B000000000" target="_blank" rel="noopener noreferrer external"' in sanitized
+ assert 'src="https://m.media-amazon.com/example.jpg"' in sanitized and "onerror" not in sanitized
+ assert "<script>" not in sanitized and "alert(1)" not in sanitized and "javascript:" not in sanitized
+ html_article={"category":"news-tech","studio_blocks":True,"body":[{"type":"html","html":unsafe_html}]}
+ rendered_html=studio_sectioned_body(html_article)
+ assert "amazon.it/dp/B000000000" in rendered_html and "javascript:" not in rendered_html and "<script>" not in rendered_html
  api=(Path(__file__).resolve().parents[1]/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
+ assert '"html"' in api and 'if(type==="html")' in api, "Studio API must preserve custom HTML blocks"
  for marker in ('/api/studio/v2-drafts','/api/studio/v2-draft-delete','/api/studio/v2-save',
                 'data/studio_v2_drafts.json','STUDIO_SESSION_SECRET','record.seo_lock=',
                 'const PUBLISH_BRANCH="main";','status:"saved-main"','branch==="main"?"[CF-Pages-Skip] "',
