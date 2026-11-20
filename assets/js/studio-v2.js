@@ -895,8 +895,10 @@ async function save(mode){
    if(Object.keys(state.drafts).length)localStorage.setItem(draftKey,JSON.stringify(state.drafts));
    else localStorage.removeItem(draftKey);
   }catch(_){}
-  E("v2-autosave-status").textContent="Articolo salvato su main · in attesa del prossimo slot editoriale.";
-  renderList();notify(result.message||"Articolo salvato su main e inserito in coda per il prossimo slot editoriale.");
+  E("v2-autosave-status").textContent=result.deploy_requested
+   ?"Pubblicazione avviata · verifica del sito in corso."
+   :"Salvato su main · deploy non avviato: controlla il permesso Actions del token GitHub.";
+  renderList();notify(result.message||"Articolo salvato su main.",!result.deploy_requested);
   previewFinalArticle();
  }catch(e){notify(e.message||"Pubblicazione non riuscita. Il testo resta nella bozza locale.",true)}
  finally{
