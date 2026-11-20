@@ -9,6 +9,7 @@ on:
       - "tools/studio_v2_build.py"
       - "tools/article_templates.py"
       - "tools/verify_studio_v2.py"
+      - "tools/verify_studio.py"
       - "tools/test_studio_api.mjs"
       - ".github/workflows/pages-deploy-manual.yml"
   workflow_dispatch:
