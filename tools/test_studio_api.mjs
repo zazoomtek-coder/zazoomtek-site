@@ -108,6 +108,7 @@ const record = {
   category: "news-tech",
   image: "https://example.com/studio-test-cover.jpg",
   author: "Redazione ZazoomTek",
+  score: 8,
   body: [{
     type: "paragraph",
     text: "Questo testo di prova verifica il salvataggio editoriale completo su GitHub. " +
@@ -163,6 +164,7 @@ const originalPublicPath = result.record.public_path;
 assert.ok(originalPublicPath, "A new article must receive its canonical public URL");
 assert.equal(result.status, "saved-main");
 assert.equal(result.branch, "main");
+assert.equal(result.record.score, 8, "A numeric review score of 8 must be accepted and saved");
 assert.deepEqual(result.next_slots, ["12:30", "16:00", "19:30"]);
 assert.equal(result.deploy_requested, undefined, "Studio must not request an immediate deployment");
 assert.equal(dispatches.length, 0, "Studio must leave publication to the next scheduled editorial slot");
@@ -175,6 +177,25 @@ const stored = JSON.parse(postWrite.content);
 assert.equal(stored.posts[0].slug, record.slug);
 assert.equal(stored.posts[0].source, "studio-editor");
 assert.equal(stored.posts[0].title, record.title);
+assert.equal(stored.posts[0].score, 8, "The numeric score must be persisted without formatting loss");
+
+const formattedScoreRecord = {
+  ...record,
+  slug: "studio-api-formatted-score-check",
+  title: "Verifica voto recensione formattato su dieci",
+  score: "8/10",
+};
+const formattedScorePublish = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "publish",
+    record: formattedScoreRecord,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(formattedScorePublish.status, 200, "Studio must accept a legacy formatted score such as 8/10");
+assert.equal((await formattedScorePublish.json()).record.score, 8,
+  "A legacy formatted score must be normalized to the numeric value 8");
 
 const pending = await onRequest({
   request: request("/api/studio/v2-pending", "GET", undefined, cookie),
