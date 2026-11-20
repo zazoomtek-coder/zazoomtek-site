@@ -1,17 +1,6 @@
 name: ZazoomTek - deploy manuale su zazoomtek.it
 # Deploy the current main site only. Never enable or alter editorial workflows.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "functions/api/studio/**"
-      - "assets/js/studio-v2.js"
-      - "tools/studio_v2_build.py"
-      - "tools/article_templates.py"
-      - "tools/verify_studio_v2.py"
-      - "tools/verify_studio.py"
-      - "tools/test_studio_api.mjs"
-      - ".github/workflows/pages-deploy-manual.yml"
   workflow_dispatch:
 permissions:
   contents: read
