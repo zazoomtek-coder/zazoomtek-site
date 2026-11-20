@@ -73,9 +73,9 @@ def _community_content_text(row):
 def _community_normalize(value):
     value = str(value or "").casefold()
     value = re.sub(r"<[^>]+>", " ", value)
-    value = re.sub(r"https?://\\S+", " ", value)
-    value = re.sub(r"[^\\wà-ÿ]+", " ", value)
-    return re.sub(r"\\s+", " ", value).strip()
+    value = re.sub(r"https?://\S+", " ", value)
+    value = re.sub(r"[^\wà-ÿ]+", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def _community_is_near_duplicate(candidate, published_rows):
