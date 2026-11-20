@@ -342,7 +342,7 @@ def youtube_community():
         duplicate_skipped = 0
         for row in items:
             post_id = row.get("id", "")
-            if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", post_id) or not row.get("text_complete"):
+            if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", post_id):
                 continue
             # YouTube's Italian and English relative labels may say 'ieri'/'yesterday'.
             if not row.get("date") and str(row.get("when", "")).lower().strip() in ("ieri", "yesterday"):
