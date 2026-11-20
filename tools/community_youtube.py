@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Read original public YouTube channel Community text, including per-post detail pages.
-No API key, browser credentials, or fabricated content. Fail softly if YouTube blocks access.
-Only posts with an actual /post/ identifier and recoverable text are returned.
+"""Read public YouTube channel Community posts directly from the channel feed.
+No per-post detail-page verification: import the text YouTube exposes in the feed.
 """
 import json, re, urllib.request, urllib.parse, html
 from datetime import datetime, timezone, timedelta
-from concurrent.futures import ThreadPoolExecutor
 
 CHANNEL="https://www.youtube.com/@ZazoomTek/posts"
 CHANNEL_ID="UCJs0ZT10hUiPRD0UZtUpI1Q"
@@ -151,29 +149,17 @@ def discover(limit=160,max_pages=12):
   body=json.dumps({"context":ctx,"continuation":token}).encode("utf-8")
   try:root=json.loads(fetch("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key),body))
   except Exception:break
- # Each detail page is opened to recover the *entire* text rather than teaser text.
- def complete(item):
-  try:
-   detail=post_records(webpage_json(fetch(item["url"]+"?hl=it",timeout=7)))
-   matched=next((x for x in detail if x["id"]==item["id"]),None)
-   if matched and len(matched["text"])>=len(item["text"]):
-    item.update(matched)
-    item["verified_detail"]=True
-  except Exception:pass
-  return item
- with ThreadPoolExecutor(max_workers=6) as executor:
-  collected=list(executor.map(complete,collected))
  output=[]
  for ix,item in enumerate(collected):
   text=item["text"].strip()
   title,kind=title_type(text)
-  if not kind or len(text)<60 or not item.get("verified_detail"):continue
+  if not kind or len(text)<60:continue
   date=date_from_relative(item.get("when",""),reference)
   # YouTube relative dates are estimates, not a guaranteed precise published timestamp.
   heading=title.lower()
   explicit_topic="gaming" if heading.startswith(("news gaming","review gaming","recensione gaming","recensioni gaming")) else ("tech" if heading.startswith(("news tech","review tech","recensione tech","recensioni tech")) else "")
   item.update(title=title,type=kind,date=date[:10] if date else None,
-    published_at=date or "",rank=ix,channel_id=CHANNEL_ID,text_complete=True,
+    published_at=date or "",rank=ix,channel_id=CHANNEL_ID,
     **({"topic":explicit_topic} if explicit_topic else {}))
   if kind=="review":
    from review_pros_cons import attach
