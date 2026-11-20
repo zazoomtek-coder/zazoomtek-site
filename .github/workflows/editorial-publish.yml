@@ -81,6 +81,10 @@ jobs:
           node --check assets/js/studio-v2.js
           node --input-type=module --check < 'functions/api/studio/[[path]].js'
           node --input-type=module --check < cloudflare/cron-publisher/src/index.js
+      - name: Test integrazione API Studio (salvataggio, coda, libreria e media)
+        run: node tools/test_studio_api.mjs
+      - name: Test automatici importazione YouTube (Community e video RSS)
+        run: python3 tools/test_youtube_import.py
       - name: Recupera eventuale coda YouTube senza bloccare il caricamento diretto
         run: git fetch --no-tags origin editorial-queue || echo "Coda non raggiungibile; importazione diretta ancora disponibile"
       - name: IMPORTA ORA i nuovi post Community, video YouTube e notizie RSS
