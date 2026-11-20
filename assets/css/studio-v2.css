@@ -228,3 +228,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
  .v2-paper.story-article .v2-title-input{font-size:29px}
  .v2-paper.story-article .v2-editorial-row.article-text>p.v2-rich-text{font-size:15.5px}
 }
+/* Custom HTML block: safe affiliate links and formatted editorial embeds. */
+.v2-html-block{display:block;max-width:100%;overflow-wrap:anywhere;padding:12px 0}
+.v2-html-block img{max-width:100%;height:auto;display:block}
+.v2-html-block a{color:#df3650;text-decoration:underline;text-underline-offset:3px}
+.v2-html-block table{width:100%;border-collapse:collapse;display:block;overflow-x:auto}
+.v2-html-block th,.v2-html-block td{border:1px solid #e5e5e7;padding:8px;text-align:left}
+.v2-html-block figure{margin:16px 0}
+.v2-html-block figcaption{font-size:12px;color:#777;margin-top:7px}
+.v2-html-block blockquote{border-left:3px solid #ddd;margin:14px 0;padding:8px 14px}
+.v2-html-block ul,.v2-html-block ol{padding-left:24px}
+.v2-modal-body textarea{min-height:120px;line-height:1.5;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
