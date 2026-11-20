@@ -1,0 +1,38 @@
+name: YouTube importer regression tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/youtube-import-validation.yml"
+      - "tools/emergency_sync.py"
+      - "tools/community_youtube.py"
+      - "tools/sync_videos.py"
+      - "tools/queue_collect.py"
+      - "tools/build.py"
+      - "tools/test_youtube_import.py"
+      - "tools/test_youtube_community_import.py"
+      - "tools/test_youtube_queue_import.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  importer-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check importer Python syntax
+        run: |
+          python3 -m py_compile tools/emergency_sync.py tools/community_youtube.py tools/sync_videos.py tools/queue_collect.py
+      - name: Run YouTube importer regression tests
+        working-directory: tools
+        run: |
+          python3 -m unittest test_youtube_import.py test_youtube_community_import.py test_youtube_queue_import.py -v
