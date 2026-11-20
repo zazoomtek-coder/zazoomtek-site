@@ -1,10 +1,18 @@
 name: ZazoomTek - pubblicazione diretta da Studio 2
 on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/api/studio/[[path]].js"
+      - "assets/js/studio-v2.js"
+      - "tools/studio_v2_build.py"
+      - "tools/verify_studio_v2.py"
+      - ".github/workflows/studio-publish.yml"
   workflow_dispatch:
     inputs:
       slug:
         description: "Articolo approvato da Studio 2"
-        required: true
+        required: false
         type: string
 permissions:
   contents: read
@@ -42,7 +50,14 @@ jobs:
           node --input-type=module --check < 'functions/api/studio/[[path]].js'
       - name: Genera il sito dai contenuti approvati su main
         run: python3 tools/build.py
-      - name: Verifica file essenziali e articoli Studio
+      - name: Verifica file essenziali
+        run: |
+          test -s dist/index.html
+          test -s dist/sitemap.xml
+          test -s dist/news-sitemap.xml
+          test -s dist/_routes.json
+      - name: Verifica che l'articolo richiesto sia presente nella build
+        if: github.event_name == 'workflow_dispatch'
         env:
           INPUT_SLUG: ${{ inputs.slug }}
         run: |
@@ -79,6 +94,7 @@ jobs:
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Verifica la pagina richiesta sul dominio pubblico
+        if: github.event_name == 'workflow_dispatch'
         env:
           INPUT_SLUG: ${{ inputs.slug }}
         run: |
@@ -113,3 +129,7 @@ jobs:
                   print("Verifica",attempt,"non ancora disponibile:",str(exc)[:160])
                   time.sleep(10)
           PY
+
+      - name: Verifica gli articoli editoriali dopo il deploy del codice Studio
+        if: github.event_name == 'push'
+        run: python3 tools/verify_editorial_live.py
