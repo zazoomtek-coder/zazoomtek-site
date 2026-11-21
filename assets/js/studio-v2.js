@@ -942,10 +942,23 @@ async function cancelDraft(){
  }
 }
 
+function validReviewScore(category,value){
+ if(!String(category||"").startsWith("recensioni-"))return true;
+ let score=String(value??"").trim().replace(",",".");
+ if(score.endsWith("/10"))score=score.slice(0,-3).trim();
+ if(!/^(10(?:\.0+)?|[0-9](?:\.[0-9]+)?)$/.test(score))return false;
+ const parsed=Number(score);
+ return Number.isFinite(parsed)&&parsed>=0&&parsed<=10;
+}
 async function save(mode){
  if(state.busy)return;
  applyEditorialFormat();const row=collect();
  if(!row.title||!row.slug){notify("Inserisci prima titolo e indirizzo del contenuto.",true);return}
+ if(mode==="publish"&&row.category.startsWith("recensioni-")&&!validReviewScore(row.category,row.score)){
+  const field=E("v2-score");field.focus();
+  notify("Pubblicazione bloccata: inserisci un voto finale valido da 0 a 10 (per esempio 8,5).",true);
+  return;
+ }
  backupNow();
  if(mode==="draft"){
   state.busy=true;
