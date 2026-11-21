@@ -891,8 +891,8 @@ async function uploadRecordMedia(row){
  for(const block of row.body){
   if(["image","audio","attachment"].includes(block.type)){
    const source=block.url||block.src||block.preview||block.image||block.file||"";
-   if(block.type==="image"&&!String(source).trim())
-    throw Error("Un blocco immagine non contiene un file o un collegamento valido. Apri il blocco e ricarica l'immagine.");
+   // I blocchi media senza sorgente vengono ignorati: la preview resta modificabile e non blocca la pubblicazione.
+   if(!String(source).trim()){delete block.preview;delete block.src;continue;}
    if(source)block.url=await uploadLocalAsset(source,row.slug);
    delete block.preview;delete block.src;
   }
