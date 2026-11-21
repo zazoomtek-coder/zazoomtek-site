@@ -194,8 +194,74 @@ const formattedScorePublish = await onRequest({
   env,
 });
 assert.equal(formattedScorePublish.status, 200, "Studio must accept a legacy formatted score such as 8/10");
+
 assert.equal((await formattedScorePublish.json()).record.score, 8,
   "A legacy formatted score must be normalized to the numeric value 8");
+
+// Both review categories must reject publication without a valid final score.
+for (const category of ["recensioni-tech", "recensioni-gaming"]) {
+  const invalidReview = {
+    ...record,
+    slug: "studio-api-missing-score-" + category,
+    title: "Verifica blocco recensione senza voto " + category,
+    category,
+    score: "",
+  };
+  const writesBefore = writes.filter((item) => item.path === "data/studio_posts.json").length;
+  const rejected = await onRequest({
+    request: request("/api/studio/v2-save", "POST", {
+      mode: "publish",
+      record: invalidReview,
+      creating: true,
+    }, cookie),
+    env,
+  });
+  assert.equal(rejected.status, 400, category + " publication without a score must be rejected");
+  const rejectedBody = await rejected.json();
+  assert.match(rejectedBody.error, /voto finale valido da 0 a 10/,
+    "The API must return a clear missing-score error");
+  assert.equal(writes.filter((item) => item.path === "data/studio_posts.json").length, writesBefore,
+    "A review without a score must not be written to main");
+}
+
+// A valid decimal score (including the Italian comma format) must be accepted.
+const decimalReview = {
+  ...record,
+  slug: "studio-api-decimal-review-score",
+  title: "Verifica recensione con voto decimale",
+  category: "recensioni-tech",
+  score: "8,5/10",
+};
+const decimalReviewPublish = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "publish",
+    record: decimalReview,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(decimalReviewPublish.status, 200, "A valid decimal review score must be accepted");
+assert.equal((await decimalReviewPublish.json()).record.score, 8.5,
+  "A decimal score using comma and /10 must be normalized to 8.5");
+
+// An incomplete review can be saved as a draft, but cannot be published.
+const incompleteReviewDraft = {
+  ...record,
+  slug: "studio-api-incomplete-review-draft",
+  title: "Bozza recensione senza voto ancora da completare",
+  category: "recensioni-gaming",
+  score: "",
+};
+const incompleteDraftResponse = await onRequest({
+  request: request("/api/studio/v2-save", "POST", {
+    mode: "draft",
+    record: incompleteReviewDraft,
+    creating: true,
+  }, cookie),
+  env,
+});
+assert.equal(incompleteDraftResponse.status, 200,
+  "An incomplete review must remain savable as a draft");
 
 const pending = await onRequest({
   request: request("/api/studio/v2-pending", "GET", undefined, cookie),
