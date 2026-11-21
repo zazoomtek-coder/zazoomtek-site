@@ -118,7 +118,7 @@ def verify_studio_v2(output,rows):
  assert 'async function uploadLocalAsset(value,slug)' in script, "Studio V2 asset upload helper missing"
  assert 'api("upload",{slug,mime,base64})' in script, "Studio V2 must upload normalized Base64 assets"
  assert 'async function uploadRecordMedia(row)' in script, "Studio V2 must normalize cover and image-block uploads before publishing"
- assert 'block.url||block.src||block.preview||""' in script, "Studio V2 must recover image URLs from the editor preview when needed"
+ assert 'block.url||block.src||block.preview||block.image||block.file||""' in script, "Studio V2 must recover image URLs from the editor preview when needed"
  assert 'data:([^;,]+)(?:;[^,]*)*;base64' in script, "Studio V2 must accept data URLs with optional MIME parameters"
  assert 'row.image=await uploadLocalAsset(row.image,row.slug)' in script, "Cover image must be uploaded before saving"
  assert 'if(source)block.url=await uploadLocalAsset(source,row.slug)' in script, "Image, audio and attachment blocks must be uploaded before saving"
