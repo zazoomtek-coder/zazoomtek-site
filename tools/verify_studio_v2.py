@@ -129,6 +129,7 @@ def verify_studio_v2(output,rows):
  assert 'Solo anteprima' not in page and '>Pubblica</button>' in page
  assert 'primo slot editoriale disponibile' in page and 'Pubblica salva articolo e media su main' in page
  assert 'previewFinalArticle' in script
+ assert 'image.src=b.preview||previewMediaUrl(b.url)||""' in script, "Studio editor must load saved image blocks through the authenticated GitHub media preview endpoint"
  assert 'cover.loading="eager"' in script and 'cover.fetchPriority="high"' in script
  preview=script.split("function showArticlePreview",1)[1].split("function closeArticlePreview",1)[0]
  assert "review-topline" not in preview, "Studio preview adds a label absent from the live article template"
