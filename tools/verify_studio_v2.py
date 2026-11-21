@@ -20,7 +20,7 @@ def verify_studio_v2(output,rows):
  assert 'safeCategory.startsWith("recensioni-")&&score===null' in studio_api
  assert 'una recensione deve avere un voto finale valido da 0 a 10' in studio_api
  assert 'if(mode==="draft")' in studio_api, "Draft saving must remain available before the review is complete"
- assert '10(?:\\.0+)?|[0-9](?:\\.[0-9]+)?' in studio_api, "API score parser must validate numeric scores"
+ assert 'scoreText' in studio_api and 'Number.isFinite(parsed)&&parsed>=0&&parsed<=10' in studio_api, "API score parser must validate numeric scores"
  assert 'id="v2-home"' in page and 'id="v2-editor" class="v2-editor-view" hidden' in page
  assert 'id="v2-append-block"' in page and 'id="v2-cover-edit"' in page
  assert all('id="'+name+'"' in page for name in
