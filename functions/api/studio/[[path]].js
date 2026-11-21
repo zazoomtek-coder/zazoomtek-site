@@ -240,6 +240,8 @@ function normalizeArticle(value){
    if(Number.isFinite(parsed)&&parsed>=0&&parsed<=10)score=parsed;
   }
  }
+ if(safeCategory.startsWith("recensioni-")&&score===null)
+  throw new Error("Pubblicazione bloccata: una recensione deve avere un voto finale valido da 0 a 10.");
  const strings=k=>Array.isArray(value[k])?value[k].map(clean).filter(Boolean).slice(0,8):[];
  return {slug,title,category:safeCategory,image,body,studio_blocks:true,source:"studio-editor",
   author:AUTHOR_BY_CATEGORY[category],
