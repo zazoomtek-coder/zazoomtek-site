@@ -443,10 +443,12 @@ function startNew(draftId=null){
  showEditor({title:"",slug:"",category:"news-tech",author:"Gimmi",body:[{type:"paragraph",text:""}]},true,true);
 }
 function renderList(){
- const q=val("v2-search").toLocaleLowerCase("it"),cat=state.filter||val("v2-select-filter");
+ const q=val("v2-search").toLocaleLowerCase("it");
+ const mainOnly=state.filter==="__main-pending__";
+ const cat=mainOnly?"":(state.filter||val("v2-select-filter"));
  const draftOnly=Object.values(state.drafts).filter(d=>d&&d.kind==="new"&&d.record&&
   !state.rows.some(x=>x.slug===d.record.slug)).map(d=>({...d.record,__draftNew:true}));
- const rows=[...draftOnly,...state.rows].filter(r=>(!cat||r.category===cat)&&(!q||String(r.title).toLocaleLowerCase("it").includes(q)));
+ const rows=[...draftOnly,...state.rows].filter(r=>(mainOnly?!!r.__queued:(!cat||r.category===cat))&&(!q||String(r.title).toLocaleLowerCase("it").includes(q)));
  E("v2-library-caption").textContent=rows.length+" contenuti disponibili · Ordine: più recenti";
  const host=E("v2-list");host.replaceChildren();
  if(!rows.length)host.append(S("p","v2-no-results","Nessun contenuto trovato."));
@@ -1025,6 +1027,9 @@ E("v2-home-nav").onclick=showHome;E("v2-back").onclick=showHome;E("v2-new-nav").
 E("v2-new-from-editor").onclick=()=>startNew();E("v2-new-from-editor-bottom").onclick=()=>startNew();
 E("v2-append-block").onclick=()=>openMenu(state.body.length);
 E("v2-search").oninput=renderList;E("v2-select-filter").onchange=()=>{state.filter="";renderList()};
+const mainQueueNav=S("button","v2-rail-nav","Salvati su main");
+mainQueueNav.type="button";mainQueueNav.dataset.railFilter="__main-pending__";
+E("v2-home-nav").parentNode.querySelector('[data-rail-filter=""]').after(mainQueueNav);
 for(const nav of document.querySelectorAll("[data-rail-filter]"))nav.addEventListener("click",()=>{
  state.filter=nav.dataset.railFilter;E("v2-select-filter").value=state.filter;
  document.querySelectorAll("[data-rail-filter]").forEach(x=>x.classList.toggle("on",x===nav));showHome();
