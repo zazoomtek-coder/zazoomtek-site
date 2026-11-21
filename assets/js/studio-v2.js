@@ -710,7 +710,7 @@ function renderBlocks(){
   }else{
    const card=S("div","v2-media-block v2-inline-media");
    if(b.type==="image"){
-    const image=S("img");image.src=b.preview||b.url||"";image.alt=b.alt||"Immagine articolo";
+    const image=S("img");image.src=b.preview||previewMediaUrl(b.url)||"";image.alt=b.alt||"Immagine articolo";
     image.style.maxWidth=b.align==="left"||b.align==="right"?"55%":"100%";
     image.style.marginLeft=b.align==="right"?"auto":"0";
     image.style.objectPosition=num(b.focus_x,0,100,50)+"% "+num(b.focus_y,0,100,50)+"%";
