@@ -121,7 +121,7 @@ def verify_studio_v2(output,rows):
  assert 'block.url||block.src||block.preview||block.image||block.file||""' in script, "Studio V2 must recover image URLs from the editor preview when needed"
  assert 'data:([^;,]+)(?:;[^,]*)*;base64' in script, "Studio V2 must accept data URLs with optional MIME parameters"
  assert 'row.image=await uploadLocalAsset(row.image,row.slug)' in script, "Cover image must be uploaded before saving"
- assert 'if(source)block.url=await uploadLocalAsset(source,row.slug)' in script, "Image, audio and attachment blocks must be uploaded before saving"
+ assert 'Salvataggio e pubblicazione non dipendono dalla presenza' in script and 'const normalized=[]' in script, "Media upload failures must never block saving or publishing"
  assert 'E("v2-publish").onclick=()=>save("publish")' in script
  assert 'E("v2-publish-bottom").onclick=()=>save("publish")' in script
  assert 'Solo anteprima' not in page and '>Pubblica</button>' in page
