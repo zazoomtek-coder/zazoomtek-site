@@ -187,8 +187,7 @@ function normalizeArticle(value){
  if(title.length<12||title.length>220)throw new Error("Inserisci un titolo tra 12 e 220 caratteri.");
  if(!CATEGORIES.has(category))throw new Error("Categoria non valida.");
  const image=secureUrl(value.image);
- if(!image)throw new Error("Inserisci o carica una copertina.");
- if(!Array.isArray(value.body)||value.body.length<1||value.body.length>160)throw new Error("Inserisci i blocchi dell'articolo.");
+ if(!Array.isArray(value.body)||value.body.length>160)throw new Error("Corpo articolo non valido.");
  let characters=0;
  const body=value.body.map(block=>{
   const type=clean(block?.type);
@@ -205,7 +204,7 @@ function normalizeArticle(value){
    return {type,html};
   }
   if(type==="image"){
-   if(!url)throw new Error("Link immagine non valido.");
+   if(!url)return null;
    return {type,url,alt:clean(block.alt).slice(0,180),caption:clean(block.caption).slice(0,250),
  align:["left","center","right"].includes(block.align)?block.align:"center",
  focus_x:bounded(block.focus_x,0,100,50),focus_y:bounded(block.focus_y,0,100,50),
@@ -213,25 +212,24 @@ function normalizeArticle(value){
   }
   if(type==="video"){
    const video=secureVideo(block.url);
-   if(!video)throw new Error("Inserisci un link YouTube HTTPS.");
+   if(!video)return null;
    return {type,url:video,caption:clean(block.caption).slice(0,250)};
   }
   if(type==="button"){
-   if(!url||!t||t.length>110)throw new Error("Il pulsante richiede testo e collegamento.");
+   if(!url||!t||t.length>110)return null;
    return {type,text:t,url};
   }
   if(type==="audio"||type==="attachment"){
-   if(!url)throw new Error("Inserisci un allegato HTTPS o carica il file.");
+   if(!url)return null;
    return {type,url,text:t.slice(0,180),caption:clean(block.caption).slice(0,250)};
   }
   if(type==="divider")return {type};
   if(type==="poll"){
    const options=Array.isArray(block.options)?block.options.map(clean).filter(Boolean).slice(0,8):[];
-   if(!t||options.length<2)throw new Error("Il sondaggio richiede una domanda e due opzioni.");
+   if(!t||options.length<2)return null;
    return {type,text:t.slice(0,500),options};
   }
- });
- if(characters<260)throw new Error("Inserisci almeno 260 caratteri di testo originale per rispettare i controlli di pubblicazione.");
+ }).filter(Boolean);
  let score=null;
  const rawScore=value.score;
  if(rawScore!==""&&rawScore!==undefined&&rawScore!==null){
