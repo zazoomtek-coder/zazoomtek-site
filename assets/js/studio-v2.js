@@ -865,8 +865,9 @@ function editCover(){
 }
 function collect(){
  const text=id=>val(id),lines=id=>text(id).split("\n").map(v=>v.trim()).filter(Boolean);
- return {slug:state.newContent?(text("v2-slug")||slugify(text("v2-title"))):state.current.slug,
-  title:text("v2-title"),category:text("v2-category"),author:authorForCategory(text("v2-category")),
+ const title=(text("v2-title")||"Senza titolo").slice(0,220);
+ const slug=state.newContent?(text("v2-slug")||slugify(title)):state.current.slug;
+ return {slug,title,category:text("v2-category")||"news-tech",author:authorForCategory(text("v2-category")||"news-tech"),
   image:state.cover,cover_focus_x:state.coverFocusX,cover_focus_y:state.coverFocusY,
   cover_zoom:state.coverZoom,cover_rotation:state.coverRotation,
   body:state.body.map(block=>({...block})),
