@@ -184,14 +184,14 @@ function normalizeArticle(value){
  if(!value||typeof value!=="object")throw new Error("Articolo non valido.");
  const slug=clean(value.slug).toLowerCase(),title=clean(value.title),category=clean(value.category);
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||slug.length>150)throw new Error("URL articolo non valido.");
- if(title.length<12||title.length>220)throw new Error("Inserisci un titolo tra 12 e 220 caratteri.");
- if(!CATEGORIES.has(category))throw new Error("Categoria non valida.");
+ if(!title||title.length>220)throw new Error("Inserisci il titolo dell’articolo.");
+ const safeCategory=CATEGORIES.has(category)?category:"news-tech";
  const image=secureUrl(value.image);
- if(!Array.isArray(value.body)||value.body.length>160)throw new Error("Corpo articolo non valido.");
+ const sourceBody=Array.isArray(value.body)?value.body:[];
  let characters=0;
- const body=value.body.map(block=>{
+ const body=sourceBody.map(block=>{
   const type=clean(block?.type);
-  if(!BLOCKS.has(type))throw new Error("Tipo di blocco sconosciuto.");
+  if(!BLOCKS.has(type))return null;
   const t=clean(block.text),url=secureUrl(block.url);
   if(["paragraph","heading","quote"].includes(type)){
    // I blocchi di testo possono essere vuoti o superare 12.000 caratteri.
@@ -234,16 +234,14 @@ function normalizeArticle(value){
  const rawScore=value.score;
  if(rawScore!==""&&rawScore!==undefined&&rawScore!==null){
   let scoreText=String(rawScore).trim().replace(",",".");
-  // Accept plain numeric scores and legacy display values such as "8/10".
   if(scoreText.endsWith("/10"))scoreText=scoreText.slice(0,-3).trim();
-  if(!/^(10(?:\.0+)?|[0-9](?:\.\d+)?)$/.test(scoreText))
-   throw new Error("Il voto deve essere un numero da 0 a 10 (esempio: 8).");
-  score=Number(scoreText);
-  if(!Number.isFinite(score)||score<0||score>10)
-   throw new Error("Il voto deve essere un numero da 0 a 10 (esempio: 8).");
+  if(/^(10(?:\.0+)?|[0-9](?:\.\d+)?)$/.test(scoreText)){
+   const parsed=Number(scoreText);
+   if(Number.isFinite(parsed)&&parsed>=0&&parsed<=10)score=parsed;
+  }
  }
  const strings=k=>Array.isArray(value[k])?value[k].map(clean).filter(Boolean).slice(0,8):[];
- return {slug,title,category,image,body,studio_blocks:true,source:"studio-editor",
+ return {slug,title,category:safeCategory,image,body,studio_blocks:true,source:"studio-editor",
   author:AUTHOR_BY_CATEGORY[category],
   video_url:secureVideo(value.video_url),
   score,platform:clean(value.platform).slice(0,130),
@@ -359,12 +357,12 @@ function draftValue(raw){
  const r=raw||{},slug=clean(r.slug).toLowerCase(),title=clean(r.title);
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||slug.length>150)
   throw new Error("La bozza richiede un URL valido.");
- if(!title||title.length>220)throw new Error("La bozza richiede un titolo.");
- if(!CATEGORIES.has(r.category))throw new Error("Categoria non valida.");
- if(!Array.isArray(r.body)||r.body.length>160)throw new Error("Corpo bozza non valido.");
+ if(title.length>220)throw new Error("Titolo bozza troppo lungo.");
+ const category=CATEGORIES.has(r.category)?r.category:"news-tech";
+ const sourceBody=Array.isArray(r.body)?r.body:[];
  const allowed=new Set(BLOCKS);
- const blocks=r.body.map(b=>{
-  if(!allowed.has(b?.type))throw new Error("Blocco di bozza non valido.");
+ const blocks=sourceBody.map(b=>{
+  if(!allowed.has(b?.type))return null;
   const copy={type:b.type};
   for(const key of ["text","url","alt","caption","align"]){
    if(b[key]!=null)copy[key]=clean(b[key]).slice(0,12000);
@@ -376,7 +374,7 @@ function draftValue(raw){
   if(b.type==="poll")copy.options=Array.isArray(b.options)?b.options.map(clean).slice(0,8):[];
   return copy;
  });
- return {slug,title,category:r.category,image:secureUrl(r.image),body:blocks,
+ return {slug,title,category,image:secureUrl(r.image),body:blocks.filter(Boolean),
   studio_blocks:true,source:"studio-editor",
   author:clean(r.author).slice(0,100),video_url:secureVideo(r.video_url),
   platform:clean(r.platform).slice(0,130),score:clean(String(r.score??"")).slice(0,12),
