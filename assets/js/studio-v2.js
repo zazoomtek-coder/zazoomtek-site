@@ -444,8 +444,9 @@ function startNew(draftId=null){
 }
 function renderList(){
  const q=val("v2-search").toLocaleLowerCase("it");
- const mainOnly=state.filter==="__main-pending__";
- const cat=mainOnly?"":(state.filter||val("v2-select-filter"));
+ const selected=state.filter||val("v2-select-filter");
+ const mainOnly=selected==="__main-pending__";
+ const cat=mainOnly?"":selected;
  const draftOnly=Object.values(state.drafts).filter(d=>d&&d.kind==="new"&&d.record&&
   !state.rows.some(x=>x.slug===d.record.slug)).map(d=>({...d.record,__draftNew:true}));
  const rows=[...draftOnly,...state.rows].filter(r=>(mainOnly?!!r.__queued:(!cat||r.category===cat))&&(!q||String(r.title).toLocaleLowerCase("it").includes(q)));
@@ -1008,6 +1009,7 @@ async function init(){
   if(remoteDrafts.drafts&&typeof remoteDrafts.drafts==="object")state.drafts={...state.drafts,...remoteDrafts.drafts};
   E("v2-user").textContent="Account GitHub: "+(session.login||"amministratore");
   for(const [cat,label] of Object.entries(cats))E("v2-select-filter").add(new Option(label,cat));
+  E("v2-select-filter").add(new Option("Bozze / Main","__main-pending__"));
   for(const [cat,label] of Object.entries(cats))E("v2-category").add(new Option(label,cat));
   E("v2-count-all").textContent=state.rows.length;
   E("v2-count-tech").textContent=state.rows.filter(x=>x.category==="news-tech").length;
@@ -1026,10 +1028,8 @@ async function init(){
 E("v2-home-nav").onclick=showHome;E("v2-back").onclick=showHome;E("v2-new-nav").onclick=startNew;E("v2-create-main").onclick=startNew;
 E("v2-new-from-editor").onclick=()=>startNew();E("v2-new-from-editor-bottom").onclick=()=>startNew();
 E("v2-append-block").onclick=()=>openMenu(state.body.length);
-E("v2-search").oninput=renderList;E("v2-select-filter").onchange=()=>{state.filter="";renderList()};
-const mainQueueNav=S("button","v2-rail-nav","Salvati su main");
-mainQueueNav.type="button";mainQueueNav.dataset.railFilter="__main-pending__";
-E("v2-home-nav").parentNode.querySelector('[data-rail-filter=""]').after(mainQueueNav);
+E("v2-search").oninput=renderList;
+E("v2-select-filter").onchange=()=>{state.filter=val("v2-select-filter");renderList()};
 for(const nav of document.querySelectorAll("[data-rail-filter]"))nav.addEventListener("click",()=>{
  state.filter=nav.dataset.railFilter;E("v2-select-filter").value=state.filter;
  document.querySelectorAll("[data-rail-filter]").forEach(x=>x.classList.toggle("on",x===nav));showHome();
