@@ -887,16 +887,25 @@ async function uploadLocalAsset(value,slug){
  return result.url;
 }
 async function uploadRecordMedia(row){
- row.image=await uploadLocalAsset(row.image,row.slug);
- for(const block of row.body){
+ // Salvataggio e pubblicazione non dipendono dalla presenza o dal caricamento dei media.
+ // Se un file locale non è trasferibile, viene omesso e il contenuto testuale prosegue.
+ try{row.image=await uploadLocalAsset(row.image,row.slug)}catch(_){row.image=""}
+ const normalized=[];
+ for(const original of row.body){
+  const block={...original};
   if(["image","audio","attachment"].includes(block.type)){
    const source=block.url||block.src||block.preview||block.image||block.file||"";
-   // I blocchi media senza sorgente vengono ignorati: la preview resta modificabile e non blocca la pubblicazione.
-   if(!String(source).trim()){delete block.preview;delete block.src;continue;}
-   if(source)block.url=await uploadLocalAsset(source,row.slug);
-   delete block.preview;delete block.src;
+   if(!String(source).trim())continue;
+   try{
+    if(source)block.url=await uploadLocalAsset(source,row.slug);
+    if(/^data:/i.test(String(block.url||"")))continue;
+   }catch(_){continue}
+   delete block.preview;delete block.src;delete block.image;delete block.file;
+   if(!block.url)continue;
   }
+  normalized.push(block);
  }
+ row.body=normalized;
 }
 async function cancelDraft(){
  if(state.busy)return;
