@@ -10,6 +10,17 @@ def verify_studio_v2(output,rows):
  page=(root/"index.html").read_text(encoding="utf-8")
  data=json.loads((root/"catalog.json").read_text(encoding="utf-8"))
  assert 'noindex,nofollow' in page
+ # A review cannot be published without a valid final score: both the editor
+ # and the server enforce the rule, while draft saving remains independent.
+ repo=Path(__file__).resolve().parents[1]
+ studio_js=(repo/"assets/js/studio-v2.js").read_text(encoding="utf-8")
+ studio_api=(repo/"functions/api/studio/[[path]].js").read_text(encoding="utf-8")
+ assert 'mode==="publish"&&row.category.startsWith("recensioni-")&&!validReviewScore(row.category,row.score)' in studio_js
+ assert 'inserisci un voto finale valido da 0 a 10' in studio_js
+ assert 'safeCategory.startsWith("recensioni-")&&score===null' in studio_api
+ assert 'una recensione deve avere un voto finale valido da 0 a 10' in studio_api
+ assert 'if(mode==="draft")' in studio_api, "Draft saving must remain available before the review is complete"
+ assert '10(?:\\.0+)?|[0-9](?:\\.[0-9]+)?' in studio_api, "API score parser must validate numeric scores"
  assert 'id="v2-home"' in page and 'id="v2-editor" class="v2-editor-view" hidden' in page
  assert 'id="v2-append-block"' in page and 'id="v2-cover-edit"' in page
  assert all('id="'+name+'"' in page for name in
