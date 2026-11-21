@@ -869,7 +869,7 @@ function collect(){
   title:text("v2-title"),category:text("v2-category"),author:authorForCategory(text("v2-category")),
   image:state.cover,cover_focus_x:state.coverFocusX,cover_focus_y:state.coverFocusY,
   cover_zoom:state.coverZoom,cover_rotation:state.coverRotation,
-  body:state.body.map(block=>{const clean={...block};delete clean.preview;return clean;}),
+  body:state.body.map(block=>({...block})),
   studio_blocks:true,video_url:text("v2-video-url"),platform:text("v2-platform"),score:text("v2-score"),
   pros:lines("v2-pros"),cons:lines("v2-cons")};
 }
@@ -890,7 +890,7 @@ async function uploadRecordMedia(row){
  row.image=await uploadLocalAsset(row.image,row.slug);
  for(const block of row.body){
   if(["image","audio","attachment"].includes(block.type)){
-   const source=block.url||block.src||block.preview||"";
+   const source=block.url||block.src||block.preview||block.image||block.file||"";
    if(block.type==="image"&&!String(source).trim())
     throw Error("Un blocco immagine non contiene un file o un collegamento valido. Apri il blocco e ricarica l'immagine.");
    if(source)block.url=await uploadLocalAsset(source,row.slug);
