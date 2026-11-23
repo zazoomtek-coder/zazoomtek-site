@@ -349,9 +349,11 @@ def youtube_videos():
           "RSS entries", len(rss_items), "new standard uploads", added,
           "RSS verified", rss_ok, "pagination verified", browse_ok, flush=True)
     if not browse_ok and rss_ok:
-        print("YOUTUBE VIDEO IMPORT PARTIAL: recent RSS uploads were retained; channel pagination will retry next slot.",
+        print("YOUTUBE VIDEO IMPORT PARTIAL: RSS is active and captures new uploads; channel pagination will retry next poll.",
               flush=True)
-    return browse_ok
+    # A healthy RSS feed captures new uploads during five-minute polling;
+    # pagination is an archive backfill and may be blocked independently.
+    return bool(browse_ok or rss_ok)
 
 def youtube_community():
     db = load("community_imported.json", "posts")
