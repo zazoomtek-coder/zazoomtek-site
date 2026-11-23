@@ -214,6 +214,9 @@ def discover(limit=160,max_pages=12):
   body=json.dumps({"context":ctx,"continuation":token}).encode("utf-8")
   try:root=json.loads(fetch("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key),body))
   except Exception:break
+ # Verify every discovered ID before applying title/type/length filters: the feed
+ # excerpt may be too short even to classify, while the detail page has the full post.
+ collected=verify_post_details(collected)
  output=[]
  for ix,item in enumerate(collected):
   text=item["text"].strip()
@@ -230,9 +233,7 @@ def discover(limit=160,max_pages=12):
    from review_pros_cons import attach
    attach(item)
   output.append(item)
- # The channel feed may expose a collapsed card. Verify every post against its
- # own public detail page and prefer the longest complete renderer text.
- return verify_post_details(output)
+ return output
 
 if __name__=="__main__":
  try:
