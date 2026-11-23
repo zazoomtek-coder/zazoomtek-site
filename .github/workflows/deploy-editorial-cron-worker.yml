@@ -1,0 +1,26 @@
+name: Deploy ZazoomTek five-minute editorial Cron Worker
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cloudflare/cron-publisher/**"
+      - ".github/workflows/deploy-editorial-cron-worker.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Deploy Cron Worker and activate its five-minute trigger
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare/cron-publisher
+          command: deploy
