@@ -1,6 +1,11 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
 # YouTube collection runs separately every five minutes. This workflow can publish only in the three Rome slots.
 on:
+  # UTC candidates cover both CET and CEST; the guard accepts only Rome local slots.
+  schedule:
+    - cron: "30 10,11 * * *"
+    - cron: "0 14,15 * * *"
+    - cron: "30 17,18 * * *"
   workflow_dispatch:
     inputs:
       publish_now:
@@ -22,15 +27,32 @@ jobs:
   rome-slot-guard:
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    if: ${{ inputs.release_slot != 'poll' }}
     outputs:
       allowed: ${{ steps.check.outputs.allowed }}
+      slot: ${{ steps.check.outputs.slot }}
     steps:
       - name: Valida esclusivamente i tre slot editoriali Europe/Rome
         id: check
         shell: bash
         env:
           REQUESTED_SLOT: ${{ inputs.release_slot }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            now_epoch="$(TZ=Europe/Rome date +%s)"
+            REQUESTED_SLOT=""
+            for candidate in "12:30" "16:00" "19:30"; do
+              target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $candidate" +%s)"
+              delta=$((now_epoch - target_epoch))
+              absolute_delta=$((delta < 0 ? -delta : delta))
+              if [ "$absolute_delta" -le 600 ]; then
+                REQUESTED_SLOT="$candidate"
+                break
+              fi
+            done
+          fi
+          echo "slot=$REQUESTED_SLOT" >> "$GITHUB_OUTPUT"
           case "$REQUESTED_SLOT" in
             "12:30"|"16:00"|"19:30") ;;
             *)
@@ -59,7 +81,7 @@ jobs:
       CF_PAGES_BRANCH: main
       CF_PAGES_URL: https://zazoomtek.it
       EDITORIAL_FORCE_RELEASE: ${{ inputs.publish_now }}
-      EDITORIAL_REQUESTED_SLOT: ${{ inputs.release_slot }}
+      EDITORIAL_REQUESTED_SLOT: ${{ needs.rome-slot-guard.outputs.slot }}
       EDITORIAL_SLOT_GATE_PASSED: ${{ needs.rome-slot-guard.outputs.allowed }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ZAZOOMTEK_SEO_MODEL: gpt-4o-mini
