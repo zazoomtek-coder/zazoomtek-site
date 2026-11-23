@@ -104,6 +104,18 @@ jobs:
         run: git fetch --no-tags origin editorial-queue || echo "Coda non raggiungibile; importazione diretta ancora disponibile"
       - name: IMPORTA ORA i nuovi post Community, video YouTube e notizie RSS
         run: python3 tools/scheduled_editorial_import.py
+      - name: Verifica che entrambe le sorgenti YouTube siano state importate
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('.editorial-import-manifest.json').read_text(encoding='utf-8'))
+          status = manifest.get('source_status', {})
+          failed = [name for name in ('videos', 'community') if status.get(name) is not True]
+          if failed:
+              raise SystemExit('Pubblicazione sospesa: importazione YouTube incompleta: ' + ', '.join(failed) + '. La coda resta disponibile per il prossimo slot.')
+          print('Entrambe le sorgenti YouTube verificate:', status)
+          PY
       - name: Confronta i dati reali con l'ultima pubblicazione riuscita
         run: python3 tools/editorial_slot_gate.py prepare
       - name: Rigenera il sito SpotNews con le notizie appena importate
@@ -136,9 +148,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verifica sul sito pubblico ogni articolo Studio e Community di oggi
+      - name: Verifica sul sito pubblico articoli Community e video YouTube
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
-        continue-on-error: true
         run: python3 tools/verify_editorial_live.py
       - name: Memorizza conferma del deploy editoriale
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
