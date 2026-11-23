@@ -51,6 +51,31 @@ def _clean_post_text(text):
  text=re.sub(r"\n{3,}","\n\n",text)
  return re.sub(r"</?escape>","",text,flags=re.I).strip()
 
+def editorial_topic(title):
+ """Return the explicit tech/gaming topic encoded in an editorial heading."""
+ value_text=(title or "").strip()
+ if re.match(r"^(?:NEWS|REVIEW|RECENSIONE)(?:\s+TECH)\s*:", value_text, re.I):
+  return "tech"
+ if re.match(r"^(?:NEWS|REVIEW|RECENSIONE)(?:\s+GAMING)\s*:", value_text, re.I):
+  return "gaming"
+ if re.match(r"^RECENSIONE/REVIEW\s+TECH\s*:", value_text, re.I):
+  return "tech"
+ if re.match(r"^RECENSIONE/REVIEW\s+GAMING\s*:", value_text, re.I):
+  return "gaming"
+ return None
+
+
+def trim_youtube_promo_tail(text):
+ """Remove channel-promo material after the editorial CTA, preserving article text."""
+ value_text=(text or "").strip()
+ markers=(
+  r"\\n(?:Subscribe|Follow|YouTube|Patreon|Instagram|TikTok|X\s*:)",
+  r"\n(?:Subscribe|Follow|YouTube|Patreon|Instagram|TikTok|X\s*:)",
+ )
+ positions=[match.start() for marker in markers
+            for match in [re.search(marker,value_text,re.I)] if match]
+ return value_text[:min(positions)].rstrip() if positions else value_text
+
 def _renderer_text(node):
  """Select the fullest available text field from a Community renderer."""
  fields=("expandedText","expandedContentText","contentText","content","text")
@@ -79,6 +104,32 @@ def fetch_post_detail(post_id, attempts=3):
    if attempt+1<attempts:time.sleep(attempt+1)
  raise RuntimeError("Cannot verify complete YouTube Community post "+post_id) from last_error
 
+def merge_post_media(listing, detail):
+ """Merge detail metadata without losing images already extracted from the feed."""
+ listing=listing if isinstance(listing,dict) else {}
+ detail=detail if isinstance(detail,dict) else {}
+ merged=dict(listing)
+ merged.update(detail)
+ feed_cover=listing.get("image") or ""
+ detail_cover=detail.get("image") or ""
+ cover=feed_cover or detail_cover
+ ordered=[]
+ if detail_cover and detail_cover!=cover:
+  ordered.append(detail_cover)
+ for source in (listing.get("images",[]),detail.get("images",[])):
+  if isinstance(source,list):
+   for image in source:
+    if isinstance(image,dict) and image.get("src"):
+     ordered.append(image["src"])
+ unique=[]
+ for url in ordered:
+  if url and url!=cover and url not in unique:
+   unique.append(url)
+ merged["image"]=cover
+ merged["images"]=[{"src":url,"caption":""} for url in unique]
+ return merged
+
+
 def verify_post_details(items, workers=4):
  """Enrich every feed record from its own post page; fail closed rather than import excerpts."""
  if not items:return items
@@ -105,8 +156,7 @@ def verify_post_details(items, workers=4):
   full_text=max((feed_text,detail_text),key=len)
   if not full_text:
    raise ValueError("Empty Community text after detail verification: "+feed_item["id"])
-  merged=dict(feed_item)
-  merged.update(detail)
+  merged=merge_post_media(feed_item, detail)
   merged["text"]=full_text
   merged["verified_detail"]=True
   # A detail page that still exposes an ellipsis or fewer characters than the
@@ -190,10 +240,10 @@ def title_type(text):
  # Preserve the editorial category instead of collapsing every "News ..." post
  # into generic news. These values are consumed by the site importer.
  if mark.startswith(("news tech:","news gaming:")):kind="news"
- elif mark.startswith(("news guide:","guida:","guide:")):kind="guide"
+ elif mark.startswith(("news guide:","news guides:","guida:","guide:")):kind="guide"
  elif mark.startswith(("news extra:","extra:")):kind="extra"
  elif mark.startswith(("news speciali:","news special:","speciale:","special:")):kind="speciali"
- elif mark.startswith(("review:","recensione:","recensioni:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:")):kind="review"
+ elif mark.startswith(("review:","recensione:","recensioni:","recensione/review:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:","recensione/review tech:","recensione/review gaming:")):kind="review"
  elif mark.startswith("news:"):kind="news"
  else:
   # Accept known editorial headings even when punctuation or line breaks vary.
@@ -234,7 +284,15 @@ def discover(limit=160,max_pages=12):
   except Exception:break
  # Verify every discovered ID before applying title/type/length filters: the feed
  # excerpt may be too short even to classify, while the detail page has the full post.
- collected=verify_post_details(collected)
+ # Only detail-fetch editorial posts (plus empty-text renderers that may still
+ # contain a recoverable detail page). This avoids unnecessary requests for
+ # unrelated or non-editorial channel entries.
+ candidates=[]
+ for item in collected:
+  text=item.get("text","")
+  if not text or title_type(text)[1]:
+   candidates.append(item)
+ collected=verify_post_details(candidates)
  output=[]
  for ix,item in enumerate(collected):
   text=item["text"].strip()
