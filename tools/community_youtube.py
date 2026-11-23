@@ -18,7 +18,7 @@ def fetch(url, payload=None, timeout=9):
   return result.read(4000000).decode("utf-8","replace")
 
 def webpage_json(source):
- for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*'):
+ for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*',r'"ytInitialData"\s*:\s*'):
   match=re.search(pattern,source)
   if match:
    try:return json.JSONDecoder().raw_decode(source[match.end():])[0]
