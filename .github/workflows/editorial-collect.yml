@@ -41,7 +41,7 @@ jobs:
                   raise RuntimeError("Invalid persistent YouTube queue: " + filename)
           PY
       - name: Importa video e post Community da YouTube
-        run: python3 tools/queue_collect.py
+        run: python3 tools/queue_collect.py || echo "YOUTUBE_COLLECTION_FAILED=true" >> "$GITHUB_ENV"
       - name: Conserva la coda aggiornata sul ramo editoriale senza pubblicare il sito
         run: |
           cp data/queue_videos.json /tmp/queue_videos.json
@@ -58,4 +58,11 @@ jobs:
             git push origin HEAD:editorial-queue
           else
             echo "Nessun nuovo contenuto da accodare"
+          fi
+      - name: Segnala raccolta YouTube incompleta dopo aver salvato la coda
+        if: always()
+        run: |
+          if [ "${YOUTUBE_COLLECTION_FAILED:-false}" = "true" ]; then
+            echo "Raccolta video o Community non riuscita: la coda valida è stata conservata e il prossimo ciclo riproverà."
+            exit 1
           fi

@@ -50,16 +50,22 @@ def ingest(now=None):
     print("YOUTUBE COLLECTION RUN (NO DEPLOY):",local.isoformat(),flush=True)
     stamp=now.isoformat(timespec="seconds")
     dirty=False
+    video_rss_ok=False
+    video_scan_ok=False
+    community_ok=False
 
     published=json.loads((DATA/"videos.json").read_text(encoding="utf-8")).get("videos",[])
-    videos=load("queue_videos.json","videos")
-    known={x.get("id") for x in published+videos}
+    published_ids={x.get("id") for x in published if isinstance(x,dict)}
+    videos=[x for x in load("queue_videos.json","videos")
+            if isinstance(x,dict) and x.get("id") not in published_ids]
+    known=published_ids|{x.get("id") for x in videos}
     try:
         req=urllib.request.Request(
             "https://www.youtube.com/feeds/videos.xml?channel_id="+CHANNEL_ID,
             headers={"User-Agent":"Mozilla/5.0 ZazoomTek YouTube importer"})
         with urllib.request.urlopen(req,timeout=20) as response:
             root=ET.fromstring(response.read())
+        video_rss_ok=True
         for entry in root.findall("atom:entry",NS):
             vid=entry.findtext("yt:videoId",default="",namespaces=NS)
             title=entry.findtext("atom:title",default="",namespaces=NS)
@@ -77,6 +83,7 @@ def ingest(now=None):
     # temporary missed cycles do not permanently lose older videos.
     try:
         uploads=discover_uploads(limit=180,max_pages=12)
+        video_scan_ok=True
         for item in uploads:
             vid=item.get("id")
             title=item.get("title")
@@ -94,11 +101,14 @@ def ingest(now=None):
     dirty|=write_if_changed(DATA/"queue_videos.json",{"videos":videos})
 
     archived=json.loads((DATA/"community_full.json").read_text(encoding="utf-8")).get("posts",[])
-    seen={p.get("id") for p in archived+load("community_imported.json","posts")}
-    posts=load("queue_community.json","posts")
-    seen|={p.get("id") for p in posts}
+    imported=json.loads((DATA/"community_imported.json").read_text(encoding="utf-8")).get("posts",[])
+    published_post_ids={p.get("id") for p in archived+imported if isinstance(p,dict)}
+    posts=[p for p in load("queue_community.json","posts")
+           if isinstance(p,dict) and p.get("id") not in published_post_ids]
+    seen=published_post_ids|{p.get("id") for p in posts}
     try:
         records=discover(limit=160,max_pages=12,known_ids=seen)
+        community_ok=True
         for item in records:
             pid=item.get("id")
             if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",str(pid)) or pid in seen:
@@ -113,6 +123,10 @@ def ingest(now=None):
     except Exception as error:
         print("Community unavailable; existing queue preserved:",type(error).__name__,str(error)[:200])
     dirty|=write_if_changed(DATA/"queue_community.json",{"posts":posts})
+    print("YOUTUBE COLLECTION SOURCE STATUS:",
+          {"videos": video_rss_ok or video_scan_ok, "community": community_ok}, flush=True)
+    if not (video_rss_ok or video_scan_ok) or not community_ok:
+        raise RuntimeError("YouTube collection incomplete; successfully collected queue data was saved for retry")
     return dirty
 
 if __name__=="__main__":

@@ -45,7 +45,7 @@ jobs:
             for candidate in "12:30" "16:00" "19:30"; do
               target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $candidate" +%s)"
               delta=$((now_epoch - target_epoch))
-              if [ "$delta" -ge 0 ] && [ "$delta" -le 3300 ]; then
+              if [ "$delta" -ge 0 ] && [ "$delta" -le 600 ]; then
                 REQUESTED_SLOT="$candidate"
                 break
               fi
@@ -63,13 +63,13 @@ jobs:
           now_epoch="$(TZ=Europe/Rome date +%s)"
           target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $REQUESTED_SLOT" +%s)"
           delta=$((now_epoch - target_epoch))
-          if [ "$delta" -lt 0 ] || [ "$delta" -gt 3300 ]; then
+          if [ "$delta" -lt 0 ] || [ "$delta" -gt 600 ]; then
             echo "allowed=false" >> "$GITHUB_OUTPUT"
-            echo "STOP: dispatch anticipato o oltre 55 minuti dallo slot $REQUESTED_SLOT (scarto ${delta}s)."
+            echo "STOP: dispatch anticipato o oltre 10 minuti dallo slot $REQUESTED_SLOT (scarto ${delta}s)."
             exit 0
           fi
           echo "allowed=true" >> "$GITHUB_OUTPUT"
-          echo "OK: slot $REQUESTED_SLOT Europe/Rome accettato con ritardo ${delta}s (finestra 0-3300s)."
+          echo "OK: slot $REQUESTED_SLOT Europe/Rome accettato con ritardo ${delta}s (finestra 0-600s)."
   import-and-publish:
     needs: rome-slot-guard
     if: ${{ inputs.publish_now == true || needs.rome-slot-guard.outputs.allowed == 'true' }}
@@ -104,6 +104,18 @@ jobs:
         run: git fetch --no-tags origin editorial-queue || echo "Coda non raggiungibile; importazione diretta ancora disponibile"
       - name: IMPORTA ORA i nuovi post Community, video YouTube e notizie RSS
         run: python3 tools/scheduled_editorial_import.py
+      - name: Verifica che entrambe le sorgenti YouTube siano state importate
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('.editorial-import-manifest.json').read_text(encoding='utf-8'))
+          status = manifest.get('source_status', {})
+          failed = [name for name in ('videos', 'community') if status.get(name) is not True]
+          if failed:
+              raise SystemExit('Pubblicazione sospesa: importazione YouTube incompleta: ' + ', '.join(failed) + '. La coda resta disponibile per il prossimo slot.')
+          print('Entrambe le sorgenti YouTube verificate:', status)
+          PY
       - name: Confronta i dati reali con l'ultima pubblicazione riuscita
         run: python3 tools/editorial_slot_gate.py prepare
       - name: Rigenera il sito SpotNews con le notizie appena importate
@@ -136,9 +148,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=zazoomtek-site --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verifica sul sito pubblico ogni articolo Studio e Community di oggi
+      - name: Verifica sul sito pubblico articoli Community e video YouTube
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
-        continue-on-error: true
         run: python3 tools/verify_editorial_live.py
       - name: Memorizza conferma del deploy editoriale
         if: env.EDITORIAL_RELEASE_AUTHORIZED == 'true'
