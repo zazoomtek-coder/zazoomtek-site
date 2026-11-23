@@ -110,10 +110,27 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
         shell = {"contents": {"twoColumnBrowseResultsRenderer": {"tabs": []}}}
         payload = {
             "contents": {
-                "videoRenderer": {
-                    "videoId": "abcdefghijk",
-                    "title": {"simpleText": "Innertube upload"},
-                    "publishedTimeText": {"simpleText": "1 day ago"},
+                "richItemRenderer": {
+                    "content": {
+                        "lockupViewModel": {
+                            "contentId": "abcdefghijk",
+                            "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+                            "metadata": {
+                                "lockupMetadataViewModel": {
+                                    "title": {"content": "Innertube upload"},
+                                    "metadata": {
+                                        "contentMetadataViewModel": {
+                                            "metadataRows": [{
+                                                "metadataParts": [
+                                                    {"text": {"content": "1 day ago"}}
+                                                ]
+                                            }]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -129,6 +146,35 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
         self.assertEqual(request["browseId"], importer.CHANNEL_ID)
         self.assertEqual(request["params"], "EgZ2aWRlb3PyBgQKAjoA")
         self.assertEqual(request["context"]["client"]["clientVersion"], "test-version")
+
+
+    def test_reads_current_lockup_view_model_and_ignores_short_lockups(self):
+        payload = {
+            "contents": [
+                {"lockupViewModel": {
+                    "contentId": "abcdefghijk",
+                    "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+                    "metadata": {"lockupMetadataViewModel": {
+                        "title": {"content": "Current channel video"},
+                        "metadata": {"contentMetadataViewModel": {"metadataRows": [
+                            {"metadataParts": [{"text": {"content": "1.2K views"}}]},
+                            {"metadataParts": [{"text": {"content": "2 giorni fa"}}]},
+                        ]}},
+                    }},
+                }},
+                {"lockupViewModel": {
+                    "contentId": "lmnopqrstuv",
+                    "contentType": "LOCKUP_CONTENT_TYPE_SHORTS",
+                    "metadata": {"lockupMetadataViewModel": {"title": {"content": "Short"}}},
+                }},
+            ]
+        }
+        with patch.object(importer, "_fetch_channel_page", return_value=page(payload)):
+            rows = importer.discover_uploads(limit=20, max_pages=1)
+        self.assertEqual([row["id"] for row in rows], ["abcdefghijk"])
+        self.assertEqual(rows[0]["title"], "Current channel video")
+        self.assertEqual(rows[0]["published_label"], "2 giorni fa")
+
 
 
 
