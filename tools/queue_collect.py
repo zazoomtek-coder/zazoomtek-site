@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """Accumulate original ZazoomTek YouTube records on the non-deploying editorial-queue branch."""
-from datetime import datetime, timezone, time
-import time as time_module
-from zoneinfo import ZoneInfo
+from datetime import datetime, timezone
 from pathlib import Path
 import json
-import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -14,16 +11,9 @@ from sync_videos import CHANNEL_ID, NS, classify, discover_uploads
 
 ROOT=Path(__file__).resolve().parents[1]
 DATA=ROOT/"data"
-ROME=ZoneInfo("Europe/Rome")
-
-
-def in_intake_window(clock):
-    """Keep collection outside the three release moments and their short cutoffs."""
-    return (
-        time(9, 0) <= clock <= time(12, 20)
-        or time(12, 31) <= clock <= time(15, 50)
-        or time(16, 1) <= clock <= time(19, 20)
-    )
+def in_intake_window(clock=None):
+    """Collection is allowed 24/7; release slots are enforced elsewhere."""
+    return True
 
 def classify_upload(title):
     """Keep every authentic channel upload for Ultimi Video, not only reviews."""
@@ -56,14 +46,8 @@ def load(name,key):
 
 def ingest(now=None):
     now=now or datetime.now(timezone.utc)
-    local=now.astimezone(ROME)
-    clock=local.time()
-    allowed=in_intake_window(clock)
-    if not allowed and os.environ.get("ZAZOOMTEK_FORCE_COLLECT") != "1":
-        print("Outside editorial intake window, nothing changed:",local.isoformat())
-        return False
-    if not allowed:
-        print("EDITORIAL QUEUE RECOVERY ONLY (NO DEPLOY) at",local.isoformat(),flush=True)
+    local=now.astimezone(timezone.utc)
+    print("YOUTUBE COLLECTION RUN (NO DEPLOY):",local.isoformat(),flush=True)
     stamp=now.isoformat(timespec="seconds")
     dirty=False
 
