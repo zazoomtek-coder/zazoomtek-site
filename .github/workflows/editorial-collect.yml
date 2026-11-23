@@ -1,10 +1,8 @@
 name: ZazoomTek - raccogli YouTube in coda
 on:
-  schedule:
-    # Solo raccolta su editorial-queue: NESSUN deploy Cloudflare da questa esecuzione.
-    # UTC: 07:00-18:59 copre sia il fuso CET sia CEST.
-    # Il collector limita autonomamente la raccolta alle ore editoriali di Roma.
-    - cron: '*/5 7-18 * * *'
+  # Manual recovery only. The production Cron Worker now imports and publishes
+  # directly every five minutes; running a second scheduled collector would
+  # duplicate YouTube requests and compete for the same source quota.
   workflow_dispatch:
 permissions:
   contents: write
