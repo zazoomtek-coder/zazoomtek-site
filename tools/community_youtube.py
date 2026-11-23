@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Read public YouTube channel Community posts directly from the channel feed.
-No per-post detail-page verification: import the text YouTube exposes in the feed.
-"""
+"""Read complete public YouTube Community posts, verifying each channel-feed card on its detail page."""
 import json, re, urllib.request, urllib.parse, html, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
