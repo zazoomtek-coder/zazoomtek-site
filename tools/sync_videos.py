@@ -78,9 +78,9 @@ def _youtube_text(value):
 
 
 def _youtube_initial_data(source):
- for pattern in (r'(?:var\\s+)?ytInitialData\\s*=\\s*',
-                 r'window\\["ytInitialData"\\]\\s*=\\s*',
-                 r'"ytInitialData"\\s*:\\s*'):
+ for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',
+                 r'window\["ytInitialData"\]\s*=\s*',
+                 r'"ytInitialData"\s*:\s*'):
   match=re.search(pattern,source)
   if match:
    try:return json.JSONDecoder().raw_decode(source[match.end():])[0]
@@ -143,7 +143,9 @@ def discover_uploads(limit=180,max_pages=12):
   seen_tokens.add(token)
   body=json.dumps({"context":context,"continuation":token}).encode("utf-8")
   browse_url="https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key)
-  root=_youtube_initial_data(_fetch_channel_page(browse_url,body))
+  response=_fetch_channel_page(browse_url,body)
+  try:root=json.loads(response)
+  except (ValueError,TypeError):root=_youtube_initial_data(response)
   if not root:break
   if len(records)>=limit:break
  if not records:raise ValueError("YouTube channel page returned no standard video renderers")
