@@ -65,6 +65,22 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
         self.assertEqual({row["id"] for row in rows}, {"abcdefghijk", "lmnopqrstuv"})
         self.assertEqual(mocked.call_count, 2)
 
+    def test_tries_alternate_channel_endpoint_when_first_is_blocked(self):
+        payload = {
+            "contents": {
+                "videoRenderer": {
+                    "videoId": "abcdefghijk",
+                    "title": {"simpleText": "First upload"},
+                    "publishedTimeText": {"simpleText": "1 day ago"},
+                }
+            }
+        }
+        with patch.object(importer, "_fetch_channel_page",
+                          side_effect=["<html>blocked</html>", page(payload)]) as mocked:
+            rows = importer.discover_uploads(limit=20, max_pages=1)
+        self.assertEqual([row["id"] for row in rows], ["abcdefghijk"])
+        self.assertEqual(mocked.call_count, 2)
+
     def test_empty_channel_payload_fails_closed(self):
         with patch.object(importer, "_fetch_channel_page", return_value="<html>unavailable</html>"):
             with self.assertRaisesRegex(ValueError, "no ytInitialData"):
