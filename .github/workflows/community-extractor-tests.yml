@@ -22,6 +22,8 @@ on:
       - "fix/youtube-community-full-text"
     paths:
       - "tools/community_youtube.py"
+      - "tools/editorial_slot_gate.py"
+      - "tools/test_editorial_slot_gate.py"
       - "tools/test_community_youtube.py"
       - "tools/sync_videos.py"
       - "tools/emergency_sync.py"
