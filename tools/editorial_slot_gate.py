@@ -18,7 +18,7 @@ STATE = ROOT / "data" / "editorial_release_state.json"
 ROME = ZoneInfo("Europe/Rome")
 SLOTS = ((12, 30), (16, 0), (19, 30))
 # Only approved editorial collections and their referenced media are fingerprinted.
-MAX_DISPATCH_DELAY_SECONDS = 600
+MAX_DISPATCH_DELAY_SECONDS = 3300
 
 
 # Each snapshot contributes only its actual editorial collection. Service-level
@@ -151,13 +151,13 @@ def requested_slot(now):
     target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
 
     # The workflow's first job validates the actual dispatch against this
-    # slot with a ±10-minute tolerance. Preserve that decision while the
+    # slot with a late-only window of up to 55 minutes. Preserve that decision while the
     # importer runs, even if importing takes longer than the dispatch window.
     if os.getenv("EDITORIAL_SLOT_GATE_PASSED", "").lower() == "true":
         return target
 
-    delay_seconds = abs((now - target).total_seconds())
-    if delay_seconds > MAX_DISPATCH_DELAY_SECONDS:
+    delay_seconds = (now - target).total_seconds()
+    if delay_seconds < 0 or delay_seconds > MAX_DISPATCH_DELAY_SECONDS:
         return None
     return target
 
@@ -207,14 +207,14 @@ def authorize():
     now = datetime.now(ROME)
     force_release = os.getenv("EDITORIAL_FORCE_RELEASE", "").lower() == "true"
     slot_gate_passed = os.getenv("EDITORIAL_SLOT_GATE_PASSED", "").lower() == "true"
-    # The workflow gate already validated the dispatch within ±10 minutes.
+    # The workflow gate already validated the dispatch within the 55-minute late window.
     # Do not reapply a second clock check after the potentially long import/build.
     if not force_release and not slot_gate_passed:
         delay_seconds = (now - slot).total_seconds()
         if (slot.tzinfo is None or now.date() != slot.date()
-                or abs(delay_seconds) > MAX_DISPATCH_DELAY_SECONDS):
+                or delay_seconds < 0 or delay_seconds > MAX_DISPATCH_DELAY_SECONDS):
             emit("EDITORIAL_RELEASE_AUTHORIZED", "false")
-            print("SKIPPED: release slot is invalid or outside ±10 minutes",
+            print("SKIPPED: release slot is invalid or before the slot or more than 55 minutes late",
                   now.isoformat(), flush=True)
             return
     previous = state()
