@@ -67,9 +67,9 @@ class CommunityQueueVerificationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "videos.json").write_text(json.dumps({"videos": []}), encoding="utf-8")
-            with patch.object(importer, "DATA", root), \\
-                 patch.object(importer, "read_queue", return_value=[short]):
-                added = importer.merge_queue("queue_videos.json", "videos.json", "videos", set())
+            with patch.object(importer, "DATA", root):
+                with patch.object(importer, "read_queue", return_value=[short]):
+                    added = importer.merge_queue("queue_videos.json", "videos.json", "videos", set())
             saved = json.loads((root / "videos.json").read_text(encoding="utf-8"))["videos"]
         self.assertEqual(len(added), 1)
         self.assertEqual(saved[0]["id"], "abcdefghijk")
