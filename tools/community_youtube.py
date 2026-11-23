@@ -2,7 +2,8 @@
 """Read public YouTube channel Community posts directly from the channel feed.
 No per-post detail-page verification: import the text YouTube exposes in the feed.
 """
-import json, re, urllib.request, urllib.parse, html
+import json, re, urllib.request, urllib.parse, html, time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 
 CHANNEL="https://www.youtube.com/@ZazoomTek/posts"
@@ -36,12 +37,81 @@ def walk(root):
   elif isinstance(x,list):stack.extend(reversed(x))
 
 def value(node):
+ """Decode YouTube rich text without stringifying renderer dictionaries."""
  if isinstance(node,str):return html.unescape(node)
  if isinstance(node,list):return "".join(value(x) for x in node)
  if not isinstance(node,dict):return ""
- if "runs" in node:return "".join(value(run) for run in node["runs"])
- if "content" in node and isinstance(node["content"],str):return html.unescape(node["content"])
- return html.unescape(str(node.get("text") or node.get("simpleText") or ""))
+ if isinstance(node.get("runs"),list):return "".join(value(run) for run in node["runs"])
+ if isinstance(node.get("content"),str):return html.unescape(node["content"])
+ if isinstance(node.get("text"),str):return html.unescape(node["text"])
+ if isinstance(node.get("simpleText"),str):return html.unescape(node["simpleText"])
+ return ""
+
+def _clean_post_text(text):
+ text=(text or "").replace("\r\n","\n").replace("\r","\n")
+ text=re.sub(r"[ \t]+\n","\n",text)
+ text=re.sub(r"\n{3,}","\n\n",text)
+ return re.sub(r"</?escape>","",text,flags=re.I).strip()
+
+def _renderer_text(node):
+ """Select the fullest available text field from a Community renderer."""
+ fields=("expandedText","expandedContentText","contentText","content","text")
+ candidates=[]
+ for key in fields:
+  candidate=_clean_post_text(value(node.get(key)))
+  if candidate and candidate not in candidates:candidates.append(candidate)
+ if not candidates:return ""
+ return max(candidates,key=len)
+
+def fetch_post_detail(post_id, attempts=3):
+ """Read the individual public post page, not just its abbreviated channel-feed card."""
+ url="https://www.youtube.com/post/"+urllib.parse.quote(post_id,safe="")+"?hl=it&persist_hl=1"
+ last_error=None
+ for attempt in range(attempts):
+  try:
+   raw=fetch(url,timeout=18)
+   root=webpage_json(raw)
+   if not root:raise ValueError("YouTube post page has no ytInitialData")
+   match=next((item for item in post_records(root) if item.get("id")==post_id),None)
+   if not match or len(match.get("text",""))<1:
+    raise ValueError("YouTube post renderer not found in individual post page")
+   return match
+  except Exception as exc:
+   last_error=exc
+   if attempt+1<attempts:time.sleep(attempt+1)
+ raise RuntimeError("Cannot verify complete YouTube Community post "+post_id) from last_error
+
+def verify_post_details(items, workers=4):
+ """Enrich every feed record from its own post page; fail closed rather than import excerpts."""
+ if not items:return items
+ results={}
+ errors=[]
+ with ThreadPoolExecutor(max_workers=max(1,min(int(workers),6))) as pool:
+  pending={pool.submit(fetch_post_detail,item["id"]):item for item in items}
+  for future in as_completed(pending):
+   feed_item=pending[future]
+   try:results[feed_item["id"]]=future.result()
+   except Exception as exc:errors.append((feed_item["id"],exc))
+ if errors:
+  sample=", ".join(post_id+":"+type(exc).__name__ for post_id,exc in errors[:5])
+  raise RuntimeError("Individual YouTube post verification failed for "+str(len(errors))+
+                     " of "+str(len(items))+" posts ("+sample+"); no unverified batch imported")
+ verified=[]
+ for feed_item in items:
+  detail=results[feed_item["id"]]
+  feed_text=_clean_post_text(feed_item.get("text",""))
+  detail_text=_clean_post_text(detail.get("text",""))
+  full_text=max((feed_text,detail_text),key=len)
+  if not full_text:
+   raise ValueError("Empty Community text after detail verification: "+feed_item["id"])
+  merged=dict(feed_item)
+  merged.update(detail)
+  merged["text"]=full_text
+  merged["verified_detail"]=True
+  merged["text_complete"]=True
+  merged["text_source"]="youtube-post-detail"
+  verified.append(merged)
+ return verified
 
 def post_records(root):
  found={}
@@ -51,10 +121,7 @@ def post_records(root):
    if not isinstance(node,dict):continue
    post_id=node.get("postId") or node.get("id")
    if not isinstance(post_id,str) or not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
-   content=value(node.get("contentText") or node.get("content") or node.get("text"))
-   content=content.replace("\r\n","\n").strip()
-   # Remove chat-rendering escape wrappers if they were pasted into a public Community post.
-   content=re.sub(r"</?escape>","",content,flags=re.I)
+   content=_renderer_text(node)
    if not content:continue
    when=value(node.get("publishedTimeText") or node.get("publishedTime"))
    image_urls=[]
@@ -165,7 +232,9 @@ def discover(limit=160,max_pages=12):
    from review_pros_cons import attach
    attach(item)
   output.append(item)
- return output
+ # The channel feed may expose a collapsed card. Verify every post against its
+ # own public detail page and prefer the longest complete renderer text.
+ return verify_post_details(output)
 
 if __name__=="__main__":
  try:
