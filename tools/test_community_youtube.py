@@ -91,8 +91,7 @@ class CommunityFullTextTests(unittest.TestCase):
 
     def test_discover_skips_known_post_ids_before_detail_requests(self):
         full = "NEWS TECH: " + ("Post già acquisito in precedenza. " * 8)
-        with patch.object(importer, "fetch", return_value=page(full)), \\
-             patch.object(importer, "fetch_post_detail") as detail:
+        with patch.object(importer, "fetch", return_value=page(full)), patch.object(importer, "fetch_post_detail") as detail:
             rows = importer.discover(limit=10, max_pages=1, known_ids={POST_ID})
         self.assertEqual(rows, [])
         detail.assert_not_called()
