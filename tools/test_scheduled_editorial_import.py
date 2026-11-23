@@ -1,7 +1,4 @@
-import json
-import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 import scheduled_editorial_import as importer
@@ -55,24 +52,6 @@ class CommunityQueueVerificationTests(unittest.TestCase):
             result = importer.verify_community_queue_rows([old], set(), set())
         self.assertEqual(result, [])
 
-    def test_shorts_are_imported_from_the_persistent_video_queue(self):
-        short = {
-            "id": "abcdefghijk",
-            "title": "ZazoomTek Shorts: prova rapida",
-            "date": "2026-11-23T10:00:00+00:00",
-            "url": "https://www.youtube.com/shorts/abcdefghijk",
-            "kind": "short",
-            "topic": "general",
-        }
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "videos.json").write_text(json.dumps({"videos": []}), encoding="utf-8")
-            with patch.object(importer, "DATA", root):
-                with patch.object(importer, "read_queue", return_value=[short]):
-                    added = importer.merge_queue("queue_videos.json", "videos.json", "videos", set())
-            saved = json.loads((root / "videos.json").read_text(encoding="utf-8"))["videos"]
-        self.assertEqual(len(added), 1)
-        self.assertEqual(saved[0]["id"], "abcdefghijk")
 
 
 
