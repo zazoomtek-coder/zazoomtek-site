@@ -41,15 +41,29 @@ class CommunityFullTextTests(unittest.TestCase):
         self.assertEqual(result["text"], full)
         self.assertIn("/post/" + POST_ID, mocked.call_args.args[0])
 
-    def test_verified_result_keeps_longer_feed_text_and_marks_verification(self):
+    def test_shorter_detail_does_not_claim_text_is_complete(self):
         feed = {"id": POST_ID, "text": "Testo dal feed più lungo " * 5}
         detail = {"id": POST_ID, "text": "Testo dettaglio"}
         with patch.object(importer, "fetch_post_detail", return_value=detail):
             result = importer.verify_post_details([feed])[0]
         self.assertEqual(result["text"], feed["text"])
         self.assertTrue(result["verified_detail"])
-        self.assertTrue(result["text_complete"])
+        self.assertFalse(result["text_complete"])
         self.assertEqual(result["text_source"], "youtube-post-detail")
+
+    def test_detail_with_trailing_ellipsis_is_not_complete(self):
+        text = "NEWS TECH: testo ancora abbreviato..."
+        feed = {"id": POST_ID, "text": text}
+        with patch.object(importer, "fetch_post_detail", return_value={"id": POST_ID, "text": text}):
+            result = importer.verify_post_details([feed])[0]
+        self.assertFalse(result["text_complete"])
+
+    def test_full_detail_page_confirms_complete_text(self):
+        text = "NEWS TECH: " + ("Testo integrale completo. " * 8)
+        feed = {"id": POST_ID, "text": text}
+        with patch.object(importer, "fetch_post_detail", return_value={"id": POST_ID, "text": text}):
+            result = importer.verify_post_details([feed])[0]
+        self.assertTrue(result["text_complete"])
 
     def test_unverified_batch_fails_closed(self):
         feed = {"id": POST_ID, "text": "NEWS TECH: testo dal feed"}
