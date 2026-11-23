@@ -47,10 +47,11 @@ def main():
  print("New valid videos:",added,"total:",len(current["videos"]))
 
 
-def _fetch_channel_page(url, payload=None, timeout=22):
+def _fetch_channel_page(url, payload=None, timeout=22, extra_headers=None):
  headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36",
           "Accept-Language":"it-IT,it;q=0.9,en;q=0.8"}
  if payload is not None:headers["Content-Type"]="application/json"
+ if isinstance(extra_headers,dict):headers.update(extra_headers)
  request=urllib.request.Request(url,data=payload,headers=headers)
  with urllib.request.urlopen(request,timeout=timeout) as response:
   return response.read(5000000).decode("utf-8","replace")
@@ -125,7 +126,7 @@ def _has_standard_video_renderer(root):
 
 
 def discover_uploads(limit=180,max_pages=12):
- """Read standard channel uploads with YouTube's continuation API, not only RSS's 15 entries."""
+ """Read standard channel uploads with YouTube's Innertube Videos tab and continuation API."""
  urls=(
   "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?hl=it&persist_hl=1",
   "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?view=0&sort=dd&flow=grid&hl=en&gl=US",
@@ -135,6 +136,8 @@ def discover_uploads(limit=180,max_pages=12):
  )
  raw=""
  root={}
+ fallback_raw=""
+ fallback_root={}
  failures=[]
  for url in urls:
   try:
@@ -144,21 +147,52 @@ def discover_uploads(limit=180,max_pages=12):
     raw=candidate
     root=parsed
     break
-   if parsed:
-    failures.append(url+": ytInitialData has no standard video renderers")
-   else:
-    failures.append(url+": no ytInitialData")
+   if parsed and not fallback_raw:
+    fallback_raw=candidate
+    fallback_root=parsed
+   failures.append(url+(": ytInitialData has no standard video renderers" if parsed else ": no ytInitialData"))
   except Exception as exc:
    failures.append(url+": "+type(exc).__name__)
+
+ # Some YouTube channel pages return only a shell. Keep its client metadata
+ # and ask the channel Videos tab directly through the same Innertube browse
+ # endpoint used by YouTube's own web client.
  if not root:
-  raise ValueError("YouTube channel videos endpoints unavailable: "+"; ".join(failures))
- api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
- client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
- visitor=re.search(r'"VISITOR_DATA"\s*:\s*"([^"]+)"',raw)
- key=api.group(1) if api else ""
- version=client.group(1) if client else "2.20261001.00.00"
+  raw=fallback_raw or raw
+  root=fallback_root or {}
+ api=re.search(r'"INNERTUBE_API_KEY"\\s*:\\s*"([^"]+)"',raw)
+ client=re.search(r'"INNERTUBE_CLIENT_VERSION"\\s*:\\s*"([^"]+)"',raw)
+ visitor=re.search(r'"VISITOR_DATA"\\s*:\\s*"([^"]+)"',raw)
+ key=api.group(1) if api else "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+ version=client.group(1) if client else "2.20260114.08.00"
  context={"client":{"clientName":"WEB","clientVersion":version,"hl":"it","gl":"IT"}}
  if visitor:context["client"]["visitorData"]=visitor.group(1)
+ browse_url="https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key)+"&prettyPrint=false"
+ headers={
+  "X-YouTube-Client-Name":"1",
+  "X-YouTube-Client-Version":version,
+  "Origin":"https://www.youtube.com",
+  "Referer":"https://www.youtube.com/",
+ }
+ if not _has_standard_video_renderer(root):
+  payload=json.dumps({
+   "context":context,
+   "browseId":CHANNEL_ID,
+   "params":"EgZ2aWRlb3PyBgQKAjoA",
+  }).encode("utf-8")
+  try:
+   response=_fetch_channel_page(browse_url,payload,extra_headers=headers)
+   parsed=json.loads(response)
+   if _has_standard_video_renderer(parsed):
+    root=parsed
+   else:
+    failures.append("Innertube channel Videos tab returned no standard video renderers")
+  except Exception as exc:
+   failures.append("Innertube channel Videos tab: "+type(exc).__name__+": "+str(exc)[:180])
+
+ if not _has_standard_video_renderer(root):
+  raise ValueError("YouTube channel videos endpoints unavailable: "+"; ".join(failures))
+
  records={}
  seen_tokens=set()
  for page in range(max(1,int(max_pages))):
@@ -173,18 +207,18 @@ def discover_uploads(limit=180,max_pages=12):
         or not title or is_short_title(title) or _is_short_renderer(renderer)):
      continue
     records[video_id]={"id":video_id,"title":title,"published_label":published_label}
-  if len(records)>=limit or not key:break
+  if len(records)>=limit:break
   token=next((value for value in _youtube_continuations(root) if value not in seen_tokens),None)
   if not token:break
   seen_tokens.add(token)
   body=json.dumps({"context":context,"continuation":token}).encode("utf-8")
-  browse_url="https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key)
-  response=_fetch_channel_page(browse_url,body)
+  response=_fetch_channel_page(browse_url,body,extra_headers=headers)
   try:root=json.loads(response)
   except (ValueError,TypeError):root=_youtube_initial_data(response)
   if not root:break
   if len(records)>=limit:break
  if not records:raise ValueError("YouTube channel page returned no standard video renderers")
  return list(records.values())[:limit]
+
 
 if __name__=="__main__":main()
