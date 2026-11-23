@@ -187,11 +187,11 @@ def discover_uploads(limit=180,max_pages=12):
  api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
  client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
  visitor=re.search(r'"VISITOR_DATA"\s*:\s*"([^"]+)"',raw)
- key=api.group(1) if api else "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+ key=api.group(1) if api else ""
  version=client.group(1) if client else "2.20260114.08.00"
  context={"client":{"clientName":"WEB","clientVersion":version,"hl":"it","gl":"IT"}}
  if visitor:context["client"]["visitorData"]=visitor.group(1)
- browse_url="https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key)+"&prettyPrint=false"
+ browse_url=("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key)+"&prettyPrint=false") if key else ""
  headers={
   "X-YouTube-Client-Name":"1",
   "X-YouTube-Client-Version":version,
@@ -199,20 +199,23 @@ def discover_uploads(limit=180,max_pages=12):
   "Referer":"https://www.youtube.com/",
  }
  if not _has_standard_video_renderer(root):
-  payload=json.dumps({
-   "context":context,
-   "browseId":CHANNEL_ID,
-   "params":"EgZ2aWRlb3PyBgQKAjoA",
-  }).encode("utf-8")
-  try:
-   response=_fetch_channel_page(browse_url,payload,extra_headers=headers)
-   parsed=json.loads(response)
-   if _has_standard_video_renderer(parsed):
-    root=parsed
-   else:
-    failures.append("Innertube channel Videos tab returned no standard video renderers")
-  except Exception as exc:
-   failures.append("Innertube channel Videos tab: "+type(exc).__name__+": "+str(exc)[:180])
+  if not key:
+   failures.append("YouTube Innertube API key not found in channel page; refusing to use a hardcoded fallback")
+  else:
+   payload=json.dumps({
+    "context":context,
+    "browseId":CHANNEL_ID,
+    "params":"EgZ2aWRlb3PyBgQKAjoA",
+   }).encode("utf-8")
+   try:
+    response=_fetch_channel_page(browse_url,payload,extra_headers=headers)
+    parsed=json.loads(response)
+    if _has_standard_video_renderer(parsed):
+     root=parsed
+    else:
+     failures.append("Innertube channel Videos tab returned no standard video renderers")
+   except Exception as exc:
+    failures.append("Innertube channel Videos tab: "+type(exc).__name__+": "+str(exc)[:180])
 
  if not _has_standard_video_renderer(root):
   raise ValueError("YouTube channel videos endpoints unavailable: "+"; ".join(failures))
@@ -238,6 +241,8 @@ def discover_uploads(limit=180,max_pages=12):
   token=next((value for value in _youtube_continuations(root) if value not in seen_tokens),None)
   if not token:break
   seen_tokens.add(token)
+  if not key:
+   raise ValueError("YouTube Innertube API key not found in channel page; refusing to use a hardcoded fallback")
   body=json.dumps({"context":context,"continuation":token}).encode("utf-8")
   response=_fetch_channel_page(browse_url,body,extra_headers=headers)
   try:root=json.loads(response)
