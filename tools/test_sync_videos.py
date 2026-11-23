@@ -106,5 +106,31 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
 
 
 
+    def test_uses_innertube_videos_tab_when_channel_html_has_only_shells(self):
+        shell = {"contents": {"twoColumnBrowseResultsRenderer": {"tabs": []}}}
+        payload = {
+            "contents": {
+                "videoRenderer": {
+                    "videoId": "abcdefghijk",
+                    "title": {"simpleText": "Innertube upload"},
+                    "publishedTimeText": {"simpleText": "1 day ago"},
+                }
+            }
+        }
+        html = page(shell) + '<script>{"INNERTUBE_API_KEY":"test-key","INNERTUBE_CLIENT_VERSION":"test-version"}</script>'
+        with patch.object(importer, "_fetch_channel_page",
+                          side_effect=[html, html, html, html, html, json.dumps(payload)]) as mocked:
+            rows = importer.discover_uploads(limit=20, max_pages=1)
+        self.assertEqual([row["id"] for row in rows], ["abcdefghijk"])
+        self.assertEqual(mocked.call_count, 6)
+        browse_url, request_body = mocked.call_args.args[:2]
+        self.assertIn("key=test-key", browse_url)
+        request = json.loads(request_body)
+        self.assertEqual(request["browseId"], importer.CHANNEL_ID)
+        self.assertEqual(request["params"], "EgZ2aWRlb3PyBgQKAjoA")
+        self.assertEqual(request["context"]["client"]["clientVersion"], "test-version")
+
+
+
 if __name__ == "__main__":
     unittest.main()
