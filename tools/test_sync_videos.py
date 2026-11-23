@@ -148,6 +148,13 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
         self.assertEqual(request["context"]["client"]["clientVersion"], "test-version")
 
 
+    def test_innertube_shell_without_dynamic_key_fails_closed(self):
+        shell = {"contents": {"twoColumnBrowseResultsRenderer": {"tabs": []}}}
+        with patch.object(importer, "_fetch_channel_page", return_value=page(shell)):
+            with self.assertRaisesRegex(ValueError, "API key not found"):
+                importer.discover_uploads(limit=20, max_pages=1)
+
+
     def test_reads_current_lockup_view_model_and_ignores_short_lockups(self):
         payload = {
             "contents": [
