@@ -59,7 +59,7 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
                 }
             }]
         }
-        html = page(first).replace("</script>", ',"INNERTUBE_API_KEY":"test-key","INNERTUBE_CLIENT_VERSION":"test-version"}</script>')
+        html = page(first) + '<script>{"INNERTUBE_API_KEY":"test-key","INNERTUBE_CLIENT_VERSION":"test-version"}</script>'
         with patch.object(importer, "_fetch_channel_page", side_effect=[html, json.dumps(second)]) as mocked:
             rows = importer.discover_uploads(limit=20, max_pages=3)
         self.assertEqual({row["id"] for row in rows}, {"abcdefghijk", "lmnopqrstuv"})
