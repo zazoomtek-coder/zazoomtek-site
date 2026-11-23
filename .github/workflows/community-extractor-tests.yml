@@ -10,6 +10,8 @@ on:
       - "tools/test_sync_videos.py"
       - "tools/test_scheduled_editorial_import.py"
       - "tools/test_emergency_sync.py"
+      - "tools/queue_collect.py"
+      - "tools/test_youtube_community_import.py"
       - ".github/workflows/community-extractor-tests.yml"
   push:
     branches:
@@ -36,8 +38,9 @@ jobs:
           python-version: "3.12"
       - name: Verifica sintassi estrattore e test
         run: |
-          python3 -m py_compile tools/community_youtube.py tools/sync_videos.py tools/emergency_sync.py tools/scheduled_editorial_import.py
+          python3 -m py_compile tools/community_youtube.py tools/sync_videos.py tools/emergency_sync.py tools/scheduled_editorial_import.py tools/queue_collect.py
           python3 tools/test_community_youtube.py
           python3 tools/test_sync_videos.py
           python3 tools/test_scheduled_editorial_import.py
           python3 tools/test_emergency_sync.py
+          python3 tools/test_youtube_community_import.py
