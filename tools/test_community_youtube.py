@@ -41,15 +41,12 @@ class CommunityFullTextTests(unittest.TestCase):
         self.assertEqual(result["text"], full)
         self.assertIn("/post/" + POST_ID, mocked.call_args.args[0])
 
-    def test_shorter_detail_does_not_claim_text_is_complete(self):
+    def test_shorter_detail_is_not_imported_and_can_be_retried(self):
         feed = {"id": POST_ID, "text": "Testo dal feed più lungo " * 5}
         detail = {"id": POST_ID, "text": "Testo dettaglio"}
         with patch.object(importer, "fetch_post_detail", return_value=detail):
-            result = importer.verify_post_details([feed])[0]
-        self.assertEqual(result["text"], feed["text"])
-        self.assertTrue(result["verified_detail"])
-        self.assertFalse(result["text_complete"])
-        self.assertEqual(result["text_source"], "youtube-post-detail")
+            result = importer.verify_post_details([feed])
+        self.assertEqual(result, [])
 
     def test_detail_with_trailing_ellipsis_is_not_complete(self):
         text = "NEWS TECH: testo ancora abbreviato..."
@@ -65,11 +62,24 @@ class CommunityFullTextTests(unittest.TestCase):
             result = importer.verify_post_details([feed])[0]
         self.assertTrue(result["text_complete"])
 
-    def test_unverified_batch_fails_closed(self):
+    def test_all_unverified_posts_are_retried(self):
         feed = {"id": POST_ID, "text": "NEWS TECH: testo dal feed"}
         with patch.object(importer, "fetch_post_detail", side_effect=RuntimeError("detail unavailable")):
-            with self.assertRaisesRegex(RuntimeError, "no unverified batch imported"):
+            with self.assertRaisesRegex(RuntimeError, "No individual YouTube Community post could be verified"):
                 importer.verify_post_details([feed])
+
+    def test_one_failed_detail_does_not_block_other_complete_posts(self):
+        second_id = "Ugmnopqrstuvwxyz"
+        first = {"id": POST_ID, "text": "NEWS TECH: testo completo " * 4}
+        second = {"id": second_id, "text": "NEWS TECH: testo da verificare"}
+        full_detail = {"id": POST_ID, "text": first["text"]}
+        def detail(post_id):
+            if post_id == POST_ID:
+                return full_detail
+            raise RuntimeError("temporary detail failure")
+        with patch.object(importer, "fetch_post_detail", side_effect=detail):
+            result = importer.verify_post_details([first, second])
+        self.assertEqual([row["id"] for row in result], [POST_ID])
 
     def test_rich_text_runs_preserve_all_segments(self):
         rich = {"runs": [{"text": "Prima parte. "}, {"text": "Seconda parte."}]}
