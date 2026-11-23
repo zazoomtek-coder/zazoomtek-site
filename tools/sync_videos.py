@@ -112,10 +112,27 @@ def _is_short_renderer(renderer):
 
 def discover_uploads(limit=180,max_pages=12):
  """Read standard channel uploads with YouTube's continuation API, not only RSS's 15 entries."""
- url="https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?hl=it&persist_hl=1"
- raw=_fetch_channel_page(url)
- root=_youtube_initial_data(raw)
- if not root:raise ValueError("YouTube channel videos page has no ytInitialData")
+ urls=(
+  "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?hl=it&persist_hl=1",
+  "https://www.youtube.com/@ZazoomTek/videos?hl=en&gl=US",
+  "https://m.youtube.com/@ZazoomTek/videos?hl=en",
+ )
+ raw=""
+ root={}
+ failures=[]
+ for url in urls:
+  try:
+   candidate=_fetch_channel_page(url)
+   parsed=_youtube_initial_data(candidate)
+   if parsed:
+    raw=candidate
+    root=parsed
+    break
+   failures.append(url+": no ytInitialData")
+  except Exception as exc:
+   failures.append(url+": "+type(exc).__name__)
+ if not root:
+  raise ValueError("YouTube channel videos endpoints unavailable: "+"; ".join(failures))
  api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
  client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
  visitor=re.search(r'"VISITOR_DATA"\s*:\s*"([^"]+)"',raw)
