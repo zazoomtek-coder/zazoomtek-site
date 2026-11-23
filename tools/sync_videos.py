@@ -116,9 +116,9 @@ def discover_uploads(limit=180,max_pages=12):
  raw=_fetch_channel_page(url)
  root=_youtube_initial_data(raw)
  if not root:raise ValueError("YouTube channel videos page has no ytInitialData")
- api=re.search(r'"INNERTUBE_API_KEY"\\s*:\\s*"([^"]+)"',raw)
- client=re.search(r'"INNERTUBE_CLIENT_VERSION"\\s*:\\s*"([^"]+)"',raw)
- visitor=re.search(r'"VISITOR_DATA"\\s*:\\s*"([^"]+)"',raw)
+ api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
+ client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
+ visitor=re.search(r'"VISITOR_DATA"\s*:\s*"([^"]+)"',raw)
  key=api.group(1) if api else ""
  version=client.group(1) if client else "2.20261001.00.00"
  context={"client":{"clientName":"WEB","clientVersion":version,"hl":"it","gl":"IT"}}
