@@ -187,9 +187,9 @@ def discover_uploads(limit=180,max_pages=12):
  api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
  client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
  visitor=re.search(r'"VISITOR_DATA"\s*:\s*"([^"]+)"',raw)
-  if not api:
-   raise ValueError("YouTube Innertube API key not found in channel page; refusing to use a hardcoded fallback")
-  key=api.group(1)
+ if not api:
+  raise ValueError("YouTube Innertube API key not found in channel page; refusing to use a hardcoded fallback")
+ key=api.group(1)
  version=client.group(1) if client else "2.20260114.08.00"
  context={"client":{"clientName":"WEB","clientVersion":version,"hl":"it","gl":"IT"}}
  if visitor:context["client"]["visitorData"]=visitor.group(1)
