@@ -9,8 +9,8 @@ import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
-from community_youtube import discover, title_type
-from sync_videos import CHANNEL_ID, NS, classify
+from community_youtube import discover, title_type, date_from_relative
+from sync_videos import CHANNEL_ID, NS, classify, discover_uploads
 
 ROOT=Path(__file__).resolve().parents[1]
 DATA=ROOT/"data"
@@ -85,6 +85,24 @@ def ingest(now=None):
         print("Video feed checked; queued:",len(videos))
     except Exception as error:
         print("Video feed unavailable; existing queue preserved:",type(error).__name__,str(error)[:200])
+    # Supplement the 15-entry RSS feed with paginated channel uploads so
+    # temporary missed cycles do not permanently lose older videos.
+    try:
+        uploads=discover_uploads(limit=180,max_pages=12)
+        for item in uploads:
+            vid=item.get("id")
+            title=item.get("title")
+            published_at=date_from_relative(item.get("published_label",""),now)
+            if not re.fullmatch(r"[A-Za-z0-9_-]{11}",str(vid or "")) or not title or not published_at or vid in known:
+                continue
+            kind,topic=classify_upload(title)
+            videos.append({"id":vid,"title":title,"date":published_at,
+                "topic":topic,"kind":kind,"first_seen_at":stamp})
+            known.add(vid)
+        print("Paginated YouTube channel scan; queued:",len(videos),flush=True)
+    except Exception as error:
+        print("Paginated video scan unavailable; RSS queue preserved:",
+              type(error).__name__,str(error)[:180],flush=True)
     dirty|=write_if_changed(DATA/"queue_videos.json",{"videos":videos})
 
     archived=json.loads((DATA/"community_full.json").read_text(encoding="utf-8")).get("posts",[])
