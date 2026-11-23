@@ -175,10 +175,16 @@ def _community_is_near_duplicate(candidate, published_rows):
         has_model_identifier = any(any(char.isdigit() for char in word)
                                    for word in shared_title_topics)
 
-        # Same named product/game/service with a rewritten headline. A shared
-        # brand alone is deliberately insufficient (e.g. two different Samsung devices).
-        title_topic_threshold = 0.62 if has_model_identifier else 0.72
-        if (len(shared_title_topics) >= 2 and shorter_title_size >= 2
+        # Rewritten headlines can still describe the same named product,
+        # game or collaboration. Require several shared topic terms and at
+        # least two distinctive identifiers; a brand alone is never enough.
+        shared_title_identifiers = {
+            word for word in shared_title_topics
+            if len(word) >= 6 or any(char.isdigit() for char in word)
+        }
+        title_topic_threshold = 0.55 if has_model_identifier else 0.62
+        if (len(shared_title_topics) >= 3 and len(shared_title_identifiers) >= 2
+                and shorter_title_size >= 3
                 and title_topic_coverage >= title_topic_threshold):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
@@ -189,8 +195,14 @@ def _community_is_near_duplicate(candidate, published_rows):
         body_topic_coverage = (
             len(shared_body_topics) / shorter_body_size if shorter_body_size else 0
         )
-        if (len(shared_body_topics) >= 8 and shorter_body_size >= 12
-                and body_topic_coverage >= 0.52):
+        shared_body_identifiers = {
+            word for word in shared_body_topics
+            if len(word) >= 6 or any(char.isdigit() for char in word)
+        }
+        if ((len(shared_body_topics) >= 8 and shorter_body_size >= 12
+             and body_topic_coverage >= 0.52)
+                or (len(shared_body_topics) >= 5 and len(shared_body_identifiers) >= 2
+                    and shorter_body_size >= 8 and body_topic_coverage >= 0.35)):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
         # High coverage of the shorter text catches excerpts even when the
