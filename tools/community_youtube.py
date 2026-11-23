@@ -259,11 +259,32 @@ def title_type(text):
   else:return title,None
  return title,kind
 
-def discover(limit=160,max_pages=12):
+def fetch_channel_posts():
+ """Try public Community endpoints in order; one blocked route must not stop import."""
+ urls=(
+  CHANNEL+"?hl=it&persist_hl=1",
+  "https://www.youtube.com/channel/"+CHANNEL_ID+"/posts?hl=en&gl=US",
+  "https://m.youtube.com/@ZazoomTek/posts?hl=en",
+  "https://www.youtube.com/@ZazoomTek/community?hl=en",
+ )
+ failures=[]
+ for url in urls:
+  try:
+   raw=fetch(url,timeout=18)
+   root=webpage_json(raw)
+   if root:
+    print("YOUTUBE COMMUNITY SOURCE:",url,flush=True)
+    return raw,root
+   failures.append(url+": no ytInitialData")
+  except Exception as exc:
+   failures.append(url+": "+type(exc).__name__)
+ raise RuntimeError("No public YouTube Community endpoint returned data: "+"; ".join(failures))
+
+
+def discover(limit=160,max_pages=12,known_ids=None):
  reference=datetime.now(timezone.utc)
- raw=fetch(CHANNEL+"?hl=it&persist_hl=1")
- root=webpage_json(raw)
- if not root:raise ValueError("YouTube did not return public post data")
+ raw,root=fetch_channel_posts()
+ known_ids={str(value) for value in (known_ids or set()) if value}
  collected=[];ids=set()
  api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
  client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
@@ -292,6 +313,8 @@ def discover(limit=160,max_pages=12):
  # unrelated or non-editorial channel entries.
  candidates=[]
  for item in collected:
+  if item["id"] in known_ids:
+   continue
   text=item.get("text","")
   if not text or title_type(text)[1]:
    candidates.append(item)
