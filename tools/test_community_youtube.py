@@ -52,7 +52,7 @@ class CommunityFullTextTests(unittest.TestCase):
         text = "NEWS TECH: testo ancora abbreviato..."
         feed = {"id": POST_ID, "text": text}
         with patch.object(importer, "fetch_post_detail", return_value={"id": POST_ID, "text": text}):
-            result = importer.verify_post_details([feed])[0]
+            result = importer.verify_post_details([feed])
         self.assertEqual(result, [])
 
     def test_full_detail_page_confirms_complete_text(self):
@@ -80,6 +80,10 @@ class CommunityFullTextTests(unittest.TestCase):
         with patch.object(importer, "fetch_post_detail", side_effect=detail):
             result = importer.verify_post_details([first, second])
         self.assertEqual([row["id"] for row in result], [POST_ID])
+
+    def test_webpage_json_reads_embedded_initial_data(self):
+        embedded = '<script>{"ytInitialData":{"contents":{"value":2}}}</script>'
+        self.assertEqual(importer.webpage_json(embedded), {"contents": {"value": 2}})
 
     def test_rich_text_runs_preserve_all_segments(self):
         rich = {"runs": [{"text": "Prima parte. "}, {"text": "Seconda parte."}]}
