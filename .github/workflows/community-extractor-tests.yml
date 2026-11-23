@@ -25,6 +25,8 @@ on:
       - "tools/test_sync_videos.py"
       - "tools/test_scheduled_editorial_import.py"
       - "tools/test_emergency_sync.py"
+      - "tools/queue_collect.py"
+      - "tools/test_youtube_community_import.py"
       - ".github/workflows/community-extractor-tests.yml"
 permissions:
   contents: read
