@@ -9,6 +9,7 @@ on:
       - "tools/scheduled_editorial_import.py"
       - "tools/test_sync_videos.py"
       - "tools/test_scheduled_editorial_import.py"
+      - "tools/test_emergency_sync.py"
       - ".github/workflows/community-extractor-tests.yml"
   push:
     branches:
@@ -16,6 +17,12 @@ on:
     paths:
       - "tools/community_youtube.py"
       - "tools/test_community_youtube.py"
+      - "tools/sync_videos.py"
+      - "tools/emergency_sync.py"
+      - "tools/scheduled_editorial_import.py"
+      - "tools/test_sync_videos.py"
+      - "tools/test_scheduled_editorial_import.py"
+      - "tools/test_emergency_sync.py"
       - ".github/workflows/community-extractor-tests.yml"
 permissions:
   contents: read
@@ -33,3 +40,4 @@ jobs:
           python3 tools/test_community_youtube.py
           python3 tools/test_sync_videos.py
           python3 tools/test_scheduled_editorial_import.py
+          python3 tools/test_emergency_sync.py
