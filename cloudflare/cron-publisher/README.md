@@ -1,11 +1,8 @@
 # ZazoomTek – Cloudflare Workers Cron Triggers
 
-Schedules: every day at 12:30, 16:00, 19:30 Europe/Rome. Automatic retry attempts occur every 5 minutes, with cutoffs at 13:00, 16:30 and 20:00 (exclusive). Pending content remains in the editorial queue for a later slot if all attempts fail.
+Schedule: every five minutes, 24 hours a day. Each poll checks YouTube Community and video uploads; the site is rebuilt and deployed only when verified editorial data changes. If a workflow is queued or running, the Worker skips that poll to prevent overlapping imports.
 
-UTC cron candidates cover both CET and CEST; the Worker checks the
-actual Europe/Rome clock and skips times outside the three recovery windows.
-The GitHub workflow remains responsible for all importing, site builds,
-verification, Cloudflare Pages deployment and per-slot deduplication.
+The Cron Trigger uses `*/5 * * * *` and is timezone-independent. The Worker checks GitHub Actions for an active import before dispatching the next poll. The GitHub workflow imports YouTube Community posts and videos, verifies completeness and duplicates, builds the site, and deploys Cloudflare Pages only when the editorial content digest changes.
 
 ## Configuration required in Cloudflare
 
