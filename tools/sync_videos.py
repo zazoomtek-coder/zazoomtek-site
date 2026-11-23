@@ -111,8 +111,32 @@ def _is_short_renderer(renderer):
  return False
 
 
+def _lockup_video_record(lockup):
+ if not isinstance(lockup,dict) or lockup.get("contentType")!="LOCKUP_CONTENT_TYPE_VIDEO":
+  return None
+ video_id=lockup.get("contentId")
+ metadata=lockup.get("metadata",{}).get("lockupMetadataViewModel",{})
+ title=_youtube_text(metadata.get("title")).strip()
+ if not isinstance(video_id,str) or not re.fullmatch(r"[A-Za-z0-9_-]{11}",video_id) or not title:
+  return None
+ published_label=""
+ rows=metadata.get("metadata",{}).get("contentMetadataViewModel",{}).get("metadataRows",[])
+ for row in rows if isinstance(rows,list) else []:
+  parts=row.get("metadataParts",[]) if isinstance(row,dict) else []
+  for part in parts if isinstance(parts,list) else []:
+   label=_youtube_text(part.get("text")).strip() if isinstance(part,dict) else ""
+   if re.search(r"\b\d+\s+(?:seconds?|minutes?|hours?|days?|weeks?|months?|years?)\s+ago\b|\b\d+\s+(?:secondi?|minuti?|ore|giorni?|settimane?|mesi|anni?)\s+fa\b",label,re.I):
+    published_label=label
+    break
+  if published_label:
+   break
+ return {"id":video_id,"title":title,"published_label":published_label}
+
+
 def _has_standard_video_renderer(root):
  for parent in _walk_youtube(root):
+  if _lockup_video_record(parent.get("lockupViewModel")):
+   return True
   for renderer_key in ("videoRenderer","gridVideoRenderer"):
    renderer=parent.get(renderer_key)
    if not isinstance(renderer,dict):
@@ -197,6 +221,9 @@ def discover_uploads(limit=180,max_pages=12):
  seen_tokens=set()
  for page in range(max(1,int(max_pages))):
   for parent in _walk_youtube(root):
+   lockup_record=_lockup_video_record(parent.get("lockupViewModel"))
+   if lockup_record:
+    records[lockup_record["id"]]=lockup_record
    for renderer_key in ("videoRenderer","gridVideoRenderer"):
     renderer=parent.get(renderer_key)
     if not isinstance(renderer,dict):continue
