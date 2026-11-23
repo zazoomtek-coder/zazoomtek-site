@@ -199,10 +199,12 @@ def _community_is_near_duplicate(candidate, published_rows):
             word for word in shared_body_topics
             if len(word) >= 6 or any(char.isdigit() for char in word)
         }
-        if ((len(shared_body_topics) >= 8 and shorter_body_size >= 12
-             and body_topic_coverage >= 0.52)
-                or (len(shared_body_topics) >= 5 and len(shared_body_identifiers) >= 2
-                    and shorter_body_size >= 8 and body_topic_coverage >= 0.35)):
+        # Body-level paraphrase detection must have broad overlap, not just
+        # a few coincidentally shared technical words or numbers. The former
+        # low-threshold branch incorrectly matched unrelated monitor/train posts.
+        if (len(shared_body_topics) >= 8 and shorter_body_size >= 12
+                and len(shared_body_identifiers) >= 3
+                and body_topic_coverage >= 0.60):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
         # High coverage of the shorter text catches excerpts even when the
