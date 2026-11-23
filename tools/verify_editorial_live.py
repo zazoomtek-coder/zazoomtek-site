@@ -55,22 +55,54 @@ def targets():
     for slug, row in rows("studio_overrides.json", "overrides").items():
         if slug and row.get("title") and is_today(row.get("updated_at")):
             chosen.append((live_article_route(row, slug), row["title"]))
+    manifest_path = ROOT / ".editorial-import-manifest.json"
+    imported_ids = set()
+    if manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            imported_ids = {str(value) for value in manifest.get("community_ids", []) if value}
+        except (OSError, ValueError, TypeError):
+            imported_ids = set()
     for row in rows("community_imported.json", "posts"):
-        if row.get("date") == TODAY and row.get("id") and row.get("title"):
+        if ((row.get("date") == TODAY or str(row.get("id") or "") in imported_ids)
+                and row.get("id") and row.get("title")):
             route = live_article_route(row)
             chosen.append((route, row["title"]))
     return list(dict(((slug, title) for slug, title in chosen)).items())
+
+
+def video_targets():
+    """Return the four latest channel uploads rendered in the homepage video section."""
+    records = rows("videos.json", "videos")
+    ordered = sorted(records, key=lambda row: str(row.get("date") or ""), reverse=True)
+    chosen = []
+    seen = set()
+    for row in ordered:
+        video_id = str(row.get("id") or "")
+        if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id) or not row.get("title") or video_id in seen:
+            continue
+        chosen.append((video_id, str(row["title"])))
+        seen.add(video_id)
+        if len(chosen) == 4:
+            break
+    return chosen
 
 
 def main():
     sitemap = (ROOT / "dist/sitemap.xml").read_text(encoding="utf-8")
     locs = [n.text or "" for n in ET.fromstring(sitemap).iter() if n.tag.rsplit("}", 1)[-1] == "loc"]
     selected = targets()
-    if not selected:
-        print("LIVE CHECK: no articles dated today; skipping targeted page checks")
-        return 0
+    videos = video_targets()
     problems = []
     urls = []
+    home_path = ROOT / "dist" / "index.html"
+    if not home_path.is_file():
+        problems.append("Homepage missing from built site")
+    else:
+        home_html = home_path.read_text(encoding="utf-8")
+        for video_id, title in videos:
+            if "https://www.youtube.com/watch?v=" + video_id not in home_html:
+                problems.append("YouTube video missing from built homepage: " + video_id + " (" + title[:90] + ")")
     for route, title in selected:
         matched = [html.unescape(u) for u in locs
                    if urlparse(html.unescape(u)).path.rstrip("/") == route]
@@ -96,6 +128,20 @@ def main():
         return 1
     for attempt in range(1, 7):
         pending = []
+        try:
+            req = urllib.request.Request(BASE + "/", headers={
+                "User-Agent": "ZazoomTek-Editorial-Release-Check/1.0",
+                "Cache-Control": "no-cache",
+            })
+            with urllib.request.urlopen(req, timeout=18) as response:
+                homepage = response.read().decode("utf-8", errors="replace")
+                if response.status != 200:
+                    pending.append("Homepage returned HTTP " + str(response.status))
+                for video_id, title in videos:
+                    if "https://www.youtube.com/watch?v=" + video_id not in homepage:
+                        pending.append("Video not visible on public homepage: " + video_id + " (" + title[:70] + ")")
+        except (OSError, urllib.error.URLError, ValueError) as exc:
+            pending.append("Homepage unavailable (" + str(exc)[:120] + ")")
         for url, title in urls:
             try:
                 req = urllib.request.Request(url, headers={
@@ -114,7 +160,7 @@ def main():
             except (OSError, urllib.error.URLError, ValueError) as exc:
                 pending.append(url + " (" + str(exc)[:120] + ")")
         if not pending:
-            print(f"LIVE VERIFIED: {len(urls)} today's Studio/YouTube articles on {BASE}")
+            print(f"LIVE VERIFIED: {len(urls)} Community/Studio pages and {len(videos)} homepage YouTube videos on {BASE}")
             return 0
         print(f"LIVE CHECK attempt {attempt}/6: {len(pending)} unavailable", flush=True)
         if attempt < 6:
