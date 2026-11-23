@@ -390,7 +390,9 @@ def youtube_community():
                               if isinstance(x, dict) and x.get("public_path"))
     today = datetime.now(timezone.utc).date().isoformat()
     try:
-        items = discover(limit=180, max_pages=15)
+        # Do not reopen and re-download detail pages for IDs already archived.
+        known_ids = set(str(value) for value in existing) | set(str(value) for value in archived_ids)
+        items = discover(limit=180, max_pages=15, known_ids=known_ids)
         added = []
         comparison_rows = _published_community_comparison_rows()
         duplicate_skipped = 0
