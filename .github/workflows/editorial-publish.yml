@@ -1,6 +1,6 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
-# Cloudflare may dispatch this workflow frequently; the first job is a strict Europe/Rome slot gate.
-# Manual publish_now remains an explicit owner-only override.
+# Cloudflare dispatches a five-minute polling cycle. Only verified content changes trigger a Pages deploy.
+# The legacy three daily Rome slots and explicit owner override remain accepted.
 on:
   workflow_dispatch:
     inputs:
@@ -26,13 +26,18 @@ jobs:
     outputs:
       allowed: ${{ steps.check.outputs.allowed }}
     steps:
-      - name: Blocca immediatamente ogni chiamata fuori dagli slot italiani
+      - name: Valida polling automatico o slot editoriali tradizionali
         id: check
         shell: bash
         env:
           REQUESTED_SLOT: ${{ inputs.release_slot }}
         run: |
           case "$REQUESTED_SLOT" in
+            "poll")
+              echo "allowed=true" >> "$GITHUB_OUTPUT"
+              echo "OK: polling automatico ogni cinque minuti."
+              exit 0
+              ;;
             "12:30"|"16:00"|"19:30") ;;
             *)
               echo "allowed=false" >> "$GITHUB_OUTPUT"
