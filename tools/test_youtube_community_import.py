@@ -120,23 +120,12 @@ class YouTubeCommunityTitleTypeTests(unittest.TestCase):
 
 
 class QueueCollectorClockTests(unittest.TestCase):
-    def test_intake_windows_and_release_cutoffs(self):
-        cases = {
-            "09:00": True, "12:20": True, "12:21": False,
-            "12:30": False, "12:31": True, "15:50": True,
-            "15:51": False, "16:00": False, "16:01": True,
-            "19:20": True, "19:21": False,
-        }
+    def test_collection_is_allowed_at_every_time_of_day(self):
         from datetime import time as clock_time
-        for value, expected in cases.items():
+        for value in ("00:00", "08:55", "12:20", "12:30", "15:55", "16:00", "19:25", "23:55"):
             with self.subTest(value=value):
                 hour, minute = map(int, value.split(":"))
-                self.assertEqual(queue_collect.in_intake_window(clock_time(hour, minute)), expected)
-
-    def test_datetime_clock_and_sleep_module_remain_distinct(self):
-        from datetime import time as clock_time
-        self.assertTrue(callable(clock_time))
-        self.assertTrue(callable(queue_collect.time_module.sleep))
+                self.assertTrue(queue_collect.in_intake_window(clock_time(hour, minute)))
 
 
 if __name__ == "__main__":

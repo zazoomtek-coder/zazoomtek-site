@@ -1,8 +1,5 @@
-name: ZazoomTek - raccogli YouTube in coda
+name: ZazoomTek - raccolta YouTube ogni cinque minuti
 on:
-  # Manual recovery only. The production Cron Worker now imports and publishes
-  # directly every five minutes; running a second scheduled collector would
-  # duplicate YouTube requests and compete for the same source quota.
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,22 +11,48 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
-      - uses: actions/checkout@v4
+      - name: Carica codice e dati editoriali aggiornati da main
+        uses: actions/checkout@v4
         with:
-          ref: editorial-queue
-          fetch-depth: 1
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Raccogli video e Community (09:00-12:20, 12:31-19:20, Roma)
-        run: python3 tools/queue_collect.py
-      - name: Memorizza nuove acquisizioni senza pubblicare il sito
+      - name: Ripristina la coda persistente senza usare il codice obsoleto del ramo queue
         run: |
+          git fetch --no-tags origin editorial-queue
+          mkdir -p data
+          git show origin/editorial-queue:data/queue_videos.json > data/queue_videos.json || printf '{"videos":[]}\n' > data/queue_videos.json
+          git show origin/editorial-queue:data/queue_community.json > data/queue_community.json || printf '{"posts":[]}\n' > data/queue_community.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for filename, key in (("queue_videos.json", "videos"), ("queue_community.json", "posts")):
+              path = Path("data") / filename
+              raw = path.read_text(encoding="utf-8")
+              if not raw.strip():
+                  path.write_text(json.dumps({key: []}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                  continue
+              payload = json.loads(raw)
+              if not isinstance(payload, dict) or not isinstance(payload.get(key), list):
+                  raise RuntimeError("Invalid persistent YouTube queue: " + filename)
+          PY
+      - name: Importa video e post Community da YouTube
+        run: python3 tools/queue_collect.py
+      - name: Conserva la coda aggiornata sul ramo editoriale senza pubblicare il sito
+        run: |
+          cp data/queue_videos.json /tmp/queue_videos.json
+          cp data/queue_community.json /tmp/queue_community.json
+          rm -f data/queue_videos.json data/queue_community.json
+          git checkout -B editorial-queue origin/editorial-queue
+          cp /tmp/queue_videos.json data/queue_videos.json
+          cp /tmp/queue_community.json data/queue_community.json
           git add data/queue_videos.json data/queue_community.json
           if ! git diff --cached --quiet; then
             git config user.name "ZazoomTek Queue Bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Import YouTube in coda (non pubblicato)"
+            git commit -m "Import YouTube video e Community in coda (non pubblicato)"
             git push origin HEAD:editorial-queue
           else
             echo "Nessun nuovo contenuto da accodare"

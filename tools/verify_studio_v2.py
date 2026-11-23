@@ -195,9 +195,18 @@ def verify_studio_v2(output,rows):
  changed_article={"updated":"2026-11-13","items":[{"title":"Titolo modificato"}]}
  assert editorial_value(metadata_only_b)!=editorial_value(changed_article), "Actual editorial changes must change the fingerprint"
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
- assert 'inputs: { release_slot: "poll" }' in cron and '["queued", "in_progress"]' in cron, "Cloudflare Worker must dispatch a non-overlapping five-minute poll"
+ assert '["queued", "in_progress"]' in cron, "Cloudflare Worker must avoid overlapping collection and release runs"
+ assert 'GITHUB_COLLECT_WORKFLOW || "editorial-collect.yml"' in cron, "Five-minute YouTube collector workflow missing"
+ assert 'GITHUB_PUBLISH_WORKFLOW || "editorial-publish.yml"' in cron, "Dedicated editorial publisher workflow missing"
+ assert '["12:30", "16:00", "19:30"].includes(localTime)' in cron, "Worker must publish only in the three Rome slots"
+ assert 'dispatchWorkflow(env, repo, collector)' in cron, "Worker must dispatch collection every five minutes"
+ assert 'dispatchWorkflow(env, repo, publisher, { release_slot: localTime })' in cron, "Worker must dispatch publication only at a validated slot"
  cron_config=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/wrangler.toml").read_text(encoding="utf-8")
  assert 'crons = ["*/5 * * * *"]' in cron_config, "Cloudflare Cron must poll every five minutes"
+ collector=(Path(__file__).resolve().parents[1]/".github/workflows/editorial-collect.yml").read_text(encoding="utf-8")
+ assert "python3 tools/queue_collect.py" in collector and "git push origin HEAD:editorial-queue" in collector, "Five-minute collector must persist a non-publishing queue"
+ publisher=(Path(__file__).resolve().parents[1]/".github/workflows/editorial-publish.yml").read_text(encoding="utf-8")
+ assert '"12:30"|"16:00"|"19:30"' in publisher and '"poll"' not in publisher, "Publisher must reject polling and accept only the three slots"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
  assert 'rows("studio_overrides.json", "overrides")' in live_check and 'is_today(row.get("updated_at"))' in live_check, "Live release verification must check Studio edits as well as new articles"
  # Existing original SEO is frozen when an article is edited; brand-new

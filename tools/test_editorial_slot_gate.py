@@ -7,15 +7,15 @@ from zoneinfo import ZoneInfo
 import editorial_slot_gate as gate
 
 
-class FiveMinutePollingGateTests(unittest.TestCase):
-    def test_poll_uses_stable_five_minute_window_in_rome(self):
+class CollectionOnlyPollingGateTests(unittest.TestCase):
+    def test_poll_can_never_authorize_a_public_release(self):
         now = datetime(2026, 11, 23, 16, 37, 48, tzinfo=ZoneInfo("Europe/Rome"))
         with patch.dict(os.environ, {
             "EDITORIAL_REQUESTED_SLOT": "poll",
             "EDITORIAL_FORCE_RELEASE": "false",
         }, clear=False):
             target = gate.requested_slot(now)
-        self.assertEqual(target, datetime(2026, 11, 23, 16, 35, tzinfo=ZoneInfo("Europe/Rome")))
+        self.assertIsNone(target)
 
     def test_legacy_daily_slots_remain_supported(self):
         now = datetime(2026, 11, 23, 16, 1, 0, tzinfo=ZoneInfo("Europe/Rome"))

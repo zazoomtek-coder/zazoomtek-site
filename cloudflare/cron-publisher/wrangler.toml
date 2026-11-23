@@ -3,14 +3,14 @@ main = "src/index.js"
 compatibility_date = "2026-10-31"
 workers_dev = false
 
-# Polling continuo: il Worker controlla ogni cinque minuti se il workflow
-# precedente è terminato, quindi avvia un nuovo ciclo senza sovrapposizioni.
+# YouTube collection runs every five minutes; publishing is separately gated to three Rome slots.
 [triggers]
 crons = ["*/5 * * * *"]
 
 [vars]
 GITHUB_REPO = "zazoomtek-coder/zazoomtek-site"
-GITHUB_WORKFLOW = "editorial-publish.yml"
+GITHUB_COLLECT_WORKFLOW = "editorial-collect.yml"
+GITHUB_PUBLISH_WORKFLOW = "editorial-publish.yml"
 
 [observability]
 enabled = true
