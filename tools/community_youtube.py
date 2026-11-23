@@ -120,7 +120,6 @@ def post_records(root):
    post_id=node.get("postId") or node.get("id")
    if not isinstance(post_id,str) or not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
    content=_renderer_text(node)
-   if not content:continue
    when=value(node.get("publishedTimeText") or node.get("publishedTime"))
    image_urls=[]
    attachment=node.get("backstageAttachment") or node.get("attachment") or {}
@@ -135,7 +134,15 @@ def post_records(root):
     image_urls=image_urls[:1]
    thumb=image_urls[0] if image_urls else ""
    extra_images=[{"src":url,"caption":""} for url in image_urls[1:]]
-   found[post_id]={"id":post_id,"text":content,"when":when,"image":thumb,
+   previous=found.get(post_id)
+   if previous:
+    if len(previous.get("text",""))>len(content):content=previous["text"]
+    image_urls=list(dict.fromkeys(([previous.get("image","")] if previous.get("image") else [])+
+                                  [x.get("src","") for x in previous.get("images",[]) if x.get("src")]+
+                                  image_urls))
+    thumb=image_urls[0] if image_urls else ""
+    extra_images=[{"src":url,"caption":""} for url in image_urls[1:]]
+   found[post_id]={"id":post_id,"text":content,"when":when or (previous or {}).get("when",""),"image":thumb,
                    "images":extra_images,"url":"https://www.youtube.com/post/"+post_id}
  return list(found.values())
 
