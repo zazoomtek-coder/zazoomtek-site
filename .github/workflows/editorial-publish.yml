@@ -1,6 +1,5 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
-# Cloudflare dispatches a five-minute polling cycle. Only verified content changes trigger a Pages deploy.
-# The legacy three daily Rome slots and explicit owner override remain accepted.
+# YouTube collection runs separately every five minutes. This workflow can publish only in the three Rome slots.
 on:
   workflow_dispatch:
     inputs:
@@ -10,7 +9,7 @@ on:
         type: boolean
         default: false
       release_slot:
-        description: "Slot Europe/Rome richiesto dal Worker"
+        description: "Slot di pubblicazione Europe/Rome: 12:30, 16:00 o 19:30"
         required: false
         type: string
 permissions:
@@ -26,18 +25,13 @@ jobs:
     outputs:
       allowed: ${{ steps.check.outputs.allowed }}
     steps:
-      - name: Valida polling automatico o slot editoriali tradizionali
+      - name: Valida esclusivamente i tre slot editoriali Europe/Rome
         id: check
         shell: bash
         env:
           REQUESTED_SLOT: ${{ inputs.release_slot }}
         run: |
           case "$REQUESTED_SLOT" in
-            "poll")
-              echo "allowed=true" >> "$GITHUB_OUTPUT"
-              echo "OK: polling automatico ogni cinque minuti."
-              exit 0
-              ;;
             "12:30"|"16:00"|"19:30") ;;
             *)
               echo "allowed=false" >> "$GITHUB_OUTPUT"
