@@ -18,7 +18,7 @@ STATE = ROOT / "data" / "editorial_release_state.json"
 ROME = ZoneInfo("Europe/Rome")
 SLOTS = ((12, 30), (16, 0), (19, 30))
 # Only approved editorial collections and their referenced media are fingerprinted.
-MAX_DISPATCH_DELAY_SECONDS = 3300
+MAX_DISPATCH_DELAY_SECONDS = 600
 
 
 # Each snapshot contributes only its actual editorial collection. Service-level
