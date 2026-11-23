@@ -144,13 +144,13 @@ def _has_standard_video_renderer(root):
    video_id=renderer.get("videoId")
    title=_youtube_text(renderer.get("title")).strip()
    if (isinstance(video_id,str) and re.fullmatch(r"[A-Za-z0-9_-]{11}",video_id)
-       and title and not is_short_title(title) and not _is_short_renderer(renderer)):
+       and title):
     return True
  return False
 
 
 def discover_uploads(limit=180,max_pages=12):
- """Read standard channel uploads with YouTube's Innertube Videos tab and continuation API."""
+ """Read all channel uploads, including Shorts, with YouTube Innertube and continuation API."""
  urls=(
   "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?hl=it&persist_hl=1",
   "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?view=0&sort=dd&flow=grid&hl=en&gl=US",
@@ -234,7 +234,7 @@ def discover_uploads(limit=180,max_pages=12):
     title=_youtube_text(renderer.get("title")).strip()
     published_label=_youtube_text(renderer.get("publishedTimeText")).strip()
     if (not isinstance(video_id,str) or not re.fullmatch(r"[A-Za-z0-9_-]{11}",video_id)
-        or not title or is_short_title(title) or _is_short_renderer(renderer)):
+        or not title):
      continue
     records[video_id]={"id":video_id,"title":title,"published_label":published_label}
   if len(records)>=limit:break
