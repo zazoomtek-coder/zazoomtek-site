@@ -81,6 +81,22 @@ class CommunityFullTextTests(unittest.TestCase):
             result = importer.verify_post_details([first, second])
         self.assertEqual([row["id"] for row in result], [POST_ID])
 
+    def test_community_source_falls_back_when_handle_endpoint_is_blocked(self):
+        full = "NEWS TECH: " + ("Testo completo del post. " * 8)
+        with patch.object(importer, "fetch", side_effect=["<html>blocked</html>", page(full)]) as mocked:
+            raw, root = importer.fetch_channel_posts()
+        self.assertTrue(importer.webpage_json(raw))
+        self.assertEqual(mocked.call_count, 2)
+        self.assertIn("/channel/" + importer.CHANNEL_ID + "/posts", mocked.call_args_list[1].args[0])
+
+    def test_discover_skips_known_post_ids_before_detail_requests(self):
+        full = "NEWS TECH: " + ("Post già acquisito in precedenza. " * 8)
+        with patch.object(importer, "fetch", return_value=page(full)), \\
+             patch.object(importer, "fetch_post_detail") as detail:
+            rows = importer.discover(limit=10, max_pages=1, known_ids={POST_ID})
+        self.assertEqual(rows, [])
+        detail.assert_not_called()
+
     def test_webpage_json_reads_embedded_initial_data(self):
         embedded = '<script>{"ytInitialData":{"contents":{"value":2}}}</script>'
         self.assertEqual(importer.webpage_json(embedded), {"contents": {"value": 2}})
