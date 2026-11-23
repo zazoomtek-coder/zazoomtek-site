@@ -115,18 +115,21 @@ def merge_post_media(listing, detail):
  cover=feed_cover or detail_cover
  ordered=[]
  if detail_cover and detail_cover!=cover:
-  ordered.append(detail_cover)
+  ordered.append({"src":detail_cover,"caption":""})
  for source in (listing.get("images",[]),detail.get("images",[])):
   if isinstance(source,list):
    for image in source:
     if isinstance(image,dict) and image.get("src"):
-     ordered.append(image["src"])
+     ordered.append(dict(image))
  unique=[]
- for url in ordered:
-  if url and url!=cover and url not in unique:
-   unique.append(url)
+ seen=set()
+ for image in ordered:
+  url=image.get("src","")
+  if url and url!=cover and url not in seen:
+   unique.append(image)
+   seen.add(url)
  merged["image"]=cover
- merged["images"]=[{"src":url,"caption":""} for url in unique]
+ merged["images"]=unique
  return merged
 
 
