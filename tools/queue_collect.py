@@ -46,9 +46,13 @@ def load(name,key):
     path=DATA/name
     try:
         obj=json.loads(path.read_text(encoding="utf-8"))
-        return obj.get(key,[]) if isinstance(obj,dict) else []
-    except (FileNotFoundError,ValueError,TypeError):
+    except FileNotFoundError:
         return []
+    except (ValueError,TypeError) as exc:
+        raise RuntimeError("Damaged editorial queue snapshot: "+name) from exc
+    if not isinstance(obj,dict) or not isinstance(obj.get(key,[]),list):
+        raise RuntimeError("Invalid editorial queue snapshot: "+name)
+    return obj.get(key,[])
 
 def ingest(now=None):
     now=now or datetime.now(timezone.utc)
