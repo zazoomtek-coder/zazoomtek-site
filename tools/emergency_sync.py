@@ -203,8 +203,8 @@ def _community_is_near_duplicate(candidate, published_rows):
         # a few coincidentally shared technical words or numbers. The former
         # low-threshold branch incorrectly matched unrelated monitor/train posts.
         if (len(shared_body_topics) >= 8 and shorter_body_size >= 12
-                and len(shared_body_identifiers) >= 3
-                and body_topic_coverage >= 0.60):
+                and len(shared_body_identifiers) >= 2
+                and body_topic_coverage >= 0.52):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
         # High coverage of the shorter text catches excerpts even when the
