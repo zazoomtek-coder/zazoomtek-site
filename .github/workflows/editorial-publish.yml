@@ -27,7 +27,7 @@ jobs:
   rome-slot-guard:
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    if: ${{ inputs.release_slot != 'poll' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.release_slot != 'poll' }}
     outputs:
       allowed: ${{ steps.check.outputs.allowed }}
       slot: ${{ steps.check.outputs.slot }}
