@@ -97,7 +97,7 @@ def ingest(now=None):
             pid=item.get("id")
             if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",str(pid)) or pid in seen:
                 continue
-            # Import feed text without requiring detail-page verification.
+            # discover() returns only Community posts verified on their individual detail pages.
             if not item.get("type") or len(item.get("text",""))<60:
                 continue
             item["first_seen_at"]=stamp
