@@ -160,9 +160,9 @@ def discover_uploads(limit=180,max_pages=12):
  if not root:
   raw=fallback_raw or raw
   root=fallback_root or {}
- api=re.search(r'"INNERTUBE_API_KEY"\\s*:\\s*"([^"]+)"',raw)
- client=re.search(r'"INNERTUBE_CLIENT_VERSION"\\s*:\\s*"([^"]+)"',raw)
- visitor=re.search(r'"VISITOR_DATA"\\s*:\\s*"([^"]+)"',raw)
+ api=re.search(r'"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"',raw)
+ client=re.search(r'"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"',raw)
+ visitor=re.search(r'"VISITOR_DATA"\s*:\s*"([^"]+)"',raw)
  key=api.group(1) if api else "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
  version=client.group(1) if client else "2.20260114.08.00"
  context={"client":{"clientName":"WEB","clientVersion":version,"hl":"it","gl":"IT"}}
