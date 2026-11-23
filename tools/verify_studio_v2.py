@@ -195,7 +195,9 @@ def verify_studio_v2(output,rows):
  changed_article={"updated":"2026-11-13","items":[{"title":"Titolo modificato"}]}
  assert editorial_value(metadata_only_b)!=editorial_value(changed_article), "Actual editorial changes must change the fingerprint"
  cron=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/src/index.js").read_text(encoding="utf-8")
- assert 'new Set(["12:30", "16:00", "19:30"])' in cron, "Cloudflare Worker must accept only the three exact local slots"
+ assert 'inputs: { release_slot: "poll" }' in cron and '["queued", "in_progress"]' in cron, "Cloudflare Worker must dispatch a non-overlapping five-minute poll"
+ cron_config=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/wrangler.toml").read_text(encoding="utf-8")
+ assert 'crons = ["*/5 * * * *"]' in cron_config, "Cloudflare Cron must poll every five minutes"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
  assert 'rows("studio_overrides.json", "overrides")' in live_check and 'is_today(row.get("updated_at"))' in live_check, "Live release verification must check Studio edits as well as new articles"
  # Existing original SEO is frozen when an article is edited; brand-new
