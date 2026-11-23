@@ -44,6 +44,7 @@ jobs:
         run: |
           cp data/queue_videos.json /tmp/queue_videos.json
           cp data/queue_community.json /tmp/queue_community.json
+          rm -f data/queue_videos.json data/queue_community.json
           git checkout -B editorial-queue origin/editorial-queue
           cp /tmp/queue_videos.json data/queue_videos.json
           cp /tmp/queue_community.json data/queue_community.json
