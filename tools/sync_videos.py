@@ -110,11 +110,27 @@ def _is_short_renderer(renderer):
  return False
 
 
+def _has_standard_video_renderer(root):
+ for parent in _walk_youtube(root):
+  for renderer_key in ("videoRenderer","gridVideoRenderer"):
+   renderer=parent.get(renderer_key)
+   if not isinstance(renderer,dict):
+    continue
+   video_id=renderer.get("videoId")
+   title=_youtube_text(renderer.get("title")).strip()
+   if (isinstance(video_id,str) and re.fullmatch(r"[A-Za-z0-9_-]{11}",video_id)
+       and title and not is_short_title(title) and not _is_short_renderer(renderer)):
+    return True
+ return False
+
+
 def discover_uploads(limit=180,max_pages=12):
  """Read standard channel uploads with YouTube's continuation API, not only RSS's 15 entries."""
  urls=(
   "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?hl=it&persist_hl=1",
+  "https://www.youtube.com/channel/"+CHANNEL_ID+"/videos?view=0&sort=dd&flow=grid&hl=en&gl=US",
   "https://www.youtube.com/@ZazoomTek/videos?hl=en&gl=US",
+  "https://www.youtube.com/@ZazoomTek/videos?app=desktop&hl=it",
   "https://m.youtube.com/@ZazoomTek/videos?hl=en",
  )
  raw=""
@@ -124,11 +140,14 @@ def discover_uploads(limit=180,max_pages=12):
   try:
    candidate=_fetch_channel_page(url)
    parsed=_youtube_initial_data(candidate)
-   if parsed:
+   if parsed and _has_standard_video_renderer(parsed):
     raw=candidate
     root=parsed
     break
-   failures.append(url+": no ytInitialData")
+   if parsed:
+    failures.append(url+": ytInitialData has no standard video renderers")
+   else:
+    failures.append(url+": no ytInitialData")
   except Exception as exc:
    failures.append(url+": "+type(exc).__name__)
  if not root:

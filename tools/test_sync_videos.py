@@ -87,5 +87,24 @@ class YouTubeUploadPaginationTests(unittest.TestCase):
                 importer.discover_uploads()
 
 
+    def test_skips_initial_data_shell_and_tries_next_channel_endpoint(self):
+        shell = {"contents": {"twoColumnBrowseResultsRenderer": {"tabs": []}}}
+        payload = {
+            "contents": {
+                "videoRenderer": {
+                    "videoId": "abcdefghijk",
+                    "title": {"simpleText": "First upload"},
+                    "publishedTimeText": {"simpleText": "1 day ago"},
+                }
+            }
+        }
+        with patch.object(importer, "_fetch_channel_page",
+                          side_effect=[page(shell), page(payload)]) as mocked:
+            rows = importer.discover_uploads(limit=20, max_pages=1)
+        self.assertEqual([row["id"] for row in rows], ["abcdefghijk"])
+        self.assertEqual(mocked.call_count, 2)
+
+
+
 if __name__ == "__main__":
     unittest.main()
