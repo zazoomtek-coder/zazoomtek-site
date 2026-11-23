@@ -143,9 +143,8 @@ def requested_slot(now):
 
     value = os.getenv("EDITORIAL_REQUESTED_SLOT", "")
     if value == "poll":
-        # Stable idempotency key for each five-minute polling window.
-        minute = (now.minute // 5) * 5
-        return now.replace(minute=minute, second=0, microsecond=0)
+        # Polling is collection-only; it can never authorize a public release.
+        return None
     if value not in ("12:30", "16:00", "19:30"):
         return None
     hour, minute = map(int, value.split(":"))
