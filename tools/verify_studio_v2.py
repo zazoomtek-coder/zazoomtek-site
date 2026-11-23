@@ -204,9 +204,13 @@ def verify_studio_v2(output,rows):
  cron_config=(Path(__file__).resolve().parents[1]/"cloudflare/cron-publisher/wrangler.toml").read_text(encoding="utf-8")
  assert 'crons = ["*/5 * * * *"]' in cron_config, "Cloudflare Cron must poll every five minutes"
  collector=(Path(__file__).resolve().parents[1]/".github/workflows/editorial-collect.yml").read_text(encoding="utf-8")
+ assert 'cron: "*/5 * * * *"' in collector, "GitHub fallback must collect every five minutes"
  assert "python3 tools/queue_collect.py" in collector and "git push origin HEAD:editorial-queue" in collector, "Five-minute collector must persist a non-publishing queue"
  publisher=(Path(__file__).resolve().parents[1]/".github/workflows/editorial-publish.yml").read_text(encoding="utf-8")
  assert '"12:30"|"16:00"|"19:30"' in publisher and '"poll"' not in publisher, "Publisher must reject polling and accept only the three slots"
+ for cron in ('30 10,11 * * *','0 14,15 * * *','30 17,18 * * *'):
+  assert cron in publisher, "Scheduled publisher is missing a CET/CEST UTC slot candidate: "+cron
+ assert 'EVENT_NAME: ${{ github.event_name }}' in publisher and 'TZ=Europe/Rome date +%s' in publisher, "Scheduled publisher must validate the Europe/Rome local slot"
  live_check=(Path(__file__).resolve().parents[1]/"tools/verify_editorial_live.py").read_text(encoding="utf-8")
  assert 'rows("studio_overrides.json", "overrides")' in live_check and 'is_today(row.get("updated_at"))' in live_check, "Live release verification must check Studio edits as well as new articles"
  # Existing original SEO is frozen when an article is edited; brand-new
