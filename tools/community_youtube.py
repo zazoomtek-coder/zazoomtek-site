@@ -92,11 +92,14 @@ def verify_post_details(items, workers=4):
    except Exception as exc:errors.append((feed_item["id"],exc))
  if errors:
   sample=", ".join(post_id+":"+type(exc).__name__ for post_id,exc in errors[:5])
-  raise RuntimeError("Individual YouTube post verification failed for "+str(len(errors))+
-                     " of "+str(len(items))+" posts ("+sample+"); no unverified batch imported")
+  print("YOUTUBE COMMUNITY DETAIL RETRY:",len(errors),"of",len(items),
+        "posts could not be verified; they remain eligible for the next cycle:",sample,flush=True)
+ if not results:
+  raise RuntimeError("No individual YouTube Community post could be verified; retry next cycle")
  verified=[]
  for feed_item in items:
-  detail=results[feed_item["id"]]
+  detail=results.get(feed_item["id"])
+  if not detail:continue
   feed_text=_clean_post_text(feed_item.get("text",""))
   detail_text=_clean_post_text(detail.get("text",""))
   full_text=max((feed_text,detail_text),key=len)
@@ -112,6 +115,10 @@ def verify_post_details(items, workers=4):
                   not re.search(r"(?:\.\.\.|…|\b(?:mostra altro|read more)\s*)$",detail_text,re.I))
   merged["text_complete"]=bool(detail_is_full)
   merged["text_source"]="youtube-post-detail"
+  if not detail_is_full:
+   print("YOUTUBE COMMUNITY DETAIL INCOMPLETE; retry next cycle:",
+         feed_item["id"],"feed chars",len(feed_text),"detail chars",len(detail_text),flush=True)
+   continue
   verified.append(merged)
  return verified
 
