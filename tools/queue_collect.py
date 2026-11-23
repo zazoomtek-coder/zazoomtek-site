@@ -98,7 +98,7 @@ def ingest(now=None):
     posts=load("queue_community.json","posts")
     seen|={p.get("id") for p in posts}
     try:
-        records=discover(limit=160,max_pages=12)
+        records=discover(limit=160,max_pages=12,known_ids=seen)
         for item in records:
             pid=item.get("id")
             if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",str(pid)) or pid in seen:
