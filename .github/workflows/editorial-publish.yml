@@ -1,7 +1,7 @@
 name: ZazoomTek - pubblicazione richiesta da Cloudflare Cron (Roma)
 # YouTube collection runs separately every five minutes. This workflow can publish only in the three Rome slots.
 on:
-  # UTC candidates cover both CET and CEST; the guard accepts only Rome local slots.
+  # UTC candidates cover CET and CEST. A delayed GitHub schedule may still release up to 55 minutes late; the Rome guard rejects the adjacent one-hour alternative.
   schedule:
     - cron: "30 10,11 * * *"
     - cron: "0 14,15 * * *"
@@ -46,7 +46,7 @@ jobs:
               target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $candidate" +%s)"
               delta=$((now_epoch - target_epoch))
               absolute_delta=$((delta < 0 ? -delta : delta))
-              if [ "$absolute_delta" -le 600 ]; then
+              if [ "$delta" -ge 0 ] && [ "$delta" -le 3300 ]; then
                 REQUESTED_SLOT="$candidate"
                 break
               fi
@@ -65,13 +65,13 @@ jobs:
           target_epoch="$(TZ=Europe/Rome date -d "$(TZ=Europe/Rome date +%F) $REQUESTED_SLOT" +%s)"
           delta=$((now_epoch - target_epoch))
           absolute_delta=$((delta < 0 ? -delta : delta))
-          if [ "$absolute_delta" -gt 600 ]; then
+          if [ "$delta" -lt 0 ] || [ "$delta" -gt 3300 ]; then
             echo "allowed=false" >> "$GITHUB_OUTPUT"
-            echo "STOP: dispatch fuori dalla tolleranza di 10 minuti per lo slot $REQUESTED_SLOT (scarto ${delta}s)."
+            echo "STOP: dispatch anticipato o oltre 55 minuti dallo slot $REQUESTED_SLOT (scarto ${delta}s)."
             exit 0
           fi
           echo "allowed=true" >> "$GITHUB_OUTPUT"
-          echo "OK: slot $REQUESTED_SLOT Europe/Rome accettato con scarto ${delta}s (tolleranza ±600s)."
+          echo "OK: slot $REQUESTED_SLOT Europe/Rome accettato con ritardo ${delta}s (finestra 0-3300s)."
   import-and-publish:
     needs: rome-slot-guard
     if: ${{ inputs.publish_now == true || needs.rome-slot-guard.outputs.allowed == 'true' }}
