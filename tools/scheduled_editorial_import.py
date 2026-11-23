@@ -120,12 +120,8 @@ def merge_queue(queue_file, dest_file, key, archived):
                       "matches:", matched_title[:120], flush=True)
                 continue
         else:
+            # Include ogni upload valido del canale, compresi YouTube Shorts.
             if not re.fullmatch(r"[A-Za-z0-9_-]{11}", str(rid)):
-                continue
-            title = str(r.get("title") or "")
-            link_values = " ".join(str(r.get(field) or "") for field in ("url", "link", "video_url"))
-            if (re.search(r"(?:#|\\b)shorts?\\b|/shorts/", title + " " + link_values, re.IGNORECASE)
-                    or "youtube.com/shorts/" in link_values.casefold()):
                 continue
         clean = {k: v for k, v in r.items() if k != "first_seen_at"}
         if key == "posts":
