@@ -75,12 +75,10 @@ export default {
 
     // A deploy can only be requested at these exact Europe/Rome times.
     if (["12:30", "16:00", "19:30"].includes(localTime)) {
-      if (await hasActiveRun(env, repo, publisher)) {
-        console.log("Release slot skipped: publisher is already queued or running", localTime);
-      } else {
-        await dispatchWorkflow(env, repo, publisher, { release_slot: localTime });
-        console.log("Authorized editorial release dispatched", { localTime });
-      }
+      // Never drop a required Rome slot because another run is active.
+      // GitHub Actions serializes releases through the workflow concurrency group.
+      await dispatchWorkflow(env, repo, publisher, { release_slot: localTime });
+      console.log("Authorized editorial release dispatched/queued", { localTime });
     }
   },
 };
