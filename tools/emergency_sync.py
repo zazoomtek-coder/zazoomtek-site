@@ -175,10 +175,16 @@ def _community_is_near_duplicate(candidate, published_rows):
         has_model_identifier = any(any(char.isdigit() for char in word)
                                    for word in shared_title_topics)
 
-        # Same named product/game/service with a rewritten headline. A shared
-        # brand alone is deliberately insufficient (e.g. two different Samsung devices).
-        title_topic_threshold = 0.62 if has_model_identifier else 0.72
-        if (len(shared_title_topics) >= 2 and shorter_title_size >= 2
+        # Rewritten headlines can still describe the same named product,
+        # game or collaboration. Require several shared topic terms and at
+        # least two distinctive identifiers; a brand alone is never enough.
+        shared_title_identifiers = {
+            word for word in shared_title_topics
+            if len(word) >= 6 or any(char.isdigit() for char in word)
+        }
+        title_topic_threshold = 0.55 if has_model_identifier else 0.62
+        if (len(shared_title_topics) >= 3 and len(shared_title_identifiers) >= 2
+                and shorter_title_size >= 3
                 and title_topic_coverage >= title_topic_threshold):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
@@ -189,8 +195,14 @@ def _community_is_near_duplicate(candidate, published_rows):
         body_topic_coverage = (
             len(shared_body_topics) / shorter_body_size if shorter_body_size else 0
         )
-        if (len(shared_body_topics) >= 8 and shorter_body_size >= 12
-                and body_topic_coverage >= 0.52):
+        shared_body_identifiers = {
+            word for word in shared_body_topics
+            if len(word) >= 6 or any(char.isdigit() for char in word)
+        }
+        if ((len(shared_body_topics) >= 8 and shorter_body_size >= 12
+             and body_topic_coverage >= 0.52)
+                or (len(shared_body_topics) >= 5 and len(shared_body_identifiers) >= 2
+                    and shorter_body_size >= 8 and body_topic_coverage >= 0.35)):
             return True, str(current.get("title") or current.get("slug") or current.get("id") or "articolo già pubblicato")
 
         # High coverage of the shorter text catches excerpts even when the
@@ -252,54 +264,94 @@ def classify_upload(title):
     return "video", "general"
 
 def youtube_videos():
+    """Import every standard channel upload using paginated YouTube data plus the exact-date RSS feed."""
+    from sync_videos import discover_uploads
     db = load("videos.json", "videos")
     known = {r.get("id"): r for r in db["videos"] if r.get("id")}
+    rss_items = {}
+    rss_ok = False
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL_ID
+    last_error = None
+    for attempt in range(3):
+        try:
+            request = urllib.request.Request(
+                url, headers={"User-Agent": "Mozilla/5.0 (compatible; ZazoomTek/1.0)"})
+            with urllib.request.urlopen(request, timeout=25) as response:
+                xml = ET.fromstring(response.read(2_000_000))
+            for item in xml.findall("atom:entry", NS):
+                video_id = item.findtext("yt:videoId", default="", namespaces=NS)
+                title = item.findtext("atom:title", default="", namespaces=NS)
+                published_at = item.findtext("atom:published", default="", namespaces=NS)
+                if (re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id or "")
+                        and title and published_at and not is_short_entry(item)):
+                    rss_items[video_id] = {
+                        "id": video_id, "title": title, "date": published_at,
+                    }
+            rss_ok = True
+            break
+        except Exception as error:
+            last_error = error
+            if attempt < 2:
+                time.sleep(1 + attempt)
+    if not rss_ok:
+        print("YOUTUBE VIDEO RSS UNAVAILABLE:", type(last_error).__name__ if last_error else "Error",
+              str(last_error)[:180] if last_error else "", flush=True)
+
+    browse_ok = False
+    browse_items = []
     try:
-        xml = None
-        last_error = None
-        for attempt in range(3):
-            try:
-                request = urllib.request.Request(
-                    url, headers={"User-Agent": "Mozilla/5.0 (compatible; ZazoomTek/1.0)"})
-                with urllib.request.urlopen(request, timeout=25) as response:
-                    xml = ET.fromstring(response.read(2_000_000))
-                break
-            except Exception as error:
-                last_error = error
-                if attempt < 2:
-                    time.sleep(1 + attempt)
-        if xml is None:
-            raise RuntimeError("YouTube video RSS unavailable after 3 attempts") from last_error
-        count = 0
-        recent = []
-        for item in xml.findall("atom:entry", NS):
-            video_id = item.findtext("yt:videoId", default="", namespaces=NS)
-            title = item.findtext("atom:title", default="", namespaces=NS)
-            published_at = item.findtext("atom:published", default="", namespaces=NS)
-            if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id) or not title or not published_at:
-                continue
-            if published_at[:10] >= CATCHUP_FROM:
-                recent.append((published_at[:10], title))
-            if video_id in known:
-                continue
-            if is_short_entry(item):
-                continue
-            kindtopic = classify_upload(title)
-            if not kindtopic:
-                continue
-            kind, topic = kindtopic
-            known[video_id] = {"id": video_id, "title": title, "date": published_at, "topic": topic, "kind": kind}
-            count += 1
-        db["videos"] = sorted(known.values(), key=lambda x: x.get("date", ""), reverse=True)
-        save("videos.json", db)
-        print("YOUTUBE RSS: available, added", count, "valid channel videos (all non-Short uploads); recent uploads:", len(recent), flush=True)
-        for date, title in recent[:18]:
-            print("  video", date, title[:145], flush=True)
-        return True
+        browse_items = discover_uploads(limit=180, max_pages=12)
+        if not browse_items:
+            raise RuntimeError("YouTube channel pagination returned no uploads")
+        browse_ok = True
     except Exception as exc:
-        print("YOUTUBE RSS UNAVAILABLE:", type(exc).__name__, str(exc)[:230], flush=True)
-        return False
+        print("YOUTUBE VIDEO PAGINATION UNAVAILABLE:", type(exc).__name__, str(exc)[:220], flush=True)
+
+    reference = datetime.now(timezone.utc)
+    candidates = {}
+    for item in browse_items:
+        video_id = item.get("id")
+        if not re.fullmatch(r"[A-Za-z0-9_-]{11}", str(video_id or "")):
+            continue
+        merged = dict(item)
+        if video_id in rss_items:
+            merged.update(rss_items[video_id])
+        if not merged.get("date"):
+            merged["date"] = date_from_relative(merged.get("published_label", ""), reference)
+        if merged.get("date") and merged.get("title"):
+            candidates[video_id] = merged
+    # RSS remains a useful exact-timestamp fallback if the channel page omits
+    # a renderer or its continuation response is temporarily incomplete.
+    for video_id, item in rss_items.items():
+        candidates.setdefault(video_id, item)
+
+    added = 0
+    for video_id, item in candidates.items():
+        if video_id in known:
+            continue
+        kindtopic = classify_upload(item.get("title", ""))
+        if not kindtopic:
+            continue
+        published_at = item.get("date") or ""
+        if not published_at:
+            print("YOUTUBE VIDEO SKIPPED: no reliable publication date", video_id, flush=True)
+            continue
+        kind, topic = kindtopic
+        known[video_id] = {
+            "id": video_id, "title": item["title"], "date": published_at,
+            "topic": topic, "kind": kind,
+        }
+        added += 1
+
+    db["videos"] = sorted(known.values(), key=lambda x: x.get("date", ""), reverse=True)
+    save("videos.json", db)
+    print("YOUTUBE VIDEOS: paginated channel scan", len(browse_items),
+          "RSS entries", len(rss_items), "new standard uploads", added,
+          "RSS verified", rss_ok, "pagination verified", browse_ok, flush=True)
+    if not browse_ok and rss_ok:
+        print("YOUTUBE VIDEO IMPORT PARTIAL: recent RSS uploads were retained; channel pagination will retry next slot.",
+              flush=True)
+    return browse_ok
 
 def youtube_community():
     db = load("community_imported.json", "posts")

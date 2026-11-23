@@ -15,6 +15,7 @@ from emergency_sync import (youtube_videos, youtube_community, refresh_rss, cate
                             _community_is_near_duplicate, _published_community_comparison_rows)
 from article_routes import CATEGORY_PREFIX, unique_slug
 from article_templates import author_for_category
+from community_youtube import verify_post_details
 
 DATA = Path(__file__).resolve().parents[1] / "data"
 
@@ -40,11 +41,47 @@ def read_queue(name, key):
         return []
 
 
+
+def verify_community_queue_rows(source, existing_ids, archived_ids):
+    """Re-fetch legacy queue entries before they can enter the public snapshot."""
+    trusted = []
+    pending = []
+    existing_ids = {str(value) for value in existing_ids if value}
+    archived_ids = {str(value) for value in archived_ids if value}
+    for row in source:
+        if not isinstance(row, dict):
+            continue
+        post_id = str(row.get("id") or "")
+        if not post_id or post_id in existing_ids or post_id in archived_ids:
+            continue
+        if row.get("verified_detail") is True and row.get("text_complete") is True:
+            trusted.append(row)
+        else:
+            pending.append(row)
+    if not pending:
+        return trusted
+    try:
+        verified = verify_post_details(pending)
+    except Exception as exc:
+        print("COMMUNITY QUEUE DETAIL VERIFICATION FAILED; unverified posts remain queued for retry:",
+              type(exc).__name__, str(exc)[:180], flush=True)
+        verified = []
+    return trusted + [
+        row for row in verified
+        if isinstance(row, dict)
+        and row.get("verified_detail") is True
+        and row.get("text_complete") is True
+    ]
+
 def merge_queue(queue_file, dest_file, key, archived):
     source = read_queue(queue_file, key)
     doc = snapshot(dest_file, key)
     rows = doc[key]
     ids = {r.get("id") for r in rows if isinstance(r, dict)}
+    if key == "posts":
+        # Queue snapshots created before full-text verification are not trusted.
+        # Re-fetch them here so an old excerpt cannot bypass the Community gate.
+        source = verify_community_queue_rows(source, ids, archived)
     occupied_paths = set()
     for filename in ("posts.json", "studio_posts.json", "community_imported.json", "community_full.json"):
         try:

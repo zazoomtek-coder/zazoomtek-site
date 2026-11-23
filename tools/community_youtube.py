@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Read public YouTube channel Community posts directly from the channel feed.
-No per-post detail-page verification: import the text YouTube exposes in the feed.
-"""
-import json, re, urllib.request, urllib.parse, html
+"""Read complete public YouTube Community posts, verifying each channel-feed card on its detail page."""
+import json, re, urllib.request, urllib.parse, html, time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 
 CHANNEL="https://www.youtube.com/@ZazoomTek/posts"
@@ -19,7 +18,7 @@ def fetch(url, payload=None, timeout=9):
   return result.read(4000000).decode("utf-8","replace")
 
 def webpage_json(source):
- for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*'):
+ for pattern in (r'(?:var\s+)?ytInitialData\s*=\s*',r'window\["ytInitialData"\]\s*=\s*',r'"ytInitialData"\s*:\s*'):
   match=re.search(pattern,source)
   if match:
    try:return json.JSONDecoder().raw_decode(source[match.end():])[0]
@@ -36,12 +35,145 @@ def walk(root):
   elif isinstance(x,list):stack.extend(reversed(x))
 
 def value(node):
+ """Decode YouTube rich text without stringifying renderer dictionaries."""
  if isinstance(node,str):return html.unescape(node)
  if isinstance(node,list):return "".join(value(x) for x in node)
  if not isinstance(node,dict):return ""
- if "runs" in node:return "".join(value(run) for run in node["runs"])
- if "content" in node and isinstance(node["content"],str):return html.unescape(node["content"])
- return html.unescape(str(node.get("text") or node.get("simpleText") or ""))
+ if isinstance(node.get("runs"),list):return "".join(value(run) for run in node["runs"])
+ if isinstance(node.get("content"),str):return html.unescape(node["content"])
+ if isinstance(node.get("text"),str):return html.unescape(node["text"])
+ if isinstance(node.get("simpleText"),str):return html.unescape(node["simpleText"])
+ return ""
+
+def _clean_post_text(text):
+ text=(text or "").replace("\r\n","\n").replace("\r","\n")
+ text=re.sub(r"[ \t]+\n","\n",text)
+ text=re.sub(r"\n{3,}","\n\n",text)
+ return re.sub(r"</?escape>","",text,flags=re.I).strip()
+
+def editorial_topic(title):
+ """Return the explicit tech/gaming topic encoded in an editorial heading."""
+ value_text=(title or "").strip()
+ if re.match(r"^(?:NEWS|REVIEW|RECENSIONE)(?:\s+TECH)\s*:", value_text, re.I):
+  return "tech"
+ if re.match(r"^(?:NEWS|REVIEW|RECENSIONE)(?:\s+GAMING)\s*:", value_text, re.I):
+  return "gaming"
+ if re.match(r"^RECENSIONE/REVIEW\s+TECH\s*:", value_text, re.I):
+  return "tech"
+ if re.match(r"^RECENSIONE/REVIEW\s+GAMING\s*:", value_text, re.I):
+  return "gaming"
+ return None
+
+
+def trim_youtube_promo_tail(text):
+ """Remove channel-promo material after the editorial CTA, preserving article text."""
+ value_text=(text or "").strip()
+ markers=(
+  r"\\n(?:Subscribe|Follow|YouTube|Patreon|Instagram|TikTok|X\s*:)",
+  r"\n(?:Subscribe|Follow|YouTube|Patreon|Instagram|TikTok|X\s*:)",
+ )
+ positions=[match.start() for marker in markers
+            for match in [re.search(marker,value_text,re.I)] if match]
+ return value_text[:min(positions)].rstrip() if positions else value_text
+
+def _renderer_text(node):
+ """Select the fullest available text field from a Community renderer."""
+ fields=("expandedText","expandedContentText","contentText","content","text")
+ candidates=[]
+ for key in fields:
+  candidate=_clean_post_text(value(node.get(key)))
+  if candidate and candidate not in candidates:candidates.append(candidate)
+ if not candidates:return ""
+ return max(candidates,key=len)
+
+def fetch_post_detail(post_id, attempts=3):
+ """Read the individual public post page, not just its abbreviated channel-feed card."""
+ url="https://www.youtube.com/post/"+urllib.parse.quote(post_id,safe="")+"?hl=it&persist_hl=1"
+ last_error=None
+ for attempt in range(attempts):
+  try:
+   raw=fetch(url,timeout=18)
+   root=webpage_json(raw)
+   if not root:raise ValueError("YouTube post page has no ytInitialData")
+   match=next((item for item in post_records(root) if item.get("id")==post_id),None)
+   if not match or len(match.get("text",""))<1:
+    raise ValueError("YouTube post renderer not found in individual post page")
+   return match
+  except Exception as exc:
+   last_error=exc
+   if attempt+1<attempts:time.sleep(attempt+1)
+ raise RuntimeError("Cannot verify complete YouTube Community post "+post_id) from last_error
+
+def merge_post_media(listing, detail):
+ """Merge detail metadata without losing images already extracted from the feed."""
+ listing=listing if isinstance(listing,dict) else {}
+ detail=detail if isinstance(detail,dict) else {}
+ merged=dict(listing)
+ merged.update(detail)
+ feed_cover=listing.get("image") or ""
+ detail_cover=detail.get("image") or ""
+ cover=feed_cover or detail_cover
+ ordered=[]
+ if detail_cover and detail_cover!=cover:
+  ordered.append({"src":detail_cover,"caption":""})
+ for source in (listing.get("images",[]),detail.get("images",[])):
+  if isinstance(source,list):
+   for image in source:
+    if isinstance(image,dict) and image.get("src"):
+     ordered.append(dict(image))
+ unique=[]
+ seen=set()
+ for image in ordered:
+  url=image.get("src","")
+  if url and url!=cover and url not in seen:
+   unique.append(image)
+   seen.add(url)
+ merged["image"]=cover
+ merged["images"]=unique
+ return merged
+
+
+def verify_post_details(items, workers=4):
+ """Enrich every feed record from its own post page; fail closed rather than import excerpts."""
+ if not items:return items
+ results={}
+ errors=[]
+ with ThreadPoolExecutor(max_workers=max(1,min(int(workers),6))) as pool:
+  pending={pool.submit(fetch_post_detail,item["id"]):item for item in items}
+  for future in as_completed(pending):
+   feed_item=pending[future]
+   try:results[feed_item["id"]]=future.result()
+   except Exception as exc:errors.append((feed_item["id"],exc))
+ if errors:
+  sample=", ".join(post_id+":"+type(exc).__name__ for post_id,exc in errors[:5])
+  print("YOUTUBE COMMUNITY DETAIL RETRY:",len(errors),"of",len(items),
+        "posts could not be verified; they remain eligible for the next cycle:",sample,flush=True)
+ if not results:
+  raise RuntimeError("No individual YouTube Community post could be verified; retry next cycle")
+ verified=[]
+ for feed_item in items:
+  detail=results.get(feed_item["id"])
+  if not detail:continue
+  feed_text=_clean_post_text(feed_item.get("text",""))
+  detail_text=_clean_post_text(detail.get("text",""))
+  full_text=max((feed_text,detail_text),key=len)
+  if not full_text:
+   raise ValueError("Empty Community text after detail verification: "+feed_item["id"])
+  merged=merge_post_media(feed_item, detail)
+  merged["text"]=full_text
+  merged["verified_detail"]=True
+  # A detail page that still exposes an ellipsis or fewer characters than the
+  # feed cannot certify that the entire post was recovered.
+  detail_is_full=(len(detail_text)>=len(feed_text) and
+                  not re.search(r"(?:\.\.\.|…|\b(?:mostra altro|read more)\s*)$",detail_text,re.I))
+  merged["text_complete"]=bool(detail_is_full)
+  merged["text_source"]="youtube-post-detail"
+  if not detail_is_full:
+   print("YOUTUBE COMMUNITY DETAIL INCOMPLETE; retry next cycle:",
+         feed_item["id"],"feed chars",len(feed_text),"detail chars",len(detail_text),flush=True)
+   continue
+  verified.append(merged)
+ return verified
 
 def post_records(root):
  found={}
@@ -51,11 +183,7 @@ def post_records(root):
    if not isinstance(node,dict):continue
    post_id=node.get("postId") or node.get("id")
    if not isinstance(post_id,str) or not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}",post_id):continue
-   content=value(node.get("contentText") or node.get("content") or node.get("text"))
-   content=content.replace("\r\n","\n").strip()
-   # Remove chat-rendering escape wrappers if they were pasted into a public Community post.
-   content=re.sub(r"</?escape>","",content,flags=re.I)
-   if not content:continue
+   content=_renderer_text(node)
    when=value(node.get("publishedTimeText") or node.get("publishedTime"))
    image_urls=[]
    attachment=node.get("backstageAttachment") or node.get("attachment") or {}
@@ -70,7 +198,15 @@ def post_records(root):
     image_urls=image_urls[:1]
    thumb=image_urls[0] if image_urls else ""
    extra_images=[{"src":url,"caption":""} for url in image_urls[1:]]
-   found[post_id]={"id":post_id,"text":content,"when":when,"image":thumb,
+   previous=found.get(post_id)
+   if previous:
+    if len(previous.get("text",""))>len(content):content=previous["text"]
+    image_urls=list(dict.fromkeys(([previous.get("image","")] if previous.get("image") else [])+
+                                  [x.get("src","") for x in previous.get("images",[]) if x.get("src")]+
+                                  image_urls))
+    thumb=image_urls[0] if image_urls else ""
+    extra_images=[{"src":url,"caption":""} for url in image_urls[1:]]
+   found[post_id]={"id":post_id,"text":content,"when":when or (previous or {}).get("when",""),"image":thumb,
                    "images":extra_images,"url":"https://www.youtube.com/post/"+post_id}
  return list(found.values())
 
@@ -107,10 +243,10 @@ def title_type(text):
  # Preserve the editorial category instead of collapsing every "News ..." post
  # into generic news. These values are consumed by the site importer.
  if mark.startswith(("news tech:","news gaming:")):kind="news"
- elif mark.startswith(("news guide:","guida:","guide:")):kind="guide"
+ elif mark.startswith(("news guide:","news guides:","guida:","guide:")):kind="guide"
  elif mark.startswith(("news extra:","extra:")):kind="extra"
  elif mark.startswith(("news speciali:","news special:","speciale:","special:")):kind="speciali"
- elif mark.startswith(("review:","recensione:","recensioni:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:")):kind="review"
+ elif mark.startswith(("review:","recensione:","recensioni:","recensione/review:","review tech:","review gaming:","recensione tech:","recensione gaming:","recensioni tech:","recensioni gaming:","recensione/review tech:","recensione/review gaming:")):kind="review"
  elif mark.startswith("news:"):kind="news"
  else:
   # Accept known editorial headings even when punctuation or line breaks vary.
@@ -149,6 +285,17 @@ def discover(limit=160,max_pages=12):
   body=json.dumps({"context":ctx,"continuation":token}).encode("utf-8")
   try:root=json.loads(fetch("https://www.youtube.com/youtubei/v1/browse?key="+urllib.parse.quote(key),body))
   except Exception:break
+ # Verify every discovered ID before applying title/type/length filters: the feed
+ # excerpt may be too short even to classify, while the detail page has the full post.
+ # Only detail-fetch editorial posts (plus empty-text renderers that may still
+ # contain a recoverable detail page). This avoids unnecessary requests for
+ # unrelated or non-editorial channel entries.
+ candidates=[]
+ for item in collected:
+  text=item.get("text","")
+  if not text or title_type(text)[1]:
+   candidates.append(item)
+ collected=verify_post_details(candidates)
  output=[]
  for ix,item in enumerate(collected):
   text=item["text"].strip()
