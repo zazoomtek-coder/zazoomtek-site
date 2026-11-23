@@ -33,8 +33,11 @@ jobs:
             print("CRON WORKFLOW",name,"state",doc.get("state"),"path",doc.get("path"),flush=True)
             assert doc.get("state")=="active",name+" not active"
           text=Path(".github/workflows/editorial-publish.yml").read_text(encoding="utf-8")
-          assert "cron: '25,30 12,19 * * *'" in text and "timezone: Europe/Rome" in text
-          assert "time.sleep(max(0,seconds))" in text
+          expected_crons = ('cron: "30 10,11 * * *"', 'cron: "0 14,15 * * *"', 'cron: "30 17,18 * * *"')
+          assert all(entry in text for entry in expected_crons), "Rome slot UTC fallback schedules are incomplete"
+          assert 'for candidate in "12:30" "16:00" "19:30"; do' in text, "Rome release slots do not match the approved schedule"
+          assert '[ "$delta" -le 3300 ]' in text and '[ "$delta" -gt 3300 ]' in text, "Late-slot recovery window is missing"
+          assert "Europe/Rome" in text, "Rome timezone validation is missing"
           digest=hashlib.sha256(Path("assets/css/spotnews.css").read_bytes()).hexdigest()[:12]
           request=urllib.request.Request("https://zazoomtek.it/?zazoomtek-release-audit=20261028",headers={"User-Agent":"Mozilla/5.0 (compatible; ZazoomTekSiteCheck/1.0)","Cache-Control":"no-cache","Accept":"text/html"})
           with urllib.request.urlopen(request,timeout=25) as response:
