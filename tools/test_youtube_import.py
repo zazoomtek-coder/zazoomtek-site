@@ -125,10 +125,13 @@ class YouTubeImportTests(unittest.TestCase):
         duplicate, _ = emergency_sync._community_is_near_duplicate(candidate, [published])
         self.assertFalse(duplicate)
 
-    def test_community_discovery_imports_feed_text_without_detail_verification(self):
-        with patch.object(community_youtube, "fetch", side_effect=lambda *a, **k: youtube_page()) as fetch_mock:
+    def test_community_discovery_verifies_individual_post_details(self):
+        detail = {"id": POST_ID, "text": POST_TEXT, "image": "", "images": []}
+        with patch.object(community_youtube, "fetch", side_effect=lambda *a, **k: youtube_page()) as fetch_mock, \
+             patch.object(community_youtube, "fetch_post_detail", return_value=detail) as detail_mock:
             posts = community_youtube.discover(limit=10, max_pages=2)
         self.assertEqual(fetch_mock.call_count, 1)
+        self.assertEqual(detail_mock.call_count, 1)
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0]["id"], POST_ID)
         self.assertEqual(posts[0]["text"], POST_TEXT)
