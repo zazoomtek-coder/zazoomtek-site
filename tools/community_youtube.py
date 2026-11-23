@@ -109,7 +109,7 @@ def verify_post_details(items, workers=4):
   # A detail page that still exposes an ellipsis or fewer characters than the
   # feed cannot certify that the entire post was recovered.
   detail_is_full=(len(detail_text)>=len(feed_text) and
-                  not re.search(r"(?:\\.\\.\\.|…|\\b(?:mostra altro|read more)\\s*)$",detail_text,re.I))
+                  not re.search(r"(?:\.\.\.|…|\b(?:mostra altro|read more)\s*)$",detail_text,re.I))
   merged["text_complete"]=bool(detail_is_full)
   merged["text_source"]="youtube-post-detail"
   verified.append(merged)
