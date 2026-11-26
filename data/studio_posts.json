@@ -2,7 +2,7 @@
   "posts": [
     {
       "slug": "senza-titolo",
-      "title": "Senza titolo",
+      "title": "Samsung spinge i monitor gaming fino a 1.100 Hz. Cosa significa davvero",
       "category": "speciali",
       "image": "/assets/uploads/senza-titolo/ab1605042e3e4e06adee.jpg",
       "body": [
@@ -99,10 +99,10 @@
       "cover_rotation": 0,
       "pros": [],
       "cons": [],
-      "updated_at": "2026-11-26T12:42:48.052Z",
+      "updated_at": "2026-11-26T12:43:24.240Z",
       "route_version": 2,
-      "public_slug": "senza-titolo",
       "public_path": "/speciali/senza-titolo",
+      "public_slug": "senza-titolo",
       "date": "2026-11-26",
       "published_at": "2026-11-26T12:42:48.705Z"
     },
