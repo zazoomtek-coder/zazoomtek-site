@@ -1,6 +1,112 @@
 {
   "posts": [
     {
+      "slug": "senza-titolo",
+      "title": "Senza titolo",
+      "category": "speciali",
+      "image": "/assets/uploads/senza-titolo/ab1605042e3e4e06adee.jpg",
+      "body": [
+        {
+          "type": "heading",
+          "text": "Samsung spinge i monitor gaming fino a 1.100 Hz. Cosa significa davvero"
+        },
+        {
+          "type": "heading",
+          "text": "ENGLISH OVERVIEW"
+        },
+        {
+          "type": "paragraph",
+          "text": "Samsung has announced a new Odyssey G6 gaming monitor capable of reaching 1,100Hz. But refresh rate is only one part of the picture: resolution, response time, graphics hardware and the type of games you play all matter."
+        },
+        {
+          "type": "heading",
+          "text": "Introduzione"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il mondo dei monitor gaming continua a spingersi verso frequenze di aggiornamento sempre più elevate. Il 23 novembre 2026 Samsung ha annunciato il nuovo Odyssey G6, presentandolo come il primo monitor gaming al mondo capace di raggiungere 1.100 Hz. Si tratta di un valore che attira immediatamente l'attenzione, soprattutto tra gli appassionati di competizioni online e giochi ad alta velocità. Tuttavia, un numero così elevato non deve essere interpretato come una garanzia automatica di prestazioni superiori in qualsiasi situazione. Per capire quanto possa essere utile una frequenza di aggiornamento estrema, bisogna conoscere il funzionamento del monitor e valutare anche gli altri componenti del sistema."
+        },
+        {
+          "type": "heading",
+          "text": "Che cosa indica la frequenza di aggiornamento"
+        },
+        {
+          "type": "paragraph",
+          "text": "La frequenza di aggiornamento, espressa in hertz, indica quante volte al secondo il display può aggiornare l'immagine. Un monitor da 60 Hz può aggiornare il quadro fino a 60 volte al secondo, mentre un modello da 144 Hz può arrivare a 144 aggiornamenti nello stesso intervallo. Salendo a 240, 360 o oltre, il movimento può apparire progressivamente più fluido, a condizione che il computer riesca a generare un numero adeguato di fotogrammi. Il dato non va confuso con gli FPS: gli hertz descrivono la capacità del display, mentre gli FPS indicano quanti fotogrammi vengono prodotti dalla scheda grafica e dal sistema."
+        },
+        {
+          "type": "heading",
+          "text": "Perché 1.100 Hz non significa automaticamente 1.100 FPS"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un monitor con frequenza massima di 1.100 Hz non può creare autonomamente fotogrammi aggiuntivi. Se un PC produce 120 FPS, il display non riceve improvvisamente 1.100 immagini differenti ogni secondo. Per sfruttare frequenze molto elevate serve una piattaforma capace di generare un numero di fotogrammi altrettanto alto, e questo dipende dal gioco, dalla risoluzione, dalle impostazioni grafiche, dal processore e dalla scheda video. Nei titoli competitivi meno impegnativi può essere più semplice raggiungere frame rate elevati; nei giochi moderni con grafica complessa, invece, il carico può diventare molto più pesante. È quindi fondamentale considerare il monitor insieme all'intero PC."
+        },
+        {
+          "type": "heading",
+          "text": "Il ruolo della risoluzione"
+        },
+        {
+          "type": "paragraph",
+          "text": "La risoluzione determina il numero di pixel utilizzati per comporre l'immagine. Un display con molti pixel può offrire maggiore definizione, ma richiede anche più lavoro alla GPU. Quando si confrontano monitor gaming, bisogna quindi osservare insieme risoluzione e frequenza di aggiornamento. Un valore elevato in hertz può essere interessante per chi cerca la massima reattività, ma non sostituisce la qualità dell'immagine, la densità dei pixel e la dimensione dello schermo. Prima dell'acquisto è utile capire quale compromesso sia più adatto al proprio utilizzo: competizione, giochi narrativi, simulazione, produttività o impiego misto."
+        },
+        {
+          "type": "heading",
+          "text": "Tempo di risposta, input lag e sincronizzazione"
+        },
+        {
+          "type": "paragraph",
+          "text": "La frequenza di aggiornamento non è l'unico parametro che influenza la sensazione di velocità. Il tempo di risposta descrive quanto rapidamente un pixel può cambiare stato, mentre l'input lag riguarda il ritardo tra un comando e la sua visualizzazione sullo schermo. Sono aspetti differenti, anche se spesso vengono confusi nelle schede tecniche. La sincronizzazione adattiva può inoltre aiutare a ridurre fenomeni come tearing e stuttering quando il frame rate varia. Per valutare un monitor non basta dunque leggere il valore massimo degli hertz: servono test indipendenti, misurazioni attendibili e informazioni chiare sulle condizioni nelle quali vengono raggiunti i risultati dichiarati."
+        },
+        {
+          "type": "heading",
+          "text": "A chi può servire un monitor con frequenze estreme"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le frequenze molto elevate possono avere un interesse particolare per giocatori competitivi, soprattutto in titoli nei quali rapidità di movimento e precisione sono elementi centrali. Tuttavia, il vantaggio pratico dipende dalla capacità del sistema di sostenere frame rate molto alti e dalla sensibilità del giocatore alle differenze di fluidità. Chi utilizza il PC principalmente per avventure single player, giochi strategici, lavoro e contenuti multimediali potrebbe trovare più importante investire in risoluzione, contrasto, qualità del pannello, ergonomia e dimensioni. La scelta migliore non coincide necessariamente con il dato più grande stampato sulla confezione."
+        },
+        {
+          "type": "heading",
+          "text": "Come scegliere un monitor gaming senza sbagliare"
+        },
+        {
+          "type": "paragraph",
+          "text": "Prima dell'acquisto controlla la risoluzione nativa, la diagonale, la tecnologia del pannello, la frequenza effettivamente supportata, il tempo di risposta dichiarato e le connessioni disponibili. Verifica inoltre che la scheda video disponga delle uscite necessarie e che cavo e standard di collegamento possano gestire la combinazione desiderata di risoluzione e refresh rate. È utile controllare anche regolazioni ergonomiche, compatibilità con supporti VESA, luminosità, uniformità e garanzia. Per i modelli più particolari, attendi prove tecniche che confermino la qualità reale dell'immagine e il comportamento nelle diverse modalità operative."
+        },
+        {
+          "type": "heading",
+          "text": "In conclusione: gli hertz sono importanti, ma non raccontano tutto"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il nuovo Samsung Odyssey G6 dimostra quanto il settore dei display gaming stia esplorando limiti sempre più ambiziosi. I 1.100 Hz sono un dato notevole, ma il valore concreto di un monitor dipende dall'equilibrio tra display, PC e giochi utilizzati. Non bisogna acquistare soltanto inseguendo una cifra record: risoluzione, qualità del pannello, risposta, sincronizzazione e prestazioni della GPU restano elementi decisivi per ottenere un'esperienza realmente convincente."
+        },
+        {
+          "type": "paragraph",
+          "text": "Preferiresti un monitor con frequenza di aggiornamento estrema oppure uno con risoluzione e qualità d'immagine superiori?"
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Alex",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-26T12:42:48.052Z",
+      "route_version": 2,
+      "public_slug": "senza-titolo",
+      "public_path": "/speciali/senza-titolo",
+      "date": "2026-11-26",
+      "published_at": "2026-11-26T12:42:48.705Z"
+    },
+    {
       "slug": "mobile-patch-android-di-novembre-2026-vulnerabilita-critiche-e-come-proteggere-lo-smartphone",
       "title": "MOBILE – Patch Android di novembre 2026: vulnerabilità critiche e come proteggere lo smartphone",
       "category": "guide",
