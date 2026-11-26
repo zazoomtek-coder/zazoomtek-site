@@ -11,8 +11,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from emergency_sync import (youtube_videos, youtube_community, refresh_rss, category_for_post,
-                            _community_is_near_duplicate, _published_community_comparison_rows)
+from emergency_sync import youtube_videos, youtube_community, refresh_rss, category_for_post
 from article_routes import CATEGORY_PREFIX, unique_slug
 from article_templates import author_for_category
 from community_youtube import verify_post_details
@@ -100,8 +99,8 @@ def merge_queue(queue_file, dest_file, key, archived):
         occupied_paths.update(str(x.get("public_path")) for x in overrides.values()
                               if isinstance(x, dict) and x.get("public_path"))
     added = []
-    comparison_rows = _published_community_comparison_rows() if key == "posts" else []
-    duplicate_skipped = 0
+    # For YouTube Community, preserve every distinct source ID. Similarity to
+    # an existing site article must never silently discard a channel post.
     for r in source:
         if not isinstance(r, dict):
             continue
@@ -112,12 +111,6 @@ def merge_queue(queue_file, dest_file, key, archived):
             if not (re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", str(rid)) and
                      r.get("type") and
                     len(r.get("text") or "") >= 60):
-                continue
-            duplicate, matched_title = _community_is_near_duplicate(r, comparison_rows)
-            if duplicate:
-                duplicate_skipped += 1
-                print("COMMUNITY QUEUE DUPLICATE SKIPPED:", r.get("title", "")[:120],
-                      "matches:", matched_title[:120], flush=True)
                 continue
         else:
             # Include ogni upload valido del canale, compresi YouTube Shorts.
@@ -139,8 +132,6 @@ def merge_queue(queue_file, dest_file, key, archived):
         rows.append(clean)
         ids.add(rid)
         added.append(clean)
-        if key == "posts":
-            comparison_rows.append(clean)
     if added:
         doc[key] = sorted(
             rows, key=lambda x: str(x.get("published_at") or x.get("date") or ""),
@@ -150,7 +141,7 @@ def merge_queue(queue_file, dest_file, key, archived):
             json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
         )
     print("QUEUE RESTORED", queue_file, len(added),
-          "near-duplicates skipped:", duplicate_skipped, flush=True)
+          "new unique IDs; exact IDs already present are retained without duplication", flush=True)
     return added
 
 

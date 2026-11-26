@@ -396,8 +396,8 @@ def youtube_community():
         known_ids = set(str(value) for value in existing) | set(str(value) for value in archived_ids)
         items = discover(limit=180, max_pages=15, known_ids=known_ids)
         added = []
-        comparison_rows = _published_community_comparison_rows()
-        duplicate_skipped = 0
+        # Import every distinct YouTube Community ID. Similarity to a site article
+        # is not grounds to discard a real channel post; exact IDs prevent duplicates.
         for row in items:
             post_id = row.get("id", "")
             if not re.fullmatch(r"Ug[A-Za-z0-9_-]{12,}", post_id):
@@ -413,12 +413,6 @@ def youtube_community():
                 continue
             if len(row.get("text", "")) < 60 or not row.get("type"):
                 continue
-            duplicate, matched_title = _community_is_near_duplicate(row, comparison_rows)
-            if duplicate:
-                duplicate_skipped += 1
-                print("YOUTUBE COMMUNITY DUPLICATE SKIPPED:", row.get("title", "")[:120],
-                      "matches:", matched_title[:120], flush=True)
-                continue
             row = dict(row)
             category = category_for_post(row)
             prefix = CATEGORY_PREFIX.get(category)
@@ -433,14 +427,13 @@ def youtube_community():
             occupied_paths.add(row["public_path"])
             existing[post_id] = row
             added.append(row)
-            comparison_rows.append(row)
         db["posts"] = sorted(existing.values(),
                              key=lambda p: p.get("published_at") or p.get("date") or "",
                              reverse=True)
         save("community_imported.json", db)
         print("YOUTUBE COMMUNITY: verified recent records", len(items),
-              "new full posts", len(added), "near-duplicates skipped", duplicate_skipped,
-              "total imported", len(db["posts"]), flush=True)
+              "new full posts", len(added), "duplicate IDs skipped",
+              len(items) - len(added), "total imported", len(db["posts"]), flush=True)
         for row in added[:35]:
             print("  community", row.get("date"), row.get("title", "")[:145], flush=True)
         return True

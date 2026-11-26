@@ -58,7 +58,7 @@ class YouTubeImportTests(unittest.TestCase):
             ),
         }
         candidate = {
-            "title": "Galaxy S26 Ultra, tutte le novità Samsung per foto e intelligenza artificiale",
+            "title": "NEWS TECH: Galaxy S26 Ultra, tutte le novità Samsung per foto e intelligenza artificiale",
             "text": (
                 "Il nuovo Galaxy S26 Ultra di Samsung punta su fotografia notturna, "
                 "zoom ottico, sensore aggiornato e strumenti basati sull'intelligenza artificiale."
@@ -159,7 +159,7 @@ class YouTubeImportTests(unittest.TestCase):
             self.assertEqual(saved["posts"][0]["category"], "news-tech")
             self.assertEqual(saved["posts"][0]["text"], POST_TEXT)
 
-    def test_community_import_skips_article_about_subject_already_on_site(self):
+    def test_community_import_keeps_distinct_youtube_post_even_if_subject_exists_on_site(self):
         published = {
             "title": "Samsung Galaxy S26 Ultra: nuove fotocamere e funzioni AI",
             "text": (
@@ -176,6 +176,7 @@ class YouTubeImportTests(unittest.TestCase):
             ),
             "date": "2026-11-19",
             "type": "news",
+            "topic": "tech",
         }
         imported = {"posts": []}
         saved = {}
@@ -194,15 +195,14 @@ class YouTubeImportTests(unittest.TestCase):
                 patch.object(emergency_sync, "DATA", Path(tmp)),
                 patch.object(emergency_sync, "load", side_effect=fake_load),
                 patch.object(emergency_sync, "discover", return_value=[candidate]),
-                patch.object(emergency_sync, "_published_community_comparison_rows",
-                             return_value=[published]),
                 patch.object(emergency_sync, "save",
                              side_effect=lambda name, value: saved.update({name: value}) or True),
             ):
                 self.assertTrue(emergency_sync.youtube_community())
 
         self.assertIn("community_imported.json", saved)
-        self.assertEqual(saved["community_imported.json"]["posts"], [])
+        self.assertEqual(len(saved["community_imported.json"]["posts"]), 1)
+        self.assertEqual(saved["community_imported.json"]["posts"][0]["id"], candidate["id"])
 
     def test_community_source_failure_preserves_last_valid_archive(self):
         with tempfile.TemporaryDirectory() as temp:
