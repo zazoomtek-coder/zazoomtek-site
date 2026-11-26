@@ -20,7 +20,7 @@
         },
         {
           "type": "heading",
-          "text": "Introduzione"
+          "text": ""
         },
         {
           "type": "paragraph",
@@ -99,7 +99,7 @@
       "cover_rotation": 0,
       "pros": [],
       "cons": [],
-      "updated_at": "2026-11-26T12:43:42.014Z",
+      "updated_at": "2026-11-26T12:43:52.898Z",
       "route_version": 2,
       "public_path": "/speciali/senza-titolo",
       "public_slug": "senza-titolo",
