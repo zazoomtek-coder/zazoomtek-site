@@ -1,6 +1,149 @@
 {
   "posts": [
     {
+      "slug": "come-giocare-a-gta-6-su-ps4-la-guida-per-utilizzare-una-ps5-tramite-riproduzione-remota",
+      "title": "Come giocare a GTA 6 su PS4: la guida per utilizzare una PS5 tramite Riproduzione remota",
+      "category": "guide",
+      "image": "/assets/uploads/come-giocare-a-gta-6-su-ps4-la-guida-per-utilizzare-una-ps5-tramite-riproduzione-remota/2d45d9ede6494a3f9d25.png",
+      "body": [
+        {
+          "type": "paragraph",
+          "text": "È possibile giocare a GTA 6 su PS4? Sì, ma soltanto attraverso una soluzione alternativa: la Riproduzione remota di PlayStation. Questa funzione permette di collegare la PS4 a una PS5 e di trasmettere il gioco in streaming, utilizzando il DualShock 4 per controllare l'azione. Non si tratta di una versione di GTA 6 per PS4 e non è possibile installare direttamente il gioco sulla vecchia console Sony. L'elaborazione grafica e l'esecuzione rimangono affidate interamente alla PS5."
+        },
+        {
+          "type": "heading",
+          "text": "Cosa serve per giocare a GTA 6 su PS4"
+        },
+        {
+          "type": "paragraph",
+          "text": "Prima di iniziare, è necessario disporre di alcuni requisiti fondamentali. Il primo è una PlayStation 5, sulla quale deve essere installato GTA 6 e associato al proprio account PlayStation Network. Serve poi una PS4 aggiornata, un controller DualShock 4 funzionante e una connessione Internet stabile. Le due console devono poter accedere alla rete e bisogna utilizzare lo stesso account PlayStation su entrambe. Per ottenere un'esperienza soddisfacente, Sony consiglia una connessione con almeno 15 Mbps sia in download sia in upload. È possibile utilizzare anche una connessione meno veloce, ma la qualità dello streaming potrebbe risentirne, con immagini meno definite, ritardi nei comandi o interruzioni durante il gioco."
+        },
+        {
+          "type": "heading",
+          "text": "Primo passaggio: preparare la PS5"
+        },
+        {
+          "type": "paragraph",
+          "text": "La configurazione comincia dalla PlayStation 5, che dovrà essere impostata per consentire il collegamento remoto. Accendete la console, entrate nelle Impostazioni e raggiungete la sezione Sistema. Da qui selezionate Riproduzione remota e attivate l'opzione Abilita Riproduzione remota. È consigliabile configurare anche le funzioni che permettono di riattivare la console attraverso la rete. Tornate nelle Impostazioni, aprite Sistema e successivamente Risparmio energetico. Entrate nella sezione dedicata alle funzioni disponibili in modalità di riposo e abilitate Rimani connesso a Internet e Abilita l'accensione della PS5 dalla rete. In questo modo sarà possibile collegarsi anche quando la console non è completamente accesa, purché sia in modalità di riposo e configurata correttamente."
+        },
+        {
+          "type": "image",
+          "url": "/assets/uploads/come-giocare-a-gta-6-su-ps4-la-guida-per-utilizzare-una-ps5-tramite-riproduzione-remota/d3df471f772149d5a0d8.jpg",
+          "alt": "",
+          "caption": "",
+          "align": "center",
+          "focus_x": 50,
+          "focus_y": 50,
+          "zoom": 100,
+          "rotation": 0
+        },
+        {
+          "type": "heading",
+          "text": "Secondo passaggio: collegare la PS4 alla PS5"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dopo aver preparato la console principale, passate alla PS4. Accendetela e controllate che sia aggiornata all'ultima versione disponibile del software di sistema. Nella schermata principale cercate l'applicazione PS5 Remote Play, dedicata al collegamento tra le due console. Aprite l'applicazione e selezionate l'opzione per individuare la PS5. Se richiesto, effettuate l'accesso utilizzando lo stesso account PlayStation Network già configurato sulla console di nuova generazione. La PS4 avvierà la ricerca della PS5 associata al vostro profilo e, quando la individuerà, tenterà di stabilire automaticamente la connessione. Se tutto è stato configurato correttamente, sul televisore collegato alla PS4 comparirà l'interfaccia della PS5. A quel punto potrete utilizzare il DualShock 4 per navigare nei menu della console, aprire la libreria dei giochi e selezionare GTA 6."
+        },
+        {
+          "type": "heading",
+          "text": "Terzo passaggio: avviare GTA 6"
+        },
+        {
+          "type": "paragraph",
+          "text": "Una volta stabilita la connessione remota, utilizzate il controller della PS4 per raggiungere la schermata principale della PS5. Individuate GTA 6 nella libreria oppure nella schermata dei giochi recenti e avviatelo normalmente. Il titolo verrà eseguito sulla PS5, mentre le immagini e l'audio saranno trasmessi alla PS4 attraverso la connessione di rete. I comandi impartiti con il DualShock 4 seguiranno il percorso inverso e raggiungeranno la console principale, permettendovi di giocare anche senza utilizzare direttamente il controller DualSense."
+        },
+        {
+          "type": "paragraph",
+          "text": "È importante ricordare che la PS4 non sta facendo funzionare GTA 6 autonomamente: si limita a ricevere il flusso video e a inviare i comandi alla PS5. Di conseguenza, la qualità dell'esperienza dipenderà soprattutto dalle prestazioni della rete e dalla stabilità del collegamento tra le due console."
+        },
+        {
+          "type": "image",
+          "url": "/assets/uploads/come-giocare-a-gta-6-su-ps4-la-guida-per-utilizzare-una-ps5-tramite-riproduzione-remota/8303184452a14487bf15.jpg",
+          "alt": "",
+          "caption": "",
+          "align": "center",
+          "focus_x": 50,
+          "focus_y": 50,
+          "zoom": 100,
+          "rotation": 0
+        },
+        {
+          "type": "heading",
+          "text": "Come migliorare la qualità dello streaming"
+        },
+        {
+          "type": "paragraph",
+          "text": "Per ridurre eventuali ritardi, blocchi o cali di qualità, è preferibile collegare la PS5 al router tramite cavo Ethernet. Anche la PS4 dovrebbe utilizzare una connessione stabile, possibilmente evitando reti Wi-Fi congestionate o distanti dal punto di accesso."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se l'immagine appare poco fluida oppure la connessione presenta frequenti interruzioni, potete intervenire sulle impostazioni di qualità video della Riproduzione remota. Ridurre la risoluzione o la frequenza dei fotogrammi può aiutare quando la rete non riesce a sostenere uno streaming di qualità superiore."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un altro accorgimento consiste nel limitare il traffico Internet degli altri dispositivi durante le sessioni di gioco. Download pesanti, aggiornamenti e streaming video simultanei possono sottrarre banda e peggiorare la risposta dei comandi."
+        },
+        {
+          "type": "image",
+          "url": "/assets/uploads/come-giocare-a-gta-6-su-ps4-la-guida-per-utilizzare-una-ps5-tramite-riproduzione-remota/d88367dee50340e5be26.jpg",
+          "alt": "",
+          "caption": "",
+          "align": "center",
+          "focus_x": 50,
+          "focus_y": 50,
+          "zoom": 100,
+          "rotation": 0
+        },
+        {
+          "type": "heading",
+          "text": "Cosa fare se la PS4 non trova la PS5"
+        },
+        {
+          "type": "paragraph",
+          "text": "Se l'applicazione non riesce a individuare la console, controllate innanzitutto che entrambe siano collegate a Internet e che utilizzino lo stesso account PlayStation Network. Verificate inoltre che la Riproduzione remota sia attiva nelle impostazioni della PS5 e che la console non sia completamente spenta."
+        },
+        {
+          "type": "paragraph",
+          "text": "Se il collegamento continua a non funzionare, riavviate entrambe le console, controllate gli aggiornamenti di sistema e ripetete la ricerca. Nel caso in cui la PS5 non venga individuata dopo un lungo periodo di inattività, può essere necessario accedere nuovamente al proprio account direttamente sulla console."
+        },
+        {
+          "type": "heading",
+          "text": "Conclusioni: GTA 6 su PS4 è possibile, ma con una PS5"
+        },
+        {
+          "type": "paragraph",
+          "text": "La Riproduzione remota rappresenta una soluzione interessante per chi possiede una PS4 e vuole utilizzare il televisore collegato alla vecchia console per giocare a GTA 6. La procedura non richiede modifiche hardware, jailbreak o installazioni non ufficiali: sfrutta una funzionalità prevista da Sony per controllare una PS5 da una PS4."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il requisito indispensabile rimane però la presenza di una PlayStation 5 con GTA 6 installato e funzionante. Senza questa console non è possibile utilizzare il metodo descritto. La PS4, infatti, non diventa compatibile con il gioco: permette semplicemente di accedere alla potenza della PS5 attraverso lo streaming."
+        },
+        {
+          "type": "paragraph",
+          "text": "Conoscevate già questa possibilità per utilizzare i giochi PS5 sulla vostra PS4?"
+        }
+      ],
+      "studio_blocks": true,
+      "source": "studio-editor",
+      "author": "Beppe",
+      "video_url": "",
+      "score": null,
+      "platform": "",
+      "cover_focus_x": 50,
+      "cover_focus_y": 50,
+      "cover_zoom": 100,
+      "cover_rotation": 0,
+      "pros": [],
+      "cons": [],
+      "updated_at": "2026-11-27T16:35:14.487Z",
+      "route_version": 2,
+      "public_slug": "giocare-gta-6-ps4-guida-utilizzare-ps5-tramite-riproduzione-remota",
+      "public_path": "/guide/giocare-gta-6-ps4-guida-utilizzare-ps5-tramite-riproduzione-remota",
+      "date": "2026-11-27",
+      "published_at": "2026-11-27T16:35:15.387Z"
+    },
+    {
       "slug": "gta-6-dopo-il-lancio-l-attenzione-si-sposta-anche-sulla-musica-di-vice-city",
       "title": "GTA 6, dopo il lancio l'attenzione si sposta anche sulla musica di Vice City",
       "category": "speciali",
